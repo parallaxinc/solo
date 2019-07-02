@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="EN">
+    <head>
+        <meta name="application-name" content="BlocklyProp"/>
+        <meta name="msapplication-TileColor" content="#FFFFFF"/>
+        <meta name="msapplication-TileImage" content="src/images/mstile-144x144.png"/>
+
+        <!-- Set the Cloud/Offline state of the application-->
+        <meta name="isOffline" content="true">
+
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="57x57" href="src/images/apple-touch-icon-57x57.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="114x114" href="src/images/apple-touch-icon-114x114.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="72x72" href="src/images/apple-touch-icon-72x72.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="144x144" href="src/images/apple-touch-icon-144x144.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="120x120" href="src/images/apple-touch-icon-120x120.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="152x152" href="src/images/apple-touch-icon-152x152.png"/>
+
+        <link type="image/png" rel="icon" sizes="32x32" href="src/images/favicon-32x32.png"/>
+        <link type="image/png" rel="icon" sizes="16x16" href="src/images/favicon-16x16.png"/>
+
+        <link type="text/css" rel="stylesheet" href="src/style.css"/>
+
+        <link rel="stylesheet" href="src/lib/bootstrap/core/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="src/lib/bootstrap/plugins/bootstrap-table.min.css"/>
+  
+        <title>BlocklyProp</title>
+
+        <script type="application/javascript" src="src/lib/jquery-1.11.3.min.js"></script>
+        <script type="application/javascript" src="src/lib/bootstrap/core/js/bootstrap.min.js"></script>
+        <script type="application/javascript" src="src/lib/bootstrap/plugins/jquery.bootstrap.wizard.js"></script>
+        <script type="application/javascript" src="src/lib/jquery.validate.min.js"></script>
+
+        <link rel="stylesheet" href="src/lib/simplemde.min.css"></link>
+        <script type="application/javascript" src="src/lib/simplemde.min.js"></script>
+    </head>
+
+    <body>
+        <!-- Main menu -->
+        <nav class="navbar navbar-default">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" id="nav-logo" href="/index.html">BlocklyProp Local</a>
+                </div>
+
+                <div class="collapse navbar-collapse" id="navbar-collapse">
+                    <!-- Projects and privacy notice links -->
+                    <ul class="nav navbar-nav">
+                        <li>
+                            <a href="/recent-projects.html">Recent projects</a>
+                        </li>
+                        <li>
+                            <a href="/new-project.html">New project</a>
+                        </li>
+                    </ul>
+            
+                    <!-- Online help -->
+                    <ul class="nav navbar-nav navbar-right">
+                        <!-- Help link to the Learn reference section -->
+                        <li><a href="https://learn.parallax.com/ab-blocks" target="_blank">Help</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    
+        <!-- New project details -->
+        <div id="project">
+            <div class="col-sm-8 col-sm-offset-2">
+                <form class="proj">
+                    <!-- Form title row -->
+                    <div class="row">
+                        <div class="col-sm-5 col-sm-offset-1">
+                            <h3>New project</h3>
+                        </div>
+                    </div>
+
+                    <!-- Input for project name and dropdown for device type-->
+                    <div class="row">
+                        <div class="col-sm-5 col-sm-offset-1">
+                            <div class="form-group">
+                                <label for="project-name">Project name</label>
+                                <input type="text" class="form-control" id="project-name" name="project-name"/>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-5">
+                            <div class="form-group">
+                                <label for="board-type">Board/Device type</label>
+                                <select class="form-control" id="board-type" name="board-type"> 
+                                    <option disabled="" selected="">- board/device type -</option>
+                                    <option value="activity-board">Propeller Activity Board WX</option>
+                                    <option value="s3">Scribbler Robot</option>
+                                    <option value="flip">Propeller FLiP or Project Board</option>
+                                    <option value="heb">Hackable Electronic Badge</option>
+                                    <option value="heb-wx">Badge WX</option>
+                                    <option value="other">Other</option>
+                                    <option value="propcfile">Propeller C (code only) Project</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Input for the project description -->
+                    <!-- 
+                        The projectcreation.js file attaches a Simplemde editor object
+                        to the project descriptipon field. That's not going really great
+                        at the moment.
+                    -->
+                    <div class="row">
+                        <div class="col-sm-10 col-sm-offset-1">
+                            <label for="project-description">Description</label>
+                            <textarea class="form-control" id="project-description" rows="7" name="project-description"></textarea>
+                        </div>
+
+                        <input type="hidden" id="project-type" name="project-type"/>
+                    </div>
+
+                    <!-- Form submit button (Finish) -->
+                    <div class="row">
+                        <div class="col-sm-5 col-sm-offset-1">
+                            <div class="form-group">
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <div class="form-group">
+                                <label>&nbsp;</label><br/>
+                                <input type='button' id='finish' class='btn btn-primary pull-right' name='finish' value='Finish' data-editor='/blockly/editor/' />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Have no idea why this is here -->
+                    <!-- TODO: Perhaps this gets removed? -->
+                    <div class="clearfix">
+
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <script src="src/lib/jquery.validate.min.js"></script>
+        <script src="src/utils.js"></script>
+        <script src="src/projectcreation.js"></script>
+
+                <!--# include file="/page_footer.html" -->
+
+    </body>
+</html>
+        
