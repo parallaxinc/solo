@@ -1,0 +1,5 @@
+# Ignore files and folders that do not belong in the repository
+
+
+# Intellij IDE
+.idea
