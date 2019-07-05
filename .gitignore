@@ -3,3 +3,6 @@
 
 # Intellij IDE
 .idea
+
+# Soft link to the bp-cdn repo source directory
+src
