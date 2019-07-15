@@ -90,11 +90,6 @@
         <link href="src/lib/bootstrap/core/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
         <link href="src/style-editor.css" rel="stylesheet" type="text/css" />
         <link href="src/style-clientdownload.css" rel="stylesheet" type="text/css" />
-
-        
-        
-        
-        
     </head>
     
     <body>
@@ -105,7 +100,7 @@
                         <nav class="navbar navbar-default clearfix">
                             <div style="width:100%;">
                                 <div style="display:inline;">
-                                    <a id="nav-logo" href="" class="url-prefix">BlocklyProp<br><strong>Developer</strong></a>
+                                    <a id="nav-logo" href="index.html" class="url-prefix">BlocklyProp<br><strong>Solo</strong></a>
                                 </div>
                                 <div style="display:inline;">
                                     <div style="width:100%;">
@@ -210,7 +205,7 @@
                     </div>
                     <div class="modal-body">
                         <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
-                        <input id="selectfile" type="file" onchange="uploadHandler(this.files);">
+                        <input id="selectfile" type="file" accept="image/svg+xml" onchange="uploadHandler(this.files);">
                         <div id="selectfile-verify-valid" class="alert alert-success" style="display: none;">
                             <span class="bpIcon" data-icon="checkMarkGreen">&#x2713;</span>&nbsp;
                             <span class="keyed-lang-string" data-key="editor_upload_valid"></span>
