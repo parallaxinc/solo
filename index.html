@@ -1,4 +1,25 @@
 <!DOCTYPE html>
+<!--
+  TERMS OF USE: MIT License
+
+  Permission is hereby granted, free of charge, to any person obtaining a
+  copy of this software and associated documentation files (the "Software"),
+   to deal in the Software without restriction, including without limitation
+  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+  and/or sell copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+  DEALINGS IN THE SOFTWARE.
+-->
 <html lang="EN">
     <head>
         <meta name="application-name" content="BlocklyProp"/>
@@ -24,33 +45,33 @@
 
         <script type="application/javascript" src="src/lib/jquery-1.11.3.min.js"></script>
         <script type="application/javascript" src="src/lib/bootstrap/core/js/bootstrap.min.js"></script>
-        <script type="application/javascript" src="fileManager.js"></script>
     </head>
 
     <body>
-        <!-- Main menu -->
         <nav class="navbar navbar-default">
             <div class="container">
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" id="nav-logo" href="/index.html">BlocklyProp Local</a>
+                    <div style="display:inline;">
+                        <span>
+                            <a class="navbar-brand" id="nav-logo" href="index.html">
+                                BlocklyProp <strong>Offline</strong>
+                            </a>
+                        </span>
+                    </div>
                 </div>
+                <!-- Projects -->
                 <div class="collapse navbar-collapse" id="navbar-collapse">
-                    <!-- Projects and privacy notice links -->
-                    <ul class="nav navbar-nav">
+                    <ul class="nav navbar-nav">                
                         <li>
-                            <a href="#" data-toggle="modal" data-target="#openFileModal">Open project</a>
+                            <a href="blocklyc.html?openFile=true">Open project</a>
                         </li>
+
                         <li>
-                            <a href="/new-project.html?lang=PROPC">New project</a>
+                            <!-- <a href="projectcreate.html">New project</a> -->
+                            <a href="blocklyc.html?newProject=true">New project</a>
                         </li>
                     </ul>
-        
+
                     <!-- Online help -->
                     <ul class="nav navbar-nav navbar-right">
                         <!-- Help link to the Learn reference section -->
@@ -72,70 +93,6 @@
                 <p><img class="cdn full-width" style="border: 0" src="src/images/home-banner.png" alt="Home page banner image"></p>
             </div>
         </div>
-
-        <!-- Open File modeal box -->
-        <div id="openFileModal" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <!-- Header -->
-                    <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Open a project file</h4>
-                    </div>
-
-                    <!-- Modal body -->
-                    <!-- Upload file dialog box -->
-                    <div class="modal-body">
-                        <label class="control-label">
-                            <span class="keyed-lang-string" data-key="editor_upload_selectfile"></span>
-                        </label>
-
-                        <input id="selectfile" type="file" accept=".svg,image/svg+xml" onchange="uploadFileHandler(this.files);">
-                
-                        <!-- Uploaded file is valid -->
-                        <div id="selectfile-verify-valid" class="alert alert-success" style="display: none;">
-                            <svg preserveAspectRatio="xMinYMin" xmlns="http://www.w3.org/2000/svg" width="14" height="15">
-                                <path d="M2.25,6 L5.5,9.25 12,2.5 13.5,4 5.5,12 1,7.5 Z" 
-                                      style="stroke:#3c763d;stroke-width:1;fill:#3c763d;"/>
-                            </svg>
-                            <span class="keyed-lang-string" data-key="editor_upload_valid"></span>
-                        </div>
-
-                        <!-- Uploaded file is invalid -->
-                        <div id="selectfile-verify-notvalid" class="alert alert-danger" style="display: none;">
-                            <svg preserveAspectRatio="xMinYMin" xmlns="http://www.w3.org/2000/svg" width="15" height="15">
-                                <path d="M7,8 L8,8 8,11 8,11 7,11 Z" style="stroke-width:1px;stroke:#8a6d3b;fill:none;"/>
-                                <circle cx="7.5" cy="7.5" r="6" style="stroke-width:1.3px;stroke:#8a6d3b;fill:none;"/>
-                                <circle cx="7.5" cy="5" r="1.25" style="stroke-width:0;fill:#8a6d3b;"/>
-                            </svg>
-                            <span class="keyed-lang-string" data-key="editor_upload_notvalid"></span>
-                        </div>
-
-                        <!-- Upload is the wrong board type -->
-                        <div id="selectfile-verify-boardtype" class="alert alert-warning" style="display: none;">
-                            <svg preserveAspectRatio="xMinYMin" xmlns="http://www.w3.org/2000/svg" width="15" height="15">
-                                <path d="M1,12 L2,13 13,13 14,12 8,2 7,2 1,12 Z M7.25,6 L7.75,6 7.5,9 Z" 
-                                      style="stroke-width:1.5px;stroke:#a94442;fill:none;"/>
-                                <circle cx="7.5" cy="10.75" r="1" style="stroke-width:0;fill:#a94442;"/>
-                                <circle cx="7.5" cy="5.5" r="1" style="stroke-width:0;fill:#a94442;"/>
-                            </svg>
-                            <span class="keyed-lang-string" data-key="editor_upload_boardtype_warning"></span>
-                        </div>
-                    </div>
-
-                    <!--
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" disabled="true" id="selectfile-replace" onclick="uploadMergeCode(false);"><span class="keyed-lang-string" data-key="editor_button_replace"></span></button>
-                        <button type="button" class="btn btn-primary" disabled="true" id="selectfile-append" onclick="uploadMergeCode(true);"><span class="keyed-lang-string" data-key="editor_button_append"></span></button>
-                        <button type="button" class="btn btn-default" onclick="clearUploadInfo();" data-dismiss="modal"><span class="keyed-lang-string" data-key="editor_button_cancel"></span></button>
-                    </div>
-                    -->
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Load</button>
-                    </div>
-                </div>  
-            </div>
-        </div>  <!-- End of open file modal-->
 
         <!--# include file="/page_footer.html" -->
 
