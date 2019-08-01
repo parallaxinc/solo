@@ -24,8 +24,8 @@
 <footer class="footer">
     <nav class="navbar">
         <div class="container">
-            <div>
-                <ul class="nav navbar-nav">
+            <div class="navbar-left">
+                <ul>
                     <li>
                         <a href="http://blockly.parallax.com/blockly/public/license">License</a>
                     </li>
@@ -33,11 +33,12 @@
                         <a href="http://blockly.parallax.com/blockly/public/clientdownload">BlocklyProp Client Downloads</a>
                     </li>
                 </ul>
-
-                <ul class="nav navbar-nav navbar-right">
+            </div>
+            <div class="navbar-right">
+                <ul>
                     <li>
                         <a href="http://www.parallax.com" 
-                           target="_blank">V1.3.461 Parallax &copy; 2015 - <span id="footer_copyright"></span></a>
+                           target="_blank">V1.3.462 Parallax &copy; 2015 - <span id="footer_copyright"></span></a>
                     </li>
                 </ul>
             </div>
@@ -47,8 +48,6 @@
 
 <script>
     /* display the current year in the copyright message */
-    $(document).ready(function () {
         let d = new Date();
         document.getElementById("footer_copyright").innerHTML = d.getFullYear().toString();
-    });
 </script>
