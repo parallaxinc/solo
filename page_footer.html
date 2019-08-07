@@ -5,7 +5,7 @@
             <div>
                 <ul class="nav navbar-nav">
                     <li>
-                        <a href="http://blockly.parallax.com/blockly/public/license">License</a>
+                        <a onclick="showLicense()">License</a>
                     </li>
                     <li>
                         <a href="http://blockly.parallax.com/blockly/public/clientdownload">BlocklyProp Client Downloads</a>
@@ -29,4 +29,9 @@
         let d = new Date();
         document.getElementById("footer_copyright").innerHTML = d.getFullYear().toString();
     });
+
+    // Display the BlocklyProp Solo license in a modal window
+    function showLicense() {
+        $('#licenseModal').modal();
+    }
 </script>
