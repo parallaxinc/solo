@@ -468,16 +468,19 @@
                 </div>
                 <div class="modal-body">
                     <form class="proj">
+                        <!-- project name -->
                         <div class="form-group">
                             <label for="new-project-name" class="keyed-lang-string" data-key="project_name"></label>
                             <input type="text" class="form-control" id="new-project-name" name="new-project-name" />
                         </div>
+                        <!-- project board type -->
                         <div id="new-project-board-dropdown" class="form-group">
                             <label for="board-type" class="keyed-lang-string"
                                 data-key="project_create_board_type"></label>
                             <select class="form-control" id="new-project-board-type"
                                 name="new-project-board-type"></select>
                         </div>
+                        <!-- project meta data display -->
                         <div id="edit-project-details-static" class="form-group hidden">
                             <strong class="keyed-lang-string" data-key="project_create_board_type"></strong>:&nbsp;<span
                                 id="edit-project-board-type"></span><br>
@@ -486,6 +489,7 @@
                             <strong class="keyed-lang-string" data-key="project_modified"></strong>:&nbsp;<span
                                 id="edit-project-last-modified"></span>
                         </div>
+                        <!-- project description -->
                         <div class="form-group">
                             <label for="project-description" class="keyed-lang-string"
                                 data-key="project_create_description"></label>
@@ -495,6 +499,8 @@
                         <div id="open-modal-sender" class="hidden"></div>
                     </form>
                 </div>
+
+                <!-- footer -->
                 <div class="modal-footer">
                     <button id="new-project-cancel" class="btn btn-default keyed-lang-string"
                         data-key="editor_button_cancel"></button>
