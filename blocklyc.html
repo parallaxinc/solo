@@ -216,7 +216,7 @@
                         <li class="online-only"><a href="projects.jsp" class="url-prefix"><span
                                     class="keyed-lang-string" data-key="menu_community_projects"></span></a></li>
                         <li class="online-only divider"></li>
-                        <li><a href="https://learn.parallax.com/ab-blocks" target="_blank" class="url-prefix"><span class="keyed-lang-string"
+                        <li><a id="online-help" href="https://learn.parallax.com/ab-blocks" target="_blank" class="url-prefix"><span class="keyed-lang-string"
                                     data-key="menu_help_reference"></span></a></li>
                         <li class="divider"></li>
                         <li><a id="download-side" href="#"><span class="keyed-lang-string"
@@ -251,10 +251,15 @@
 
 
     <div id="content">
+        <!-- Display Blockly blocks -->
         <div id="content_blocks" style="position: absolute; z-index: 10;"></div>
+
+        <!-- Display Prop-C code -->
         <div id="content_propc">
             <div id="code-propc"></div>
         </div>
+
+        <!-- Display XML representation of blocks -->
         <div id="content_xml">
             <div id="code-xml"></div>
         </div>
@@ -475,7 +480,7 @@
                         </div>
                         <!-- project board type -->
                         <div id="new-project-board-dropdown" class="form-group">
-                            <label for="board-type" class="keyed-lang-string"
+                            <label for="new-project-board-type" class="keyed-lang-string"
                                 data-key="project_create_board_type"></label>
                             <select class="form-control" id="new-project-board-type"
                                 name="new-project-board-type"></select>
@@ -491,7 +496,7 @@
                         </div>
                         <!-- project description -->
                         <div class="form-group">
-                            <label for="project-description" class="keyed-lang-string"
+                            <label for="new-project-description" class="keyed-lang-string"
                                 data-key="project_create_description"></label>
                             <textarea class="form-control" id="new-project-description" rows="7"
                                 name="new-project-description"></textarea>
