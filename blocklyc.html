@@ -28,7 +28,6 @@
     <meta name="projectlink" content="">
     <meta name="isOffline" content="true">
     <meta name="user-auth" content="true">
-    <!--<meta name="in-demo" content="true">-->
     <meta name="docker" content="true">
 
     <meta name="application-name" content="BlocklyProp" />
@@ -135,35 +134,43 @@
             <!-- Display current project name -->
             <div id="project-details" class="project-name-wrapper"
                 style="float:right; display: inline; position: relative; top: 2px;">
-                <span id="project-icon" class="editor-icon"></span> <span class="project-name"></span> <span
-                    class="project-owner"></span>
+                <span id="project-icon" class="editor-icon"></span>
+                <span class="project-name"></span>
+                <span class="project-owner"></span>
             </div>
         </div>
 
         <div>
             <!-- Toolbar buttons -->
             <div id="board-action-buttons" style="padding-left: 10px; display: inline;">
+                <!-- Compile program -->
                 <a id="prop-btn-comp" class="btn btn-success btn-circle auth-true" title=""
                    data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                     <span class="bpIcon" data-icon="checkMarkWhite">&#x2713;</span>
                 </a>
 
-                <a id="prop-btn-ram" data-toggle="tooltip" title="" data-placement="bottom"
-                    class="btn btn-success btn-circle disabled auth-true" data-displayas="inline-block">
-                    <span class="bpIcon" data-icon="downArrowWhite">&gt;</span>
+                <!-- Load to RAM -->
+                <a id="prop-btn-ram" class="btn btn-success btn-circle disabled auth-true" title=""
+                   data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
+                    <span class="bpIcon" data-icon="downArrowWhite"></span>
                 </a>
 
+                <!-- Load to EEPROM -->
                 <a id="prop-btn-eeprom" class="btn btn-success btn-circle disabled auth-true" title=""
                    data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                     <span class="bpIcon" data-icon="downArrowBoxWhite">&gt;&gt;</span></a>
 
-                <a id="prop-btn-term" data-toggle="tooltip" title="" data-placement="bottom"
-                    class="btn btn-primary btn-circle disabled auth-true" data-displayas="inline-block"><span
-                        class="bpIcon" data-icon="terminalWhite">#</span></a>
+                <!-- Open a terminal -->
+                <a id="prop-btn-term" class="btn btn-primary btn-circle disabled auth-true" title=""
+                   data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
+                    <span class="bpIcon" data-icon="terminalWhite">#</span>
+                </a>
 
-                <a id="prop-btn-graph" data-toggle="tooltip" title="" data-placement="bottom"
-                    class="btn btn-primary btn-circle disabled auth-true" data-displayas="inline-block"><span
-                        class="bpIcon" data-icon="graphWhite">~</span></a>
+                <!-- Open a graphing window -->
+                <a id="prop-btn-graph" class="btn btn-primary btn-circle disabled auth-true" title=""
+                   data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
+                    <span class="bpIcon" data-icon="graphWhite">~</span>
+                </a>
 
                 <a id="prop-btn-find-replace" data-toggle="tooltip" title="" data-placement="bottom"
                     class="btn btn-info btn-circle propc-only hidden"><span class="bpIcon"
