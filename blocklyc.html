@@ -21,7 +21,6 @@
   DEALINGS IN THE SOFTWARE.
 -->
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="base" content="">
@@ -97,12 +96,10 @@
     <link href="src/lib/bootstrap/core/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="src/style-editor.css" rel="stylesheet" type="text/css" />
     <link href="src/style-clientdownload.css" rel="stylesheet" type="text/css" />
-
 </head>
 
 <body>
-    <div id="editor" style="background-color:#f8f8f8; padding-top:0px; padding-bottom:5px;">
-
+    <div id="editor" style="background-color:#f8f8f8; padding-top:0; padding-bottom:5px;">
         <div id="branding" style="position: relative; top: 2px;">
             <a id="nav-logo" href="/" class="url-prefix">
                 <!-- Branding logo -->
@@ -111,6 +108,7 @@
         </div>
 
         <div>
+            <!-- BlocklyProp Client or Loader UI -->
             <div id="client-status-alerts" style="display: inline;">
                 <span class="auth-true" style="padding-left: 10px; line-height: 30px;">
                     <span id="client-searching" class="bp-client-warning">
@@ -132,13 +130,9 @@
                     <span id="client-available-short" class="bp-client-available keyed-lang-string hidden"
                         data-key="editor_client_available_short"></span>
                 </span>
-                <span class="auth-false" style="padding-left: 10px; line-height: 30px;" data-displayas="inline">
-                    <span style="font-size:13px;" class="keyed-lang-string"
-                        data-key="editor_demonstration_mode_info"></span>
-                    <span style="color:#ddd;" class="keyed-lang-string" data-key="editor_offline_title"></span>
-                </span>
             </div>
 
+            <!-- Display current project name -->
             <div id="project-details" class="project-name-wrapper"
                 style="float:right; display: inline; position: relative; top: 2px;">
                 <span id="project-icon" class="editor-icon"></span> <span class="project-name"></span> <span
@@ -147,53 +141,80 @@
         </div>
 
         <div>
-            <div style="padding-left: 10px; display: inline;" id="board-action-buttons">
-                <a id="prop-btn-comp" data-toggle="tooltip" title="" data-placement="bottom"
-                    class="btn btn-success btn-circle auth-true" data-displayas="inline-block"><span class="bpIcon"
-                        data-icon="checkMarkWhite">&#x2713;</span></a>
+            <!-- Toolbar buttons -->
+            <div id="board-action-buttons" style="padding-left: 10px; display: inline;">
+                <a id="prop-btn-comp" class="btn btn-success btn-circle auth-true" title=""
+                   data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
+                    <span class="bpIcon" data-icon="checkMarkWhite">&#x2713;</span>
+                </a>
+
                 <a id="prop-btn-ram" data-toggle="tooltip" title="" data-placement="bottom"
-                    class="btn btn-success btn-circle disabled auth-true" data-displayas="inline-block"><span
-                        class="bpIcon" data-icon="downArrowWhite">&gt;</span></a>
-                <a id="prop-btn-eeprom" data-toggle="tooltip" title="" data-placement="bottom"
-                    class="btn btn-success btn-circle disabled auth-true" data-displayas="inline-block"><span
-                        class="bpIcon" data-icon="downArrowBoxWhite">&gt;&gt;</span></a>
+                    class="btn btn-success btn-circle disabled auth-true" data-displayas="inline-block">
+                    <span class="bpIcon" data-icon="downArrowWhite">&gt;</span>
+                </a>
+
+                <a id="prop-btn-eeprom" class="btn btn-success btn-circle disabled auth-true" title=""
+                   data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
+                    <span class="bpIcon" data-icon="downArrowBoxWhite">&gt;&gt;</span></a>
+
                 <a id="prop-btn-term" data-toggle="tooltip" title="" data-placement="bottom"
                     class="btn btn-primary btn-circle disabled auth-true" data-displayas="inline-block"><span
                         class="bpIcon" data-icon="terminalWhite">#</span></a>
+
                 <a id="prop-btn-graph" data-toggle="tooltip" title="" data-placement="bottom"
                     class="btn btn-primary btn-circle disabled auth-true" data-displayas="inline-block"><span
                         class="bpIcon" data-icon="graphWhite">~</span></a>
+
                 <a id="prop-btn-find-replace" data-toggle="tooltip" title="" data-placement="bottom"
                     class="btn btn-info btn-circle propc-only hidden"><span class="bpIcon"
                         data-icon="searchWhite">&#x1F50E;</span></a>
+
                 <a id="prop-btn-pretty" data-toggle="tooltip" title="" data-placement="bottom"
                     class="btn btn-info btn-circle propc-only hidden"><span class="bpIcon"
                         data-icon="magicWandWhite">&#x2728;</span></a>
+
                 <a id="prop-btn-undo" data-toggle="tooltip" title="" data-placement="bottom"
                     class="btn btn-info btn-circle propc-only hidden"><span class="bpIcon"
                         data-icon="undoWhite">&#x293A;</span></a>
+
                 <a id="prop-btn-redo" data-toggle="tooltip" title="" data-placement="bottom"
                     class="btn btn-info btn-circle propc-only hidden"><span class="bpIcon"
                         data-icon="redoWhite">&#x293B;</span></a>
-                <span style="color:#777; font-size:11px;" class="auth-false" data-displayas="inline"><a href="login.jsp"
-                        class="url-prefix"><span class="keyed-lang-string"
-                            data-key="editor_demonstration_mode_instructions"></span></a>&nbsp;&nbsp;&nbsp;</span>
             </div>
 
-            <div id="right-menus" style="float:right; padding-right: 10px; display: inline;">
-                <select class="dropdown port-dropdown auth-true select-css" data-displayas="inline-block" title="Ports"
-                    data-placement="left" id="comPort"></select>
-                <a class="btn-view-blocks" id="btn-view-propc" style="display: none;"><span class="bpIcon"
-                        data-icon="eyeWhite">&#x1F441;</span>&nbsp;<span class="keyed-lang-string"
-                        data-key="menu_code"></span></a>
-                <a class="btn-view-blocks" id="btn-view-blocks" style="display: none;"><span class="bpIcon"
-                        data-icon="eyeWhite">&#x1F441;</span>&nbsp;<span class="keyed-lang-string"
-                        data-key="menu_blocks"></span></a>
-                <a class="btn-view-blocks" id="btn-view-xml" style="display: none;"><span class="bpIcon"
-                        data-icon="eyeWhite">&#x1F441;</span>&nbsp;<span class="keyed-lang-string"
-                        data-key="editor_view_xml"></span></a>
-                <a class="demo-function auth-true" id="save-project" style="display: inline-block;"
-                    data-displayas="inline-block"><span class="keyed-lang-string" data-key="editor_save"></span></a>
+            <div id="right-menus" style="float:right; padding-right: 15px; display: inline;">
+                <!-- Drop-down hardware port select -->
+                <select id="comPort" class="dropdown port-dropdown auth-true select-css" title="Ports"
+                        data-displayas="inline-block" data-placement="left">
+                </select>
+
+                <!-- View C source code -->
+                <a class="btn-view-blocks" id="btn-view-propc" style="display: none;">
+                    <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
+                    &nbsp;
+                    <span class="keyed-lang-string" data-key="menu_code"></span>
+                </a>
+
+                <!-- View project blocks layout -->
+                <a class="btn-view-blocks" id="btn-view-blocks" style="display: none;">
+                    <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
+                    &nbsp;
+                    <span class="keyed-lang-string" data-key="menu_blocks"></span>
+                </a>
+
+                <!-- View project XML code -->
+                <a class="btn-view-blocks" id="btn-view-xml" style="display: none;">
+                    <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
+                    &nbsp;&nbsp;
+                    <span class="keyed-lang-string" data-key="editor_view_xml"></span>
+                </a>
+
+                <!-- Save project button -->
+                <a class="demo-function auth-true" id="save-project" style="display: inline-block;" data-displayas="inline-block">
+                    <span class="keyed-lang-string" data-key="editor_save"></span>
+                </a>
+
+                <!-- Drop-down hamburger menu -->
                 <div class="dropdown" style="display: inline-block;">
                     <button class="btn btn-sm btn-default dropdown dropdown-toggle" id="options-menu" type="button"
                         data-toggle="dropdown">&#9776; <span class="caret"></span></button>
@@ -204,9 +225,12 @@
                                 id="save-project-as"><span class="keyed-lang-string"
                                     data-key="editor_save-as"></span></a></li>
                         <li class="auth-true online-only divider" data-displayas="list-item"></li>
+
+                        <!--  Online page reference -->
                         <li class="auth-true online-only" data-displayas="list-item"><a
                                 href="projectcreate.jsp?lang=PROPC" class="url-prefix"><span class="keyed-lang-string"
                                     data-key="menu_newproject_title"></span></a></li>
+
                         <li class="auth-true offline-only hidden" data-displayas="list-item"><a
                                 id="new-project-menu-item" href="#" class="url-prefix"><span class="keyed-lang-string"
                                     data-key="menu_newproject_title"></span></a></li>
@@ -252,7 +276,8 @@
 
     <div id="content">
         <!-- Display Blockly blocks -->
-        <div id="content_blocks" style="position: absolute; z-index: 10;"></div>
+        <div id="content_blocks" style="position: absolute; z-index: 10;">
+        </div>
 
         <!-- Display Prop-C code -->
         <div id="content_propc">
@@ -350,8 +375,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 id="compile-dialog-title" class="modal-title keyed-lang-string" data-key="editor_run_compile">
-                        &nbsp;</h4>
+                    <h4 id="compile-dialog-title" class="modal-title keyed-lang-string"
+                        data-key="editor_run_compile">nbsp;
+                    </h4>
                 </div>
                 <div class="modal-body">
                     <label for="compile-console" class="keyed-lang-string" data-key="editor_title_result"></label>
@@ -363,7 +389,7 @@
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+    </div><
 
     <div class="modal fade" id="console-dialog">
         <div class="modal-dialog">
