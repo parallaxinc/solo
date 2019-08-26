@@ -125,9 +125,11 @@
                         </a>
                     </span>
                     <span id="client-available" class="bp-client-available keyed-lang-string hidden"
-                        data-key="editor_client_available"></span>
+                        data-key="editor_client_available">
+                    </span>
                     <span id="client-available-short" class="bp-client-available keyed-lang-string hidden"
-                        data-key="editor_client_available_short"></span>
+                        data-key="editor_client_available_short">
+                    </span>
                 </span>
             </div>
 
@@ -231,45 +233,100 @@
 
                 <!-- Drop-down hamburger menu -->
                 <div class="dropdown" style="display: inline-block;">
-                    <button class="btn btn-sm btn-default dropdown dropdown-toggle" id="options-menu" type="button"
-                        data-toggle="dropdown">&#9776; <span class="caret"></span></button>
+                    <button id="options-menu" class="btn btn-sm btn-default dropdown dropdown-toggle" type="button"
+                        data-toggle="dropdown">&#9776;<span class="caret"></span>
+                    </button>
                     <ul class="dropdown-menu pull-right btn-sm">
-                        <li class="auth-true" data-displayas="list-item"><a id="edit-project-details"><span
-                                    class="keyed-lang-string" data-key="editor_edit-details"></span></a></li>
-                        <li class="auth-true online-only" data-displayas="list-item" id="save-as-menu-item"><a
-                                id="save-project-as"><span class="keyed-lang-string"
-                                    data-key="editor_save-as"></span></a></li>
-                        <li class="auth-true online-only divider" data-displayas="list-item"></li>
+                        <li id="edit-project-details" class="auth-true" data-displayas="list-item">
+                            <a>
+                                <span class="keyed-lang-string" data-key="editor_edit-details"></span>
+                            </a>
+                        </li>
 
-                        <!--  Online page reference -->
-                        <li class="auth-true online-only" data-displayas="list-item"><a
-                                href="projectcreate.jsp?lang=PROPC" class="url-prefix"><span class="keyed-lang-string"
-                                    data-key="menu_newproject_title"></span></a></li>
+                        <li id="save-as-menu-item" class="auth-true online-only" data-displayas="list-item">
+                            <a id="save-project-as">
+                                <span class="keyed-lang-string" data-key="editor_save-as"></span>
+                            </a>
+                        </li>
 
-                        <li class="auth-true offline-only hidden" data-displayas="list-item"><a
-                                id="new-project-menu-item" href="#" class="url-prefix"><span class="keyed-lang-string"
-                                    data-key="menu_newproject_title"></span></a></li>
-                        <li class="auth-true online-only" data-displayas="list-item"><a href="my/projects.jsp"
-                                class="url-prefix"><span class="keyed-lang-string"
-                                    data-key="menu_my_projects"></span></a></li>
-                        <li class="online-only"><a href="projects.jsp" class="url-prefix"><span
-                                    class="keyed-lang-string" data-key="menu_community_projects"></span></a></li>
+                        <li class="auth-true online-only divider" data-displayas="list-item">
+                            <!-- divider line -->
+                        </li>
+
+                        <!--  BlocklyProp Online page reference -->
+                        <!-- TODO: Remove this reference -->
+                        <li class="auth-true online-only" data-displayas="list-item">
+                            <a href="projectcreate.jsp?lang=PROPC" class="url-prefix">
+                                <span class="keyed-lang-string" data-key="menu_newproject_title"></span>
+                            </a>
+                        </li>
+
+                        <li class="auth-true offline-only hidden" data-displayas="list-item">
+                            <a id="new-project-menu-item" href="#" class="url-prefix">
+                                <span class="keyed-lang-string" data-key="menu_newproject_title"></span>
+                            </a>
+                        </li>
+
+                        <!-- BlocklyProp Online page reference -->
+                        <!-- TODO: Remove this reference -->
+                        <li class="auth-true online-only" data-displayas="list-item">
+                            <a href="my/projects.jsp" class="url-prefix">
+                                <span class="keyed-lang-string" data-key="menu_my_projects"></span>
+                            </a>
+                        </li>
+
+                        <!-- BlocklyProp Online page reference -->
+                        <!-- TODO: Remove this reference -->
+                        <li class="online-only">
+                            <a href="projects.jsp" class="url-prefix">
+                                <span class="keyed-lang-string" data-key="menu_community_projects"></span>
+                            </a>
+                        </li>
+
                         <li class="online-only divider"></li>
-                        <li><a id="online-help" href="https://learn.parallax.com/ab-blocks" target="_blank" class="url-prefix"><span class="keyed-lang-string"
-                                    data-key="menu_help_reference"></span></a></li>
+
+                        <li>
+                            <a id="online-help" class="url-prefix" href="https://learn.parallax.com/ab-blocks" target="_blank">
+                                <span class="keyed-lang-string" data-key="menu_help_reference"></span>
+                            </a>
+                        </li>
+
                         <li class="divider"></li>
-                        <li><a id="download-side" href="#"><span class="keyed-lang-string"
-                                    data-key="menu_download_simpleide"></span></a></li>
-                        <li><a id="download-project" href="#"><span class="keyed-lang-string"
-                                    data-key="editor_download"></span></a></li>
-                        <li class="auth-true" data-displayas="list-item"><a id="upload-project"><span
-                                    class="keyed-lang-string" data-key="editor_upload"></span></a></li>
+
+                        <li>
+                            <a id="download-side" href="#">
+                                <span class="keyed-lang-string" data-key="menu_download_simpleide"></span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a id="download-project" href="#">
+                                <span class="keyed-lang-string" data-key="editor_download"></span>
+                            </a>
+                        </li>
+
+                        <li class="auth-true" data-displayas="list-item">
+                            <a id="upload-project">
+                                <span class="keyed-lang-string" data-key="editor_upload"></span>
+                            </a>
+                        </li>
+
                         <li class="auth-true divider" data-displayas="list-item"></li>
-                        <li class="auth-true" data-displayas="list-item"><a id="client-setup"><span
-                                    class="keyed-lang-string" data-key="editor_run_configure"></span></a></li>
+
+                        <li class="auth-true" data-displayas="list-item">
+                            <a id="client-setup">
+                                <span class="keyed-lang-string" data-key="editor_run_configure"></span>
+                            </a>
+                        </li>
+
+                        <!-- TODO: Remove the next two <li> elements. -->
                         <li class="auth-true online-only divider" data-displayas="list-item"></li>
-                        <li class="auth-true online-only" data-displayas="list-item"><a href="logout"
-                                class="url-prefix"><span class="keyed-lang-string" data-key="logout"></span></a></li>
+
+                        <li class="auth-true online-only" data-displayas="list-item">
+                            <a class="url-prefix" href="logout" >
+                                <span class="keyed-lang-string" data-key="logout"></span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -336,9 +393,9 @@
                     <button id="selectfile-clear" class="btn btn-default keyed-lang-string" data-dismiss="modal"
                         data-key="editor_button_cancel"></button>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="save-check-dialog">
         <div class="modal-dialog">
@@ -362,9 +419,9 @@
                     <button id="save-btn" class="btn btn-primary keyed-lang-string" data-dismiss="modal"
                         data-key="project_savelink"></button>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="help-dialog">
         <div class="modal-dialog">
@@ -379,9 +436,9 @@
                     <button class="btn btn-default keyed-lang-string" data-dismiss="modal"
                         data-key="editor_button_close"></button>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
 
     <!-- Compile program modal dialog -->
     <div id="compile-dialog" class="modal fade">
@@ -405,6 +462,7 @@
         </div>
     </div>
 
+    <!-- Terminal -->
     <div class="modal fade" id="console-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -421,10 +479,11 @@
                     <button class="btn btn-default keyed-lang-string" data-dismiss="modal"
                         data-key="editor_button_close"></button>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
 
+    <!-- Graph window -->
     <div class="modal fade" id="graphing-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -460,9 +519,9 @@
                     <button class="btn btn-default keyed-lang-string" data-dismiss="modal"
                         data-key="editor_button_close"></button>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
 
     <!-- Save project with a new board type dialog -->
     <div class="modal fade" id="save-as-type-dialog">
@@ -500,8 +559,8 @@
                         data-key="editor_save-as"></button>
                 </div>
             </div>
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+        </div>
+    </div>
 
     <-- New project modal dialog -->
     <div class="modal fade" id="new-project-dialog">
