@@ -30,6 +30,14 @@
     <meta name="user-auth" content="true">
     <meta name="docker" content="true">
 
+    <!-- BlockyProp Client download links -->
+    <meta name="win32client" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-32.exe">
+    <meta name="win32zipclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-32.zip">
+    <meta name="win64client" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-64.exe">
+    <meta name="win64zipclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-64.zip">
+    <meta name="macOSclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-MacOS.pkg">
+
+
     <meta name="application-name" content="BlocklyProp" />
     <meta name="msapplication-TileColor" content="#FFFFFF" />
     <meta name="msapplication-TileImage" content="src/images/mstile-144x144.png" />
@@ -237,12 +245,11 @@
                         data-toggle="dropdown">&#9776;<span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu pull-right btn-sm">
-                        <li id="edit-project-details" class="auth-true" data-displayas="list-item">
-                            <a>
+                        <li class="auth-true" data-displayas="list-item">
+                            <a id="edit-project-details">
                                 <span class="keyed-lang-string" data-key="editor_edit-details"></span>
                             </a>
                         </li>
-
                         <li id="save-as-menu-item" class="auth-true online-only" data-displayas="list-item">
                             <a id="save-project-as">
                                 <span class="keyed-lang-string" data-key="editor_save-as"></span>
@@ -824,6 +831,16 @@
                             </a>
                         </div>
 
+                        <!-- Windows x32 client zip file -->
+                        <div class="client Windows">
+                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                                 data-src="images/os-icons/windows.png" alt="Windows OS icon" />
+                            <a href="#" class="client-win32zip-link">
+                                <span class="keyed-lang-string"
+                                      data-key="clientdownload_client_windows32zip_installer"></span>
+                            </a>
+                        </div>
+
                         <!-- Windows x64 client -->
                         <div class="client Windows">
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
@@ -831,6 +848,17 @@
                             <a href="#" class="client-win64-link">
                                 <span class="keyed-lang-string"
                                     data-key="clientdownload_client_windows64_installer"></span>
+                            </a>
+                        </div>
+
+
+                        <!-- Windows x64 client -->
+                        <div class="client Windows">
+                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                                 data-src="images/os-icons/windows.png" alt="Windows OS icon" />
+                            <a href="#" class="client-win64zip-link">
+                                <span class="keyed-lang-string"
+                                      data-key="clientdownload_client_windows64zip_installer"></span>
                             </a>
                         </div>
 
