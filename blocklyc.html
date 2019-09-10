@@ -38,9 +38,13 @@
     <meta name="macOSclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-MacOS.pkg">
 
 
-    <meta name="application-name" content="BlocklyProp" />
+    <meta name="application-name" content="BlocklyProp Solo" />
     <meta name="msapplication-TileColor" content="#FFFFFF" />
     <meta name="msapplication-TileImage" content="src/images/mstile-144x144.png" />
+
+    <link type="image/png" rel="icon" sizes="32x32" href="src/images/favicon-32x32.png" />
+    <link type="image/png" rel="icon" sizes="16x16" href="src/images/favicon-16x16.png" />
+
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="57x57"
         href="src/images/apple-touch-icon-57x57.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="114x114"
@@ -53,8 +57,6 @@
         href="src/images/apple-touch-icon-120x120.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="152x152"
         href="src/images/apple-touch-icon-152x152.png" />
-    <link type="image/png" rel="icon" sizes="32x32" href="src/images/favicon-32x32.png" />
-    <link type="image/png" rel="icon" sizes="16x16" href="src/images/favicon-16x16.png" />
 
     <title>BlocklyProp Solo</title>
 
@@ -150,8 +152,9 @@
             </div>
         </div>
 
+        <!-- Toolbars and hamburger menu -->
         <div>
-            <!-- Toolbar buttons -->
+            <!-- Left Toolbar buttons -->
             <div id="board-action-buttons" style="padding-left: 10px; display: inline;">
                 <!-- Compile program -->
                 <a id="prop-btn-comp" class="btn btn-success btn-circle auth-true" title=""
@@ -207,6 +210,7 @@
                 </a>
             </div>
 
+            <!-- Right Toolbar buttons and menu -->
             <div id="right-menus" style="float:right; padding-right: 15px; display: inline;">
                 <!-- Drop-down hardware port select -->
                 <select id="comPort" class="dropdown port-dropdown auth-true select-css" title="Ports"
@@ -246,7 +250,7 @@
                     </button>
                     <ul class="dropdown-menu pull-right btn-sm">
                         <li class="auth-true" data-displayas="list-item">
-                            <a id="edit-project-details">
+                            <a id="edit-project-details" href="#">
                                 <span class="keyed-lang-string" data-key="editor_edit-details"></span>
                             </a>
                         </li>
@@ -298,6 +302,7 @@
         </div>
     </div>
 
+    <!-- PropC native coding toolbar -->
     <div id="find-replace" style="background-color: #ddd; display: none; padding: 5px;">
         <span class="keyed-lang-string indent-left-double" data-key="editor_find_label"></span>
         <input type="text" class="input-find-replace" id="propc-find" name="propc-find" />&nbsp;
@@ -310,6 +315,7 @@
         <button id="find-replace-close" class="close margin-left-double">&times;</button>
     </div>
 
+    <!-- Blockly canvas -->
     <div id="content">
         <!-- Display Blockly blocks -->
         <div id="content_blocks" style="position: absolute; z-index: 10;"></div>
@@ -325,47 +331,58 @@
         </div>
     </div>
 
-    <!-- Upload an svg file -->
+    <!-- Save or Upload an svg file -->
     <div class="modal fade" id="upload-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
+                    <!-- Closes the dialog when the button is clicked -->
                     <button id="upload-close" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 id="upload-dialog-title" class="modal-title keyed-lang-string" data-key="editor_upload">&nbsp;
                     </h4>
                 </div>
                 <div class="modal-body">
+                    <!-- Upload a project. Results stored in localStorage -->
                     <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
                     <input id="selectfile" type="file" accept=".svg,image/svg+xml" onchange="uploadHandler(this.files);">
+
                     <div id="selectfile-verify-valid" class="alert alert-success" style="display: none;">
                         <span class="bpIcon" data-icon="checkMarkGreen">&#x2713;</span>&nbsp;
                         <span class="keyed-lang-string" data-key="editor_upload_valid"></span>
                     </div>
+                    <!-- Uploaded file failed sanity checks -->
                     <div id="selectfile-verify-notvalid" class="alert alert-danger" style="display: none;">
                         <span class="bpIcon" data-icon="dangerTriangle">!!</span>&nbsp;
                         <span class="keyed-lang-string" data-key="editor_upload_notvalid"></span>
                     </div>
+
+                    <!-- Board type has changed -->
                     <div id="selectfile-verify-boardtype" class="alert alert-warning" style="display: none;">
                         <span class="bpIcon" data-icon="warningCircle">!</span>&nbsp;
                         <span class="keyed-lang-string" data-key="editor_upload_boardtype_warning"></span>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="selectfile-replace" class="btn btn-danger keyed-lang-string"
-                        data-key="editor_button_replace"></button>
-                    <button id="selectfile-append" class="btn btn-primary keyed-lang-string"
-                        data-key="editor_button_append"></button>
-                    <button id="selectfile-clear" class="btn btn-default keyed-lang-string" data-dismiss="modal"
+                    <button id="selectfile-replace" class="btn btn-danger btn-sm keyed-lang-string"
+                        data-key="editor_button_replace" onclick="uploadMergeCode(false);"></button>
+
+                    <button id="selectfile-append" class="btn btn-primary btn-sm keyed-lang-string"
+                        data-key="editor_button_append" onclick="uploadMergeCode(true);"></button>
+
+                    <!-- Closes the dialog when the button is clicked -->
+                    <button id="selectfile-clear" class="btn btn-default btn-sm keyed-lang-string" data-dismiss="modal"
                         data-key="editor_button_cancel"></button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Project save timer modal dialog -->
     <div class="modal fade" id="save-check-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
+                    <!-- Place an 'X' in the upper right corner to allow the dialog to be dismissed -->
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 id="save-check-title" class="modal-title keyed-lang-string" data-key="editor_save-check">&nbsp;
                     </h4>
@@ -388,6 +405,7 @@
         </div>
     </div>
 
+    <!-- TODO: Help dialog is probably not used -->
     <div class="modal fade" id="help-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -527,14 +545,20 @@
         </div>
     </div>
 
-    <-- New project modal dialog -->
+
+    <!--
+     Development going here.
+     Create a new project modal dialog
+    -->
     <div class="modal fade" id="new-project-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
+
                 <div class="modal-header">
                     <h4 id="new-project-dialog-title" class="modal-title keyed-lang-string"
                         data-key="editor_newproject_title">&nbsp;</h4>
                 </div>
+
                 <div class="modal-body">
                     <form class="proj">
                         <!-- project name -->
@@ -545,9 +569,9 @@
                         <!-- project board type -->
                         <div id="new-project-board-dropdown" class="form-group">
                             <label for="new-project-board-type" class="keyed-lang-string"
-                                data-key="project_create_board_type"></label>
+                                   data-key="project_create_board_type"></label>
                             <select class="form-control" id="new-project-board-type"
-                                name="new-project-board-type"></select>
+                                    name="new-project-board-type"></select>
                         </div>
                         <!-- project meta data display -->
                         <div id="edit-project-details-static" class="form-group hidden">
@@ -561,9 +585,9 @@
                         <!-- project description -->
                         <div class="form-group">
                             <label for="new-project-description" class="keyed-lang-string"
-                                data-key="project_create_description"></label>
+                                   data-key="project_create_description"></label>
                             <textarea class="form-control" id="new-project-description" rows="7"
-                                name="new-project-description"></textarea>
+                                      name="new-project-description"></textarea>
                         </div>
                         <!-- Hidden field to store a mode. possible values are 'open' and '' -->
                         <div id="open-modal-sender" class="hidden"></div>
@@ -573,13 +597,118 @@
                 <!-- footer -->
                 <div class="modal-footer">
                     <button id="new-project-cancel" class="btn btn-default keyed-lang-string"
-                        data-key="editor_button_cancel"></button>
+                            data-key="editor_button_cancel"></button>
                     <button id="new-project-continue" class="btn btn-primary keyed-lang-string"
+                            data-key="editor_button_continue"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- New project modal dialog -->
+    <div class="modal fade" id="create-project-dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 id="create-project-dialog-title" class="modal-title keyed-lang-string"
+                        data-key="editor_newproject_title">&nbsp;</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="proj">
+                        <!-- project name -->
+                        <div class="form-group">
+                            <label for="new-project-name" class="keyed-lang-string" data-key="project_name"></label>
+                            <input type="text" class="form-control" id="create-project-name" name="new-project-name" />
+                        </div>
+                        <!-- project board type -->
+                        <div id="create-project-board-dropdown" class="form-group">
+                            <label for="new-project-board-type" class="keyed-lang-string"
+                                data-key="project_create_board_type"></label>
+                            <select class="form-control" id="create-project-board-type"
+                                name="new-project-board-type"></select>
+                        </div>
+
+                        <!-- project description -->
+                        <div class="form-group">
+                            <label for="create-project-description" class="keyed-lang-string"
+                                data-key="project_create_description"></label>
+                            <textarea id="create-project-description" class="form-control"  rows="7"
+                                name="new-project-description"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- footer -->
+                <div class="modal-footer">
+                    <button id="create-project-cancel" class="btn btn-default keyed-lang-string"
+                        data-key="editor_button_cancel"></button>
+                    <button id="create-project-continue" class="btn btn-primary keyed-lang-string"
                         data-key="editor_button_continue"></button>
                 </div>
             </div>
         </div>
     </div>
+
+
+    <!-- Edit project details modal -->
+    <div class="modal fade" id="edit-project-dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 id="edit-project-dialog-title" class="modal-title keyed-lang-string"
+                        data-key="editor_edit-details">&nbsp;</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form class="proj">
+                        <!-- project name. Default is derived from projectData object -->
+                        <div class="form-group">
+                            <label for="edit-project-name" class="keyed-lang-string" data-key="project_name"></label>
+                            <input type="text" class="form-control" id="edit-project-name" name="edit-project-name" />
+                        </div>
+                        <!-- project board type -->
+<!--
+                        <div id="edit-project-board-dropdown" class="form-group">
+                            <label for="new-project-board-type" class="keyed-lang-string"
+                                   data-key="project_create_board_type"></label>
+                            <select class="form-control" id="edit-project-board-type-select"
+                                    name="new-project-board-type"></select>
+                        </div>
+-->
+                        <!-- project meta data display -->
+                        <div id="edit-project-details-ro" class="form-group">
+                            <strong class="keyed-lang-string" data-key="project_create_board_type"></strong>:&nbsp;<span
+                                id="edit-project-board-type-ro"></span><br>
+                            <strong class="keyed-lang-string" data-key="project_created"></strong>:&nbsp;<span
+                                id="edit-project-created-date-ro"></span><br>
+                            <strong class="keyed-lang-string" data-key="project_modified"></strong>:&nbsp;<span
+                                id="edit-project-last-modified-ro"></span>
+                        </div>
+                        <!-- project description -->
+                        <div class="form-group">
+                            <label for="new-project-description" class="keyed-lang-string"
+                                   data-key="project_create_description"></label>
+                            <textarea class="form-control" id="edit-project-description" rows="7"
+                                      name="new-project-description"></textarea>
+                        </div>
+                        <!-- Hidden field to store a mode. possible values are 'open' and '' -->
+                        <div id="open-modal-sender" class="hidden"></div>
+                    </form>
+                </div>
+
+                <!-- footer -->
+                <div class="modal-footer">
+                    <button id="edit-project-cancel" class="btn btn-default keyed-lang-string"
+                            data-key="editor_button_cancel"></button>
+                    <button id="edit-project-continue" class="btn btn-primary keyed-lang-string"
+                            data-key="editor_button_continue"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- BlocklyProp Client download instructions -->
     <div class="modal fade" id="client-download-modal">
@@ -736,6 +865,7 @@
         </div>
     </div>
 
+    <!-- Enumerate the versions of the client installer available -->
     <div class="modal fade" id="client-version-modal">
         <div class="modal-dialog">
             <div class="modal-content">
