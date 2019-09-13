@@ -8,13 +8,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zfi/solo.git"
+    "url": "git+https://github.com/parallaxinc/solo.git"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zfi/solo/issues"
+    "url": "https://github.com/parallaxinc/solo/issues"
   },
-  "homepage": "https://github.com/zfi/solo#readme"
+  "homepage": "https://github.com/parallaxinc/solo#readme"
 }
