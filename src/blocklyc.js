@@ -1169,6 +1169,9 @@ var select_com_port = function (com_port) {
  * Check for active com ports when the DOM processing has finished
  */
 $(document).ready(function () {
+    // Display the app name in the upper-left corner of the page
+    showAppName();
+
     check_com_ports();
 });
 
@@ -1496,4 +1499,10 @@ function graph_update_labels() {
             }
         }
     }
+}
+
+// Display the application name
+function showAppName() {
+    let html = 'BlocklyProp<br><strong>Solo</strong>';
+    $('#nav-logo').html(html);
 }
