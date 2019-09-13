@@ -45,38 +45,7 @@
 
         <script type="application/javascript" src="src/lib/jquery-1.11.3.min.js"></script>
         <script type="application/javascript" src="src/lib/bootstrap/core/js/bootstrap.min.js"></script>
-
-        <script>
-            // Update page elements
-            $(document).ready(function () {
-                showAppName();
-                showAppBannerTitle('Solo');
-                setCopyrightDate($('#footer_copyright'));
-                setCopyrightDate($('#license-copyright-date'));
-            });
-
-            // Display the BlocklyProp Solo license in a modal window
-            function showLicense() {
-                $('#licenseModal').modal();
-            }
-
-            // Display the application name
-            function showAppName() {
-                let html = 'BlocklyProp<br><strong>Solo</strong>';
-                $('#nav-logo').html(html);
-            }
-
-             // Display the app name in the banner
-            function showAppBannerTitle(appName) {
-                $('#app-banner-title').html('BlocklyProp ' + appName);
-            }
-
-            // Set the ending copyright date
-            function setCopyrightDate(element) {
-                let d = new Date();
-                element.html(d.getFullYear().toString());
-            }
-        </script>
+        <script type="application/javascript" src="src/index.js"></script>
     </head>
 
     <body>
@@ -85,14 +54,12 @@
                 <div id="nav-logo" class="navbar-header">
                     <!-- Branding logo -->
                 </div>
-
                 <!-- Projects -->
                 <div class="collapse navbar-collapse" id="navbar-collapse">
                     <ul class="nav navbar-nav">                
                         <li><a href="blocklyc.html?openFile=true">Open project</a></li>
                         <li><a href="blocklyc.html?newProject=true">New project</a></li>
                     </ul>
-
                     <!-- Online help -->
                     <ul class="nav navbar-nav navbar-right">
                         <!-- Help link to the Learn reference section -->
@@ -101,7 +68,6 @@
                 </div>
             </div>
         </div>
-
         <!-- page body -->
         <div class="container">
             <!-- Splash image -->
@@ -115,7 +81,6 @@
                          style="border: 0" alt="Home page banner image">
                 </p>
             </div>
-
             <!-- license -->
             <div class="container-fluid">
                 <!-- License modal window -->
@@ -154,9 +119,21 @@
                 </div> <!-- end of license window -->
             </div>
         </div>
-
-
-        <!--# include file="/page_footer.html" -->
-
+        <!-- page footer -->
+        <div class="footer">
+            <div class="navbar">
+                <div class="container">
+                    <div>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a onclick="showLicense()">License</a></li>
+                            <li>
+                                <a href="http://www.parallax.com" target="_blank">
+                                v1.3.483 Parallax &copy; 2015 - <span id="footer_copyright"></span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
