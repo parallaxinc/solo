@@ -21,8 +21,12 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+
+//TODO: Remove this file.
+//  The query references an element in blocklyc.html
+
 /**
- * TODO: What is this code doing and why?
+ *
  */
 $(document).ready(function() {
     $("#content h1").addClass("page-header");

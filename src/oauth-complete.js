@@ -21,8 +21,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-// TODO: This code is clearly redirecting the browser, but there is no
-//  explanation for why this is being done or how it gets triggered.
+// TODO: Remove this file. It is unreferenced.
 
 $(document).ready(function () {
     var redirect = $("body").data('redirect');
