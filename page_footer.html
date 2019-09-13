@@ -17,15 +17,3 @@
     </nav>
 </footer>
 
-<script>
-    /* display the current year in the copyright message */
-    $(document).ready(function () {
-        let d = new Date();
-        document.getElementById("footer_copyright").innerHTML = d.getFullYear().toString();
-    });
-
-    // Display the BlocklyProp Solo license in a modal window
-    function showLicense() {
-        $('#licenseModal').modal();
-    }
-</script>
