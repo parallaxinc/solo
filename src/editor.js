@@ -1707,7 +1707,7 @@ function initToolbox(profileName) {
     const blocklyOptions = {
         toolbox: filterToolbox(profileName),
         trashcan: true,
-        media: cdnUrl + 'blockly/media/',
+        media: cdnUrl + 'images/blockly/',
         readOnly: (profileName === 'propcfile'),
         //path: cdnUrl + 'blockly/',
         comments: false,
