@@ -358,7 +358,7 @@ Blockly.MSG_OLED_DRAW_LINE_TOOLTIP = "Display draw line: set start and end point
 Blockly.MSG_OLED_DRAW_TRIANGLE_TOOLTIP = "Display draw triangle: set x,y position of each corner.";
 Blockly.MSG_OLED_DRAW_RECTANGLE_TOOLTIP = "Display draw rectangle: set x,y position of each corner.";
 Blockly.MSG_OLED_DRAW_CIRCLE_TOOLTIP = "Display draw circle: x,y of center point, radius, color, fill. ";
-Blockly.MSG_OLED_BITMAP_TOOLTIP = "Display Bitmap: Enter the name of the file (don't include the .bmp at the end) and the\nx,y position (top-left corner) to begin drawing the bitmap image."
+Blockly.MSG_OLED_BITMAP_TOOLTIP = "Display Bitmap: Enter the name of the file (don't include the .bmp at the end) and the\nx,y position (top-left corner) to begin drawing the bitmap image.";
 Blockly.MSG_CONSOLE_PRINT_TOOLTIP = "Terminal print text: display contents of string block.";
 Blockly.MSG_CONSOLE_PRINT_VARIABLES_TOOLTIP = "Terminal print number: display value as decimal, hex, binary, or ASCII.";
 Blockly.MSG_CONSOLE_PRINT_MULTIPLE_TOOLTIP = "Terminal print multiple: send attached values or text to the terminal.";
@@ -371,7 +371,7 @@ Blockly.MSG_CONSOLE_CLOSE_TOOLTIP = "Terminal close: closes the Simple Terminal 
 Blockly.MSG_SERIAL_OPEN_TOOLTIP = "Serial initialize: match to Propeller I/O pin connections and device Baud rate.";
 Blockly.MSG_SERIAL_TX_TOOLTIP = "Serial transmit number: sends 32-bit integer as 4 bytes MSB-first.";
 Blockly.MSG_SERIAL_SEND_TEXT_TOOLTIP = "Serial transmit text: sends text as characters terminated by a 0 (NULL).";
-Blockly.MSG_SERIAL_STATUS_TOOLTIP = "Serial status: returns true (1), false (0), or a character depending on the status of the serial connection and the type of status requested."
+Blockly.MSG_SERIAL_STATUS_TOOLTIP = "Serial status: returns true (1), false (0), or a character depending on the status of the serial connection and the type of status requested.";
 Blockly.MSG_SERIAL_RX_TOOLTIP = "Serial receive number: receives 4 bytes MSB first and stores a a 32-bit integer.";
 Blockly.MSG_SERIAL_RECEIVE_TEXT_TOOLTIP = "Serial receive text: receives and stores characters into a variable until a 0 (NULL).";
 Blockly.MSG_SERIAL_PRINT_MULTIPLE_TOOLTIP = "Serial send multiple: send attached values or text to the device connected to the specified pin.";
@@ -549,7 +549,7 @@ Blockly.MSG_HEB_TOGGLE_LED_OPEN_TOOLTIP = "Badge set LED: turn the specified LED
 Blockly.MSG_HEB_TOGGLE_LED_TOOLTIP = "Badge set LED: turn the specified LED on or off.";
 Blockly.MSG_HEB_TOUCHPAD_SENSITIVITY_TOOLTIP = "Touch sensitivty: sets the sensitivity of the touchpads (A & B) on the badge.";
 Blockly.MSG_HEB_TOUCHPAD_STATUS_TOOLTIP = "Button: returns the state of the specified rocker or touchpad button (1) pressed, (0) not pressed. ";
-Blockly.MSG_HEB_WX_LOCK_TOOLTIP = "Badge WiFi Lock: set the badge to allow or prevent itself from being programmed over WiFi."
+Blockly.MSG_HEB_WX_LOCK_TOOLTIP = "Badge WiFi Lock: set the badge to allow or prevent itself from being programmed over WiFi.";
 
 
 //-------Scribbler 3 help URLs ---------------------------------------------
@@ -829,8 +829,8 @@ page_text_label['editor_replace_label'] = "Replace: ";
 page_text_label['editor_newproject_c'] = "Propeller C";
 page_text_label['editor_newproject_spin'] = "Scribbler Robot";
 page_text_label['editor_newproject_title'] = "New project";
-page_text_label['editor_open'] = "Open blocks file"
-page_text_label['editor_import'] = "Import blocks file"
+page_text_label['editor_open'] = "Open blocks file";
+page_text_label['editor_import'] = "Import blocks file";
 page_text_label['editor_project'] = "Project";
 page_text_label['editor_projects_title'] = "Projects";
 page_text_label['editor_run_compile'] = "Compile";
@@ -1101,7 +1101,7 @@ var tooltip_text = [
     ['btn-graph-csv','Download graph data as CSV'],
     ['btn-graph-clear','Clear the graph'],
     ['project-form-shared', 'Make project visible to other users'],
-    ['project-form-private', 'Hide project from other users']
+    ['project-form-private', 'Hide project from other users'],
     ['project-form-edit-shared', 'Make project visible to other users'],
     ['project-form-edit-private', 'Hide project from other users']
 ];
@@ -1110,12 +1110,14 @@ var tooltip_text = [
 
 // If online, return the full help URL, if offline, open a modal
 
+// TODO: Need offline help system
+
 /**
  * Load the block's help page in a new window.
  * @private
  */
 Blockly.BlockSvg.prototype.showHelp_ = function () {
-    var url = goog.isFunction(this.helpUrl) ? this.helpUrl() : this.helpUrl;
+    let url = goog.isFunction(this.helpUrl) ? this.helpUrl() : this.helpUrl;
 
     if (!isOffline && url) {
         // Display help in a new browser window
@@ -1133,7 +1135,8 @@ Blockly.BlockSvg.prototype.showHelp_ = function () {
 
         // Help is supposed to be in the /cdn/help folder. That does not
             // yet exist.
-        u = 'cdn/help/' + u.replace(/\//g, '-') + '.html';
+
+//        let u = 'cdn/help/' + u.replace(/\//g, '-') + '.html';
 
         // Disable this until the help issue is addressed. Refeence issue Solo-26
         //$('#help-content').html('<iframe src="' + u + '" style="height:600px; border:none;" />');
