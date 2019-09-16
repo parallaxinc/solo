@@ -1,8 +1,5 @@
 # Ignore files and folders that do not belong in the repository
 
-
 # Intellij IDE
 .idea
 
-# Soft link to the bp-cdn repo source directory
-src
