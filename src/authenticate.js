@@ -22,6 +22,8 @@
 
 /**
  *  Submit a login form and process the result
+ *
+ *  @deprecated Scheduled for removal (issue #83)
  */
 $(document).ready(function () {
     var loginForm = $('#loginform');
@@ -47,6 +49,7 @@ $(document).ready(function () {
  * @param statusText
  * @param xhr
  * @param $form
+ * @deprecated Scheduled for removal (issue #83)
  */
 function onLoginSuccess(response, statusText, xhr, $form) {
     if (response.success === true) {
