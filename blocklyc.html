@@ -1,25 +1,25 @@
-<!DOCTYPE html>
 <!--
-  TERMS OF USE: MIT License
-
-  Permission is hereby granted, free of charge, to any person obtaining a
-  copy of this software and associated documentation files (the "Software"),
-  to deal in the Software without restriction, including without limitation
-  the rights to use, copy, modify, merge, publish, distribute, sublicense,
-  and/or sell copies of the Software, and to permit persons to whom the
-  Software is furnished to do so, subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-  DEALINGS IN THE SOFTWARE.
--->
+  ~   TERMS OF USE: MIT License
+  ~
+  ~   Permission is hereby granted, free of charge, to any person obtaining a
+  ~   copy of this software and associated documentation files (the "Software"),
+  ~   to deal in the Software without restriction, including without limitation
+  ~   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+  ~   and/or sell copies of the Software, and to permit persons to whom the
+  ~   Software is furnished to do so, subject to the following conditions:
+  ~
+  ~   The above copyright notice and this permission notice shall be included in
+  ~   all copies or substantial portions of the Software.
+  ~
+  ~   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~   FITNESS FOR A PARTICULAR PURPOSE AND NONINFINGEMENT. IN NO EVENT SHALL
+  ~   THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  ~   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+  ~   DEALINGS IN THE SOFTWARE.
+  -->
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -63,18 +63,20 @@
     <!-- JavaScript libraries -->
     <script type="text/javascript" src="src/lib/chartist.min.js"></script>
     <script type="text/javascript" src="src/lib/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="src/lib/jquery.validate.min.js"></script>
     <script type="text/javascript" src="src/lib/beautify.js"></script>
     <script type="text/javascript" src="src/lib/bootstrap/core/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="src/lib/bootstrap/plugins/bootbox.min.js"></script>
     <script type="text/javascript" src="src/ace/ace.js"></script>
-    <script type="text/javascript" src="src/lib/jquery.validate.min.js"></script>
 
     <!-- Javascript helpers -->
+    <script type="text/javascript" src="src/globals.js"></script>
     <script type="text/javascript" src="src/utils.js"></script>
     <script type="text/javascript" src="src/propterm.js"></script>
     <script type="text/javascript" src="src/blocklypropclient.js"></script>
     <script type="text/javascript" src="src/blocklyc.js"></script>
     <script type="text/javascript" src="src/editor.js"></script>
+    <script type="text/javascript" src="src/modals.js"></script>
     <!-- <script type="text/javascript" src="src/localcompile.js"></script> -->
 
     <!-- Blockly core/PropC generator -->
@@ -109,13 +111,10 @@
 
 <body>
     <div id="editor" style="background-color:#f8f8f8; padding-top:0; padding-bottom:5px;">
+        <!-- Branding logo -->
         <div id="branding" style="position: relative; top: 2px;">
-            <a id="nav-logo" href="/" class="url-prefix">
-                <!-- Branding logo -->
-                <!--# include file="/inc_logo.html" -->
-            </a>
+            <a id="nav-logo" href="/" class="url-prefix"></a>
         </div>
-
         <div>
             <!-- BlocklyProp Client or Loader UI -->
             <div id="client-status-alerts" style="display: inline;">
@@ -550,11 +549,15 @@
      Development going here.
      Create a new project modal dialog
     -->
+
     <div class="modal fade" id="new-project-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
 
                 <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                     <h4 id="new-project-dialog-title" class="modal-title keyed-lang-string"
                         data-key="editor_newproject_title">&nbsp;</h4>
                 </div>
@@ -590,7 +593,9 @@
                                       name="new-project-description"></textarea>
                         </div>
                         <!-- Hidden field to store a mode. possible values are 'open' and '' -->
+<!--
                         <div id="open-modal-sender" class="hidden"></div>
+-->
                     </form>
                 </div>
 
@@ -605,58 +610,15 @@
         </div>
     </div>
 
-
-    <!-- New project modal dialog -->
-    <div class="modal fade" id="create-project-dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 id="create-project-dialog-title" class="modal-title keyed-lang-string"
-                        data-key="editor_newproject_title">&nbsp;</h4>
-                </div>
-                <div class="modal-body">
-                    <form class="proj">
-                        <!-- project name -->
-                        <div class="form-group">
-                            <label for="new-project-name" class="keyed-lang-string" data-key="project_name"></label>
-                            <input type="text" class="form-control" id="create-project-name" name="new-project-name" />
-                        </div>
-                        <!-- project board type -->
-                        <div id="create-project-board-dropdown" class="form-group">
-                            <label for="new-project-board-type" class="keyed-lang-string"
-                                data-key="project_create_board_type"></label>
-                            <select class="form-control" id="create-project-board-type"
-                                name="new-project-board-type"></select>
-                        </div>
-
-                        <!-- project description -->
-                        <div class="form-group">
-                            <label for="create-project-description" class="keyed-lang-string"
-                                data-key="project_create_description"></label>
-                            <textarea id="create-project-description" class="form-control"  rows="7"
-                                name="new-project-description"></textarea>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- footer -->
-                <div class="modal-footer">
-                    <button id="create-project-cancel" class="btn btn-default keyed-lang-string"
-                        data-key="editor_button_cancel"></button>
-                    <button id="create-project-continue" class="btn btn-primary keyed-lang-string"
-                        data-key="editor_button_continue"></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
     <!-- Edit project details modal -->
     <div class="modal fade" id="edit-project-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
 
                 <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                     <h4 id="edit-project-dialog-title" class="modal-title keyed-lang-string"
                         data-key="editor_edit-details">&nbsp;</h4>
                 </div>
@@ -668,15 +630,6 @@
                             <label for="edit-project-name" class="keyed-lang-string" data-key="project_name"></label>
                             <input type="text" class="form-control" id="edit-project-name" name="edit-project-name" />
                         </div>
-                        <!-- project board type -->
-<!--
-                        <div id="edit-project-board-dropdown" class="form-group">
-                            <label for="new-project-board-type" class="keyed-lang-string"
-                                   data-key="project_create_board_type"></label>
-                            <select class="form-control" id="edit-project-board-type-select"
-                                    name="new-project-board-type"></select>
-                        </div>
--->
                         <!-- project meta data display -->
                         <div id="edit-project-details-ro" class="form-group">
                             <strong class="keyed-lang-string" data-key="project_create_board_type"></strong>:&nbsp;<span
@@ -694,7 +647,9 @@
                                       name="new-project-description"></textarea>
                         </div>
                         <!-- Hidden field to store a mode. possible values are 'open' and '' -->
+<!--
                         <div id="open-modal-sender" class="hidden"></div>
+-->
                     </form>
                 </div>
 
@@ -708,7 +663,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- BlocklyProp Client download instructions -->
     <div class="modal fade" id="client-download-modal">
