@@ -21,6 +21,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+// TODO: This file is not referenced within the Solo project
 
 /**
  * Project language types
