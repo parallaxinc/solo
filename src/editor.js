@@ -166,6 +166,14 @@ var blocklyWorkSpace;
 
 
 /**
+ * The default number of minutes to wait until the user is prompted
+ * to save the altered project.
+ *
+ * @type {number}
+ */
+const defaultSaveProjectTimerDelay = 20;
+
+/**
  * Project class implementation
 class Project {
 
@@ -271,7 +279,7 @@ const checkLastSavedTime = function () {
     const s_save = Math.round((t_now - last_saved_time) / 60000);
 
     // Write the timestamp to the DOM
-    // $('#save-check-warning-time').html(s_save.toString(10));
+    $('#save-check-warning-time').html(s_save.toString(10));
 
     //if (s_save > 58) {
     // TODO: It's been to long - autosave, then close/set URL back to login page.
@@ -899,7 +907,7 @@ function setupWorkspace(data, callback) {
     }
 
     resetToolBoxSizing();
-    timestampSaveTime(20, true);
+    timestampSaveTime(defaultSaveProjectTimerDelay, true);
 
     // Save project reminder timer. Check every 60 seconds
     setInterval(checkLastSavedTime, 60000);
@@ -1003,7 +1011,7 @@ function saveProject() {
         });
 
         // Mark the time when saved, add 20 minutes to it.
-        timestampSaveTime(20, true);
+        timestampSaveTime(defaultSaveProjectTimerDelay, true);
 
     } else {
 
@@ -1122,7 +1130,7 @@ function saveProjectAs (requestor) {
             // Reloading project with new id
             window.location.href = baseUrl + 'projecteditor?id=' + data['id'];
         });
-        timestampSaveTime(20, true);
+        timestampSaveTime(defaultSaveProjectTimerDelay, true);
     } else {
         var tt = new Date();
         var pd = {
@@ -1309,7 +1317,7 @@ function downloadCode() {
             window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
 
             // Mark the time when saved, add 20 minutes to it.
-            timestampSaveTime(20, true);
+            timestampSaveTime(defaultSaveProjectTimerDelay, true);
         }
     }
 }
