@@ -52,16 +52,6 @@ var cdnUrl = $('meta[name=cdn]').attr("content");
 /**
  *
  * @type {boolean}
- *
- * @deprecated
- * User authentication is not required in Solo
- */
-var user_authenticated = ($("meta[name=user-auth]").attr("content") === 'true') ? true : false;
-
-
-/**
- *
- * @type {boolean}
  */
 var isOffline = ($("meta[name=isOffline]").attr("content") === 'true') ? true : false;
 
@@ -788,28 +778,6 @@ function initCdnImageUrls() {
 
 
 /**
- * Initialize the UI elements that display the users logged-in state
- * in the production BlocklyProp system. These elements do not exist
- * in the BlocklyProp Solo or BlocklyProp Local systems.
- * @deprecated
- * This is only used with the BP production system.
- */
-function initLoginUiElement() {
-    // Offline has no concept of authentication
-    if (! isOffline) {
-        if (user_authenticated) {
-            $('.auth-true').css('display', $(this).attr('data-displayas'));
-            $('.auth-false').css('display', 'none');
-        } else {
-            $('.auth-false').css('display', $(this).attr('data-displayas'));
-            $('.auth-true').css('display', 'none');
-        }
-    }
-}
-
-
-
-/**
  * Display the Timed Save Project modal dialog
  *
  */
@@ -817,10 +785,6 @@ function ShowProjectTimerModalDialog() {
 
     $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
 }
-
-
-
-
 
 
 /**
