@@ -76,6 +76,9 @@ const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
  * TODO: This flag is used in exactly one place. Why do we need it?
  *
  * @type {boolean}
+ *
+ * @deprecated
+ * Variable is not used in code.
  */
 var ignoreSaveCheck = false;
 
@@ -204,6 +207,12 @@ class Project {
 // TODO: set up a markdown editor (removed because it doesn't work in a Bootstrap modal...)
 
 
+// ------------------------------------------------------------------
+//
+// Project save timestamp and interval functions
+//
+// ------------------------------------------------------------------
+
 /**
  * Ping the Rest API every 60 seconds
  *
@@ -214,7 +223,6 @@ const pingInterval = setInterval(() => {
     },
     60000
 );
-
 
 
 /**
@@ -235,6 +243,17 @@ const timestampSaveTime = (delayMinutes, resetTimer) => {
         }
     }
 };
+
+
+/**
+ * Get the current time stamp
+ *
+ * @returns {number} Number of seconds since 1/1/1970
+ */
+function getTimestamp() {
+    const date = new Date();
+    return date.getTime();
+}
 
 
 
@@ -265,8 +284,9 @@ const checkLastSavedTime = function () {
 };
 
 
-
-
+// ------------------------------------------------------------------
+// -----          End of project save timer functions          ------
+// ------------------------------------------------------------------
 
 /**
  * Execute this code as soon as the DOM becomes ready.
@@ -296,11 +316,6 @@ $(document).ready( () => {
             if (getURLParameter('openFile') === "true") {
                 return;
             }
-
-            // ------------------------------------------------------
-            // This code attempts to save the current workspace into
-            // the localStorage.
-            // ------------------------------------------------------
 
             // Store the current project into the localStore so that
             // if the page is being refreshed, it will automatically
@@ -370,8 +385,6 @@ $(document).ready( () => {
         $('.online-only').addClass('hidden');
         $('.offline-only').removeClass('hidden');
 
-//        SetupSaveAsModalDialog();
-
         // populate the board type drop down list
         // TODO: Make this a function
         //  see PopulateProjectBoardTypesUIElement()
@@ -391,10 +404,11 @@ $(document).ready( () => {
                 // Get a copy of the last know state of the current project
                 let localProject = JSON.parse(window.localStorage.getItem(localProjectStoreName));
 
+                // TODO: Address clear workspace has unexpected result
                 // **************************************************
                 // This should clear out the existing blockly project
                 // and reset Blockly core for a new project. That
-                // not appear to be happening.
+                // does not appear to be happening.
                 // **************************************************
                 setupWorkspace( localProject,
                     function () {
@@ -440,16 +454,6 @@ $(document).ready( () => {
     resetToolBoxSizing(250);
 });
 
-
-/**
- * Get the current time stamp
- *
- * @returns {number} Number of seconds since 1/1/1970
- */
-function getTimestamp() {
-    const date = new Date();
-    return date.getTime();
-}
 
 
 /**
@@ -777,15 +781,6 @@ function initCdnImageUrls() {
 }
 
 
-/**
- * Display the Timed Save Project modal dialog
- *
- */
-function ShowProjectTimerModalDialog() {
-
-    $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
-}
-
 
 /**
  * Reset the sizing of blockly's toolbox and canvas.
@@ -955,6 +950,7 @@ function showInfo(data) {
  *
  */
 function saveProject() {
+    // TODO: Refactor to remove the concept of project ownership
     if (projectData['yours']) {
         var code = getXml();
         projectData['code'] = code;
@@ -1654,6 +1650,7 @@ function uploadMergeCode(append) {
  */
 function initToolbox(profileName) {
 
+    // TODO: Verify that custom fonts are required
     var ff = getURLParameter('font');
     
     if(ff) {
