@@ -382,3 +382,14 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
     }
 }
 
+
+
+/**
+ * Display the Timed Save Project modal dialog
+ *
+ */
+function ShowProjectTimerModalDialog() {
+
+    $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
+}
+
