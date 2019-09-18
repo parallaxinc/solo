@@ -21,15 +21,6 @@
  */
 
 
-/**
- * CDN version number
- *
- * @type {string}
- */
-const Version = "1.3.3";
-
-
-
 
 /**
  * Global variable that holds the original version of the loaded
