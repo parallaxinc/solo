@@ -20,12 +20,6 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-// import * as ace from 'ace-builds';
-
-// language package, choose your own
-//import 'ace-builds/src-noconflict/mode-javascript';
-// ui-theme package
-//import 'ace-builds/src-noconflict/theme-github';
 
 /** GLOBAL VARIABLES **/
 
@@ -55,6 +49,9 @@ var cdnUrl = $('meta[name=cdn]').attr("content");
  */
 var isOffline = ($("meta[name=isOffline]").attr("content") === 'true') ? true : false;
 
+
+// TODO: Enumerate the OS version
+// window.navigator.oscpu
 
 
 
@@ -648,6 +645,14 @@ function initEventHandlers() {
     $('#edit-project-details').on('click',  function () {  editProjectDetails();  });
     $('#selectfile-clear').on('click',      function () {  clearUploadInfo(true);  });
     $('#save-as-btn').on('click',           function () {  saveAsDialog();  });
+
+    // New Project toolbar button
+    $('#new-project-button').on('click', () => NewProjectModal());
+
+    // Open Project toolbar button
+    $('#open-project-button').on('click', () => {
+        window.location="blocklyc.html?openFile=true"
+    });
 
     // Save Project modal 'Save' button click handler
     $('#save-btn, #save-project').on('click', function () {
