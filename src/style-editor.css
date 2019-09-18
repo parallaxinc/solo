@@ -281,7 +281,8 @@ ul > hr {
     box-shadow: 2px 2px 5px #89a;
 }
 
-#save-project {
+/* Editor toolbar New, Open, and Save buttons */
+.project-file-buttons {
     -webkit-transition: padding-left 1s, background 1s, border 1s;
     transition: padding-left 1s, background 1s, border 1s;
     padding-top: 5px;
@@ -290,9 +291,8 @@ ul > hr {
     font-size: 12px;
     line-height: 1.5;
     color: #fff;
-    width: 58px;
+    width: 60px;
     background-color: #337ab7;
-    border-color: #2e6da4;
     display: inline-block;
     margin-bottom: 0;
     text-align: left;
@@ -304,11 +304,13 @@ ul > hr {
     text-decoration: none;
 }
 
-#save-project:hover {
+/* Editor toolbar New, Open, and Save buttons */
+.project-file-buttons:hover {
     box-shadow: 2px 2px 5px #89a;
     background-color: #286090;
     border-color: rgb(32, 77, 116);
 }
+
 
 .btn-view-blocks:hover {
     box-shadow: 2px 2px 5px #89a;

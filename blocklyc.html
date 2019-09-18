@@ -114,6 +114,7 @@
         <div id="branding" style="position: relative; top: 2px;">
             <a id="nav-logo" href="/" class="url-prefix"></a>
         </div>
+
         <div>
             <!-- BlocklyProp Client or Loader UI -->
             <div id="client-status-alerts" style="display: inline;">
@@ -206,14 +207,22 @@
                    data-toggle="tooltip" data-placement="bottom">
                     <span class="bpIcon" data-icon="redoWhite">&#x293B;</span>
                 </a>
+
+                <!-- Drop-down hardware port select -->
+                <select id="comPort" class="dropdown port-dropdown auth-true select-css" title="Ports"
+                        data-displayas="inline-block" data-placement="left">
+                </select>
+
             </div>
 
             <!-- Right Toolbar buttons and menu -->
             <div id="right-menus" style="float:right; padding-right: 15px; display: inline;">
                 <!-- Drop-down hardware port select -->
+                <!--
                 <select id="comPort" class="dropdown port-dropdown auth-true select-css" title="Ports"
                         data-displayas="inline-block" data-placement="left">
                 </select>
+                -->
 
                 <!-- View C source code -->
                 <a class="btn-view-blocks" id="btn-view-propc" style="display: none;">
@@ -236,8 +245,23 @@
                     <span class="keyed-lang-string" data-key="editor_view_xml"></span>
                 </a>
 
+
+                <!-- New Project button -->
+                <!--
+                <a class="demo-function project-file-buttons" id="new-project-button" style="display: inline-block;" data-displayas="inline-block">
+                    <span class="keyed-lang-string" data-key="editor_new_button"></span>
+                </a>
+                -->
+
+                <!-- Open Project button -->
+                <!--
+                <a class="demo-function project-file-buttons" id="open-project-button" style="display: inline-block;" data-displayas="inline-block">
+                    <span class="keyed-lang-string" data-key="editor_open_button"></span>
+                </a>
+                -->
+
                 <!-- Save project button -->
-                <a class="demo-function auth-true" id="save-project" style="display: inline-block;" data-displayas="inline-block">
+                <a class="demo-function project-file-buttons" id="save-project" style="display: inline-block;" data-displayas="inline-block">
                     <span class="keyed-lang-string" data-key="editor_save"></span>
                 </a>
 
