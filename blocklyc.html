@@ -639,7 +639,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <form class="proj">
+                    <form id="edit-project-form" class="proj">
                         <!-- project name. Default is derived from projectData object -->
                         <div class="form-group">
                             <label for="edit-project-name" class="keyed-lang-string" data-key="project_name"></label>
@@ -658,7 +658,7 @@
                         <div class="form-group">
                             <label for="new-project-description" class="keyed-lang-string"
                                    data-key="project_create_description"></label>
-                            <textarea class="form-control" id="edit-project-description" rows="7"
+                            <textarea id="edit-project-description" class="form-control"  rows="7"
                                       name="new-project-description"></textarea>
                         </div>
                         <!-- Hidden field to store a mode. possible values are 'open' and '' -->

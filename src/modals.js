@@ -200,6 +200,27 @@ function validateNewProjectForm() {
     return !!project.valid();
 }
 
+function validateEditProjectForm() {
+    // Select the form element
+    let project = $("#edit-project-form");
+
+    // Validate the jQuery object based on these rules. Supply helpful
+    // error messages to use when a rule is violated
+    project.validate({
+        rules: {
+            'edit-project-name': "required",
+            'edit-project-board-type': "required"
+        },
+        messages: {
+            'edit-project-name': "Please enter a project name",
+            'edit-project-board-type': "Please select a board type"
+        }
+    });
+
+    return !!project.valid();
+}
+
+
 /**
  * Create a new project object, store it in the browser localStorage
  * and redirect to the editor.html page to force a project reload
@@ -293,12 +314,7 @@ function OpenProjectFileDialog() {
  * The dialog displays a number of project details.
  */
 function editProjectDetails() {
-    if (isOffline) {
-        EditOfflineProjectDetails();
-    }
-    else {
-        window.location.href = baseUrl + 'my/projects.jsp#' + idProject;
-    }
+    EditOfflineProjectDetails();
 }
 
 
@@ -313,6 +329,7 @@ function EditOfflineProjectDetails() {
         // Set the dialog buttons click event handlers
         setEditOfflineProjectDetailsContinueHandler();
         setEditOfflineProjectDetailsCancelHandler();
+        setEditOfflineProjectDetailsEnterHandler();
 
         // Load the current project details into the html form data
         $('#edit-project-name').val(projectData['name']);
@@ -322,15 +339,38 @@ function EditOfflineProjectDetails() {
         let projectBoardType = $('#edit-project-board-type-ro');
         projectBoardType.val(projectData['board']);
         projectBoardType.html(profile.default.description);
-        $('#edit-project-created-date-ro').html(projectData.created);
-        $('#edit-project-last-modified-ro').html(projectData.modified);
-
-        // Load the current project details into the dialog
-        // PopulateProjectBoardTypesUIElement($('#edit-project-board-type-select'), 'flip');
+        $('#edit-project-created-date-ro').html(projectData['created']);
+        $('#edit-project-last-modified-ro').html(projectData['modified']);
 
         // Show the dialog
         $('#edit-project-dialog').modal({keyboard: false, backdrop: 'static'});
     }
+}
+
+
+/**
+ *  Handle the Enter key press when processing a form
+ */
+function setEditOfflineProjectDetailsEnterHandler() {
+    // Ignore <enter> key pressed in a form field
+    $('#edit-project-dialog').on( 'keydown', (e) => {
+        // Let it go if the user is in the description textarea
+        if (document.activeElement.id === "edit-project-description") {
+            return;
+        }
+
+        if( e.key === "Enter" ) {
+            if (! validateEditProjectForm()) {
+                e.preventDefault();
+                $(this).trigger('submit');
+            }
+            else {
+                $('#new-project-dialog').modal('hide');
+                // Update project details.
+                UpdateProjectDetails();
+            }
+        }
+    });
 }
 
 
@@ -341,23 +381,31 @@ function setEditOfflineProjectDetailsContinueHandler() {
     if (isOffline) {
         $('#edit-project-continue').on('click', function () {
             // verify that the project contains a valid board type and project name
-            if (validateNewProjectForm()) {
+            if (validateEditProjectForm()) {
 
                 // Hide the Edit Project modal dialog
                 $('#edit-project-dialog').modal('hide');
 
-                let newName = $('#edit-project-name').val();
-                if ( !(projectData['name'] === newName)) {
-                    projectData['name'] = newName;
-                }
-
-                let newDescription = $('#edit-project-description').val();
-                if (! (projectData['description'] === newDescription)) {
-                    projectData['description'] = newDescription;
-                }
+                UpdateProjectDetails();
                 showInfo(projectData);
             }
         });
+    }
+}
+
+
+/**
+ * Update the name and description details of the current project
+ */
+function UpdateProjectDetails() {
+    let newName = $('#edit-project-name').val();
+    if ( !(projectData['name'] === newName)) {
+        projectData['name'] = newName;
+    }
+
+    let newDescription = $('#edit-project-description').val();
+    if (! (projectData['description'] === newDescription)) {
+        projectData['description'] = newDescription;
     }
 }
 
@@ -384,8 +432,9 @@ function setEditOfflineProjectDetailsCancelHandler() {
 }
 
 
-
-
+/**
+ *  Configure the Save-As modal UI elements
+ */
 function SetupSaveAsModalDialog() {
 // Set up Save-As modal dialog prompts
     $("#save_as_dialog_title_text").html('Choose a project name and board type');
@@ -396,6 +445,10 @@ function SetupSaveAsModalDialog() {
     $("#save-as-board-type").empty();
 }
 
+
+/**
+ * Invoke the Save-As project modal dialog window
+ */
 function SaveAsProjectModal() {
     PopulateProjectBoardTypesUIElement($("#save-as-board-type"));
     $('#save-as-type-dialog').modal({keyboard: false, backdrop: 'static'});
