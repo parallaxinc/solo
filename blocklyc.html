@@ -571,49 +571,46 @@
     <div class="modal fade" id="new-project-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
-
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                     <h4 id="new-project-dialog-title" class="modal-title keyed-lang-string"
-                        data-key="editor_newproject_title">&nbsp;</h4>
+                        data-key="editor_newproject_title"></h4>
                 </div>
 
                 <div class="modal-body">
                     <form class="proj">
-                        <!-- project name -->
-                        <div class="form-group">
-                            <label for="new-project-name" class="keyed-lang-string" data-key="project_name"></label>
-                            <input type="text" class="form-control" id="new-project-name" name="new-project-name" />
-                        </div>
-                        <!-- project board type -->
-                        <div id="new-project-board-dropdown" class="form-group">
-                            <label for="new-project-board-type" class="keyed-lang-string"
-                                   data-key="project_create_board_type"></label>
-                            <select class="form-control" id="new-project-board-type"
-                                    name="new-project-board-type"></select>
-                        </div>
-                        <!-- project meta data display -->
-                        <div id="edit-project-details-static" class="form-group hidden">
-                            <strong class="keyed-lang-string" data-key="project_create_board_type"></strong>:&nbsp;<span
-                                id="edit-project-board-type"></span><br>
-                            <strong class="keyed-lang-string" data-key="project_created"></strong>:&nbsp;<span
-                                id="edit-project-created-date"></span><br>
-                            <strong class="keyed-lang-string" data-key="project_modified"></strong>:&nbsp;<span
-                                id="edit-project-last-modified"></span>
-                        </div>
-                        <!-- project description -->
-                        <div class="form-group">
-                            <label for="new-project-description" class="keyed-lang-string"
-                                   data-key="project_create_description"></label>
-                            <textarea class="form-control" id="new-project-description" rows="7"
-                                      name="new-project-description"></textarea>
-                        </div>
-                        <!-- Hidden field to store a mode. possible values are 'open' and '' -->
-<!--
-                        <div id="open-modal-sender" class="hidden"></div>
--->
+                        <fieldset>
+                            <!-- project name -->
+                            <div class="form-group">
+                                <label for="new-project-name" class="keyed-lang-string" data-key="project_name"></label>
+                                <input id="new-project-name" class="form-control" type="text" name="new-project-name" />
+                            </div>
+                            <!-- project board type -->
+                            <div id="new-project-board-dropdown" class="form-group">
+                                <label for="new-project-board-type" class="keyed-lang-string"
+                                       data-key="project_create_board_type"></label>
+                                <select id="new-project-board-type" class="form-control"
+                                        name="new-project-board-type"></select>
+                            </div>
+                            <!-- project meta data display -->
+                            <div id="edit-project-details-static" class="form-group hidden">
+                                <strong class="keyed-lang-string" data-key="project_create_board_type"></strong>:&nbsp;<span
+                                    id="edit-project-board-type"></span><br>
+                                <strong class="keyed-lang-string" data-key="project_created"></strong>:&nbsp;<span
+                                    id="edit-project-created-date"></span><br>
+                                <strong class="keyed-lang-string" data-key="project_modified"></strong>:&nbsp;<span
+                                    id="edit-project-last-modified"></span>
+                            </div>
+                            <!-- project description -->
+                            <div class="form-group">
+                                <label for="new-project-description" class="keyed-lang-string"
+                                       data-key="project_create_description"></label>
+                                <textarea id="new-project-description" class="form-control" rows="7"
+                                          name="new-project-description"></textarea>
+                            </div>
+                        </fieldset>
                     </form>
                 </div>
 

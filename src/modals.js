@@ -72,14 +72,13 @@ function NewProjectModal() {
  *  The modal provides options to cancel, escape and accept the new
  *  project details. If accepted, the accept button callback will
  *  update the global projectData object with a new, empty project.
- *
- *  @param openModal force the modal to open when set to 'open'
  */
 function showNewProjectModal() {
 
-    // Set up button event handlers
+    // Set up element event handlers
     NewProjectModalCancelClick();
     NewProjectModalAcceptClick();
+    NewProjectModalEnterClick();
 
     // let dialog = $("#new-project-board-type");
     PopulateProjectBoardTypesUIElement($("#new-project-board-type"));
@@ -96,6 +95,33 @@ function showNewProjectModal() {
 
 
 /**
+ * Handle the <enter> keypress in the modal form
+ */
+function NewProjectModalEnterClick() {
+    // Ignore <enter> key pressed in a form field
+    $('#new-project-dialog').on( 'keydown', function( e ) {
+
+        // Let it go if the user is in the description textarea
+        if (document.activeElement.id === "new-project-description") {
+            return;
+        }
+
+        if( e.key === "Enter" ) {
+
+            if (!validateNewProjectForm()) {
+                e.preventDefault();
+                $(this).trigger('submit');
+            }
+            else {
+                $('#new-project-dialog').modal('hide');
+                CreateNewProject();
+            }
+        }
+    });
+}
+
+
+/**
  *  New project modal Accept button onClick handler
  */
 function NewProjectModalAcceptClick() {
@@ -107,47 +133,7 @@ function NewProjectModalAcceptClick() {
         // verify that the project contains a valid board type and project name
         if (validateNewProjectForm()) {
             $('#new-project-dialog').modal('hide');
-
-            var code = '';
-
-            // If editing details, preserve the code, otherwise start over
-            if (projectData && $('#new-project-dialog-title').html() === page_text_label['editor_edit-details']) {
-                code = getXml();
-            } else {
-                code = EmptyProjectCodeHeader;
-            }
-
-            // save the form fields into the projectData object
-            projectData = {
-                'board': $('#new-project-board-type').val(),
-                'code': code,
-                'created': $('#edit-project-created-date').html(),
-                'description': $("#new-project-description").val(),        // simplemde.value(),
-                'description-html': $("#new-project-description").val(),   // simplemde.options.previewRender(simplemde.value()),
-                'id': 0,
-                'modified': $('#edit-project-created-date').html(),
-                'name': $('#new-project-name').val(),
-                'private': true,
-                'shared': false,
-                'type': "PROPC",
-                'user': "offline",
-                'yours': true,
-                'timestamp': getTimestamp(),
-            }
-
-            // Save the project to the browser local store for the
-            // page transition
-            window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
-
-            // ------------------------------------------------------
-            // Clear the projectData global to prevent the onLeave
-            // event handler from storing the old project code into
-            // the browser storage.
-            // ------------------------------------------------------
-            projectData = null;
-
-            // Redirect to the editor page
-            window.location = 'blocklyc.html';
+            CreateNewProject();
         }
         // TODO: Add test for existing project before resizing
         resetToolBoxSizing(100); // use a short delay to ensure the DOM is fully ready (TODO: may not be necessary)
@@ -185,6 +171,88 @@ function NewProjectModalCancelClick() {
         $('#edit-project-created-date').html('');
         $('#edit-project-last-modified').html('');
     });
+}
+
+
+/**
+ * Verify that the project name and board type form fields have data
+ *
+ * @returns {boolean} True if form contains valid data, otherwise false
+ */
+function validateNewProjectForm() {
+
+    // Select the 'proj' class
+    let project = $(".proj");
+
+    // Validate the jQuery object based on these rules. Supply helpful
+    // error messages to use when a rule is violated
+    project.validate({
+        rules: {
+            'new-project-name': "required",
+            'new-project-board-type': "required"
+        },
+        messages: {
+            'new-project-name': "Please enter a project name",
+            'new-project-board-type': "Please select a board type"
+        }
+    });
+
+    return !!project.valid();
+}
+
+/**
+ * Create a new project object, store it in the browser localStorage
+ * and redirect to the editor.html page to force a project reload
+ * from the browser localStorage
+ */
+function CreateNewProject() {
+    var code = '';
+
+    // If editing details, preserve the code, otherwise start over
+    if (projectData && $('#new-project-dialog-title').html() === page_text_label['editor_edit-details']) {
+        code = getXml();
+    } else {
+        code = EmptyProjectCodeHeader;
+    }
+
+    // Save the form fields into the projectData object
+    // The projectData variable is defined in globals.js
+    let projectName = $('#new-project-name').val();
+    let createdDateHtml = $('#edit-project-created-date').html();
+    let description = $("#new-project-description").val();
+    let boardType = $('#new-project-board-type').val();
+
+    projectData = {
+        'board': boardType,
+        'code': code,
+        'created': createdDateHtml,
+        'description': description,        // simplemde.value(),
+        'description-html': description,   // simplemde.options.previewRender(simplemde.value()),
+        'id': 0,
+        'modified': createdDateHtml,
+        'name': projectName,
+        'private': true,
+        'shared': false,
+        'type': "PROPC",
+        'user': "offline",
+        'yours': true,
+        'timestamp': getTimestamp(),
+    };
+
+    // Save the project to the browser local store for the
+    // page transition
+    window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
+
+    // ------------------------------------------------------
+    // Clear the projectData global to prevent the onLeave
+    // event handler from storing the old project code into
+    // the browser storage.
+    // ------------------------------------------------------
+    projectData = null;
+
+    // Redirect to the editor page
+    window.location = 'blocklyc.html';
+
 }
 
 
@@ -330,7 +398,6 @@ function SetupSaveAsModalDialog() {
 
 function SaveAsProjectModal() {
     PopulateProjectBoardTypesUIElement($("#save-as-board-type"));
-
     $('#save-as-type-dialog').modal({keyboard: false, backdrop: 'static'});
 }
 

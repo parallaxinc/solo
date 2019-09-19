@@ -506,35 +506,6 @@ function checkLeave () {
 };
 
 
-/**
- * Verify that the project name and board type form fields have data
- *
- * @returns {boolean} True if form contains valid data, otherwise false
- */
-function validateNewProjectForm() {
-    // This function should only be used in offline mode
-    if (!isOffline) {
-        return true;
-    }
-
-    // Select the 'proj' class
-    let project = $(".proj");
-
-    // Validate the jQuery object based on these rules. Supply helpful
-    // error messages to use when a rule is violated
-    project.validate({
-        rules: {
-            'new-project-name': "required",
-            'new-project-board-type': "required"
-        },
-        messages: {
-            'new-project-name': "Please enter a project name",
-            'new-project-board-type': "Please select a board type"
-        }
-    });
-
-    return !!project.valid();
-}
 
 
 /**
