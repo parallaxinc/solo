@@ -316,26 +316,24 @@ $(document).ready( () => {
     // --------------------------------------------------------------
     window.addEventListener('beforeunload', function (e) {
 
-        if (isOffline) {
-            // Call checkLeave only if we are NOT loading a new project
-            if (getURLParameter('openFile') === "true") {
-                return;
-            }
+        // Call checkLeave only if we are NOT loading a new project
+        if (getURLParameter('openFile') === "true") {
+            return;
+        }
 
-            // Store the current project into the localStore so that
-            // if the page is being refreshed, it will automatically
-            // be reloaded
-            // ------------------------------------------------------
-            if (projectData) {
-                if (projectData['name'] !== "undefined") {
-                    let tempProject = {};
-                    Object.assign(tempProject, projectData);
+        // Store the current project into the localStore so that
+        // if the page is being refreshed, it will automatically
+        // be reloaded
+        // ------------------------------------------------------
+        if (projectData) {
+            if (projectData['name'] !== "undefined") {
+                let tempProject = {};
+                Object.assign(tempProject, projectData);
 
-                    tempProject.code = getXml();
-                    tempProject.timestamp = getTimestamp();
+                tempProject.code = getXml();
+                tempProject.timestamp = getTimestamp();
 
-                    window.localStorage.setItem(localProjectStoreName, JSON.stringify(tempProject));
-                }
+                window.localStorage.setItem(localProjectStoreName, JSON.stringify(tempProject));
             }
         }
 
@@ -349,15 +347,14 @@ $(document).ready( () => {
     initInternationalText();
     initEditorIcons();
     initEventHandlers();
+
+    // This is necessary only because the target modal is being
+    // used for multiple but similar purposes.
+    // TODO: Make separate modals for each purpose
     initUploadModalLabels();
-    disableUploadDialogButtons();
 
     // Reset the upload/import modal to its default state when closed
     $('#upload-dialog').on('hidden.bs.modal', resetUploadImportModalDialog());
-
-    // Set up login/guest user UI elements
-//    initLoginUiElement();
-
 
     $('.url-prefix').attr('href', function (idx, cur) {
         return baseUrl + cur;
@@ -394,11 +391,14 @@ $(document).ready( () => {
         // TODO: Make this a function
         //  see PopulateProjectBoardTypesUIElement()
 
-
         // Load a project file from local storage
         if (getURLParameter('openFile') === "true") {
-            console.log("Calling OpenProjectFileDialog() from document.ready()");
-            OpenProjectFileDialog();
+            // Check for an existing project in localStorage
+            if (window.localStorage.getItem(localProjectStoreName)) {
+                // put a copy into projectData
+                projectData = JSON.parse(window.localStorage.getItem(localProjectStoreName));
+            }
+            OpenProjectModal();
         }
         else if (getURLParameter('newProject') === "true") {
             NewProjectModal();
@@ -417,7 +417,6 @@ $(document).ready( () => {
                 // **************************************************
                 setupWorkspace( localProject,
                     function () {
-                    console.log('Removing the localProject from browser localStorage');
                     window.localStorage.removeItem(localProjectStoreName);
                 });
             }
@@ -461,20 +460,6 @@ $(document).ready( () => {
 
 
 
-/**
- *
- */
-function initUploadModalLabels() {
-    // set the upload modal's title to "import" if offline
-    if (isOffline) {
-        $('#upload-dialog-title').html(page_text_label['editor_import']);
-        $('#upload-project span').html(page_text_label['editor_import']);
-
-        // Hide the save-as button.
-        $('#save-project-as, save-as-btn').addClass('hidden');
-    }
-}
-
 
 /**
  * Check project state to see if it has changed before leaving the page
@@ -506,35 +491,6 @@ function checkLeave () {
 };
 
 
-/**
- * Verify that the project name and board type form fields have data
- *
- * @returns {boolean} True if form contains valid data, otherwise false
- */
-function validateNewProjectForm() {
-    // This function should only be used in offline mode
-    if (!isOffline) {
-        return true;
-    }
-
-    // Select the 'proj' class
-    let project = $(".proj");
-
-    // Validate the jQuery object based on these rules. Supply helpful
-    // error messages to use when a rule is violated
-    project.validate({
-        rules: {
-            'new-project-name': "required",
-            'new-project-board-type': "required"
-        },
-        messages: {
-            'new-project-name': "Please enter a project name",
-            'new-project-board-type': "Please select a board type"
-        }
-    });
-
-    return !!project.valid();
-}
 
 
 /**
@@ -607,154 +563,144 @@ function initEventHandlers() {
  * This is a WIP.
 */
     // Set up event handlers - Attach events to nav/action menus/buttons
-    $('#prop-btn-comp').on('click',         function () {  compile();  });
-    $('#prop-btn-ram').on('click',          function () {  loadInto('Load into RAM', 'bin', 'CODE', 'RAM');  });
-    $('#prop-btn-eeprom').on('click',       function () {  loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM');  });
-    $('#prop-btn-term').on('click',         function () {  serial_console();  });
-    $('#prop-btn-graph').on('click',        function () {  graphing_console();  });
-    $('#prop-btn-find-replace').on('click', function () {  findReplaceCode();  });
-    $('#prop-btn-pretty').on('click',       function () {  formatWizard();  });
-    $('#prop-btn-undo').on('click',         function () {  codePropC.undo();  });
-    $('#prop-btn-redo').on('click',         function () {  codePropC.redo();  });
-    $('#btn-view-propc').on('click',        function () {  renderContent('tab_propc');  });
-    $('#btn-view-blocks').on('click',       function () {  renderContent('tab_blocks');  });
-    $('#btn-view-xml').on('click',          function () {  renderContent('tab_xml');  });
+    // Toolbar - left side
+    $('#prop-btn-comp').on('click', () => compile());
+    $('#prop-btn-ram').on('click', () => {
+        loadInto('Load into RAM', 'bin', 'CODE', 'RAM');
+    });
 
-    $('#download-side').on('click',         function () {  downloadPropC();  });
-    $('#term-graph-setup').on('click',      function () {  configure_term_graph();  });
-    $('#client-setup').on('click',          function () {  configure_client();  });
+    $('#prop-btn-eeprom').on('click', () => {
+        loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM');
+    });
 
-    $('#propc-find-btn').on('click',        function () {
+    $('#prop-btn-term').on('click', () => serial_console());
+    $('#prop-btn-graph').on('click', () => graphing_console());
+    $('#prop-btn-find-replace').on('click', () => findReplaceCode());
+    $('#prop-btn-pretty').on('click', () => formatWizard());
+    $('#prop-btn-undo').on('click', () => codePropC.undo());
+    $('#prop-btn-redo').on('click', () => codePropC.redo());
+
+    // Blocks/Code/XML button
+    $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
+    $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
+    $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
+
+
+    $('#term-graph-setup').on('click', () => configure_term_graph());
+    $('#client-setup').on('click', () => configure_client());
+
+    $('#propc-find-btn').on('click', () => {
         codePropC.find(document.getElementById('propc-find').value, {}, true);
     });
 
-    $('#propc-replace-btn').on('click',     function () {
+    $('#propc-replace-btn').on('click', () => {
         codePropC.replace(document.getElementById(
             'propc-replace').value,
             {needle: document.getElementById('propc-find').value},
             true);
     });
 
-    $('#find-replace-close').on('click',    function () {  findReplaceCode();  });
-    $('#upload-close').on('click',          function () {  clearUploadInfo(false);  });
+    $('#find-replace-close').on('click', () => findReplaceCode());
+    $('#upload-close').on('click', () => clearUploadInfo(false));
 
-    // Hamburger menu items
-//    $('#selectfile-replace').on('click',    function () {  uploadMergeCode(false); });
-//    $('#selectfile-append').on('click',     function () {  uploadMergeCode(true); });
 
-    $('#edit-project-details').on('click',  function () {  editProjectDetails();  });
-    $('#selectfile-clear').on('click',      function () {  clearUploadInfo(true);  });
-    $('#save-as-btn').on('click',           function () {  saveAsDialog();  });
-
+    // **********************************
+    // **     Toolbar - right side     **
+    // **********************************
     // New Project toolbar button
     $('#new-project-button').on('click', () => NewProjectModal());
 
     // Open Project toolbar button
     $('#open-project-button').on('click', () => {
-        window.location="blocklyc.html?openFile=true"
+        // Save the project to localStorage
+        window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
+
+        window.location="blocklyc.html?openFile=true";
     });
+
+    // Hamburger menu items
+    //    $('#selectfile-replace').on('click',    function () {  uploadMergeCode(false); });
+    //    $('#selectfile-append').on('click',     function () {  uploadMergeCode(true); });
+
+    // Edit project details
+    $('#edit-project-details').on('click', () => editProjectDetails());
+
+    // New Project - Load a new project menu click handler
+    $('#new-project-menu-item').on('click', () => NewProjectModal());
+
+    // Help and Reference - online help web pages
+    // Implemented as an href in the menu
+
+    // Download project to Simple IDE
+    $('#download-side').on('click', () => downloadPropC());
+
+    // Download project to disk
+    $('#download-project').on('click', () => downloadCode());
+
+    // Import (upload) project from storage
+    $('#upload-project').on('click', () => uploadCode());
+
+
+    // **  End of Drop-down menu
+    // **************************************************************
+
+
+    $('#selectfile-clear').on('click', () => clearUploadInfo(true));
+    $('#save-as-btn').on('click', () => saveAsDialog());
+
 
     // Save Project modal 'Save' button click handler
-    $('#save-btn, #save-project').on('click', function () {
-        if (isOffline) {
-            downloadCode();
-        } else {
-            saveProject();
-        }
-    });
+    $('#save-btn, #save-project').on('click', () => downloadCode());
 
-    // Load a new project menu click handler
-    // window.location = 'blocklyc.html?newProject=true'  });
-    $('#new-project-menu-item').on('click',          () => { NewProjectModal(); });
 
-    $('#btn-graph-play').on('click',        function () {  graph_play();  });
-    $('#btn-graph-snapshot').on('click',    function () {  downloadGraph();  });
-    $('#btn-graph-csv').on('click',         function () {  downloadCSV();  });
-    $('#btn-graph-clear').on('click',       function () {  graphStartStop('clear');  });
+    $('#btn-graph-play').on('click', () => graph_play());
+    $('#btn-graph-snapshot').on('click', () => downloadGraph());
+    $('#btn-graph-csv').on('click', () => downloadCSV());
+    $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
 
-    $('#save-as-board-type').on('change',   function () {
-        checkBoardType( $('#saveAsDialogSender').html());
-    });
+    $('#save-as-board-type').on('change', () => checkBoardType( $('#saveAsDialogSender').html()));
 
-    $('#save-as-board-btn').on('click',     function () {  saveProjectAs();  });
+    $('#save-as-board-btn').on('click', () => saveProjectAs());
 
-    $('#win1-btn').on('click',              function () {  showStep('win', 1, 3);  });
-    $('#win2-btn').on('click',              function () {  showStep('win', 2, 3);  });
-    $('#win3-btn').on('click',              function () {  showStep('win', 3, 3);  });
-    $('#chr1-btn').on('click',              function () {  showStep('chr', 1, 3);  });
-    $('#chr2-btn').on('click',              function () {  showStep('chr', 2, 3);  });
-    $('#chr3-btn').on('click',              function () {  showStep('chr', 3, 3);  });
-    $('#mac1-btn').on('click',              function () {  showStep('mac', 1, 4);  });
-    $('#mac2-btn').on('click',              function () {  showStep('mac', 2, 4);  });
-    $('#mac3-btn').on('click',              function () {  showStep('mac', 3, 4);  });
-    $('#mac4-btn').on('click',              function () {  showStep('mac', 4, 4);  });
-    $('.show-os-win').on('click',           function () {  showOS('Windows');  });
-    $('.show-os-mac').on('click',           function () {  showOS('MacOS');  });
-    $('.show-os-chr').on('click',           function () {  showOS('ChromeOS');  });
-    $('.show-os-lnx').on('click',           function () {  showOS('Linux');  });
+    $('#win1-btn').on('click',() => showStep('win', 1, 3));
+    $('#win2-btn').on('click',() => showStep('win', 2, 3));
+    $('#win3-btn').on('click',() => showStep('win', 3, 3));
+    $('#chr1-btn').on('click',() => showStep('chr', 1, 3));
+    $('#chr2-btn').on('click',() => showStep('chr', 2, 3));
+    $('#chr3-btn').on('click',() => showStep('chr', 3, 3));
+    $('#mac1-btn').on('click',() => showStep('mac', 1, 4));
+    $('#mac2-btn').on('click',() => showStep('mac', 2, 4));
+    $('#mac3-btn').on('click',() => showStep('mac', 3, 4));
+    $('#mac4-btn').on('click',() => showStep('mac', 4, 4));
+
+    $('.show-os-win').on('click',() => showOS('Windows'));
+    $('.show-os-mac').on('click',() => showOS('MacOS'));
+    $('.show-os-chr').on('click',() => showOS('ChromeOS'));
+    $('.show-os-lnx').on('click',() => showOS('Linux'));
 
     // Save-As Project
-    $('#save-project-as').on('click',      function () {  saveAsDialog();  });
-
-    // download to disk
-    $('#download-project').on('click',     function () {  downloadCode();  });
-
-    // upload from disk
-    $('#upload-project').on('click',       function () {  uploadCode();    });
-
+    $('#save-project-as').on('click',() => saveAsDialog());
 
     // --------------------------------------------------------------
     // Bootstrap modal event handler for the Save Project Timer
     // dialog. The hidden.bs.model event occurs when the modal is
     // fully hidden (after CSS transitions have completed)
     // --------------------------------------------------------------
-    $('#save-check-dialog').on('hidden.bs.modal',
-        function () {
-            timestampSaveTime(5, false);
+    $('#save-check-dialog').on('hidden.bs.modal', () => {
+        timestampSaveTime(5, false);
     });
 
 
     // Hide these elements of the Open Project File modal when it
     // receives focus
-    $("#selectfile").focus(function () {
+    $("#selectfile").focus( function () {
         $('#selectfile-verify-notvalid').css('display', 'none');
         $('#selectfile-verify-valid').css('display', 'none');
         $('#selectfile-verify-boardtype').css('display', 'none');
     });
-
 }
 
 
-/**
- * disable to upload dialog buttons until a valid file is uploaded
- */
-function disableUploadDialogButtons() {
-    document.getElementById("selectfile-replace").disabled = true;
-    document.getElementById("selectfile-append").disabled = true;
-}
-
-
-/**
- * Reset the upload/import modal window to defaults after use
- */
-function resetUploadImportModalDialog() {
-    // reset the title of the modal
-    if (isOffline) {
-        $('upload-dialog-title').html(page_text_label['editor_import']);
-
-    } else {
-        $('upload-dialog-title').html(page_text_label['editor_upload']);
-    }
-
-    // hide "append" button
-    $('#selectfile-append').removeClass('hidden');
-
-    // change color of the "replace" button to blue and change text to "Open"
-    $('#selectfile-replace').removeClass('btn-primary').addClass('btn-danger').html(page_text_label['editor_button_replace']);
-
-    // reset the blockly toolbox sizing to ensure it renders correctly:
-    resetToolBoxSizing(100);
-}
 
 
 /**
@@ -1365,16 +1311,13 @@ function uploadCode() {
  * @param files
  */
 function uploadHandler(files) {
-    console.log("(uploadHandler) Retrieving the project file from disk");
-
     var UploadReader = new FileReader();
 
-    // Event handler that fires when the user selects a file to
-    // retrieve from storage
+    // Event handler that fires when the file that the user selected is loaded
+    // from local storage
     UploadReader.onload = function () {
         // Save the file contents in xmlString
         var xmlString = this.result;
-
         var xmlValid = false;
         var uploadBoardType = '';
 
@@ -1417,59 +1360,51 @@ function uploadHandler(files) {
             // TODO: check to see if this is used when opened from the editor (and not the splash screen)
             // maybe projectData.code.length < 43??? i.e. empty project? instead of the URL parameter...
 
-            if (isOffline) {
+            if (getURLParameter('openFile') === "true") {
+                // Loading an offline .SVG project file. Create a project object and
+                // save it into the browser store.
+                var titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
+                var projectTitle = xmlString.substring((titleIndex + 39), xmlString.indexOf('</text>', (titleIndex + 39)));
+                titleIndex = xmlString.indexOf('transform="translate(-225,-8)">Description: ');
+                var projectDesc = '';
 
-                console.log("(uploadHandler) Transform the project file.")
-
-                if (getURLParameter('openFile') === "true") {
-                    // Loading an offline .SVG project file. Create a project object and
-                    // save it into the browser store.
-
-                    var titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
-                    var projectTitle = xmlString.substring((titleIndex + 39), xmlString.indexOf('</text>', (titleIndex + 39)));
-                    titleIndex = xmlString.indexOf('transform="translate(-225,-8)">Description: ');
-                    var projectDesc = '';
-                    if (titleIndex > -1) {
-                        projectDesc = xmlString.substring((titleIndex + 44), xmlString.indexOf('</text>', (titleIndex + 44)));
-                    }
-
-                    var tt = new Date();
-                    titleIndex = xmlString.indexOf('data-createdon="');
-                    var projectCreated = tt;
-                    if (titleIndex > -1) {
-                        projectCreated = xmlString.substring((titleIndex + 16), xmlString.indexOf('"', (titleIndex + 17)));
-                    }
-                    titleIndex = xmlString.indexOf('data-lastmodified="');
-                    var projectModified = tt;
-                    if (titleIndex > -1) {
-                        projectModified = xmlString.substring((titleIndex + 19), xmlString.indexOf('"', (titleIndex + 20)));
-                    }
-
-                    pd = {
-                        'board': uploadBoardType,
-                        'code': uploadedXML,
-                        'created': projectCreated,
-                        'description': decodeFromValidXml(projectDesc),
-                        'description-html': '',
-                        'id': 0,
-                        'modified': projectModified,
-                        'name': decodeFromValidXml(projectTitle),
-                        'private': true,
-                        'shared': false,
-                        'type': "PROPC",
-                        'user': "offline",
-                        'yours': true,
-                        'timestamp': getTimestamp(),
-                    }
-
-                    // TODO: Save the project into localStorage
-                    if (isOffline) {
-                        window.localStorage.setItem(tempProjectStoreName, JSON.stringify(pd));
-                    }
+                if (titleIndex > -1) {
+                    projectDesc = xmlString.substring((titleIndex + 44), xmlString.indexOf('</text>', (titleIndex + 44)));
                 }
-                else {
-                    console.log("(uploadHandler) We loaded a project without using openFile.");
+
+                var tt = new Date();
+                titleIndex = xmlString.indexOf('data-createdon="');
+                var projectCreated = tt;
+
+                if (titleIndex > -1) {
+                    projectCreated = xmlString.substring((titleIndex + 16), xmlString.indexOf('"', (titleIndex + 17)));
                 }
+
+                titleIndex = xmlString.indexOf('data-lastmodified="');
+                var projectModified = tt;
+
+                if (titleIndex > -1) {
+                    projectModified = xmlString.substring((titleIndex + 19), xmlString.indexOf('"', (titleIndex + 20)));
+                }
+
+                pd = {
+                    'board': uploadBoardType,
+                    'code': uploadedXML,
+                    'created': projectCreated,
+                    'description': decodeFromValidXml(projectDesc),
+                    'description-html': '',
+                    'id': 0,
+                    'modified': projectModified,
+                    'name': decodeFromValidXml(projectTitle),
+                    'private': true,
+                    'shared': false,
+                    'type': "PROPC",
+                    'user': "offline",
+                    'yours': true,
+                    'timestamp': getTimestamp(),
+                }
+
+                window.localStorage.setItem(tempProjectStoreName, JSON.stringify(pd));
             }
         }
 
@@ -1487,7 +1422,6 @@ function uploadHandler(files) {
     };
 
     // Load the SVG project file.
-    console.log("(uploadHandler) Reading SVG file...")
     UploadReader.readAsText(files[0]);
 }
 
@@ -1533,8 +1467,6 @@ function clearUploadInfo(redirect) {
  */
 function uploadMergeCode(append) {
 
-    console.log("(uploadMergeCode) Hiding the upload-dialog modal.");
-
     // Hide the Open Project modal dialog
     $('#upload-dialog').modal('hide');
 
@@ -1552,7 +1484,6 @@ function uploadMergeCode(append) {
             // code in uploadHandler()
             //
             // Set a timestamp to note when the project was saved into localStorage
-            console.log("(uploadMergeCode) Loading temp project into projectData");
 
             //projectData = JSON.parse(window.localStorage.getItem(tempProjectStoreName));
 
@@ -1561,19 +1492,13 @@ function uploadMergeCode(append) {
                 localProjectStoreName,
                 window.localStorage.getItem(tempProjectStoreName));
 
-            console.log('Removing the tempProject from localStorage');
             window.localStorage.removeItem(tempProjectStoreName);
 
             window.location = 'blocklyc.html';
             }
-        else {
-            console.log("Loading an offline project for merging?");
-        }
     }
 
     if (uploadedXML !== '') {
-        console.log("(uploadMergeCode) Merging code into the project.");
-
         var projCode = '';
         if (append) {
             projCode = getXml();
@@ -1647,7 +1572,6 @@ function uploadMergeCode(append) {
 
         ClearBlocklyWorkspace();
 
-        console.log("(uploadMergeCode) Loading the Blocky Toolbox")
         // This call fails because there is no Blockly workspace context
         loadToolbox(projectData['code']);
 
