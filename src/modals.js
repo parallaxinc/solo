@@ -26,8 +26,9 @@
  *                  ----------------------------
  *
  *  [done]  New Project
- *  [wip ]  Open (Upload) Existing Project
- *          Edit Project Details
+ *  [wip ]  Open an Existing Project
+ *          Import from Existing Project
+ *  [done[  Edit Project Details
  *  [wip ]  Save Current Project
  *          Save Current Project Timer
  * ----------------------------------------------------------------*/
@@ -48,17 +49,21 @@ function NewProjectModal() {
         const message =
             'The current project has been modified. Click OK to\n' +
             'discard the current changes and create a new project.';
-        if (! confirm(message)) {
-            return;
-        }
+
+        utils.confirm("Save Project", message, (result) => {
+            if (result) {
+                downloadCode();
+            }
+        }, "OK", "Cancel");
     }
+    else {
+        // Reset the values in the form to defaults
+        $('#new-project-name').val('');
+        $('#new-project-description').val('');
+        $('#new-project-dialog-title').html(page_text_label['editor_newproject_title']);
 
-    // Reset the values in the form to defaults
-    $('#new-project-name').val('');
-    $('#new-project-description').val('');
-    $('#new-project-dialog-title').html(page_text_label['editor_newproject_title']);
-
-    showNewProjectModal();
+        showNewProjectModal();
+    }
 }
 
 
@@ -200,6 +205,12 @@ function validateNewProjectForm() {
     return !!project.valid();
 }
 
+
+/**
+ *  Validate the required elements of the edit project form
+ *
+ * @returns {boolean}
+ */
 function validateEditProjectForm() {
     // Select the form element
     let project = $("#edit-project-form");
@@ -278,9 +289,64 @@ function CreateNewProject() {
 
 
 /**
+ *  Open the modal to select a project file to load
+ */
+function OpenProjectModal() {
+
+    // set title to Open file
+    $('#open-project-dialog-title').html(page_text_label['editor_open']);
+
+    // Set button onClick event handlers
+    // ----------------------------------------------------------
+    // This is also handling the 'Edit Project Details' modal
+    // dialog box
+    // ----------------------------------------------------------
+    $('#open-project-select-file-cancel').on('click', () => {
+
+        // Dismiss the modal in the UX
+        $('#open-project-dialog').modal('hide');
+
+        if (! projectData) {
+            // If there is no project, go to home page.
+            window.location.href = 'index.html';
+        }
+        // A copy of the current project is located in the browser localStorage
+        setupWorkspace( projectData,
+            function () {
+                window.localStorage.removeItem(localProjectStoreName);
+            });
+    });
+
+
+    $('#open-project-select-file-open').on( 'click', () => {
+        if (window.localStorage.getItem(tempProjectStoreName)) {
+            window.localStorage.setItem(
+                localProjectStoreName,
+                window.localStorage.getItem(tempProjectStoreName));
+            window.localStorage.removeItem(tempProjectStoreName);
+            window.location = 'blocklyc.html';
+        }
+    });
+
+    // Import a project .SVG file
+    $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
+
+    // If the user selects a file and successfully uploads it, the
+    // project will be stored in localStorage.tempProjectStoreName.
+    // The form Accept button handler should look there when it is
+    // time to proces the new project.
+}
+
+/**
  *  Open the Open Project File dialog
  */
 function OpenProjectFileDialog() {
+
+    // TODO: Check to see if a modified project is currently on the
+    //  editor canvas. If there is, provide a warning to save the
+    //  project before continuing.
+
+
     // set title to Open file
     $('#upload-dialog-title').html(page_text_label['editor_open']);
 
@@ -456,6 +522,52 @@ function SaveAsProjectModal() {
 
 
 
+/*   Load a Project file    */
+
+/**
+ *
+ */
+function initUploadModalLabels() {
+
+    // set the upload modal's title to "import" if offline
+    $('#upload-dialog-title').html(page_text_label['editor_import']);
+    $('#upload-project span').html(page_text_label['editor_import']);
+
+    // Hide the save-as button.
+    $('#save-project-as, save-as-btn').addClass('hidden');
+
+    disableUploadDialogButtons();
+}
+
+/**
+ * Reset the upload/import modal window to defaults after use
+ */
+function resetUploadImportModalDialog() {
+    // reset the title of the modal
+    $('upload-dialog-title').html(page_text_label['editor_import']);
+
+    // hide "append" button
+    $('#selectfile-append').removeClass('hidden');
+
+    // change color of the "replace" button to blue and change text to "Open"
+    $('#selectfile-replace').removeClass('btn-primary').addClass('btn-danger').html(page_text_label['editor_button_replace']);
+
+    // reset the blockly toolbox sizing to ensure it renders correctly:
+    resetToolBoxSizing(100);
+}
+
+
+/**
+ * disable to upload dialog buttons until a valid file is uploaded
+ */
+function disableUploadDialogButtons() {
+    document.getElementById("selectfile-replace").disabled = true;
+    document.getElementById("selectfile-append").disabled = true;
+}
+
+
+
+
 // HELPER FUNCTIONS
 
 /**
@@ -503,13 +615,11 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
 }
 
 
-
 /**
  * Display the Timed Save Project modal dialog
  *
  */
 function ShowProjectTimerModalDialog() {
-
     $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
 }
 

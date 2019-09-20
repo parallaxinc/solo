@@ -115,6 +115,7 @@
             <a id="nav-logo" href="/" class="url-prefix"></a>
         </div>
 
+        <!-- Above toolbar -->
         <div>
             <!-- BlocklyProp Client or Loader UI -->
             <div id="client-status-alerts" style="display: inline;">
@@ -217,33 +218,26 @@
 
             <!-- Right Toolbar buttons and menu -->
             <div id="right-menus" style="float:right; padding-right: 15px; display: inline;">
-                <!-- Drop-down hardware port select -->
-                <!--
-                <select id="comPort" class="dropdown port-dropdown auth-true select-css" title="Ports"
-                        data-displayas="inline-block" data-placement="left">
-                </select>
-                -->
-
                 <!-- View C source code -->
                 <a class="btn-view-blocks" id="btn-view-propc" style="display: none;">
-                    <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
-                    &nbsp;
-                    <span class="keyed-lang-string" data-key="menu_code"></span>
-                </a>
+                        <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
+                        &nbsp;
+                        <span class="keyed-lang-string" data-key="menu_code"></span>
+                    </a>
 
                 <!-- View project blocks layout -->
                 <a class="btn-view-blocks" id="btn-view-blocks" style="display: none;">
-                    <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
-                    &nbsp;
-                    <span class="keyed-lang-string" data-key="menu_blocks"></span>
-                </a>
+                        <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
+                        &nbsp;
+                        <span class="keyed-lang-string" data-key="menu_blocks"></span>
+                    </a>
 
                 <!-- View project XML code -->
                 <a class="btn-view-blocks" id="btn-view-xml" style="display: none;">
-                    <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
-                    &nbsp;&nbsp;
-                    <span class="keyed-lang-string" data-key="editor_view_xml"></span>
-                </a>
+                        <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
+                        &nbsp;&nbsp;
+                        <span class="keyed-lang-string" data-key="editor_view_xml"></span>
+                    </a>
 
                 <!-- New Project button -->
                 <a id="new-project-button" class="demo-function project-file-buttons" style="display: inline-block;" data-displayas="inline-block">
@@ -262,9 +256,11 @@
 
                 <!-- Drop-down hamburger menu -->
                 <div class="dropdown" style="display: inline-block;">
+                    <!-- down-arrow control to open hamburger menu -->
                     <button id="options-menu" class="btn btn-sm btn-default dropdown dropdown-toggle" type="button"
                         data-toggle="dropdown">&#9776;<span class="caret"></span>
                     </button>
+
                     <ul class="dropdown-menu pull-right btn-sm">
                         <li class="auth-true" data-displayas="list-item">
                             <a id="edit-project-details" href="#">
@@ -272,11 +268,13 @@
                             </a>
                         </li>
 
+                        <!-- New Project menu item
                         <li class="auth-true offline-only hidden" data-displayas="list-item">
                             <a id="new-project-menu-item" href="#" class="url-prefix">
                                 <span class="keyed-lang-string" data-key="menu_newproject_title"></span>
                             </a>
                         </li>
+                        -->
 
                         <li class="online-only divider"></li>
 
@@ -294,11 +292,13 @@
                             </a>
                         </li>
 
+                        <!-- Download blocks file
                         <li>
                             <a id="download-project" href="#">
                                 <span class="keyed-lang-string" data-key="editor_download"></span>
                             </a>
                         </li>
+                        -->
 
                         <li class="auth-true" data-displayas="list-item">
                             <a id="upload-project">
@@ -348,7 +348,7 @@
         </div>
     </div>
 
-    <!-- Save or Upload an svg file -->
+    <!-- Save or Upload a project file -->
     <div class="modal fade" id="upload-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -562,12 +562,7 @@
         </div>
     </div>
 
-
-    <!--
-     Development going here.
-     Create a new project modal dialog
-    -->
-
+    <!-- New project modal dialog -->
     <div class="modal fade" id="new-project-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -624,6 +619,53 @@
             </div>
         </div>
     </div>
+
+    <!-- Save or Upload a project file -->
+    <div class="modal fade" id="open-project-dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- Closes the dialog when the button is clicked -->
+                    <button id="open-project-close" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 id="open-project-dialog-title" class="modal-title keyed-lang-string" data-key="editor_upload">
+                        <span>&nbsp;QQQQ</span>
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <!-- Upload a project. Results stored in localStorage -->
+                    <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
+                    <input id="open-project-select-file" type="file" accept=".svg,*.svge,image/svg+xml"
+                           onchange="uploadHandler(this.files);">
+
+                    <!-- File is valid message -->
+                    <div id="open-project-select-file-verify-valid" class="alert alert-success" style="display: none;">
+                        <span class="bpIcon" data-icon="checkMarkGreen">&#x2713;</span>&nbsp;
+                        <span class="keyed-lang-string" data-key="editor_upload_valid"></span>
+                    </div>
+
+                    <!-- Uploaded file failed sanity checks -->
+                    <div id="open-project-select-file-verify-not-valid" class="alert alert-danger" style="display: none;">
+                        <span class="bpIcon" data-icon="dangerTriangle">!!</span>&nbsp;
+                        <span class="keyed-lang-string" data-key="editor_upload_notvalid"></span>
+                    </div>
+
+                    <!-- Board type has changed -->
+                    <div id="open-project-select-file-verify-board-type" class="alert alert-warning" style="display: none;">
+                        <span class="bpIcon" data-icon="warningCircle">!</span>&nbsp;
+                        <span class="keyed-lang-string" data-key="editor_upload_boardtype_warning"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="open-project-select-file-cancel" class="btn btn-default btn-sm keyed-lang-string"
+                            data-dismiss="modal" data-key="editor_button_cancel"></button>
+                    <button id="open-project-select-file-open" class="btn btn-primary btn-sm keyed-lang-string"
+                            data-key="editor_button_open"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Edit project details modal -->
     <div class="modal fade" id="edit-project-dialog">

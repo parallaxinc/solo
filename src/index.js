@@ -27,6 +27,9 @@ $(document).ready(function () {
     showAppBannerTitle('Solo');
     setCopyrightDate($('#footer_copyright'));
     setCopyrightDate($('#license-copyright-date'));
+
+    // The browser localStorage object should be empty
+    window.localStorage.clear();
 });
 
 // Display the BlocklyProp Solo license in a modal window
