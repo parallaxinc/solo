@@ -24,7 +24,7 @@
 
 // TODO: Remove this file. This code appears to reference BP server forms.
 
-$(document).ready(function () {
+$(function () {
     if (getURLParameter('debug')) {
         $.get('rest/profile/get/', function(res) {
                 console.log(res);

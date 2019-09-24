@@ -182,7 +182,7 @@ nav("appVersion", "CrOS", "ChromeOS");
 /**
  *
  */
-$(document).ready(function () {
+$(function () {
     // Use the "external_link" class to make links open in new tabs
     $(".external_link").click(function (e) {
         window.open($(this).attr("href"), "_blank");

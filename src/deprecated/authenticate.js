@@ -25,7 +25,7 @@
  *
  *  @deprecated Scheduled for removal (issue #83)
  */
-$(document).ready(function () {
+$(function () {
     var loginForm = $('#loginform');
 
     loginForm.submit(function (event) {

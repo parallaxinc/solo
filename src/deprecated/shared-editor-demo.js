@@ -40,7 +40,7 @@ var ready = false;
 var projectLoaded = false;
 var client_url = undefined;
 
-$(document).ready(function () {
+$(function () {
     projectData = data;
     showInfo(projectData);
     projectLoaded = true;

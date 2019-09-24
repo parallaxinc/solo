@@ -295,8 +295,9 @@ const checkLastSavedTime = function () {
 
 /**
  * Execute this code as soon as the DOM becomes ready.
+ * Replaces the old document.ready() construct
  */
-$(document).ready( () => {
+$( () => {
     /* -- Set up amy event handlers once the DOM is ready -- */
 
     // Update the blockly workspace to ensure that it takes

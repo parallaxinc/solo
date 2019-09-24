@@ -22,7 +22,9 @@
 
 
 // Update page elements
-$(document).ready(function () {
+// This construct replaces the document.ready() that was
+// deprecated in jquery 1.9
+$(function () {
     showAppName();
     showAppBannerTitle('Solo');
     setCopyrightDate($('#footer_copyright'));
