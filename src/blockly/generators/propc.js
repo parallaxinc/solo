@@ -585,8 +585,28 @@ if (!Object.keys) {
 };
 
 
-// NOTE: Replaces core function!                   // USE WHEN CORE IS UPDATED
+
+/**
+ * Used by getSize() to move/resize any dom elements, and get the new size.
+ *
+ * All rendering that has an effect on the size/shape of the block should be
+ * done here, and should be triggered by getSize().
+ * @protected
+ */
+/*
+ * Original blockly core code:
+ *
 Blockly.Field.prototype.render_ = function() {
+    this.textContent_.nodeValue = this.getDisplayText_();
+    this.updateSize_();
+};
+*
+*/
+
+// NOTE: Replaces core function!                   // USE WHEN CORE IS UPDATED
+/*
+Blockly.Field.prototype.render_ = function() {
+ /*
     if (!this.visible_) {
       this.size_.width = 0;
       return;
@@ -598,6 +618,8 @@ Blockly.Field.prototype.render_ = function() {
         this.updateWidth();
     } 
 };
+*/
+
 
 //NOTE: Replaces core function!
 /*
@@ -778,7 +800,7 @@ function uniq_fast(a) {
         j = 0;
         while (out.length > 0) {
             len = out.length;
-            k = 0;
+            var k = 0;
             for (var i = 0; i < len; i++) {
                 if (parseInt(out[i], 10) < parseInt(out[k], 10)) {
                     k = i;
