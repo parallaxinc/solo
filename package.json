@@ -1,0 +1,25 @@
+{
+  "name": "blocklyprop-solo",
+  "version": "1.3.494",
+  "description": "A simplified implementation of Google's Blockly project configured to support Parallax robots and sensors.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parallaxinc/solo.git"
+  },
+  "keywords": [],
+  "author": "Jim Ewald",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/parallaxinc/solo/issues"
+  },
+  "homepage": "https://github.com/parallaxinc/solo#readme",
+  "dependencies": {
+    "blockly": "^2.20190722.1",
+    "bootstrap": "^3.4.1",
+    "jquery": "^3.4.1"
+  }
+}
