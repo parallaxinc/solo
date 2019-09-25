@@ -3,3 +3,6 @@
 # Intellij IDE
 .idea
 
+# npm packages
+node_modules
+.eslintrc.js
