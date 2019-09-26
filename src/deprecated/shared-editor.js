@@ -37,7 +37,7 @@ var projectLoaded = false;
 
 var idProject = 0;
 
-$(document).ready(function () {
+$(function () {
     projectData = window.data;
     showInfo(projectData);
     projectLoaded = true;

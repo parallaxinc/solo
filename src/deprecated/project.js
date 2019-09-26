@@ -82,7 +82,7 @@ var simplemde = null;
 /**
  *
  */
-$(document).ready(function () {
+$(function () {
     simplemde = new SimpleMDE({
         element: document.getElementById("project-form-description"),
         hideIcons: ["link"],

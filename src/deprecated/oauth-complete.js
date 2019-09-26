@@ -23,7 +23,7 @@
 
 // TODO: Remove this file. It is unreferenced.
 
-$(document).ready(function () {
+$(function () {
     var redirect = $("body").data('redirect');
     window.opener.location.href = redirect; // 'http://dev.blockly.parallax.com:8084/blockly/';
     window.close();
