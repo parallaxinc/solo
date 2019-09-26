@@ -23,11 +23,19 @@
 
 /** GLOBAL VARIABLES **/
 
+
 /**
+ *  The relative path for the hosting web site. The default is '/'.
+ *
+ *  @description
+ *  This requires that the hosting page define the <meta> tag that
+ *  contains this setting
+ *
+ *      <meta name="base" content="">
  *
  * @type {*|jQuery}
  */
-var baseUrl = $('meta[name=base]').attr("content");
+const baseUrl = $('meta[name=base]').attr("content");
 
 
 /*
@@ -37,10 +45,16 @@ var baseUrl = $('meta[name=base]').attr("content");
 */
 
 /**
+ *  The root URL string that points to the base of the static web page content
+ *
+ *  @description
+ *  The hosting web page must contain a <meta> tag that sets this attribute
+ *
+ *      <meta name="cdn" content="src/">
  *
  * @type {*|jQuery}
  */
-var cdnUrl = $('meta[name=cdn]').attr("content");
+const cdnUrl = $('meta[name=cdn]').attr("content");
 
 
 /**

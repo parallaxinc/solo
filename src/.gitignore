@@ -1,9 +1,0 @@
-.idea
-node_modules
-.eslintrc.js
-
-# This file is generated automatically by a python script
-blockly/apps/blockly_uncompressed.js
-
-# npm package manager lock file
-package-lock.json
