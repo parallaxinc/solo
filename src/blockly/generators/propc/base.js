@@ -60,6 +60,7 @@ Blockly.Blocks.math_number = {
         this.appendDummyInput('MAIN')
                 .appendField(new Blockly.FieldNumber('0', null, null, 1), 'NUM')
                 .appendField('', 'TITLE');
+        this.getField('TITLE').setVisible(false);
         this.setOutput(true, 'Number');
         this.lastBlockText = ' ';
         this.lastFieldType = 'number';
