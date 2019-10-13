@@ -780,11 +780,23 @@ var findBlocksByType = function(blockType) {
     return null;
 };
 
+/**
+ * Extends Blockly.Input to allow the input to have a specific range or allowed values.
+ * Allows blocks to read the input's range and show warnings if the user enters values outside of the range.
+ * See base.js->Blockly.Blocks.math_number for more information about formatting the range string.
+ * @param rangeInfo String containing information about the range/allowed values:  
+ * @returns the specified input
+ */ 
 Blockly.Input.prototype.appendRange = function(rangeInfo) {
     this.inputRange = rangeInfo;
     return this;
 }
 
+/**
+ * Extends Blockly.Input to allow the input to have a specific range or allowed values.
+ * See base.js->Blockly.Blocks.math_number for more information about formatting the range string.
+ * @returns the String populated by Blockly.Input.appendRange()
+ */
 Blockly.Input.prototype.getRange = function() {
     return this.inputRange;
 }
