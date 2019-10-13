@@ -59,8 +59,7 @@ Blockly.Blocks.math_number = {
         this.setTooltip(Blockly.MSG_MATH_NUMBER_TOOLTIP);
         this.appendDummyInput('MAIN')
                 .appendField(new Blockly.FieldNumber('0', null, null, 1), 'NUM')
-                .appendField(' ', 'TITLE');
-        this.getField('TITLE').setVisible(false);
+                .appendField('', 'TITLE');
         this.setOutput(true, 'Number');
         this.lastBlockText = ' ';
         this.lastFieldType = 'number';
