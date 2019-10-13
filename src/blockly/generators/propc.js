@@ -780,6 +780,15 @@ var findBlocksByType = function(blockType) {
     return null;
 };
 
+Blockly.Input.prototype.appendRange = function(rangeInfo) {
+    this.inputRange = rangeInfo;
+    return this;
+}
+
+Blockly.Input.prototype.getRange = function() {
+    return this.inputRange;
+}
+
 // polyfill that removes duplicates from an array and sorts it
 // From: https://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array
 function uniq_fast(a) {

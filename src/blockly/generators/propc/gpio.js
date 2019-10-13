@@ -80,8 +80,7 @@ Blockly.Blocks.make_pin_input = {
                 .appendField("make PIN");
         this.appendValueInput('PIN')
                 .setCheck('Number')
-                .appendField('A,' + profile.default.digital.toString(), 'RANGEVALS0');
-        this.getField('RANGEVALS0').setVisible(false);
+                .appendRange('A,' + profile.default.digital.toString());
         this.appendDummyInput('ACTION')
                 .appendField(new Blockly.FieldDropdown([["high", "HIGH"], ["low", "LOW"], ["toggle", "TOGGLE"], ["input", "INPUT"], ["reverse", "REVERSE"]]), "ACTION");
     }
@@ -135,8 +134,7 @@ Blockly.Blocks.check_pin_input = {
         this.appendValueInput('PIN')
                 .appendField("check PIN")
                 .setCheck('Number')
-                .appendField('A,' + profile.default.digital.toString(), 'RANGEVALS0');
-        this.getField('RANGEVALS0').setVisible(false);
+                .appendRange('A,' + profile.default.digital.toString());
         this.setOutput(true, 'Number');
         this.setInputsInline(true);
     }
@@ -393,8 +391,7 @@ Blockly.Blocks.base_freqout = {
             this.appendValueInput('PIN')
                     .appendField(label)
                     .setCheck('Number')
-                    .appendField('A,' + profile.default.digital.toString(), 'RANGEVALS0');
-            this.getField('RANGEVALS0').setVisible(false);
+                    .appendRange('A,' + profile.default.digital.toString());
             if (moveBefore) {
                 this.moveInputBefore('PIN', moveBefore);
             } else {
@@ -580,10 +577,9 @@ Blockly.Blocks.eeprom_write = {
                     this.sourceBlock_.setOutputType_(type);
                 }), "TYPE");
         this.appendValueInput("ADDRESS")
-                .appendField('R,0,7675,0', 'RANGEVALS0')
+                .appendRange('R,0,7675,0')
                 .setCheck("Number")
                 .appendField("to address");
-        this.getField('RANGEVALS0').setVisible(false);
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -650,12 +646,11 @@ Blockly.Blocks.eeprom_read = {
                 .setCheck("Number")
                 .appendField("EEPROM read")
                 .appendField(new Blockly.FieldDropdown([["number", "NUMBER"], ["text", "TEXT"], ["byte", "BYTE"]]), "TYPE")
-                .appendField('R,0,7675,0', 'RANGEVALS0')
+                .appendRange('R,0,7675,0')
                 .appendField("from address");
         this.appendDummyInput()
                 .appendField("store in")
                 .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'VALUE');
-        this.getField('RANGEVALS0').setVisible(false);
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -703,8 +698,7 @@ Blockly.Blocks.servo_move = {
         this.appendValueInput("ANGLE")
                 .appendField("set angle")
                 .setCheck("Number")
-                .appendField('R,0,180,0', 'RANGEVALS1');
-        this.getField('RANGEVALS1').setVisible(false);
+                .appendRange('R,0,180,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -777,8 +771,7 @@ Blockly.Blocks.servo_set_ramp = {
         this.appendValueInput('RAMPSTEP')
                 .appendField("set ramp step")
                 .setCheck('Number')
-                .appendField('R,0,100,0', 'RANGEVALS0')
-        this.getField('RANGEVALS0').setVisible(false);
+                .appendRange('R,0,100,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -872,8 +865,7 @@ Blockly.Blocks.fb360_setup = {
                 .appendField(new Blockly.FieldDropdown(this._menuOptions, function (param) {
                     this.sourceBlock_.updateShape_(param);
                 }), "PARAM")
-                .appendField('R,36,3600,0', 'RANGEVALS1');
-        this.getField('RANGEVALS1').setVisible(false);
+                .appendRange('R,36,3600,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -882,11 +874,11 @@ Blockly.Blocks.fb360_setup = {
     setToOther: Blockly.Blocks['base_freqout'].setToOther,
     updateShape_: function (param) {
         if (param === 'setAcceleration') {
-            this.setFieldValue('R,36,3600,1800', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,36,3600,1800') //, 'RANGEVALS1');
         } else if (param === 'setMaxSpeed') {
-            this.setFieldValue('R,10,1080,540', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,10,1080,540') //, 'RANGEVALS1');
         } else {
-            this.setFieldValue('R,-2147483648,2147483647,0', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-2147483648,2147483647,0') //, 'RANGEVALS1');
         }
     },
     mutationToDom: function () {
@@ -976,19 +968,18 @@ Blockly.Blocks.fb360_set = {
                 .appendField(new Blockly.FieldDropdown(this._menuOptions, function (param) {
                     this.sourceBlock_.updateShape_(param);
                 }), "PARAM")
-                .appendField('R,-720,720,0', 'RANGEVALS1');
-        this.getField('RANGEVALS1').setVisible(false);
+                .appendRange('R,-720,720,0', 'RANGEVALS1');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
     },
     updateShape_: function (param) {
         if (param === 'speed') {
-            this.setFieldValue('R,-720,720,0', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-720,720,0') //, 'RANGEVALS1');
         } else if (param === 'angle') {
-            this.setFieldValue('R,-1456,1456,0', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-1456,1456,0') //, 'RANGEVALS1');
         } else {
-            this.setFieldValue('R,-2147483648,2147483647,0', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-2147483648,2147483647,0') //, 'RANGEVALS1');
         }
     },
     onchange: Blockly.Blocks['fb360_setup'].onchange,
@@ -1118,9 +1109,8 @@ Blockly.Blocks.ab_volt_out = {
         this.appendValueInput("VALUE")
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
-                .appendField('R,0,330,0', 'RANGEVALS1')
+                .appendRange('R,0,330,0')
                 .appendField("volt-100ths");
-        this.getField('RANGEVALS1').setVisible(false);
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -1166,10 +1156,9 @@ Blockly.Blocks.pwm_set = {
                 .appendField("channel")
                 .appendField(new Blockly.FieldDropdown([["A", "0"], ["B", "1"]]), "CHANNEL");
         this.appendValueInput("DUTY_CYCLE", Number)
-                .appendField('R,0,100,0', 'RANGEVALS1')
+                .appendRange('R,0,100,0')
                 .setCheck('Number')
                 .appendField("duty cycle (%)");
-        this.getField('RANGEVALS1').setVisible(false);
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -1337,8 +1326,7 @@ Blockly.Blocks.sound_play = {
                                 }), "ACTION");
                 if (act === 'volume') {
                     this.getInput("VALUE")
-                            .appendField('R,0,127,64', 'RANGEVALS1');
-                    this.getField('RANGEVALS1').setVisible(false);
+                            .appendRange('R,0,127,64');
                 }
                 this.waveInput = false;
             }
@@ -1355,8 +1343,7 @@ Blockly.Blocks.sound_play = {
             this.appendValueInput('CHANNEL')
                     .appendField(label)
                     .setCheck('Number')
-                    .appendField('R,0,3,0', 'RANGEVALS0');
-            this.getField('RANGEVALS0').setVisible(false);
+                    .appendRange('R,0,3,0');
             if (moveBefore) {
                 this.moveInputBefore('CHANNEL', moveBefore);
             }
@@ -1515,8 +1502,7 @@ Blockly.Blocks.wav_volume = {
         this.setColour(colorPalette.getColor('io'));
         this.appendValueInput('VOLUME')
                 .appendField("WAV volume")
-                .appendField('R,0,10,0', 'RANGEVALS1');
-        this.getField('RANGEVALS1').setVisible(false);
+                .appendField('R,0,10,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -2188,17 +2174,15 @@ Blockly.Blocks.ab_drive_goto = {
                 .appendField('Robot drive distance in')
                 .appendField(new Blockly.FieldDropdown([["ticks", "TICK"], ["centimeters", "CM"], ["inches", "INCH"]]), "UNITS");
         this.appendValueInput("LEFT")
-                .appendField('R,-4227330,4227330,0', 'RANGEVALS0')   // this number is derived from (2^31)/508
+                .appendRange('R,-4227330,4227330,0')                 // this number is derived from (2^31)/508
                 .setCheck('Number')                                  // where 508 is the largest multiplier
                 .setAlign(Blockly.ALIGN_RIGHT)                       // used in the scaling functions below.
                 .appendField("left");                                // keeps the user input from going above 2^31
         this.appendValueInput("RIGHT")                               // (max for a 32-bit integer)
-                .appendField('R,-4227330,4227330,0', 'RANGEVALS1')
+                .appendRange('R,-4227330,4227330,0')
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .appendField("right");
-        this.getField('RANGEVALS0').setVisible(false);
-        this.getField('RANGEVALS1').setVisible(false);
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -2262,9 +2246,8 @@ Blockly.Blocks.ab_drive_goto_max_speed = {
                 ], function (ops) {
                     this.sourceBlock_.applyTo(ops);
                 }), "OPS")
-                .appendField('R,0,128,0', 'RANGEVALS0')
+                .appendRange('R,0,128,0')
                 .setCheck('Number');
-        this.getField('RANGEVALS0').setVisible(false);
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -2319,15 +2302,13 @@ Blockly.Blocks.ab_drive_speed = {
         this.appendValueInput("LEFT")
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
-                .appendField('R,-128,128,0', 'RANGEVALS0')
+                .appendRange('R,-128,128,0')
                 .appendField("left");
         this.appendValueInput("RIGHT")
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
-                .appendField('R,-128,128,0', 'RANGEVALS1')
+                .appendRange('R,-128,128,0')
                 .appendField("right");
-        this.getField('RANGEVALS0').setVisible(false);
-        this.getField('RANGEVALS1').setVisible(false);
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -2363,15 +2344,13 @@ Blockly.Blocks.ab_drive_speed = {
         this.appendValueInput("LEFT")
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
-                .appendField(rangeText, 'RANGEVALS0')
+                .appendRange(rangeText)
                 .appendField("left");
         this.appendValueInput("RIGHT")
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
-                .appendField(rangeText, 'RANGEVALS1')
+                .appendRange(rangeText)
                 .appendField("right");
-        this.getField('RANGEVALS0').setVisible(false);
-        this.getField('RANGEVALS1').setVisible(false);
         this.setWarningText(warnText);
 
         if (blockLeft_)

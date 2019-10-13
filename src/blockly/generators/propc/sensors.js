@@ -71,8 +71,7 @@ Blockly.Blocks.sensor_ping = {
             this.appendValueInput(this.pinChoices[pinOpt])
                     .appendField(label)
                     .setCheck('Number')
-                    .appendField('A,' + profile.default.digital.toString(), 'RANGEVALS' + pinOpt);
-            this.getField('RANGEVALS' + pinOpt).setVisible(false);
+                    .appendRange('A,' + profile.default.digital.toString());
             if (moveBefore) {
                 this.moveInputBefore(this.pinChoices[pinOpt], moveBefore);
             } else {
