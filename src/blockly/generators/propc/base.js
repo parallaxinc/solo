@@ -58,92 +58,125 @@ Blockly.Blocks.math_number = {
         }
         this.setTooltip(Blockly.MSG_MATH_NUMBER_TOOLTIP);
         this.appendDummyInput('MAIN')
-                .appendField(new Blockly.FieldNumber('0', null, null, 1), 'NUM')
-                .appendField('', 'TITLE');
-        this.getField('TITLE').setVisible(false);
+                .appendField(new Blockly.FieldNumber('0', null, null, 1), 'NUM');
         this.setOutput(true, 'Number');
         this.lastBlockText = ' ';
         this.lastFieldType = 'number';
+        this.warnTxt = null;
     },
     onchange: function (event) {
         if (event && (event.type === Blockly.Events.CHANGE || event.type === Blockly.Events.MOVE) && event.blockId === this.id) {
-            var fieldType = 'number';
-            var blockText = '';
-            var warnText = null;
-            var range = ['N', -100, 100, Number(this.getFieldValue('NUM'))];
-            var fieldToAdd = new Blockly.FieldNumber(range[3].toString(10), null, null, 1);
-
-            if (this.outputConnection && this.outputConnection.targetBlock()) {
-                var connectingBlock = this.outputConnection.targetBlock()
-                var fieldListing = connectingBlock.getInputWithBlock(this).getRange();
-                if (fieldListing) {
-                    var rangeVals = fieldListing.split(',');
-                    range[0] = rangeVals[0];
-                    if (rangeVals[0] === 'S' || rangeVals[0] === 'R') {
-                        range[1] = Number(rangeVals[1]);
-                        range[2] = Number(rangeVals[2]);
-                    } else if (rangeVals[0] === 'A') {
-                        for (var idx = 4; idx < rangeVals.length - 3; idx++) {
-                            range[idx] = Number(rangeVals[idx - 3]);
-                        }
-                    }
-                }
-            }
-            if (range[0] === 'R') {
-                if (range[3] < range[1]) {
-                    warnText = 'WARNING: Your value is too small!  It must be greater than or equal to ' + range[1].toString(10);
-                } else if (range[3] > range[2]) {
-                    warnText = 'WARNING: Your value is too large!  It must be less than or equal to ' + range[2].toString(10);
-                }
-                if ((range[3] < range[1] || range[3] > range[2]) && Math.abs(range[1] - range[2]) <= 10000000) {
-                    if (range[2] >= 2147483647) {
-                        blockText = '(\u2265 ' + range[0].toString(10) + ')';
-                    } else if (range[1] <= -2147483647) {
-                        blockText = '(\u2264' + range[1].toString(10) + ')';
-                    } else if (Math.abs(range[1]) === Math.abs(range[2])) {
-                        blockText = '(+/- ' + Math.abs(range[0]).toString(10) + ')';
-                    } else {
-                        blockText = '(' + range[1].toString(10) + ' to ' + range[2].toString(10) + ')';
-                    }
-                }
-            } else if (range[0] === 'A') {
-                var warnMsg = true;
-                for (var idx = 4; idx < (range.length - 3); idx++) {
-                    if (range[3] === Number(range[idx])) {
-                        warnMsg = false;
-                        break;
-                    }
-                }
-                if (warnMsg) {
-                    warnText = 'WARNING: The value you entered is not available or not allowed!';
-                }
-            } else if (range[0] === 'S') {
-                fieldType = 'slider';
-                if (range[3] > range[2]) {
-                    range[3] = range[2];
-                }
-                if (range[3] < range[1]) {
-                    range[3] = range[1];
-                }
-                fieldToAdd = new Blockly.FieldRange(range[3].toString(10), range[1].toString(10), range[2].toString(10));
-            }
-            if (this.lastBlockText !== blockText || this.lastFieldType !== fieldType) {
-                this.lastBlockText = blockText;
-                this.lastFieldType = fieldType;
-                if (this.getInput('MAIN')) {
-                    this.removeInput('MAIN');
-                }
-                if (blockText === '') {
-                    this.appendDummyInput('MAIN')
-                            .appendField(fieldToAdd, 'NUM');
-                } else {
-                    this.appendDummyInput('MAIN')
-                            .appendField(fieldToAdd, 'NUM')
-                            .appendField(blockText, 'TITLE');
-                }
-            }
-            this.setWarningText(warnText);
+            this.updateShape();
         }
+    },
+    mutationToDom: function () {
+        // Create XML to represent menu options.
+        var container = document.createElement('mutation');
+        container.setAttribute('blocktext', this.getFieldValue('TITLE') || '');
+        container.setAttribute('warntext', this.warnTxt || '');
+        return container;
+    },
+    domToMutation: function (container) {
+        // Parse XML to restore the menu options.
+        this.lastBlockText = container.getAttribute('blocktext') || '';
+        this.warnTxt = container.getAttribute('warntext') || null;
+        var value = this.getFieldValue('NUM');
+        if (this.getInput('MAIN')) {
+            this.removeInput('MAIN');
+        }
+        if (blockText === '') {
+            this.appendDummyInput('MAIN')
+                    .appendField(new Blockly.FieldNumber(value, null, null, 1), 'NUM');
+        } else {
+            this.appendDummyInput('MAIN')
+                    .appendField(new Blockly.FieldNumber(value, null, null, 1), 'NUM')
+                    .appendField(this.lastBlockText, 'TITLE');
+        }
+        this.setWarningText(warnText);
+    },
+    getRangeArray: function () {
+        var range = ['N', -100, 100, Number(this.getFieldValue('NUM'))];
+
+        if (this.outputConnection && this.outputConnection.targetBlock()) {
+            var connectingBlock = this.outputConnection.targetBlock()
+            var fieldListing = connectingBlock.getInputWithBlock(this).getRange();
+            if (fieldListing) {
+                var rangeVals = fieldListing.split(',');
+                range[0] = rangeVals[0];
+                if (rangeVals[0] === 'S' || rangeVals[0] === 'R') {
+                    range[1] = Number(rangeVals[1]);
+                    range[2] = Number(rangeVals[2]);
+                } else if (rangeVals[0] === 'A') {
+                    for (var idx = 4; idx < rangeVals.length - 3; idx++) {
+                        range[idx] = Number(rangeVals[idx - 3]);
+                    }
+                }
+            }
+        }
+        return range;
+    },
+    updateShape: function (rangeArray) {
+        var fieldType = 'number';
+        var blockText = '';
+        var warnText = null;
+        var range = rangeArray || this.getRangeArray();
+        var fieldToAdd = new Blockly.FieldNumber(range[3].toString(10), null, null, 1);
+
+        if (range[0] === 'R') {
+            if (range[3] < range[1]) {
+                warnText = 'WARNING: Your value is too small!  It must be greater than or equal to ' + range[1].toString(10);
+            } else if (range[3] > range[2]) {
+                warnText = 'WARNING: Your value is too large!  It must be less than or equal to ' + range[2].toString(10);
+            }
+            if ((range[3] < range[1] || range[3] > range[2]) && Math.abs(range[1] - range[2]) <= 10000000) {
+                if (range[2] >= 2147483647) {
+                    blockText = '(\u2265 ' + range[0].toString(10) + ')';
+                } else if (range[1] <= -2147483647) {
+                    blockText = '(\u2264' + range[1].toString(10) + ')';
+                } else if (Math.abs(range[1]) === Math.abs(range[2])) {
+                    blockText = '(+/- ' + Math.abs(range[0]).toString(10) + ')';
+                } else {
+                    blockText = '(' + range[1].toString(10) + ' to ' + range[2].toString(10) + ')';
+                }
+            }
+        } else if (range[0] === 'A') {
+            var warnMsg = true;
+            for (var idx = 4; idx < (range.length - 3); idx++) {
+                if (range[3] === Number(range[idx])) {
+                    warnMsg = false;
+                    break;
+                }
+            }
+            if (warnMsg) {
+                warnText = 'WARNING: The value you entered is not available or not allowed!';
+            }
+        } else if (range[0] === 'S') {
+            fieldType = 'slider';
+            if (range[3] > range[2]) {
+                range[3] = range[2];
+            }
+            if (range[3] < range[1]) {
+                range[3] = range[1];
+            }
+            fieldToAdd = new Blockly.FieldRange(range[3].toString(10), range[1].toString(10), range[2].toString(10));
+        }
+        if (this.lastBlockText !== blockText || this.lastFieldType !== fieldType) {
+            this.lastBlockText = blockText;
+            this.lastFieldType = fieldType;
+            if (this.getInput('MAIN')) {
+                this.removeInput('MAIN');
+            }
+            if (blockText === '') {
+                this.appendDummyInput('MAIN')
+                        .appendField(fieldToAdd, 'NUM');
+            } else {
+                this.appendDummyInput('MAIN')
+                        .appendField(fieldToAdd, 'NUM')
+                        .appendField(blockText, 'TITLE');
+            }
+        }
+        this.warnTxt = warnText;
+        this.setWarningText(warnText);
     }
 };
 
