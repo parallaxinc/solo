@@ -166,6 +166,18 @@ Blockly.Blocks.array_get = {
         this.setInputsInline(true);
         this.setOutput(true, 'Number');
         this.arrayList = ['list'];
+        this.arrayInitWarnFlag = false;
+    },
+    mutationToDom: function () {
+        var container = document.createElement('mutation');
+        container.setAttribute('array_list', this.arrayList.join(','));
+        return container;
+    },
+    domToMutation: function (container) {
+        var arrayString = container.getAttribute('array_list');
+        if (arrayString) {
+            this.arrayList = arrayString.split(',');
+        }
         this.updateArrayMenu();
     },
     buildArrayMenu: function (arrayList) {
@@ -176,7 +188,14 @@ Blockly.Blocks.array_get = {
         this.appendValueInput('NUM')
                 .setCheck('Number')
                 .appendField('array')
-                .appendField(new Blockly.FieldDropdown((arrayList.length > 0 ? arrayList : ['list']).map(function (value) { return [value, value]})), "VAR")
+                .appendField(new Blockly.FieldDropdown(
+                        (arrayList.length > 0 ? arrayList : ['list']).map(function (value) {
+                            return [value, value]  // returns an array of arrays built from the original array.
+                        }), function () {
+                            if (this.sourceBlock_.arrayInitWarnFlag) {
+                                this.sourceBlock_.setWarningText(null);
+                            }
+                        }), 'VAR')
                 .appendField('element');
         if (toConn) {
             this.getInput('NUM').connection.connect(toConn);
@@ -185,14 +204,14 @@ Blockly.Blocks.array_get = {
     updateArrayMenu: function (oldValue, newValue) {
         var currentValue = this.getFieldValue('VAR');
 
-        var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-        for (var ij = 0; ij < allBlocks.length; ij++) {
-            if (allBlocks[ij].type === 'array_init' && allBlocks[ij].getFieldValue('VAR')) {
-                this.arrayList.push(allBlocks[ij].getFieldValue('VAR'));
+        Blockly.getMainWorkspace().getBlocksByType('array_init', false).forEach(function(element) {
+            if (this) {
+                this.arrayList.push(element.getFieldValue('VAR'));
             }
-        }
+        });
+
         if (newValue) {
-            this.arrayList.push(newValue);       // add the new value to the list of arrays
+            this.arrayList.push(newValue);                // add the new value to the list of arrays
         }
         if (oldValue) {
             this.arrayList = this.arrayList.filter(function (value) {
@@ -200,14 +219,21 @@ Blockly.Blocks.array_get = {
             });
         }
 
-        this.arrayList = uniq_fast(this.arrayList);          // sort and remove duplicates from the list of arrays - this may not be necessary
+        this.arrayList = uniq_fast(this.arrayList);       // sort and remove duplicates from the list of arrays
         this.buildArrayMenu(this.arrayList);
 
         // update the menu on the block
         if (newValue && currentValue && currentValue === oldValue) {
             this.setFieldValue(newValue, 'VAR');
-        } else if (currentValue) {
-            this.setFieldValue(currentValue, 'VAR');
+        } else if (currentValue && this.getField('VAR')) {
+            if (this.arrayList.indexOf(currentValue) >= 0) {
+                this.setFieldValue(currentValue, 'VAR');
+            } else {
+                // the init block for this array got deleted, so revert to "list" and toggle the warning icon on the block
+                this.setFieldValue('list', 'VAR');
+                this.setWarningText('The array "' + currentValue + '" is no longer initialized.\nEither add an array initialize block\nor choose a different array.')
+                this.arrayInitWarnFlag = true;
+            }
         }
     },
     onchange: function (event) {
@@ -219,7 +245,7 @@ Blockly.Blocks.array_get = {
             // have to dive into it's XML, since that's all that's preserved 
             if (event.oldXml.attributes.type.nodeValue === 'array_init') {
                 blockType = 'array_init';
-                oldValue = event.oldXml.children.VAR.firstChild.data; // Block field previous value
+                oldValue = event.oldXml.firstChild.innerHTML; // Block field previous value
             }        
         } else if (event.type === Blockly.Events.BLOCK_CREATE) {
             var eventBlock = Blockly.getMainWorkspace().getBlockById(event.blockId);
@@ -229,7 +255,7 @@ Blockly.Blocks.array_get = {
             }
         } else if (event.type === Blockly.Events.BLOCK_CHANGE) {
             var eventBlock = Blockly.getMainWorkspace().getBlockById(event.blockId);
-            if (eventBlock && eventBlock.type === 'array_init') {
+            if (eventBlock && eventBlock.type === 'array_init' && event.name === 'VAR') {
                 blockType = 'array_init';
                 newValue = event.newValue;  // Block field new value
                 oldValue = event.oldValue;  // Block field previous value
@@ -239,31 +265,32 @@ Blockly.Blocks.array_get = {
             this.updateArrayMenu(oldValue, newValue);
         }
 
-        var code = null;
+        var warnText = null;
         var elementCount = null;
         if (this.type === 'array_get' || this.type === 'array_set' ) {
-            var en = Blockly.propc.valueToCode(this, 'NUM', Blockly.propc.ORDER_NONE) || '0';
-            if (en.replace(/[^0-9]+/g, "") === en) {
-                elementCount = parseInt(en);
+            var elementValue = Blockly.propc.valueToCode(this, 'NUM', Blockly.propc.ORDER_NONE) || '0';
+            // Only run this check if the field is populated with a numeric value.  If it contains a variable, skip this.
+            if (elementValue.replace(/[^0-9]+/g, "") === elementValue) {
+                elementCount = parseInt(elementValue);
             }
         } else if (this.type === 'array_fill') {
             elementCount = (this.getFieldValue('NUM').split(',')).length
         }
         var arrayName = this.getFieldValue('VAR')
-        var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-        var initBlock = null;
-        for (var ij = 0; ij < allBlocks.length; ij++) {
-            if (allBlocks[ij].type === 'array_init' && allBlocks[ij].getFieldValue('VAR')) {
-                initBlock = allBlocks[ij];
-                break;
+        var initBlockCount = null;
+        Blockly.getMainWorkspace().getBlocksByType('array_init', false).forEach(function(element) {
+            if (element.getFieldValue('VAR') === arrayName) {
+                initBlockCount = parseInt(element.getFieldValue('NUM'), 10);
             }
+        });
+        if (!initBlockCount) {
+            warnText = 'WARNING: The array "' + arrayName + '" has not been initialized!';
+        } else if (elementCount && (elementCount >= initBlockCount || elementCount < 0)) {
+            warnText = 'WARNING: You are trying to get an element from your array that does not exist!';
         }
-        if (!initBlock) {
-            code = 'WARNING: The array "' + arrayName + '" has not been initialized!';
-        } else if (elementCount && (elementCount >= parseInt(initBlock.getFieldValue('NUM'), 10) || elementCount < 0)) {
-            code = 'WARNING: You are trying to get an element from your array that does not exist!';
+        if (!this.arrayInitWarnFlag) {
+            this.setWarningText(warnText);
         }
-        this.setWarningText(code);
     }
 };
 
@@ -279,7 +306,7 @@ Blockly.Blocks.array_init = {
         this.appendDummyInput()
                 .appendField('array initialize')
                 .appendField(new Blockly.FieldTextInput('list', function (a) {
-                    return a.replace(/ /g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+                    return a.replace(/ /g, '_').replace(/[^a-zA-Z0-9_]/g, '');  // Replace spaces with underscores and remove non-word characters from the array variable name
                 }), 'VAR')
                 .appendField("with")
                 .appendField(new Blockly.FieldNumber('10', null, null, 1), 'NUM')
@@ -318,8 +345,10 @@ Blockly.Blocks.array_fill = {
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
         this.arrayList = ['list'];
-        this.updateArrayMenu();
+        this.arrayInitWarnFlag = false;
     },
+    mutationToDom: Blockly.Blocks['array_get'].mutationToDom,
+    domToMutation: Blockly.Blocks['array_get'].domToMutation,
     buildArrayMenu: function (arrayList) {
         var currList = this.getFieldValue("NUM") || '10,20,30,40,50';
         if(this.getInput('NUMS')) {
@@ -358,8 +387,10 @@ Blockly.Blocks.array_set = {
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
         this.arrayList = ['list'];
-        this.updateArrayMenu();
+        this.arrayInitWarnFlag = false;
     },
+    mutationToDom: Blockly.Blocks['array_get'].mutationToDom,
+    domToMutation: Blockly.Blocks['array_get'].domToMutation,
     buildArrayMenu: function (arrayList) {
         var inputTargetConnection = this.getInput('NUM').connection.targetConnection;
         if(this.getInput('NUM')) {
@@ -401,8 +432,10 @@ Blockly.Blocks.array_clear = {
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
         this.arrayList = ['list'];
-        this.updateArrayMenu();
+        this.arrayInitWarnFlag = false;
     },
+    mutationToDom: Blockly.Blocks['array_get'].mutationToDom,
+    domToMutation: Blockly.Blocks['array_get'].domToMutation,
     buildArrayMenu: function (arrayList) {
         if(this.getInput('NUM')) {
             this.removeInput('NUM');
