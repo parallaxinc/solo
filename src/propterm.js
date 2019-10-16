@@ -392,6 +392,7 @@ function updateTermBox(c) {
 
     // FIXME: Convert the values evaluated in the switch statement to constants
     //  to make this code more readable.
+    // https://www.parallax.com/portals/0/help/BASICStamp/PBASIC click on Debug
     switch (termSetCursor) {
         case 3:
             cursorGotoX = parseInt(c);
@@ -408,7 +409,9 @@ function updateTermBox(c) {
             termSetCursor = 0;
             setCursor(cursorGotoX, cursorGotoY);
             break;
+
         case 0:
+            // TODO: Null is important to Parallax - Ask Jeff
             switch (c) {
                 case 127:
                 case 8:

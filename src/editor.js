@@ -20,9 +20,10 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+// var Blockly = require('blockly/core');
+// import Blockly from 'blockly/core';
 
 /** GLOBAL VARIABLES **/
-
 
 /**
  *  The relative path for the hosting web site. The default is '/'.
@@ -1021,7 +1022,7 @@ function saveAsDialog () {
                     if (isOffline) {
                         downloadCode();
                     } else {
-                        saveProject();  
+                        saveProject();
                     }
                 }
             }, 'Yes', 'No');
@@ -1072,7 +1073,7 @@ function saveProjectAs (requestor) {
     // Retrieve the field values
     var p_type = $('#save-as-board-type').val();
     var p_name = $('#save-as-project-name').val();
-    
+
     //get the project's XML code
     var code = '';
 
@@ -1118,7 +1119,7 @@ function saveProjectAs (requestor) {
 
         window.localStorage.setItem(localProjectStoreName, JSON.stringify(pd));
         window.location = 'blocklyc.html';
-    }  
+    }
 }
 
 
@@ -1243,7 +1244,7 @@ function downloadCode() {
                 SVGheader += '{display: block;} .bkginfo {cursor: default; fill: rgba(0, 0, 0, 0.3); font-family: ';
                 SVGheader += 'sans-serif; font-size: 10pt;}</style>';
 
-                // a footer to generate a watermark with the project's information at the bottom-right corner of the SVG 
+                // a footer to generate a watermark with the project's information at the bottom-right corner of the SVG
                 // and hold project metadata.
                 var SVGfooter = '';
                 var dt = new Date();
@@ -1351,7 +1352,7 @@ function uploadHandler(files) {
                 findBPCstart = '<variables>';
             }
             uploadedXML = xmlString.substring(xmlString.indexOf(findBPCstart), (xmlString.length - 29));
-            
+
             var computedChecksum = hashCode(uploadedXML).toString();
             computedChecksum = '000000000000'.substring(computedChecksum.length, 12) + computedChecksum;
 
@@ -1528,13 +1529,13 @@ function uploadMergeCode(append) {
             newCode = newCode.substring(uploadedXML.indexOf('<variables>'), newCode.length);
         }
         newCode = newCode.substring(0, (newCode.length - 6));
-        
+
         // check for newer blockly XML code (contains a list of variables)
         if (newCode.indexOf('<variables>') > -1 && projCode.indexOf('<variables>') > -1) {
             var findVarRegExp = /type="(\w*)" id="(.{20})">(\w+)</g;
             var newBPCvars = [];
             var oldBPCvars = [];
-    
+
             var varCodeTemp = newCode.split('</variables>');
             newCode = varCodeTemp[1];
             // use a regex to match the id, name, and type of the varaibles in both the old and new code.
@@ -1555,10 +1556,10 @@ function uploadMergeCode(append) {
                 for (var k = 0; k < tmpv[1]; k++) {
                     // see if var is a match
                     if (newBPCvars[k][0] === oldBPCvars[j][0]) {
-                        // replace old variable IDs with new ones 
+                        // replace old variable IDs with new ones
                         var tmpr = newCode.split(newBPCvars[k][1]);
                         newCode = tmpr.join(oldBPCvars[j][1]);
-                        // null the ID to mark that it's a duplicate and 
+                        // null the ID to mark that it's a duplicate and
                         // should not be included in the combined list
                         newBPCvars[k][1] = null;
                     }
@@ -1598,18 +1599,18 @@ function uploadMergeCode(append) {
 
 /**
  *
- * @param profileName
+ * @param profileName - aka Board Type
  */
 function initToolbox(profileName) {
 
     // TODO: Verify that custom fonts are required
     var ff = getURLParameter('font');
-    
+
     if(ff) {
         // Replace font family in Blockly's inline CSS
         for (var f = 0; f < Blockly.Css.CONTENT.length; f++) {
             Blockly.Css.CONTENT[f] = Blockly.Css.CONTENT[f].replace(/Arial, /g, '').replace(/sans-serif;/g, "'" + ff + "', sans-serif;");
-        }   
+        }
 
         $('html, body').css('font-family', "'" + ff + "', sans-serif");
         $('.blocklyWidgetDiv .goog-menuitem-content').css('font', "'normal 14px '" + ff + "', sans-serif !important'"); //    font: normal 14px Arimo, sans-serif !important;
@@ -1617,7 +1618,7 @@ function initToolbox(profileName) {
     } else {
         for (var f = 0; f < Blockly.Css.CONTENT.length; f++) {
             Blockly.Css.CONTENT[f] = Blockly.Css.CONTENT[f].replace(/Arial, /g, '').replace(/sans-serif;/g, "Arimo, sans-serif;");
-        }   
+        }
     }
 
     // Options are described in detail here:
@@ -1658,7 +1659,7 @@ function initToolbox(profileName) {
 
 
 /**
- *
+ * Load the workspace
  * @param xmlText
  */
 function loadToolbox(xmlText) {

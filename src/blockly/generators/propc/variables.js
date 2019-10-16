@@ -31,6 +31,7 @@
  */
 'use strict';
 
+
 // Init a new Blocks object if one does not already exist
 if (!Blockly.Blocks)
     Blockly.Blocks = {};
@@ -151,7 +152,13 @@ Blockly.propc.variables_set = function () {
 /**
  *  Get an array of the currently defined project variables
  *
- * @type {{init: Blockly.Blocks.array_get.init, updateArrayMenu: Blockly.Blocks.array_get.updateArrayMenu, helpUrl: *, onchange: Blockly.Blocks.array_get.onchange, buildArrayMenu: Blockly.Blocks.array_get.buildArrayMenu}}
+ * @type {{
+ *      init: Blockly.Blocks.array_get.init,
+ *      updateArrayMenu: Blockly.Blocks.array_get.updateArrayMenu,
+ *      helpUrl: *,
+ *      onchange: Blockly.Blocks.array_get.onchange,
+ *      buildArrayMenu: Blockly.Blocks.array_get.buildArrayMenu
+ *      }}
  */
 Blockly.Blocks.array_get = {
     helpUrl: Blockly.MSG_ARRAYS_HELPURL,
@@ -161,7 +168,9 @@ Blockly.Blocks.array_get = {
         this.appendValueInput('NUM')
                 .setCheck('Number')
                 .appendField('array')
-                .appendField(new Blockly.FieldDropdown([["list", "list"]]), "VAR")
+                .appendField(
+                    new Blockly.FieldDropdown([["list", "list"]]),
+                   "VAR")
                 .appendField('element');
         this.setInputsInline(true);
         this.setOutput(true, 'Number');
@@ -170,6 +179,7 @@ Blockly.Blocks.array_get = {
         this.updateArrayMenu();
     },
 
+    // Populate the variable name drop-down control
     buildArrayMenu: function (v_list) {
         var toConn = this.getInput('NUM').connection.targetConnection;
 
@@ -198,26 +208,23 @@ Blockly.Blocks.array_get = {
 
         var v_check = true;
         var v_list = [];
-        var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-
+        var allBlocks = Blockly.getMainWorkspace().getBlocksByType('array_init', false);
 
         // Walk through all of the defined blocks and find any
         // array_init blocks
         for (var x = 0; x < allBlocks.length; x++) {
-            if (allBlocks[x].type === 'array_init') {
-                // Get the array variable name
-                var v_name = allBlocks[x].getFieldValue('VAR');
+            // Get the array variable name
+            var v_name = allBlocks[x].getFieldValue('VAR');
 
-                // Update the variable name if a new one is provided
-                if (v_name === oldVarName && newVarName) {
-                    v_name = newVarName;
-                }
-                // Add the array name to the internal list of variables
-                if (v_name) {
-                    v_list.push([v_name, v_name]);
-                }
-                v_check = false;
+            // Update the variable name if a new one is provided
+            if (v_name === oldVarName && newVarName) {
+                v_name = newVarName;
             }
+            // Add the array name to the internal list of variables
+            if (v_name) {
+                v_list.push([v_name, v_name]);
+            }
+            v_check = false;
         }
 
         // Init the array name to a default if there are no existing
@@ -226,6 +233,15 @@ Blockly.Blocks.array_get = {
             v_list.push(['list', 'list']);
         }
 
+        /* **********************************************************
+         * This is returning a field value of 'list'. In the test
+         * case, there is only one array_list, named 'notes'. There
+         * is no array_list block named 'item' in the project.
+         *
+         * If this is called with a null or empty string, the correct
+         * value of 'notes' is returned. The new question is why the
+         * field name is not getting set as expected.
+         * *********************************************************/
         var m = this.getFieldValue('VAR');
 
         // sort and remove duplicates
@@ -304,6 +320,7 @@ Blockly.Blocks.array_init = {
         this.setNextStatement(true);
         this.sendUpdate = true;
     },
+    // TODO: What, exactly, is this method trying to accomplish?
     sendArrayVal: function (oldVarName, newVarName) {
         if (this.sendUpdate || (oldVarName === '-1' && newVarName === '-1')) {
             if (oldVarName === '-1' && newVarName === '-1') {
@@ -316,7 +333,7 @@ Blockly.Blocks.array_init = {
 
             // loop through all blocks
             for (var x = 0; x < allBlocks.length; x++) {
-                // Store a pointer to the UdateArrayMenu method that
+                // Store a pointer to the UpdateArrayMenu method that
                 // is defined for the block
                 var func = allBlocks[x].updateArrayMenu;
 
@@ -329,6 +346,7 @@ Blockly.Blocks.array_init = {
         }
         this.sendUpdate = true;
     },
+    // Handle the array_init block on_change event
     onchange: function (event) {
         var myName = this.getFieldValue('VAR');
         var theBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
