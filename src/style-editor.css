@@ -469,6 +469,17 @@ ul > hr {
     padding-right: 10px;
 }
 
+.project-name:focus {
+    outline: none;
+}
+
+.project-name-editable {
+    border: 3px solid #00f;
+    border-radius: 5px;
+    padding: 0px 5px;
+    background-color: white;
+}
+
 .bp-client-available {
     background:none;
     border:1px solid rgba(0, 0, 0, 0);

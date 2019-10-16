@@ -622,6 +622,19 @@ function initEventHandlers() {
     // **********************************
     // **     Toolbar - right side     **
     // **********************************
+    // Project Name listing
+    // Make the text in the project-name span editable
+    $('.project-name').attr('contenteditable', 'true')  
+            // Change the styling to indicate to the user that they are editing this field        
+            .on('focus', () => {
+                $('.project-name').addClass('project-name-editable');
+            })
+            // reset the style and save the new project name to the projectData object 
+            .on('blur', () => {
+                $('.project-name').removeClass('project-name-editable');
+                projectData.name = $('.project-name').html();
+            });
+
     // New Project toolbar button
     $('#new-project-button').on('click', () => NewProjectModal());
 
@@ -753,8 +766,6 @@ function initCdnImageUrls() {
         }
     });
 }
-
-
 
 /**
  * Reset the sizing of blockly's toolbox and canvas.
