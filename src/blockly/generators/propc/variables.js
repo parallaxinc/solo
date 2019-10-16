@@ -204,11 +204,11 @@ Blockly.Blocks.array_get = {
     updateArrayMenu: function (oldValue, newValue) {
         var currentValue = this.getFieldValue('VAR');
 
+        var initBlockList = [];
         Blockly.getMainWorkspace().getBlocksByType('array_init', false).forEach(function(element) {
-            if (this) {
-                this.arrayList.push(element.getFieldValue('VAR'));
-            }
+            initBlockList.push(element.getFieldValue('VAR'));
         });
+        this.arrayList = this.arrayList.concat(initBlockList);
 
         if (newValue) {
             this.arrayList.push(newValue);                // add the new value to the list of arrays
@@ -252,6 +252,9 @@ Blockly.Blocks.array_get = {
             if (eventBlock && eventBlock.type === 'array_init') {
                 blockType = 'array_init';
                 newValue = eventBlock.getFieldValue('VAR');  // Block field new value
+            }
+            if (eventBlock === this) {
+                this.updateArrayMenu();
             }
         } else if (event.type === Blockly.Events.BLOCK_CHANGE) {
             var eventBlock = Blockly.getMainWorkspace().getBlockById(event.blockId);
