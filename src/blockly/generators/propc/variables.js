@@ -202,6 +202,9 @@ Blockly.Blocks.array_get = {
         }
     },
     updateArrayMenu: function (oldValue, newValue) {
+        if (this.isInFlyout) {
+            return;
+        }
         var currentValue = this.getFieldValue('VAR');
 
         var initBlockList = [];
