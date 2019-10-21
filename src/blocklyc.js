@@ -801,6 +801,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
 function serial_console() {
     var newTerminal = false;
 
+    // HTTP client
     if (client_use_type !== 'ws') {
         if (term === null) {
             term = {

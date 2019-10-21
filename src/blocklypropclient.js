@@ -185,16 +185,20 @@ var version_as_number = function (rawVersion) {
 var set_ui_buttons = function (ui_btn_state) {
     if (ui_btn_state === 'available') {
         if (projectData && projectData['board'] === 's3') {
+            // Hide the buttons that are not required for the S3 robot
             $('#prop-btn-ram').addClass('hidden');
             $('#prop-btn-graph').addClass('hidden');
             $('#client-available').addClass('hidden');
+            // Reveal the short client available message
             $('#client-available-short').removeClass('hidden');
         } else {
+            // Reveal these buttons
             $('#prop-btn-ram').removeClass('hidden');
             $('#prop-btn-graph').removeClass('hidden');
             $('#client-available').removeClass('hidden');
             $('#client-available-short').addClass('hidden');
         }
+
         $("#client-searching").addClass("hidden");
         $("#client-unavailable").addClass("hidden");
         $("#prop-btn-ram").removeClass("disabled");
@@ -202,12 +206,14 @@ var set_ui_buttons = function (ui_btn_state) {
         $("#prop-btn-term").removeClass("disabled");
         $("#prop-btn-graph").removeClass("disabled");
     } else {
+        // Disable the toolbar buttons
         $("#client-available").addClass("hidden");
         $("#client-available-short").addClass("hidden");
         $("#prop-btn-ram").addClass("disabled");
         $("#prop-btn-eeprom").addClass("disabled");
         $("#prop-btn-term").addClass("disabled");
         $("#prop-btn-graph").addClass("disabled");
+
         if (ui_btn_state === 'searching') {
             $("#client-searching").removeClass("hidden");
             $("#client-unavailable").addClass("hidden");
@@ -264,11 +270,12 @@ var check_client = function () {
 };
 
 var connection_heartbeat = function () {
-    // Check the last time the port list was recieved.
+    // Check the last time the port list was received.
     // If it's been too long, close the connection.
     if (client_use_type === 'ws') {
         var d = new Date();
         if (client_ws_heartbeat + 12000 < d.getTime()) {
+            console.log("Lost client websocket connection");
             // Client is taking too long to check in - close the connection and clean up
             client_ws_connection.close();
             lostWSConnection();
@@ -392,7 +399,9 @@ function establish_socket() {
                  }, 10000);
                  */
 
-                if (getURLParameter('debug')) console.log("Websocket client/launcher found - version " + ws_msg.version);
+                if (getURLParameter('debug')) {
+                    console.log("Websocket client/launcher found - version " + ws_msg.version);
+                }
 
                 client_use_type = 'ws';
                 client_available = true;
@@ -422,7 +431,8 @@ function establish_socket() {
 
             // --- serial terminal/graph
             else if (ws_msg.type === 'serial-terminal' &&
-                    (typeof ws_msg.msg === 'string' || ws_msg.msg instanceof String)) { // sometimes some weird stuff comes through...
+                    (typeof ws_msg.msg === 'string' || ws_msg.msg instanceof String)) {
+                // sometimes some weird stuff comes through...
                 // type: 'serial-terminal'
                 // msg: [String Base64-encoded message]
 
