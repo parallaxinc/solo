@@ -6,3 +6,7 @@
 # npm packages
 node_modules
 .eslintrc.js
+
+# MacOS filesystem files
+.DS_Store
+
