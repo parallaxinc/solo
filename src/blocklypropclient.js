@@ -124,7 +124,7 @@ var client_ws_heartbeat_interval = null;
 
 var check_com_ports_interval = null;
 var check_ws_socket_timeout = null;
-        
+
 // BP Launcher result log and download message flag
 var launcher_result = "";
 var launcher_download = false;
@@ -149,7 +149,7 @@ var find_client = function () {
         //Clear timeout if it exists; without this, back-to-back find_client() calls seem to occur
         clearTimeout(check_ws_socket_timeout);
     }
-    
+
     establish_socket();
     if (client_use_type !== 'ws') {
         // WebSocket'd launcher not found?  Try Http'd client
@@ -165,12 +165,12 @@ var version_as_number = function (rawVersion) {
         $("#client-unknown-span").removeClass("hidden");
         $(".client-required-version").html(client_recommended_version);
         $(".client-your-version").html('<b>UNKNOWN</b>');
-        $('#client-version-modal').modal('show');                 
+        $('#client-version-modal').modal('show');
 
         //bootbox.alert("BlocklyProp is unable to determine what version of " +
         //        "BlocklyPropClient is installed on your computer.\nYou may need to install" +
         //        "or reinstall the BlocklyPropClient.");
-        
+
         if (tempVersion.length === 1)
             tempVersion = '0.0.0';
         else
@@ -227,9 +227,9 @@ var check_client = function () {
                 $("#client-unknown-span").removeClass("hidden");
                 $(".client-required-version").html(client_min_version);
                 $(".client-your-version").html(data.version || '<b>UNKNOWN</b>');
-                $('#client-version-modal').modal('show');                 
+                $('#client-version-modal').modal('show');
             } else if (client_version < version_as_number(client_min_version)) {
-                //bootbox.alert("This system now requires at least version " + client_min_version + " of BlocklyPropClient- yours is: " + data.version);                    
+                //bootbox.alert("This system now requires at least version " + client_min_version + " of BlocklyPropClient- yours is: " + data.version);
                 $('.bpc-version').addClass('hidden');
                 $("#client-danger-span").removeClass("hidden");
                 $(".client-required-version").html(client_min_version);
@@ -342,7 +342,7 @@ function establish_socket() {
 
         // Clear the port list
         set_port_list();
-        
+
         var url = client_url.replace('http', 'ws');
         var connection = new WebSocket(url);
 
@@ -392,8 +392,8 @@ function establish_socket() {
                  }, 10000);
                  */
 
-                if (getURLParameter('debug')) console.log("Websocket client/launcher found - version " + ws_msg.version);                
-                
+                if (getURLParameter('debug')) console.log("Websocket client/launcher found - version " + ws_msg.version);
+
                 client_use_type = 'ws';
                 client_available = true;
 
@@ -406,7 +406,7 @@ function establish_socket() {
 
             // --- com port list/change
             else if (ws_msg.type === 'port-list') {
-                // type: 'port-list', 
+                // type: 'port-list',
                 // ports: ['port1', 'port2', 'port3'...]
 
                 // mark the time that this was received
@@ -444,7 +444,7 @@ function establish_socket() {
 
             // --- UI Commands coming from the client
             else if (ws_msg.type === 'ui-command') {
-                // type: 'ui-command', 
+                // type: 'ui-command',
                 // action: ['open-terminal','open-graph','close-terminal','close-graph','close-compile','clear-compile','message-compile','alert']
                 // msg: [String message]
 
@@ -490,11 +490,11 @@ function establish_socket() {
                         //Messages are not coded; display all as they come
                         $('#compile-console').val($('#compile-console').val() + ws_msg.msg);
                     }
-                    
+
                     // Scoll automatically to the bottom after new data is added
                     var compileConsoleObj = document.getElementById("compile-console");
                     compileConsoleObj.scrollTop = compileConsoleObj.scrollHeight;
-                    
+
                 } else if (ws_msg.action === 'close-compile') {
                     $('#compile-dialog').modal('hide');
                     $('#compile-console').val('');
@@ -519,7 +519,7 @@ function establish_socket() {
 
         connection.onClose = function () {
             lostWSConnection();
-        };    
+        };
     }
 }
 
@@ -536,7 +536,7 @@ function lostWSConnection() {
 
     // Clear ports list
     set_port_list();
- 
+
     if (client_ws_heartbeat_interval) {
         clearInterval(client_ws_heartbeat_interval);
         client_ws_heartbeat_interval = null;
@@ -550,13 +550,18 @@ function lostWSConnection() {
 //   leave data unspecified when searching
 var set_port_list = function (data) {
     data = (data ? data : 'searching');
-    var selected_port = $("#comPort").val();
-    $("#comPort").empty();
+
+//    var selected_port = $("#comPort").val();
+    var selected_port = clearComPortUI();
+//    $("#comPort").empty();
+
     if (typeof (data) === 'object' && data.length) {
         data.forEach(function (port) {
-            $("#comPort").append($('<option>', {
-                text: port
-            }));
+            addComPortDeviceOption(port);
+
+//            $("#comPort").append($('<option>', {
+//                text: port
+//            }));
         });
         ports_available = true;
     } else {
@@ -567,3 +572,38 @@ var set_port_list = function (data) {
     }
     select_com_port(selected_port);
 };
+
+
+/**
+ *  Clear the com port drop-down
+ *
+ * @returns {string | jQuery} the currently selected value in the drop-down
+ * before the element is cleared.
+ */
+function clearComPortUI() {
+    let portUI = $("#comPort");
+    if (portUI) {
+        try {
+            let port = portUI.val().toString();
+            portUI.empty();
+            return port;
+        }
+        catch (e){
+            console.log("Error: " + e.message);
+        }
+    }
+
+    return null;
+}
+
+
+/**
+ *  Add a device port to the Com Port drop-down list
+ *
+ * @param port
+ */
+function addComPortDeviceOption(port) {
+    if (port === typeof('string')) {
+        $("#comPort").append($('<option>', { text: port }));
+    }
+}
