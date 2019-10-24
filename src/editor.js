@@ -1337,8 +1337,20 @@ function uploadHandler(files) {
         var xmlValid = false;
         var uploadBoardType = '';
 
+        // Flag to indicate that we are importing a file that
+        // was exported from the blockly.parallax.com site
+        var isSvgeFile = false;
+
+        // We need to support our rouge .svge type
+        if (files[0].type === "") {
+            var name = files[0].name;
+            if (name.slice(name.length - 4) === "svge") {
+                isSvgeFile = true;
+            }
+        }
+
         //validate file, screen for potentially malicious code.
-        if (files[0].type === 'image/svg+xml'
+        if ( (files[0].type === 'image/svg+xml' || isSvgeFile)
                 && xmlString.indexOf("<svg blocklyprop=\"blocklypropproject\"") === 0
                 && xmlString.indexOf("<!ENTITY") === -1
                 && xmlString.indexOf("CDATA") === -1
