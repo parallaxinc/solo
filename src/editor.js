@@ -83,19 +83,6 @@ const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 
 
 /**
- * Force the saveCheck() function to exit immediately with a false result
- *
- * TODO: This flag is used in exactly one place. Why do we need it?
- *
- * @type {boolean}
- *
- * @deprecated
- * Variable is not used in code.
- */
-var ignoreSaveCheck = false;
-
-
-/**
  *
  * @type {number}
  */
@@ -154,6 +141,7 @@ bpIcons = {
     cameraWhite:         '<svg width="14" height="15"><path d="M1.5,13.5 L.5,12.5 .5,5.5 1.5,4.5 2.5,4.5 4,3 7,3 8.5,4.5 12.5,4.5 13.5,5.5 13.5,12.5 12.5,13.5 Z M 2,9 A 4,4,0,0,0,10,9 A 4,4,0,0,0,2,9 Z M 4.5,9 A 1.5,1.5,0,0,0,7.5,9 A 1.5,1.5,0,0,0,4.5,9 Z M 10.5,6.5 A 1,1,0,0,0,13.5,6.5 A 1,1,0,0,0,10.5,6.5 Z" style="stroke:#fff;stroke-width:1;fill:#fff;" fill-rule="evenodd"/></svg>',
 }
 
+
 /**
  * The name used to store a project that is being loaded from
  * offline storage.
@@ -185,44 +173,6 @@ var blocklyWorkSpace;
  */
 const defaultSaveProjectTimerDelay = 20;
 
-/**
- * Project class implementation
-class Project {
-
-    id = 0;
-    user = '';
-    name = '';
-    yours = true;
-    description = '';
-    htmlDescription = '';
-    boardType = '';
-    code = '';
-    private = true;
-    shared = false;
-    createDate = null;
-    lastUpdated = null;
-
-    constructor() {
-
-    }
-
-    getCreated() {
-        return this.createDate;
-    }
-
-    setCreated(value) {
-        this.createDate = value;
-    }
-
-    getTimestamp() {
-        return this.lastUpdated;
-    }
-
-    setTimestamp(value) {
-        this.lastUpdated = value;
-    }
-}
-*/
 
 // TODO: set up a markdown editor (removed because it doesn't work in a Bootstrap modal...)
 
@@ -232,6 +182,7 @@ class Project {
 // Project save timestamp and interval functions
 //
 // ------------------------------------------------------------------
+
 
 /**
  * Ping the Rest API every 60 seconds
@@ -294,7 +245,7 @@ const checkLastSavedTime = function () {
     $('#save-check-warning-time').html(s_save.toString(10));
 
     //if (s_save > 58) {
-    // TODO: It's been to long - autosave, then close/set URL back to login page.
+    // TODO: It's been to long - auto-save, then close/set URL back to login page.
     //}
 
     if (t_now > last_saved_timestamp && checkLeave()) {
@@ -307,6 +258,7 @@ const checkLastSavedTime = function () {
 // ------------------------------------------------------------------
 // -----          End of project save timer functions          ------
 // ------------------------------------------------------------------
+
 
 /**
  * Execute this code as soon as the DOM becomes ready.
@@ -403,10 +355,6 @@ $( () => {
         $('.online-only').addClass('hidden');
         $('.offline-only').removeClass('hidden');
 
-        // populate the board type drop down list
-        // TODO: Make this a function
-        //  see PopulateProjectBoardTypesUIElement()
-
         // Load a project file from local storage
         if (getURLParameter('openFile') === "true") {
             // Check for an existing project in localStorage
@@ -415,12 +363,10 @@ $( () => {
                 projectData = JSON.parse(window.localStorage.getItem(localProjectStoreName));
             }
             OpenProjectModal();
-        }
-        else if (getURLParameter('newProject') === "true") {
+        } else if (getURLParameter('newProject') === "true") {
             NewProjectModal();
-        }
-        // Load a project from localStorage if available
-        else if (window.localStorage.getItem(localProjectStoreName)) {
+        } else if (window.localStorage.getItem(localProjectStoreName)) {
+            // Load a project from localStorage if available
             try {
                 // Get a copy of the last know state of the current project
                 let localProject = JSON.parse(window.localStorage.getItem(localProjectStoreName));
@@ -442,33 +388,16 @@ $( () => {
                         alert(objError.message);
                     } else {
                         console.error(objError.message);
+                        alert("Unable to load the project.");
                     }
                 // No viable project available, so redirect to index page.
                 window.location.href = (isOffline) ? 'index.html' : baseUrl;
             }
-        }
-        else {
+        } else {
             // No viable project available, so redirect to index page.
             window.location.href = (isOffline) ? 'index.html' : baseUrl;
         }
-
     }  // End of offline mode
-    else {
-        // We need to test for the case where we are creating a new local project
-        // and the project detail are being passed in the Request body
-        // TODO: Create a new project from details passed in from the new-project page
-        // ----------------------------------------------------------------------------
-        $.get(baseUrl + 'rest/shared/project/editor/' + idProject,
-            function(data) {
-                setupWorkspace(data)
-            })
-            .fail(function () {
-                // Failed to load project - this probably means that it belongs to another user and is not shared.
-                utils.showMessage('Unable to Access Project', 'The BlocklyProp Editor was unable to access the project you requested.  If you are sure the project exists, you may need to contact the project\'s owner and ask them to share their project before you will be able to view it.', function () {
-                    window.location = baseUrl;
-                });
-            });
-    }
 
     // Make sure the toolbox appears correctly, just for good measure.
     resetToolBoxSizing(250);
@@ -504,7 +433,7 @@ function checkLeave () {
     let savedXml = projectData['code'];
 
     return ! (savedXml === currentXml);
-};
+}
 
 
 
@@ -800,21 +729,20 @@ function resetToolBoxSizing(resizeDelay) {
     }, resizeDelay || 10);  // 10 millisecond delay
 }
 
+
 /**
  * Populate the projectData global
  *
- * @param data, callback
- *
+ * @param data is the current project object
+ * @param callback is called if provided when the function completes
  */
 function setupWorkspace(data, callback) {
     ClearBlocklyWorkspace();
 
     projectData = data;
+    showInfo(data);         // Update the UI with project related details
 
-
-    // Update the UI with project related details
-    showInfo(data);
-
+    // --------------------------------------------------------------
     // Set the global project ID. in the offline mode, the project
     // id is set to 0 when the project is loaded from local storage.
     // --------------------------------------------------------------
@@ -832,6 +760,7 @@ function setupWorkspace(data, callback) {
 
         // Reinstate key bindings from block workspace if this is not a code-only project.
         if (Blockly.codeOnlyKeybind === true) {
+            // TODO: Need to replace bindEvent_ call with somethign that is not deprecated.
             Blockly.bindEvent_(document, 'keydown', null, Blockly.onKeyDown_);
             Blockly.codeOnlyKeybind = false;
         }
