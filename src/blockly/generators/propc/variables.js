@@ -88,9 +88,12 @@ Blockly.Blocks.variables_set = {
  * @returns {[string, number]}
  */
 Blockly.propc.variables_get = function () {
-    var code = Blockly.propc.variableDB_.getName(
-            this.getFieldValue('VAR'),
-            Blockly.Variables.NAME_TYPE);
+    var code = Blockly.LANG_VARIABLES_SET_ITEM;
+    if (Blockly.propc.variableDB_) {
+        var code = Blockly.propc.variableDB_.getName(
+                this.getFieldValue('VAR'),
+                Blockly.Variables.NAME_TYPE);
+    }
     return [code, Blockly.propc.ORDER_ATOMIC];
 };
 

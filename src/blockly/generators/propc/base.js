@@ -1281,8 +1281,11 @@ Blockly.Blocks.comment = {
 
 Blockly.propc.comment = function () {
     var text = this.getFieldValue("COMMENT_TEXT");
-
-    return '// ' + text.replace(/,+\s*$/g, '') + '\n';
+    var code = '';
+    if (text) {
+        code = '// ' + text.replace(/,+\s*$/g, '') + '\n';
+    }
+    return code;
 };
 
 /*
@@ -2681,11 +2684,10 @@ Blockly.propc.custom_code_multiple = function () {
     if (func !== '') {
         Blockly.propc.methods_["cCode" + ccCode] = func + '\n';
     }
-    code += ' ';
-    if ((this.getFieldValue('TYPE') || this.fieldValueTemp_['TYPE']) === 'INL') {
-        return code;
-    } else {
+    if ((['NUM', 'STR'].indexOf(this.getFieldValue('TYPE') || this.fieldValueTemp_['TYPE'] || '')) > -1) {
         return [code, Blockly.propc.ORDER_ATOMIC];
+    } else {
+        return code;
     }
 };
 
