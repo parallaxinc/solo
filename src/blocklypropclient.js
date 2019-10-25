@@ -603,6 +603,7 @@ function clearComPortUI() {
         }
     }
 
+    portUI.empty();
     return null;
 }
 
@@ -613,7 +614,7 @@ function clearComPortUI() {
  * @param port
  */
 function addComPortDeviceOption(port) {
-    if (port === typeof('string')) {
+    if (typeof(port) === 'string') {
         $("#comPort").append($('<option>', { text: port }));
     }
 }
