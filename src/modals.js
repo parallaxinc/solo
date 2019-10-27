@@ -164,7 +164,7 @@ function NewProjectModalCancelClick() {
 
         if (! projectData) {
             // If there is no project, go to home page.
-            window.location.href = (isOffline) ? 'index.html' : baseUrl;
+            window.location.href = (isOffline) ? 'index.html' : BASE_URL;
         }
 
         // if the project is being edited, clear the fields and close the modal
@@ -244,7 +244,7 @@ function CreateNewProject() {
     if (projectData && $('#new-project-dialog-title').html() === page_text_label['editor_edit-details']) {
         code = getXml();
     } else {
-        code = EmptyProjectCodeHeader;
+        code = EMPTY_PROJECT_CODE_HEADER;
     }
 
     // Save the form fields into the projectData object
@@ -273,7 +273,7 @@ function CreateNewProject() {
 
     // Save the project to the browser local store for the
     // page transition
-    window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
+    window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
 
     // ------------------------------------------------------
     // Clear the projectData global to prevent the onLeave
@@ -313,17 +313,17 @@ function OpenProjectModal() {
         // A copy of the current project is located in the browser localStorage
         setupWorkspace( projectData,
             function () {
-                window.localStorage.removeItem(localProjectStoreName);
+                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
             });
     });
 
 
     $('#open-project-select-file-open').on( 'click', () => {
-        if (window.localStorage.getItem(tempProjectStoreName)) {
+        if (window.localStorage.getItem(TEMP_PROJECT_STORE_NAME)) {
             window.localStorage.setItem(
-                localProjectStoreName,
-                window.localStorage.getItem(tempProjectStoreName));
-            window.localStorage.removeItem(tempProjectStoreName);
+                LOCAL_PROJECT_STORE_NAME,
+                window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
+            window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
             window.location = 'blocklyc.html';
         }
     });
@@ -332,7 +332,7 @@ function OpenProjectModal() {
     $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
 
     // If the user selects a file and successfully uploads it, the
-    // project will be stored in localStorage.tempProjectStoreName.
+    // project will be stored in localStorage.TEMP_PROJECT_STORE_NAME.
     // The form Accept button handler should look there when it is
     // time to proces the new project.
 }
@@ -366,8 +366,8 @@ function OpenProjectFileDialog() {
     // TODO: what is this doing here? Shouldn't we be setting up projectData instead of localStore?
     //       Or can this simply be deleted, because the openFile functions will take care of this?
     if (projectData) {
-        console.log("Loading workspace with project %s", localProjectStoreName);
-        setupWorkspace(JSON.parse(window.localStorage.getItem(localProjectStoreName)));
+        console.log("Loading workspace with project %s", LOCAL_PROJECT_STORE_NAME);
+        setupWorkspace(JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)));
     }
 }
 

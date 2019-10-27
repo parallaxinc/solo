@@ -35,7 +35,7 @@
  *
  * @type {*|jQuery}
  */
-const baseUrl = $('meta[name=base]').attr("content");
+const BASE_URL = $('meta[name=base]').attr("content");
 
 
 /*
@@ -54,7 +54,7 @@ const baseUrl = $('meta[name=base]').attr("content");
  *
  * @type {*|jQuery}
  */
-const cdnUrl = $('meta[name=cdn]').attr("content");
+const CDN_URL = $('meta[name=cdn]').attr("content");
 
 
 /**
@@ -78,7 +78,24 @@ var isOffline = ($("meta[name=isOffline]").attr("content") === 'true') ? true : 
  * in a number of places. The string is sufficiently complex that it could
  * be misspelled without detection.
  */
-const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
+const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
+
+
+/**
+ * Constant number that represents the maximum length of a project name
+ *
+ * @type {number}
+ */
+const PROJECT_NAME_MAX_LENGTH = 100;
+
+
+/**
+ * Constant number that represents the maximum number of 
+ * characters of the project name that are displayed in the UI
+ *
+ * @type {number}
+ */
+const PROJECT_NAME_DISPLAY_MAX_LENGTH = 24;
 
 
 /**
@@ -166,8 +183,8 @@ bpIcons = {
  *
  * @type {string}
  */
-const tempProjectStoreName = "tempProject";
-const localProjectStoreName = 'localProject';
+const TEMP_PROJECT_STORE_NAME = "tempProject";
+const LOCAL_PROJECT_STORE_NAME = 'localProject';
 
 
 /**
@@ -182,7 +199,7 @@ var blocklyWorkSpace;
  *
  * @type {number}
  */
-const defaultSaveProjectTimerDelay = 20;
+const SAVE_PROJECT_TIMER_DELAY = 20;
 
 /**
  * Project class implementation
@@ -238,7 +255,7 @@ class Project {
  * @type {number}
  */
 const pingInterval = setInterval(() => {
-    $.get(baseUrl + 'ping');
+    $.get(BASE_URL + 'ping');
     },
     60000
 );
@@ -348,7 +365,7 @@ $( () => {
                 tempProject.code = getXml();
                 tempProject.timestamp = getTimestamp();
 
-                window.localStorage.setItem(localProjectStoreName, JSON.stringify(tempProject));
+                window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(tempProject));
             }
         }
 
@@ -372,7 +389,7 @@ $( () => {
     $('#upload-dialog').on('hidden.bs.modal', resetUploadImportModalDialog());
 
     $('.url-prefix').attr('href', function (idx, cur) {
-        return baseUrl + cur;
+        return BASE_URL + cur;
     });
 
     initCdnImageUrls();
@@ -390,7 +407,7 @@ $( () => {
     } else if (!idProject && !isOffline) {
         // redirect to the home page if the project id was not specified
         // and the code is running in the online mode
-        window.location = baseUrl;
+        window.location = BASE_URL;
 
     } else if (isOffline) {
         // TODO: Use the ping endpoint to verify that we are offline.
@@ -409,9 +426,9 @@ $( () => {
         // Load a project file from local storage
         if (getURLParameter('openFile') === "true") {
             // Check for an existing project in localStorage
-            if (window.localStorage.getItem(localProjectStoreName)) {
+            if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
                 // put a copy into projectData
-                projectData = JSON.parse(window.localStorage.getItem(localProjectStoreName));
+                projectData = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
             }
             OpenProjectModal();
         }
@@ -419,10 +436,10 @@ $( () => {
             NewProjectModal();
         }
         // Load a project from localStorage if available
-        else if (window.localStorage.getItem(localProjectStoreName)) {
+        else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
             try {
                 // Get a copy of the last know state of the current project
-                let localProject = JSON.parse(window.localStorage.getItem(localProjectStoreName));
+                let localProject = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
 
                 // TODO: Address clear workspace has unexpected result
                 // **************************************************
@@ -432,7 +449,7 @@ $( () => {
                 // **************************************************
                 setupWorkspace( localProject,
                     function () {
-                    window.localStorage.removeItem(localProjectStoreName);
+                    window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
                 });
             }
             catch (objError) {
@@ -443,12 +460,12 @@ $( () => {
                         console.error(objError.message);
                     }
                 // No viable project available, so redirect to index page.
-                window.location.href = (isOffline) ? 'index.html' : baseUrl;
+                window.location.href = (isOffline) ? 'index.html' : BASE_URL;
             }
         }
         else {
             // No viable project available, so redirect to index page.
-            window.location.href = (isOffline) ? 'index.html' : baseUrl;
+            window.location.href = (isOffline) ? 'index.html' : BASE_URL;
         }
 
     }  // End of offline mode
@@ -457,14 +474,14 @@ $( () => {
         // and the project detail are being passed in the Request body
         // TODO: Create a new project from details passed in from the new-project page
         // ----------------------------------------------------------------------------
-        $.get(baseUrl + 'rest/shared/project/editor/' + idProject,
+        $.get(BASE_URL + 'rest/shared/project/editor/' + idProject,
             function(data) {
                 setupWorkspace(data)
             })
             .fail(function () {
                 // Failed to load project - this probably means that it belongs to another user and is not shared.
                 utils.showMessage('Unable to Access Project', 'The BlocklyProp Editor was unable to access the project you requested.  If you are sure the project exists, you may need to contact the project\'s owner and ask them to share their project before you will be able to view it.', function () {
-                    window.location = baseUrl;
+                    window.location = BASE_URL;
                 });
             });
     }
@@ -623,16 +640,30 @@ function initEventHandlers() {
     // **     Toolbar - right side     **
     // **********************************
     // Project Name listing
+
     // Make the text in the project-name span editable
     $('.project-name').attr('contenteditable', 'true')  
             // Change the styling to indicate to the user that they are editing this field        
             .on('focus', () => {
+                $('.project-name').html(projectData.name);
                 $('.project-name').addClass('project-name-editable');
             })
             // reset the style and save the new project name to the projectData object 
             .on('blur', () => {
                 $('.project-name').removeClass('project-name-editable');
-                projectData.name = $('.project-name').html();
+                // if the project name is greater than 25 characters, only display the first 25
+                if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+                    $('.project-name').html(projectData.name.substring(0,PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+                }
+            })
+            // validate the input to ensure it's not too long, and save changes as the user types.
+            .on('keyup', () => {
+                var tempProjectName = $('.project-name').html()
+                if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH) {
+                    $('.project-name').html(projectData.name);
+                } else {
+                    projectData.name = tempProjectName;
+                }
             });
 
     // New Project toolbar button
@@ -641,7 +672,7 @@ function initEventHandlers() {
     // Open Project toolbar button
     $('#open-project-button').on('click', () => {
         // Save the project to localStorage
-        window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
+        window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
 
         window.location="blocklyc.html?openFile=true";
     });
@@ -762,7 +793,7 @@ function initCdnImageUrls() {
         // Set the source of the image
         let img_source = img_tag.attr('data-src');
         if (img_source) {
-            img_tag.attr('src', cdnUrl + img_source);
+            img_tag.attr('src', CDN_URL + img_source);
         }
     });
 }
@@ -884,7 +915,7 @@ function setupWorkspace(data, callback) {
     }
 
     resetToolBoxSizing();
-    timestampSaveTime(defaultSaveProjectTimerDelay, true);
+    timestampSaveTime(SAVE_PROJECT_TIMER_DELAY, true);
 
     // Save project reminder timer. Check every 60 seconds
     setInterval(checkLastSavedTime, 60000);
@@ -907,7 +938,11 @@ function showInfo(data) {
     }
 
     // Display the project name
-    $(".project-name").text(data['name']);
+    if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+        $('.project-name').html(data['name'].substring(0,PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+    } else {
+        $(".project-name").html(data['name']);
+    }
 
     // Does the current user own the project?
     if (!data['yours']) {
@@ -927,7 +962,7 @@ function showInfo(data) {
     };
 
     // Set the prject icon to the correct board type
-    $("#project-icon").html('<img src="' + cdnUrl + projectBoardIcon[ data['board'] ] + '"/>');
+    $(".project-icon").html('<img src="' + CDN_URL + projectBoardIcon[ data['board'] ] + '"/>');
 };
 
 
@@ -940,14 +975,14 @@ function saveProject() {
         var code = getXml();
         projectData['code'] = code;
 
-        $.post(baseUrl + 'rest/project/code', projectData, function (data) {
+        $.post(BASE_URL + 'rest/project/code', projectData, function (data) {
             var previousOwner = projectData['yours'];
             projectData = data;
             projectData['code'] = code; // Save code in projectdata to be able to verify if code has changed upon leave
 
             // If the current user doesn't own this project, a new one is created and the page is redirected to the new project.
             if (!previousOwner) {
-                window.location.href = baseUrl + 'projecteditor?id=' + data['id'];
+                window.location.href = BASE_URL + 'projecteditor?id=' + data['id'];
             }
         }).done(function () {
             // Save was successful, show green with checkmark
@@ -988,7 +1023,7 @@ function saveProject() {
         });
 
         // Mark the time when saved, add 20 minutes to it.
-        timestampSaveTime(defaultSaveProjectTimerDelay, true);
+        timestampSaveTime(SAVE_PROJECT_TIMER_DELAY, true);
 
     } else {
 
@@ -1012,13 +1047,13 @@ function saveAsDialog () {
                 var code = getXml();
                 projectData['code'] = code;
                 projectData['name'] = value;
-                $.post(baseUrl + 'rest/project/code-as', projectData, function (data) {
+                $.post(BASE_URL + 'rest/project/code-as', projectData, function (data) {
                     var previousOwner = projectData['yours'];
                     projectData = data;
                     projectData['code'] = code; // Save code in projectdata to be able to verify if code has changed upon leave
                     utils.showMessage(Blockly.Msg.DIALOG_PROJECT_SAVED, Blockly.Msg.DIALOG_PROJECT_SAVED_TEXT);
                     // Reloading project with new id
-                    window.location.href = baseUrl + 'projecteditor?id=' + data['id'];
+                    window.location.href = BASE_URL + 'projecteditor?id=' + data['id'];
                 });
             }
         });
@@ -1099,20 +1134,20 @@ function saveProjectAs (requestor) {
         projectData['code'] = code;
         projectData['name'] = p_name;
 
-        $.post(baseUrl + 'rest/project/code-as', projectData, function (data) {
+        $.post(BASE_URL + 'rest/project/code-as', projectData, function (data) {
             // var previousOwner = projectData['yours'];
             projectData = data;
             projectData['code'] = code; // Save code in projectdata to be able to verify if code has changed upon leave
 
             // Reloading project with new id
-            window.location.href = baseUrl + 'projecteditor?id=' + data['id'];
+            window.location.href = BASE_URL + 'projecteditor?id=' + data['id'];
         });
-        timestampSaveTime(defaultSaveProjectTimerDelay, true);
+        timestampSaveTime(SAVE_PROJECT_TIMER_DELAY, true);
     } else {
         var tt = new Date();
         var pd = {
             'board': p_type,
-            'code': EmptyProjectCodeHeader,
+            'code': EMPTY_PROJECT_CODE_HEADER,
             'created': tt,
             'description': "",
             'description-html': "",
@@ -1127,7 +1162,7 @@ function saveProjectAs (requestor) {
             'timestamp': getTimestamp(),
         }
 
-        window.localStorage.setItem(localProjectStoreName, JSON.stringify(pd));
+        window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
         window.location = 'blocklyc.html';
     }  
 }
@@ -1290,11 +1325,11 @@ function downloadCode() {
         if (isOffline) {
             // make the projecData object reflect the current workspace and save it into localStorage
             projectData.timestamp = getTimestamp();
-            projectData.code = EmptyProjectCodeHeader + projXMLcode + '</xml>';
-            window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
+            projectData.code = EMPTY_PROJECT_CODE_HEADER + projXMLcode + '</xml>';
+            window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
 
             // Mark the time when saved, add 20 minutes to it.
-            timestampSaveTime(defaultSaveProjectTimerDelay, true);
+            timestampSaveTime(SAVE_PROJECT_TIMER_DELAY, true);
         }
     }
 }
@@ -1380,7 +1415,7 @@ function uploadHandler(files) {
                 }
             }
             if (uploadedXML !== '') {
-                uploadedXML = EmptyProjectCodeHeader + uploadedXML + '</xml>';
+                uploadedXML = EMPTY_PROJECT_CODE_HEADER + uploadedXML + '</xml>';
             };
 
             // TODO: check to see if this is used when opened from the editor (and not the splash screen)
@@ -1430,7 +1465,7 @@ function uploadHandler(files) {
                     'timestamp': getTimestamp(),
                 }
 
-                window.localStorage.setItem(tempProjectStoreName, JSON.stringify(pd));
+                window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
             }
         }
 
@@ -1501,7 +1536,7 @@ function uploadMergeCode(append) {
         // the offline app, load the selected project
         if (!append && getURLParameter('openFile') === 'true') {
             // The project was loaded into the localStorage. The global
-            // variable tempProjectStoreName holds the name of the object
+            // variable TEMP_PROJECT_STORE_NAME holds the name of the object
             // in the localStorage. At this point, load the projectData
             // into the uploadXML global and then let the code below take
             // and load the project.
@@ -1511,14 +1546,14 @@ function uploadMergeCode(append) {
             //
             // Set a timestamp to note when the project was saved into localStorage
 
-            //projectData = JSON.parse(window.localStorage.getItem(tempProjectStoreName));
+            //projectData = JSON.parse(window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
 
             // Store the temp project into the localProject and redirect
             window.localStorage.setItem(
-                localProjectStoreName,
-                window.localStorage.getItem(tempProjectStoreName));
+                LOCAL_PROJECT_STORE_NAME,
+                window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
 
-            window.localStorage.removeItem(tempProjectStoreName);
+            window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
 
             window.location = 'blocklyc.html';
             }
@@ -1589,11 +1624,11 @@ function uploadMergeCode(append) {
             });
             tmpv += '</variables>';
             // add everything back together
-            projectData['code'] = EmptyProjectCodeHeader + tmpv + projCode + newCode + '</xml>';
+            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + tmpv + projCode + newCode + '</xml>';
         } else if (newCode.indexOf('<variables>') > -1 && projCode.indexOf('<variables>') === -1) {
-            projectData['code'] = EmptyProjectCodeHeader + newCode + projCode + '</xml>';
+            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + newCode + projCode + '</xml>';
         } else {
-            projectData['code'] = EmptyProjectCodeHeader + projCode + newCode + '</xml>';
+            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + projCode + newCode + '</xml>';
         }
 
         ClearBlocklyWorkspace();
@@ -1636,9 +1671,9 @@ function initToolbox(profileName) {
     const blocklyOptions = {
         toolbox: filterToolbox(profileName),
         trashcan: true,
-        media: cdnUrl + 'images/blockly/',
+        media: CDN_URL + 'images/blockly/',
         readOnly: (profileName === 'propcfile'),
-        //path: cdnUrl + 'blockly/',
+        //path: CDN_URL + 'blockly/',
         comments: false,
 
         // zoom defaults used here
@@ -1700,7 +1735,7 @@ function getXml() {
     }
 
     // Return the XML for a blank project if none is found.
-    return EmptyProjectCodeHeader + '</xml>';
+    return EMPTY_PROJECT_CODE_HEADER + '</xml>';
 }
 
 

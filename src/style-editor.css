@@ -469,6 +469,15 @@ ul > hr {
     padding-right: 10px;
 }
 
+.project-name {
+    max-width: 250px;
+    text-overflow: clip;
+    overflow: hidden;
+    overflow-wrap: normal;
+    white-space: nowrap;
+    text-align: left;
+}
+
 .project-name:focus {
     outline: none;
 }
@@ -478,6 +487,11 @@ ul > hr {
     border-radius: 5px;
     padding: 0px 5px;
     background-color: white;
+}
+
+.project-icon {
+    float: left; 
+    padding-right: 5px
 }
 
 .bp-client-available {

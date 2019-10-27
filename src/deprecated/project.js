@@ -25,7 +25,7 @@
  *
  * @type {*|jQuery}
  */
-var baseUrl = $("meta[name=base]").attr("content");
+var BASE_URL = $("meta[name=base]").attr("content");
 
 
 /**
@@ -137,7 +137,7 @@ $(function () {
     $("#project-link-share-enable").click(function () {
         var linkShareInput = $("#project-link-share");
         if ($(this).prop('checked')) {
-            $.post(baseUrl + "projectlink", {'id': idProject, 'action': 'share'}, function (response) {
+            $.post(BASE_URL + "projectlink", {'id': idProject, 'action': 'share'}, function (response) {
                 if (response['success']) {
                     linkShareInput.val(window.location.origin + linkShareUrl + idProject + "&key=" + response['share-key']);
                     linkShareInput.focus();
@@ -152,7 +152,7 @@ $(function () {
 
 
         } else {
-            $.post(baseUrl + "projectlink", {'id': idProject, 'action': 'revoke'}, function (response) {
+            $.post(BASE_URL + "projectlink", {'id': idProject, 'action': 'revoke'}, function (response) {
                 if (response['success']) {
                     linkShareInput.tooltip('destroy');
                     linkShareInput.val('');
@@ -212,7 +212,7 @@ function loadProject(idProject) {
     $("#project-link-share-enable").prop('checked', false);
 
     // Get details
-    $.get(baseUrl + "rest/shared/project/get/" + idProject, function (project) {
+    $.get(BASE_URL + "rest/shared/project/get/" + idProject, function (project) {
         if (project['yours']) {
             $('.your-project').removeClass('hidden');
 
@@ -253,7 +253,7 @@ function loadProject(idProject) {
 
         var openProjectLink = $("a.open-project-link");
         openProjectLink.removeClass("editor-c-link editor-spin-link");
-        openProjectLink.attr("href", baseUrl + "editor/" + projectTypes[project['type']]['editor'] + "?project=" + project['id']);
+        openProjectLink.attr("href", BASE_URL + "editor/" + projectTypes[project['type']]['editor'] + "?project=" + project['id']);
         $('.clone-project').attr('href', cloneUrl + project['id']);
         $('.delete-project').attr('href', deleteUrl + project['id']);
         openProjectLink.addClass(projectTypes[project['type']]['class']);

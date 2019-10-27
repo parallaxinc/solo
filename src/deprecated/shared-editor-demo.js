@@ -30,7 +30,7 @@
 // TODO: This file is not referenced anywhere within the Solo project
 
 
-var baseUrl = $("meta[name=base]").attr("content");
+var BASE_URL = $("meta[name=base]").attr("content");
 
 
 var projectData = {

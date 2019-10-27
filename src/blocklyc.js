@@ -575,7 +575,7 @@ function cloudCompile(text, action, successHandler) {
             if (docker) {
                 // Contact the local docker container running cloud compiler
 
-                // baseUrl = /blockly/
+                // BASE_URL = /blockly/
                 // action = 'compile'
                 // idProject = an integer project number
                 // data = {'code: propCode}
@@ -651,7 +651,7 @@ function cloudCompile(text, action, successHandler) {
         else {  // ONLINE MODE
             $.ajax({
                 'method': 'POST',
-                'url': baseUrl + 'rest/compile/c/' + action + '?id=' + idProject,
+                'url': BASE_URL + 'rest/compile/c/' + action + '?id=' + idProject,
                 'data': {"code": propcCode}
             }).done(function (data) {
                 if (data.error || typeof data.error === "undefined") {

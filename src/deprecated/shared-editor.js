@@ -29,7 +29,7 @@
 
 // TODO: This file is not referenced anywhere within the Solo project
 
-var baseUrl = $("meta[name=base]").attr("content");
+var BASE_URL = $("meta[name=base]").attr("content");
 
 var projectData = null;
 var ready = false;
@@ -63,13 +63,13 @@ showInfo = function (data) {
 saveProject = function () {
     var code = window.frames["content_blocks"].getXml();
     projectData['code'] = code;
-    $.post(baseUrl + 'rest/project/code', projectData, function (data) {
+    $.post(BASE_URL + 'rest/project/code', projectData, function (data) {
         var previousOwner = projectData['yours'];
         projectData = data;
         projectData['code'] = code; // Save code in projectdata to be able to verify if code has changed upon leave
         utils.showMessage("Project saved", "The project has been saved");
         if (!previousOwner) {
-            window.location.href = baseUrl + 'projecteditor?id=' + data['id'];
+            window.location.href = BASE_URL + 'projecteditor?id=' + data['id'];
         }
     });
 };
@@ -115,5 +115,5 @@ checkLeave = function () {
 };
 
 setInterval(function () {
-    $.get(baseUrl + 'ping');
+    $.get(BASE_URL + 'ping');
 }, 60000);
