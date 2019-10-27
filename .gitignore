@@ -6,3 +6,10 @@
 # npm packages
 node_modules
 .eslintrc.js
+
+#Compressed files
+*_compressed*.js
+
+
+# MacOS files
+.DS_Store
