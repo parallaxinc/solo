@@ -78,8 +78,10 @@ var isOffline = ($("meta[name=isOffline]").attr("content") === 'true') ? true : 
  * @description Converting the string to a constant because it is referenced
  * in a number of places. The string is sufficiently complex that it could
  * be misspelled without detection.
- */
-const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
+ *
+ * /
+// Moved to project.js
+ //const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 
 
 /**
@@ -760,7 +762,7 @@ function setupWorkspace(data, callback) {
 
         // Reinstate key bindings from block workspace if this is not a code-only project.
         if (Blockly.codeOnlyKeybind === true) {
-            // TODO: Need to replace bindEvent_ call with somethign that is not deprecated.
+            // TODO: Need to replace bindEvent_ call with something that is not deprecated.
             Blockly.bindEvent_(document, 'keydown', null, Blockly.onKeyDown_);
             Blockly.codeOnlyKeybind = false;
         }
@@ -1044,7 +1046,23 @@ function saveProjectAs (requestor) {
             'user': "offline",
             'yours': true,
             'timestamp': getTimestamp(),
-        }
+        };
+
+        let project = new Project();
+        project.setBoardType(p_type);
+        // project.setCode(EmptyProjectCodeHeader);
+        project.setCreated(tt);
+        //    'description': "",
+        //    'description-html': "",
+        //    'id': 0,
+        project.setModified(tt);
+        project.setName(p_name);
+        //    'private': true,
+        //    'shared': false,
+        project.setType(Project.Type.PROPC);
+        project.setUser("offline");
+        //    'yours': true,
+        project.setTimestamp(getTimestamp());
 
         window.localStorage.setItem(localProjectStoreName, JSON.stringify(pd));
         window.location = 'blocklyc.html';
@@ -1361,6 +1379,23 @@ function uploadHandler(files) {
                     'timestamp': getTimestamp(),
                 }
 
+                let project = new Project();
+                project.setBoardType(uploadBoardType);
+                project.setCode(uploadedXML);
+                project.setCreated(projectCreated);
+                project.setDescription(decodeFromValidXml(projectDesc));
+                //    'description-html': "",
+                //    'id': 0,
+                project.setModified(projectModified);
+                project.setName(decodeFromValidXml(projectTitle));
+                //    'private': true,
+                //    'shared': false,
+                project.setType(Project.Type.PROPC);
+                project.setUser("offline");
+                //    'yours': true,
+                project.setTimestamp(getTimestamp());
+
+
                 window.localStorage.setItem(tempProjectStoreName, JSON.stringify(pd));
             }
         }
@@ -1671,10 +1706,4 @@ function ClearBlocklyWorkspace() {
         space.clearUndo();
         space.clear();
     }
-/*
-    if(Blockly.mainWorkspace) {
-        Blockly.mainWorkspace.clear();
-        Blockly.mainWorkspace.clearUndo();
-    }
-*/
 }
