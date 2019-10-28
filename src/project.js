@@ -22,172 +22,6 @@
 
 'use strict';
 
-/**
- * The project type defines the code that the blocks will emit. There
- * used to be a SPIN output, but it has been deprecated. Saving this
- * implementation in case we want to introduce another language, such
- * as Python or GoLang.
- *
- * @type {{UNKNOWN: string, PROPC: string}}
- */
-const ProjectTypes = {
-    "PROPC": 'PROPC',
-    "UNKNOWN": 'UNKNOWN'
-};
-
-const Prof = {
-    "a": {
-        value1: "Something"
-    },
-    "b": "Something Else",
-    c: {
-        value1: "Value",
-        value2: "more value"
-    },
-    "d": {
-        myArray: ["1", "2", "3"],
-        MyOtherArray: [
-            ["a", "A"], ["b", "B"]
-        ]
-    }
-};
-
-
-/**
- * Board types describe the various types of hardware the project
- * will support. This includes robots, project boards and the S3
- *
- * @type  This returns a board type object
- */
-let ProjProfiles;
-ProjProfiles = {};
-
-const ProjectProfiles = {
-    // "activity-board": {
-    //     description: "Propeller Activity Board",
-    //     digital: [
-    //         ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"],
-    //         ["5", "5"], ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"],
-    //         ["10", "10"], ["11", "11"], ["12", "12"], ["13", "13"], ["14", "14"],
-    //         ["15", "15"], ["16", "16"], ["17", "17"], ["26", "26"], ["27", "27"]
-    //     ],
-    //     analog: [
-    //         ["A0", "0"], ["A1", "1"], ["A2", "2"], ["A3", "3"]
-    //     ],
-    //     earphone_jack: "26, 27",
-    //     earphone_jack_inverted: "-1, 27",
-    //     sd_card: "22, 23, 24, 25",
-    //     baudrate: 115200,
-    //     contiguous_pins_start: 0,
-    //     contiguous_pins_end: 17,
-    //     saves_to: [
-    //         ["Propeller Activity Board", "activity-board"],
-    //         ["Propeller FLiP or Project Board", "flip"],
-    //         ["Other Propeller Boards", "other"]
-    //     ]
-    // }
-    // "heb": {
-    //     description: "Hackable Electronic Badge",
-    //     digital: [
-    //         ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
-    //         ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"], ["10", "10"], ["11", "11"]
-    //     ],
-    //     earphone_jack: "9, 10",
-    //     earphone_jack_inverted: "-1, 10",
-    //     analog: [],
-    //     baudrate: 115200,
-    //     contiguous_pins_start: 0,
-    //     contiguous_pins_end: 11,
-    //     saves_to: [
-    //         ["Hackable Electronic Badge", "heb"],
-    //         ["Badge WX", "heb-wx"]
-    //     ]
-    // },
-    // "heb-wx": {
-    //     description: "Badge WX",
-    //     digital: [
-    //         ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
-    //         ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"], ["10", "10"], ["11", "11"]
-    //     ],
-    //     analog: [],
-    //     earphone_jack: "0, 1",
-    //     earphone_jack_inverted: "-1, 1",
-    //     sd_card: "8, 7, 6, 5",
-    //     baudrate: 115200,
-    //     contiguous_pins_start: 0,
-    //     contiguous_pins_end: 11,
-    //     saves_to: [
-    //         ["Hackable Electronic Badge", "heb"],
-    //         ["Badge WX", "heb-wx"]
-    //     ]
-    // },
-    // "other": {
-    //     description: "Other Propeller Boards",
-    //     digital: [
-    //         ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
-    //         ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"], ["10", "10"], ["11", "11"],
-    //         ["12", "12"], ["13", "13"], ["14", "14"], ["15", "15"], ["16", "16"],
-    //         ["17", "17"], ["18", "18"], ["19", "19"], ["20", "20"], ["21", "21"],
-    //         ["22", "22"], ["23", "23"], ["24", "24"], ["25", "25"], ["26", "26"],
-    //         ["27", "27"], ["28", "28"], ["29", "29"], ["30", "30"], ["31", "31"]
-    //     ],
-    //     analog: [],
-    //     baudrate: 115200,
-    //     contiguous_pins_start: 0,
-    //     contiguous_pins_end: 27,
-    //     saves_to: [
-    //         ["Other Propeller Boards", "other"],
-    //         ["Propeller Activity Board", "activity-board"],
-    //         ["Propeller FLiP or Project Board", "flip"]
-    //     ]
-    // },
-    // "propcfile": {
-    //     description: "Propeller C (code-only)",
-    //     digital: [
-    //         ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
-    //         ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"], ["10", "10"], ["11", "11"],
-    //         ["12", "12"], ["13", "13"], ["14", "14"], ["15", "15"], ["16", "16"],
-    //         ["17", "17"], ["18", "18"], ["19", "19"], ["20", "20"], ["21", "21"],
-    //         ["22", "22"], ["23", "23"], ["24", "24"], ["25", "25"], ["26", "26"],
-    //         ["27", "27"], ["28", "28"], ["29", "29"], ["30", "30"], ["31", "31"]
-    //     ],
-    //     analog: [],
-    //     baudrate: 115200,
-    //     contiguous_pins_start: 0,
-    //     contiguous_pins_end: 27,
-    //     saves_to: []
-    // },
-    // "s3": {
-    //     description: "Scribbler Robot",
-    //     digital: [
-    //         ["P0", "0"], ["P1", "1"], ["P2", "2"], ["P3", "3"], ["P4", "4"],
-    //         ["P5", "5"]
-    //     ],
-    //     analog: [
-    //         ["A0", "0"], ["A1", "1"]
-    //     ],
-    //     baudrate: 9600,
-    //     contiguous_pins_start: 0,
-    //     contiguous_pins_end: 5,
-    //     saves_to: [
-    //         ["Scribbler Robot", "s3"]
-    //     ]
-    // },
-    // "unknown": {}
-};
-
-
-
-/**
- * Constant string that represents the base, empty project header
- *
- * @type {string}
- *
- * @description Converting the string to a constant because it is referenced
- * in a number of places. The string is sufficiently complex that it could
- * be misspelled without detection.
- */
-const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 
 
 /**
@@ -206,7 +40,7 @@ class Project {
      * Board type used in the defined project
      * @type {null}
      */
-    boardType = null;
+    boardType = ProjectProfiles.unknown;
 
     /**
      *  Project type
@@ -370,4 +204,155 @@ Project.prototype.getDetails = function() {
         timestamp: this.timestamp
     };
 };
+
+
+/**
+ * The project type defines the code that the blocks will emit. There
+ * used to be a SPIN output, but it has been deprecated. Saving this
+ * implementation in case we want to introduce another language, such
+ * as Python or GoLang.
+ *
+ * @type {{UNKNOWN: string, PROPC: string}}
+ */
+const ProjectTypes = {
+    "PROPC": 'PROPC',
+    "UNKNOWN": 'UNKNOWN'
+};
+
+
+// noinspection DuplicatedCode
+/**
+ * Board types describe the various types of hardware the project
+ * will support. This includes robots, project boards and the S3
+ *
+ * @type Object - This returns a board type object
+ */
+const ProjectProfiles = {
+    "activityboard": {
+        description: "Propeller Activity Board",
+        digital: [
+            ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"],
+            ["5", "5"], ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"],
+            ["10", "10"], ["11", "11"], ["12", "12"], ["13", "13"], ["14", "14"],
+            ["15", "15"], ["16", "16"], ["17", "17"], ["26", "26"], ["27", "27"]
+        ],
+        analog: [
+            ["A0", "0"], ["A1", "1"], ["A2", "2"], ["A3", "3"]
+        ],
+        earphone_jack: "26, 27",
+        earphone_jack_inverted: "-1, 27",
+        sd_card: "22, 23, 24, 25",
+        baudrate: 115200,
+        contiguous_pins_start: 0,
+        contiguous_pins_end: 17,
+        saves_to: [
+            ["Propeller Activity Board", "activity-board"],
+            ["Propeller FLiP or Project Board", "flip"],
+            ["Other Propeller Boards", "other"]
+        ]
+    },
+    "heb": {
+        description: "Hackable Electronic Badge",
+        digital: [
+            ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
+            ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"], ["10", "10"], ["11", "11"]
+        ],
+        earphone_jack: "9, 10",
+        earphone_jack_inverted: "-1, 10",
+        analog: [],
+        baudrate: 115200,
+        contiguous_pins_start: 0,
+        contiguous_pins_end: 11,
+        saves_to: [
+            ["Hackable Electronic Badge", "heb"],
+            ["Badge WX", "heb-wx"]
+        ]
+    },
+    "hebwx": {
+        description: "Badge WX",
+        digital: [
+            ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
+            ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"], ["10", "10"], ["11", "11"]
+        ],
+        analog: [],
+        earphone_jack: "0, 1",
+        earphone_jack_inverted: "-1, 1",
+        sd_card: "8, 7, 6, 5",
+        baudrate: 115200,
+        contiguous_pins_start: 0,
+        contiguous_pins_end: 11,
+        saves_to: [
+            ["Hackable Electronic Badge", "heb"],
+            ["Badge WX", "heb-wx"]
+        ]
+    },
+    "other": {
+        description: "Other Propeller Boards",
+        digital: [
+            ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
+            ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"], ["10", "10"], ["11", "11"],
+            ["12", "12"], ["13", "13"], ["14", "14"], ["15", "15"], ["16", "16"],
+            ["17", "17"], ["18", "18"], ["19", "19"], ["20", "20"], ["21", "21"],
+            ["22", "22"], ["23", "23"], ["24", "24"], ["25", "25"], ["26", "26"],
+            ["27", "27"], ["28", "28"], ["29", "29"], ["30", "30"], ["31", "31"]
+        ],
+        analog: [],
+        baudrate: 115200,
+        contiguous_pins_start: 0,
+        contiguous_pins_end: 27,
+        saves_to: [
+            ["Other Propeller Boards", "other"],
+            ["Propeller Activity Board", "activity-board"],
+            ["Propeller FLiP or Project Board", "flip"]
+        ]
+    },
+    "propcfile": {
+        description: "Propeller C (code-only)",
+        digital: [
+            ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
+            ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"], ["10", "10"], ["11", "11"],
+            ["12", "12"], ["13", "13"], ["14", "14"], ["15", "15"], ["16", "16"],
+            ["17", "17"], ["18", "18"], ["19", "19"], ["20", "20"], ["21", "21"],
+            ["22", "22"], ["23", "23"], ["24", "24"], ["25", "25"], ["26", "26"],
+            ["27", "27"], ["28", "28"], ["29", "29"], ["30", "30"], ["31", "31"]
+        ],
+        analog: [],
+        baudrate: 115200,
+        contiguous_pins_start: 0,
+        contiguous_pins_end: 27,
+        saves_to: []
+    },
+    "s3": {
+        description: "Scribbler Robot",
+        digital: [
+            ["P0", "0"], ["P1", "1"], ["P2", "2"], ["P3", "3"], ["P4", "4"],
+            ["P5", "5"]
+        ],
+        analog: [
+            ["A0", "0"], ["A1", "1"]
+        ],
+        baudrate: 9600,
+        contiguous_pins_start: 0,
+        contiguous_pins_end: 5,
+        saves_to: [
+            ["Scribbler Robot", "s3"]
+        ]
+    },
+    "unknown": {
+        description: "Board type is unknown",
+        saves_to: []
+    }
+};
+
+
+/**
+ * Constant string that represents the base, empty project header
+ *
+ * @type {string}
+ *
+ * @description Converting the string to a constant because it is referenced
+ * in a number of places. The string is sufficiently complex that it could
+ * be misspelled without detection.
+ */
+const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 
