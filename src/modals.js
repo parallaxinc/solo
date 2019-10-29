@@ -238,7 +238,7 @@ function validateEditProjectForm() {
  * from the browser localStorage
  */
 function CreateNewProject() {
-    var code = '';
+    let code = '';
 
     // If editing details, preserve the code, otherwise start over
     if (projectData && $('#new-project-dialog-title').html() === page_text_label['editor_edit-details']) {
@@ -254,44 +254,23 @@ function CreateNewProject() {
     let description = $("#new-project-description").val();
     let boardType = $('#new-project-board-type').val();
 
-    projectData = {
-        'board': boardType,
-        'code': code,
-        'created': createdDateHtml,
-        'description': description,        // simplemde.value(),
-        'description-html': description,   // simplemde.options.previewRender(simplemde.value()),
-        'id': 0,
-        'modified': createdDateHtml,
-        'name': projectName,
-        'private': true,
-        'shared': false,
-        'type': "PROPC",
-        'user': "offline",
-        'yours': true,
-        'timestamp': getTimestamp(),
-    };
+    let newProject = new Project(
+        projectName, description, boardType,"PROPC", code,
+        createdDateHtml, createdDateHtml, getTimestamp());
 
-    // let newProject = new Project(
-    //     projectName, description, boardType,"PROPC", code,
-    //     createdDateHtml, createdDateHtml, getTimestamp());
-    //
-    // let stringJ = JSON.stringify(newProject.getDetails());
-    // window.localStorage.setItem('dbg', JSON.stringify(projectData));
-
-    // Save the project to the browser local store for the
-    // page transition
-    window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
+    // Save the project to the browser local store for the page
+    // transition
+    newProject.stashProject(localProjectStoreName);
 
     // ------------------------------------------------------
     // Clear the projectData global to prevent the onLeave
     // event handler from storing the old project code into
     // the browser storage.
     // ------------------------------------------------------
-    projectData = null;
+    projectData = '';
 
     // Redirect to the editor page
     window.location = 'blocklyc.html';
-
 }
 
 
