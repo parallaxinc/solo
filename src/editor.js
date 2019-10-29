@@ -527,14 +527,12 @@ function initEventHandlers() {
     $('#prop-btn-undo').on('click', () => codePropC.undo());
     $('#prop-btn-redo').on('click', () => codePropC.redo());
 
-    // Blocks/Code/XML button
-    $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
-    $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
-    $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
-
-
+    // This arrived on 6/6/2019 from CDN PR#129.
+    // zfi merged 1 commit into parallaxinc:1.2 from MatzElectronics:1.2on Jun 6
+    // TODO: Correct missing configure_term_graph() function.
     $('#term-graph-setup').on('click', () => configure_term_graph());
-    $('#client-setup').on('click', () => configure_client());
+
+
 
     $('#propc-find-btn').on('click', () => {
         codePropC.find(document.getElementById('propc-find').value, {}, true);
@@ -554,6 +552,11 @@ function initEventHandlers() {
     // **********************************
     // **     Toolbar - right side     **
     // **********************************
+    // Blocks/Code/XML button
+    $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
+    $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
+    $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
+
     // New Project toolbar button
     $('#new-project-button').on('click', () => NewProjectModal());
 
@@ -561,9 +564,11 @@ function initEventHandlers() {
     $('#open-project-button').on('click', () => {
         // Save the project to localStorage
         window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
-
         window.location="blocklyc.html?openFile=true";
     });
+
+    // Save Project button goes here!
+
 
     // Hamburger menu items
     //    $('#selectfile-replace').on('click',    function () {  uploadMergeCode(false); });
@@ -573,19 +578,37 @@ function initEventHandlers() {
     $('#edit-project-details').on('click', () => editProjectDetails());
 
     // New Project - Load a new project menu click handler
+    /**
+     * @deprecated
+     */
     $('#new-project-menu-item').on('click', () => NewProjectModal());
 
     // Help and Reference - online help web pages
     // Implemented as an href in the menu
 
+    // ---- Hamburger drop down horizontal line ----
+
     // Download project to Simple IDE
     $('#download-side').on('click', () => downloadPropC());
 
-    // Download project to disk
+    /**
+     * Download project to disk
+     * @deprecated
+     */
     $('#download-project').on('click', () => downloadCode());
 
-    // Import (upload) project from storage
+
+    /**
+     * Import (upload) project from storage
+     * @description This is designed to merge code from an existing
+     * project into the current project.
+     */
     $('#upload-project').on('click', () => uploadCode());
+
+    // ---- Hamburger drop down horizontal line ----
+
+    // Still looking for these buttons in the UI
+    $('#client-setup').on('click', () => configure_client());
 
 
     // **  End of Drop-down menu
