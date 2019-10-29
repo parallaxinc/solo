@@ -78,21 +78,10 @@ var isOffline = ($("meta[name=isOffline]").attr("content") === 'true') ? true : 
  * @description Converting the string to a constant because it is referenced
  * in a number of places. The string is sufficiently complex that it could
  * be misspelled without detection.
- */
-const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
-
-
-/**
- * Force the saveCheck() function to exit immediately with a false result
  *
- * TODO: This flag is used in exactly one place. Why do we need it?
- *
- * @type {boolean}
- *
- * @deprecated
- * Variable is not used in code.
- */
-var ignoreSaveCheck = false;
+ * /
+// Moved to project.js
+ //const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 
 
 /**
@@ -154,6 +143,7 @@ bpIcons = {
     cameraWhite:         '<svg width="14" height="15"><path d="M1.5,13.5 L.5,12.5 .5,5.5 1.5,4.5 2.5,4.5 4,3 7,3 8.5,4.5 12.5,4.5 13.5,5.5 13.5,12.5 12.5,13.5 Z M 2,9 A 4,4,0,0,0,10,9 A 4,4,0,0,0,2,9 Z M 4.5,9 A 1.5,1.5,0,0,0,7.5,9 A 1.5,1.5,0,0,0,4.5,9 Z M 10.5,6.5 A 1,1,0,0,0,13.5,6.5 A 1,1,0,0,0,10.5,6.5 Z" style="stroke:#fff;stroke-width:1;fill:#fff;" fill-rule="evenodd"/></svg>',
 }
 
+
 /**
  * The name used to store a project that is being loaded from
  * offline storage.
@@ -185,44 +175,6 @@ var blocklyWorkSpace;
  */
 const defaultSaveProjectTimerDelay = 20;
 
-/**
- * Project class implementation
-class Project {
-
-    id = 0;
-    user = '';
-    name = '';
-    yours = true;
-    description = '';
-    htmlDescription = '';
-    boardType = '';
-    code = '';
-    private = true;
-    shared = false;
-    createDate = null;
-    lastUpdated = null;
-
-    constructor() {
-
-    }
-
-    getCreated() {
-        return this.createDate;
-    }
-
-    setCreated(value) {
-        this.createDate = value;
-    }
-
-    getTimestamp() {
-        return this.lastUpdated;
-    }
-
-    setTimestamp(value) {
-        this.lastUpdated = value;
-    }
-}
-*/
 
 // TODO: set up a markdown editor (removed because it doesn't work in a Bootstrap modal...)
 
@@ -232,6 +184,7 @@ class Project {
 // Project save timestamp and interval functions
 //
 // ------------------------------------------------------------------
+
 
 /**
  * Ping the Rest API every 60 seconds
@@ -294,7 +247,7 @@ const checkLastSavedTime = function () {
     $('#save-check-warning-time').html(s_save.toString(10));
 
     //if (s_save > 58) {
-    // TODO: It's been to long - autosave, then close/set URL back to login page.
+    // TODO: It's been to long - auto-save, then close/set URL back to login page.
     //}
 
     if (t_now > last_saved_timestamp && checkLeave()) {
@@ -307,6 +260,7 @@ const checkLastSavedTime = function () {
 // ------------------------------------------------------------------
 // -----          End of project save timer functions          ------
 // ------------------------------------------------------------------
+
 
 /**
  * Execute this code as soon as the DOM becomes ready.
@@ -403,10 +357,6 @@ $( () => {
         $('.online-only').addClass('hidden');
         $('.offline-only').removeClass('hidden');
 
-        // populate the board type drop down list
-        // TODO: Make this a function
-        //  see PopulateProjectBoardTypesUIElement()
-
         // Load a project file from local storage
         if (getURLParameter('openFile') === "true") {
             // Check for an existing project in localStorage
@@ -415,12 +365,10 @@ $( () => {
                 projectData = JSON.parse(window.localStorage.getItem(localProjectStoreName));
             }
             OpenProjectModal();
-        }
-        else if (getURLParameter('newProject') === "true") {
+        } else if (getURLParameter('newProject') === "true") {
             NewProjectModal();
-        }
-        // Load a project from localStorage if available
-        else if (window.localStorage.getItem(localProjectStoreName)) {
+        } else if (window.localStorage.getItem(localProjectStoreName)) {
+            // Load a project from localStorage if available
             try {
                 // Get a copy of the last know state of the current project
                 let localProject = JSON.parse(window.localStorage.getItem(localProjectStoreName));
@@ -442,33 +390,16 @@ $( () => {
                         alert(objError.message);
                     } else {
                         console.error(objError.message);
+                        alert("Unable to load the project.");
                     }
                 // No viable project available, so redirect to index page.
                 window.location.href = (isOffline) ? 'index.html' : baseUrl;
             }
-        }
-        else {
+        } else {
             // No viable project available, so redirect to index page.
             window.location.href = (isOffline) ? 'index.html' : baseUrl;
         }
-
     }  // End of offline mode
-    else {
-        // We need to test for the case where we are creating a new local project
-        // and the project detail are being passed in the Request body
-        // TODO: Create a new project from details passed in from the new-project page
-        // ----------------------------------------------------------------------------
-        $.get(baseUrl + 'rest/shared/project/editor/' + idProject,
-            function(data) {
-                setupWorkspace(data)
-            })
-            .fail(function () {
-                // Failed to load project - this probably means that it belongs to another user and is not shared.
-                utils.showMessage('Unable to Access Project', 'The BlocklyProp Editor was unable to access the project you requested.  If you are sure the project exists, you may need to contact the project\'s owner and ask them to share their project before you will be able to view it.', function () {
-                    window.location = baseUrl;
-                });
-            });
-    }
 
     // Make sure the toolbox appears correctly, just for good measure.
     resetToolBoxSizing(250);
@@ -504,7 +435,7 @@ function checkLeave () {
     let savedXml = projectData['code'];
 
     return ! (savedXml === currentXml);
-};
+}
 
 
 
@@ -596,14 +527,12 @@ function initEventHandlers() {
     $('#prop-btn-undo').on('click', () => codePropC.undo());
     $('#prop-btn-redo').on('click', () => codePropC.redo());
 
-    // Blocks/Code/XML button
-    $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
-    $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
-    $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
-
-
+    // This arrived on 6/6/2019 from CDN PR#129.
+    // zfi merged 1 commit into parallaxinc:1.2 from MatzElectronics:1.2on Jun 6
+    // TODO: Correct missing configure_term_graph() function.
     $('#term-graph-setup').on('click', () => configure_term_graph());
-    $('#client-setup').on('click', () => configure_client());
+
+
 
     $('#propc-find-btn').on('click', () => {
         codePropC.find(document.getElementById('propc-find').value, {}, true);
@@ -623,6 +552,11 @@ function initEventHandlers() {
     // **********************************
     // **     Toolbar - right side     **
     // **********************************
+    // Blocks/Code/XML button
+    $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
+    $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
+    $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
+
     // New Project toolbar button
     $('#new-project-button').on('click', () => NewProjectModal());
 
@@ -630,9 +564,11 @@ function initEventHandlers() {
     $('#open-project-button').on('click', () => {
         // Save the project to localStorage
         window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
-
         window.location="blocklyc.html?openFile=true";
     });
+
+    // Save Project button goes here!
+
 
     // Hamburger menu items
     //    $('#selectfile-replace').on('click',    function () {  uploadMergeCode(false); });
@@ -642,19 +578,37 @@ function initEventHandlers() {
     $('#edit-project-details').on('click', () => editProjectDetails());
 
     // New Project - Load a new project menu click handler
+    /**
+     * @deprecated
+     */
     $('#new-project-menu-item').on('click', () => NewProjectModal());
 
     // Help and Reference - online help web pages
     // Implemented as an href in the menu
 
+    // ---- Hamburger drop down horizontal line ----
+
     // Download project to Simple IDE
     $('#download-side').on('click', () => downloadPropC());
 
-    // Download project to disk
+    /**
+     * Download project to disk
+     * @deprecated
+     */
     $('#download-project').on('click', () => downloadCode());
 
-    // Import (upload) project from storage
+
+    /**
+     * Import (upload) project from storage
+     * @description This is designed to merge code from an existing
+     * project into the current project.
+     */
     $('#upload-project').on('click', () => uploadCode());
+
+    // ---- Hamburger drop down horizontal line ----
+
+    // Still looking for these buttons in the UI
+    $('#client-setup').on('click', () => configure_client());
 
 
     // **  End of Drop-down menu
@@ -676,7 +630,10 @@ function initEventHandlers() {
 
     $('#save-as-board-type').on('change', () => checkBoardType( $('#saveAsDialogSender').html()));
 
-    $('#save-as-board-btn').on('click', () => saveProjectAs());
+    $('#save-as-board-btn').on('click', () => saveProjectAs(
+        $('#save-as-board-type').val(),
+        $('#save-as-project-name').val()
+    ));
 
     $('#win1-btn').on('click',() => showStep('win', 1, 3));
     $('#win2-btn').on('click',() => showStep('win', 2, 3));
@@ -800,21 +757,20 @@ function resetToolBoxSizing(resizeDelay) {
     }, resizeDelay || 10);  // 10 millisecond delay
 }
 
+
 /**
  * Populate the projectData global
  *
- * @param data, callback
- *
+ * @param data is the current project object
+ * @param callback is called if provided when the function completes
  */
 function setupWorkspace(data, callback) {
     ClearBlocklyWorkspace();
 
     projectData = data;
+    showInfo(data);         // Update the UI with project related details
 
-
-    // Update the UI with project related details
-    showInfo(data);
-
+    // --------------------------------------------------------------
     // Set the global project ID. in the offline mode, the project
     // id is set to 0 when the project is loaded from local storage.
     // --------------------------------------------------------------
@@ -832,6 +788,7 @@ function setupWorkspace(data, callback) {
 
         // Reinstate key bindings from block workspace if this is not a code-only project.
         if (Blockly.codeOnlyKeybind === true) {
+            // TODO: Need to replace bindEvent_ call with something that is not deprecated.
             Blockly.bindEvent_(document, 'keydown', null, Blockly.onKeyDown_);
             Blockly.codeOnlyKeybind = false;
         }
@@ -1065,61 +1022,37 @@ function checkBoardType (requester) {
 
 
 /**
- * Save an existing project under a new project ID with the new project owner
+ *
  *
  * @param requestor
  */
-function saveProjectAs (requestor) {
-    // Retrieve the field values
-    var p_type = $('#save-as-board-type').val();
-    var p_name = $('#save-as-project-name').val();
 
-    //get the project's XML code
-    var code = '';
+/**
+ * Save an existing project under a new project ID with the new project owner
+ * @param boardType
+ * @param projectName
+ */
+function saveProjectAs (boardType, projectName) {
+    let tt = new Date();
+    let pd = {
+        'board': boardType,
+        'code': EmptyProjectCodeHeader,
+        'created': tt,
+        'description': "",
+        'description-html': "",
+        'id': 0,
+        'modified': tt,
+        'name': projectName,
+        'private': true,
+        'shared': false,
+        'type': "PROPC",
+        'user': "offline",
+        'yours': true,
+        'timestamp': getTimestamp(),
+    };
 
-    if (requestor !== 'offline') {
-        if (projectData && p_type === 'propcfile') {
-            code = propcAsBlocksXml();
-        } else {
-            code = getXml();
-        }
-
-        // Save the new project
-        projectData['board'] = p_type;
-        projectData['code'] = code;
-        projectData['name'] = p_name;
-
-        $.post(baseUrl + 'rest/project/code-as', projectData, function (data) {
-            // var previousOwner = projectData['yours'];
-            projectData = data;
-            projectData['code'] = code; // Save code in projectdata to be able to verify if code has changed upon leave
-
-            // Reloading project with new id
-            window.location.href = baseUrl + 'projecteditor?id=' + data['id'];
-        });
-        timestampSaveTime(defaultSaveProjectTimerDelay, true);
-    } else {
-        var tt = new Date();
-        var pd = {
-            'board': p_type,
-            'code': EmptyProjectCodeHeader,
-            'created': tt,
-            'description': "",
-            'description-html': "",
-            'id': 0,
-            'modified': tt,
-            'name': p_name,
-            'private': true,
-            'shared': false,
-            'type': "PROPC",
-            'user': "offline",
-            'yours': true,
-            'timestamp': getTimestamp(),
-        }
-
-        window.localStorage.setItem(localProjectStoreName, JSON.stringify(pd));
-        window.location = 'blocklyc.html';
-    }
+    window.localStorage.setItem(localProjectStoreName, JSON.stringify(pd));
+    window.location = 'blocklyc.html';
 }
 
 
@@ -1369,7 +1302,9 @@ function uploadHandler(files) {
             computedChecksum = '000000000000'.substring(computedChecksum.length, 12) + computedChecksum;
 
             var boardIndex = xmlString.indexOf('transform="translate(-225,-23)">Device: ');
-            uploadBoardType = xmlString.substring((boardIndex + 40), xmlString.indexOf('</text>', (boardIndex + 41)));
+            uploadBoardType = xmlString.substring(
+                (boardIndex + 40),
+                xmlString.indexOf('</text>', (boardIndex + 41)));
 
             if (computedChecksum === uploadedChecksum) {
                 xmlValid = true;
@@ -1392,12 +1327,15 @@ function uploadHandler(files) {
                 // Loading an offline .SVG project file. Create a project object and
                 // save it into the browser store.
                 var titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
-                var projectTitle = xmlString.substring((titleIndex + 39), xmlString.indexOf('</text>', (titleIndex + 39)));
+                var projectTitle = xmlString.substring(
+                    (titleIndex + 39), xmlString.indexOf('</text>', (titleIndex + 39)));
                 titleIndex = xmlString.indexOf('transform="translate(-225,-8)">Description: ');
                 var projectDesc = '';
 
                 if (titleIndex > -1) {
-                    projectDesc = xmlString.substring((titleIndex + 44), xmlString.indexOf('</text>', (titleIndex + 44)));
+                    projectDesc = xmlString.substring(
+                        (titleIndex + 44),
+                        xmlString.indexOf('</text>', (titleIndex + 44)));
                 }
 
                 var tt = new Date();
@@ -1405,14 +1343,18 @@ function uploadHandler(files) {
                 var projectCreated = tt;
 
                 if (titleIndex > -1) {
-                    projectCreated = xmlString.substring((titleIndex + 16), xmlString.indexOf('"', (titleIndex + 17)));
+                    projectCreated = xmlString.substring(
+                        (titleIndex + 16),
+                        xmlString.indexOf('"', (titleIndex + 17)));
                 }
 
                 titleIndex = xmlString.indexOf('data-lastmodified="');
                 var projectModified = tt;
 
                 if (titleIndex > -1) {
-                    projectModified = xmlString.substring((titleIndex + 19), xmlString.indexOf('"', (titleIndex + 20)));
+                    projectModified = xmlString.substring(
+                        (titleIndex + 19),
+                        xmlString.indexOf('"', (titleIndex + 20)));
                 }
 
                 pd = {
@@ -1430,8 +1372,34 @@ function uploadHandler(files) {
                     'user': "offline",
                     'yours': true,
                     'timestamp': getTimestamp(),
-                }
+                };
 
+                // Compute a parallel dataset to replace 'pd'
+                // let project = new Project(
+                //     decodeFromValidXml(projectTitle),
+                //     decodeFromValidXml(projectDesc),
+                //     uploadBoardType,
+                //     ProjectTypes.PROPC,
+                //     uploadedXML,
+                //     projectCreated,
+                //     projectModified,
+                //     getTimestamp());
+                //
+                // let projectOutput = project.getDetails();
+                //
+                // if (! testProjectEquality(pd, projectOutput)) {
+                //     console.log("Project output differs.");
+                //     console.log("Old: " + pd);
+                //     console.log("New: " + projectOutput);
+                // }
+
+                // Save the output in a temp storage space
+                // TODO: Test this result with the value 'pd'
+                // window.localStorage.setItem(
+                //     "tempProject",
+                //     JSON.stringify(projectOutput));
+
+                // Save the project to the browser store
                 window.localStorage.setItem(tempProjectStoreName, JSON.stringify(pd));
             }
         }
@@ -1742,10 +1710,65 @@ function ClearBlocklyWorkspace() {
         space.clearUndo();
         space.clear();
     }
-/*
-    if(Blockly.mainWorkspace) {
-        Blockly.mainWorkspace.clear();
-        Blockly.mainWorkspace.clearUndo();
+}
+
+
+
+function testProjectEquality(projectA, projectB) {
+    if (! projectA ) {
+        console.log("Project A is empty");
+        return false;
     }
-*/
+
+    if ( ! projectB ) {
+        console.log("Project B is empty");
+        return false;
+    }
+
+    if ((projectA.name && projectB.name) && (projectA.name !== projectB.name)) {
+        console.log("Project name mismatch");
+        return false;
+    }
+
+    if ((projectA.description && projectB.description) && (projectA.description !== projectB.description)) {
+        console.log("Project description mismatch");
+    }
+
+    if (projectA.type !== projectB.type) {
+        return false;
+    }
+
+    if (projectA.board !== projectB.board) {
+        console.log("Board type mismatch");
+        return false;
+    }
+
+    if (projectA.code !== projectB.code) {
+        console.log("Code segment mismatch");
+        return false;
+    }
+
+    if (projectA.created !== projectB.created) {
+        return false;
+    }
+
+    if (projectA.modified !== projectB.modified) {
+        return false;
+    }
+
+    if (projectA.descriptionHtml !== projectB.descriptionHtml) {
+        return false;
+    }
+
+    if (projectA.id !== projectB.id) {
+        return false;
+    }
+
+    // private: true
+    // shared: false
+    // timestamp: 1572365783099
+    // user: "offline"
+    // yours: true
+
+    return true;
 }

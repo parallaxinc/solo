@@ -599,10 +599,13 @@ function clearComPortUI() {
             return port;
         }
         catch (e){
-            console.log("Error: " + e.message);
+            if (e) {
+                console.log("Error: " + e.message);
+            }
         }
     }
 
+    portUI.empty();
     return null;
 }
 
@@ -613,7 +616,7 @@ function clearComPortUI() {
  * @param port
  */
 function addComPortDeviceOption(port) {
-    if (port === typeof('string')) {
+    if (typeof(port) === 'string') {
         $("#comPort").append($('<option>', { text: port }));
     }
 }
