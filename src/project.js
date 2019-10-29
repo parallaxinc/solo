@@ -38,7 +38,7 @@ class Project {
 
     /**
      * Board type used in the defined project
-     * @type {null}
+     * @type {ProjectProfiles.unknown|{saves_to, name, description}}
      */
     boardType = ProjectProfiles.unknown;
 
@@ -147,7 +147,16 @@ class Project {
     constructor(name, description, profile, projectType, code, created, modified, timestamp) {
         this.name = name;
         this.description = description;
-        this.boardType = ProjectProfiles[profile];
+
+        // Handle renamed board types
+        if (profile === 'activity-board') {
+            this.boardType = ProjectProfiles['activityboard'];
+        } else if (profile === 'heb-wx') {
+            this.boardType = ProjectProfiles['hebwx'];
+        } else {
+            this.boardType = ProjectProfiles[profile];
+        }
+
         this.projectType = ProjectTypes[projectType];
         this.code = code;
 
@@ -165,47 +174,47 @@ class Project {
  */
 
 // Setters and Getters
-Project.prototype.getId = () => {return this.id};
-Project.prototype.setId = (value) => this.id = value;
+// Project.prototype.getId = () => {return this.id};
+// Project.prototype.setId = (value) => this.id = value;
+//
+// Project.prototype.getName = () => { return this.name};
+// Project.prototype.setName = (value) => this.name = value;
 
-Project.prototype.getName = () => { return this.name};
-Project.prototype.setName = (value) => this.name = value;
+// Project.prototype.getBoardType = () => {return this.boardType};
+// Project.prototype.setBoardType = (value)=> this.boardType = value;
 
-Project.prototype.getBoardType = () => {return this.boardType};
-Project.prototype.setBoardType = (value)=> this.boardType = value;
-
-Project.prototype.getType = () => {return this.type};
-Project.prototype.setType = (value)=> this.type = value;
-
-Project.prototype.getDescription = () => {return this.description};
-Project.prototype.setDescription = (value) => this.description = value;
-
-Project.prototype.getDescriptionHtml = () => {return this.descriptionHtml};
-Project.prototype.setDescriptionHtml = (value) => this.descriptionHtml = value;
-
-Project.prototype.getCode = () => {return this.code};
-Project.prototype.setCode = (value) => this.code = value;
-
-Project.prototype.getCreated = () => {return this.created};
-Project.prototype.setCreated = (value) => this.created = value;
-
-Project.prototype.getModified = () => {return this.modified};
-Project.prototype.setModified = (value) => this.modified = value;
-
-Project.prototype.getPrivate = () => {return this.private};
-Project.prototype.setPrivate = (value) => this.private = value;
-
-Project.prototype.getShared = () => {return this.shared};
-Project.prototype.setShared = (value) => this.shared = value;
-
-Project.prototype.getUser = () => {return this.user};
-Project.prototype.setUser = (value) => this.user = value;
-
-Project.prototype.getYours = () => {return this.yours};
-Project.prototype.setYours = (value) => this.yours = value;
-
-Project.prototype.getTimestamp = () => {return this.timestamp};
-Project.prototype.setTimestamp = (value) => this.timestamp = value;
+// Project.prototype.getType = () => {return this.type};
+// Project.prototype.setType = (value)=> this.type = value;
+//
+// Project.prototype.getDescription = () => {return this.description};
+// Project.prototype.setDescription = (value) => this.description = value;
+//
+// Project.prototype.getDescriptionHtml = () => {return this.descriptionHtml};
+// Project.prototype.setDescriptionHtml = (value) => this.descriptionHtml = value;
+//
+// Project.prototype.getCode = () => {return this.code};
+// Project.prototype.setCode = (value) => this.code = value;
+//
+// Project.prototype.getCreated = () => {return this.created};
+// Project.prototype.setCreated = (value) => this.created = value;
+//
+// Project.prototype.getModified = () => {return this.modified};
+// Project.prototype.setModified = (value) => this.modified = value;
+//
+// Project.prototype.getPrivate = () => {return this.private};
+// Project.prototype.setPrivate = (value) => this.private = value;
+//
+// Project.prototype.getShared = () => {return this.shared};
+// Project.prototype.setShared = (value) => this.shared = value;
+//
+// Project.prototype.getUser = () => {return this.user};
+// Project.prototype.setUser = (value) => this.user = value;
+//
+// Project.prototype.getYours = () => {return this.yours};
+// Project.prototype.setYours = (value) => this.yours = value;
+//
+// Project.prototype.getTimestamp = () => {return this.timestamp};
+// Project.prototype.setTimestamp = (value) => this.timestamp = value;
 
 
 /**
@@ -217,11 +226,11 @@ Project.prototype.setTimestamp = (value) => this.timestamp = value;
 Project.prototype.getDetails = function() {
     return {
         id: this.id,
-        boardType: this.boardType.name,
+        board: this.boardType.name,
         type: this.projectType,
         name: this.name,
         description: this.description,
-        descriptionHtml: this.descriptionHtml,
+        "description-html": this.descriptionHtml,
         code: this.code,
         created: this.created,
         modified: this.modified,

@@ -607,7 +607,10 @@ function initEventHandlers() {
 
     $('#save-as-board-type').on('change', () => checkBoardType( $('#saveAsDialogSender').html()));
 
-    $('#save-as-board-btn').on('click', () => saveProjectAs());
+    $('#save-as-board-btn').on('click', () => saveProjectAs(
+        $('#save-as-board-type').val(),
+        $('#save-as-project-name').val()
+    ));
 
     $('#win1-btn').on('click',() => showStep('win', 1, 3));
     $('#win2-btn').on('click',() => showStep('win', 2, 3));
@@ -996,77 +999,37 @@ function checkBoardType (requester) {
 
 
 /**
- * Save an existing project under a new project ID with the new project owner
+ *
  *
  * @param requestor
  */
-function saveProjectAs (requestor) {
-    // Retrieve the field values
-    var p_type = $('#save-as-board-type').val();
-    var p_name = $('#save-as-project-name').val();
 
-    //get the project's XML code
-    var code = '';
+/**
+ * Save an existing project under a new project ID with the new project owner
+ * @param boardType
+ * @param projectName
+ */
+function saveProjectAs (boardType, projectName) {
+    let tt = new Date();
+    let pd = {
+        'board': boardType,
+        'code': EmptyProjectCodeHeader,
+        'created': tt,
+        'description': "",
+        'description-html': "",
+        'id': 0,
+        'modified': tt,
+        'name': projectName,
+        'private': true,
+        'shared': false,
+        'type': "PROPC",
+        'user': "offline",
+        'yours': true,
+        'timestamp': getTimestamp(),
+    };
 
-    if (requestor !== 'offline') {
-        if (projectData && p_type === 'propcfile') {
-            code = propcAsBlocksXml();
-        } else {
-            code = getXml();
-        }
-
-        // Save the new project
-        projectData['board'] = p_type;
-        projectData['code'] = code;
-        projectData['name'] = p_name;
-
-        $.post(baseUrl + 'rest/project/code-as', projectData, function (data) {
-            // var previousOwner = projectData['yours'];
-            projectData = data;
-            projectData['code'] = code; // Save code in projectdata to be able to verify if code has changed upon leave
-
-            // Reloading project with new id
-            window.location.href = baseUrl + 'projecteditor?id=' + data['id'];
-        });
-        timestampSaveTime(defaultSaveProjectTimerDelay, true);
-    } else {
-        var tt = new Date();
-        var pd = {
-            'board': p_type,
-            'code': EmptyProjectCodeHeader,
-            'created': tt,
-            'description': "",
-            'description-html': "",
-            'id': 0,
-            'modified': tt,
-            'name': p_name,
-            'private': true,
-            'shared': false,
-            'type': "PROPC",
-            'user': "offline",
-            'yours': true,
-            'timestamp': getTimestamp(),
-        };
-
-        let project = new Project();
-        project.setBoardType(p_type);
-        // project.setCode(EmptyProjectCodeHeader);
-        project.setCreated(tt);
-        //    'description': "",
-        //    'description-html': "",
-        //    'id': 0,
-        project.setModified(tt);
-        project.setName(p_name);
-        //    'private': true,
-        //    'shared': false,
-        project.setType(Project.Type.PROPC);
-        project.setUser("offline");
-        //    'yours': true,
-        project.setTimestamp(getTimestamp());
-
-        window.localStorage.setItem(localProjectStoreName, JSON.stringify(pd));
-        window.location = 'blocklyc.html';
-    }
+    window.localStorage.setItem(localProjectStoreName, JSON.stringify(pd));
+    window.location = 'blocklyc.html';
 }
 
 
@@ -1386,31 +1349,32 @@ function uploadHandler(files) {
                     'user': "offline",
                     'yours': true,
                     'timestamp': getTimestamp(),
-                }
+                };
 
                 // Compute a parallel dataset to replace 'pd'
-                let project = new Project(
-                    decodeFromValidXml(projectTitle),
-                    decodeFromValidXml(projectDesc),
-                    uploadBoardType,
-                    ProjectTypes.PROPC,
-                    uploadedXML,
-                    projectCreated,
-                    projectModified,
-                    getTimestamp());
-
-                let projectOutput = project.getDetails();
-                if (projectOutput !== pd) {
-                    console.log("Project output differs.");
-                    console.log("Old: " + pd);
-                    console.log("New: " + projectOutput);
-                }
+                // let project = new Project(
+                //     decodeFromValidXml(projectTitle),
+                //     decodeFromValidXml(projectDesc),
+                //     uploadBoardType,
+                //     ProjectTypes.PROPC,
+                //     uploadedXML,
+                //     projectCreated,
+                //     projectModified,
+                //     getTimestamp());
+                //
+                // let projectOutput = project.getDetails();
+                //
+                // if (! testProjectEquality(pd, projectOutput)) {
+                //     console.log("Project output differs.");
+                //     console.log("Old: " + pd);
+                //     console.log("New: " + projectOutput);
+                // }
 
                 // Save the output in a temp storage space
                 // TODO: Test this result with the value 'pd'
-                window.localStorage.setItem(
-                    "tempProject",
-                    JSON.stringify(projectOutput));
+                // window.localStorage.setItem(
+                //     "tempProject",
+                //     JSON.stringify(projectOutput));
 
                 // Save the project to the browser store
                 window.localStorage.setItem(tempProjectStoreName, JSON.stringify(pd));
@@ -1723,4 +1687,65 @@ function ClearBlocklyWorkspace() {
         space.clearUndo();
         space.clear();
     }
+}
+
+
+
+function testProjectEquality(projectA, projectB) {
+    if (! projectA ) {
+        console.log("Project A is empty");
+        return false;
+    }
+
+    if ( ! projectB ) {
+        console.log("Project B is empty");
+        return false;
+    }
+
+    if ((projectA.name && projectB.name) && (projectA.name !== projectB.name)) {
+        console.log("Project name mismatch");
+        return false;
+    }
+
+    if ((projectA.description && projectB.description) && (projectA.description !== projectB.description)) {
+        console.log("Project description mismatch");
+    }
+
+    if (projectA.type !== projectB.type) {
+        return false;
+    }
+
+    if (projectA.board !== projectB.board) {
+        console.log("Board type mismatch");
+        return false;
+    }
+
+    if (projectA.code !== projectB.code) {
+        console.log("Code segment mismatch");
+        return false;
+    }
+
+    if (projectA.created !== projectB.created) {
+        return false;
+    }
+
+    if (projectA.modified !== projectB.modified) {
+        return false;
+    }
+
+    if (projectA.descriptionHtml !== projectB.descriptionHtml) {
+        return false;
+    }
+
+    if (projectA.id !== projectB.id) {
+        return false;
+    }
+
+    // private: true
+    // shared: false
+    // timestamp: 1572365783099
+    // user: "offline"
+    // yours: true
+
+    return true;
 }
