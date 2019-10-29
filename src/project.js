@@ -78,71 +78,83 @@ class Project {
     code = EmptyProjectCodeHeader;
 
     /**
-     *
-     * @type {null}
+     * Timestamp when the project was created. Once set, it should
+     * never be modified.
+     * @type {string}
      * @private
      */
-    created = null;
+    created = "";
 
     /**
-     *
-     * @type {null}
+     * Timestamp when the project was last modified
+     * @type {string}
      * @private
      */
-    modified = null;
+    modified = "";
 
     /**
-     *
+     * All Solo projects are private.
      * @type {boolean}
      * @private
+     * @deprecated
      */
     private = true;
 
     /**
-     *
+     * All Solo projects are not shared.
      * @type {boolean}
      * @private
+     * @deprecated
      */
     shared = false;
 
     /**
-     *
+     * User is not a Solo concept.
      * @type {string}
      * @private
+     * @deprecated
      */
     user = 'offline';
 
     /**
-     *
+     * All Solo projects are 'yours'.
      * @type {boolean}
      * @private
+     * @deprecated
      */
     yours = true;
 
     /**
-     *
+     * Current timestamp
+     * TODO: What is the purpose of this field?
      * @type {number}
      * @private
      */
     timestamp = getTimestamp();
 
+
+    /**
+     * Project constructor.
+     * @param name
+     * @param description
+     * @param profile
+     * @param projectType
+     * @param code
+     * @param created
+     * @param modified
+     * @param timestamp
+     */
     constructor(name, description, profile, projectType, code, created, modified, timestamp) {
         this.name = name;
         this.description = description;
-
-        // Map the profile
         this.boardType = ProjectProfiles[profile];
-
-        // Map project type (PROPC and anything else)
-        this.projectType = projectType;
-
+        this.projectType = ProjectTypes[projectType];
         this.code = code;
 
         // This should be a timestamp but is received as a string
+        // TODO: Convert timestamp string to numeric values
         this.created = created;
-
         this.modified = modified;
-
         this.timestamp = timestamp;
     }
 }
@@ -197,7 +209,9 @@ Project.prototype.setTimestamp = (value) => this.timestamp = value;
 
 
 /**
- * Get all of the project details in one function call
+ * Get all of the project details in one function call. This is
+ * a direct replacement for the code that is converted to JSON
+ * to persist the project to storage.
  * @returns {{shared: *, private: *, boardType: *, code: *, created: *, description: *, type: *, name: *, modified: *, descriptionHtml: *, id: *, user: *, yours: *, timestamp: *}}
  */
 Project.prototype.getDetails = function() {
@@ -397,9 +411,3 @@ const ProjectProfiles = {
  * be misspelled without detection.
  */
 const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
-
-
-// let projname = "heb";
-// let x = ProjectProfiles[projname].name;
-// console.log(x);
-// let v = ProjectProfiles.heb.digital[]
