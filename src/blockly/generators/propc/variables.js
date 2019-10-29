@@ -198,13 +198,16 @@ Blockly.Blocks.array_get = {
     },
 
     // TODO: ov and nv are undefined at select calls to this method
+    // Note: That's intentional - this function is overloaded.
     updateArrayMenu: function (oldVarName, newVarName) {
+        /*
         if (typeof(oldVarName) === 'undefined') {
             console.log("Call to updateArrayMenu() is missing first parameter.");
         }
         if (typeof(newVarName) === 'undefined') {
             console.log("Call to updateArrayMenu() is missing second parameter.");
         }
+        */
 
         var v_check = true;
         var v_list = [];
@@ -229,9 +232,9 @@ Blockly.Blocks.array_get = {
 
         // Init the array name to a default if there are no existing
         // array variable blocks
-        if (v_check) {
+        //if (v_check) {
             v_list.push(['list', 'list']);
-        }
+        //}
 
         /* **********************************************************
          * This is returning a field value of 'list'. In the test
