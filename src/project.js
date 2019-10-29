@@ -134,7 +134,7 @@ class Project {
 
 
     /**
-     * Project constructor.
+     * Project constructor
      * @param name
      * @param description
      * @param profile
@@ -143,12 +143,21 @@ class Project {
      * @param created
      * @param modified
      * @param timestamp
+     *
+     * @description
+     * The board types, also referenced as a specific board profile,
+     * are identified by a text string, such as 'heb' or 'activity-board'.
+     * The project class stores a reference to the specific profile in
+     * the boardType field instead of the text reference. This allows
+     * one to reference the various elements in the specific profile
+     * with a '.' dot notation and eliminates some potential sources
+     * of errors due to misspelling or array vs object references.
      */
     constructor(name, description, profile, projectType, code, created, modified, timestamp) {
         this.name = name;
         this.description = description;
 
-        // Handle renamed board types
+        // Handle legacy board types.
         if (profile === 'activity-board') {
             this.boardType = ProjectProfiles['activityboard'];
         } else if (profile === 'heb-wx') {
@@ -167,54 +176,6 @@ class Project {
         this.timestamp = timestamp;
     }
 }
-
-
-/*
- *  Setter and Getter methods
- */
-
-// Setters and Getters
-// Project.prototype.getId = () => {return this.id};
-// Project.prototype.setId = (value) => this.id = value;
-//
-// Project.prototype.getName = () => { return this.name};
-// Project.prototype.setName = (value) => this.name = value;
-
-// Project.prototype.getBoardType = () => {return this.boardType};
-// Project.prototype.setBoardType = (value)=> this.boardType = value;
-
-// Project.prototype.getType = () => {return this.type};
-// Project.prototype.setType = (value)=> this.type = value;
-//
-// Project.prototype.getDescription = () => {return this.description};
-// Project.prototype.setDescription = (value) => this.description = value;
-//
-// Project.prototype.getDescriptionHtml = () => {return this.descriptionHtml};
-// Project.prototype.setDescriptionHtml = (value) => this.descriptionHtml = value;
-//
-// Project.prototype.getCode = () => {return this.code};
-// Project.prototype.setCode = (value) => this.code = value;
-//
-// Project.prototype.getCreated = () => {return this.created};
-// Project.prototype.setCreated = (value) => this.created = value;
-//
-// Project.prototype.getModified = () => {return this.modified};
-// Project.prototype.setModified = (value) => this.modified = value;
-//
-// Project.prototype.getPrivate = () => {return this.private};
-// Project.prototype.setPrivate = (value) => this.private = value;
-//
-// Project.prototype.getShared = () => {return this.shared};
-// Project.prototype.setShared = (value) => this.shared = value;
-//
-// Project.prototype.getUser = () => {return this.user};
-// Project.prototype.setUser = (value) => this.user = value;
-//
-// Project.prototype.getYours = () => {return this.yours};
-// Project.prototype.setYours = (value) => this.yours = value;
-//
-// Project.prototype.getTimestamp = () => {return this.timestamp};
-// Project.prototype.setTimestamp = (value) => this.timestamp = value;
 
 
 /**
@@ -240,6 +201,16 @@ Project.prototype.getDetails = function() {
         yours: this.yours,
         timestamp: this.timestamp
     };
+};
+
+
+/**
+ * Save the project details to a specified location in the browser's
+ * localStorage.
+ * @param localStoreName
+ */
+Project.prototype.stashProject = function(localStoreName) {
+    window.localStorage.setItem(localStoreName, JSON.stringify(this.getDetails()));
 };
 
 
