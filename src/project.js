@@ -47,7 +47,7 @@ class Project {
      * @type {string}
      * @private
      */
-    type = ProjectTypes.UNKNOWN;
+    projectType = ProjectTypes.UNKNOWN;
 
     /**
      * Project name. This also serves as the project file name.
@@ -126,13 +126,27 @@ class Project {
      */
     timestamp = getTimestamp();
 
-    constructor(name, description, profile, code) {
+    constructor(name, description, profile, projectType, code, created, modified, timestamp) {
         this.name = name;
         this.description = description;
-        this.type = profile;
+
+        // Map the profile
+        this.boardType = ProjectProfiles[profile];
+
+        // Map project type (PROPC and anything else)
+        this.projectType = projectType;
+
         this.code = code;
+
+        // This should be a timestamp but is received as a string
+        this.created = created;
+
+        this.modified = modified;
+
+        this.timestamp = timestamp;
     }
 }
+
 
 /*
  *  Setter and Getter methods
@@ -189,8 +203,8 @@ Project.prototype.setTimestamp = (value) => this.timestamp = value;
 Project.prototype.getDetails = function() {
     return {
         id: this.id,
-        boardType: this.boardType,
-        type: this.type,
+        boardType: this.boardType.name,
+        type: this.projectType,
         name: this.name,
         description: this.description,
         descriptionHtml: this.descriptionHtml,
@@ -229,6 +243,7 @@ const ProjectTypes = {
  */
 const ProjectProfiles = {
     "activityboard": {
+        name: "activity-board",
         description: "Propeller Activity Board",
         digital: [
             ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"],
@@ -251,7 +266,29 @@ const ProjectProfiles = {
             ["Other Propeller Boards", "other"]
         ]
     },
+    "flip": {
+        name: "flip",
+        description: "Propeller FLiP or Project Board",
+        digital: [
+            ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
+            ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"], ["10", "10"], ["11", "11"],
+            ["12", "12"], ["13", "13"], ["14", "14"], ["15", "15"], ["16", "16"],
+            ["17", "17"], ["18", "18"], ["19", "19"], ["20", "20"], ["21", "21"],
+            ["22", "22"], ["23", "23"], ["24", "24"], ["25", "25"], ["26", "26"],
+            ["27", "27"]
+        ],
+        analog: [],
+        baudrate: 115200,
+        contiguous_pins_start: 0,
+        contiguous_pins_end: 27,
+        saves_to: [
+            ["Propeller FLiP or Project Board", "flip"],
+            ["Propeller Activity Board", "activity-board"],
+            ["Other Propeller Boards", "other"]
+        ]
+    },
     "heb": {
+        name: "heb",
         description: "Hackable Electronic Badge",
         digital: [
             ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
@@ -269,6 +306,7 @@ const ProjectProfiles = {
         ]
     },
     "hebwx": {
+        name: "heb-wx",
         description: "Badge WX",
         digital: [
             ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
@@ -287,6 +325,7 @@ const ProjectProfiles = {
         ]
     },
     "other": {
+        name: "other",
         description: "Other Propeller Boards",
         digital: [
             ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
@@ -307,6 +346,7 @@ const ProjectProfiles = {
         ]
     },
     "propcfile": {
+        name: "propcfile",
         description: "Propeller C (code-only)",
         digital: [
             ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"],
@@ -323,6 +363,7 @@ const ProjectProfiles = {
         saves_to: []
     },
     "s3": {
+        name: "s3",
         description: "Scribbler Robot",
         digital: [
             ["P0", "0"], ["P1", "1"], ["P2", "2"], ["P3", "3"], ["P4", "4"],
@@ -339,6 +380,7 @@ const ProjectProfiles = {
         ]
     },
     "unknown": {
+        name: "unknown",
         description: "Board type is unknown",
         saves_to: []
     }
@@ -356,3 +398,8 @@ const ProjectProfiles = {
  */
 const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 
+
+// let projname = "heb";
+// let x = ProjectProfiles[projname].name;
+// console.log(x);
+// let v = ProjectProfiles.heb.digital[]
