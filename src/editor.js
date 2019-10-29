@@ -1316,7 +1316,9 @@ function uploadHandler(files) {
             computedChecksum = '000000000000'.substring(computedChecksum.length, 12) + computedChecksum;
 
             var boardIndex = xmlString.indexOf('transform="translate(-225,-23)">Device: ');
-            uploadBoardType = xmlString.substring((boardIndex + 40), xmlString.indexOf('</text>', (boardIndex + 41)));
+            uploadBoardType = xmlString.substring(
+                (boardIndex + 40),
+                xmlString.indexOf('</text>', (boardIndex + 41)));
 
             if (computedChecksum === uploadedChecksum) {
                 xmlValid = true;
@@ -1339,12 +1341,15 @@ function uploadHandler(files) {
                 // Loading an offline .SVG project file. Create a project object and
                 // save it into the browser store.
                 var titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
-                var projectTitle = xmlString.substring((titleIndex + 39), xmlString.indexOf('</text>', (titleIndex + 39)));
+                var projectTitle = xmlString.substring(
+                    (titleIndex + 39), xmlString.indexOf('</text>', (titleIndex + 39)));
                 titleIndex = xmlString.indexOf('transform="translate(-225,-8)">Description: ');
                 var projectDesc = '';
 
                 if (titleIndex > -1) {
-                    projectDesc = xmlString.substring((titleIndex + 44), xmlString.indexOf('</text>', (titleIndex + 44)));
+                    projectDesc = xmlString.substring(
+                        (titleIndex + 44),
+                        xmlString.indexOf('</text>', (titleIndex + 44)));
                 }
 
                 var tt = new Date();
@@ -1352,14 +1357,18 @@ function uploadHandler(files) {
                 var projectCreated = tt;
 
                 if (titleIndex > -1) {
-                    projectCreated = xmlString.substring((titleIndex + 16), xmlString.indexOf('"', (titleIndex + 17)));
+                    projectCreated = xmlString.substring(
+                        (titleIndex + 16),
+                        xmlString.indexOf('"', (titleIndex + 17)));
                 }
 
                 titleIndex = xmlString.indexOf('data-lastmodified="');
                 var projectModified = tt;
 
                 if (titleIndex > -1) {
-                    projectModified = xmlString.substring((titleIndex + 19), xmlString.indexOf('"', (titleIndex + 20)));
+                    projectModified = xmlString.substring(
+                        (titleIndex + 19),
+                        xmlString.indexOf('"', (titleIndex + 20)));
                 }
 
                 pd = {
@@ -1379,6 +1388,7 @@ function uploadHandler(files) {
                     'timestamp': getTimestamp(),
                 }
 
+                // Compute a parallel dataset to replace 'pd'
                 let project = new Project(
                     decodeFromValidXml(projectTitle),
                     decodeFromValidXml(projectDesc),
@@ -1388,22 +1398,21 @@ function uploadHandler(files) {
                     projectCreated,
                     projectModified,
                     getTimestamp());
-                // project.setBoardType(uploadBoardType);
-                // project.setCode(uploadedXML);
-                // project.setCreated(projectCreated);
-                // project.setDescription(decodeFromValidXml(projectDesc));
-                //    'description-html': "",
-                //    'id': 0,
-                // project.setModified(projectModified);
-                // project.setName(decodeFromValidXml(projectTitle));
-                //    'private': true,
-                //    'shared': false,
-                // project.setType(Project.Type.PROPC);
-                // project.setUser("offline");
-                //    'yours': true,
-                // project.setTimestamp(getTimestamp());
 
+                let projectOutput = project.getDetails();
+                if (projectOutput !== pd) {
+                    console.log("Project output differs.");
+                    console.log("Old: " + pd);
+                    console.log("New: " + projectOutput);
+                }
 
+                // Save the output in a temp storage space
+                // TODO: Test this result with the value 'pd'
+                window.localStorage.setItem(
+                    "tempProject",
+                    JSON.stringify(projectOutput));
+
+                // Save the project to the browser store
                 window.localStorage.setItem(tempProjectStoreName, JSON.stringify(pd));
             }
         }
