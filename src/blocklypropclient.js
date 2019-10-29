@@ -599,7 +599,9 @@ function clearComPortUI() {
             return port;
         }
         catch (e){
-            console.log("Error: " + e.message);
+            if (e) {
+                console.log("Error: " + e.message);
+            }
         }
     }
 
