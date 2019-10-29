@@ -271,6 +271,13 @@ function CreateNewProject() {
         'timestamp': getTimestamp(),
     };
 
+    let newProject = new Project(
+        projectName, description, boardType,"PROPC", code,
+        createdDateHtml, createdDateHtml, getTimestamp());
+
+    let stringJ = JSON.stringify(newProject.getDetails());
+    window.localStorage.setItem('dbg', JSON.stringify(projectData));
+
     // Save the project to the browser local store for the
     // page transition
     window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));

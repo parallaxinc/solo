@@ -1379,21 +1379,29 @@ function uploadHandler(files) {
                     'timestamp': getTimestamp(),
                 }
 
-                let project = new Project();
-                project.setBoardType(uploadBoardType);
-                project.setCode(uploadedXML);
-                project.setCreated(projectCreated);
-                project.setDescription(decodeFromValidXml(projectDesc));
+                let project = new Project(
+                    decodeFromValidXml(projectTitle),
+                    decodeFromValidXml(projectDesc),
+                    uploadBoardType,
+                    ProjectTypes.PROPC,
+                    uploadedXML,
+                    projectCreated,
+                    projectModified,
+                    getTimestamp());
+                // project.setBoardType(uploadBoardType);
+                // project.setCode(uploadedXML);
+                // project.setCreated(projectCreated);
+                // project.setDescription(decodeFromValidXml(projectDesc));
                 //    'description-html': "",
                 //    'id': 0,
-                project.setModified(projectModified);
-                project.setName(decodeFromValidXml(projectTitle));
+                // project.setModified(projectModified);
+                // project.setName(decodeFromValidXml(projectTitle));
                 //    'private': true,
                 //    'shared': false,
-                project.setType(Project.Type.PROPC);
-                project.setUser("offline");
+                // project.setType(Project.Type.PROPC);
+                // project.setUser("offline");
                 //    'yours': true,
-                project.setTimestamp(getTimestamp());
+                // project.setTimestamp(getTimestamp());
 
 
                 window.localStorage.setItem(tempProjectStoreName, JSON.stringify(pd));
