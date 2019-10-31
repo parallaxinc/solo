@@ -42,3 +42,10 @@ let projectData = '';
 const isOffline = ($("meta[name=isOffline]").attr("content") === 'true') ? true : false;
 
 
+/**
+ * Flag offline docker mode
+ * @type {*|jQuery|undefined}
+ * @deprecated
+ */
+var docker = $("meta[name=docker]").attr("content");
+
