@@ -33,19 +33,3 @@
  */
 let projectData = '';
 
-
-/**
- * Global flag to indicate that the project is running as Solo
- * @type {boolean}
- * @deprecated
- */
-const isOffline = ($("meta[name=isOffline]").attr("content") === 'true') ? true : false;
-
-
-/**
- * Flag offline docker mode
- * @type {*|jQuery|undefined}
- * @deprecated
- */
-var docker = $("meta[name=docker]").attr("content");
-
