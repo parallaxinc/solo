@@ -33,3 +33,12 @@
  */
 let projectData = '';
 
+
+/**
+ * Global flag to indicate that the project is running as Solo
+ * @type {boolean}
+ * @deprecated
+ */
+const isOffline = ($("meta[name=isOffline]").attr("content") === 'true') ? true : false;
+
+
