@@ -34,7 +34,6 @@
  * ----------------------------------------------------------------*/
 
 
-
 /**
  *
  * @description
@@ -55,8 +54,7 @@ function NewProjectModal() {
                 downloadCode();
             }
         }, "OK", "Cancel");
-    }
-    else {
+    } else {
         // Reset the values in the form to defaults
         $('#new-project-name').val('');
         $('#new-project-description').val('');
@@ -104,20 +102,19 @@ function showNewProjectModal() {
  */
 function NewProjectModalEnterClick() {
     // Ignore <enter> key pressed in a form field
-    $('#new-project-dialog').on( 'keydown', function( e ) {
+    $('#new-project-dialog').on('keydown', function (e) {
 
         // Let it go if the user is in the description textarea
         if (document.activeElement.id === "new-project-description") {
             return;
         }
 
-        if( e.key === "Enter" ) {
+        if (e.key === "Enter") {
 
             if (!validateNewProjectForm()) {
                 e.preventDefault();
                 $(this).trigger('submit');
-            }
-            else {
+            } else {
                 $('#new-project-dialog').modal('hide');
                 CreateNewProject();
             }
@@ -162,9 +159,9 @@ function NewProjectModalCancelClick() {
         // Dismiss the modal in the UX
         $('#new-project-dialog').modal('hide');
 
-        if (! projectData) {
+        if (!projectData) {
             // If there is no project, go to home page.
-            window.location.href = (isOffline) ? 'index.html' : baseUrl;
+            window.location.href = 'index.html';
         }
 
         // if the project is being edited, clear the fields and close the modal
@@ -255,7 +252,7 @@ function CreateNewProject() {
     let boardType = $('#new-project-board-type').val();
 
     let newProject = new Project(
-        projectName, description, boardType,"PROPC", code,
+        projectName, description, boardType, "PROPC", code,
         createdDateHtml, createdDateHtml, getTimestamp());
 
     // Save the project to the browser local store for the page
@@ -292,19 +289,19 @@ function OpenProjectModal() {
         // Dismiss the modal in the UX
         $('#open-project-dialog').modal('hide');
 
-        if (! projectData) {
+        if (!projectData) {
             // If there is no project, go to home page.
             window.location.href = 'index.html';
         }
         // A copy of the current project is located in the browser localStorage
-        setupWorkspace( projectData,
+        setupWorkspace(projectData,
             function () {
                 window.localStorage.removeItem(localProjectStoreName);
             });
     });
 
 
-    $('#open-project-select-file-open').on( 'click', () => {
+    $('#open-project-select-file-open').on('click', () => {
         if (window.localStorage.getItem(tempProjectStoreName)) {
             window.localStorage.setItem(
                 localProjectStoreName,
@@ -358,7 +355,6 @@ function OpenProjectFileDialog() {
 }
 
 
-
 /**
  * Dialog box to allow editing project name and description
  *
@@ -377,26 +373,24 @@ function editProjectDetails() {
  *  will manage the project state as required.
  */
 function EditOfflineProjectDetails() {
-    if (isOffline) {
-        // Set the dialog buttons click event handlers
-        setEditOfflineProjectDetailsContinueHandler();
-        setEditOfflineProjectDetailsCancelHandler();
-        setEditOfflineProjectDetailsEnterHandler();
+    // Set the dialog buttons click event handlers
+    setEditOfflineProjectDetailsContinueHandler();
+    setEditOfflineProjectDetailsCancelHandler();
+    setEditOfflineProjectDetailsEnterHandler();
 
-        // Load the current project details into the html form data
-        $('#edit-project-name').val(projectData['name']);
-        $('#edit-project-description').val(projectData['description']);
+    // Load the current project details into the html form data
+    $('#edit-project-name').val(projectData['name']);
+    $('#edit-project-description').val(projectData['description']);
 
-        // Display additional project details.
-        let projectBoardType = $('#edit-project-board-type-ro');
-        projectBoardType.val(projectData['board']);
-        projectBoardType.html(profile.default.description);
-        $('#edit-project-created-date-ro').html(projectData['created']);
-        $('#edit-project-last-modified-ro').html(projectData['modified']);
+    // Display additional project details.
+    let projectBoardType = $('#edit-project-board-type-ro');
+    projectBoardType.val(projectData['board']);
+    projectBoardType.html(profile.default.description);
+    $('#edit-project-created-date-ro').html(projectData['created']);
+    $('#edit-project-last-modified-ro').html(projectData['modified']);
 
-        // Show the dialog
-        $('#edit-project-dialog').modal({keyboard: false, backdrop: 'static'});
-    }
+    // Show the dialog
+    $('#edit-project-dialog').modal({keyboard: false, backdrop: 'static'});
 }
 
 
@@ -405,18 +399,17 @@ function EditOfflineProjectDetails() {
  */
 function setEditOfflineProjectDetailsEnterHandler() {
     // Ignore <enter> key pressed in a form field
-    $('#edit-project-dialog').on( 'keydown', (e) => {
+    $('#edit-project-dialog').on('keydown', (e) => {
         // Let it go if the user is in the description textarea
         if (document.activeElement.id === "edit-project-description") {
             return;
         }
 
-        if( e.key === "Enter" ) {
-            if (! validateEditProjectForm()) {
+        if (e.key === "Enter") {
+            if (!validateEditProjectForm()) {
                 e.preventDefault();
                 $(this).trigger('submit');
-            }
-            else {
+            } else {
                 $('#new-project-dialog').modal('hide');
                 // Update project details.
                 UpdateProjectDetails();
@@ -430,19 +423,17 @@ function setEditOfflineProjectDetailsEnterHandler() {
  *  Edit Project Details - Continue button onClick event handler
  */
 function setEditOfflineProjectDetailsContinueHandler() {
-    if (isOffline) {
-        $('#edit-project-continue').on('click', function () {
-            // verify that the project contains a valid board type and project name
-            if (validateEditProjectForm()) {
+    $('#edit-project-continue').on('click', function () {
+        // verify that the project contains a valid board type and project name
+        if (validateEditProjectForm()) {
 
-                // Hide the Edit Project modal dialog
-                $('#edit-project-dialog').modal('hide');
+            // Hide the Edit Project modal dialog
+            $('#edit-project-dialog').modal('hide');
 
-                UpdateProjectDetails();
-                showInfo(projectData);
-            }
-        });
-    }
+            UpdateProjectDetails();
+            showInfo(projectData);
+        }
+    });
 }
 
 
@@ -451,12 +442,12 @@ function setEditOfflineProjectDetailsContinueHandler() {
  */
 function UpdateProjectDetails() {
     let newName = $('#edit-project-name').val();
-    if ( !(projectData['name'] === newName)) {
+    if (!(projectData['name'] === newName)) {
         projectData['name'] = newName;
     }
 
     let newDescription = $('#edit-project-description').val();
-    if (! (projectData['description'] === newDescription)) {
+    if (!(projectData['description'] === newDescription)) {
         projectData['description'] = newDescription;
     }
 }
@@ -466,21 +457,19 @@ function UpdateProjectDetails() {
  *  Edit Project Details - Cancel button onClick event handler
  */
 function setEditOfflineProjectDetailsCancelHandler() {
-    if (isOffline) {
-        $('#edit-project-cancel').on('click', () => {
-            // if the project is being edited, clear the fields and close the modal
-            $('#edit-project-board-dropdown').removeClass('hidden');
-            $('#edit-project-details-ro').addClass('hidden');
-            $('#edit-project-board-type-select').val('');
+    $('#edit-project-cancel').on('click', () => {
+        // if the project is being edited, clear the fields and close the modal
+        $('#edit-project-board-dropdown').removeClass('hidden');
+        $('#edit-project-details-ro').addClass('hidden');
+        $('#edit-project-board-type-select').val('');
 
-            $('#edit-project-board-type-ro').html('');
-            $('#edit-project-created-date-ro').html('');
-            $('#edit-project-last-modified-ro').html('');
+        $('#edit-project-board-type-ro').html('');
+        $('#edit-project-created-date-ro').html('');
+        $('#edit-project-last-modified-ro').html('');
 
-            // Hide the Edit Project modal dialog
-            $('#edit-project-dialog').modal('hide');
-        });
-    }
+        // Hide the Edit Project modal dialog
+        $('#edit-project-dialog').modal('hide');
+    });
 }
 
 
@@ -505,7 +494,6 @@ function SaveAsProjectModal() {
     PopulateProjectBoardTypesUIElement($("#save-as-board-type"));
     $('#save-as-type-dialog').modal({keyboard: false, backdrop: 'static'});
 }
-
 
 
 /*   Load a Project file    */
@@ -552,8 +540,6 @@ function disableUploadDialogButtons() {
 }
 
 
-
-
 // HELPER FUNCTIONS
 
 /**
@@ -577,14 +563,14 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
         element.append($('<option />')
             .val('')
             .text(page_text_label['project_create_board_type_select'])
-            .attr('disabled','disabled')
-            .attr('selected','selected')
+            .attr('disabled', 'disabled')
+            .attr('selected', 'selected')
         );
 
         // then populate the dropdown with the board types
         // defined in propc.js in the 'profile' object
         // (except 'default', which is where the current project's type is stored)
-        for(let boardTypes in profile) {
+        for (let boardTypes in profile) {
             if (boardTypes !== 'default' && boardTypes !== 'propcfile') {
 
                 element.append($('<option />')
