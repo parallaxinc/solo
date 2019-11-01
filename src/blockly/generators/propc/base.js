@@ -1112,7 +1112,7 @@ Blockly.Blocks.comment = {
         this.appendDummyInput('MAIN')
                 .appendField("add", 'TITLE')
                 .appendField(new Blockly.FieldDropdown([['comment', 'COMMENT'], ['blank separator', 'SPACER']], function (action) {
-                    this.sourceBlock_.updateShape_({"ACTION": action});
+                    this.sourceBlock_.updateShape_(action);
                 }), 'ACTION')
                 .appendField(new Blockly.FieldTextInput(''), "COMMENT_TEXT");
         this.setPreviousStatement(true, "Block");
@@ -1124,16 +1124,12 @@ Blockly.Blocks.comment = {
         container.setAttribute('action', action);
         return container;
     },
-    domToMutation: function (xmlElement) {
-        var action = xmlElement.getAttribute('action');
-        this.updateShape_({"ACTION": action});
+    domToMutation: function (container) {
+        var action = container.getAttribute('action');
+        this.updateShape_(action);
     },
-    updateShape_: function (details) {
-        var action = details['ACTION'];
-        if (details['ACTION'] === undefined) {
-            action = this.getFieldValue('ACTION');
-        }
-        var data = this.getFieldValue('COMMENT_TEXT');
+    updateShape_: function (action) {
+        this.commentText = this.getFieldValue('COMMENT_TEXT');
         if (this.getInput('MAIN')) {
             this.removeInput('MAIN');
         }
@@ -1142,19 +1138,16 @@ Blockly.Blocks.comment = {
             this.appendDummyInput('MAIN')
                     .appendField("add", 'TITLE')
                     .appendField(new Blockly.FieldDropdown([['comment', 'COMMENT'], ['blank separator', 'SPACER']], function (action) {
-                        this.sourceBlock_.updateShape_({"ACTION": action});
+                        this.sourceBlock_.updateShape_(action);
                     }), 'ACTION')
-                    .appendField(new Blockly.FieldTextInput(''), "COMMENT_TEXT");
-        } else if (action === 'SPACER' && this.getColour !== '#FFFFFF') {
+                    .appendField(new Blockly.FieldTextInput(this.commentText || ''), "COMMENT_TEXT");
+        } else if (action === 'SPACER') {
             this.setColour('#FFFFFF');
             this.appendDummyInput('MAIN')
                     .appendField("   ", 'TITLE')
                     .appendField(new Blockly.FieldDropdown([['       \u25BD       ', 'SPACER'], ['comment', 'COMMENT']], function (action) {
-                        this.sourceBlock_.updateShape_({"ACTION": action});
+                        this.sourceBlock_.updateShape_(action);
                     }), 'ACTION')
-                    .appendField(new Blockly.FieldTextInput(''), "COMMENT_TEXT");
-            var cmt = this.getField('COMMENT_TEXT');
-            cmt.setVisible(false);
         }
     }
 };
@@ -1886,19 +1879,35 @@ Blockly.Blocks.string_split = {
         this.appendDummyInput()
                 .appendField("store the")
                 .appendField(new Blockly.FieldDropdown([
-                    ["first part in", "STR"],
-                    ["next part in", "NULL"]
-                ], function (p) {
-                    var charInputVisible = true;
-                    if (p === 'NULL') {
-                        charInputVisible = false;
-                    }
-                    this.sourceBlock_.getInput('FROM_STR').setVisible(charInputVisible);
-                }), "PART")
+                        ["first part in", "STR"],
+                        ["next part in", "NULL"]
+                    ], function (action) {
+                        this.sourceBlock_.updateShape_(action);
+                    }), "PART")
                 .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'TO_STR');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
+    },
+    updateShape_: function (action) {
+        if (action === 'NULL' && this.getInput('FROM_STR')) {
+            this.removeInput('FROM_STR');
+        } else if (action !== 'NULL' && !this.getInput('FROM_STR')) {
+            this.appendValueInput("FROM_STR")
+                    .setCheck("String");
+            this.moveInputBefore('FROM_STR', 'CHAR');
+        }
+    },
+    mutationToDom: function () {
+        // Create XML to represent menu options.
+        var container = document.createElement('mutation');
+        container.setAttribute('from_str', this.getFieldValue('PART'));
+        return container;
+    },
+    domToMutation: function (container) {
+        // Parse XML to restore the menu options.
+        var action = container.getAttribute('from_str');
+        this.updateShape_(action);
     }
 };
 
@@ -2430,8 +2439,7 @@ Blockly.Blocks.custom_code_multiple = {
             }
         }
         this.setFieldValue(container.getAttribute('color'), 'COLOR');
-        var outType = container.getAttribute('type');
-        this.setOutputType(outType);
+        this.setOutputType(container.getAttribute('type'));
         this.hideInputs(container.getAttribute('edit') || 'FALSE');
     },
     setOutputType: function (outType) {
@@ -2439,14 +2447,10 @@ Blockly.Blocks.custom_code_multiple = {
             this.setOutput(false);
             this.setPreviousStatement(true);
             this.setNextStatement(true);
-        } else if (outType === 'NUM') {
-            this.setPreviousStatement(false);
-            this.setNextStatement(false);
-            this.setOutput(true, 'Number');
         } else {
             this.setPreviousStatement(false);
             this.setNextStatement(false);
-            this.setOutput(true, 'String');
+            this.setOutput(true, (outType === 'STR' ? 'String' : 'Number'));
         }
     },
     setupInputs: function (argsCount) {
@@ -2498,7 +2502,12 @@ Blockly.Blocks.custom_code_multiple = {
         setTimeout(function() {
             currBlockTimeout.render();
         }, 200);
-    }
+    },
+    onchange: function (event) {
+        if (event && event.type === Blockly.Events.CHANGE && event.blockId === this.id) {
+            console.log(event);
+        }
+    } 
 };
 
 Blockly.propc.custom_code_multiple = function () {

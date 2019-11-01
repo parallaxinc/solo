@@ -58,6 +58,7 @@ const BASE_URL = $('meta[name=base]').attr("content");
 const CDN_URL = $('meta[name=cdn]').attr("content");
 
 
+
 // TODO: Enumerate the OS version
 // window.navigator.oscpu
 
@@ -83,7 +84,7 @@ const PROJECT_NAME_MAX_LENGTH = 100;
 
 
 /**
- * Constant number that represents the maximum number of
+ * Constant number that represents the maximum number of 
  * characters of the project name that are displayed in the UI
  *
  * @type {number}
@@ -91,7 +92,7 @@ const PROJECT_NAME_MAX_LENGTH = 100;
 const PROJECT_NAME_DISPLAY_MAX_LENGTH = 24;
 
 
-/**
+ /**
  *
  * @type {number}
  */
@@ -366,7 +367,7 @@ $(() => {
         // Load a project from localStorage if available
         try {
             // Get a copy of the last know state of the current project
-            let localProject = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
+        let localProject = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
 
             // TODO: Address clear workspace has unexpected result
             // **************************************************
@@ -543,29 +544,37 @@ function initEventHandlers() {
     // Project Name listing
 
     // Make the text in the project-name span editable
-    $('.project-name').attr('contenteditable', 'true')
-        .on('focus', () => {
+    $('.project-name').attr('contenteditable', 'true')  
+
             // Change the styling to indicate to the user that they are editing this field
-            $('.project-name').html(projectData.name);
-            $('.project-name').addClass('project-name-editable');
-        })
-        // reset the style and save the new project name to the projectData object
-        .on('blur', () => {
-            $('.project-name').removeClass('project-name-editable');
-            // if the project name is greater than 25 characters, only display the first 25
-            if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-                $('.project-name').html(projectData.name.substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
-            }
-        })
-        // validate the input to ensure it's not too long, and save changes as the user types.
-        .on('keyup', () => {
-            let tempProjectName = $('.project-name').html();
-            if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH) {
-                $('.project-name').html(projectData['name']);
-            } else {
-                projectData['name'] = tempProjectName;
-            }
-        });
+            .on('focus', () => {
+                $('.project-name').html(projectData.name);
+                $('.project-name').addClass('project-name-editable');
+            })
+            // reset the style and save the new project name to the projectData object 
+            .on('blur', () => {
+                $('.project-name').removeClass('project-name-editable');
+                // if the project name is greater than 25 characters, only display the first 25
+                if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+                    $('.project-name').html(projectData.name.substring(0,PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+                }
+            })
+            // change the behavior of the enter key
+            .on('keydown', (e) => {
+                if (e.which == 13  || e.keyCode == 13) {
+                    e.preventDefault();
+                    $('.project-name').trigger('blur');
+                }
+            })
+            // validate the input to ensure it's not too long, and save changes as the user types.
+            .on('keyup', () => {
+                var tempProjectName = $('.project-name').html()
+                if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH || tempProjectName.length < 1) {
+                    $('.project-name').html(projectData.name);
+                } else {
+                    projectData.name = tempProjectName;
+                }
+            });
 
     // New Project toolbar button
     $('#new-project-button').on('click', () => NewProjectModal());
@@ -863,7 +872,7 @@ function showInfo(data) {
 
     // Display the project name
     if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-        $('.project-name').html(data['name'].substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+        $('.project-name').html(data['name'].substring(0,PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
     } else {
         $(".project-name").html(data['name']);
     }
@@ -886,7 +895,7 @@ function showInfo(data) {
     };
 
     // Set the prject icon to the correct board type
-    $(".project-icon").html('<img src="' + CDN_URL + projectBoardIcon[data['board']] + '"/>');
+    $(".project-icon").html('<img src="' + CDN_URL + projectBoardIcon[ data['board'] ] + '"/>');
 };
 
 
@@ -1132,7 +1141,7 @@ function downloadCode() {
     }
 
     // Create a filename from the project title
-    let project_filename = projectData['name'].replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    let project_filename = sanitizeFilename(projectData['name']);
 
     projXMLcode = projXMLcode.substring(42, projXMLcode.length);
     projXMLcode = projXMLcode.substring(0, (projXMLcode.length - 6));
@@ -1195,17 +1204,15 @@ function downloadCode() {
             SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' + projectData['created'] + '" data-lastmodified="' + dt + '"></text>';
 
             // Check for any file extentions at the end of the submitted name, and truncate if any
-            if (value.indexOf(".") !== -1)
+            if (value.indexOf(".") !== -1) {
                 value = value.substring(0, value.indexOf("."));
-            // Check to make sure the filename is not too long
-            if (value.length >= 30)
-                value = value.substring(0, 29);
-            // Replace any illegal characters
-            value = value.replace(/[\\/:*?\"<>|]/g, '_');
+            }
+
+            // sanitize the filename
+            value = sanitizeFilename(value);
 
             var xmlChecksum = hashCode(projXMLcode).toString();
-
-            var xmlChecksum = '000000000000'.substring(xmlChecksum.length, 12) + xmlChecksum;
+            xmlChecksum = '000000000000'.substring(xmlChecksum.length, 12) + xmlChecksum;
 
             // Assemble both the SVG (image) of the blocks and the blocks' XML definition
             saveData(SVGheader + projSVGcode + SVGfooter + projXMLcode + '<ckm>' + xmlChecksum + '</ckm></svg>', value + '.svg');
@@ -1697,6 +1704,35 @@ function ClearBlocklyWorkspace() {
         space.clearUndo();
         space.clear();
     }
+}
+
+
+/**
+ * Sanitize a string into an OS-safe filename
+ *
+ * @param input string representing a potential filename
+ * @returns {string}
+ */
+function sanitizeFilename(input) {
+    // if the input is not a string, or is an empty string, return a generic filename
+    if (typeof input !== 'string' || input.length < 1) {
+        return 'my_project';
+    }
+
+    // replace OS-illegal characters or phrases
+    input = input.replace(/[\/\?<>\\:\*\|"]/g, '_')
+            // eslint-disable-next-line no-control-regex
+            .replace(/[\x00-\x1f\x80-\x9f]/g, '_')
+            .replace(/^\.+$/, '_')
+            .replace(/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, '_')
+            .replace(/[\. ]+$/, '_');
+
+    //if the filename is too long, truncate it
+    if (input.length > 31) {
+        return input.substring(0,30);
+    }
+
+    return input;
 }
 
 
