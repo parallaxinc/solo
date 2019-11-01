@@ -1727,8 +1727,8 @@ function sanitizeFilename(input) {
             .replace(/[\. ]+$/, '_');
 
     //if the filename is too long, truncate it
-    if (filename.length > 31) {
-        return filename.substring(0,30);
+    if (input.length > 31) {
+        return input.substring(0,30);
     }
 
     return input;
