@@ -23,6 +23,9 @@
     "jquery": "^3.4.1"
   },
   "devDependencies": {
-    "eslint": "^6.6.0"
+    "chai": "^4.2.0",
+    "eslint": "^6.6.0",
+    "mocha": "^6.2.2",
+    "sinon": "^7.5.0"
   }
 }
