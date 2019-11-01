@@ -1,15 +1,33 @@
-sudo: required
-language: javascript
+version: ~> 1.0
+os: linux
+dist: bionic
+addons:
+  snaps:
+    - name: node
+      channel: 10/stable
+      confinement: classic
 
-services:
-  - docker
+# The minimal image contains:
+#   version control tools
+#   essential build tools such as gcc and make
+#   network tools such as curl
+#   Docker
+#   python
+# -----------------------------------------------
+language: minimal
 
-before_install:
-  - docker pull parallaxhub/soloweb:latest
+node_js:
+  - 8
+  - 10
+
+env:
+  - TRAVIS_CI=true
+
+#before_install:
+#  - sudo apt-get update
+#  - sudo apt install snapd
+#  - sudo snap install node --channel=10/stable --classic
 
 script:
-  - docker run -d -p 127.0.0.1:4567:80 parallaxhub/soloweb:latest
-  - docker ps -a
-
-after_script:
-  - docker images
+  - npm install
+  - npm run test
