@@ -439,6 +439,31 @@ ul > hr {
     padding-right: 10px;
 }
 
+.project-name {
+    max-width: 250px;
+    text-overflow: clip;
+    overflow: hidden;
+    overflow-wrap: normal;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.project-name:focus {
+    outline: none;
+}
+
+.project-name-editable {
+    border: 3px solid #00f;
+    border-radius: 5px;
+    padding: 0px 5px;
+    background-color: white;
+}
+
+.project-icon {
+    float: left; 
+    padding-right: 5px
+}
+
 .bp-client-available {
     background:none;
     border:1px solid rgba(0, 0, 0, 0);
