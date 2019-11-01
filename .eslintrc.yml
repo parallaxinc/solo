@@ -18,4 +18,15 @@ globals:
 parserOptions:
   ecmaVersion: 6
   sourceType: script
-rules: {}
+rules:
+  # This really needs to be an error
+  no-prototype-builtins: warn
+
+  no-cond-assign: warn
+  no-extra-semi: warn
+  no-fallthrough: warn
+  no-mixed-spaces-and-tabs: warn
+  no-redeclare: warn
+  no-useless-escape: warn
+  no-undef: warn
+  no-unused-vars: warn
