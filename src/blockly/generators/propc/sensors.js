@@ -1570,66 +1570,50 @@ Blockly.propc.GPS_velocity = function () {
 Blockly.Blocks.GPS_date_time = {
     helpUrl: Blockly.MSG_GPS_HELPURL,
     init: function () {
-        var timeZones = [['UTC+0', '0']];
-        for (var tz = -1; tz != 0; tz--) {
-            if (tz < -12) {
-                tz = 14;
-            }
-            timeZones.push(['UTC' + (tz > -1 ? '+' : '') + tz.toString(10), tz.toString(10)]);
-        }
+
         this.setTooltip(Blockly.MSG_GPS_VELOCITY_TOOLTIP);
         this.setColour(colorPalette.getColor('input'));
         this.appendDummyInput()
                 .appendField("GPS current ")
                 .appendField(new Blockly.FieldDropdown([
-                    ["year", "GPS_UNIT_YEAR"],
-                    ["month", "GPS_UNIT_MONTH"],
-                    ["day", "GPS_UNIT_DAY"],
-                    ["hour", "GPS_UNIT_HOUR"],
-                    ["minute", "GPS_UNIT_MINUTE"],
-                    ["second", "GPS_UNIT_SECOND"]
-                ], function (unit) {
-                    var zone_label = this.sourceBlock_.getField('ZONE_LABEL');
-                    var zone_value = this.sourceBlock_.getField('ZONE_VALUE');
-                    if (unit === 'GPS_UNIT_HOUR' ||
-                            unit === 'GPS_UNIT_DAY' ||
-                            unit === 'GPS_UNIT_MONTH' ||
-                            unit === 'GPS_UNIT_YEAR') {
-                        zone_label.setVisible(true);
-                        zone_value.setVisible(true);
-                    } else {
-                        zone_label.setVisible(false);
-                        zone_value.setVisible(false);
-                    }
-                    var currBlockTimeout = this.sourceBlock_;
-                    setTimeout(function() {
-                        currBlockTimeout.render();
-                    }, 200);
-                }), "TIME_UNIT")
-                .appendField("time zone", 'ZONE_LABEL')
-                .appendField(new Blockly.FieldDropdown(timeZones), "ZONE_VALUE");
+                        ["year", "GPS_UNIT_YEAR"],
+                        ["month", "GPS_UNIT_MONTH"],
+                        ["day", "GPS_UNIT_DAY"],
+                        ["hour", "GPS_UNIT_HOUR"],
+                        ["minute", "GPS_UNIT_MINUTE"],
+                        ["second", "GPS_UNIT_SECOND"]
+                    ], function (action) {
+                        this.sourceBlock_.updateShape_(action);
+                    }), "TIME_UNIT");
         this.setOutput(true, 'Number');
         this.setNextStatement(false, null);
         this.setPreviousStatement(false, null);
-        this.getField('ZONE_LABEL').setVisible(false);
-        this.getField('ZONE_VALUE').setVisible(false);
+        this.setInputsInline(true);
     },
     mutationToDom: function () {
         var container = document.createElement('mutation');
         container.setAttribute('unit', this.getFieldValue('TIME_UNIT'));
         return container;
     },
-    domToMutation: function (xmlElement) {
-        var ut = xmlElement.getAttribute('unit');
-        if (ut === 'GPS_UNIT_HOUR' ||
-                ut === 'GPS_UNIT_DAY' ||
-                ut === 'GPS_UNIT_MONTH' ||
-                ut === 'GPS_UNIT_YEAR') {
-            this.getField('ZONE_LABEL').setVisible(true);
-            this.getField('ZONE_VALUE').setVisible(true);
-        } else {
-            this.getField('ZONE_LABEL').setVisible(false);
-            this.getField('ZONE_VALUE').setVisible(false);
+    domToMutation: function (container) {
+        // Create array of timezones
+        this.timeZones = [['UTC+0', '0']];
+        for (var tz = -1; tz != 0; tz--) {
+            if (tz < -12) {
+                tz = 14;
+            }
+            this.timeZones.push(['UTC' + (tz > -1 ? '+' : '') + tz.toString(10), tz.toString(10)]);
+        }
+        this.updateShape_(container.getAttribute('unit') || '');
+    },
+    updateShape_: function (action) {
+        var show = (['GPS_UNIT_HOUR', 'GPS_UNIT_DAY', 'GPS_UNIT_MONTH', 'GPS_UNIT_YEAR'].indexOf(action) >= 0);
+        if (show && !this.getInput('ZONE_FIELDS')) {
+            this.appendDummyInput('ZONE_FIELDS')
+                .appendField("time zone", 'ZONE_LABEL')
+                .appendField(new Blockly.FieldDropdown(this.timeZones), "ZONE_VALUE");
+        } else if (!show && this.getInput('ZONE_FIELDS')) {
+            this.removeInput('ZONE_FIELDS');
         }
     },
     onchange: function () {
