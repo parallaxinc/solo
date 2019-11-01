@@ -18,5 +18,8 @@ node_js:
 env:
   - TRAVIS_CI=true
 
+before_script:
+  - sudo apt update && apt install npm
+
 script:
   - npm run test
