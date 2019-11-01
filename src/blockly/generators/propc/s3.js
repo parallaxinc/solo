@@ -151,7 +151,7 @@ Blockly.Blocks.scribbler_wait = {
         if (unit !== '1')
             rangeText = 'R,0,15000,0';
 
-        this.setFieldValue(rangeText, 'RANGEVALS0');
+        this.getInput('WAITTIME').appendRange(rangeText);
 
         if (thisBlock_)
             if (thisBlock_.onchange)
@@ -799,8 +799,8 @@ Blockly.Blocks.move_motors_distance = {
             rangeText = 'R,-32767,32767,0';
         }
 
-        this.setFieldValue(rangeText, 'RANGEVALS0');
-        this.setFieldValue(rangeText, 'RANGEVALS1');
+        this.getInput('RIGHT_MOTOR_DISTANCE').appendRange(rangeText);
+        this.getInput('LEFT_MOTOR_DISTANCE').appendRange(rangeText);
 
         if (blockLeft_)
             if (blockLeft_.onchange)
@@ -877,8 +877,8 @@ Blockly.Blocks.move_motors_xy = {
             rangeText = 'R,-32768,32767,0';
         }
 
-        this.setFieldValue(rangeText, 'RANGEVALS0');
-        this.setFieldValue(rangeText, 'RANGEVALS1');
+        this.getInput('X_DISTANCE').appendRange(rangeText);
+        this.getInput('Y_DISTANCE').appendRange(rangeText);
 
         if (blockLeft_)
             if (blockLeft_.onchange)
@@ -951,7 +951,7 @@ Blockly.Blocks.move_motors_angle = {
             rangeText = 'R,-4400,4400,0';
         }
 
-        this.setFieldValue(rangeText, 'RANGEVALS1');
+        this.getInput('ROTATE_RADIUS').appendRange(rangeText);
 
         if (thisBlock_)
             if (thisBlock_.onchange)

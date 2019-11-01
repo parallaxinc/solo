@@ -968,18 +968,18 @@ Blockly.Blocks.fb360_set = {
                 .appendField(new Blockly.FieldDropdown(this._menuOptions, function (param) {
                     this.sourceBlock_.updateShape_(param);
                 }), "PARAM")
-                .appendRange('R,-720,720,0', 'RANGEVALS1');
+                .appendRange('R,-720,720,0'); //, 'RANGEVALS1');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
     },
     updateShape_: function (param) {
         if (param === 'speed') {
-            this.getInput('VALUE').appendRange('R,-720,720,0') //, 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-720,720,0'); //, 'RANGEVALS1');
         } else if (param === 'angle') {
-            this.getInput('VALUE').appendRange('R,-1456,1456,0') //, 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-1456,1456,0'); //, 'RANGEVALS1');
         } else {
-            this.getInput('VALUE').appendRange('R,-2147483648,2147483647,0') //, 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-2147483648,2147483647,0'); //, 'RANGEVALS1');
         }
     },
     onchange: Blockly.Blocks['fb360_setup'].onchange,
