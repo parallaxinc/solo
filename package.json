@@ -21,5 +21,8 @@
     "blockly": "^2.20190722.1",
     "bootstrap": "^3.4.1",
     "jquery": "^3.4.1"
+  },
+  "devDependencies": {
+    "eslint": "^6.6.0"
   }
 }

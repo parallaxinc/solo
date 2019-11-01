@@ -1,9 +1,20 @@
 version: ~> 1.0
 os: linux
-dist: xenial
+dist: bionic
+
+# The minimal image contains:
+#   version control tools
+#   essential build tools such as gcc and make
+#   network tools such as curl
+#   Docker
+#   python
+# -----------------------------------------------
+language: minimal
+
 node_js:
   - 8
   - 10
+
 env:
   - TRAVIS_CI=true
 

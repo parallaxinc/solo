@@ -1,5 +1,9 @@
 #!/bin/bash
 
-echo "Running tests"
+# Check to see if we are running the tests locally
+if [ -n "$TRAVIS" ]; then
+  echo "Executing run_all_tests.sh from $(pwd)";
+fi
 
-exit 0
+echo "Running tests"
+./node_modules/.bin/eslint src
