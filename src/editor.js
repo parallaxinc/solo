@@ -1721,6 +1721,7 @@ function sanitizeFilename(input) {
 
     // replace OS-illegal characters or phrases
     input = input.replace(/[\/\?<>\\:\*\|"]/g, '_')
+            // eslint-disable-next-line no-control-regex
             .replace(/[\x00-\x1f\x80-\x9f]/g, '_')
             .replace(/^\.+$/, '_')
             .replace(/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, '_')
