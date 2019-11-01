@@ -559,10 +559,17 @@ function initEventHandlers() {
                     $('.project-name').html(projectData.name.substring(0,PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
                 }
             })
+            // change the behavior of the enter key
+            .on('keydown', (e) => {
+                if (e.which == 13  || e.keyCode == 13) {
+                    e.preventDefault();
+                    $('.project-name').trigger('blur');
+                }
+            })
             // validate the input to ensure it's not too long, and save changes as the user types.
             .on('keyup', () => {
                 var tempProjectName = $('.project-name').html()
-                if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH) {
+                if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH || tempProjectName.length < 1) {
                     $('.project-name').html(projectData.name);
                 } else {
                     projectData.name = tempProjectName;
@@ -1134,7 +1141,7 @@ function downloadCode() {
     }
 
     // Create a filename from the project title
-    let project_filename = projectData['name'].replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    let project_filename = sanitizeFilename(projectData['name']);
 
     projXMLcode = projXMLcode.substring(42, projXMLcode.length);
     projXMLcode = projXMLcode.substring(0, (projXMLcode.length - 6));
@@ -1197,17 +1204,15 @@ function downloadCode() {
             SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' + projectData['created'] + '" data-lastmodified="' + dt + '"></text>';
 
             // Check for any file extentions at the end of the submitted name, and truncate if any
-            if (value.indexOf(".") !== -1)
+            if (value.indexOf(".") !== -1) {
                 value = value.substring(0, value.indexOf("."));
-            // Check to make sure the filename is not too long
-            if (value.length >= 30)
-                value = value.substring(0, 29);
-            // Replace any illegal characters
-            value = value.replace(/[\\/:*?\"<>|]/g, '_');
+            }
+
+            // sanitize the filename
+            value = sanitizeFilename(value);
 
             var xmlChecksum = hashCode(projXMLcode).toString();
-
-            var xmlChecksum = '000000000000'.substring(xmlChecksum.length, 12) + xmlChecksum;
+            xmlChecksum = '000000000000'.substring(xmlChecksum.length, 12) + xmlChecksum;
 
             // Assemble both the SVG (image) of the blocks and the blocks' XML definition
             saveData(SVGheader + projSVGcode + SVGfooter + projXMLcode + '<ckm>' + xmlChecksum + '</ckm></svg>', value + '.svg');
@@ -1699,6 +1704,35 @@ function ClearBlocklyWorkspace() {
         space.clearUndo();
         space.clear();
     }
+}
+
+
+/**
+ * Sanitize a string into an OS-safe filename
+ *
+ * @param input string representing a potential filename
+ * @returns {string}
+ */
+function sanitizeFilename(input) {
+    // if the input is not a string, or is an empty string, return a generic filename
+    if (typeof input !== 'string' || input.length < 1) {
+        return 'my_project';
+    }
+
+    // replace OS-illegal characters or phrases
+    input = input.replace(/[\/\?<>\\:\*\|"]/g, '_')
+            // eslint-disable-next-line no-control-regex
+            .replace(/[\x00-\x1f\x80-\x9f]/g, '_')
+            .replace(/^\.+$/, '_')
+            .replace(/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, '_')
+            .replace(/[\. ]+$/, '_');
+
+    //if the filename is too long, truncate it
+    if (input.length > 31) {
+        return input.substring(0,30);
+    }
+
+    return input;
 }
 
 
