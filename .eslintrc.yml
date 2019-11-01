@@ -15,6 +15,10 @@ globals:
   baudrate: writable
   profile: readonly
   projectData: writable
+  page_text_label: readonly
+  toolbox_label: readonly
+  tooltip_text: readonly
+  utils: readonly
 parserOptions:
   ecmaVersion: 6
   sourceType: script
