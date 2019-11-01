@@ -657,10 +657,17 @@ function initEventHandlers() {
                     $('.project-name').html(projectData.name.substring(0,PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
                 }
             })
+            // change the behavior of the enter key
+            .on('keydown', (e) => {
+                if (e.which == 13  || e.keyCode == 13) {
+                    e.preventDefault();
+                    $('.project-name').trigger('blur');
+                }
+            })
             // validate the input to ensure it's not too long, and save changes as the user types.
             .on('keyup', () => {
                 var tempProjectName = $('.project-name').html()
-                if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH) {
+                if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH || tempProjectName.length < 1) {
                     $('.project-name').html(projectData.name);
                 } else {
                     projectData.name = tempProjectName;
@@ -1794,4 +1801,32 @@ function ClearBlocklyWorkspace() {
         Blockly.mainWorkspace.clearUndo();
     }
 */
+}
+
+
+/**
+ * Sanitize a string into an OS-safe filename
+ *
+ * @param input string representing a potential filename
+ * @returns {string}
+ */
+function sanitizeFilename(input) {
+    // if the input is not a string, or is an empty string, return a generic filename
+    if (typeof input !== 'string' || input.length < 1) {
+        return 'my_project';
+    }
+
+    // replace OS-illegal characters or phrases
+    input = input.replace(/[\/\?<>\\:\*\|"]/g, '_')
+            .replace(/[\x00-\x1f\x80-\x9f]/g, '_')
+            .replace(/^\.+$/, '_')
+            .replace(/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, '_')
+            .replace(/[\. ]+$/, '_');
+
+    //if the filename is too long, truncate it
+    if (filename.length > 31) {
+        return filename.substring(0,30);
+    }
+
+    return input;
 }
