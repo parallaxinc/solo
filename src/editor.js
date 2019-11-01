@@ -1141,7 +1141,7 @@ function downloadCode() {
     }
 
     // Create a filename from the project title
-    let project_filename = projectData['name'].replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    let project_filename = sanitizeFilename(projectData['name']);
 
     projXMLcode = projXMLcode.substring(42, projXMLcode.length);
     projXMLcode = projXMLcode.substring(0, (projXMLcode.length - 6));
@@ -1204,17 +1204,15 @@ function downloadCode() {
             SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' + projectData['created'] + '" data-lastmodified="' + dt + '"></text>';
 
             // Check for any file extentions at the end of the submitted name, and truncate if any
-            if (value.indexOf(".") !== -1)
+            if (value.indexOf(".") !== -1) {
                 value = value.substring(0, value.indexOf("."));
-            // Check to make sure the filename is not too long
-            if (value.length >= 30)
-                value = value.substring(0, 29);
-            // Replace any illegal characters
-            value = value.replace(/[\\/:*?\"<>|]/g, '_');
+            }
+
+            // sanitize the filename
+            value = sanitizeFilename(value);
 
             var xmlChecksum = hashCode(projXMLcode).toString();
-
-            var xmlChecksum = '000000000000'.substring(xmlChecksum.length, 12) + xmlChecksum;
+            xmlChecksum = '000000000000'.substring(xmlChecksum.length, 12) + xmlChecksum;
 
             // Assemble both the SVG (image) of the blocks and the blocks' XML definition
             saveData(SVGheader + projSVGcode + SVGfooter + projXMLcode + '<ckm>' + xmlChecksum + '</ckm></svg>', value + '.svg');
