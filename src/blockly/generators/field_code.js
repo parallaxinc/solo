@@ -145,7 +145,9 @@ Blockly.FieldCode.prototype.showEditor_ = function() {
   this.codeField_.setValue(this.getText());
 
   var theEditor = this;
-  this.codeField_.on('change', function(e) {theEditor.setText(theEditor.codeField_.getValue());});
+  this.codeField_.on('change', function() {
+    theEditor.setText(theEditor.codeField_.getValue());
+  });
 
   var windowSize = goog.dom.getViewportSize();
   var scrollOffset = goog.style.getViewportPageOffset(document);

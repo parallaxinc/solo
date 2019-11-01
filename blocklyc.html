@@ -116,206 +116,208 @@
         <div id="branding" style="position: relative; top: 2px;">
             <a id="nav-logo" href="/" class="url-prefix"></a>
         </div>
-
-        <!-- Above toolbar -->
         <div>
-            <!-- BlocklyProp Client or Loader UI -->
-            <div id="client-status-alerts" style="display: inline;">
-                <span class="auth-true" style="padding-left: 10px; line-height: 30px;">
-                    <span id="client-searching" class="bp-client-warning">
-                        <a class="client-searching-link" data-toggle="modal" data-target="#client-download-modal"
-                            href="#">
-                            <span class="bpIcon" data-icon="warningCircle">!</span>
-                            <span class="keyed-lang-string" data-key="editor_client_checking"></span>
+            <!-- Above toolbar -->
+            <div style="overflow:auto;">
+
+                <!-- BlocklyProp Client or Loader UI -->
+                <div id="client-status-alerts" style="float: left;">
+                    <span class="auth-true" style="padding-left: 10px; line-height: 30px;">
+                        <span id="client-searching" class="bp-client-warning">
+                            <a class="client-searching-link" data-toggle="modal" data-target="#client-download-modal"
+                                href="#">
+                                <span class="bpIcon" data-icon="warningCircle">!</span>
+                                <span class="keyed-lang-string" data-key="editor_client_checking"></span>
+                            </a>
+                        </span>
+                        <span id="client-unavailable" class="bp-client-danger hidden">
+                            <a class="client-unavailable-link" data-toggle="modal" data-target="#client-download-modal"
+                                href="#">
+                                <span class="bpIcon" data-icon="dangerTriangle">!!</span>
+                                <span class="keyed-lang-string" data-key="editor_client_not-available"></span>
+                            </a>
+                        </span>
+                        <span id="client-available" class="bp-client-available keyed-lang-string hidden"
+                            data-key="editor_client_available">
+                        </span>
+                        <span id="client-available-short" class="bp-client-available keyed-lang-string hidden"
+                            data-key="editor_client_available_short">
+                        </span>
+                    </span>
+                </div>
+
+                <!-- Display current project name -->
+                <div id="project-details" class="project-name-wrapper"
+                    style="float:right; position: relative; top: 2px;">
+                    <div class="project-icon"></div>
+                    <div class="project-name" spellcheck="false"></div>
+                    <div class="project-owner" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Toolbars and hamburger menu -->
+            <div>
+                <!-- Left Toolbar buttons -->
+                <div id="board-action-buttons" style="padding-left: 10px; float: left;">
+                    <!-- Compile program -->
+                    <a id="prop-btn-comp" class="btn btn-success btn-circle auth-true" title=""
+                    data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
+                        <span class="bpIcon" data-icon="checkMarkWhite">&#x2713;</span>
+                    </a>
+
+                    <!-- Load to RAM -->
+                    <a id="prop-btn-ram" class="btn btn-success btn-circle disabled auth-true" title=""
+                    data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
+                        <span class="bpIcon" data-icon="downArrowWhite"></span>
+                    </a>
+
+                    <!-- Load to EEPROM -->
+                    <a id="prop-btn-eeprom" class="btn btn-success btn-circle disabled auth-true" title=""
+                    data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
+                        <span class="bpIcon" data-icon="downArrowBoxWhite">&gt;&gt;</span></a>
+
+                    <!-- Open a terminal -->
+                    <a id="prop-btn-term" class="btn btn-primary btn-circle disabled auth-true" title=""
+                    data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
+                        <span class="bpIcon" data-icon="terminalWhite">#</span>
+                    </a>
+
+                    <!-- Open a graphing window -->
+                    <a id="prop-btn-graph" class="btn btn-primary btn-circle disabled auth-true" title=""
+                    data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
+                        <span class="bpIcon" data-icon="graphWhite">~</span>
+                    </a>
+
+                    <!-- Find and replace - propc project type -->
+                    <a id="prop-btn-find-replace" class="btn btn-info btn-circle propc-only hidden" title=""
+                    data-toggle="tooltip" data-placement="bottom">
+                        <span class="bpIcon" data-icon="searchWhite">&#x1F50E;</span>
+                    </a>
+
+                    <!-- Clean up source code -->
+                    <a id="prop-btn-pretty" class="btn btn-info btn-circle propc-only hidden" title=""
+                    data-toggle="tooltip" data-placement="bottom">
+                        <span class="bpIcon" data-icon="magicWandWhite">&#x2728;</span>
+                    </a>
+
+                    <!-- Undo edits - propc project type -->
+                    <a id="prop-btn-undo" class="btn btn-info btn-circle propc-only hidden" title=""
+                    data-toggle="tooltip" data-placement="bottom">
+                        <span class="bpIcon" data-icon="undoWhite">&#x293A;</span>
+                    </a>
+
+                    <!-- Redo edits - propc project type -->
+                    <a id="prop-btn-redo" class="btn btn-info btn-circle propc-only hidden" title=""
+                    data-toggle="tooltip" data-placement="bottom">
+                        <span class="bpIcon" data-icon="redoWhite">&#x293B;</span>
+                    </a>
+
+                    <!-- Drop-down hardware port select -->
+                    <select id="comPort" class="dropdown port-dropdown auth-true select-css" title="Ports"
+                            data-displayas="inline-block" data-placement="left">
+                    </select>
+
+                </div>
+
+                <!-- Right Toolbar buttons and menu -->
+                <div id="right-menus" style="float:right; padding-right: 15px;">
+                    <!-- View C source code -->
+                    <a class="btn-view-blocks" id="btn-view-propc" style="display: none;">
+                            <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
+                            &nbsp;
+                            <span class="keyed-lang-string" data-key="menu_code"></span>
                         </a>
-                    </span>
-                    <span id="client-unavailable" class="bp-client-danger hidden">
-                        <a class="client-unavailable-link" data-toggle="modal" data-target="#client-download-modal"
-                            href="#">
-                            <span class="bpIcon" data-icon="dangerTriangle">!!</span>
-                            <span class="keyed-lang-string" data-key="editor_client_not-available"></span>
+
+                    <!-- View project blocks layout -->
+                    <a class="btn-view-blocks" id="btn-view-blocks" style="display: none;">
+                            <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
+                            &nbsp;
+                            <span class="keyed-lang-string" data-key="menu_blocks"></span>
                         </a>
-                    </span>
-                    <span id="client-available" class="bp-client-available keyed-lang-string hidden"
-                        data-key="editor_client_available">
-                    </span>
-                    <span id="client-available-short" class="bp-client-available keyed-lang-string hidden"
-                        data-key="editor_client_available_short">
-                    </span>
-                </span>
-            </div>
 
-            <!-- Display current project name -->
-            <div id="project-details" class="project-name-wrapper"
-                style="float:right; display: inline; position: relative; top: 2px;">
-                <span id="project-icon" class="editor-icon"></span>
-                <span class="project-name"></span>
-                <span class="project-owner"></span>
-            </div>
-        </div>
+                    <!-- View project XML code -->
+                    <a class="btn-view-blocks" id="btn-view-xml" style="display: none;">
+                            <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
+                            &nbsp;&nbsp;
+                            <span class="keyed-lang-string" data-key="editor_view_xml"></span>
+                        </a>
 
-        <!-- Toolbars and hamburger menu -->
-        <div>
-            <!-- Left Toolbar buttons -->
-            <div id="board-action-buttons" style="padding-left: 10px; display: inline;">
-                <!-- Compile program -->
-                <a id="prop-btn-comp" class="btn btn-success btn-circle auth-true" title=""
-                   data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
-                    <span class="bpIcon" data-icon="checkMarkWhite">&#x2713;</span>
-                </a>
-
-                <!-- Load to RAM -->
-                <a id="prop-btn-ram" class="btn btn-success btn-circle disabled auth-true" title=""
-                   data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
-                    <span class="bpIcon" data-icon="downArrowWhite"></span>
-                </a>
-
-                <!-- Load to EEPROM -->
-                <a id="prop-btn-eeprom" class="btn btn-success btn-circle disabled auth-true" title=""
-                   data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
-                    <span class="bpIcon" data-icon="downArrowBoxWhite">&gt;&gt;</span></a>
-
-                <!-- Open a terminal -->
-                <a id="prop-btn-term" class="btn btn-primary btn-circle disabled auth-true" title=""
-                   data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
-                    <span class="bpIcon" data-icon="terminalWhite">#</span>
-                </a>
-
-                <!-- Open a graphing window -->
-                <a id="prop-btn-graph" class="btn btn-primary btn-circle disabled auth-true" title=""
-                   data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
-                    <span class="bpIcon" data-icon="graphWhite">~</span>
-                </a>
-
-                <!-- Find and replace - propc project type -->
-                <a id="prop-btn-find-replace" class="btn btn-info btn-circle propc-only hidden" title=""
-                   data-toggle="tooltip" data-placement="bottom">
-                    <span class="bpIcon" data-icon="searchWhite">&#x1F50E;</span>
-                </a>
-
-                <!-- Clean up source code -->
-                <a id="prop-btn-pretty" class="btn btn-info btn-circle propc-only hidden" title=""
-                   data-toggle="tooltip" data-placement="bottom">
-                    <span class="bpIcon" data-icon="magicWandWhite">&#x2728;</span>
-                </a>
-
-                <!-- Undo edits - propc project type -->
-                <a id="prop-btn-undo" class="btn btn-info btn-circle propc-only hidden" title=""
-                   data-toggle="tooltip" data-placement="bottom">
-                    <span class="bpIcon" data-icon="undoWhite">&#x293A;</span>
-                </a>
-
-                <!-- Redo edits - propc project type -->
-                <a id="prop-btn-redo" class="btn btn-info btn-circle propc-only hidden" title=""
-                   data-toggle="tooltip" data-placement="bottom">
-                    <span class="bpIcon" data-icon="redoWhite">&#x293B;</span>
-                </a>
-
-                <!-- Drop-down hardware port select -->
-                <select id="comPort" class="dropdown port-dropdown auth-true select-css" title="Ports"
-                        data-displayas="inline-block" data-placement="left">
-                </select>
-
-            </div>
-
-            <!-- Right Toolbar buttons and menu -->
-            <div id="right-menus" style="float:right; padding-right: 15px; display: inline;">
-                <!-- View C source code -->
-                <a class="btn-view-blocks" id="btn-view-propc" style="display: none;">
-                        <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
-                        &nbsp;
-                        <span class="keyed-lang-string" data-key="menu_code"></span>
+                    <!-- New Project button -->
+                    <a id="new-project-button" class="demo-function btn-view-blocks" style="display: inline-block;" data-displayas="inline-block">
+                        <span class="keyed-lang-string" data-key="editor_new_button"></span>
                     </a>
 
-                <!-- View project blocks layout -->
-                <a class="btn-view-blocks" id="btn-view-blocks" style="display: none;">
-                        <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
-                        &nbsp;
-                        <span class="keyed-lang-string" data-key="menu_blocks"></span>
+                    <!-- Open Project button -->
+                    <a id="open-project-button" class="demo-function btn-view-blocks" style="display: inline-block;" data-displayas="inline-block">
+                        <span class="keyed-lang-string" data-key="editor_open_button"></span>
                     </a>
 
-                <!-- View project XML code -->
-                <a class="btn-view-blocks" id="btn-view-xml" style="display: none;">
-                        <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
-                        &nbsp;&nbsp;
-                        <span class="keyed-lang-string" data-key="editor_view_xml"></span>
+                    <!-- Save project button -->
+                    <a class="demo-function btn-view-blocks" id="save-project" style="display: inline-block;" data-displayas="inline-block">
+                        <span class="keyed-lang-string" data-key="editor_save"></span>
                     </a>
 
-                <!-- New Project button -->
-                <a id="new-project-button" class="demo-function btn-view-blocks" style="display: inline-block;" data-displayas="inline-block">
-                    <span class="keyed-lang-string" data-key="editor_new_button"></span>
-                </a>
+                    <!-- Drop-down hamburger menu -->
+                    <div class="dropdown" style="display: inline-block;">
+                        <!-- down-arrow control to open hamburger menu -->
+                        <button id="options-menu" class="btn btn-sm btn-default dropdown dropdown-toggle" type="button"
+                            data-toggle="dropdown">&#9776;<span class="caret"></span>
+                        </button>
 
-                <!-- Open Project button -->
-                <a id="open-project-button" class="demo-function btn-view-blocks" style="display: inline-block;" data-displayas="inline-block">
-                    <span class="keyed-lang-string" data-key="editor_open_button"></span>
-                </a>
+                        <ul class="dropdown-menu pull-right btn-sm">
+                            <li class="auth-true" data-displayas="list-item">
+                                <a id="edit-project-details" href="#">
+                                    <span class="keyed-lang-string" data-key="editor_edit-details"></span>
+                                </a>
+                            </li>
 
-                <!-- Save project button -->
-                <a class="demo-function btn-view-blocks" id="save-project" style="display: inline-block;" data-displayas="inline-block">
-                    <span class="keyed-lang-string" data-key="editor_save"></span>
-                </a>
+                            <!-- New Project menu item
+                            <li class="auth-true offline-only hidden" data-displayas="list-item">
+                                <a id="new-project-menu-item" href="#" class="url-prefix">
+                                    <span class="keyed-lang-string" data-key="menu_newproject_title"></span>
+                                </a>
+                            </li>
+                            -->
 
-                <!-- Drop-down hamburger menu -->
-                <div class="dropdown" style="display: inline-block;">
-                    <!-- down-arrow control to open hamburger menu -->
-                    <button id="options-menu" class="btn btn-sm btn-default dropdown dropdown-toggle" type="button"
-                        data-toggle="dropdown">&#9776;<span class="caret"></span>
-                    </button>
+                            <li class="online-only divider"></li>
 
-                    <ul class="dropdown-menu pull-right btn-sm">
-                        <li class="auth-true" data-displayas="list-item">
-                            <a id="edit-project-details" href="#">
-                                <span class="keyed-lang-string" data-key="editor_edit-details"></span>
-                            </a>
-                        </li>
+                            <li>
+                                <a id="online-help" class="url-prefix" href="https://learn.parallax.com/ab-blocks" target="_blank">
+                                    <span class="keyed-lang-string" data-key="menu_help_reference"></span>
+                                </a>
+                            </li>
 
-                        <!-- New Project menu item
-                        <li class="auth-true offline-only hidden" data-displayas="list-item">
-                            <a id="new-project-menu-item" href="#" class="url-prefix">
-                                <span class="keyed-lang-string" data-key="menu_newproject_title"></span>
-                            </a>
-                        </li>
-                        -->
+                            <li class="divider"></li>
 
-                        <li class="online-only divider"></li>
+                            <li>
+                                <a id="download-side" href="#">
+                                    <span class="keyed-lang-string" data-key="menu_download_simpleide"></span>
+                                </a>
+                            </li>
 
-                        <li>
-                            <a id="online-help" class="url-prefix" href="https://learn.parallax.com/ab-blocks" target="_blank">
-                                <span class="keyed-lang-string" data-key="menu_help_reference"></span>
-                            </a>
-                        </li>
+                            <!-- Download blocks file
+                            <li>
+                                <a id="download-project" href="#">
+                                    <span class="keyed-lang-string" data-key="editor_download"></span>
+                                </a>
+                            </li>
+                            -->
 
-                        <li class="divider"></li>
+                            <li class="auth-true" data-displayas="list-item">
+                                <a id="upload-project">
+                                    <span class="keyed-lang-string" data-key="editor_upload"></span>
+                                </a>
+                            </li>
 
-                        <li>
-                            <a id="download-side" href="#">
-                                <span class="keyed-lang-string" data-key="menu_download_simpleide"></span>
-                            </a>
-                        </li>
+                            <li class="auth-true divider" data-displayas="list-item"></li>
 
-                        <!-- Download blocks file
-                        <li>
-                            <a id="download-project" href="#">
-                                <span class="keyed-lang-string" data-key="editor_download"></span>
-                            </a>
-                        </li>
-                        -->
-
-                        <li class="auth-true" data-displayas="list-item">
-                            <a id="upload-project">
-                                <span class="keyed-lang-string" data-key="editor_upload"></span>
-                            </a>
-                        </li>
-
-                        <li class="auth-true divider" data-displayas="list-item"></li>
-
-                        <li class="auth-true" data-displayas="list-item">
-                            <a id="client-setup">
-                                <span class="keyed-lang-string" data-key="editor_run_configure"></span>
-                            </a>
-                        </li>
-                    </ul>
+                            <li class="auth-true" data-displayas="list-item">
+                                <a id="client-setup">
+                                    <span class="keyed-lang-string" data-key="editor_run_configure"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>

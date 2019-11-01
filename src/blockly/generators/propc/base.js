@@ -74,12 +74,17 @@ Blockly.Blocks.math_number = {
             var range = [-100, 100, 0];
             var data = this.getFieldValue('NUM');
 
+            // Check the connection to the target block
             if (this.outputConnection) {
                 if (this.outputConnection.targetBlock() !== null) {
                     var key, inputvalue, _connectedField;
-                    var _blockFields = this.outputConnection.targetBlock().getInputWithBlock(this).fieldRow;
+                    var _blockFields = this.outputConnection
+                        .targetBlock()
+                        .getInputWithBlock(this)
+                        .fieldRow;
+
                     for (key in _blockFields) {
-                        if (_blockFields.hasOwnProperty(key) && !isNaN(parseInt(key, 10))) {
+                        if (Object.prototype.hasOwnProperty.call(_blockFields, key) && !isNaN(parseInt(key, 10))) {
                             inputvalue = _blockFields[key].name || ' ';
                             if (inputvalue.substring(0, 9) === "RANGEVALS") {
                                 _connectedField = inputvalue;
@@ -87,20 +92,20 @@ Blockly.Blocks.math_number = {
                             }
                         }
                     }
+
                     var sourceBlock_ = this.outputConnection.targetBlock();
                     if (sourceBlock_) {
                         var fieldListing = sourceBlock_.getFieldValue(_connectedField);
                         if (fieldListing) {
                             rangeVals = fieldListing.split(',');
                             if (rangeVals[0] === 'S' || rangeVals[0] === 'R' || rangeVals[0] === 'A') {
-                                var idx;
-                                for (idx = 1; idx <= rangeVals.length; idx++)
+                                for (let idx = 1; idx <= rangeVals.length; idx++)
                                     range[idx - 1] = Number(rangeVals[idx]);
                             }
                         }
                     }
                     if (this.outputConnection.targetBlock().getInputWithBlock(this) !== this.connection_id_) {
-                        var theVal = this.getFieldValue('NUM');
+                        let theVal = this.getFieldValue('NUM');
 
                         if (rangeVals[0] === 'S') {
                             var theNum = Number(theVal);
@@ -131,7 +136,7 @@ Blockly.Blocks.math_number = {
                     this.connection_id_ = this.outputConnection.targetBlock().getInputWithBlock(this);
                 } else {
                     if (this.connection_id_) {
-                        var theVal = this.getFieldValue('NUM');
+                        let theVal = this.getFieldValue('NUM');
                         if (this.currentInputType !== 'number' + theVal) {
                             if (this.getInput('MAIN')) {
                                 this.removeInput('MAIN');
@@ -157,8 +162,7 @@ Blockly.Blocks.math_number = {
                     }
                 } else if (rangeVals[0] === 'A') {
                     var warnMsg = 'none';
-                    var idx;
-                    for (idx = 0; idx < range.length; idx++)
+                    for (let idx = 0; idx < range.length; idx++)
                         if (range[2] === Number(rangeVals[idx]))
                             warnMsg = 'match';
                     if (warnMsg === 'none') {
@@ -370,137 +374,6 @@ Blockly.Blocks.math_arithmatic_term = {
     }
 };
 
-/*
- // Created as an initial attempt at an expanding arithmatic block.  Keep because there is some
- // really spiffy code in here:
-
- Blockly.Blocks.math_arithmetic_multiple = {
- init: function () {
- if (profile.default.description === "Scribbler Robot") {
- this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
- } else {
- this.setHelpUrl(Blockly.MSG_NUMBERS_HELPURL);
- }
- this.setTooltip(Blockly.MSG_MATH_ARITHMETIC_TOOLTIP);
- this.setColour(colorPalette.getColor('math'));
- this.setOutput(true, 'Number');
- this.appendValueInput('A')
- .setCheck('Number');
- this.appendValueInput('B')
- .setCheck('Number')
- .appendField(new Blockly.FieldDropdown([
- ["+", ' + '],
- ["-", ' - '],
- ["×", ' * '],
- ["÷", ' / '],
- ["% (remainder after division)", ' % '],
- ["^ (raise to the power of)", ' p ']]), 'OP');
- this.setInputsInline(true);
- this.myChildren_ = 'B';
- this.myConnection_ = null;
- for (var h = 0; h < 26; h++) {
- this.appendValueInput('H' + h.toString(10));
- this.getInput('H' + h.toString(10)).setVisible(false);
- }
- },
- onchange: function () {
- var nextInput = null;
- for (var inCount = 'A'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++) {
- if (!this.getInput(String.fromCharCode(inCount))) {
- nextInput = inCount;
- this.myChildren_ = String.fromCharCode(nextInput - 1);
- break;
- }
- }
- if (this.getInput(this.myChildren_).connection.targetBlock() !== null
- && !this.getInput(String.fromCharCode(nextInput))
- && this.outputConnection.targetBlock() === null) {
- //alert(String.fromCharCode(inCount));
- //this.myChildren_ === String.fromCharCode(nextInput);
- this.appendValueInput(String.fromCharCode(nextInput))
- .setCheck('Number')
- .appendField(new Blockly.FieldDropdown([
- ["+", ' + '],
- ["-", ' - '],
- ["×", ' * '],
- ["÷", ' / '],
- ["% (remainder after division)", ' % '],
- ["^ (raise to the power of)", ' p ']]), 'OP' + String.fromCharCode(nextInput));
- }
-
- if (this.outputConnection.targetBlock() !== null && this.myConnection_ === null) {
- this.myConnection_ = this.outputConnection.targetBlock();
-
- // Collect all of the blocks and operators
- var curOp = 'B'.charCodeAt(0);
- var firstOp = 0;
- var curBlock = 'A'.charCodeAt(0);
- for (var inCount = 'A'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++) {
- if (this.getInput(String.fromCharCode(inCount))) {
- var currentBlock = this.getInput(String.fromCharCode(inCount)).connection.targetBlock();
- if (currentBlock !== null) {
- currentBlock.outputConnection.disconnect();
- this.getInput(String.fromCharCode(curBlock)).connection.connect(currentBlock.outputConnection);
- curBlock++;
- if (inCount > 'A'.charCodeAt(0) && firstOp !== 0) {
- var currentOp;
- if (inCount > 'B'.charCodeAt(0))
- currentOp = this.getFieldValue('OP' + String.fromCharCode(inCount));
- else
- currentOp = this.getFieldValue('OP');
-
- if (curOp > 'B'.charCodeAt(0))
- this.setFieldValue(currentOp, 'OP' + String.fromCharCode(curOp));
- else
- this.setFieldValue(currentOp, 'OP');
- curOp++;
- }
- firstOp++;
- }
- }
- }
- for (var inCount = 'C'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++)
- if (this.getInput(String.fromCharCode(inCount)))
- if (this.getInput(String.fromCharCode(inCount)).connection.targetBlock() === null)
- this.removeInput(String.fromCharCode(inCount));
- } else if (this.outputConnection.targetBlock() === null)
- this.myConnection_ = null;
-
- // check for blank terms before the end of the block.
- var hasBlanks = 0;
- for (var inCount = 'A'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++) {
- if (this.getInput(String.fromCharCode(inCount))) {
- var currentBlock = this.getInput(String.fromCharCode(inCount)).connection.targetBlock();
- if (currentBlock !== null) {
- if (hasBlanks > 0)
- hasBlanks++;
- } else {
- if (hasBlanks === 0)
- hasBlanks++;
- }
- }
- }
-
- if (hasBlanks > 1)
- this.setWarningText('WARNING!  You have blank terms before the end of your statement.'
- + '\n\nThis may lead to unpredictable results.');
- else
- this.setWarningText(null);
-
- for (var inCount = 'Y'.charCodeAt(0); inCount >= 'C'.charCodeAt(0); inCount--) {
- if (this.getInput(String.fromCharCode(inCount)) && this.getInput(String.fromCharCode(inCount + 1))) {
- var currentBlock = this.getInput(String.fromCharCode(inCount)).connection.targetBlock();
- var previousBlock = this.getInput(String.fromCharCode(inCount + 1)).connection.targetBlock();
- if (currentBlock === null && previousBlock === null) {
- this.getInput(String.fromCharCode(inCount + 1)).connection.unhighlight();
- this.removeInput(String.fromCharCode(inCount + 1));
- } else if (currentBlock !== null)
- break;
- }
- }
- }
- };
- */
 
 Blockly.propc.math_arithmetic = function () {
     var operator = [this.getFieldValue('OP')];
@@ -508,7 +381,8 @@ Blockly.propc.math_arithmetic = function () {
     argument.push(Blockly.propc.valueToCode(this, 'B', Blockly.propc.ORDER_MULTIPLICATIVE) || '0');
     var code = '';
 
-    for (var k = 'C'.charCodeAt(0); k <= 'Z'.charCodeAt(0); k++) {
+    // We're looking at the characters from C to Z - why?
+    for (let k = 'C'.charCodeAt(0); k <= 'Z'.charCodeAt(0); k++) {
         if (Blockly.propc.valueToCode(this, String.fromCharCode(k), Blockly.propc.ORDER_MULTIPLICATIVE)) {
             operator.push(this.getFieldValue('OP' + String.fromCharCode(k)));
             argument.push(Blockly.propc.valueToCode(this, String.fromCharCode(k), Blockly.propc.ORDER_MULTIPLICATIVE));
@@ -519,7 +393,7 @@ Blockly.propc.math_arithmetic = function () {
     }
     operator.push('');
 
-    for (var k = 0; k < 26; k++) {
+    for (let k = 0; k < 26; k++) {
         if (operator[k] === ' p ') {
             code += 'pow(' + argument[k] + ', ';
         } else {
@@ -1238,7 +1112,7 @@ Blockly.Blocks.comment = {
         this.appendDummyInput('MAIN')
                 .appendField("add", 'TITLE')
                 .appendField(new Blockly.FieldDropdown([['comment', 'COMMENT'], ['blank separator', 'SPACER']], function (action) {
-                    this.sourceBlock_.updateShape_({"ACTION": action});
+                    this.sourceBlock_.updateShape_(action);
                 }), 'ACTION')
                 .appendField(new Blockly.FieldTextInput(''), "COMMENT_TEXT");
         this.setPreviousStatement(true, "Block");
@@ -1250,16 +1124,12 @@ Blockly.Blocks.comment = {
         container.setAttribute('action', action);
         return container;
     },
-    domToMutation: function (xmlElement) {
-        var action = xmlElement.getAttribute('action');
-        this.updateShape_({"ACTION": action});
+    domToMutation: function (container) {
+        var action = container.getAttribute('action');
+        this.updateShape_(action);
     },
-    updateShape_: function (details) {
-        var action = details['ACTION'];
-        if (details['ACTION'] === undefined) {
-            action = this.getFieldValue('ACTION');
-        }
-        var data = this.getFieldValue('COMMENT_TEXT');
+    updateShape_: function (action) {
+        this.commentText = this.getFieldValue('COMMENT_TEXT');
         if (this.getInput('MAIN')) {
             this.removeInput('MAIN');
         }
@@ -1268,19 +1138,16 @@ Blockly.Blocks.comment = {
             this.appendDummyInput('MAIN')
                     .appendField("add", 'TITLE')
                     .appendField(new Blockly.FieldDropdown([['comment', 'COMMENT'], ['blank separator', 'SPACER']], function (action) {
-                        this.sourceBlock_.updateShape_({"ACTION": action});
+                        this.sourceBlock_.updateShape_(action);
                     }), 'ACTION')
-                    .appendField(new Blockly.FieldTextInput(''), "COMMENT_TEXT");
-        } else if (action === 'SPACER' && this.getColour !== '#FFFFFF') {
+                    .appendField(new Blockly.FieldTextInput(this.commentText || ''), "COMMENT_TEXT");
+        } else if (action === 'SPACER') {
             this.setColour('#FFFFFF');
             this.appendDummyInput('MAIN')
                     .appendField("   ", 'TITLE')
                     .appendField(new Blockly.FieldDropdown([['       \u25BD       ', 'SPACER'], ['comment', 'COMMENT']], function (action) {
-                        this.sourceBlock_.updateShape_({"ACTION": action});
+                        this.sourceBlock_.updateShape_(action);
                     }), 'ACTION')
-                    .appendField(new Blockly.FieldTextInput(''), "COMMENT_TEXT");
-            var cmt = this.getField('COMMENT_TEXT');
-            cmt.setVisible(false);
         }
     }
 };
@@ -2012,19 +1879,35 @@ Blockly.Blocks.string_split = {
         this.appendDummyInput()
                 .appendField("store the")
                 .appendField(new Blockly.FieldDropdown([
-                    ["first part in", "STR"],
-                    ["next part in", "NULL"]
-                ], function (p) {
-                    var charInputVisible = true;
-                    if (p === 'NULL') {
-                        charInputVisible = false;
-                    }
-                    this.sourceBlock_.getInput('FROM_STR').setVisible(charInputVisible);
-                }), "PART")
+                        ["first part in", "STR"],
+                        ["next part in", "NULL"]
+                    ], function (action) {
+                        this.sourceBlock_.updateShape_(action);
+                    }), "PART")
                 .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'TO_STR');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
+    },
+    updateShape_: function (action) {
+        if (action === 'NULL' && this.getInput('FROM_STR')) {
+            this.removeInput('FROM_STR');
+        } else if (action !== 'NULL' && !this.getInput('FROM_STR')) {
+            this.appendValueInput("FROM_STR")
+                    .setCheck("String");
+            this.moveInputBefore('FROM_STR', 'CHAR');
+        }
+    },
+    mutationToDom: function () {
+        // Create XML to represent menu options.
+        var container = document.createElement('mutation');
+        container.setAttribute('from_str', this.getFieldValue('PART'));
+        return container;
+    },
+    domToMutation: function (container) {
+        // Parse XML to restore the menu options.
+        var action = container.getAttribute('from_str');
+        this.updateShape_(action);
     }
 };
 
@@ -2556,8 +2439,7 @@ Blockly.Blocks.custom_code_multiple = {
             }
         }
         this.setFieldValue(container.getAttribute('color'), 'COLOR');
-        var outType = container.getAttribute('type');
-        this.setOutputType(outType);
+        this.setOutputType(container.getAttribute('type'));
         this.hideInputs(container.getAttribute('edit') || 'FALSE');
     },
     setOutputType: function (outType) {
@@ -2565,14 +2447,10 @@ Blockly.Blocks.custom_code_multiple = {
             this.setOutput(false);
             this.setPreviousStatement(true);
             this.setNextStatement(true);
-        } else if (outType === 'NUM') {
-            this.setPreviousStatement(false);
-            this.setNextStatement(false);
-            this.setOutput(true, 'Number');
         } else {
             this.setPreviousStatement(false);
             this.setNextStatement(false);
-            this.setOutput(true, 'String');
+            this.setOutput(true, (outType === 'STR' ? 'String' : 'Number'));
         }
     },
     setupInputs: function (argsCount) {
@@ -2624,7 +2502,12 @@ Blockly.Blocks.custom_code_multiple = {
         setTimeout(function() {
             currBlockTimeout.render();
         }, 200);
-    }
+    },
+    onchange: function (event) {
+        if (event && event.type === Blockly.Events.CHANGE && event.blockId === this.id) {
+            console.log(event);
+        }
+    } 
 };
 
 Blockly.propc.custom_code_multiple = function () {
@@ -2707,3 +2590,143 @@ Blockly.propc.run_as_setup = function() {
     }
     return '';
 };
+
+
+/*
+ * ==================================================================
+ *
+ *                           SPIFFY CODE VAULT
+ *
+ * ================================================================*/
+
+/*
+ // Created as an initial attempt at an expanding arithmatic block.  Keep because there is some
+ // really spiffy code in here:
+
+ Blockly.Blocks.math_arithmetic_multiple = {
+ init: function () {
+ if (profile.default.description === "Scribbler Robot") {
+ this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
+ } else {
+ this.setHelpUrl(Blockly.MSG_NUMBERS_HELPURL);
+ }
+ this.setTooltip(Blockly.MSG_MATH_ARITHMETIC_TOOLTIP);
+ this.setColour(colorPalette.getColor('math'));
+ this.setOutput(true, 'Number');
+ this.appendValueInput('A')
+ .setCheck('Number');
+ this.appendValueInput('B')
+ .setCheck('Number')
+ .appendField(new Blockly.FieldDropdown([
+ ["+", ' + '],
+ ["-", ' - '],
+ ["×", ' * '],
+ ["÷", ' / '],
+ ["% (remainder after division)", ' % '],
+ ["^ (raise to the power of)", ' p ']]), 'OP');
+ this.setInputsInline(true);
+ this.myChildren_ = 'B';
+ this.myConnection_ = null;
+ for (var h = 0; h < 26; h++) {
+ this.appendValueInput('H' + h.toString(10));
+ this.getInput('H' + h.toString(10)).setVisible(false);
+ }
+ },
+ onchange: function () {
+ var nextInput = null;
+ for (var inCount = 'A'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++) {
+ if (!this.getInput(String.fromCharCode(inCount))) {
+ nextInput = inCount;
+ this.myChildren_ = String.fromCharCode(nextInput - 1);
+ break;
+ }
+ }
+ if (this.getInput(this.myChildren_).connection.targetBlock() !== null
+ && !this.getInput(String.fromCharCode(nextInput))
+ && this.outputConnection.targetBlock() === null) {
+ //alert(String.fromCharCode(inCount));
+ //this.myChildren_ === String.fromCharCode(nextInput);
+ this.appendValueInput(String.fromCharCode(nextInput))
+ .setCheck('Number')
+ .appendField(new Blockly.FieldDropdown([
+ ["+", ' + '],
+ ["-", ' - '],
+ ["×", ' * '],
+ ["÷", ' / '],
+ ["% (remainder after division)", ' % '],
+ ["^ (raise to the power of)", ' p ']]), 'OP' + String.fromCharCode(nextInput));
+ }
+
+ if (this.outputConnection.targetBlock() !== null && this.myConnection_ === null) {
+ this.myConnection_ = this.outputConnection.targetBlock();
+
+ // Collect all of the blocks and operators
+ var curOp = 'B'.charCodeAt(0);
+ var firstOp = 0;
+ var curBlock = 'A'.charCodeAt(0);
+ for (var inCount = 'A'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++) {
+ if (this.getInput(String.fromCharCode(inCount))) {
+ var currentBlock = this.getInput(String.fromCharCode(inCount)).connection.targetBlock();
+ if (currentBlock !== null) {
+ currentBlock.outputConnection.disconnect();
+ this.getInput(String.fromCharCode(curBlock)).connection.connect(currentBlock.outputConnection);
+ curBlock++;
+ if (inCount > 'A'.charCodeAt(0) && firstOp !== 0) {
+ var currentOp;
+ if (inCount > 'B'.charCodeAt(0))
+ currentOp = this.getFieldValue('OP' + String.fromCharCode(inCount));
+ else
+ currentOp = this.getFieldValue('OP');
+
+ if (curOp > 'B'.charCodeAt(0))
+ this.setFieldValue(currentOp, 'OP' + String.fromCharCode(curOp));
+ else
+ this.setFieldValue(currentOp, 'OP');
+ curOp++;
+ }
+ firstOp++;
+ }
+ }
+ }
+ for (var inCount = 'C'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++)
+ if (this.getInput(String.fromCharCode(inCount)))
+ if (this.getInput(String.fromCharCode(inCount)).connection.targetBlock() === null)
+ this.removeInput(String.fromCharCode(inCount));
+ } else if (this.outputConnection.targetBlock() === null)
+ this.myConnection_ = null;
+
+ // check for blank terms before the end of the block.
+ var hasBlanks = 0;
+ for (var inCount = 'A'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++) {
+ if (this.getInput(String.fromCharCode(inCount))) {
+ var currentBlock = this.getInput(String.fromCharCode(inCount)).connection.targetBlock();
+ if (currentBlock !== null) {
+ if (hasBlanks > 0)
+ hasBlanks++;
+ } else {
+ if (hasBlanks === 0)
+ hasBlanks++;
+ }
+ }
+ }
+
+ if (hasBlanks > 1)
+ this.setWarningText('WARNING!  You have blank terms before the end of your statement.'
+ + '\n\nThis may lead to unpredictable results.');
+ else
+ this.setWarningText(null);
+
+ for (var inCount = 'Y'.charCodeAt(0); inCount >= 'C'.charCodeAt(0); inCount--) {
+ if (this.getInput(String.fromCharCode(inCount)) && this.getInput(String.fromCharCode(inCount + 1))) {
+ var currentBlock = this.getInput(String.fromCharCode(inCount)).connection.targetBlock();
+ var previousBlock = this.getInput(String.fromCharCode(inCount + 1)).connection.targetBlock();
+ if (currentBlock === null && previousBlock === null) {
+ this.getInput(String.fromCharCode(inCount + 1)).connection.unhighlight();
+ this.removeInput(String.fromCharCode(inCount + 1));
+ } else if (currentBlock !== null)
+ break;
+ }
+ }
+ }
+ };
+ */
