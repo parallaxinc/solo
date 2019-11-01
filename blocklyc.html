@@ -71,6 +71,7 @@
     <!-- Javascript helpers -->
     <script type="text/javascript" src="src/globals.js"></script>
     <script type="text/javascript" src="src/utils.js"></script>
+    <script type="text/javascript" src="src/project.js"></script>
     <script type="text/javascript" src="src/propterm.js"></script>
     <script type="text/javascript" src="src/blocklypropclient.js"></script>
     <script type="text/javascript" src="src/blocklyc.js"></script>
@@ -80,6 +81,7 @@
 
     <!-- Blockly core/PropC generator -->
     <script type="text/javascript" src="src/lib/blockly/blockly_compressed.js"></script>
+
     <script type="text/javascript" src="src/blockly/generators/propc.js"></script>
     <script type="text/javascript" src="src/blockly/generators/field_range.js"></script>
     <script type="text/javascript" src="src/blockly/generators/field_code.js"></script>
@@ -240,17 +242,17 @@
                     </a>
 
                 <!-- New Project button -->
-                <a id="new-project-button" class="demo-function project-file-buttons" style="display: inline-block;" data-displayas="inline-block">
+                <a id="new-project-button" class="demo-function btn-view-blocks" style="display: inline-block;" data-displayas="inline-block">
                     <span class="keyed-lang-string" data-key="editor_new_button"></span>
                 </a>
 
                 <!-- Open Project button -->
-                <a id="open-project-button" class="demo-function project-file-buttons" style="display: inline-block;" data-displayas="inline-block">
+                <a id="open-project-button" class="demo-function btn-view-blocks" style="display: inline-block;" data-displayas="inline-block">
                     <span class="keyed-lang-string" data-key="editor_open_button"></span>
                 </a>
 
                 <!-- Save project button -->
-                <a class="demo-function project-file-buttons" id="save-project" style="display: inline-block;" data-displayas="inline-block">
+                <a class="demo-function btn-view-blocks" id="save-project" style="display: inline-block;" data-displayas="inline-block">
                     <span class="keyed-lang-string" data-key="editor_save"></span>
                 </a>
 
@@ -634,7 +636,7 @@
                 <div class="modal-body">
                     <!-- Upload a project. Results stored in localStorage -->
                     <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
-                    <input id="open-project-select-file" type="file" accept=".svg,*.svge,image/svg+xml"
+                    <input id="open-project-select-file" type="file" accept=".svg, .svge"
                            onchange="uploadHandler(this.files);">
 
                     <!-- File is valid message -->

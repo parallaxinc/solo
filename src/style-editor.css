@@ -51,7 +51,7 @@ html, body {
 }
 
 
-.blocklyWidgetDiv .goog-menuitem-content, .blocklyContextMenu, .blocklydropdownmenu {
+.blocklyWidgetDiv .goog-menuitem-content, .blocklyContextMenu, .blocklyDropdownMenu {
     font: normal 14px Arimo, sans-serif !important;
     max-height: 110% !important;
 }
@@ -282,36 +282,6 @@ ul > hr {
 }
 
 /* Editor toolbar New, Open, and Save buttons */
-.project-file-buttons {
-    -webkit-transition: padding-left 1s, background 1s, border 1s;
-    transition: padding-left 1s, background 1s, border 1s;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 15px;
-    font-size: 12px;
-    line-height: 1.5;
-    color: #fff;
-    width: 60px;
-    background-color: #337ab7;
-    display: inline-block;
-    margin-bottom: 0;
-    text-align: left;
-    white-space: nowrap;
-    vertical-align: middle;
-    cursor: pointer;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    text-decoration: none;
-}
-
-/* Editor toolbar New, Open, and Save buttons */
-.project-file-buttons:hover {
-    box-shadow: 2px 2px 5px #89a;
-    background-color: #286090;
-    border-color: rgb(32, 77, 116);
-}
-
-
 .btn-view-blocks:hover {
     box-shadow: 2px 2px 5px #89a;
     color: #fff;

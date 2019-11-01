@@ -1121,11 +1121,8 @@ var tooltip_text = [
 Blockly.BlockSvg.prototype.showHelp_ = function () {
     let url = goog.isFunction(this.helpUrl) ? this.helpUrl() : this.helpUrl;
 
-    if (!isOffline && url) {
-        // Display help in a new browser window
-        window.open(url);
-    } else if (url) {
-            // Temp fix - Solo-26
+    if (url) {
+         // Temp fix - Solo-26
          // Display help in a new browser window
          window.open(url);
 
@@ -1138,9 +1135,9 @@ Blockly.BlockSvg.prototype.showHelp_ = function () {
         // Help is supposed to be in the /cdn/help folder. That does not
             // yet exist.
 
-//        let u = 'cdn/help/' + u.replace(/\//g, '-') + '.html';
+        // let u = 'cdn/help/' + u.replace(/\//g, '-') + '.html';
 
-        // Disable this until the help issue is addressed. Refeence issue Solo-26
+        // Disable this until the help issue is addressed. Reference issue Solo-26
         //$('#help-content').html('<iframe src="' + u + '" style="height:600px; border:none;" />');
 	    //$('#help-dialog').modal('show');
     }

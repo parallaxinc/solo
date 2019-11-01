@@ -220,10 +220,6 @@ var graph_data = {
 };
 
 
-// Flag offline docker mode
-var docker = $("meta[name=docker]").attr("content");
-
-
 /**
  * Minimum client/launcher version supporting base64-encoding
  */
@@ -244,7 +240,7 @@ const minVer = version_as_number(client_min_version);
 
 /**
  * Switch the visible pane when a tab is clicked.
- * 
+ *
  * @param {string} id ID of tab clicked.
  */
 function renderContent(id) {
@@ -262,83 +258,74 @@ function renderContent(id) {
     }
 
     switch (selectedTab) {
-      case 'blocks':
-        $('.blocklyToolboxDiv').css('display', 'block')
+        case 'blocks':
+            $('.blocklyToolboxDiv').css('display', 'block')
 
-        $('#content_xml').css('display', 'none');
-        $('#content_propc').css('display', 'none');
-        $('#content_blocks').css('display', 'block');
+            $('#content_xml').css('display', 'none');
+            $('#content_propc').css('display', 'none');
+            $('#content_blocks').css('display', 'block');
 
-        $('#btn-view-xml').css('display', 'none');
-        $('#btn-view-propc').css('display', 'inline-block');
-        $('#btn-view-blocks').css('display', 'none');
-
-        if ((isDebug || isOffline) && codeXml.getValue().length > 40) {
-            Blockly.Xml.clearWorkspaceAndLoadFromXml(Blockly.Xml.textToDom(codeXml.getValue()), Blockly.mainWorkspace);
-        } else {
-            Blockly.svgResize(Blockly.mainWorkspace);
-            Blockly.mainWorkspace.render();
-        }
-        break;
-      case 'propc':
-        $('.blocklyToolboxDiv').css('display', 'none')
-
-        $('#content_xml').css('display', 'none');
-        $('#content_propc').css('display', 'block');
-        $('#content_blocks').css('display', 'none');
-
-        if (isDebug || (isOffline && !docker)) {
-            if (!isPropcOnlyProject) {
-                $('#btn-view-xml').css('display', 'inline-block');
-            } else {
-                $('#btn-view-xml').css('display', 'none');
-            }
-            $('#btn-view-blocks').css('display', 'none');
-        } else {
             $('#btn-view-xml').css('display', 'none');
-            $('#btn-view-blocks').css('display', (isPropcOnlyProject ? 'none' : 'inline-block'));   
-        }
-        $('#btn-view-propc').css('display', 'none');
-        if (!isPropcOnlyProject) {
-            let raw_c = prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace));
-            codePropC.setValue(raw_c);
-            codePropC.gotoLine(0);
-        } else {
-            if (!codePropC || codePropC.getValue() === '') {
-                codePropC.setValue(atob((projectData['code'].match(/<field name="CODE">(.*)<\/field>/) || ['', ''])[1] || ''));
-                codePropC.gotoLine(0);
+            $('#btn-view-propc').css('display', 'inline-block');
+            $('#btn-view-blocks').css('display', 'none');
+
+            if ((isDebug) && codeXml.getValue().length > 40) {
+                Blockly.Xml.clearWorkspaceAndLoadFromXml(Blockly.Xml.textToDom(codeXml.getValue()), Blockly.mainWorkspace);
+            } else {
+                Blockly.svgResize(Blockly.mainWorkspace);
+                Blockly.mainWorkspace.render();
             }
-            if (codePropC.getValue() === '') {
-                let blankProjectCode = '// ------ Libraries and Definitions ------\n';
-                blankProjectCode += '#include "simpletools.h"\n\n\n';
-                blankProjectCode += '// ------ Global Variables and Objects ------\n\n\n';
-                blankProjectCode += '// ------ Main Program ------\n';
-                blankProjectCode += 'int main() {\n\n\nwhile (1) {\n\n\n}}';
-    
-                let raw_c = prettyCode(blankProjectCode);
+            break;
+        case 'propc':
+            $('.blocklyToolboxDiv').css('display', 'none')
+
+            $('#content_xml').css('display', 'none');
+            $('#content_propc').css('display', 'block');
+            $('#content_blocks').css('display', 'none');
+
+            $('#btn-view-xml').css('display', 'none');
+            $('#btn-view-blocks').css('display', (isPropcOnlyProject ? 'none' : 'inline-block'));
+            $('#btn-view-propc').css('display', 'none');
+            if (!isPropcOnlyProject) {
+                let raw_c = prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace));
                 codePropC.setValue(raw_c);
                 codePropC.gotoLine(0);
-            } 
-        }
-        break;
-      case 'xml':
-        $('.blocklyToolboxDiv').css('display', 'none')
+            } else {
+                if (!codePropC || codePropC.getValue() === '') {
+                    codePropC.setValue(atob((projectData['code'].match(/<field name="CODE">(.*)<\/field>/) || ['', ''])[1] || ''));
+                    codePropC.gotoLine(0);
+                }
+                if (codePropC.getValue() === '') {
+                    let blankProjectCode = '// ------ Libraries and Definitions ------\n';
+                    blankProjectCode += '#include "simpletools.h"\n\n\n';
+                    blankProjectCode += '// ------ Global Variables and Objects ------\n\n\n';
+                    blankProjectCode += '// ------ Main Program ------\n';
+                    blankProjectCode += 'int main() {\n\n\nwhile (1) {\n\n\n}}';
 
-        $('#content_xml').css('display', 'block');
-        $('#content_propc').css('display', 'none');
-        $('#content_blocks').css('display', 'none');
+                    let raw_c = prettyCode(blankProjectCode);
+                    codePropC.setValue(raw_c);
+                    codePropC.gotoLine(0);
+                }
+            }
+            break;
+        case 'xml':
+            $('.blocklyToolboxDiv').css('display', 'none')
 
-        $('#btn-view-xml').css('display', 'none');
-        $('#btn-view-propc').css('display', 'none');
-        $('#btn-view-blocks').css('display', 'inline-block');
+            $('#content_xml').css('display', 'block');
+            $('#content_propc').css('display', 'none');
+            $('#content_blocks').css('display', 'none');
 
-        // Load project code
-        codeXml.setValue(Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.mainWorkspace)));
-        codeXml.getSession().setUseWrapMode(true);
-        codeXml.gotoLine(0);
+            $('#btn-view-xml').css('display', 'none');
+            $('#btn-view-propc').css('display', 'none');
+            $('#btn-view-blocks').css('display', 'inline-block');
 
-        break;
-                                
+            // Load project code
+            codeXml.setValue(Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.mainWorkspace)));
+            codeXml.getSession().setUseWrapMode(true);
+            codeXml.gotoLine(0);
+
+            break;
+
     }
 
 }
@@ -347,8 +334,8 @@ function renderContent(id) {
 /**
  * Formats code in editor and sets cursor to the line is was on
  * Used by the code formatter button in the editor UI
- * 
- * @returns {*} raw_code 
+ *
+ * @returns {*} raw_code
  */
 var formatWizard = function () {
     var currentLine = codePropC.getCursorPosition()['row'] + 1;
@@ -375,29 +362,29 @@ var prettyCode = function (raw_code) {
     });
     raw_code = raw_code.replace(/,\n[\s\xA0]+/g, ", ")
 
-            // improve the way reference and dereference operands are rendered
-            .replace(/, & /g, ", &")
-            .replace(/, \* /g, ", *")
-            .replace(/\( & /g, "(&")
-            .replace(/\( \* /g, "(*")
-            .replace(/char \* /g, "char *")
-            .replace(/bme680 \* /g, "bme680 *")
-            .replace(/serial \* /g, "serial *")
-            .replace(/lcdParallel \* /g, "lcdParallel *")
-            .replace(/colorPal \* /g, "colorPal *")
-            .replace(/ws2812 \* /g, "ws2812 *")
-            .replace(/i2c \* /g, "i2c *")
-            .replace(/talk \* /g, "talk *")
-            .replace(/sound \* /g, "sound *")
-            .replace(/screen \* /g, "screen *")
-            .replace(/FILE \* /g, "FILE* ")
+    // improve the way reference and dereference operands are rendered
+        .replace(/, & /g, ", &")
+        .replace(/, \* /g, ", *")
+        .replace(/\( & /g, "(&")
+        .replace(/\( \* /g, "(*")
+        .replace(/char \* /g, "char *")
+        .replace(/bme680 \* /g, "bme680 *")
+        .replace(/serial \* /g, "serial *")
+        .replace(/lcdParallel \* /g, "lcdParallel *")
+        .replace(/colorPal \* /g, "colorPal *")
+        .replace(/ws2812 \* /g, "ws2812 *")
+        .replace(/i2c \* /g, "i2c *")
+        .replace(/talk \* /g, "talk *")
+        .replace(/sound \* /g, "sound *")
+        .replace(/screen \* /g, "screen *")
+        .replace(/FILE \* /g, "FILE* ")
 
-            // improve the way functions and arrays are rendered
-            .replace(/\)\s*[\n\r]\s*{/g, ") {")
-            .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g, function (str, m1, m2) {
-                m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
-                return "[" + m1 + "] = {" + m2 + "};";
-            });
+        // improve the way functions and arrays are rendered
+        .replace(/\)\s*[\n\r]\s*{/g, ") {")
+        .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g, function (str, m1, m2) {
+            m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
+            return "[" + m1 + "] = {" + m2 + "};";
+        });
 
     return (raw_code);
 };
@@ -435,7 +422,6 @@ function generateBlockId(nonce) {
 }
 
 
-
 /**
  * Covert C source code into a Blockly block
  *
@@ -456,7 +442,6 @@ var propcAsBlocksXml = function () {
 };
 
 
-
 /**
  * Initialize Blockly
  *
@@ -465,7 +450,7 @@ var propcAsBlocksXml = function () {
  * @param {!Blockly} blockly Instance of Blockly from iframe.
  */
 function init(blockly) {
-    if(!codePropC) {
+    if (!codePropC) {
         codePropC = ace.edit("code-propc");
         codePropC.setTheme("ace/theme/chrome");
         codePropC.getSession().setMode("ace/mode/c_cpp");
@@ -504,7 +489,7 @@ function init(blockly) {
         }
     }
 
-    if (!codeXml && (getURLParameter('debug') || isOffline)) {
+    if (!codeXml && (getURLParameter('debug'))) {
         codeXml = ace.edit("code-xml");
         codeXml.setTheme("ace/theme/chrome");
         codeXml.getSession().setMode("ace/mode/xml");
@@ -514,7 +499,7 @@ function init(blockly) {
     window.Blockly = blockly;
 
     if (projectData) {
-        if ( ! projectData['code'] || projectData['code'].length < 50) {
+        if (!projectData['code'] || projectData['code'].length < 50) {
             projectData['code'] = '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>';
         }
         if (projectData['board'] !== 'propcfile') {
@@ -570,113 +555,41 @@ function cloudCompile(text, action, successHandler) {
         else if (propcCode.indexOf("SERIAL_GRAPHING USED") > -1)
             terminalNeeded = 'graph';
 
-        // OFFLINE MODE
-        if (isOffline) {
-            if (docker) {
-                // Contact the local docker container running cloud compiler
+        // Contact the docker container running cloud compiler
+        // Compute the url based on where we are now
+        let postUrl = window.location.protocol + '//' + window.location.hostname + ':5001/single/prop-c/' + action;
 
-                // baseUrl = /blockly/
-                // action = 'compile'
-                // idProject = an integer project number
-                // data = {'code: propCode}
-                //propCode = "// ------ Libraries and Definitions ------↵#include "simpletools.h"↵↵↵↵// ------ Main Program ------↵int main() {↵↵  //↵↵}"
+        $.ajax({
+            'method': 'POST',
+            'url': postUrl,
+            'data': {"code": propcCode}
+        }).done(function (data) {
+            console.log(data);
 
-                // Compute the url based on where we are now
-                let postUrl = window.location.protocol + '//' + window.location.hostname + ':5001/single/prop-c/' + action;
+            // Check for an error response from the compiler
+            if (!data || data["compiler-error"] != "") {
+                // Get message as a string, or blank if undefined
+                let message = (typeof data["compiler-error"] === "string") ? data["compiler-error"] : "";
+                // Display the result in the compile console modal <div>
+                $("#compile-console").val($("#compile-console").val() + data['compiler-output'] + data['compiler-error'] + loadWaitMsg);
+            } else {
+                var loadWaitMsg = (action !== 'compile') ? '\nDownload...' : '';
 
-                $.ajax({
-                    'method': 'POST',
-                    'url':  postUrl,
-                    'data': {"code": propcCode}
-                }).done(function (data) {
-                    console.log(data);
-
-                    // Check for an error response from the compiler
-                    if (! data || data["compiler-error"] != "") {
-                        // Get message as a string, or blank if undefined
-                        let message =  (typeof data["compiler-error"] === "string") ? data["compiler-error"] : "";
-                        // Display the result in the compile console modal <div>
-                        $("#compile-console").val($("#compile-console").val() + data['compiler-output'] + data['compiler-error'] + loadWaitMsg);
-                   } else {
-                        var loadWaitMsg = (action !== 'compile') ? '\nDownload...' : '';
-
-                        $("#compile-console").val($("#compile-console").val() + data['compiler-output'] + data['compiler-error'] + loadWaitMsg);
-                        if (data.success) {
-                            successHandler(data, terminalNeeded);
-                        }
-
-                        // Scoll automatically to the bottom after new data is added
-                        document.getElementById("compile-console").scrollTop = document.getElementById("compile-console").scrollHeight;
-                    }
-                }).fail(function (data) {
-                    // Data appears to be an HTTP response object
-                    if (data) {
-                        let message = "Aw snap. A server error " + data.status + " has been detected.";
-                        $("#compile-console").val($("#compile-console").val() +  message);
-                    }
-                });
-            }
-            else {  // Use the webpack version
-                /*
-                 * Compiler optimization options:
-                 *
-                 *  -O0 (None)
-                 *  -O1 (Mixed)
-                 *  -O2 (Speed)
-                 *  -Os (Size)
-                 */
-
-                localCompile(action, {'single.c': propcCode}, 'single.c', '-Os', '-Os', function(data) {
-                    if (data.error) {
-                        console.log(data);
-                        // Get message as a string, or blank if undefined
-                        alert("BlocklyProp was unable to compile your project:\n" + data['message']
-                            + "\nIt may help to \"Force Refresh\" by pressing Control-Shift-R (Windows/Linux) or Shift-Command-R (Mac)");
-                    } else {
-                        var loadWaitMsg = (action !== 'compile') ? '\nDownload...' : '';
-                        $("#compile-console").val($("#compile-console").val() + data['message'] + loadWaitMsg);
-                        console.log(data);
-
-                        // The success handler will transfer the binary data to the BP client
-                        if (data.success && data.binary) {
-                            successHandler(data, terminalNeeded);
-                        }
-
-                        // Scoll automatically to the bottom after new data is added
-                        document.getElementById("compile-console").scrollTop = document.getElementById("compile-console").scrollHeight;
-                    }
-                });
-            }
-        }
-        else {  // ONLINE MODE
-            $.ajax({
-                'method': 'POST',
-                'url': baseUrl + 'rest/compile/c/' + action + '?id=' + idProject,
-                'data': {"code": propcCode}
-            }).done(function (data) {
-                if (data.error || typeof data.error === "undefined") {
-                    // console.log(data);
-                    // Get message as a string, or blank if undefined
-                    var message = (typeof data['message'] === "string") ? data['message'] : (typeof data.error !== "undefined") ? data['message'].toString() : "";
-                    alert("BlocklyProp was unable to compile your project:\n" + message
-                            + "\nIt may help to \"Force Refresh\" by pressing Control-Shift-R (Windows/Linux) or Shift-Command-R (Mac)");
-                } else {
-                    var loadWaitMsg = (action !== 'compile') ? '\nDownload...' : '';
-                    $("#compile-console").val($("#compile-console").val() + data['compiler-output'] + data['compiler-error'] + loadWaitMsg);
-                    if (data.success) {
-                        successHandler(data, terminalNeeded);
-                    }
-
-                    // Scoll automatically to the bottom after new data is added
-                    document.getElementById("compile-console").scrollTop = document.getElementById("compile-console").scrollHeight;
+                $("#compile-console").val($("#compile-console").val() + data['compiler-output'] + data['compiler-error'] + loadWaitMsg);
+                if (data.success) {
+                    successHandler(data, terminalNeeded);
                 }
-            }).fail(function (data) {
-                // console.log(data);
-                var message = (typeof data === "string") ? data : data.toString();
-                alert("BlocklyProp was unable to compile your project:\n----------\n" + message
-                        + "\nIt may help to \"Force Refresh\" by pressing Control-Shift-R (Windows/Linux) or Shift-Command-R (Mac)");
-            });
-        }
+
+                // Scoll automatically to the bottom after new data is added
+                document.getElementById("compile-console").scrollTop = document.getElementById("compile-console").scrollHeight;
+            }
+        }).fail(function (data) {
+            // Data appears to be an HTTP response object
+            if (data) {
+                let message = "Aw snap. A server error " + data.status + " has been detected.";
+                $("#compile-console").val($("#compile-console").val() + message);
+            }
+        });
     }
 }
 
@@ -685,9 +598,9 @@ function cloudCompile(text, action, successHandler) {
  * Stub function to the cloudCompile function
  */
 function compile() {
-    cloudCompile('Compile', 'compile', function (data, terminalNeeded) {});
+    cloudCompile('Compile', 'compile', function (data, terminalNeeded) {
+    });
 }
-
 
 
 /**
@@ -730,7 +643,13 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
 
                 if (client_version >= minCodedVer) {
                     //Request load with options from BlocklyProp Client
-                    $.post(client_url + 'load.action', {option: load_option, action: load_action, binary: data.binary, extension: data.extension, "comport": getComPort()}, function (loaddata) {
+                    $.post(client_url + 'load.action', {
+                        option: load_option,
+                        action: load_action,
+                        binary: data.binary,
+                        extension: data.extension,
+                        "comport": getComPort()
+                    }, function (loaddata) {
                         //Replace response message's consecutive white space with a new-line, then split at new lines
                         var message = loaddata.message.replace(/\s{2,}/g, '\n').split('\n');
                         //If responses have codes, check for all success codes (< 100)
@@ -770,7 +689,12 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
                 } else {
                     //todo - Remove this once client_min_version (and thus minVer) is >= minCodedVer
                     //Request load without options from old BlocklyProp Client
-                    $.post(client_url + 'load.action', {action: load_action, binary: data.binary, extension: data.extension, "comport": getComPort()}, function (loaddata) {
+                    $.post(client_url + 'load.action', {
+                        action: load_action,
+                        binary: data.binary,
+                        extension: data.extension,
+                        "comport": getComPort()
+                    }, function (loaddata) {
                         $("#compile-console").val($("#compile-console").val() + loaddata.message);
 
                         // Scoll automatically to the bottom after new data is added
@@ -790,7 +714,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
         alert("No device detected - ensure it is connected, powered, and selected in the ports list.\n\nMake sure your BlocklyPropClient is up-to-date.");
     } else {
         alert("BlocklyPropClient not available to communicate with a microcontroller."
-                + "\n\nIt may help to \"Force Refresh\" by pressing Control-Shift-R (Windows/Linux) or Shift-Command-R (Mac).");
+            + "\n\nIt may help to \"Force Refresh\" by pressing Control-Shift-R (Windows/Linux) or Shift-Command-R (Mac).");
     }
 }
 
@@ -801,6 +725,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
 function serial_console() {
     var newTerminal = false;
 
+    // HTTP client
     if (client_use_type !== 'ws') {
         if (term === null) {
             term = {
@@ -896,7 +821,7 @@ function serial_console() {
         active_connection = 'websocket';
         if (document.getElementById('serial-conn-info')) {
             document.getElementById('serial-conn-info').innerHTML = 'Connection established with ' +
-                    msg_to_send.portPath + ' at baudrate ' + msg_to_send.baudrate;
+                msg_to_send.portPath + ' at baudrate ' + msg_to_send.baudrate;
         }
         client_ws_connection.send(JSON.stringify(msg_to_send));
 
@@ -1049,7 +974,7 @@ function graphing_console() {
 
             if (document.getElementById('graph-conn-info')) {
                 document.getElementById('graph-conn-info').innerHTML = 'Connection established with ' +
-                        msg_to_send.portPath + ' at baudrate ' + msg_to_send.baudrate;
+                    msg_to_send.portPath + ' at baudrate ' + msg_to_send.baudrate;
             }
 
             client_ws_connection.send(JSON.stringify(msg_to_send));
@@ -1164,7 +1089,6 @@ var select_com_port = function (com_port) {
 };
 
 
-
 /**
  * Check for active com ports when the DOM processing has finished
  */
@@ -1276,7 +1200,7 @@ function graph_new_data(stream) {
                 graph_start_playing = false;
                 if (!graph_paused) {
                     graph_temp_data[row].unshift(ts + graph_time_multiplier -
-                            graph_timestamp_start);
+                        graph_timestamp_start);
                     var graph_csv_temp = (Math.round(graph_temp_data[row][0] * 10000) / 10000) + ',';
 
                     if (graph_options.graph_type === 'X') {   // xy scatter plot
@@ -1298,10 +1222,10 @@ function graph_new_data(stream) {
                                 x: graph_temp_data[row][0],
                                 y: graph_temp_data[row][j] || null
                             });
-                            $('.ct_line').css('stroke-width','2.5px');  // TODO: if this slows performance too much - explore changing the stylesheet (https://stackoverflow.com/questions/50036922/change-a-css-stylesheets-selectors-properties/50036923#50036923)
+                            $('.ct_line').css('stroke-width', '2.5px');  // TODO: if this slows performance too much - explore changing the stylesheet (https://stackoverflow.com/questions/50036922/change-a-css-stylesheets-selectors-properties/50036923#50036923)
                             if (graph_temp_data[row][0] > graph_options.sampleTotal)
                                 graph_data.series[j - 2].shift();
-                        }                        
+                        }
                     }
 
                     graph_csv_data.push(graph_csv_temp.slice(0, -1).split(','));
@@ -1396,11 +1320,11 @@ function downloadGraph() {
             }());
 
             // TODO: The chartStyle contains 16 CSS errors. These need to be addressed.
-            var svgGraph = document.getElementById('serial_graphing'),
-                    pattern = new RegExp('xmlns="http://www.w3.org/2000/xmlns/"', 'g'),
-                    findY = 'class="ct-label ct-horizontal ct-end"',
-                    chartStyle = '<style>.ct-perfect-fourth:after,.ct-square:after{content:"";clear:both}.ct-label{fill:rgba(0,0,0,.4);color:rgba(0,0,0,.4);font-size:.75rem;line-height:1}.ct-grid-background,.ct-line{fill:none}.ct-chart-line .ct-label{display:block;display:-webkit-box;display:-moz-box;display:-ms-flexbox;display:-webkit-flex;display:flex}.ct-chart-donut .ct-label,.ct-chart-pie .ct-label{dominant-baseline:central}.ct-label.ct-horizontal.ct-start{-webkit-box-align:flex-end;-webkit-align-items:flex-end;-ms-flex-align:flex-end;align-items:flex-end;-webkit-box-pack:flex-start;-webkit-justify-content:flex-start;-ms-flex-pack:flex-start;justify-content:flex-start;text-align:left;text-anchor:start}.ct-label.ct-horizontal.ct-end{-webkit-box-align:flex-start;-webkit-align-items:flex-start;-ms-flex-align:flex-start;align-items:flex-start;-webkit-box-pack:flex-start;-webkit-justify-content:flex-start;-ms-flex-pack:flex-start;justify-content:flex-start;text-align:left;text-anchor:start}.ct-label.ct-vertical.ct-start{-webkit-box-align:flex-end;-webkit-align-items:flex-end;-ms-flex-align:flex-end;align-items:flex-end;-webkit-box-pack:flex-end;-webkit-justify-content:flex-end;-ms-flex-pack:flex-end;justify-content:flex-end;text-align:right;text-anchor:end}.ct-label.ct-vertical.ct-end{-webkit-box-align:flex-end;-webkit-align-items:flex-end;-ms-flex-align:flex-end;align-items:flex-end;-webkit-box-pack:flex-start;-webkit-justify-content:flex-start;-ms-flex-pack:flex-start;justify-content:flex-start;text-align:left;text-anchor:start}.ct-grid{stroke:rgba(0,0,0,.2);stroke-width:1px;stroke-dasharray:2px}.ct-point{stroke-width:10px;stroke-linecap:round}.ct-line{stroke-width:4px}.ct-area{stroke:none;fill-opacity:.1}.ct-series-a .ct-line,.ct-series-a .ct-point{stroke: #00f;}.ct-series-a .ct-area{fill:#d70206}.ct-series-b .ct-line,.ct-series-b .ct-point{stroke: #0bb;}.ct-series-b .ct-area{fill:#f05b4f}.ct-series-c .ct-line,.ct-series-c .ct-point{stroke: #0d0;}.ct-series-c .ct-area{fill:#f4c63d}.ct-series-d .ct-line,.ct-series-d .ct-point{stroke: #dd0;}.ct-series-d .ct-area{fill:#d17905}.ct-series-e .ct-line,.ct-series-e .ct-point{stroke-width: 1px;stroke: #f90;}.ct-series-e .ct-area{fill:#453d3f}.ct-series-f .ct-line,.ct-series-f .ct-point{stroke: #f00;}.ct-series-f .ct-area{fill:#59922b}.ct-series-g .ct-line,.ct-series-g .ct-point{stroke:#c0c}.ct-series-g .ct-area{fill:#0544d3}.ct-series-h .ct-line,.ct-series-h .ct-point{stroke:#000}.ct-series-h .ct-area{fill:#6b0392}.ct-series-i .ct-line,.ct-series-i .ct-point{stroke:#777}.ct-series-i .ct-area{fill:#f05b4f}.ct-square{display:block;position:relative;width:100%}.ct-square:before{display:block;float:left;content:"";width:0;height:0;padding-bottom:100%}.ct-square:after{display:table}.ct-square>svg{display:block;position:absolute;top:0;left:0}.ct-perfect-fourth{display:block;position:relative;width:100%}.ct-perfect-fourth:before{display:block;float:left;content:"";width:0;height:0;padding-bottom:75%}.ct-perfect-fourth:after{display:table}.ct-perfect-fourth>svg{display:block;position:absolute;top:0;left:0}.ct-line {stroke-width: 1px;}.ct-point {stroke-width: 2px;}text{font-family:sans-serif;}</style>',
-                    svgxml = new XMLSerializer().serializeToString(svgGraph);
+            var svgGraph = document.getElementById('serial_graphing');
+            var pattern = new RegExp('xmlns="http://www.w3.org/2000/xmlns/"', 'g');
+            var findY = 'class="ct-label ct-horizontal ct-end"';
+            var chartStyle = '<style>.ct-perfect-fourth:after,.ct-square:after{content:"";clear:both}.ct-label{fill:rgba(0,0,0,.4);color:rgba(0,0,0,.4);font-size:.75rem;line-height:1}.ct-grid-background,.ct-line{fill:none}.ct-chart-line .ct-label{display:block;display:-webkit-box;display:-moz-box;display:-ms-flexbox;display:-webkit-flex;display:flex}.ct-chart-donut .ct-label,.ct-chart-pie .ct-label{dominant-baseline:central}.ct-label.ct-horizontal.ct-start{-webkit-box-align:flex-end;-webkit-align-items:flex-end;-ms-flex-align:flex-end;align-items:flex-end;-webkit-box-pack:flex-start;-webkit-justify-content:flex-start;-ms-flex-pack:flex-start;justify-content:flex-start;text-align:left;text-anchor:start}.ct-label.ct-horizontal.ct-end{-webkit-box-align:flex-start;-webkit-align-items:flex-start;-ms-flex-align:flex-start;align-items:flex-start;-webkit-box-pack:flex-start;-webkit-justify-content:flex-start;-ms-flex-pack:flex-start;justify-content:flex-start;text-align:left;text-anchor:start}.ct-label.ct-vertical.ct-start{-webkit-box-align:flex-end;-webkit-align-items:flex-end;-ms-flex-align:flex-end;align-items:flex-end;-webkit-box-pack:flex-end;-webkit-justify-content:flex-end;-ms-flex-pack:flex-end;justify-content:flex-end;text-align:right;text-anchor:end}.ct-label.ct-vertical.ct-end{-webkit-box-align:flex-end;-webkit-align-items:flex-end;-ms-flex-align:flex-end;align-items:flex-end;-webkit-box-pack:flex-start;-webkit-justify-content:flex-start;-ms-flex-pack:flex-start;justify-content:flex-start;text-align:left;text-anchor:start}.ct-grid{stroke:rgba(0,0,0,.2);stroke-width:1px;stroke-dasharray:2px}.ct-point{stroke-width:10px;stroke-linecap:round}.ct-line{stroke-width:4px}.ct-area{stroke:none;fill-opacity:.1}.ct-series-a .ct-line,.ct-series-a .ct-point{stroke: #00f;}.ct-series-a .ct-area{fill:#d70206}.ct-series-b .ct-line,.ct-series-b .ct-point{stroke: #0bb;}.ct-series-b .ct-area{fill:#f05b4f}.ct-series-c .ct-line,.ct-series-c .ct-point{stroke: #0d0;}.ct-series-c .ct-area{fill:#f4c63d}.ct-series-d .ct-line,.ct-series-d .ct-point{stroke: #dd0;}.ct-series-d .ct-area{fill:#d17905}.ct-series-e .ct-line,.ct-series-e .ct-point{stroke-width: 1px;stroke: #f90;}.ct-series-e .ct-area{fill:#453d3f}.ct-series-f .ct-line,.ct-series-f .ct-point{stroke: #f00;}.ct-series-f .ct-area{fill:#59922b}.ct-series-g .ct-line,.ct-series-g .ct-point{stroke:#c0c}.ct-series-g .ct-area{fill:#0544d3}.ct-series-h .ct-line,.ct-series-h .ct-point{stroke:#000}.ct-series-h .ct-area{fill:#6b0392}.ct-series-i .ct-line,.ct-series-i .ct-point{stroke:#777}.ct-series-i .ct-area{fill:#f05b4f}.ct-square{display:block;position:relative;width:100%}.ct-square:before{display:block;float:left;content:"";width:0;height:0;padding-bottom:100%}.ct-square:after{display:table}.ct-square>svg{display:block;position:absolute;top:0;left:0}.ct-perfect-fourth{display:block;position:relative;width:100%}.ct-perfect-fourth:before{display:block;float:left;content:"";width:0;height:0;padding-bottom:75%}.ct-perfect-fourth:after{display:table}.ct-perfect-fourth>svg{display:block;position:absolute;top:0;left:0}.ct-line {stroke-width: 1px;}.ct-point {stroke-width: 2px;}text{font-family:sans-serif;}</style>';
+            var svgxml = new XMLSerializer().serializeToString(svgGraph);
 
             svgxml = svgxml.replace(pattern, '');
 
@@ -1462,11 +1386,11 @@ function graph_new_labels() {
     var graph_csv_temp = '';
     var labelsvg = '<svg width="60" height="300">';
     graph_csv_temp += '"time",';
-    var labelClass = [1,2,3,4,5,6,7,8,9,10,11,12,13,14];
-    var labelPre = ["","","","","","","","","","","","","",""];
+    var labelClass = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+    var labelPre = ["", "", "", "", "", "", "", "", "", "", "", "", "", ""];
     if (graph_options.graph_type === 'X') {
-        labelClass = [1,1,2,2,3,3,4,4,5,5,6,6,7,7];
-        labelPre = ["x: ","y: ","x: ","y: ","x: ","y: ","x: ","y: ","x: ","y: ","x: ","y: ","x: ","y: "];
+        labelClass = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7];
+        labelPre = ["x: ", "y: ", "x: ", "y: ", "x: ", "y: ", "x: ", "y: ", "x: ", "y: ", "x: ", "y: ", "x: ", "y: "];
     }
     for (var t = 0; t < graph_labels.length; t++) {
         labelsvg += '<g id="labelgroup' + (t + 1) + '" transform="translate(0,' + (t * 30 + 25) + ')">';

@@ -31,6 +31,7 @@
  */
 'use strict';
 
+
 // Init a new Blocks object if one does not already exist
 if (!Blockly.Blocks)
     Blockly.Blocks = {};
@@ -53,9 +54,9 @@ Blockly.Blocks.variables_get = {
         this.setTooltip(Blockly.MSG_VARIABLES_GET_TOOLTIP);
         this.setColour(colorPalette.getColor('variables'));
         this.appendDummyInput("")
-                .appendField(Blockly.LANG_VARIABLES_GET_TITLE_1)
-                .appendField(new Blockly.FieldVariable(
-                        Blockly.LANG_VARIABLES_GET_ITEM), 'VAR');
+            .appendField(Blockly.LANG_VARIABLES_GET_TITLE_1)
+            .appendField(new Blockly.FieldVariable(
+                Blockly.LANG_VARIABLES_GET_ITEM), 'VAR');
         this.setOutput(true);
         this.typeCheckRun = null;
     }
@@ -73,9 +74,9 @@ Blockly.Blocks.variables_set = {
         this.setTooltip(Blockly.MSG_VARIABLES_SET_TOOLTIP);
         this.setColour(colorPalette.getColor('variables'));
         this.appendValueInput('VALUE')
-                .appendField(Blockly.LANG_VARIABLES_SET_TITLE_1)
-                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_SET_ITEM), 'VAR')
-                .appendField('=');
+            .appendField(Blockly.LANG_VARIABLES_SET_TITLE_1)
+            .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_SET_ITEM), 'VAR')
+            .appendField('=');
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
     }
@@ -89,8 +90,8 @@ Blockly.Blocks.variables_set = {
  */
 Blockly.propc.variables_get = function () {
     var code = Blockly.propc.variableDB_.getName(
-            this.getFieldValue('VAR'),
-            Blockly.Variables.NAME_TYPE);
+        this.getFieldValue('VAR'),
+        Blockly.Variables.NAME_TYPE);
     return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
@@ -102,10 +103,10 @@ Blockly.propc.variables_get = function () {
  */
 Blockly.propc.variables_set = function () {
     var argument0 = Blockly.propc.valueToCode(this, 'VALUE',
-            Blockly.propc.ORDER_ASSIGNMENT) || '0';
+        Blockly.propc.ORDER_ASSIGNMENT) || '0';
     var varName = Blockly.propc.variableDB_.getName(
-            this.getFieldValue('VAR'),
-            Blockly.Variables.NAME_TYPE);
+        this.getFieldValue('VAR'),
+        Blockly.Variables.NAME_TYPE);
     if (Blockly.propc.vartype_[varName] === undefined) {
         if (argument0.indexOf("int") > -1) {
             Blockly.propc.vartype_[varName] = 'int';
@@ -139,7 +140,7 @@ Blockly.propc.variables_set = function () {
     } else if (argument0.indexOf("char\[\]") > -1) {
         Blockly.propc.vartype_[varName] = 'char *';
     }
- 
+
     return varName + ' = ' + argument0 + ';\n';
 };
 
@@ -151,7 +152,13 @@ Blockly.propc.variables_set = function () {
 /**
  *  Get an array of the currently defined project variables
  *
- * @type {{init: Blockly.Blocks.array_get.init, updateArrayMenu: Blockly.Blocks.array_get.updateArrayMenu, helpUrl: *, onchange: Blockly.Blocks.array_get.onchange, buildArrayMenu: Blockly.Blocks.array_get.buildArrayMenu}}
+ * @type {{
+ *      init: Blockly.Blocks.array_get.init,
+ *      updateArrayMenu: Blockly.Blocks.array_get.updateArrayMenu,
+ *      helpUrl: *,
+ *      onchange: Blockly.Blocks.array_get.onchange,
+ *      buildArrayMenu: Blockly.Blocks.array_get.buildArrayMenu
+ *      }}
  */
 Blockly.Blocks.array_get = {
     helpUrl: Blockly.MSG_ARRAYS_HELPURL,
@@ -159,10 +166,12 @@ Blockly.Blocks.array_get = {
         this.setTooltip(Blockly.MSG_ARRAY_GET_TOOLTIP);
         this.setColour(colorPalette.getColor('variables'));
         this.appendValueInput('NUM')
-                .setCheck('Number')
-                .appendField('array')
-                .appendField(new Blockly.FieldDropdown([["list", "list"]]), "VAR")
-                .appendField('element');
+            .setCheck('Number')
+            .appendField('array')
+            .appendField(
+                new Blockly.FieldDropdown([["list", "list"]]),
+                "VAR")
+            .appendField('element');
         this.setInputsInline(true);
         this.setOutput(true, 'Number');
 
@@ -170,6 +179,7 @@ Blockly.Blocks.array_get = {
         this.updateArrayMenu();
     },
 
+    // Populate the variable name drop-down control
     buildArrayMenu: function (v_list) {
         var toConn = this.getInput('NUM').connection.targetConnection;
 
@@ -178,54 +188,63 @@ Blockly.Blocks.array_get = {
         }
 
         this.appendValueInput('NUM')
-                .setCheck('Number')
-                .appendField('array')
-                .appendField(new Blockly.FieldDropdown(v_list), "VAR")
-                .appendField('element');
+            .setCheck('Number')
+            .appendField('array')
+            .appendField(new Blockly.FieldDropdown(v_list), "VAR")
+            .appendField('element');
         if (toConn) {
             this.getInput('NUM').connection.connect(toConn);
         }
     },
 
     // TODO: ov and nv are undefined at select calls to this method
+    // Note: That's intentional - this function is overloaded.
     updateArrayMenu: function (oldVarName, newVarName) {
+        /*
         if (typeof(oldVarName) === 'undefined') {
             console.log("Call to updateArrayMenu() is missing first parameter.");
         }
         if (typeof(newVarName) === 'undefined') {
             console.log("Call to updateArrayMenu() is missing second parameter.");
         }
+        */
 
         var v_check = true;
         var v_list = [];
-        var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-
+        var allBlocks = Blockly.getMainWorkspace().getBlocksByType('array_init', false);
 
         // Walk through all of the defined blocks and find any
         // array_init blocks
         for (var x = 0; x < allBlocks.length; x++) {
-            if (allBlocks[x].type === 'array_init') {
-                // Get the array variable name
-                var v_name = allBlocks[x].getFieldValue('VAR');
+            // Get the array variable name
+            var v_name = allBlocks[x].getFieldValue('VAR');
 
-                // Update the variable name if a new one is provided
-                if (v_name === oldVarName && newVarName) {
-                    v_name = newVarName;
-                }
-                // Add the array name to the internal list of variables
-                if (v_name) {
-                    v_list.push([v_name, v_name]);
-                }
-                v_check = false;
+            // Update the variable name if a new one is provided
+            if (v_name === oldVarName && newVarName) {
+                v_name = newVarName;
             }
+            // Add the array name to the internal list of variables
+            if (v_name) {
+                v_list.push([v_name, v_name]);
+            }
+            v_check = false;
         }
 
         // Init the array name to a default if there are no existing
         // array variable blocks
-        if (v_check) {
+        //if (v_check) {
             v_list.push(['list', 'list']);
-        }
+        //}
 
+        /* **********************************************************
+         * This is returning a field value of 'list'. In the test
+         * case, there is only one array_list, named 'notes'. There
+         * is no array_list block named 'item' in the project.
+         *
+         * If this is called with a null or empty string, the correct
+         * value of 'notes' is returned. The new question is why the
+         * field name is not getting set as expected.
+         * *********************************************************/
         var m = this.getFieldValue('VAR');
 
         // sort and remove duplicates
@@ -277,33 +296,34 @@ Blockly.Blocks.array_init = {
         this.setTooltip(Blockly.MSG_ARRAY_INIT_TOOLTIP);
         this.setColour(colorPalette.getColor('variables'));
         this.appendDummyInput()
-                .appendField('array initialize') // block text
-                .appendField(                           // create a new FieldTextInput object
-                    new Blockly.FieldTextInput(
-                        'list',             // Default variable name
-                        function (a) {      // field content validation
-                            a = a.replace(/ /g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+            .appendField('array initialize') // block text
+            .appendField(                           // create a new FieldTextInput object
+                new Blockly.FieldTextInput(
+                    'list',             // Default variable name
+                    function (a) {      // field content validation
+                        a = a.replace(/ /g, '_').replace(/[^a-zA-Z0-9_]/g, '');
 
-                            // Set the new variable name (in a) for the array
-                            this.sourceBlock_.sendArrayVal(
-                                this.sourceBlock_.getFieldValue('VAR'),
-                                a);
+                        // Set the new variable name (in a) for the array
+                        this.sourceBlock_.sendArrayVal(
+                            this.sourceBlock_.getFieldValue('VAR'),
+                            a);
 
-                            return a;
-                        }),
-                    'VAR')
+                        return a;
+                    }),
+                'VAR')
 
-                .appendField("with")    // block text
-                .appendField(
-                    new Blockly.FieldNumber('10', null, null, 1),
-                    'NUM')
+            .appendField("with")    // block text
+            .appendField(
+                new Blockly.FieldNumber('10', null, null, 1),
+                'NUM')
 
-                .appendField("elements");
+            .appendField("elements");
 
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
         this.sendUpdate = true;
     },
+    // TODO: What, exactly, is this method trying to accomplish?
     sendArrayVal: function (oldVarName, newVarName) {
         if (this.sendUpdate || (oldVarName === '-1' && newVarName === '-1')) {
             if (oldVarName === '-1' && newVarName === '-1') {
@@ -316,7 +336,7 @@ Blockly.Blocks.array_init = {
 
             // loop through all blocks
             for (var x = 0; x < allBlocks.length; x++) {
-                // Store a pointer to the UdateArrayMenu method that
+                // Store a pointer to the UpdateArrayMenu method that
                 // is defined for the block
                 var func = allBlocks[x].updateArrayMenu;
 
@@ -329,10 +349,11 @@ Blockly.Blocks.array_init = {
         }
         this.sendUpdate = true;
     },
+    // Handle the array_init block on_change event
     onchange: function (event) {
         var myName = this.getFieldValue('VAR');
         var theBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-        
+
         // If I get deleted, broadcast that to other blocks.
         if (event && event.oldXml) {
             var oldName = '';
@@ -369,10 +390,10 @@ Blockly.Blocks.array_fill = {
         this.setTooltip(Blockly.MSG_ARRAY_FILL_TOOLTIP);
         this.setColour(colorPalette.getColor('variables'));
         this.appendDummyInput('NUMS')
-                .appendField('array fill')
-                .appendField(new Blockly.FieldDropdown([["list", "list"]]), "VAR")
-                .appendField("with values")
-                .appendField(new Blockly.FieldTextInput('10,20,30,40,50'), 'NUM');
+            .appendField('array fill')
+            .appendField(new Blockly.FieldDropdown([["list", "list"]]), "VAR")
+            .appendField("with values")
+            .appendField(new Blockly.FieldTextInput('10,20,30,40,50'), 'NUM');
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
 
@@ -388,10 +409,10 @@ Blockly.Blocks.array_fill = {
         }
         var fi = this.getFieldValue('NUM');
         this.appendDummyInput('NUMS')
-                .appendField('array fill')
-                .appendField(new Blockly.FieldDropdown(v_list || [["list", "list"]]), "VAR")
-                .appendField("with values")
-                .appendField(new Blockly.FieldTextInput(currList), 'NUM');
+            .appendField('array fill')
+            .appendField(new Blockly.FieldDropdown(v_list || [["list", "list"]]), "VAR")
+            .appendField("with values")
+            .appendField(new Blockly.FieldTextInput(currList), 'NUM');
         this.setFieldValue(fi, 'NUM');
     },
 
@@ -434,13 +455,13 @@ Blockly.Blocks.array_set = {
         this.setTooltip(Blockly.MSG_ARRAY_SET_TOOLTIP);
         this.setColour(colorPalette.getColor('variables'));
         this.appendValueInput('NUM')
-                .appendField('array')
-                .setCheck('Number')
-                .appendField(new Blockly.FieldDropdown([["list", "list"]]), "VAR")
-                .appendField('element');
+            .appendField('array')
+            .setCheck('Number')
+            .appendField(new Blockly.FieldDropdown([["list", "list"]]), "VAR")
+            .appendField('element');
         this.appendValueInput('VALUE')
-                .setCheck('Number')
-                .appendField('=');
+            .setCheck('Number')
+            .appendField('=');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
@@ -452,10 +473,10 @@ Blockly.Blocks.array_set = {
             this.removeInput('NUM');
         }
         this.appendValueInput('NUM')
-                .appendField('array')
-                .setCheck('Number')
-                .appendField(new Blockly.FieldDropdown(v_list || [["list", "list"]]), "VAR")
-                .appendField('element');
+            .appendField('array')
+            .setCheck('Number')
+            .appendField(new Blockly.FieldDropdown(v_list || [["list", "list"]]), "VAR")
+            .appendField('element');
         this.moveInputBefore('NUM', 'VALUE');
         if (toConn) {
             this.getInput('NUM').connection.connect(toConn);
@@ -513,8 +534,8 @@ Blockly.Blocks.array_clear = {
         this.setTooltip(Blockly.MSG_ARRAY_CLEAR_TOOLTIP);
         this.setColour(colorPalette.getColor('variables'));
         this.appendDummyInput('NUM')
-                .appendField('array clear')
-                .appendField(new Blockly.FieldDropdown([["list", "list"]]), "VAR");
+            .appendField('array clear')
+            .appendField(new Blockly.FieldDropdown([["list", "list"]]), "VAR");
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
         this.updateArrayMenu();
@@ -524,10 +545,10 @@ Blockly.Blocks.array_clear = {
             this.removeInput('NUM');
         }
         this.appendDummyInput('NUM')
-                .appendField('array clear')
-                .appendField(
-                    new Blockly.FieldDropdown(v_list || [["list", "list"]]),
-                   "VAR");
+            .appendField('array clear')
+            .appendField(
+                new Blockly.FieldDropdown(v_list || [["list", "list"]]),
+                "VAR");
     },
 
     updateArrayMenu: Blockly.Blocks['array_get'].updateArrayMenu,

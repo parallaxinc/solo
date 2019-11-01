@@ -1,0 +1,15 @@
+sudo: required
+language: javascript
+
+services:
+  - docker
+
+before_install:
+  - docker pull parallaxhub/soloweb:latest
+
+script:
+  - docker run -d -p 127.0.0.1:4567:80 parallaxhub/soloweb:latest
+  - docker ps -a
+
+after_script:
+  - docker images
