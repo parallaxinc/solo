@@ -58,7 +58,6 @@ const BASE_URL = $('meta[name=base]').attr("content");
 const CDN_URL = $('meta[name=cdn]').attr("content");
 
 
-
 // TODO: Enumerate the OS version
 // window.navigator.oscpu
 
@@ -84,7 +83,7 @@ const PROJECT_NAME_MAX_LENGTH = 100;
 
 
 /**
- * Constant number that represents the maximum number of 
+ * Constant number that represents the maximum number of
  * characters of the project name that are displayed in the UI
  *
  * @type {number}
@@ -92,7 +91,7 @@ const PROJECT_NAME_MAX_LENGTH = 100;
 const PROJECT_NAME_DISPLAY_MAX_LENGTH = 24;
 
 
- /**
+/**
  *
  * @type {number}
  */
@@ -367,7 +366,7 @@ $(() => {
         // Load a project from localStorage if available
         try {
             // Get a copy of the last know state of the current project
-        let localProject = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
+            let localProject = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
 
             // TODO: Address clear workspace has unexpected result
             // **************************************************
@@ -544,30 +543,29 @@ function initEventHandlers() {
     // Project Name listing
 
     // Make the text in the project-name span editable
-    $('.project-name').attr('contenteditable', 'true')  
-
+    $('.project-name').attr('contenteditable', 'true')
+        .on('focus', () => {
             // Change the styling to indicate to the user that they are editing this field
-            .on('focus', () => {
-                $('.project-name').html(projectData.name);
-                $('.project-name').addClass('project-name-editable');
-            })
-            // reset the style and save the new project name to the projectData object 
-            .on('blur', () => {
-                $('.project-name').removeClass('project-name-editable');
-                // if the project name is greater than 25 characters, only display the first 25
-                if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-                    $('.project-name').html(projectData.name.substring(0,PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
-                }
-            })
-            // validate the input to ensure it's not too long, and save changes as the user types.
-            .on('keyup', () => {
-                var tempProjectName = $('.project-name').html()
-                if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH) {
-                    $('.project-name').html(projectData.name);
-                } else {
-                    projectData.name = tempProjectName;
-                }
-            });
+            $('.project-name').html(projectData.name);
+            $('.project-name').addClass('project-name-editable');
+        })
+        // reset the style and save the new project name to the projectData object
+        .on('blur', () => {
+            $('.project-name').removeClass('project-name-editable');
+            // if the project name is greater than 25 characters, only display the first 25
+            if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+                $('.project-name').html(projectData.name.substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+            }
+        })
+        // validate the input to ensure it's not too long, and save changes as the user types.
+        .on('keyup', () => {
+            let tempProjectName = $('.project-name').html();
+            if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH) {
+                $('.project-name').html(projectData['name']);
+            } else {
+                projectData['name'] = tempProjectName;
+            }
+        });
 
     // New Project toolbar button
     $('#new-project-button').on('click', () => NewProjectModal());
@@ -865,7 +863,7 @@ function showInfo(data) {
 
     // Display the project name
     if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-        $('.project-name').html(data['name'].substring(0,PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+        $('.project-name').html(data['name'].substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
     } else {
         $(".project-name").html(data['name']);
     }
@@ -888,7 +886,7 @@ function showInfo(data) {
     };
 
     // Set the prject icon to the correct board type
-    $(".project-icon").html('<img src="' + CDN_URL + projectBoardIcon[ data['board'] ] + '"/>');
+    $(".project-icon").html('<img src="' + CDN_URL + projectBoardIcon[data['board']] + '"/>');
 };
 
 
