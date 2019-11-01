@@ -41,7 +41,7 @@ const BASE_URL = $('meta[name=base]').attr("content");
 
 /*
 * TODO: This is used in the  blocklypropclient.js file, but that file is loaded
-*  first, so when JS is condensed, make sure this global is decalred at the top
+*  first, so when JS is condensed, make sure this global is declared at the top
 *  of the file
 */
 
@@ -71,8 +71,6 @@ const CDN_URL = $('meta[name=cdn]').attr("content");
  * @description Converting the string to a constant because it is referenced
  * in a number of places. The string is sufficiently complex that it could
  * be misspelled without detection.
-<<<<<<< HEAD
-=======
  */
 const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 
@@ -92,19 +90,6 @@ const PROJECT_NAME_MAX_LENGTH = 100;
  * @type {number}
  */
 const PROJECT_NAME_DISPLAY_MAX_LENGTH = 24;
-
-
-/**
- * Force the saveCheck() function to exit immediately with a false result
- *
- * TODO: This flag is used in exactly one place. Why do we need it?
- *
- * @type {boolean}
->>>>>>> 064f697b6770aa2a91ae8dc0c6775c1f4007a993
- *
- * /
- // Moved to project.js
- //const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 
 
  /**
@@ -127,6 +112,8 @@ var last_saved_time = 0;
  * The primary key for the project (online version)
  *
  * @type {number}
+ * @deprecated
+ *  Solo does not have a concept of unique project identifiers.
  */
 var idProject = 0;
 
@@ -143,7 +130,7 @@ var uploadedXML = '';
  *
  * @type {object}
  */
-bpIcons = {
+var bpIcons = {
     warningCircle: '<svg width="15" height="15"><path d="M7,8 L8,8 8,11 8,11 7,11 Z" style="stroke-width:1px;stroke:#8a6d3b;fill:none;"/><circle cx="7.5" cy="7.5" r="6" style="stroke-width:1.3px;stroke:#8a6d3b;fill:none;"/><circle cx="7.5" cy="5" r="1.25" style="stroke-width:0;fill:#8a6d3b;"/></svg>',
     dangerTriangleBlack: '<svg width="15" height="15"><path d="M1,12 L2,13 13,13 14,12 8,2 7,2 1,12 Z M7.25,6 L7.75,6 7.5,9 Z" style="stroke-width:1.5px;stroke:#000;fill:none;"/><circle cx="7.5" cy="10.75" r="1" style="stroke-width:0;fill:#000;"/><circle cx="7.5" cy="5.5" r="1" style="stroke-width:0;fill:#000;"/></svg>',
     dangerTriangle: '<svg width="15" height="15"><path d="M1,12 L2,13 13,13 14,12 8,2 7,2 1,12 Z M7.25,6 L7.75,6 7.5,9 Z" style="stroke-width:1.5px;stroke:#a94442;fill:none;"/><circle cx="7.5" cy="10.75" r="1" style="stroke-width:0;fill:#a94442;"/><circle cx="7.5" cy="5.5" r="1" style="stroke-width:0;fill:#a94442;"/></svg>',
@@ -215,7 +202,7 @@ const SAVE_PROJECT_TIMER_DELAY = 20;
  * @type {number}
  */
 const pingInterval = setInterval(() => {
-        $.get(baseUrl + 'ping');
+        $.get(BASE_URL + 'ping');
     },
     60000
 );
@@ -369,18 +356,18 @@ $(() => {
     // Load a project file from local storage
     if (getURLParameter('openFile') === "true") {
         // Check for an existing project in localStorage
-        if (window.localStorage.getItem(localProjectStoreName)) {
+        if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
             // put a copy into projectData
-            projectData = JSON.parse(window.localStorage.getItem(localProjectStoreName));
+            projectData = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
         }
         OpenProjectModal();
     } else if (getURLParameter('newProject') === "true") {
         NewProjectModal();
-    } else if (window.localStorage.getItem(localProjectStoreName)) {
+    } else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
         // Load a project from localStorage if available
         try {
             // Get a copy of the last know state of the current project
-            let localProject = JSON.parse(window.localStorage.getItem(localProjectStoreName));
+        let localProject = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
 
             // TODO: Address clear workspace has unexpected result
             // **************************************************
@@ -390,7 +377,7 @@ $(() => {
             // **************************************************
             setupWorkspace(localProject,
                 function () {
-                    window.localStorage.removeItem(localProjectStoreName);
+                    window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
                 });
         } catch (objError) {
             if (objError instanceof SyntaxError) {
@@ -588,7 +575,7 @@ function initEventHandlers() {
     // Open Project toolbar button
     $('#open-project-button').on('click', () => {
         // Save the project to localStorage
-        window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
+        window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
         window.location = "blocklyc.html?openFile=true";
     });
 
@@ -796,6 +783,7 @@ function setupWorkspace(data, callback) {
     // Set the global project ID. in the offline mode, the project
     // id is set to 0 when the project is loaded from local storage.
     // --------------------------------------------------------------
+    // TODO: Remove this code
     if (!idProject) {
         idProject = projectData['id'];
     }
@@ -900,8 +888,7 @@ function showInfo(data) {
     };
 
     // Set the prject icon to the correct board type
-    $("#project-icon").html('<img src="' + cdnUrl + projectBoardIcon[data['board']] + '"/>');
-//    $(".project-icon").html('<img src="' + CDN_URL + projectBoardIcon[ data['board'] ] + '"/>');
+    $(".project-icon").html('<img src="' + CDN_URL + projectBoardIcon[ data['board'] ] + '"/>');
 };
 
 
@@ -1059,7 +1046,7 @@ function saveProjectAs(boardType, projectName) {
     let tt = new Date();
     let pd = {
         'board': boardType,
-        'code': EmptyProjectCodeHeader,
+        'code': EMPTY_PROJECT_CODE_HEADER,
         'created': tt,
         'description': "",
         'description-html': "",
@@ -1074,7 +1061,7 @@ function saveProjectAs(boardType, projectName) {
         'timestamp': getTimestamp(),
     };
 
-    window.localStorage.setItem(localProjectStoreName, JSON.stringify(pd));
+    window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
     window.location = 'blocklyc.html';
 }
 
@@ -1232,10 +1219,10 @@ function downloadCode() {
     // make the projecData object reflect the current workspace and save it into localStorage
     projectData.timestamp = getTimestamp();
     projectData.code = EmptyProjectCodeHeader + projXMLcode + '</xml>';
-    window.localStorage.setItem(localProjectStoreName, JSON.stringify(projectData));
+    window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
 
     // Mark the time when saved, add 20 minutes to it.
-    timestampSaveTime(defaultSaveProjectTimerDelay, true);
+    timestampSaveTime(SAVE_PROJECT_TIMER_DELAY, true);
 }
 
 
@@ -1321,7 +1308,7 @@ function uploadHandler(files) {
                 }
             }
             if (uploadedXML !== '') {
-                uploadedXML = EmptyProjectCodeHeader + uploadedXML + '</xml>';
+                uploadedXML = EMPTY_PROJECT_CODE_HEADER + uploadedXML + '</xml>';
             }
 
             // TODO: check to see if this is used when opened from the editor (and not the splash screen)
@@ -1361,7 +1348,7 @@ function uploadHandler(files) {
                         xmlString.indexOf('"', (titleIndex + 20)));
                 }
 
-                pd = {
+                var pd = {
                     'board': uploadBoardType,
                     'code': uploadedXML,
                     'created': projectCreated,
@@ -1404,7 +1391,7 @@ function uploadHandler(files) {
                 //     JSON.stringify(projectOutput));
 
                 // Save the project to the browser store
-                window.localStorage.setItem(tempProjectStoreName, JSON.stringify(pd));
+                window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
             }
         }
 
@@ -1488,10 +1475,10 @@ function uploadMergeCode(append) {
 
         // Store the temp project into the localProject and redirect
         window.localStorage.setItem(
-            localProjectStoreName,
-            window.localStorage.getItem(tempProjectStoreName));
+            LOCAL_PROJECT_STORE_NAME,
+            window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
 
-        window.localStorage.removeItem(tempProjectStoreName);
+        window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
 
         window.location = 'blocklyc.html';
     }

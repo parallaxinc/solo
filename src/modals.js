@@ -257,7 +257,7 @@ function CreateNewProject() {
 
     // Save the project to the browser local store for the page
     // transition
-    newProject.stashProject(localProjectStoreName);
+    newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
 
     // ------------------------------------------------------
     // Clear the projectData global to prevent the onLeave
@@ -302,7 +302,7 @@ function OpenProjectModal() {
 
 
     $('#open-project-select-file-open').on('click', () => {
-        if (window.localStorage.getItem(tempProjectStoreName)) {
+        if (window.localStorage.getItem(TEMP_PROJECT_STORE_NAME)) {
             window.localStorage.setItem(
                 LOCAL_PROJECT_STORE_NAME,
                 window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
