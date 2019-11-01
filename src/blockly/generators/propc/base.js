@@ -1072,9 +1072,9 @@ Blockly.Blocks.string_var_length = {
                 v_check = false;
             }
         }
-        if (v_check) {
+        //if (v_check) {
             this.v_list.push(['MYVALUE', 'MYVALUE']);
-        }
+        //}
         for (var i = 0; i < this.optionList_.length; i++) {
             if (this.optionList_[i] === 'con') {
                 var m = this.getFieldValue("VAR_LEN" + i);
@@ -1237,7 +1237,7 @@ Blockly.Blocks.comment = {
         this.setColour(colorPalette.getColor('programming'));
         this.appendDummyInput('MAIN')
                 .appendField("add", 'TITLE')
-                .appendField(new Blockly.FieldDropdown([['comment', 'COMMENT'], ['blank separator', 'SPACER'], ['***       ', 'SPACER']], function (action) {
+                .appendField(new Blockly.FieldDropdown([['comment', 'COMMENT'], ['blank separator', 'SPACER']], function (action) {
                     this.sourceBlock_.updateShape_({"ACTION": action});
                 }), 'ACTION')
                 .appendField(new Blockly.FieldTextInput(''), "COMMENT_TEXT");
@@ -1275,11 +1275,10 @@ Blockly.Blocks.comment = {
             this.setColour('#FFFFFF');
             this.appendDummyInput('MAIN')
                     .appendField("   ", 'TITLE')
-                    .appendField(new Blockly.FieldDropdown([['comment', 'COMMENT'], ['       \u25BD       ', 'SPACER']], function (action) {
+                    .appendField(new Blockly.FieldDropdown([['       \u25BD       ', 'SPACER'], ['comment', 'COMMENT']], function (action) {
                         this.sourceBlock_.updateShape_({"ACTION": action});
                     }), 'ACTION')
                     .appendField(new Blockly.FieldTextInput(''), "COMMENT_TEXT");
-            this.setFieldValue('SPACER', 'ACTION');
             var cmt = this.getField('COMMENT_TEXT');
             cmt.setVisible(false);
         }
@@ -1288,8 +1287,11 @@ Blockly.Blocks.comment = {
 
 Blockly.propc.comment = function () {
     var text = this.getFieldValue("COMMENT_TEXT");
-
-    return '// ' + text.replace(/,+\s*$/g, '') + '\n';
+    var code = '';
+    if (text) {
+        code = '// ' + text.replace(/,+\s*$/g, '') + '\n';
+    }
+    return code;
 };
 
 /*
@@ -2421,9 +2423,9 @@ Blockly.Blocks.constant_value = {
                 v_check = false;
             }
         }
-        if (v_check) {
+        //if (v_check) {
             this.v_list.push(['MYVALUE', 'MYVALUE']);
-        }
+        //}
         var m = this.getFieldValue('VALUE');
 
         if (this.getInput('VALUE_LIST')) {
