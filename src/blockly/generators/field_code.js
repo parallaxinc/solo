@@ -72,6 +72,14 @@ Blockly.FieldCode.prototype.clone = function() {
 Blockly.FieldCode.prototype.CURSOR = 'editable';
 
 /**
+ * Serializable fields are saved by the XML renderer, non-serializable fields
+ * are not. Editable fields should also be serializable.
+ * @type {boolean}
+ * @const
+ */
+Blockly.FieldCode.prototype.SERIALIZABLE = true;
+
+/**
  * Close the code picker if this input is being deleted.
  */
 Blockly.FieldCode.prototype.dispose = function() {
@@ -137,7 +145,9 @@ Blockly.FieldCode.prototype.showEditor_ = function() {
   this.codeField_.setValue(this.getText());
 
   var theEditor = this;
-  this.codeField_.on('change', function(e) {theEditor.setText(theEditor.codeField_.getValue());});
+  this.codeField_.on('change', function() {
+    theEditor.setText(theEditor.codeField_.getValue());
+  });
 
   var windowSize = goog.dom.getViewportSize();
   var scrollOffset = goog.style.getViewportPageOffset(document);
