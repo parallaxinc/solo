@@ -639,7 +639,6 @@ Blockly.FieldVariable.dropdownCreate = function() {
 };
 
 
-// NOTE!  Replaces core function:
 /**
  * Given a proposed entity name, generate a name that conforms to the
  * [_A-Za-z][_A-Za-z0-9]* format that most languages consider legal for
