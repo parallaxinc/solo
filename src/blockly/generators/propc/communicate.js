@@ -1488,6 +1488,7 @@ Blockly.Blocks.serial_scan_multiple = {
         container.setAttribute('pinmenu', JSON.stringify(this.ser_pins));
         container.setAttribute('options', JSON.stringify(this.optionList_));
         container.setAttribute('scanafter', this.scanAfter);
+        container.setAttribute('prefix', this.setPrefix_ ? this.getFieldValue('CONNECTION') : '');
         if (this.getInput('SERPIN')) {
             container.setAttribute('serpin', this.getFieldValue('SER_PIN'));
         }
@@ -1496,7 +1497,10 @@ Blockly.Blocks.serial_scan_multiple = {
     domToMutation: function (container) {
         // Parse XML to restore the menu options.
         this.scanAfter = container.getAttribute('scanafter') || '';
-        this.optionList_ = JSON.parse(container.getAttribute('options'));;
+        this.optionList_ = JSON.parse(container.getAttribute('options'));
+        if (this.setPrefix_) {
+            this.setPrefix_(container.getAttribute('prefix') || '');
+        }
         this.updateShape_();
         this.ser_pins = JSON.parse(container.getAttribute('pinmenu')) || [['0,0', '0,0']];
         var serpin = container.getAttribute('serpin');
@@ -4165,15 +4169,19 @@ Blockly.Blocks.wx_init = {
         this.appendDummyInput()
                 .appendField('Simple WX initialize')
                 .appendField("mode")
-                .appendField(new Blockly.FieldDropdown([['Terminal on USB', 'USB_PGM_TERM'], ['Terminal on WX', 'USB_PGM'], ['Term & Programming on WX', 'WX_ALL_COM']]), "MODE")  // .concat(profile.default.digital)
+                .appendField(new Blockly.FieldDropdown([
+                        ['Terminal on USB', 'USB_PGM_TERM'], 
+                        ['Terminal on WX', 'USB_PGM'], 
+                        ['Term & Programming on WX', 'WX_ALL_COM']
+                    ], function (mode) {
+                        if (mode === 'WX_ALL_COM') {
+                            this.sourceBlock_.setFieldValue('30', 'DI');
+                        }
+                    }), "MODE")
                 .appendField(" DI")
                 .appendField(new Blockly.FieldDropdown([['WX Socket', '30']].concat(profile.default.digital), function (pin) {
-                    this.sourceBlock_.updateShape_({"PIN": pin});
+                    this.sourceBlock_.updateShape_(pin);
                 }), "DI");
-        this.appendDummyInput('DOPIN')
-                .appendField("DO")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital), "DO");
-        this.getInput('DOPIN').setVisible(false);
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -4186,13 +4194,16 @@ Blockly.Blocks.wx_init = {
     },
     domToMutation: function (xmlElement) {
         var pin = xmlElement.getAttribute('pin');
-        this.updateShape_({"PIN": pin});
+        this.updateShape_(pin);
     },
     updateShape_: function (details) {
-        if (details['PIN'] === '30')
-            this.getInput('DOPIN').setVisible(false);
-        else
-            this.getInput('DOPIN').setVisible(true);
+        if (details === '30' && this.getInput('DOPIN')) {
+            this.removeInput('DOPIN');
+        } else if (!this.getInput('DOPIN')) {
+            this.appendDummyInput('DOPIN')
+            .appendField("DO")
+            .appendField(new Blockly.FieldDropdown(profile.default.digital), "DO");
+        }
     }
 };
 
@@ -4644,21 +4655,42 @@ Blockly.Blocks.wx_init_adv = {
         bkg_colors.setColours(['#FFFFFF', '#000000']).setColumns(2);
         this.setColour(colorPalette.getColor('protocols'));
         this.appendDummyInput()
-                .appendField('WX initialize')
-                .appendField("mode")
-                .appendField(new Blockly.FieldDropdown([['Terminal on USB', 'USB_PGM_TERM'], ['Terminal on WX', 'USB_PGM'], ['Term & Programming on WX', 'WX_ALL_COM']]), "MODE")  // .concat(profile.default.digital)
-                .appendField(" DI")
-                .appendField(new Blockly.FieldDropdown([['WX Socket', '30']].concat(profile.default.digital), function (pin) {
-                    this.sourceBlock_.updateShape_({"PIN": pin});
-                }), "DI");
-        this.appendDummyInput('DOPIN')
-                .appendField("DO")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital), "DO");
-        this.getInput('DOPIN').setVisible(false);
+                .appendField('WX initialize  mode')
+                .appendField(new Blockly.FieldDropdown([
+                    ['Terminal on USB', 'USB_PGM_TERM'], 
+                    ['Terminal on WX', 'USB_PGM'], 
+                    ['Term & Programming on WX', 'WX_ALL_COM']
+                ], function (mode) {
+                    if (mode === 'WX_ALL_COM') {
+                        this.sourceBlock_.setFieldValue('30', 'DI');
+                    }
+                }), "MODE")
+            .appendField(" DI")
+            .appendField(new Blockly.FieldDropdown([['WX Socket', '30']].concat(profile.default.digital), function (pin) {
+                this.sourceBlock_.updateShape_(pin);
+            }), "DI");
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
-        this.setWarningText(null);
+    },
+    mutationToDom: function () {
+        var container = document.createElement('mutation');
+        var pin = this.getFieldValue('DI');
+        container.setAttribute('pin', pin);
+        return container;
+    },
+    domToMutation: function (xmlElement) {
+        var pin = xmlElement.getAttribute('pin');
+        this.updateShape_(pin);
+    },
+    updateShape_: function (details) {
+        if (details === '30' && this.getInput('DOPIN')) {
+            this.removeInput('DOPIN');
+        } else if (!this.getInput('DOPIN')) {
+            this.appendDummyInput('DOPIN')
+            .appendField("DO")
+            .appendField(new Blockly.FieldDropdown(profile.default.digital), "DO");
+        }
     },
     onchange: function () {
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
@@ -4669,22 +4701,6 @@ Blockly.Blocks.wx_init_adv = {
             }
         }
         this.setWarningText(warnTxt);
-    },
-    mutationToDom: function () {
-        var container = document.createElement('mutation');
-        var pin = this.getFieldValue('DI');
-        container.setAttribute('pin', pin);
-        return container;
-    },
-    domToMutation: function (xmlElement) {
-        var pin = xmlElement.getAttribute('pin');
-        this.updateShape_({"PIN": pin});
-    },
-    updateShape_: function (details) {
-        if (details['PIN'] === '30')
-            this.getInput('DOPIN').setVisible(false);
-        else
-            this.getInput('DOPIN').setVisible(true);
     }
 };
 
@@ -4710,7 +4726,7 @@ Blockly.Blocks.wx_scan_multiple = {
         this.appendDummyInput()
                 .appendField('WX scan')
                 .appendField(new Blockly.FieldDropdown([["POST", "POST"], ["TCP", "TCP"], ["Websocket", "WS"], ["Command", "CMD"]], function (action) {
-                    this.sourceBlock_.setPrefix_({"ACTION": action});
+                    this.sourceBlock_.setPrefix_(action);
                 }), "CONNECTION")
                 .appendField('from handle')
                 .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'HANDLE');
@@ -4726,12 +4742,17 @@ Blockly.Blocks.wx_scan_multiple = {
         // not used, but allows this block to share functions from serial_scan_multiple block
         this.ser_pins = [];
     },
-    setPrefix_: function (details) {
-        var prefixVisible = false;
-        if (details['ACTION'] === 'POST')
-            prefixVisible = true;
-        this.getInput('PREFIX').setVisible(prefixVisible);
-        var data = this.getFieldValue('VARNAME');
+    setPrefix_: function (action) {
+        var prefixValue = this.getFieldValue('START');
+        if (this.getInput('PREFIX')) {
+            this.removeInput('PREFIX');
+        }
+        if (action === 'POST') {
+            this.appendDummyInput('PREFIX')
+                    .appendField('string starts with')
+                    .appendField(new Blockly.FieldTextInput('txt'), 'START');
+            this.setFieldValue(prefixValue || '', 'START');
+        }
     },
     mutationToDom: Blockly.Blocks['serial_scan_multiple'].mutationToDom,
     domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
@@ -4855,7 +4876,7 @@ Blockly.Blocks.wx_scan_string = {
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .appendField('WX scan')
                 .appendField(new Blockly.FieldDropdown([["POST", "POST"], ["Websocket", "WS"], ["TCP", "TCP"], ["Command", "CMD"]], function (action) {
-                    this.sourceBlock_.setPrefix_({"ACTION": action});
+                    this.sourceBlock_.setPrefix_(action);
                 }), "CONNECTION")
                 .appendField('from handle')
                 .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'HANDLE');
@@ -4868,24 +4889,17 @@ Blockly.Blocks.wx_scan_string = {
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
     },
-    setPrefix_: function (details) {
-        var prefixVisible = false;
-        if (details['ACTION'] === 'POST')
-            prefixVisible = true;
-        this.getInput('PREFIX').setVisible(prefixVisible);
-        /*
-        var data = this.getFieldValue('VARNAME');
-        if(this.getInput('STORE')) {
-            this.removeInput('STORE');
-        }
-        if (data === 'item' && details['ACTION'] === 'TCP') {
-            data = 'wxBuffer';
-        }
-        this.appendDummyInput('STORE')
-                .appendField('store string in')
-                .appendField(new Blockly.FieldVariable(data), 'VARNAME');
-        */
+    setPrefix_: Blockly.Blocks['wx_scan_multiple'].setPrefix_,
+    mutationToDom: function () {
+        // Create XML to represent menu options.
+        var container = document.createElement('mutation');
+        container.setAttribute('prefix', this.getFieldValue('CONNECTION') || '');
+        return container;
     },
+    domToMutation: function (container) {
+        // Parse XML to restore the menu options.
+        this.setPrefix_(container.getAttribute('prefix') || '');
+    },  
     onchange: function () {
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         if (allBlocks.toString().indexOf('WX initialize') === -1 && projectData['board'] !== 'heb-wx')
@@ -5073,62 +5087,65 @@ Blockly.Blocks.wx_listen = {
                     ['Websocket', 'WS'],
                     ['TCP', 'TCP']
                 ], function (action) {
-                    this.sourceBlock_.setPrefix_({"ACTION": action});
+                    this.sourceBlock_.setPrefix_(action);
                 }), 'PROTOCOL')
                 .appendField("store ID in", 'TEXT')
                 .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'ID')
                 .appendField("path", "LABEL")
                 .setCheck("String");
-        this.appendValueInput("PORT")
-                .appendField("port")
-                .setCheck("Number");
-        this.appendDummyInput('CONNVARS')
-                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'ID1')
-                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'ID2')
-                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'ID3')
-                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'ID4');
-        this.getInput('PORT').setVisible(false);
-        this.getInput('CONNVARS').setVisible(false);
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
     },
     mutationToDom: function () {
         var container = document.createElement('mutation');
-        var action = this.getFieldValue('PROTOCOL');
-        container.setAttribute('action', action);
+        container.setAttribute('action', this.getFieldValue('PROTOCOL') || '');
         return container;
     },
     domToMutation: function (xmlElement) {
         var action = xmlElement.getAttribute('action');
-        this.setPrefix_({"ACTION": action});
+        this.setPrefix_(action);
     },
-    setPrefix_: function (details) {
+    setPrefix_: function (action) {
         // It takes Blocky some time to set up new variables, so this waits to make sure they are ready.
         setTimeout(function() {
-            if (!Blockly.getMainWorkspace().getVariable('wxHandle')) {
-                Blockly.getMainWorkspace().createVariable('wxHandle');
-            }
-            if (!Blockly.getMainWorkspace().getVariable('wxConnId1')) {
-                Blockly.getMainWorkspace().createVariable('wxConnId1');
-            }
+            var wxVariables = ['wxHandle', 'wxConnId1'];
+            wxVariables.forEach(function (value) {
+                if (!Blockly.getMainWorkspace().getVariable(value)) {
+                    Blockly.getMainWorkspace().createVariable(value);
+                }
+            });
+            var wxVariablesHidden = ['wxConnId2', 'wxConnId3', 'wxConnId4'];
+            wxVariablesHidden.forEach(function (value) {
+                if (!Blockly.getMainWorkspace().getVariable(value)) {
+                    Blockly.getMainWorkspace().createVariable(value);
+                }
+            });
         }, 75);
-        var prefixVisible = false;
         var tempIdVar = 'wxHandle';
-        if (details['ACTION'] === 'TCP') {
-            prefixVisible = true;
+        if (action === 'TCP') {
+            if (!this.getInput('PORT')) {
+                this.appendValueInput("PORT")
+                        .appendField("port")
+                        .setCheck("Number");
+            }
             this.setFieldValue('URL', 'LABEL');
             this.setFieldValue('store handle in', 'TEXT');
         } else {
             tempIdVar = 'wxConnId1';
+            if (this.getInput('PORT')) {
+                this.removeInput('PORT');
+            }
             this.setFieldValue('path', 'LABEL');
             this.setFieldValue('store ID in', 'TEXT');
         }
         // Again, variables have to be completely set up and available, or these functions will throw errors.
-        setTimeout(function(a) {
-            a.setFieldValue(Blockly.getMainWorkspace().getVariable(tempIdVar).getId(), 'ID');
-        }, 125, this);
-        this.getInput('PORT').setVisible(prefixVisible);
+        var idVariable = Blockly.getMainWorkspace().getVariableById(this.getFieldValue('ID'));
+        if (idVariable && idVariable.name === (tempIdVar === 'wxHandle' ? 'wxConnId1' : 'wxHandle')) {
+            setTimeout(function(a) {
+                a.setFieldValue(Blockly.getMainWorkspace().getVariable(tempIdVar).getId(), 'ID');
+            }, 125, this);
+        }
     },
     onchange: Blockly.Blocks['wx_scan_multiple'].onchange
 };
@@ -5284,12 +5301,9 @@ Blockly.Blocks.wx_mode = {
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .appendField("WX ")
                 .appendField(new Blockly.FieldDropdown([['Set', 'SET'], ['Leave and set', 'LEAVE'], ['Check', 'CHECK']], function (action) {
-                    this.sourceBlock_.setPrefix_({"ACTION": action});
+                    this.sourceBlock_.setPrefix_(action);
                 }), 'ACTION')
-                .appendField("mode");
-        this.appendDummyInput("CHECK")
-                .appendField("to")
-                .appendField(new Blockly.FieldDropdown([['AP', 'AP'], ['Station', 'STA'], ['Station + AP', 'STA_AP']]), 'MODE');
+                .appendField("mode", 'BLOCKTEXT');
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
         this.setInputsInline(true);
@@ -5302,31 +5316,29 @@ Blockly.Blocks.wx_mode = {
     },
     domToMutation: function (xmlElement) {
         var action = xmlElement.getAttribute('action');
-        this.setPrefix_({"ACTION": action});
+        this.setPrefix_(action);
     },
-    setPrefix_: function (details) {
+    setPrefix_: function (action) {
         if(this.getInput('CHECK')) {
             this.removeInput('CHECK');
         }
-        if (details['ACTION'] === 'LEAVE') {
+        if (action === 'LEAVE') {
             this.appendDummyInput("CHECK")
-                    .appendField("to")
                     .appendField(new Blockly.FieldDropdown([['AP', 'AP'], ['Station + AP', 'STA_AP']]), 'MODE');
-        } else {
+        } else if (action !== 'CHECK') {
             this.appendDummyInput("CHECK")
-                    .appendField("to")
                     .appendField(new Blockly.FieldDropdown([['AP', 'AP'], ['Station', 'STA'], ['Station + AP', 'STA_AP']]), 'MODE');
         }
-        if (details['ACTION'] === 'CHECK') {
-            this.getInput('CHECK').setVisible(false);
+        if (action === 'CHECK') {
+            this.setFieldValue('mode', 'BLOCKTEXT')
             this.setPreviousStatement(false, null);
             this.setNextStatement(false, null);
             this.setOutput(true, "Number");
         } else {
-            this.getInput('CHECK').setVisible(true);
+            this.setFieldValue('mode to', 'BLOCKTEXT')
+            this.setOutput(false);
             this.setPreviousStatement(true, "Block");
             this.setNextStatement(true, null);
-            this.setOutput(false);
         }
     },
     onchange: function () {
