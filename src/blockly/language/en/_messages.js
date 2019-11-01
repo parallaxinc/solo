@@ -1061,7 +1061,10 @@ page_text_label['register_do_coppa_msg1'] = "To protect your privacy, especially
 page_text_label['register_do_coppa_msg2'] = "here";
 page_text_label['register_do_email'] = "Email:";
 page_text_label['register_do_password'] = "Password:";
+
+// eslint-disable-next-line no-useless-escape
 page_text_label['register_do_password_char_alert'] = "Only the characters A-Z,a-z,0-9,[space], and .,!?:;`'&quot;_~&num;$%&amp;@()[]{}*+-|\/^&lt;&gt;&equals; are allowed in your password. <em>(ASCII 32-126)</em>";
+
 page_text_label['register_do_screenname'] = "Screen name:";
 page_text_label['register_do_sponsor_email'] = "Alternate contact email:";
 page_text_label['register_do_sponsor_emailtype'] = "Select one:";
@@ -1086,8 +1089,10 @@ page_text_label['register_error_user_email_empty'] = "Please enter your email ad
 
 // ------------------------------------------------------------------
 // Text for the balloon help that appears when the cursor hovers
-// over a button in the editor toolbar
+// over a button in the editor toolbar. The buttons are initialized
+// in the editor.js file.
 // ------------------------------------------------------------------
+// eslint-disable-next-line no-unused-vars
 var tooltip_text = [
     ['prop-btn-comp','Verify code (compile)'],
     ['prop-btn-ram','Run once (load code to RAM)'],
@@ -1121,11 +1126,8 @@ var tooltip_text = [
 Blockly.BlockSvg.prototype.showHelp_ = function () {
     let url = goog.isFunction(this.helpUrl) ? this.helpUrl() : this.helpUrl;
 
-    if (!isOffline && url) {
-        // Display help in a new browser window
-        window.open(url);
-    } else if (url) {
-            // Temp fix - Solo-26
+    if (url) {
+         // Temp fix - Solo-26
          // Display help in a new browser window
          window.open(url);
 
@@ -1138,10 +1140,10 @@ Blockly.BlockSvg.prototype.showHelp_ = function () {
         // Help is supposed to be in the /cdn/help folder. That does not
             // yet exist.
 
-//        let u = 'cdn/help/' + u.replace(/\//g, '-') + '.html';
+        // let u = 'cdn/help/' + u.replace(/\//g, '-') + '.html';
 
-        // Disable this until the help issue is addressed. Refeence issue Solo-26
+        // Disable this until the help issue is addressed. Reference issue Solo-26
         //$('#help-content').html('<iframe src="' + u + '" style="height:600px; border:none;" />');
-	    //$('#help-dialog').modal('show');
+        // $('#help-dialog').modal('show');
     }
 };
