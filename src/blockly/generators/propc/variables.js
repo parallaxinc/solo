@@ -206,7 +206,6 @@ Blockly.Blocks.array_get = {
             return;
         }
         var currentValue = this.getFieldValue('VAR');
-
         var initBlockList = [];
         Blockly.getMainWorkspace().getBlocksByType('array_init', false).forEach(function(element) {
             initBlockList.push(element.getFieldValue('VAR'));
