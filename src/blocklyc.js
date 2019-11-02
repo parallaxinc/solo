@@ -1146,7 +1146,7 @@ function downloadPropC() {
                         if (value.length >= 30)
                             value = value.substring(0, 29);
                         // Replace any illegal characters
-                        value = value.replace(/[\\/:*?\"<>|]/g, '_');
+                        value = value.replace(/[\\/:*?"<>|]/g, '_');
                         saveData(propcCode, value + ".c");
                         saveData(value + sideFileContent, value + ".side");
                     }
@@ -1215,7 +1215,7 @@ function graph_new_data(stream) {
                             jk++;
                         }
                     } else {    // Time series graph
-                        for (var j = 2; j < graph_temp_data[row].length; j++) {
+                        for (j = 2; j < graph_temp_data[row].length; j++) {
                             graph_csv_temp += graph_temp_data[row][j] + ',';
                             graph_data.series[j - 2].push({
                                 x: graph_temp_data[row][0],
