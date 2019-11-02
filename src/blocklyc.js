@@ -576,7 +576,7 @@ function cloudCompile(text, action, successHandler) {
                 var loadWaitMsg = (action !== 'compile') ? '\nDownload...' : '';
 
                 $("#compile-console").val($("#compile-console").val() + data['compiler-output'] + data['compiler-error'] + loadWaitMsg);
-                if (data.success) {
+                if (data.success && successHandler) {
                     successHandler(data, terminalNeeded);
                 }
 
@@ -598,8 +598,7 @@ function cloudCompile(text, action, successHandler) {
  * Stub function to the cloudCompile function
  */
 function compile() {
-    cloudCompile('Compile', 'compile', function (data, terminalNeeded) {
-    });
+    cloudCompile('Compile', 'compile');
 }
 
 
@@ -1121,7 +1120,7 @@ function downloadPropC() {
     } else {
         utils.confirm('Downloading a SimpleIDE project', 'To open your project in SimpleIDE, two files will be downloaded.  They must both be saved in the same folder on your computer.', function (confirmed) {
             if (confirmed) {
-                utils.prompt("Enter a filename:", 'Project' + idProject, function (value) {
+                utils.prompt("Enter a filename:", 'BlocklyProp_Code', function (value) {
                     if (value) {
 
                         var sideFileContent = ".c\n>compiler=C\n>memtype=cmm main ram compact\n";
@@ -1301,7 +1300,7 @@ function graph_play(setTo) {
  * Save a graph to the local file system
  */
 function downloadGraph() {
-    utils.prompt("Download Graph Output - Filename:", 'Graph' + idProject, function (value) {
+    utils.prompt("Download Graph Output - Filename:", 'BlocklyProp_Graph', function (value) {
         if (value) {
 
             // put all of the pieces together into a downloadable file
@@ -1339,7 +1338,7 @@ function downloadGraph() {
             svgxml = svgxml.replace(regY, 'y="' + (theY + 12) + '"');
             var breakpoint = svgxml.indexOf('>') + 1;
             svgxml = svgxml.substring(0, breakpoint) + chartStyle + svgxml.substring(breakpoint, svgxml.length);
-            svgxml = svgxml.replace(/<text style="overflow: visible;" ([xy])="([0-9\.-]+)" ([xy])="([0-9\.-]+)" [a-z]+="[0-9\.]+" [a-z]+="[0-9\.]+"><span[0-9a-zA-Z =\.":;\/-]+>([0-9\.-]+)<\/span>/g, '<text $1="$2" $3="$4">$5');
+            svgxml = svgxml.replace(/<text style="overflow: visible;" ([xy])="([0-9.-]+)" ([xy])="([0-9.-]+)" [a-z]+="[0-9.]+" [a-z]+="[0-9.]+"><span[0-9a-zA-Z =.":;/-]+>([0-9.-]+)<\/span>/g, '<text $1="$2" $3="$4">$5');
             saveData(svgxml, value + '.svg');
         }
     });
@@ -1350,7 +1349,7 @@ function downloadGraph() {
  * Download the graph as a csv file to the local file system
  */
 function downloadCSV() {
-    utils.prompt("Download Graph data as CSV - Filename:", 'graph_data' + idProject, function (value) {
+    utils.prompt("Download Graph data as CSV - Filename:", 'BlocklyProp_Data', function (value) {
         if (value) {
 
             // put all of the pieces together into a downloadable file
