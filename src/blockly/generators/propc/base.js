@@ -63,9 +63,13 @@ Blockly.Blocks.math_number = {
         this.lastBlockText = ' ';
         this.lastFieldType = 'number';
         this.warnTxt = null;
+        this.connectedBlockId = null;
     },
     onchange: function (event) {
-        if (event && (event.type === Blockly.Events.CHANGE || event.type === Blockly.Events.MOVE) && event.blockId === this.id) {
+        if (event && (event.type === Blockly.Events.CHANGE || 
+                    event.type === Blockly.Events.MOVE) && 
+                    (event.blockId === this.id || 
+                    event.blockId === this.connectedBlockId)) {
             this.updateShape();
         }
     },
@@ -84,7 +88,7 @@ Blockly.Blocks.math_number = {
         if (this.getInput('MAIN')) {
             this.removeInput('MAIN');
         }
-        if (blockText === '') {
+        if (this.lastBlockText === '') {
             this.appendDummyInput('MAIN')
                     .appendField(new Blockly.FieldNumber(value, null, null, 1), 'NUM');
         } else {
@@ -92,7 +96,7 @@ Blockly.Blocks.math_number = {
                     .appendField(new Blockly.FieldNumber(value, null, null, 1), 'NUM')
                     .appendField(this.lastBlockText, 'TITLE');
         }
-        this.setWarningText(warnText);
+        this.setWarningText(this.warnTxt);
     },
     getRangeArray: function () {
         var range = ['N', -100, 100, Number(this.getFieldValue('NUM'))];
@@ -121,6 +125,11 @@ Blockly.Blocks.math_number = {
         var warnText = null;
         var range = rangeArray || this.getRangeArray();
         var fieldToAdd = new Blockly.FieldNumber(range[3].toString(10), null, null, 1);
+        this.connectedBlockId = null;
+        var connectedBlock = this.outputConnection.targetBlock()
+        if (connectedBlock) {
+            this.connectedBlockId = connectedBlock.id;
+        }
 
         if (range[0] === 'R') {
             if (range[3] < range[1]) {
@@ -134,7 +143,7 @@ Blockly.Blocks.math_number = {
                 } else if (range[1] <= -2147483647) {
                     blockText = '(\u2264' + range[1].toString(10) + ')';
                 } else if (Math.abs(range[1]) === Math.abs(range[2])) {
-                    blockText = '(+/- ' + Math.abs(range[0]).toString(10) + ')';
+                    blockText = '(+/- ' + Math.abs(range[1]).toString(10) + ')';
                 } else {
                     blockText = '(' + range[1].toString(10) + ' to ' + range[2].toString(10) + ')';
                 }

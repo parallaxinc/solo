@@ -366,6 +366,7 @@ Blockly.Blocks.base_freqout = {
                 .appendField("duration (ms)")
                 .setCheck('Number');
         this.appendValueInput("FREQUENCY")
+                .appendRange('R,0,40000000,0')
                 .appendField("frequency (Hz)")
                 .setCheck('Number');
         this.setInputsInline(true);
@@ -874,11 +875,11 @@ Blockly.Blocks.fb360_setup = {
     setToOther: Blockly.Blocks['base_freqout'].setToOther,
     updateShape_: function (param) {
         if (param === 'setAcceleration') {
-            this.getInput('VALUE').appendRange('R,36,3600,1800') //, 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,36,3600,1800');
         } else if (param === 'setMaxSpeed') {
-            this.getInput('VALUE').appendRange('R,10,1080,540') //, 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,10,1080,540');
         } else {
-            this.getInput('VALUE').appendRange('R,-2147483648,2147483647,0') //, 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-2147483648,2147483647,0');
         }
     },
     mutationToDom: function () {
@@ -968,18 +969,18 @@ Blockly.Blocks.fb360_set = {
                 .appendField(new Blockly.FieldDropdown(this._menuOptions, function (param) {
                     this.sourceBlock_.updateShape_(param);
                 }), "PARAM")
-                .appendRange('R,-720,720,0'); //, 'RANGEVALS1');
+                .appendRange('R,-720,720,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
     },
     updateShape_: function (param) {
         if (param === 'speed') {
-            this.getInput('VALUE').appendRange('R,-720,720,0'); //, 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-720,720,0');
         } else if (param === 'angle') {
-            this.getInput('VALUE').appendRange('R,-1456,1456,0'); //, 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-1456,1456,0');
         } else {
-            this.getInput('VALUE').appendRange('R,-2147483648,2147483647,0'); //, 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-2147483648,2147483647,0');
         }
     },
     onchange: Blockly.Blocks['fb360_setup'].onchange,
@@ -1253,100 +1254,111 @@ Blockly.Blocks.sound_play = {
     helpUrl: Blockly.MSG_AUDIO_HELPURL,
     init: function () {
         this.setTooltip(Blockly.MSG_SOUND_PLAY_TOOLTIP);
-        this.actionMenuItems = [
-            ["set frequency", "freq"],
-            ["set volume", "volume"],
-            ["set waveform", "wave"],
-            ["stop", "stop"]
-        ];
         this.setColour(colorPalette.getColor('io'));            
-        this.addChannelMenu("sound channel", 'VALUE');
-        this.appendValueInput("VALUE")
-                .setCheck(null)
-                .appendField(' ')
-                .appendField(new Blockly.FieldDropdown(this.actionMenuItems,
-                        function (act) {
-                            this.sourceBlock_.setSoundAction(act);
-                        }), "ACTION");
-        this.setInputsInline(true);
-        this.setPreviousStatement(true, "Block");
-        this.setNextStatement(true, null);
-        this.waveInput = false;
-    },
-    addChannelMenu: function (label, moveBefore) {
         this.appendDummyInput('SET_CHANNEL')
-                .appendField(label, 'LABEL')
+                .appendField('sound channel')
                 .appendField(new Blockly.FieldDropdown([
                     ['A', '0'],
                     ['B', '1'],
                     ['C', '2'],
                     ['D', '3'],
                     ['other', 'other']
-                ], function (op) {
-                    this.sourceBlock_.setToOther(op, moveBefore);
+                ], function (channelNumber) {
+                    this.sourceBlock_.setToOther(channelNumber, 'VALUE');
                 }), "CHANNEL");
-        this.moveBefore = moveBefore;
         this.otherChannel = false;
+        this.setSoundAction('freq');
+        this.setInputsInline(true);
+        this.setPreviousStatement(true, "Block");
+        this.setNextStatement(true, null);
     },
-    setSoundAction: function (act) {
-        if (act !== this.getFieldValue('ACTION')) {
+    setSoundAction: function (action) {
+        var valueBlock = null;
+        if (action !== this.getFieldValue('ACTION')) {
             if (this.getInput('VALUE')) {
+                valueBlock = this.getInput('VALUE').connection.targetBlock();
                 this.removeInput('VALUE');
             }
-            if (act === 'wave') {
+            if (action === 'wave') {
                 this.appendDummyInput('VALUE')
-                        .appendField(" ")
-                        .appendField(new Blockly.FieldDropdown(this.actionMenuItems,
-                                function (act) {
-                                    this.sourceBlock_.setSoundAction(act);
-                                }), "ACTION")
+                        .appendField(' ')
                         .appendField(new Blockly.FieldDropdown([
-                            ["sine", "SINE"],
-                            ["square", "SQUARE"],
-                            ["triangle", "TRIANGLE"],
-                            ["sawtooth", "SAW"],
-                            ["noise", "NOISE"]
-                        ]), "WAVE");
+                                ["set waveform", "wave"],
+                                ["set frequency", "freq"],
+                                ["set volume", "volume"],
+                                ["stop", "stop"]
+                            ],
+                            function (action) {
+                                this.sourceBlock_.setSoundAction(action);
+                            }), "ACTION")
+                        .appendField(new Blockly.FieldDropdown([
+                                ["sine", "SINE"],
+                                ["square", "SQUARE"],
+                                ["triangle", "TRIANGLE"],
+                                ["sawtooth", "SAW"],
+                                ["noise", "NOISE"]
+                            ]), "WAVE");
                 this.waveInput = true;
-            } else if (act === 'stop') {
+            } else if (action === 'stop') {
                 this.appendDummyInput("VALUE")
                         .appendField(' ')
-                        .appendField(new Blockly.FieldDropdown(this.actionMenuItems,
-                                function (act) {
-                                    this.sourceBlock_.setSoundAction(act);
-                                }), "ACTION");
+                        .appendField(new Blockly.FieldDropdown([
+                                ["stop", "stop"],
+                                ["set frequency", "freq"],
+                                ["set volume", "volume"],
+                                ["set waveform", "wave"]
+                            ],
+                            function (action) {
+                                this.sourceBlock_.setSoundAction(action);
+                            }), "ACTION");
                 this.waveInput = true;
+            } else if (action === 'volume') {
+                this.appendValueInput("VALUE")
+                        .setCheck(null)
+                        .appendRange('R,0,127,64')
+                        .appendField(' ')
+                        .appendField(new Blockly.FieldDropdown([
+                                ["set volume", "volume"],
+                                ["set frequency", "freq"],
+                                ["set waveform", "wave"],
+                                ["stop", "stop"]
+                            ],
+                            function (action) {
+                                this.sourceBlock_.setSoundAction(action);
+                            }), "ACTION");
+                this.waveInput = false;
             } else {
                 this.appendValueInput("VALUE")
                         .setCheck(null)
-                        .appendField(" ")
-                        .appendField(new Blockly.FieldDropdown(this.actionMenuItems,
-                                function (act) {
-                                    this.sourceBlock_.setSoundAction(act);
-                                }), "ACTION");
-                if (act === 'volume') {
-                    this.getInput("VALUE")
-                            .appendRange('R,0,127,64');
-                }
+                        .appendRange('R,0,40000000,440')
+                        .appendField(' ')
+                        .appendField(new Blockly.FieldDropdown([
+                                ["set frequency", "freq"],
+                                ["set volume", "volume"],
+                                ["set waveform", "wave"],
+                                ["stop", "stop"]
+                            ],
+                            function (action) {
+                                this.sourceBlock_.setSoundAction(action);
+                            }), "ACTION");
                 this.waveInput = false;
             }
-            this.setFieldValue(act, 'ACTION');
+            if (valueBlock) {  
+                valueBlock.outputConnection.connect(this.getInput('VALUE').connection);
+            }
         }
     },
-    setToOther: function (op, moveBefore) {
-        if (op === 'other') {
+    setToOther: function (channelNumber) {
+        if (channelNumber === 'other') {
             this.otherChannel = true;
-            var label = this.getFieldValue('LABEL');
-            if(this.getInput('SET_CHANNEL')) {
+            if (this.getInput('SET_CHANNEL')) {
                 this.removeInput('SET_CHANNEL');
             }
             this.appendValueInput('CHANNEL')
-                    .appendField(label)
+                    .appendField('sound channel')
                     .setCheck('Number')
                     .appendRange('R,0,3,0');
-            if (moveBefore) {
-                this.moveInputBefore('CHANNEL', moveBefore);
-            }
+            this.moveInputBefore('CHANNEL', 'VALUE');
         }
     },
     mutationToDom: function () {
@@ -1357,11 +1369,11 @@ Blockly.Blocks.sound_play = {
     },
     domToMutation: function (xmlElement) {
         var op = xmlElement.getAttribute('otherchannel');
-        var act = xmlElement.getAttribute('action');
+        var action = xmlElement.getAttribute('action');
         if (op === 'true') {
-            this.setToOther('other', this.moveBefore);
+            this.setToOther('other', 'VALUE');
         }
-        this.setSoundAction(act);
+        this.setSoundAction(action);
     },
     onchange: function (event) {
         if (!(projectData['board'] && (projectData['board'] === "heb" || projectData['board'] === "heb-wx"))) {
@@ -1502,7 +1514,7 @@ Blockly.Blocks.wav_volume = {
         this.setColour(colorPalette.getColor('io'));
         this.appendValueInput('VOLUME')
                 .appendField("WAV volume")
-                .appendField('R,0,10,0');
+                .appendRange('R,0,10,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
