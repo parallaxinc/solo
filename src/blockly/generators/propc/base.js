@@ -784,21 +784,23 @@ Blockly.Blocks.custom_code = {
     }
 };
 
+Blockly.propc.cCode = 0;  // Use this to create a globaly incrementing variable, which makes each instance of custom code unique.
+
 Blockly.propc.custom_code = function () {
     var loc = this.getFieldValue("LOC");
     var usr = this.getFieldValue("CODE");
     var code = '';
 
     if (loc === 'includes') {
-        Blockly.definitions_["cCode" + cCode] = usr;
+        Blockly.definitions_["cCode" + Blockly.propc.cCode] = usr;
     } else if (loc === 'setup') {
-        Blockly.propc.setups_["cCode" + cCode] = usr;
+        Blockly.propc.setups_["cCode" + Blockly.propc.cCode] = usr;
     } else if (loc === 'definitions') {
-        Blockly.propc.global_vars_["cCode" + cCode] = usr;
+        Blockly.propc.global_vars_["cCode" + Blockly.propc.cCode] = usr;
     } else {
         code = usr;
     }
-    cCode++;
+    Blockly.propc.cCode++;
     return code;
 };
 
@@ -828,13 +830,13 @@ Blockly.Blocks.string_var_length = {
     domToMutation: function (container) {
         // Parse XML to restore the menu options.
         var value = JSON.parse(container.getAttribute('options'));
-	if (!value || value === []) {
-	    value = [];
-	    var i = parseInt(container.getAttribute('vars') || '1');
+        if (!value || value === []) {
+            value = [];
+            var i = parseInt(container.getAttribute('vars') || '1');
             for (var j = 0; j < i; j++) {
                 value.push('var');
             }
-	}
+	    }
         this.optionList_ = value;
         this.updateConstMenu();
         this.updateShape_();
@@ -892,7 +894,6 @@ Blockly.Blocks.string_var_length = {
         }
     },
     updateConstMenu: function (ov, nv) {
-        var v_check = true;
         this.v_list = [];
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         for (var x = 0; x < allBlocks.length; x++) {
@@ -904,12 +905,10 @@ Blockly.Blocks.string_var_length = {
                 if (v_name) {
                     this.v_list.push([v_name, v_name]);
                 }
-                v_check = false;
             }
         }
-        //if (v_check) {
-            this.v_list.push(['MYVALUE', 'MYVALUE']);
-        //}
+        this.v_list.push(['MYVALUE', 'MYVALUE']);
+
         for (var i = 0; i < this.optionList_.length; i++) {
             if (this.optionList_[i] === 'con') {
                 var m = this.getFieldValue("VAR_LEN" + i);
@@ -940,7 +939,7 @@ Blockly.Blocks.string_var_length = {
             i++;
         }
         // Rebuild block.
-        for (var i = 0; i < this.optionList_.length; i++) {
+        for (i = 0; i < this.optionList_.length; i++) {
             var type = this.optionList_[i];
             if (type === 'con') {
                 this.appendDummyInput('VAR' + i)
@@ -1561,7 +1560,7 @@ Blockly.propc.find_substring = function () {
             Blockly.propc.methods_['find_sub_zero'] += 'char* __pos = strstr(__strS + __sLoc, __subS); return (__pos) ? (__pos - __strS) : -1; }\n';
             Blockly.propc.method_declarations_["find_sub_zero"] = 'int str_loc(char *, char *, int);\n';
         }
-        var code = '';
+        code = '';
         if (subs !== '' && strs !== '') {
             code += 'str_loc(' + strs + ', ' + subs + ', ' + stlc + ')';
         } else {
@@ -2100,8 +2099,8 @@ Blockly.propc.math_advanced = function () {
     var store = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE'), Blockly.Variables.NAME_TYPE);
     var arg1 = Blockly.propc.valueToCode(this, 'ARG1', Blockly.propc.ORDER_ATOMIC) || '1';
     var arg2 = Blockly.propc.valueToCode(this, 'ARG2', Blockly.propc.ORDER_ATOMIC) || '1';
-    arg1 = arg1.replace(/[\(\-+ ](\d+)/g, "$1.0").replace(/\(int\)/g, "");
-    arg2 = arg2.replace(/[\(\-+ ](\d+)/g, "$1.0").replace(/\(int\)/g, "");
+    arg1 = arg1.replace(/[(\-+ ](\d+)/g, "$1.0").replace(/\(int\)/g, "");
+    arg2 = arg2.replace(/[(\-+ ](\d+)/g, "$1.0").replace(/\(int\)/g, "");
     var operator = this.getFieldValue('OP');
     var opTrig = '';
     if (operator === 'sin' || operator === 'cos' || operator === 'tan')
@@ -2216,7 +2215,7 @@ Blockly.Blocks.constant_define = {
         }
 
         var warnTxt = null;
-        var f_start = theBlocks.indexOf('constant ' + myName + '  =');
+        f_start = theBlocks.indexOf('constant ' + myName + '  =');
         if (theBlocks.indexOf('constant ' + myName + '  =', f_start + 1) > -1) {
             warnTxt = 'WARNING! you can only define the constant "' + myName + '" once!';
         }
@@ -2249,7 +2248,6 @@ Blockly.Blocks.constant_value = {
         this.updateConstMenu();
     },
     updateConstMenu: function (ov, nv) {
-        var v_check = true;
         this.v_list = [];
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         for (var x = 0; x < allBlocks.length; x++) {
@@ -2261,12 +2259,9 @@ Blockly.Blocks.constant_value = {
                 if (v_name) {
                     this.v_list.push([v_name, v_name]);
                 }
-                v_check = false;
             }
         }
-        //if (v_check) {
-            this.v_list.push(['MYVALUE', 'MYVALUE']);
-        //}
+        this.v_list.push(['MYVALUE', 'MYVALUE']);
         var m = this.getFieldValue('VALUE');
 
         if (this.getInput('VALUE_LIST')) {
@@ -2420,7 +2415,7 @@ Blockly.Blocks.custom_code_multiple = {
                         .appendField(new Blockly.FieldTextInput(''), 'LABEL_ARG' + i.toString(10));
             }
         }
-        for (var i = 9; i > Number(argsCount); i--) {
+        for (i = 9; i > Number(argsCount); i--) {
             if (this.getInput('ARG' + i.toString(10))) {
                 this.removeInput('ARG' + i.toString(10));
             }
@@ -2445,12 +2440,12 @@ Blockly.Blocks.custom_code_multiple = {
         } else {
             //this.removeSelect();
             this.setColour(this.getFieldValue('COLOR'));
-            for (var tk = 0; tk < fieldNameList_.length; tk++) {
+            for (tk = 0; tk < fieldNameList_.length; tk++) {
                 this.getInput(fieldNameList_[tk]).setVisible(false);
             }
-            for (var i = 1; i < 10; i++) {
+            for (i = 1; i < 10; i++) {
                 if (this.getInput('ARG' + i.toString(10))) {
-                    var currentLabel = this.getFieldValue('LABEL_ARG' + i.toString(10));
+                    currentLabel = this.getFieldValue('LABEL_ARG' + i.toString(10));
                     this.setFieldValue(currentLabel, 'EDIT_ARG' + i.toString(10));
                     this.getField('LABEL_ARG' + i.toString(10)).setVisible(false);
                 }
@@ -2480,11 +2475,11 @@ Blockly.propc.custom_code_multiple = function () {
         ccCode = 'my_' + ccCode;
     }
     //console.log(in_arg);
-    var incl = (this.getFieldValue("INCLUDES") || '').replace(/\@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
-    var glob = (this.getFieldValue("GLOBALS") || '').replace(/\@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
-    var sets = (this.getFieldValue("SETUPS") || '').replace(/\@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
-    var main = (this.getFieldValue("MAIN") || '').replace(/\@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
-    var func = (this.getFieldValue("FUNCTIONS") || '').replace(/\@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
+    var incl = (this.getFieldValue("INCLUDES") || '').replace(/@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
+    var glob = (this.getFieldValue("GLOBALS") || '').replace(/@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
+    var sets = (this.getFieldValue("SETUPS") || '').replace(/@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
+    var main = (this.getFieldValue("MAIN") || '').replace(/@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
+    var func = (this.getFieldValue("FUNCTIONS") || '').replace(/@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
 
     var code = '';
 
