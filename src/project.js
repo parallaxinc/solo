@@ -23,115 +23,11 @@
 'use strict';
 
 
-
 /**
  * Default implementation of a project object
  * @constructor
  */
 class Project {
-    /**
-     * Stores a unique project identifier.
-     * @type {number}
-     * @private
-     */
-    id = 0;
-
-    /**
-     * Board type used in the defined project
-     * @type {ProjectProfiles.unknown|{saves_to, name, description}}
-     */
-    boardType = ProjectProfiles.unknown;
-
-    /**
-     *  Project type
-     * @type {string}
-     * @private
-     */
-    projectType = ProjectTypes.UNKNOWN;
-
-    /**
-     * Project name. This also serves as the project file name.
-     * @type {string}
-     * @private
-     */
-    name = "";
-
-    /**
-     *
-     * @type {string}
-     * @private
-     */
-    description = "";
-
-    /**
-     *
-     * @type {string}
-     * @private
-     */
-    descriptionHtml = "";
-
-    /**
-     *
-     * @type {string}
-     * @private
-     */
-    code = EmptyProjectCodeHeader;
-
-    /**
-     * Timestamp when the project was created. Once set, it should
-     * never be modified.
-     * @type {string}
-     * @private
-     */
-    created = "";
-
-    /**
-     * Timestamp when the project was last modified
-     * @type {string}
-     * @private
-     */
-    modified = "";
-
-    /**
-     * All Solo projects are private.
-     * @type {boolean}
-     * @private
-     * @deprecated
-     */
-    private = true;
-
-    /**
-     * All Solo projects are not shared.
-     * @type {boolean}
-     * @private
-     * @deprecated
-     */
-    shared = false;
-
-    /**
-     * User is not a Solo concept.
-     * @type {string}
-     * @private
-     * @deprecated
-     */
-    user = 'offline';
-
-    /**
-     * All Solo projects are 'yours'.
-     * @type {boolean}
-     * @private
-     * @deprecated
-     */
-    yours = true;
-
-    /**
-     * Current timestamp
-     * TODO: What is the purpose of this field?
-     * @type {number}
-     * @private
-     */
-    timestamp = getTimestamp();
-
 
     /**
      * Project constructor
@@ -167,13 +63,22 @@ class Project {
         }
 
         this.projectType = ProjectTypes[projectType];
-        this.code = code;
+
+        this.code = (code) ? code : EmptyProjectCodeHeader;
 
         // This should be a timestamp but is received as a string
         // TODO: Convert timestamp string to numeric values
         this.created = created;
         this.modified = modified;
         this.timestamp = timestamp;
+
+        // instance properties that are deprecated
+        this.id = 0;
+        this.descriptionHtml = description;
+        this.private = true;
+        this.shared = false;
+        this.user = 'offline';
+        this.yours = true;
     }
 }
 

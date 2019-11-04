@@ -439,6 +439,31 @@ ul > hr {
     padding-right: 10px;
 }
 
+.project-name {
+    max-width: 250px;
+    text-overflow: clip;
+    overflow: hidden;
+    overflow-wrap: normal;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.project-name:focus {
+    outline: none;
+}
+
+.project-name-editable {
+    border: 3px solid #00f;
+    border-radius: 5px;
+    padding: 0px 5px;
+    background-color: white;
+}
+
+.project-icon {
+    float: left; 
+    padding-right: 5px
+}
+
 .bp-client-available {
     background:none;
     border:1px solid rgba(0, 0, 0, 0);
@@ -523,94 +548,51 @@ div#project div.wizard-container {
 }
 
 /* Graphing Output */
-
-.ct-series-a .ct-line {
+.ct-line {
     stroke-width: 1px;
+}
+
+.ct-point {
+    stroke-width: 5px;
+}
+
+.ct-series-a {
     stroke: #00f;
 }
 
-.ct-series-b .ct-line {
-    stroke-width: 1px;
+.ct-series-b {
     stroke: #0bb;
 }
 
-.ct-series-c .ct-line {
-    stroke-width: 1px;
+.ct-series-c {
     stroke: #0d0;
 }
 
-.ct-series-d .ct-line {
-    stroke-width: 1px;
+.ct-series-d {
     stroke: #dd0;
 }
 
-.ct-series-e .ct-line {
-    stroke-width: 1px;
+.ct-series-e {
     stroke: #f90;
 }
 
-.ct-series-f .ct-line {
-    stroke-width: 1px;
+.ct-series-f {
     stroke: #f00;
 }
 
-.ct-series-g .ct-line {
-    stroke-width: 1px;
+.ct-series-g {
     stroke: #d09;
 }
 
-.ct-series-h .ct-line {
-    stroke-width: 1px;
+.ct-series-h {
     stroke: #90d;
 }
 
-.ct-series-a .ct-point {
-    stroke-width: 2px;
-    stroke: #00f;
-}
-
-.ct-series-b .ct-point {
-    stroke-width: 2px;
-    stroke: #0bb;
-}
-
-.ct-series-c .ct-point {
-    stroke-width: 2px;
-    stroke: #0d0;
-}
-
-.ct-series-d .ct-point {
-    stroke-width: 2px;
-    stroke: #dd0;
-}
-
-.ct-series-e .ct-point {
-    stroke-width: 2px;
-    stroke: #f90;
-}
-
-.ct-series-f .ct-point {
-    stroke-width: 2px;
-    stroke: #f00;
-}
-
-.ct-series-g .ct-point {
-    stroke-width: 2px;
-    stroke: #d09;
-}
-
-.ct-series-h .ct-point {
-    stroke-width: 2px;
-    stroke: #90d;
-}
-
-.ct-series-i .ct-line {
-    stroke-width: 1px;
+.ct-series-i {
     stroke: #777;
 }
 
-.ct-series-j .ct-line {
-    stroke-width: 1px;
+.ct-series-j {
     stroke: #000
 }
 

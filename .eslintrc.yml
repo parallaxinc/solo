@@ -1,0 +1,36 @@
+env:
+  browser: true
+  es6: true
+extends: 'eslint:recommended'
+globals:
+  $: readonly
+  ace: readonly
+  bootbox: readonly
+  Blockly: writable
+  Chartist: readonly
+  colorPalette: writable
+  goog: readonly
+  Atomics: readonly
+  SharedArrayBuffer: readonly
+  baudrate: writable
+  profile: readonly
+  projectData: writable
+  page_text_label: readonly
+  toolbox_label: readonly
+  tooltip_text: readonly
+  utils: readonly
+parserOptions:
+  ecmaVersion: 6
+  sourceType: script
+rules:
+  # This really needs to be an error
+  no-prototype-builtins: warn
+
+  no-cond-assign: warn
+  no-extra-semi: warn
+  no-fallthrough: warn
+  no-mixed-spaces-and-tabs: warn
+  no-redeclare: warn
+  no-useless-escape: warn
+  no-undef: warn
+  no-unused-vars: warn
