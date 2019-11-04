@@ -89,7 +89,7 @@ const PROJECT_NAME_MAX_LENGTH = 100;
  *
  * @type {number}
  */
-const PROJECT_NAME_DISPLAY_MAX_LENGTH = 24;
+const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
 
 
  /**
