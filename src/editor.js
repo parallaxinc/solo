@@ -866,6 +866,7 @@ function setupWorkspace(data, callback) {
  * @param data is the project data structure
  */
 function showInfo(data) {
+    // TODO: Remove this.
     if (getURLParameter('debug')) {
         console.log(data);
     }
@@ -878,6 +879,7 @@ function showInfo(data) {
     }
 
     // Does the current user own the project?
+    // TODO: There is no project-owner context in Solo.
     if (!data['yours']) {
         // If not, display owner username
         $(".project-owner").text("(" + data['user'] + ")");
