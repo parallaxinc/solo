@@ -89,7 +89,7 @@ const PROJECT_NAME_MAX_LENGTH = 100;
  *
  * @type {number}
  */
-const PROJECT_NAME_DISPLAY_MAX_LENGTH = 24;
+const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
 
 
  /**
@@ -553,6 +553,14 @@ function initEventHandlers() {
             })
             // reset the style and save the new project name to the projectData object 
             .on('blur', () => {
+                if ($('.project-name').setSelectionRange) { 
+                    $('.project-name').focus(); 
+                    $('.project-name').setSelectionRange(0, 0); 
+                } else if ($('.project-name').createTextRange) { 
+                    var range = $('.project-name').createTextRange();  
+                    range.moveStart('character', 0); 
+                    range.select(); 
+                }             
                 $('.project-name').removeClass('project-name-editable');
                 // if the project name is greater than 25 characters, only display the first 25
                 if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
