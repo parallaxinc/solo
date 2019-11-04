@@ -133,9 +133,9 @@ Blockly.Blocks.math_number = {
 
         if (range[0] === 'R') {
             if (range[3] < range[1]) {
-                warnText = 'WARNING: Your value is too small!  It must be greater than or equal to ' + range[1].toString(10);
+                warnText = Blockly.Msg.MATH_NUMBER_RANGE_TOO_LARGE_WARNING + range[1].toString(10);
             } else if (range[3] > range[2]) {
-                warnText = 'WARNING: Your value is too large!  It must be less than or equal to ' + range[2].toString(10);
+                warnText = Blockly.Msg.MATH_NUMBER_RANGE_TOO_SMALL_WARNING + range[2].toString(10);
             }
             if ((range[3] < range[1] || range[3] > range[2]) && Math.abs(range[1] - range[2]) <= 10000000) {
                 if (range[2] >= 2147483647) {
@@ -157,7 +157,7 @@ Blockly.Blocks.math_number = {
                 }
             }
             if (warnMsg) {
-                warnText = 'WARNING: The value you entered is not available or not allowed!';
+                warnText = Blockly.Msg.MATH_NUMBER_RANGE_VALUE_INVALID_WARNING;
             }
         } else if (range[0] === 'S') {
             fieldType = 'slider';
