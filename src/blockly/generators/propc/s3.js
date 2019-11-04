@@ -92,81 +92,60 @@ Blockly.propc.scribbler_exit_loop = function () {
 
 Blockly.Blocks.scribbler_simple_wait = {
     init: function () {
+        if (this.type === 'scribbler_simple_wait') {
+            this.appendDummyInput()
+                    .appendField("wait")
+                    .appendField(new Blockly.FieldNumber('5', null, null, 1), 'WAITTIME');
+        } else {
+            this.appendValueInput("WAITTIME", 'Number')
+                    .appendRange('R,1,2147483647,1')
+                    .appendField("wait")
+                    .setCheck('Number');        
+        }
         this.appendDummyInput()
-                .appendField("wait")
-                .appendField(new Blockly.FieldNumber('5', null, null, 1), 'WAITTIME')
                 .appendField(new Blockly.FieldDropdown([
-            ['seconds', '1000'], 
-            ['tenths of a second', '100'], 
-            ['milliseconds', '1']
-        ]), 'TIMESCALE');
-        this.setPreviousStatement(true, "Block");
-        this.setNextStatement(true, null);
-        this.setColour(colorPalette.getColor('programming'));
-        this.setHelpUrl(Blockly.MSG_S3_SIMPLE_CONTROL_HELPURL);
-        this.setTooltip(Blockly.MSG_S3_SCRIBBLER_SIMPLE_WAIT_TOOLTIP);
-        this.onchange();
-    },
-    onchange: function () {
-        var wait_time = Number(this.getFieldValue('WAITTIME') || '1');
-        var time_scale = Number(this.getFieldValue('TIMESCALE'));
-        if (time_scale === 1 && wait_time > 15000)
-            this.setWarningText('WARNING: If the units are in milliseconds,\nthe wait time must be less than 15000');
-        else
-            this.setWarningText(null);
-    }
-};
-
-Blockly.propc.scribbler_simple_wait = function () {
-    var wait_time = this.getFieldValue('WAITTIME') || '1';
-    var time_scale = this.getFieldValue('TIMESCALE');
-    if (time_scale !== '1')
-        return 'for(int __i = 0; __i < ' + wait_time + '; __i++) pause(' + time_scale + ');\n';
-    else
-        return 'pause(' + wait_time + ');\n';
-};
-
-Blockly.Blocks.scribbler_wait = {
-    init: function () {
-        this.appendValueInput("WAITTIME", 'Number')
-                .appendRange('N,0,0,0')
-                .appendField("wait")
-                .setCheck('Number');
-        this.appendDummyInput()
-                .appendField(new Blockly.FieldDropdown([['seconds', '1000'], ['tenths of a second', '100'], ['milliseconds', '1']], function (unit) {
-                    this.sourceBlock_.newUnit(unit);
-                }), 'TIMESCALE');
+                        ['seconds', '1000'], 
+                        ['tenths of a second', '100'], 
+                        ['milliseconds', '1']
+                    ], function (time_scale) {
+                        if (this.type !== 'scribbler_simple_wait') {
+                            this.getSourceBlock().getInput('WAITTIME')
+                                    .appendRange('R,0,' + (2147483647 / parseInt(time_scale)).toFixed(0) + ',1');
+                        }
+                    }), 'TIMESCALE');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
         this.setColour(colorPalette.getColor('programming'));
         this.setHelpUrl(Blockly.MSG_S3_CONTROL_HELPURL);
         this.setTooltip(Blockly.MSG_S3_SCRIBBLER_WAIT_TOOLTIP);
-    },
-    newUnit: function (unit) {
-        var thisConnection_ = this.getInput('WAITTIME').connection;
-        var thisBlock_ = thisConnection_.targetBlock();
-        var rangeText = 'N,0,0,0';
-
-        if (unit !== '1')
-            rangeText = 'R,0,15000,0';
-
-        this.getInput('WAITTIME').appendRange(rangeText);
-
-        if (thisBlock_)
-            if (thisBlock_.onchange)
-                thisBlock_.onchange.call(thisBlock_);
     }
 };
 
-Blockly.propc.scribbler_wait = function () {
-    var wait_time = Blockly.propc.valueToCode(this, 'WAITTIME', Blockly.propc.ORDER_NONE) || '1';
-    var time_scale = this.getFieldValue('TIMESCALE');
-    if (time_scale !== '1')
-        return 'for(int __i = 0; __i < ' + wait_time + '; __i++) pause(' + time_scale + ');\n';
-    else
-        return 'pause(' + wait_time + ');\n';
+Blockly.propc.scribbler_simple_wait = function () {
+    var time_scale = ' * ';
+    if (!this.getFieldValue('TIMESCALE') || this.getFieldValue('TIMESCALE') === '1') {
+        time_scale = '';
+    } else {
+        time_scale += this.getFieldValue('TIMESCALE');
+    }
+
+    var wait_time = '';
+    if (this.type === 'scribbler_simple_wait') {
+        wait_time = this.getFieldValue('WAITTIME') || '1';
+    } else {
+        wait_time = Blockly.propc.valueToCode(this, 'WAITTIME', Blockly.propc.ORDER_NONE) || '1';
+    }
+
+    if (wait_time !== '0') {
+        return 'pause(' + wait_time + time_scale + ');\n';
+    } else {
+        return '';
+    }
 };
+
+Blockly.Blocks.scribbler_wait = Blockly.Blocks.scribbler_simple_wait;
+Blockly.propc.scribbler_wait = Blockly.propc.scribbler_simple_wait;
 
 Blockly.Blocks.scribbler_if_line = {
     init: function () {
@@ -1105,7 +1084,6 @@ Blockly.Blocks.spinning_sensor = {
 };
 
 Blockly.propc.spinning_sensor = function () {
-    var dir = this.getFieldValue("LGHT_SENSOR_CHOICE");
     return ['!s3_motorsMoving()', Blockly.propc.ORDER_ATOMIC];
 };
 
