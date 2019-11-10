@@ -867,13 +867,13 @@ Blockly.Blocks.string_var_length = {
     domToMutation: function (container) {
         // Parse XML to restore the menu options.
         var value = JSON.parse(container.getAttribute('options'));
-	if (!value || value === []) {
-	    value = [];
-	    var i = parseInt(container.getAttribute('vars') || '1');
+        if (!value || value === []) {
+            value = [];
+            var i = parseInt(container.getAttribute('vars') || '1');
             for (var j = 0; j < i; j++) {
                 value.push('var');
             }
-	}
+        }
         this.optionList_ = value;
         this.updateConstMenu();
         this.updateShape_();
@@ -962,7 +962,7 @@ Blockly.Blocks.string_var_length = {
                         .appendField('to')
                         .appendField(new Blockly.FieldDropdown(uniq_fast(this.v_list)), "VAR_LEN" + i)
                         .appendField('characters'); 
-                this.setFieldValue(vv, "VAR_NAME" + i);
+                    this.setFieldValue(vv, "VAR_NAME" + i);
                 if (m && m === ov && nv) {
                     this.setFieldValue(nv, "VAR_LEN" + i);
                 } else if (m) {
@@ -2471,6 +2471,20 @@ Blockly.Blocks.custom_code_multiple = {
         var blockData = container.getAttribute('field_values');
         if (blockData) {
             this.fieldValueTemp_ = JSON.parse(blockData);
+        } else {
+            // Dive into the block's XML to recover field values from older versions of the block that used hidden fields.
+            var blockXMLchildren = container.parentElement.children;
+            for (var i = 0; i < blockXMLchildren.length; i++) {
+                if (blockXMLchildren[i].tagName === 'field') {
+                    var tempFieldName = blockXMLchildren[i].getAttribute('name');
+                    var tempFieldValue = blockXMLchildren[i].textContent;
+                    this.fieldValueTemp_[tempFieldName] = tempFieldValue;
+                }
+            }
+            this.fieldValueTemp_['ARG_COUNT'] = container.getAttribute('args');
+            this.fieldValueTemp_['COLOR'] = container.getAttribute('color');
+            this.fieldValueTemp_['TYPE'] = container.getAttribute('type');
+            this.fieldValueTemp_['LABEL_SET'] = this.getFieldValue('LABEL_SET');
         }
         this.updateShape_(this.fieldValueTemp_['EDIT'], false);
         this.setFieldValue(this.fieldValueTemp_['LABEL_SET'], 'LABEL');
