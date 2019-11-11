@@ -557,8 +557,8 @@ function cloudCompile(text, action, successHandler) {
 
         // Contact the docker container running cloud compiler
         // Compute the url based on where we are now
-//        let postUrl = window.location.protocol + '//' + window.location.hostname + ':5001/single/prop-c/' + action;
-        let postUrl = getCompilerUrl(action);
+        let postUrl = window.location.protocol + '//' + window.location.hostname + ':5001/single/prop-c/' + action;
+//        let postUrl = getCompilerUrl(action);
 
         $.ajax({
             'method': 'POST',
