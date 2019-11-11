@@ -557,7 +557,8 @@ function cloudCompile(text, action, successHandler) {
 
         // Contact the docker container running cloud compiler
         // Compute the url based on where we are now
-        let postUrl = window.location.protocol + '//' + window.location.hostname + ':5001/single/prop-c/' + action;
+//        let postUrl = window.location.protocol + '//' + window.location.hostname + ':5001/single/prop-c/' + action;
+        let postUrl = getCompilerUrl(action);
 
         $.ajax({
             'method': 'POST',
@@ -580,13 +581,13 @@ function cloudCompile(text, action, successHandler) {
                     successHandler(data, terminalNeeded);
                 }
 
-                // Scoll automatically to the bottom after new data is added
+                // Scroll automatically to the bottom after new data is added
                 document.getElementById("compile-console").scrollTop = document.getElementById("compile-console").scrollHeight;
             }
         }).fail(function (data) {
             // Data appears to be an HTTP response object
             if (data) {
-                let message = "Aw snap. A server error " + data.status + " has been detected.";
+                let message = "A compiler server error '" + data.status + "' has been detected.";
                 $("#compile-console").val($("#compile-console").val() + message);
             }
         });
@@ -599,6 +600,21 @@ function cloudCompile(text, action, successHandler) {
  */
 function compile() {
     cloudCompile('Compile', 'compile');
+}
+
+
+/**
+ * return the addres for the cloud compiler
+ * @returns {string}
+ */
+function getCompilerUrl(action) {
+    // Prepare a url for the local Docker environment
+    if (window.location.hostname === 'localhost') {
+        return window.location.protocol + '//localhost:5001/single/prop-c/' + action;
+    }
+
+    // Direct compilation to the cloud compiler service
+    return  window.location.protocol + '//' + window.location.hostname + 'compile/single/prop-c/' + action;
 }
 
 
