@@ -60,6 +60,7 @@ function NewProjectModal() {
         $('#new-project-description').val('');
         $('#new-project-dialog-title').html(page_text_label['editor_newproject_title']);
 
+        // Open up a modal window to get new project details.
         showNewProjectModal();
     }
 }
@@ -79,9 +80,9 @@ function NewProjectModal() {
 function showNewProjectModal() {
 
     // Set up element event handlers
-    NewProjectModalCancelClick();
-    NewProjectModalAcceptClick();
-    NewProjectModalEnterClick();
+    NewProjectModalCancelClick();   // Handle a click on the Cancel button
+    NewProjectModalAcceptClick();   // Handle a click on the Open button
+    NewProjectModalEnterClick();    // Handle the user pressing the Enter key
 
     // let dialog = $("#new-project-board-type");
     PopulateProjectBoardTypesUIElement($("#new-project-board-type"));
@@ -103,14 +104,13 @@ function showNewProjectModal() {
 function NewProjectModalEnterClick() {
     // Ignore <enter> key pressed in a form field
     $('#new-project-dialog').on('keydown', function (e) {
-
         // Let it go if the user is in the description textarea
         if (document.activeElement.id === "new-project-description") {
             return;
         }
 
+        // The Enter key was pressed
         if (e.key === "Enter") {
-
             if (!validateNewProjectForm()) {
                 e.preventDefault();
                 $(this).trigger('submit');
