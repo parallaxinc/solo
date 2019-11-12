@@ -83,6 +83,8 @@ function showNewProjectModal() {
     NewProjectModalCancelClick();   // Handle a click on the Cancel button
     NewProjectModalAcceptClick();   // Handle a click on the Open button
     NewProjectModalEnterClick();    // Handle the user pressing the Enter key
+    NewProjectModalEscapeClick();   // Handle user clicking on the 'x' icon
+
 
     // let dialog = $("#new-project-board-type");
     PopulateProjectBoardTypesUIElement($("#new-project-board-type"));
@@ -175,7 +177,24 @@ function NewProjectModalCancelClick() {
     });
 }
 
+function NewProjectModalEscapeClick() {
+    /* Trap the modal event that fires when the modal window is
+ * closed when the user clicks on the 'x' icon.
+ */
+    $('#new-project-dialog').on('hidden.bs.modal', function (e) {
+        if (!projectData) {
+            // If there is no project, go to home page.
+            window.location.href = 'index.html';
+        }
+        // Reload the the editor canvas from the active copy of the
+        // project.
+        setupWorkspace(projectData,
+            function () {
+                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
+            });
+    });
 
+}
 /**
  * Verify that the project name and board type form fields have data
  *
@@ -310,6 +329,24 @@ function OpenProjectModal() {
             window.location = 'blocklyc.html';
         }
     });
+
+
+    /* Trap the modal event that fires when the modal window is
+     * closed when the user clicks on the 'x' icon.
+     */
+    $('#open-project-dialog').on('hidden.bs.modal', function (e) {
+        if (!projectData) {
+            // If there is no project, go to home page.
+            window.location.href = 'index.html';
+        }
+        // Reload the the editor canvas from the active copy of the
+        // project.
+        setupWorkspace(projectData,
+            function () {
+                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
+            });
+    });
+
 
     // Import a project .SVG file
     $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
