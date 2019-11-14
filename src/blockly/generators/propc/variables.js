@@ -290,7 +290,8 @@ Blockly.Blocks.array_get = {
         });
         if (!initBlockCount) {
             warnText = 'WARNING: The array "' + arrayName + '" has not been initialized!';
-        } else if (elementCount && (elementCount >= initBlockCount || elementCount < 0)) {
+        } else if (elementCount && (elementCount > initBlockCount || elementCount < 0)) {
+            // We have more array elements than places to store them. (#159)
             warnText = 'WARNING: You are trying to get an element from your array that does not exist!';
         }
         if (!this.arrayInitWarnFlag) {
