@@ -1,0 +1,15 @@
+# Ignore files and folders that do not belong in the repository
+
+# Intellij IDE
+.idea
+
+# npm packages
+node_modules
+.eslintrc.js
+
+#Compressed files
+*_compressed*.js
+
+
+# MacOS files
+.DS_Store

@@ -1,0 +1,33 @@
+version: ~> 1.0
+os: linux
+dist: bionic
+addons:
+  snaps:
+    - name: node
+      channel: 10/stable
+      confinement: classic
+
+# The minimal image contains:
+#   version control tools
+#   essential build tools such as gcc and make
+#   network tools such as curl
+#   Docker
+#   python
+# -----------------------------------------------
+language: minimal
+
+node_js:
+  - 8
+  - 10
+
+env:
+  - TRAVIS_CI=true
+
+#before_install:
+#  - sudo apt-get update
+#  - sudo apt install snapd
+#  - sudo snap install node --channel=10/stable --classic
+
+script:
+  - npm install
+  - npm run test
