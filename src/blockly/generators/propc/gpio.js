@@ -1710,19 +1710,7 @@ Blockly.Blocks.sd_read = {
     init: function () {
         this.setTooltip(Blockly.MSG_SD_READ_TOOLTIP);
         this.setColour(colorPalette.getColor('output'));
-        this.appendValueInput("SIZE")
-                .setCheck(null)
-                .appendField("SD file")
-                .appendField(new Blockly.FieldDropdown([
-                    ["read", "fread"],
-                    ["write", "fwrite"],
-                    ["close", "fclose"]
-                ], function (mode) {
-                    this.sourceBlock_.setSdMode(mode);
-                }), "MODE");
-        this.appendDummyInput("VALUE")
-                .appendField("bytes  store in")
-                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_SET_ITEM), 'VAR');
+        this.setSdMode('fwrite');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -1740,36 +1728,58 @@ Blockly.Blocks.sd_read = {
         this.setSdMode(mode);
     },
     setSdMode: function (mode) {
-        if(this.getInput('SIZE')) {
+        if (this.getInput('SIZE')) {
+            var valueConnection = this.getInput('SIZE').connection;
+            if (valueConnection) {
+                var connectedBlock = valueConnection.targetBlock()
+            }
             this.removeInput('SIZE');
         }
         if (this.getInput("VALUE")) {
             this.removeInput("VALUE");
         }
         if (mode === "fwrite") {
-            this.appendValueInput("SIZE");
+            this.appendValueInput("SIZE")
+                    .setCheck(null)
+                    .appendField("SD file")
+                    .appendField(new Blockly.FieldDropdown([
+                        ["write", "fwrite"],
+                        ["read", "fread"],
+                        ["close", "fclose"]
+                    ], function (mode) {
+                        this.sourceBlock_.setSdMode(mode);
+                    }), "MODE");
             this.appendValueInput("VALUE")
                     .setCheck("String")
                     .appendField("bytes of");
         } else if (mode === "fread") {
             this.appendValueInput("SIZE")
-                    .setCheck("Number");
+                    .setCheck("Number")
+                    .appendField("SD file")
+                    .appendField(new Blockly.FieldDropdown([
+                        ["read", "fread"],
+                        ["write", "fwrite"],
+                        ["close", "fclose"]
+                    ], function (mode) {
+                        this.sourceBlock_.setSdMode(mode);
+                    }), "MODE");
             this.appendDummyInput("VALUE")
                     .appendField("bytes  store in")
                     .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_SET_ITEM), 'VAR');
         } else {
-            this.appendDummyInput("SIZE");
+            this.appendDummyInput("SIZE")
+                    .appendField("SD file")
+                    .appendField(new Blockly.FieldDropdown([
+                        ["close", "fclose"],
+                        ["read", "fread"],
+                        ["write", "fwrite"]
+                    ], function (mode) {
+                        this.sourceBlock_.setSdMode(mode);
+                    }), "MODE");
         }
-        this.getInput("SIZE")
-                .appendField("SD file")
-                .appendField(new Blockly.FieldDropdown([
-                    ["read", "fread"],
-                    ["write", "fwrite"],
-                    ["close", "fclose"]
-                ], function (mode) {
-                    this.sourceBlock_.setSdMode(mode);
-                }), "MODE");
-        this.setFieldValue(mode, "MODE");
+        if (connectedBlock) {
+            connectedBlock.outputConnection.connect(this.getInput('SIZE').connection);
+        }
     },
     onchange: function (event) {
         if (event.type === Blockly.Events.BLOCK_DELETE || event.type === Blockly.Events.BLOCK_CREATE) {
@@ -1834,50 +1844,46 @@ Blockly.Blocks.sd_file_pointer = {
     init: function () {
         this.setTooltip(Blockly.MSG_SD_FILE_POINTER_TOOLTIP);
         this.setColour(colorPalette.getColor('output'));
-        this.appendValueInput("FP")
-                .setCheck("Number")
-                .appendField("SD file")
-                .appendField(new Blockly.FieldDropdown([
-                    ["set", "set"],
-                    ["get", "get"]
-                ], function (m) {
-                    this.sourceBlock_.setSdMode(m);
-                }), "MODE")
-                .appendField("pointer = ");
+        this.setSdMode('set');
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
     },
     mutationToDom: Blockly.Blocks['sd_read'].mutationToDom,
     domToMutation: Blockly.Blocks['sd_read'].domToMutation,
-    setSdMode: function (m) {
+    setSdMode: function (mode) {
         if(this.getInput('FP')) {
             this.removeInput('FP');
         }
-        var meq = '';
-        if (m === 'set') {
-            meq = ' = ';
-            this.setOutput(false);
+        if (mode === 'set') {
             this.appendValueInput('FP')
-                    .setCheck("Number");
+                    .setCheck("Number")
+                    .appendField("SD file")
+                    .appendField(new Blockly.FieldDropdown([
+                        ["set", "set"],
+                        ["get", "get"]
+                    ], function (blockMode) {
+                        this.sourceBlock_.setSdMode(blockMode);
+                    }), "MODE")
+                    .appendField("pointer = ");
+            this.setOutput(false);
+            this.setPreviousStatement(true, "Block");
+            this.setNextStatement(true, null);
         } else {
-            this.setOutput(true, 'Number');
             this.appendDummyInput('FP');
+            this.getInput('FP')
+                    .appendField("SD file")
+                    .appendField(new Blockly.FieldDropdown([
+                        ["get", "get"],
+                        ["set", "set"]
+                    ], function (blockMode) {
+                        this.sourceBlock_.setSdMode(blockMode);
+                    }), "MODE")
+                    .appendField("pointer");
+            this.setPreviousStatement(false, "Block");
+            this.setNextStatement(false, null);
+            this.setOutput(true, 'Number');
         }
-        this.getInput('FP')
-                .appendField("SD file")
-                .appendField(new Blockly.FieldDropdown([
-                    ["set", "set"],
-                    ["get", "get"]
-                ], function (m) {
-                    this.sourceBlock_.setSdMode(m);
-                }), "MODE")
-                .appendField("pointer" + meq);
-        this.setFieldValue(m, 'MODE');
-        var n = (m === 'get' ? false : true);
-        this.setPreviousStatement(n, "Block");
-        this.setNextStatement(n, null);
-
     },
     onchange: Blockly.Blocks['sd_read'].onchange
 };
