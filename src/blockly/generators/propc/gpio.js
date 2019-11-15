@@ -80,8 +80,7 @@ Blockly.Blocks.make_pin_input = {
                 .appendField("make PIN");
         this.appendValueInput('PIN')
                 .setCheck('Number')
-                .appendField('A,' + profile.default.digital.toString(), 'RANGEVALS0');
-        this.getField('RANGEVALS0').setVisible(false);
+                .appendRange('A,' + profile.default.digital.toString());
         this.appendDummyInput('ACTION')
                 .appendField(new Blockly.FieldDropdown([["high", "HIGH"], ["low", "LOW"], ["toggle", "TOGGLE"], ["input", "INPUT"], ["reverse", "REVERSE"]]), "ACTION");
     }
@@ -135,8 +134,7 @@ Blockly.Blocks.check_pin_input = {
         this.appendValueInput('PIN')
                 .appendField("check PIN")
                 .setCheck('Number')
-                .appendField('A,' + profile.default.digital.toString(), 'RANGEVALS0');
-        this.getField('RANGEVALS0').setVisible(false);
+                .appendRange('A,' + profile.default.digital.toString());
         this.setOutput(true, 'Number');
         this.setInputsInline(true);
     }
@@ -161,7 +159,7 @@ Blockly.Blocks.set_pins = {
             start_pin.push([i.toString(), i.toString()]);
         }
         var pin_count = [];
-        for (var i = profile.default.contiguous_pins_start; i <= profile.default.contiguous_pins_end; i++) {
+        for (i = profile.default.contiguous_pins_start; i <= profile.default.contiguous_pins_end; i++) {
             pin_count.push([i.toString(), i.toString()]);
         }
         this.appendDummyInput("")
@@ -225,7 +223,7 @@ Blockly.Blocks.set_pins = {
         this.appendDummyInput("PINS")
                 .appendField("Values:");
         var inputPins = this.getInput('PINS');
-        for (var i = 0; i < (pinCount - startPin + 1); i++) {
+        for (i = 0; i < (pinCount - startPin + 1); i++) {
             var pin = startPin + i;
             if (action === 'STATE') {
                 inputPins.appendField("P" + pin + ":")
@@ -236,7 +234,7 @@ Blockly.Blocks.set_pins = {
             }
         }
 
-        for (var i = 0; i < 32; i++) {
+        for (i = 0; i < 32; i++) {
             if (this.getField('P' + i) && data[i] !== null) {
                 this.setFieldValue(data[i], 'P' + i);
             }
@@ -279,7 +277,7 @@ Blockly.Blocks.get_pins = {
             start_pin.push([i.toString(), i.toString()]);
         }
         var pin_count = [];
-        for (var i = profile.default.contiguous_pins_start; i <= profile.default.contiguous_pins_end; i++) {
+        for (i = profile.default.contiguous_pins_start; i <= profile.default.contiguous_pins_end; i++) {
             pin_count.push([i.toString(), i.toString()]);
         }
         this.appendDummyInput("")
@@ -323,7 +321,7 @@ Blockly.Blocks.set_pins_binary = {
             start_pin.push([i.toString(), i.toString()]);
         }
         var pin_count = [];
-        for (var i = profile.default.contiguous_pins_start; i <= profile.default.contiguous_pins_end; i++) {
+        for (i = profile.default.contiguous_pins_start; i <= profile.default.contiguous_pins_end; i++) {
             pin_count.push([i.toString(), i.toString()]);
         }
         this.appendValueInput("VALUE")
@@ -368,6 +366,7 @@ Blockly.Blocks.base_freqout = {
                 .appendField("duration (ms)")
                 .setCheck('Number');
         this.appendValueInput("FREQUENCY")
+                .appendRange('R,0,40000000,0')
                 .appendField("frequency (Hz)")
                 .setCheck('Number');
         this.setInputsInline(true);
@@ -393,8 +392,7 @@ Blockly.Blocks.base_freqout = {
             this.appendValueInput('PIN')
                     .appendField(label)
                     .setCheck('Number')
-                    .appendField('A,' + profile.default.digital.toString(), 'RANGEVALS0');
-            this.getField('RANGEVALS0').setVisible(false);
+                    .appendRange('A,' + profile.default.digital.toString());
             if (moveBefore) {
                 this.moveInputBefore('PIN', moveBefore);
             } else {
@@ -580,10 +578,9 @@ Blockly.Blocks.eeprom_write = {
                     this.sourceBlock_.setOutputType_(type);
                 }), "TYPE");
         this.appendValueInput("ADDRESS")
-                .appendField('R,0,7675,0', 'RANGEVALS0')
+                .appendRange('R,0,7675,0')
                 .setCheck("Number")
                 .appendField("to address");
-        this.getField('RANGEVALS0').setVisible(false);
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -650,12 +647,11 @@ Blockly.Blocks.eeprom_read = {
                 .setCheck("Number")
                 .appendField("EEPROM read")
                 .appendField(new Blockly.FieldDropdown([["number", "NUMBER"], ["text", "TEXT"], ["byte", "BYTE"]]), "TYPE")
-                .appendField('R,0,7675,0', 'RANGEVALS0')
+                .appendRange('R,0,7675,0')
                 .appendField("from address");
         this.appendDummyInput()
                 .appendField("store in")
                 .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'VALUE');
-        this.getField('RANGEVALS0').setVisible(false);
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -703,8 +699,7 @@ Blockly.Blocks.servo_move = {
         this.appendValueInput("ANGLE")
                 .appendField("set angle")
                 .setCheck("Number")
-                .appendField('R,0,180,0', 'RANGEVALS1');
-        this.getField('RANGEVALS1').setVisible(false);
+                .appendRange('R,0,180,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -777,8 +772,7 @@ Blockly.Blocks.servo_set_ramp = {
         this.appendValueInput('RAMPSTEP')
                 .appendField("set ramp step")
                 .setCheck('Number')
-                .appendField('R,0,100,0', 'RANGEVALS0')
-        this.getField('RANGEVALS0').setVisible(false);
+                .appendRange('R,0,100,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -872,8 +866,7 @@ Blockly.Blocks.fb360_setup = {
                 .appendField(new Blockly.FieldDropdown(this._menuOptions, function (param) {
                     this.sourceBlock_.updateShape_(param);
                 }), "PARAM")
-                .appendField('R,36,3600,0', 'RANGEVALS1');
-        this.getField('RANGEVALS1').setVisible(false);
+                .appendRange('R,36,3600,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -882,11 +875,11 @@ Blockly.Blocks.fb360_setup = {
     setToOther: Blockly.Blocks['base_freqout'].setToOther,
     updateShape_: function (param) {
         if (param === 'setAcceleration') {
-            this.setFieldValue('R,36,3600,1800', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,36,3600,1800');
         } else if (param === 'setMaxSpeed') {
-            this.setFieldValue('R,10,1080,540', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,10,1080,540');
         } else {
-            this.setFieldValue('R,-2147483648,2147483647,0', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-2147483648,2147483647,0');
         }
     },
     mutationToDom: function () {
@@ -935,7 +928,6 @@ Blockly.Blocks.fb360_setup = {
 Blockly.propc.fb360_setup = function () {
     var param = this.getFieldValue("PARAM");
     var value = Blockly.propc.valueToCode(this, 'VALUE', Blockly.propc.ORDER_NONE) || '0';
-    ;
     var pin = '0';
     if (this.otherPin) {
         pin = Blockly.propc.valueToCode(this, 'PIN', Blockly.propc.ORDER_ATOMIC) || '0';
@@ -976,19 +968,18 @@ Blockly.Blocks.fb360_set = {
                 .appendField(new Blockly.FieldDropdown(this._menuOptions, function (param) {
                     this.sourceBlock_.updateShape_(param);
                 }), "PARAM")
-                .appendField('R,-720,720,0', 'RANGEVALS1');
-        this.getField('RANGEVALS1').setVisible(false);
+                .appendRange('R,-720,720,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
     },
     updateShape_: function (param) {
         if (param === 'speed') {
-            this.setFieldValue('R,-720,720,0', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-720,720,0');
         } else if (param === 'angle') {
-            this.setFieldValue('R,-1456,1456,0', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-1456,1456,0');
         } else {
-            this.setFieldValue('R,-2147483648,2147483647,0', 'RANGEVALS1');
+            this.getInput('VALUE').appendRange('R,-2147483648,2147483647,0');
         }
     },
     onchange: Blockly.Blocks['fb360_setup'].onchange,
@@ -1118,9 +1109,8 @@ Blockly.Blocks.ab_volt_out = {
         this.appendValueInput("VALUE")
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
-                .appendField('R,0,330,0', 'RANGEVALS1')
+                .appendRange('R,0,330,0')
                 .appendField("volt-100ths");
-        this.getField('RANGEVALS1').setVisible(false);
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -1166,10 +1156,9 @@ Blockly.Blocks.pwm_set = {
                 .appendField("channel")
                 .appendField(new Blockly.FieldDropdown([["A", "0"], ["B", "1"]]), "CHANNEL");
         this.appendValueInput("DUTY_CYCLE", Number)
-                .appendField('R,0,100,0', 'RANGEVALS1')
+                .appendRange('R,0,100,0')
                 .setCheck('Number')
                 .appendField("duty cycle (%)");
-        this.getField('RANGEVALS1').setVisible(false);
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -1264,102 +1253,111 @@ Blockly.Blocks.sound_play = {
     helpUrl: Blockly.MSG_AUDIO_HELPURL,
     init: function () {
         this.setTooltip(Blockly.MSG_SOUND_PLAY_TOOLTIP);
-        this.actionMenuItems = [
-            ["set frequency", "freq"],
-            ["set volume", "volume"],
-            ["set waveform", "wave"],
-            ["stop", "stop"]
-        ];
         this.setColour(colorPalette.getColor('io'));            
-        this.addChannelMenu("sound channel", 'VALUE');
-        this.appendValueInput("VALUE")
-                .setCheck(null)
-                .appendField(' ')
-                .appendField(new Blockly.FieldDropdown(this.actionMenuItems,
-                        function (act) {
-                            this.sourceBlock_.setSoundAction(act);
-                        }), "ACTION");
-        this.setInputsInline(true);
-        this.setPreviousStatement(true, "Block");
-        this.setNextStatement(true, null);
-        this.waveInput = false;
-    },
-    addChannelMenu: function (label, moveBefore) {
         this.appendDummyInput('SET_CHANNEL')
-                .appendField(label, 'LABEL')
+                .appendField('sound channel')
                 .appendField(new Blockly.FieldDropdown([
                     ['A', '0'],
                     ['B', '1'],
                     ['C', '2'],
                     ['D', '3'],
                     ['other', 'other']
-                ], function (op) {
-                    this.sourceBlock_.setToOther(op, moveBefore);
+                ], function (channelNumber) {
+                    this.sourceBlock_.setToOther(channelNumber, 'VALUE');
                 }), "CHANNEL");
-        this.moveBefore = moveBefore;
         this.otherChannel = false;
+        this.setSoundAction('freq');
+        this.setInputsInline(true);
+        this.setPreviousStatement(true, "Block");
+        this.setNextStatement(true, null);
     },
-    setSoundAction: function (act) {
-        if (act !== this.getFieldValue('ACTION')) {
+    setSoundAction: function (action) {
+        var valueBlock = null;
+        if (action !== this.getFieldValue('ACTION')) {
             if (this.getInput('VALUE')) {
+                valueBlock = this.getInput('VALUE').connection.targetBlock();
                 this.removeInput('VALUE');
             }
-            if (act === 'wave') {
+            if (action === 'wave') {
                 this.appendDummyInput('VALUE')
-                        .appendField(" ")
-                        .appendField(new Blockly.FieldDropdown(this.actionMenuItems,
-                                function (act) {
-                                    this.sourceBlock_.setSoundAction(act);
-                                }), "ACTION")
+                        .appendField(' ')
                         .appendField(new Blockly.FieldDropdown([
-                            ["sine", "SINE"],
-                            ["square", "SQUARE"],
-                            ["triangle", "TRIANGLE"],
-                            ["sawtooth", "SAW"],
-                            ["noise", "NOISE"]
-                        ]), "WAVE");
+                                ["set waveform", "wave"],
+                                ["set frequency", "freq"],
+                                ["set volume", "volume"],
+                                ["stop", "stop"]
+                            ],
+                            function (action) {
+                                this.sourceBlock_.setSoundAction(action);
+                            }), "ACTION")
+                        .appendField(new Blockly.FieldDropdown([
+                                ["sine", "SINE"],
+                                ["square", "SQUARE"],
+                                ["triangle", "TRIANGLE"],
+                                ["sawtooth", "SAW"],
+                                ["noise", "NOISE"]
+                            ]), "WAVE");
                 this.waveInput = true;
-            } else if (act === 'stop') {
+            } else if (action === 'stop') {
                 this.appendDummyInput("VALUE")
                         .appendField(' ')
-                        .appendField(new Blockly.FieldDropdown(this.actionMenuItems,
-                                function (act) {
-                                    this.sourceBlock_.setSoundAction(act);
-                                }), "ACTION");
+                        .appendField(new Blockly.FieldDropdown([
+                                ["stop", "stop"],
+                                ["set frequency", "freq"],
+                                ["set volume", "volume"],
+                                ["set waveform", "wave"]
+                            ],
+                            function (action) {
+                                this.sourceBlock_.setSoundAction(action);
+                            }), "ACTION");
                 this.waveInput = true;
+            } else if (action === 'volume') {
+                this.appendValueInput("VALUE")
+                        .setCheck(null)
+                        .appendRange('R,0,127,64')
+                        .appendField(' ')
+                        .appendField(new Blockly.FieldDropdown([
+                                ["set volume", "volume"],
+                                ["set frequency", "freq"],
+                                ["set waveform", "wave"],
+                                ["stop", "stop"]
+                            ],
+                            function (action) {
+                                this.sourceBlock_.setSoundAction(action);
+                            }), "ACTION");
+                this.waveInput = false;
             } else {
                 this.appendValueInput("VALUE")
                         .setCheck(null)
-                        .appendField(" ")
-                        .appendField(new Blockly.FieldDropdown(this.actionMenuItems,
-                                function (act) {
-                                    this.sourceBlock_.setSoundAction(act);
-                                }), "ACTION");
-                if (act === 'volume') {
-                    this.getInput("VALUE")
-                            .appendField('R,0,127,64', 'RANGEVALS1');
-                    this.getField('RANGEVALS1').setVisible(false);
-                }
+                        .appendRange('R,0,40000000,440')
+                        .appendField(' ')
+                        .appendField(new Blockly.FieldDropdown([
+                                ["set frequency", "freq"],
+                                ["set volume", "volume"],
+                                ["set waveform", "wave"],
+                                ["stop", "stop"]
+                            ],
+                            function (action) {
+                                this.sourceBlock_.setSoundAction(action);
+                            }), "ACTION");
                 this.waveInput = false;
             }
-            this.setFieldValue(act, 'ACTION');
+            if (valueBlock) {  
+                valueBlock.outputConnection.connect(this.getInput('VALUE').connection);
+            }
         }
     },
-    setToOther: function (op, moveBefore) {
-        if (op === 'other') {
+    setToOther: function (channelNumber) {
+        if (channelNumber === 'other') {
             this.otherChannel = true;
-            var label = this.getFieldValue('LABEL');
-            if(this.getInput('SET_CHANNEL')) {
+            if (this.getInput('SET_CHANNEL')) {
                 this.removeInput('SET_CHANNEL');
             }
             this.appendValueInput('CHANNEL')
-                    .appendField(label)
+                    .appendField('sound channel')
                     .setCheck('Number')
-                    .appendField('R,0,3,0', 'RANGEVALS0');
-            this.getField('RANGEVALS0').setVisible(false);
-            if (moveBefore) {
-                this.moveInputBefore('CHANNEL', moveBefore);
-            }
+                    .appendRange('R,0,3,0');
+            this.moveInputBefore('CHANNEL', 'VALUE');
         }
     },
     mutationToDom: function () {
@@ -1370,11 +1368,11 @@ Blockly.Blocks.sound_play = {
     },
     domToMutation: function (xmlElement) {
         var op = xmlElement.getAttribute('otherchannel');
-        var act = xmlElement.getAttribute('action');
+        var action = xmlElement.getAttribute('action');
         if (op === 'true') {
-            this.setToOther('other', this.moveBefore);
+            this.setToOther('other', 'VALUE');
         }
-        this.setSoundAction(act);
+        this.setSoundAction(action);
     },
     onchange: function (event) {
         if (!(projectData['board'] && (projectData['board'] === "heb" || projectData['board'] === "heb-wx"))) {
@@ -1515,8 +1513,7 @@ Blockly.Blocks.wav_volume = {
         this.setColour(colorPalette.getColor('io'));
         this.appendValueInput('VOLUME')
                 .appendField("WAV volume")
-                .appendField('R,0,10,0', 'RANGEVALS1');
-        this.getField('RANGEVALS1').setVisible(false);
+                .appendRange('R,0,10,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -1641,7 +1638,7 @@ Blockly.Blocks.sd_open = {
         this.appendDummyInput("MODE")
                 .appendField("SD file open")
                 .appendField(new Blockly.FieldTextInput("filename.txt", function (fn) {
-                    fn = fn.replace(/[^A-Z0-9a-z_\.]/g, '').toLowerCase();
+                    fn = fn.replace(/[^A-Z0-9a-z_.]/g, '').toLowerCase();
                     var fn_part = fn.split('.');
                     if (fn_part[0].length > 8) {
                         fn_part[0].length = 8;
@@ -2194,17 +2191,15 @@ Blockly.Blocks.ab_drive_goto = {
                 .appendField('Robot drive distance in')
                 .appendField(new Blockly.FieldDropdown([["ticks", "TICK"], ["centimeters", "CM"], ["inches", "INCH"]]), "UNITS");
         this.appendValueInput("LEFT")
-                .appendField('R,-4227330,4227330,0', 'RANGEVALS0')   // this number is derived from (2^31)/508
+                .appendRange('R,-4227330,4227330,0')                 // this number is derived from (2^31)/508
                 .setCheck('Number')                                  // where 508 is the largest multiplier
                 .setAlign(Blockly.ALIGN_RIGHT)                       // used in the scaling functions below.
                 .appendField("left");                                // keeps the user input from going above 2^31
         this.appendValueInput("RIGHT")                               // (max for a 32-bit integer)
-                .appendField('R,-4227330,4227330,0', 'RANGEVALS1')
+                .appendRange('R,-4227330,4227330,0')
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .appendField("right");
-        this.getField('RANGEVALS0').setVisible(false);
-        this.getField('RANGEVALS1').setVisible(false);
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -2268,9 +2263,8 @@ Blockly.Blocks.ab_drive_goto_max_speed = {
                 ], function (ops) {
                     this.sourceBlock_.applyTo(ops);
                 }), "OPS")
-                .appendField('R,0,128,0', 'RANGEVALS0')
+                .appendRange('R,0,128,0')
                 .setCheck('Number');
-        this.getField('RANGEVALS0').setVisible(false);
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -2325,15 +2319,13 @@ Blockly.Blocks.ab_drive_speed = {
         this.appendValueInput("LEFT")
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
-                .appendField('R,-128,128,0', 'RANGEVALS0')
+                .appendRange('R,-128,128,0')
                 .appendField("left");
         this.appendValueInput("RIGHT")
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
-                .appendField('R,-128,128,0', 'RANGEVALS1')
+                .appendRange('R,-128,128,0')
                 .appendField("right");
-        this.getField('RANGEVALS0').setVisible(false);
-        this.getField('RANGEVALS1').setVisible(false);
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -2369,15 +2361,13 @@ Blockly.Blocks.ab_drive_speed = {
         this.appendValueInput("LEFT")
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
-                .appendField(rangeText, 'RANGEVALS0')
+                .appendRange(rangeText)
                 .appendField("left");
         this.appendValueInput("RIGHT")
                 .setCheck('Number')
                 .setAlign(Blockly.ALIGN_RIGHT)
-                .appendField(rangeText, 'RANGEVALS1')
+                .appendRange(rangeText)
                 .appendField("right");
-        this.getField('RANGEVALS0').setVisible(false);
-        this.getField('RANGEVALS1').setVisible(false);
         this.setWarningText(warnText);
 
         if (blockLeft_)
@@ -2531,11 +2521,10 @@ Blockly.Blocks.activitybot_parallaxy_load = {
 };
 
 Blockly.propc.activitybot_parallaxy_load = function () {
-    var bot = this.getFieldValue('BOT') || 'abdrive.h';
-    var code = '/*\nFile: ActivityBot 360 Robot Control for Parallaxy.side\n\nAuthors: Based on https://letsrobot.tv driver for Telly robot obtained from\nhttps://github.com/runmyrobot/ParallaxBot/tree/rl-feedback360/parallaxScripts\nModified by Parallax Inc for use with Parallaxy robot and updated ActivityBot\nand Servo360 libraries.\n\nVersion 1.0\n\nCopyright (C) Parallax Inc. 2018. All Rights MIT Licensed.  See end of file.\n*/\n\n#include "simpletools.h"\n#include "fdserial.h"\n#include "abdrive360.h"\n#include "ws2812.h"\n\n#define LED_PIN 8\n#define LED_COUNT 18\n\nvoid motor_controller();\nvoid neopixel_controller();\nvoid set_motor_controller(int leftSpeed, int rightSpeed);\n\nvoid eyes_blink();\nvoid refresh_eyes();\nvoid change_brightness(int change_amount);\n\nint ledColors[LED_COUNT];\nint dim_array[LED_COUNT];\n\nws2812 *driver;\n\nint brightness = 10;\nint eye_color = 0xFFFFFF;\n\n// enables full-duplex serilization of the terminal\n// (In otherwise, 2 way signals between this computer and the robot)\nfdserial *term;\n\nvolatile int current_leftspd = 0;\nvolatile int current_rightspd = 0;\nvolatile int motor_flag = 0;\n\nint defaultStraightSpeed = 60;\nint defaultTurnSpeed = 15;\n\nint main() {\ndrive_setAcceleration(FOR_SPEED, 150);\nservo360_couple(12, 13);\nservo360_setCoupleScale(12, 13, 2000);\n\nservo360_setControlSys(12, S360_SETTING_KPV, 2000); // KPV\nservo360_setControlSys(13, S360_SETTING_KPV, 2000); // KPV\n\n//close the SimpleIDE terminal\nsimpleterm_close();\n\n//set full-duplex serialization for the terminal\nterm = fdserial_open(31, 30, 0, 9600);\n\ncog_run(motor_controller, 128);\n\n// load the LED driver\ndriver = ws2812b_open();\n\npause(500);\neyes_blink();\n\nint inputStringLength = 20;\nchar inputString[inputStringLength];\n\nint sPos = 0;\n\nwhile (1) {\nif (fdserial_rxReady(term) != 0) {\n\n// Get the character entered from the terminal\nchar c = fdserial_rxChar(term);\n\nif (c != -1) {\ndprint(term, "%d", (int) c);\nif (c == 13 || c == 10) {\ndprint(term, "received line:");\ndprint(term, inputString);\ndprint(term, "\\n");\nif (strcmp(inputString, "l") == 0) {\ndprint(term, "left");\nset_motor_controller(-defaultTurnSpeed, defaultTurnSpeed);\n}\nif (strcmp(inputString, "r") == 0) {\ndprint(term, "right");\nset_motor_controller(defaultTurnSpeed, -defaultTurnSpeed);\n}\nif (strcmp(inputString, "f") == 0) {\ndprint(term, "forward");\nset_motor_controller(defaultStraightSpeed, defaultStraightSpeed);\n}\nif (strcmp(inputString, "b") == 0) {\ndprint(term, "back");\nset_motor_controller(-defaultStraightSpeed, -defaultStraightSpeed);\n}\nif (strcmp(inputString, "l_up") == 0) {\ndprint(term, "left_stop");\ndrive_speed(0, 0);\n}\nif (strcmp(inputString, "r_up") == 0) {\ndprint(term, "right_stop");\ndrive_speed(0, 0);\n}\nif (strcmp(inputString, "f_up") == 0) {\ndprint(term, "forward_stop");\ndrive_speed(0, 0);\n}\nif (strcmp(inputString, "b_up") == 0) {\ndprint(term, "back_stop");\ndrive_speed(0, 0);\n}\nif (strcmp(inputString, "brightness_up") == 0) {\nchange_brightness(10);\ndprint(term, "brightness increased");\n}\nif (strcmp(inputString, "brightness_down") == 0) {\nchange_brightness(-10);\ndprint(term, "brightness decreased");\n}\nif (strncmp(inputString, "led", 3) == 0) {\nint pixel;\nint color;\nsscanAfterStr(inputString, "led", "%d%x", &pixel, &color);\ndprint(term, "%d\\n", color);\nif (pixel < LED_COUNT) {\nledColors[pixel] = color;\nrefresh_eyes();\n}\n}\nif (strncmp(inputString, "leds", 4) == 0) {\nint color;\nsscanAfterStr(inputString, "leds", "%x", &color);\ndprint(term, "%d\\n", color);\nfor (int i = 0; i < LED_COUNT; ++i) {\nledColors[i] = color;\n}\nrefresh_eyes();\n}\nsPos = 0;\ninputString[0] = 0; // clear string\n}\nelse if (sPos < inputStringLength - 1) {\n// record next character\ninputString[sPos] = c;\nsPos += 1;\ninputString[sPos] = 0; // make sure last element of string is 0\ndprint(term, inputString);\ndprint(term, " ok \\n");\n}\n}\n}\n}\n}\n\nvoid set_motor_controller(int leftSpeed, int rightSpeed) {\ncurrent_leftspd = leftSpeed;\ncurrent_rightspd = rightSpeed;\nmotor_flag = 1;\n}\n\nvoid motor_controller() {\nwhile (1) {\nif (motor_flag == 1) {\ndrive_speed(current_leftspd, current_rightspd);\nmotor_flag = 0;\npause(500);\n} else {\ndrive_speed(0, 0);\n}\npause(10);\n}\n}\n\nvoid refresh_eyes() {\nfor (int j = 0; j < LED_COUNT; ++j) {\nint red = (ledColors[j] >> 16) & 0xFF;\nred = red * brightness / 255;\n\nint green = (ledColors[j] >> 8) & 0xFF;\ngreen = green * brightness / 255;\n\nint blue = (ledColors[j]) & 0xFF;\nblue = blue * brightness / 255;\n\ndim_array[j] = (red << 16) + (green << 8) + (blue);\n}\nws2812_set(driver, LED_PIN, dim_array, LED_COUNT);\n}\n\nvoid change_brightness(int change_amount) {\nbrightness = constrainInt(brightness + change_amount, 2, 255);\nrefresh_eyes();\n}\n\nvoid eyes_blink() {\nint doot = 0;\n\nwhile (doot < LED_COUNT) {\nif (doot == 4 || doot == 13)\nledColors[doot] = 0x000000;\nelse\nledColors[doot] = eye_color;\ndoot++;\n}\nrefresh_eyes();\n\ndoot = 0;\npause(400);\n\nwhile (doot < LED_COUNT) {\nif ((doot >= 3 && doot <= 5) || (doot >= 12 && doot <= 14))\nledColors[doot] = eye_color;\nelse\nledColors[doot] = 0x000000;\ndoot++;\n}\nrefresh_eyes();\n\ndoot = 0;\npause(400);\n\nwhile (doot < LED_COUNT) {\nif (doot == 4 || doot == 13)\nledColors[doot] = 0x000000;\nelse\nledColors[doot] = eye_color;\ndoot++;\n}\nrefresh_eyes();\n}\n\n/**\nTERMS OF USE: MIT License\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the "Software"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE.\n*/';
-
-    Blockly.propc.definitions_["pure_code"] = '/* PURE CODE ONLY */\n';
-    Blockly.propc.methods_["pure_code"] = code;
+    if (!this.disabled) {
+        Blockly.propc.definitions_["pure_code"] = '/* PURE CODE ONLY */\n';
+        Blockly.propc.methods_["pure_code"] = '/*\nFile: ActivityBot 360 Robot Control for Parallaxy.side\n\nAuthors: Based on https://letsrobot.tv driver for Telly robot obtained from\nhttps://github.com/runmyrobot/ParallaxBot/tree/rl-feedback360/parallaxScripts\nModified by Parallax Inc for use with Parallaxy robot and updated ActivityBot\nand Servo360 libraries.\n\nVersion 1.0\n\nCopyright (C) Parallax Inc. 2018. All Rights MIT Licensed.  See end of file.\n*/\n\n#include "simpletools.h"\n#include "fdserial.h"\n#include "abdrive360.h"\n#include "ws2812.h"\n\n#define LED_PIN 8\n#define LED_COUNT 18\n\nvoid motor_controller();\nvoid neopixel_controller();\nvoid set_motor_controller(int leftSpeed, int rightSpeed);\n\nvoid eyes_blink();\nvoid refresh_eyes();\nvoid change_brightness(int change_amount);\n\nint ledColors[LED_COUNT];\nint dim_array[LED_COUNT];\n\nws2812 *driver;\n\nint brightness = 10;\nint eye_color = 0xFFFFFF;\n\n// enables full-duplex serilization of the terminal\n// (In otherwise, 2 way signals between this computer and the robot)\nfdserial *term;\n\nvolatile int current_leftspd = 0;\nvolatile int current_rightspd = 0;\nvolatile int motor_flag = 0;\n\nint defaultStraightSpeed = 60;\nint defaultTurnSpeed = 15;\n\nint main() {\ndrive_setAcceleration(FOR_SPEED, 150);\nservo360_couple(12, 13);\nservo360_setCoupleScale(12, 13, 2000);\n\nservo360_setControlSys(12, S360_SETTING_KPV, 2000); // KPV\nservo360_setControlSys(13, S360_SETTING_KPV, 2000); // KPV\n\n//close the SimpleIDE terminal\nsimpleterm_close();\n\n//set full-duplex serialization for the terminal\nterm = fdserial_open(31, 30, 0, 9600);\n\ncog_run(motor_controller, 128);\n\n// load the LED driver\ndriver = ws2812b_open();\n\npause(500);\neyes_blink();\n\nint inputStringLength = 20;\nchar inputString[inputStringLength];\n\nint sPos = 0;\n\nwhile (1) {\nif (fdserial_rxReady(term) != 0) {\n\n// Get the character entered from the terminal\nchar c = fdserial_rxChar(term);\n\nif (c != -1) {\ndprint(term, "%d", (int) c);\nif (c == 13 || c == 10) {\ndprint(term, "received line:");\ndprint(term, inputString);\ndprint(term, "\\n");\nif (strcmp(inputString, "l") == 0) {\ndprint(term, "left");\nset_motor_controller(-defaultTurnSpeed, defaultTurnSpeed);\n}\nif (strcmp(inputString, "r") == 0) {\ndprint(term, "right");\nset_motor_controller(defaultTurnSpeed, -defaultTurnSpeed);\n}\nif (strcmp(inputString, "f") == 0) {\ndprint(term, "forward");\nset_motor_controller(defaultStraightSpeed, defaultStraightSpeed);\n}\nif (strcmp(inputString, "b") == 0) {\ndprint(term, "back");\nset_motor_controller(-defaultStraightSpeed, -defaultStraightSpeed);\n}\nif (strcmp(inputString, "l_up") == 0) {\ndprint(term, "left_stop");\ndrive_speed(0, 0);\n}\nif (strcmp(inputString, "r_up") == 0) {\ndprint(term, "right_stop");\ndrive_speed(0, 0);\n}\nif (strcmp(inputString, "f_up") == 0) {\ndprint(term, "forward_stop");\ndrive_speed(0, 0);\n}\nif (strcmp(inputString, "b_up") == 0) {\ndprint(term, "back_stop");\ndrive_speed(0, 0);\n}\nif (strcmp(inputString, "brightness_up") == 0) {\nchange_brightness(10);\ndprint(term, "brightness increased");\n}\nif (strcmp(inputString, "brightness_down") == 0) {\nchange_brightness(-10);\ndprint(term, "brightness decreased");\n}\nif (strncmp(inputString, "led", 3) == 0) {\nint pixel;\nint color;\nsscanAfterStr(inputString, "led", "%d%x", &pixel, &color);\ndprint(term, "%d\\n", color);\nif (pixel < LED_COUNT) {\nledColors[pixel] = color;\nrefresh_eyes();\n}\n}\nif (strncmp(inputString, "leds", 4) == 0) {\nint color;\nsscanAfterStr(inputString, "leds", "%x", &color);\ndprint(term, "%d\\n", color);\nfor (int i = 0; i < LED_COUNT; ++i) {\nledColors[i] = color;\n}\nrefresh_eyes();\n}\nsPos = 0;\ninputString[0] = 0; // clear string\n}\nelse if (sPos < inputStringLength - 1) {\n// record next character\ninputString[sPos] = c;\nsPos += 1;\ninputString[sPos] = 0; // make sure last element of string is 0\ndprint(term, inputString);\ndprint(term, " ok \\n");\n}\n}\n}\n}\n}\n\nvoid set_motor_controller(int leftSpeed, int rightSpeed) {\ncurrent_leftspd = leftSpeed;\ncurrent_rightspd = rightSpeed;\nmotor_flag = 1;\n}\n\nvoid motor_controller() {\nwhile (1) {\nif (motor_flag == 1) {\ndrive_speed(current_leftspd, current_rightspd);\nmotor_flag = 0;\npause(500);\n} else {\ndrive_speed(0, 0);\n}\npause(10);\n}\n}\n\nvoid refresh_eyes() {\nfor (int j = 0; j < LED_COUNT; ++j) {\nint red = (ledColors[j] >> 16) & 0xFF;\nred = red * brightness / 255;\n\nint green = (ledColors[j] >> 8) & 0xFF;\ngreen = green * brightness / 255;\n\nint blue = (ledColors[j]) & 0xFF;\nblue = blue * brightness / 255;\n\ndim_array[j] = (red << 16) + (green << 8) + (blue);\n}\nws2812_set(driver, LED_PIN, dim_array, LED_COUNT);\n}\n\nvoid change_brightness(int change_amount) {\nbrightness = constrainInt(brightness + change_amount, 2, 255);\nrefresh_eyes();\n}\n\nvoid eyes_blink() {\nint doot = 0;\n\nwhile (doot < LED_COUNT) {\nif (doot == 4 || doot == 13)\nledColors[doot] = 0x000000;\nelse\nledColors[doot] = eye_color;\ndoot++;\n}\nrefresh_eyes();\n\ndoot = 0;\npause(400);\n\nwhile (doot < LED_COUNT) {\nif ((doot >= 3 && doot <= 5) || (doot >= 12 && doot <= 14))\nledColors[doot] = eye_color;\nelse\nledColors[doot] = 0x000000;\ndoot++;\n}\nrefresh_eyes();\n\ndoot = 0;\npause(400);\n\nwhile (doot < LED_COUNT) {\nif (doot == 4 || doot == 13)\nledColors[doot] = 0x000000;\nelse\nledColors[doot] = eye_color;\ndoot++;\n}\nrefresh_eyes();\n}\n\n/**\nTERMS OF USE: MIT License\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the "Software"),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE.\n*/';
+    }
     return '';
 };
 

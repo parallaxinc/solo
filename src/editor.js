@@ -587,6 +587,11 @@ function initEventHandlers() {
     $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
     $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
 
+    // Blocks/Code/XML button
+    $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
+    $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
+    $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
+        
     // New Project toolbar button
     $('#new-project-button').on('click', () => NewProjectModal());
 

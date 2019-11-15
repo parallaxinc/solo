@@ -280,6 +280,7 @@ Blockly.propc.init = function (workspace) {
         }
     }
 };
+
 /**
  * Prepend the generated code with the variable definitions.
  * @param {string} code Generated code.
@@ -584,86 +585,13 @@ if (!Object.keys) {
     }());
 };
 
-
-
-/**
- * Used by getSize() to move/resize any dom elements, and get the new size.
- *
- * All rendering that has an effect on the size/shape of the block should be
- * done here, and should be triggered by getSize().
- * @protected
- */
-/*
- * Original blockly core code:
- *
-Blockly.Field.prototype.render_ = function() {
-    this.textContent_.nodeValue = this.getDisplayText_();
-    this.updateSize_();
-};
-*
-*/
-
-// NOTE: Replaces core function!                   // USE WHEN CORE IS UPDATED
-/*
-Blockly.Field.prototype.render_ = function() {
- /*
-    if (!this.visible_) {
-      this.size_.width = 0;
-      return;
-    }
-  
-    // Replace the text.
-    if (this.textElement_) {
-        this.textElement_.textContent = this.getDisplayText_();
-        this.updateWidth();
-    } 
-};
-*/
-
-
-//NOTE: Replaces core function!
-/*
-Blockly.FieldDropdown.prototype.render_ = function() {
-    if (!this.visible_) {
-        this.size_.width = 0;
-        return;
-    }
-    if (this.sourceBlock_ && this.arrow_) {
-      // Update arrow's colour.
-        this.arrow_.style.fill = this.sourceBlock_.getColour();
-    }
-    var child;
-    if (this.textElement_) {
-        while ((child = this.textElement_.firstChild)) {
-            this.textElement_.removeChild(child);
-        }
-    } else {
-        this.textElement_ = Blockly.utils.createSvgElement('text',
-        {'class': 'blocklyText', 'y': this.size_.height - 12.5},
-        this.fieldGroup_);
-    }
-    
-    if (this.imageElement_) {
-        Blockly.utils.removeNode(this.imageElement_);
-        this.imageElement_ = null;
-    }
-
-    if (this.imageJson_) {
-        this.renderSelectedImage_();
-    } else {
-        this.renderSelectedText_();
-    }
-
-    this.borderRect_.setAttribute('height', this.size_.height - 9);
-    this.borderRect_.setAttribute('width', this.size_.width + Blockly.BlockSvg.SEP_SPACE_X);
-};
-*/
   
 
 // NOTE: Replaces core function!                   // USE WHEN CORE IS UPDATED	
 /**	
  * Return a sorted list of variable names for variable dropdown menus.	
  * Include a special option at the end for creating a new variable name.	
+ * @override
  * @return {!Array.<string>} Array of variable names.	
  * @this {Blockly.FieldVariable}	
  */	
@@ -711,42 +639,11 @@ Blockly.FieldVariable.dropdownCreate = function() {
 };
 
 
-// NOTE: Replaces core function!
-Blockly.BlockSvg.prototype.setCollapsed = function (b) {
-    if (this.collapsed_ !== b) {
-        for (var c = [], a = 0, d; d = this.inputList[a]; a++)
-            c.push.apply(c, d.setVisible(!b));
-        for (a = 0; 10 > a; a++)
-            this.getField("RANGEVALS" + a) && this.getField("RANGEVALS" + a).setVisible(!1);
-        if (b) {
-            d = this.getIcons();
-            for (a = 0; a < d.length; a++)
-                d[a].setVisible(!1);
-            a = this.toString().replace(/[ANRS],.[0-9,-]+[ \xa0]/g, "\u00a0");
-            a.length > Blockly.COLLAPSE_CHARS && (a = a.substr(0, Blockly.COLLAPSE_CHARS) + "...");
-            this.appendDummyInput("_TEMP_COLLAPSED_INPUT").appendField(a).init();
-        } else
-            this.removeInput("_TEMP_COLLAPSED_INPUT"),
-                    this.setWarningText(null);
-        Blockly.BlockSvg.superClass_.setCollapsed.call(this, b);
-        if (!c.length) {
-            // No child blocks, just render this block.
-            c[0] = this;
-        }
-        if (this.rendered) {
-            for (var x = 0, block; block = c[x]; x++) {
-                block.render();
-            }
-            this.bumpNeighbours_();
-        }
-    }
-};
-
-// NOTE!  Replaces core function:
 /**
  * Given a proposed entity name, generate a name that conforms to the
  * [_A-Za-z][_A-Za-z0-9]* format that most languages consider legal for
  * variables.
+ * @override
  * @param {string} name Potentially illegal entity name.
  * @return {string} Safe entity name.
  * @private
@@ -779,6 +676,27 @@ var findBlocksByType = function(blockType) {
     }
     return null;
 };
+
+/**
+ * Extends Blockly.Input to allow the input to have a specific range or allowed values.
+ * Allows blocks to read the input's range and show warnings if the user enters values outside of the range.
+ * See base.js->Blockly.Blocks.math_number for more information about formatting the range string.
+ * @param rangeInfo String containing information about the range/allowed values:  
+ * @returns the specified input
+ */ 
+Blockly.Input.prototype.appendRange = function(rangeInfo) {
+    this.inputRange = rangeInfo;
+    return this;
+}
+
+/**
+ * Extends Blockly.Input to allow the input to have a specific range or allowed values.
+ * See base.js->Blockly.Blocks.math_number for more information about formatting the range string.
+ * @returns the String populated by Blockly.Input.appendRange()
+ */
+Blockly.Input.prototype.getRange = function() {
+    return this.inputRange;
+}
 
 // polyfill that removes duplicates from an array and sorts it
 // From: https://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array
