@@ -519,7 +519,7 @@ function initEventHandlers() {
     // This arrived on 6/6/2019 from CDN PR#129.
     // zfi merged 1 commit into parallaxinc:1.2 from MatzElectronics:1.2on Jun 6
     // TODO: Correct missing configure_term_graph() function.
-    $('#term-graph-setup').on('click', () => configure_term_graph());
+    $('#term-graph-setup').on('click', () => configureTermGraph());
 
 
     $('#propc-find-btn').on('click', () => {
@@ -1805,5 +1805,20 @@ function testProjectEquality(projectA, projectB) {
     // user: "offline"
     // yours: true
 
+    return true;
+}
+
+
+/**
+ * Placeholder function
+ *
+ * @returns {boolean}
+ *
+ * @description
+ * This is a call is designed to allow someone who is using the
+ * experimental code-only mode to set up graphing and terminal
+ * baud rate
+ */
+function configureTermGraph() {
     return true;
 }
