@@ -799,44 +799,23 @@ function setupWorkspace(data, callback) {
     // NOTE: This function is in propc.js
     setProfile(projectData['board']);
 
-    // Determine if this is a pure C project
-    if (projectData['board'] !== 'propcfile') {
-        initToolbox(projectData['board'], []);
-
-        // Reinstate key bindings from block workspace if this is not a code-only project.
-        if (Blockly.codeOnlyKeybind === true) {
-            // TODO: Need to replace bindEvent_ call with something that is not deprecated.
-            Blockly.bindEvent_(document, 'keydown', null, Blockly.onKeyDown_);
-            Blockly.codeOnlyKeybind = false;
-        }
-
+    // Set the help link to the ab-blocks, s3 reference, or propc reference
+    // TODO: modify blocklyc.html/jsp and use an id or class selector
+    if (projectData.board === 's3') {
+        initToolbox(projectData.board, []);
+        $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
         // Create UI block content from project details
         renderContent('blocks');
-
-        // Set the help link to the ab-blocks or s3 reference
-        // TODO: modify blocklyc.html/jsp and use an id or class selector
-        if (projectData.board === 's3') {
-            $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
-        } else {
-            $('#online-help').attr('href', 'https://learn.parallax.com/ab-blocks');
-        }
-    } else {
-        // No, init the blockly interface
+    } else if (projectData.board === 'propc') {
         init(Blockly);
-
-        // Remove keybindings from block workspace if this is a code-only project.
-        Blockly.unbindEvent_(document, 'keydown', null, Blockly.onKeyDown_);
-        Blockly.codeOnlyKeybind = true;
-
-        // Show PropC editing UI elements
-        $('.propc-only').removeClass('hidden');
-
+        $('#online-help').attr('href', 'https://learn.parallax.com/support/C/propeller-c-reference');
         // Create UI block content from project details
         renderContent('propc');
-
-        // Set the help link to the prop-c reference
-        // TODO: modify blocklyc.html/jsp and use an id or class selector
-        $('#online-help').attr('href', 'https://learn.parallax.com/support/C/propeller-c-reference');
+    } else {
+        initToolbox(projectData.board, []);
+        $('#online-help').attr('href', 'https://learn.parallax.com/ab-blocks');
+        // Create UI block content from project details
+        renderContent('blocks');
     }
 
 
