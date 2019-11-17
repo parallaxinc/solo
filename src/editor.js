@@ -951,7 +951,7 @@ function saveProject() {
  */
 function saveAsDialog() {
     // Production still uses the uses the plain 'save-as' endpoint for now.
-    if (inDemo !== 'demo') {     // if (1 === 1) {
+    if (isExperimental !== 'true') {     // if (1 === 1) {
 
         // Old function - still in use because save-as+board type is not approved for use.
         utils.prompt("Save project as", projectData['name'], function (value) {
@@ -989,7 +989,7 @@ function saveAsDialog() {
         });
 
         // Until release to production, make sure we are on demo before displaying the propc option
-        if (inDemo === 'demo') {
+        if (isExperimental === 'true') {
             $("#save-as-board-type").append($('<option />').val('propcfile').text('Propeller C (code-only)'));
         }
 

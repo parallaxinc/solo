@@ -2798,7 +2798,7 @@ Blockly.propc.oled_initialize = function () {
                 }    
             }
 
-            if (cogStartBlock && inDemo) {  // ONLY RUN IN DEMO - keep this experimental for now.
+            if (cogStartBlock && isExperimental) {  // ONLY RUN IN DEMO - keep this experimental for now.
                 Blockly.propc.cog_setups_[this.myType] = [cogStartBlock, this.myType + ' = ' + 
                         devType + '_init(' + pin.join(', ') + devWidthHeight + ');'];
             } else {

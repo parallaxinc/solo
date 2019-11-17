@@ -571,11 +571,14 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
         // defined in propc.js in the 'profile' object
         // (except 'default', which is where the current project's type is stored)
         for (let boardTypes in profile) {
-            if (boardTypes !== 'default' && boardTypes !== 'propcfile') {
+            if (boardTypes !== 'default') {
+                // Use the experimental tag to show code-only view
+                if (boardTypes !== 'propcfile' || (boardTypes === 'propcfile' && isExperimental === 'true')) {
 
-                element.append($('<option />')
-                    .val(boardTypes)
-                    .text(profile[boardTypes].description));
+                    element.append($('<option />')
+                        .val(boardTypes)
+                        .text(profile[boardTypes].description));
+                }
             }
 
             // Optionally set the selected option element
