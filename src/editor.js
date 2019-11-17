@@ -387,11 +387,11 @@ $(() => {
                 alert("Unable to load the project.");
             }
             // No viable project available, so redirect to index page.
-            window.location.href = 'index.html' + window.location.search;
+            window.location.href = 'index.html' + getAllURLParameters();
         }
     } else {
         // No viable project available, so redirect to index page.
-        window.location.href = 'index.html' + window.location.search;
+        window.location.href = 'index.html' + getAllURLParameters();
     }
 
     // Make sure the toolbox appears correctly, just for good measure.
@@ -599,7 +599,7 @@ function initEventHandlers() {
     $('#open-project-button').on('click', () => {
         // Save the project to localStorage
         window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
-        window.location = "blocklyc.html?openFile=true" + window.location.search.replace('?', '&');
+        window.location = "blocklyc.html?openFile=true" + getAllURLParameters().replace('?', '&');
     });
 
     // Save Project button goes here!
@@ -1066,7 +1066,7 @@ function saveProjectAs(boardType, projectName) {
     };
 
     window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
-    window.location = 'blocklyc.html' + window.location.search;
+    window.location = 'blocklyc.html' + getAllURLParameters();
 }
 
 
@@ -1432,7 +1432,7 @@ function clearUploadInfo(redirect) {
     // when opening a file but the user cancels, return to the splash screen
     if (redirect === true) {
         if (getURLParameter('openFile') === 'true') {
-            window.location = 'index.html' + window.location.search;
+            window.location = 'index.html' + getAllURLParameters();
         }
     }
 }
@@ -1482,7 +1482,7 @@ function uploadMergeCode(append) {
 
         window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
 
-        window.location = 'blocklyc.html' + window.location.search;
+        window.location = 'blocklyc.html' + getAllURLParameters();
     }
 
     if (uploadedXML !== '') {

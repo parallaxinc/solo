@@ -130,9 +130,16 @@ function getURLParameter(name) {
 // var isExperimental = $("meta[name=in-demo]").attr("content");
 
 // Does the 'experimental' URL parameter exist?
-var isExperimental = getURLParameter('experimental');
+var isExperimental = getURLParameter('experimental') || 'false';
 
 
+function getAllURLParameters(keepNewOpen) {
+    if (keepNewOpen) {
+        return window.location.search;
+    } else {
+        return window.location.search.replace(/newFile=[a-zA-Z0-9]+&|openFile=[a-zA-Z0-9]+&/g,'');
+    }
+}
 
 /**
  * Operating system detection
