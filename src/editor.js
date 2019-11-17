@@ -395,7 +395,8 @@ $(() => {
     }
 
     // Make sure the toolbox appears correctly, just for good measure.
-    resetToolBoxSizing(250);
+    // And center the blocks on the workspace
+    resetToolBoxSizing(250, true);
 });
 
 
@@ -756,7 +757,7 @@ function initCdnImageUrls() {
  * if used after a change in the window's location or a during page
  * reload.
  */
-function resetToolBoxSizing(resizeDelay) {
+function resetToolBoxSizing(resizeDelay, centerBlocks) {
     // Vanilla Javascript is used here for speed - jQuery
     // could probably be used, but this is faster. Force
     // the toolbox to render correctly
@@ -785,6 +786,11 @@ function resetToolBoxSizing(resizeDelay) {
         // Update the Blockly editor canvas to use the new space
         if (Blockly.mainWorkspace && blocklyDiv[0].style.display !== 'none') {
             Blockly.svgResize(Blockly.mainWorkspace);
+        }
+
+        // center the blocks on the workspace
+        if (centerBlocks) {
+            Blockly.getMainWorkspace().scrollCenter();
         }
     }, resizeDelay || 10);  // 10 millisecond delay
 }
