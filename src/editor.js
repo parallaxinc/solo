@@ -822,7 +822,7 @@ function setupWorkspace(data, callback) {
         $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
         // Create UI block content from project details
         renderContent('blocks');
-    } else if (projectData.board === 'propc') {
+    } else if (projectData.board === 'propcfile') {
         init(Blockly);
         $('#online-help').attr('href', 'https://learn.parallax.com/support/C/propeller-c-reference');
         // Create UI block content from project details
