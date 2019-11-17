@@ -560,6 +560,7 @@ function cloudCompile(text, action, successHandler) {
         // Contact the docker container running cloud compiler
         // Compute the url based on where we are now
         let postUrl = window.location.protocol + '//' + window.location.hostname + ':5001/single/prop-c/' + action;
+//        let postUrl = getCompilerUrl(action);
 
         $.ajax({
             'method': 'POST',
@@ -578,17 +579,17 @@ function cloudCompile(text, action, successHandler) {
                 var loadWaitMsg = (action !== 'compile') ? '\nDownload...' : '';
 
                 $("#compile-console").val($("#compile-console").val() + data['compiler-output'] + data['compiler-error'] + loadWaitMsg);
-                if (data.success) {
+                if (data.success && successHandler) {
                     successHandler(data, terminalNeeded);
                 }
 
-                // Scoll automatically to the bottom after new data is added
+                // Scroll automatically to the bottom after new data is added
                 document.getElementById("compile-console").scrollTop = document.getElementById("compile-console").scrollHeight;
             }
         }).fail(function (data) {
             // Data appears to be an HTTP response object
             if (data) {
-                let message = "Aw snap. A server error " + data.status + " has been detected.";
+                let message = "A compiler server error '" + data.status + "' has been detected.";
                 $("#compile-console").val($("#compile-console").val() + message);
             }
         });
@@ -600,8 +601,22 @@ function cloudCompile(text, action, successHandler) {
  * Stub function to the cloudCompile function
  */
 function compile() {
-    cloudCompile('Compile', 'compile', function (data, terminalNeeded) {
-    });
+    cloudCompile('Compile', 'compile');
+}
+
+
+/**
+ * return the addres for the cloud compiler
+ * @returns {string}
+ */
+function getCompilerUrl(action) {
+    // Prepare a url for the local Docker environment
+    if (window.location.hostname === 'localhost') {
+        return window.location.protocol + '//localhost:5001/single/prop-c/' + action;
+    }
+
+    // Direct compilation to the cloud compiler service
+    return  window.location.protocol + '//' + window.location.hostname + 'compile/single/prop-c/' + action;
 }
 
 
@@ -1123,7 +1138,7 @@ function downloadPropC() {
     } else {
         utils.confirm('Downloading a SimpleIDE project', 'To open your project in SimpleIDE, two files will be downloaded.  They must both be saved in the same folder on your computer.', function (confirmed) {
             if (confirmed) {
-                utils.prompt("Enter a filename:", 'Project' + idProject, function (value) {
+                utils.prompt("Enter a filename:", 'BlocklyProp_Code', function (value) {
                     if (value) {
 
                         var sideFileContent = ".c\n>compiler=C\n>memtype=cmm main ram compact\n";
@@ -1149,7 +1164,7 @@ function downloadPropC() {
                         if (value.length >= 30)
                             value = value.substring(0, 29);
                         // Replace any illegal characters
-                        value = value.replace(/[\\/:*?\"<>|]/g, '_');
+                        value = value.replace(/[\\/:*?"<>|]/g, '_');
                         saveData(propcCode, value + ".c");
                         saveData(value + sideFileContent, value + ".side");
                     }
@@ -1218,7 +1233,7 @@ function graph_new_data(stream) {
                             jk++;
                         }
                     } else {    // Time series graph
-                        for (var j = 2; j < graph_temp_data[row].length; j++) {
+                        for (j = 2; j < graph_temp_data[row].length; j++) {
                             graph_csv_temp += graph_temp_data[row][j] + ',';
                             graph_data.series[j - 2].push({
                                 x: graph_temp_data[row][0],
@@ -1303,7 +1318,7 @@ function graph_play(setTo) {
  * Save a graph to the local file system
  */
 function downloadGraph() {
-    utils.prompt("Download Graph Output - Filename:", 'Graph' + idProject, function (value) {
+    utils.prompt("Download Graph Output - Filename:", 'BlocklyProp_Graph', function (value) {
         if (value) {
 
             // put all of the pieces together into a downloadable file
@@ -1325,17 +1340,13 @@ function downloadGraph() {
             var svgGraph = document.getElementById('serial_graphing');
             var pattern = new RegExp('xmlns="http://www.w3.org/2000/xmlns/"', 'g');
             var findY = 'class="ct-label ct-horizontal ct-end"';
-            var chartStyle = '<style>.ct-perfect-fourth:after,.ct-square:after{content:"";clear:both}.ct-label{fill:rgba(0,0,0,.4);color:rgba(0,0,0,.4);font-size:.75rem;line-height:1}.ct-grid-background,.ct-line{fill:none}.ct-chart-line .ct-label{display:block;display:-webkit-box;display:-moz-box;display:-ms-flexbox;display:-webkit-flex;display:flex}.ct-chart-donut .ct-label,.ct-chart-pie .ct-label{dominant-baseline:central}.ct-label.ct-horizontal.ct-start{-webkit-box-align:flex-end;-webkit-align-items:flex-end;-ms-flex-align:flex-end;align-items:flex-end;-webkit-box-pack:flex-start;-webkit-justify-content:flex-start;-ms-flex-pack:flex-start;justify-content:flex-start;text-align:left;text-anchor:start}.ct-label.ct-horizontal.ct-end{-webkit-box-align:flex-start;-webkit-align-items:flex-start;-ms-flex-align:flex-start;align-items:flex-start;-webkit-box-pack:flex-start;-webkit-justify-content:flex-start;-ms-flex-pack:flex-start;justify-content:flex-start;text-align:left;text-anchor:start}.ct-label.ct-vertical.ct-start{-webkit-box-align:flex-end;-webkit-align-items:flex-end;-ms-flex-align:flex-end;align-items:flex-end;-webkit-box-pack:flex-end;-webkit-justify-content:flex-end;-ms-flex-pack:flex-end;justify-content:flex-end;text-align:right;text-anchor:end}.ct-label.ct-vertical.ct-end{-webkit-box-align:flex-end;-webkit-align-items:flex-end;-ms-flex-align:flex-end;align-items:flex-end;-webkit-box-pack:flex-start;-webkit-justify-content:flex-start;-ms-flex-pack:flex-start;justify-content:flex-start;text-align:left;text-anchor:start}.ct-grid{stroke:rgba(0,0,0,.2);stroke-width:1px;stroke-dasharray:2px}.ct-point{stroke-width:10px;stroke-linecap:round}.ct-line{stroke-width:4px}.ct-area{stroke:none;fill-opacity:.1}.ct-series-a .ct-line,.ct-series-a .ct-point{stroke: #00f;}.ct-series-a .ct-area{fill:#d70206}.ct-series-b .ct-line,.ct-series-b .ct-point{stroke: #0bb;}.ct-series-b .ct-area{fill:#f05b4f}.ct-series-c .ct-line,.ct-series-c .ct-point{stroke: #0d0;}.ct-series-c .ct-area{fill:#f4c63d}.ct-series-d .ct-line,.ct-series-d .ct-point{stroke: #dd0;}.ct-series-d .ct-area{fill:#d17905}.ct-series-e .ct-line,.ct-series-e .ct-point{stroke-width: 1px;stroke: #f90;}.ct-series-e .ct-area{fill:#453d3f}.ct-series-f .ct-line,.ct-series-f .ct-point{stroke: #f00;}.ct-series-f .ct-area{fill:#59922b}.ct-series-g .ct-line,.ct-series-g .ct-point{stroke:#c0c}.ct-series-g .ct-area{fill:#0544d3}.ct-series-h .ct-line,.ct-series-h .ct-point{stroke:#000}.ct-series-h .ct-area{fill:#6b0392}.ct-series-i .ct-line,.ct-series-i .ct-point{stroke:#777}.ct-series-i .ct-area{fill:#f05b4f}.ct-square{display:block;position:relative;width:100%}.ct-square:before{display:block;float:left;content:"";width:0;height:0;padding-bottom:100%}.ct-square:after{display:table}.ct-square>svg{display:block;position:absolute;top:0;left:0}.ct-perfect-fourth{display:block;position:relative;width:100%}.ct-perfect-fourth:before{display:block;float:left;content:"";width:0;height:0;padding-bottom:75%}.ct-perfect-fourth:after{display:table}.ct-perfect-fourth>svg{display:block;position:absolute;top:0;left:0}.ct-line {stroke-width: 1px;}.ct-point {stroke-width: 2px;}text{font-family:sans-serif;}</style>';
+            var chartStyle = '<style>.ct-grid-background,.ct-line{fill:none}.ct-point{stroke-width:10px;stroke-linecap:round}.ct-grid{stroke:rgba(0,0,0,.2);stroke-width:1px;stroke-dasharray:2px}.ct-area{stroke:none;fill-opacity:.1}.ct-line{stroke-width:1px}.ct-point{stroke-width:5px}.ct-series-a{stroke:#00f}.ct-series-b{stroke:#0bb}.ct-series-c{stroke:#0d0}.ct-series-d{stroke:#dd0}.ct-series-e{stroke:#f90}.ct-series-f{stroke:red}.ct-series-g{stroke:#d09}.ct-series-h{stroke:#90d}.ct-series-i{stroke:#777}.ct-series-j{stroke:#000}text{font-family:sans-serif;fill:rgba(0,0,0,.4);color:rgba(0,0,0,.4);font-size:.75rem;line-height:1;overflow:visible}</style>';
             var svgxml = new XMLSerializer().serializeToString(svgGraph);
 
             svgxml = svgxml.replace(pattern, '');
-
-            // TODO: Lint is complaining about the search values. Should they be enclosed in quotes?
-            // No: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
             svgxml = svgxml.replace(/foreignObject/g, 'text');
             svgxml = svgxml.replace(/([<|</])a[0-9]+:/g, '$1');
             svgxml = svgxml.replace(/xmlns: /g, '');
-            svgxml = svgxml.replace(/span/g, 'tspan');
             svgxml = svgxml.replace(/x="10" /g, 'x="40" ');
 
             svgxml = svgxml.substring(svgxml.indexOf('<svg'), svgxml.length - 6);
@@ -1345,6 +1356,7 @@ function downloadGraph() {
             svgxml = svgxml.replace(regY, 'y="' + (theY + 12) + '"');
             var breakpoint = svgxml.indexOf('>') + 1;
             svgxml = svgxml.substring(0, breakpoint) + chartStyle + svgxml.substring(breakpoint, svgxml.length);
+            svgxml = svgxml.replace(/<text style="overflow: visible;" ([xy])="([0-9.-]+)" ([xy])="([0-9.-]+)" [a-z]+="[0-9.]+" [a-z]+="[0-9.]+"><span[0-9a-zA-Z =.":;/-]+>([0-9.-]+)<\/span>/g, '<text $1="$2" $3="$4">$5');
             saveData(svgxml, value + '.svg');
         }
     });
@@ -1355,7 +1367,7 @@ function downloadGraph() {
  * Download the graph as a csv file to the local file system
  */
 function downloadCSV() {
-    utils.prompt("Download Graph data as CSV - Filename:", 'graph_data' + idProject, function (value) {
+    utils.prompt("Download Graph data as CSV - Filename:", 'BlocklyProp_Data', function (value) {
         if (value) {
 
             // put all of the pieces together into a downloadable file

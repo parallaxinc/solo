@@ -58,7 +58,6 @@ const BASE_URL = $('meta[name=base]').attr("content");
 const CDN_URL = $('meta[name=cdn]').attr("content");
 
 
-
 // TODO: Enumerate the OS version
 // window.navigator.oscpu
 
@@ -84,15 +83,15 @@ const PROJECT_NAME_MAX_LENGTH = 100;
 
 
 /**
- * Constant number that represents the maximum number of 
+ * Constant number that represents the maximum number of
  * characters of the project name that are displayed in the UI
  *
  * @type {number}
  */
-const PROJECT_NAME_DISPLAY_MAX_LENGTH = 24;
+const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
 
 
- /**
+/**
  *
  * @type {number}
  */
@@ -367,7 +366,7 @@ $(() => {
         // Load a project from localStorage if available
         try {
             // Get a copy of the last know state of the current project
-        let localProject = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
+            let localProject = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
 
             // TODO: Address clear workspace has unexpected result
             // **************************************************
@@ -520,7 +519,7 @@ function initEventHandlers() {
     // This arrived on 6/6/2019 from CDN PR#129.
     // zfi merged 1 commit into parallaxinc:1.2 from MatzElectronics:1.2on Jun 6
     // TODO: Correct missing configure_term_graph() function.
-    $('#term-graph-setup').on('click', () => configure_term_graph());
+    $('#term-graph-setup').on('click', () => configureTermGraph());
 
 
     $('#propc-find-btn').on('click', () => {
@@ -544,38 +543,55 @@ function initEventHandlers() {
     // Project Name listing
 
     // Make the text in the project-name span editable
-    $('.project-name').attr('contenteditable', 'true')  
-
-            // Change the styling to indicate to the user that they are editing this field
-            .on('focus', () => {
+    $('.project-name').attr('contenteditable', 'true')
+    // Change the styling to indicate to the user that they are editing this field
+        .on('focus', () => {
+            $('.project-name').html(projectData.name);
+            $('.project-name').addClass('project-name-editable');
+        })
+        // reset the style and save the new project name to the projectData object
+        .on('blur', () => {
+            if ($('.project-name').setSelectionRange) {
+                $('.project-name').focus();
+                $('.project-name').setSelectionRange(0, 0);
+            } else if ($('.project-name').createTextRange) {
+                var range = $('.project-name').createTextRange();
+                range.moveStart('character', 0);
+                range.select();
+            }
+            $('.project-name').removeClass('project-name-editable');
+            // if the project name is greater than 25 characters, only display the first 25
+            if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+                $('.project-name').html(projectData.name.substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+            }
+        })
+        // change the behavior of the enter key
+        .on('keydown', (e) => {
+            if (e.which == 13 || e.keyCode == 13) {
+                e.preventDefault();
+                $('.project-name').trigger('blur');
+            }
+        })
+        // validate the input to ensure it's not too long, and save changes as the user types.
+        .on('keyup', () => {
+            var tempProjectName = $('.project-name').html()
+            if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH || tempProjectName.length < 1) {
                 $('.project-name').html(projectData.name);
-                $('.project-name').addClass('project-name-editable');
-            })
-            // reset the style and save the new project name to the projectData object 
-            .on('blur', () => {
-                $('.project-name').removeClass('project-name-editable');
-                // if the project name is greater than 25 characters, only display the first 25
-                if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-                    $('.project-name').html(projectData.name.substring(0,PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
-                }
-            })
-            // change the behavior of the enter key
-            .on('keydown', (e) => {
-                if (e.which == 13  || e.keyCode == 13) {
-                    e.preventDefault();
-                    $('.project-name').trigger('blur');
-                }
-            })
-            // validate the input to ensure it's not too long, and save changes as the user types.
-            .on('keyup', () => {
-                var tempProjectName = $('.project-name').html()
-                if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH || tempProjectName.length < 1) {
-                    $('.project-name').html(projectData.name);
-                } else {
-                    projectData.name = tempProjectName;
-                }
-            });
+            } else {
+                projectData.name = tempProjectName;
+            }
+        });
 
+    // Blocks/Code/XML button
+    $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
+    $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
+    $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
+
+    // Blocks/Code/XML button
+    $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
+    $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
+    $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
+        
     // New Project toolbar button
     $('#new-project-button').on('click', () => NewProjectModal());
 
@@ -845,18 +861,20 @@ function setupWorkspace(data, callback) {
  * @param data is the project data structure
  */
 function showInfo(data) {
+    // TODO: Remove this.
     if (getURLParameter('debug')) {
         console.log(data);
     }
 
     // Display the project name
     if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-        $('.project-name').html(data['name'].substring(0,PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+        $('.project-name').html(data['name'].substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
     } else {
         $(".project-name").html(data['name']);
     }
 
     // Does the current user own the project?
+    // TODO: There is no project-owner context in Solo.
     if (!data['yours']) {
         // If not, display owner username
         $(".project-owner").text("(" + data['user'] + ")");
@@ -874,7 +892,7 @@ function showInfo(data) {
     };
 
     // Set the prject icon to the correct board type
-    $(".project-icon").html('<img src="' + CDN_URL + projectBoardIcon[ data['board'] ] + '"/>');
+    $(".project-icon").html('<img src="' + CDN_URL + projectBoardIcon[data['board']] + '"/>');
 };
 
 
@@ -1700,15 +1718,15 @@ function sanitizeFilename(input) {
 
     // replace OS-illegal characters or phrases
     input = input.replace(/[\/\?<>\\:\*\|"]/g, '_')
-            // eslint-disable-next-line no-control-regex
-            .replace(/[\x00-\x1f\x80-\x9f]/g, '_')
-            .replace(/^\.+$/, '_')
-            .replace(/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, '_')
-            .replace(/[\. ]+$/, '_');
+    // eslint-disable-next-line no-control-regex
+        .replace(/[\x00-\x1f\x80-\x9f]/g, '_')
+        .replace(/^\.+$/, '_')
+        .replace(/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, '_')
+        .replace(/[\. ]+$/, '_');
 
     //if the filename is too long, truncate it
     if (input.length > 31) {
-        return input.substring(0,30);
+        return input.substring(0, 30);
     }
 
     return input;
@@ -1771,5 +1789,20 @@ function testProjectEquality(projectA, projectB) {
     // user: "offline"
     // yours: true
 
+    return true;
+}
+
+
+/**
+ * Placeholder function
+ *
+ * @returns {boolean}
+ *
+ * @description
+ * This is a call is designed to allow someone who is using the
+ * experimental code-only mode to set up graphing and terminal
+ * baud rate
+ */
+function configureTermGraph() {
     return true;
 }

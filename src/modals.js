@@ -60,6 +60,7 @@ function NewProjectModal() {
         $('#new-project-description').val('');
         $('#new-project-dialog-title').html(page_text_label['editor_newproject_title']);
 
+        // Open up a modal window to get new project details.
         showNewProjectModal();
     }
 }
@@ -79,9 +80,11 @@ function NewProjectModal() {
 function showNewProjectModal() {
 
     // Set up element event handlers
-    NewProjectModalCancelClick();
-    NewProjectModalAcceptClick();
-    NewProjectModalEnterClick();
+    NewProjectModalCancelClick();   // Handle a click on the Cancel button
+    NewProjectModalAcceptClick();   // Handle a click on the Open button
+    NewProjectModalEnterClick();    // Handle the user pressing the Enter key
+    NewProjectModalEscapeClick();   // Handle user clicking on the 'x' icon
+
 
     // let dialog = $("#new-project-board-type");
     PopulateProjectBoardTypesUIElement($("#new-project-board-type"));
@@ -103,14 +106,13 @@ function showNewProjectModal() {
 function NewProjectModalEnterClick() {
     // Ignore <enter> key pressed in a form field
     $('#new-project-dialog').on('keydown', function (e) {
-
         // Let it go if the user is in the description textarea
         if (document.activeElement.id === "new-project-description") {
             return;
         }
 
+        // The Enter key was pressed
         if (e.key === "Enter") {
-
             if (!validateNewProjectForm()) {
                 e.preventDefault();
                 $(this).trigger('submit');
@@ -175,7 +177,24 @@ function NewProjectModalCancelClick() {
     });
 }
 
+function NewProjectModalEscapeClick() {
+    /* Trap the modal event that fires when the modal window is
+ * closed when the user clicks on the 'x' icon.
+ */
+    $('#new-project-dialog').on('hidden.bs.modal', function (e) {
+        if (!projectData) {
+            // If there is no project, go to home page.
+            window.location.href = 'index.html';
+        }
+        // Reload the the editor canvas from the active copy of the
+        // project.
+        setupWorkspace(projectData,
+            function () {
+                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
+            });
+    });
 
+}
 /**
  * Verify that the project name and board type form fields have data
  *
@@ -310,6 +329,24 @@ function OpenProjectModal() {
             window.location = 'blocklyc.html' + (isExperimental === 'true' ? '?experimental=true' : '');
         }
     });
+
+
+    /* Trap the modal event that fires when the modal window is
+     * closed when the user clicks on the 'x' icon.
+     */
+    $('#open-project-dialog').on('hidden.bs.modal', function (e) {
+        if (!projectData) {
+            // If there is no project, go to home page.
+            window.location.href = 'index.html';
+        }
+        // Reload the the editor canvas from the active copy of the
+        // project.
+        setupWorkspace(projectData,
+            function () {
+                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
+            });
+    });
+
 
     // Import a project .SVG file
     $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});

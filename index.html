@@ -22,6 +22,18 @@
 <!DOCTYPE html>
 <html lang="EN">
     <head>
+        <noscript>
+            <style>
+                #noScript {
+                    margin-top: 10px;
+                    margin-left: 5px;
+                    background-color: #B94A48;
+                    color: #FFFFFF;
+/*                    position: absolute; */
+                    font-size: large;
+                }
+            </style>
+        </noscript>
         <meta name="application-name" content="BlocklyProp"/>
         <meta name="msapplication-TileColor" content="#FFFFFF"/>
         <meta name="msapplication-TileImage" content="src/images/mstile-144x144.png"/>
@@ -41,10 +53,6 @@
         <link rel="stylesheet" href="src/lib/bootstrap/core/css/bootstrap.min.css"/>
         <link rel="stylesheet" href="src/lib/bootstrap/plugins/bootstrap-table.min.css"/>
 
-        <noscript>
-            <title>BlocklyProp-Solo</title>
-        </noscript>
-
         <title>BlocklyProp Solo</title>
 
         <script type="application/javascript" src="src/lib/jquery-1.11.3.min.js"></script>
@@ -63,23 +71,25 @@
                     <ul class="nav navbar-nav">                
                         <li><a id="open-project-link" class="editor-link" href="blocklyc.html?openFile=true">Open project</a></li>
                         <li><a id="new-project-link" class="editor-link" href="blocklyc.html?newProject=true">New project</a></li>
+                        <li id="noScript">
+                            <noscript>
+                                <p>This site works best if JavaScript is enabled in your browser.</p>
+                            </noscript>
+                        </li>
                     </ul>
                     <!-- Online help -->
                     <ul class="nav navbar-nav navbar-right">
                         <!-- Help link to the Learn reference section -->
                         <li><a href="https://learn.parallax.com/ab-blocks" target="_blank">Help</a></li>
                     </ul>
+                    <ul>
+                    </ul>
                 </div>
             </div>
         </div>
+
         <!-- page body -->
         <div class="container">
-            <div>
-                <noscript title="BlocklyProp-Solo">
-                    <p>This site works best if JavaScript is enabled in your browser.</p>
-                </noscript>
-            </div>
-
             <!-- Splash image -->
             <div class="jumbotron">
                 <div class="logo">
@@ -138,7 +148,7 @@
                             <li><a onclick="showLicense()">License</a></li>
                             <li>
                                 <a href="http://www.parallax.com" target="_blank">
-                                v1.3.503 Parallax &copy; 2015 - <span id="footer_copyright"></span></a>
+                                v1.3.504 Parallax &copy; 2015 - <span id="footer_copyright"></span></a>
                             </li>
                         </ul>
                     </div>

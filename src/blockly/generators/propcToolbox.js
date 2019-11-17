@@ -471,7 +471,7 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '                <value name="LED_STATE">';
 xmlToolbox += '                    <block type="high_low_value">';
-xmlToolbox += '                        <field name="VALUE">high</field>';
+xmlToolbox += '                        <field name="VALUE">1</field>';
 xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
