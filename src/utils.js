@@ -137,7 +137,7 @@ function getAllURLParameters(keepNewOpen) {
     if (keepNewOpen) {
         return window.location.search;
     } else {
-        return window.location.search.replace(/newProject=[a-zA-Z0-9]+&|openProject=[a-zA-Z0-9]+&/g,'');
+        return window.location.search.replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g,'');
     }
 }
 
