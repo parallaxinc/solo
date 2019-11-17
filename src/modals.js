@@ -163,7 +163,7 @@ function NewProjectModalCancelClick() {
 
         if (!projectData) {
             // If there is no project, go to home page.
-            window.location.href = 'index.html' + (isExperimental === 'true' ? '?experimental=true' : '');
+            window.location.href = 'index.html' + (isExperimental ? '?experimental=' + isExperimental : '');
         }
 
         // if the project is being edited, clear the fields and close the modal
@@ -286,7 +286,7 @@ function CreateNewProject() {
     projectData = '';
 
     // Redirect to the editor page
-    window.location = 'blocklyc.html' + (isExperimental === 'true' ? '?experimental=true' : '');
+    window.location = 'blocklyc.html' + (isExperimental ? '?experimental=' + isExperimental : '');
 }
 
 
@@ -310,7 +310,7 @@ function OpenProjectModal() {
 
         if (!projectData) {
             // If there is no project, go to home page.
-            window.location.href = 'index.html' + (isExperimental === 'true' ? '?experimental=true' : '');
+            window.location.href = 'index.html' + (isExperimental ? '?experimental=' + isExperimental : '');
         }
         // A copy of the current project is located in the browser localStorage
         setupWorkspace(projectData,
@@ -326,7 +326,7 @@ function OpenProjectModal() {
                 LOCAL_PROJECT_STORE_NAME,
                 window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
             window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
-            window.location = 'blocklyc.html' + (isExperimental === 'true' ? '?experimental=true' : '');
+            window.location = 'blocklyc.html' + (isExperimental ? '?experimental=' + isExperimental : '');
         }
     });
 
@@ -610,7 +610,7 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
         for (let boardTypes in profile) {
             if (boardTypes !== 'default') {
                 // Use the experimental tag to show code-only view
-                if (boardTypes !== 'propcfile' || (boardTypes === 'propcfile' && isExperimental === 'true')) {
+                if (boardTypes !== 'propcfile' || (boardTypes === 'propcfile' && isExperimental.indexOf('propc') > -1)) {
 
                     element.append($('<option />')
                         .val(boardTypes)

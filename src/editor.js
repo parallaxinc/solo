@@ -387,11 +387,11 @@ $(() => {
                 alert("Unable to load the project.");
             }
             // No viable project available, so redirect to index page.
-            window.location.href = 'index.html' + (isExperimental === 'true' ? '?experimental=true' : '');
+            window.location.href = 'index.html' + (isExperimental ? '?experimental=' + isExperimental : '');
         }
     } else {
         // No viable project available, so redirect to index page.
-        window.location.href = 'index.html' + (isExperimental === 'true' ? '?experimental=true' : '');
+        window.location.href = 'index.html' + (isExperimental ? '?experimental=' + isExperimental : '');
     }
 
     // Make sure the toolbox appears correctly, just for good measure.
@@ -969,7 +969,7 @@ function saveProject() {
  */
 function saveAsDialog() {
     // Production still uses the uses the plain 'save-as' endpoint for now.
-    if (isExperimental !== 'true') {     // if (1 === 1) {
+    if (isExperimental.indexOf('saveas') > -1) {     // if (1 === 1) {
 
         // Old function - still in use because save-as+board type is not approved for use.
         utils.prompt("Save project as", projectData['name'], function (value) {
@@ -1007,7 +1007,7 @@ function saveAsDialog() {
         });
 
         // Until release to production, make sure we are on demo before displaying the propc option
-        if (isExperimental === 'true') {
+        if (isExperimental.indexOf('saveas') > -1) {
             $("#save-as-board-type").append($('<option />').val('propcfile').text('Propeller C (code-only)'));
         }
 
@@ -1066,7 +1066,7 @@ function saveProjectAs(boardType, projectName) {
     };
 
     window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
-    window.location = 'blocklyc.html' + (isExperimental === 'true' ? '?experimental=true' : '');
+    window.location = 'blocklyc.html' + (isExperimental ? '?experimental=' + isExperimental : '');
 }
 
 
@@ -1432,7 +1432,7 @@ function clearUploadInfo(redirect) {
     // when opening a file but the user cancels, return to the splash screen
     if (redirect === true) {
         if (getURLParameter('openFile') === 'true') {
-            window.location = 'index.html' + (isExperimental === 'true' ? '?experimental=true' : '');
+            window.location = 'index.html' + (isExperimental ? '?experimental=' + isExperimental : '');
         }
     }
 }
@@ -1482,7 +1482,7 @@ function uploadMergeCode(append) {
 
         window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
 
-        window.location = 'blocklyc.html' + (isExperimental === 'true' ? '?experimental=true' : '');
+        window.location = 'blocklyc.html' + (isExperimental ? '?experimental=' + isExperimental : '');
     }
 
     if (uploadedXML !== '') {

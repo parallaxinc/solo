@@ -126,17 +126,11 @@ function getURLParameter(name) {
 }
 
 // Server (demo/production) detection & url parameter override
-var isExperimental = $("meta[name=in-demo]").attr("content");
+// TODO: Remove for solo
+// var isExperimental = $("meta[name=in-demo]").attr("content");
 
 // Does the 'experimental' URL parameter exist?
-if (getURLParameter('experimental')) {
-    // Production system does not support the use of the experimental flag
-    if (getURLParameter('experimental') !== 'true') {
-        isExperimental = 'false';
-    } else {
-        isExperimental = 'true';
-    }
-}
+var isExperimental = getURLParameter('experimental');
 
 
 

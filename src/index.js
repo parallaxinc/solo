@@ -34,9 +34,9 @@ $(function () {
     window.localStorage.clear();
 
     // If the experimental URL parameter is used, add it to the open and new project links
-    if (getURLParameter('experimental') === 'true') {
+    if (getURLParameter('experimental')) {
         $('.editor-link').attr('href', function () {
-            return this + '&experimental=true';
+            return this + '&experimental=' + getURLParameter('experimental');
         });
     }
 });

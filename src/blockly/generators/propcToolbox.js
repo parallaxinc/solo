@@ -1788,7 +1788,7 @@ function filterToolbox(profileName) {
 
             // if the XML element has an experimental attribute and the current
             // environment is not the Demo system, exclude the menu entry
-            else if (experimental && isExperimental !== 'true') {
+            else if (experimental && isExperimental.indexOf('blocks') < 0) {
                 // Remove toolbox categories that are experimental if not in demo
                 toRemove.push(toolboxEntry);
             }
