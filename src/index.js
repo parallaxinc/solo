@@ -32,6 +32,13 @@ $(function () {
 
     // The browser localStorage object should be empty
     window.localStorage.clear();
+
+    // If the experimental URL parameter is used, add it to the open and new project links
+    if (getURLParameter('experimental') === 'true') {
+        $('.editor-link').attr('href', function () {
+            return this + '&experimental=true';
+        });
+    }
 });
 
 // Display the BlocklyProp Solo license in a modal window
@@ -54,4 +61,10 @@ function showAppBannerTitle(appName) {
 function setCopyrightDate(element) {
     let d = new Date();
     element.html(d.getFullYear().toString());
+}
+
+// Access URL key-value pairs
+// http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
+function getURLParameter(name) {
+    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(window.location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
 }

@@ -388,11 +388,11 @@ $(() => {
                 alert("Unable to load the project.");
             }
             // No viable project available, so redirect to index page.
-            window.location.href = 'index.html';
+            window.location.href = 'index.html' + (isExperimental === 'true' ? '?experimental=true' : '');
         }
     } else {
         // No viable project available, so redirect to index page.
-        window.location.href = 'index.html';
+        window.location.href = 'index.html' + (isExperimental === 'true' ? '?experimental=true' : '');
     }
 
     // Make sure the toolbox appears correctly, just for good measure.
@@ -583,7 +583,7 @@ function initEventHandlers() {
     $('#open-project-button').on('click', () => {
         // Save the project to localStorage
         window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
-        window.location = "blocklyc.html?openFile=true";
+        window.location = "blocklyc.html?openFile=true" + (isExperimental === 'true' ? '&experimental=true' : '');
     });
 
     // Save Project button goes here!
@@ -1048,7 +1048,7 @@ function saveProjectAs(boardType, projectName) {
     };
 
     window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
-    window.location = 'blocklyc.html';
+    window.location = 'blocklyc.html' + (isExperimental === 'true' ? '?experimental=true' : '');
 }
 
 
@@ -1414,7 +1414,7 @@ function clearUploadInfo(redirect) {
     // when opening a file but the user cancels, return to the splash screen
     if (redirect === true) {
         if (getURLParameter('openFile') === 'true') {
-            window.location = 'index.html';
+            window.location = 'index.html' + (isExperimental === 'true' ? '?experimental=true' : '');
         }
     }
 }
@@ -1464,7 +1464,7 @@ function uploadMergeCode(append) {
 
         window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
 
-        window.location = 'blocklyc.html';
+        window.location = 'blocklyc.html' + (isExperimental === 'true' ? '?experimental=true' : '');
     }
 
     if (uploadedXML !== '') {

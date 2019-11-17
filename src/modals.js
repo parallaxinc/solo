@@ -161,7 +161,7 @@ function NewProjectModalCancelClick() {
 
         if (!projectData) {
             // If there is no project, go to home page.
-            window.location.href = 'index.html';
+            window.location.href = 'index.html' + (isExperimental === 'true' ? '?experimental=true' : '');
         }
 
         // if the project is being edited, clear the fields and close the modal
@@ -267,7 +267,7 @@ function CreateNewProject() {
     projectData = '';
 
     // Redirect to the editor page
-    window.location = 'blocklyc.html';
+    window.location = 'blocklyc.html' + (isExperimental === 'true' ? '?experimental=true' : '');
 }
 
 
@@ -291,7 +291,7 @@ function OpenProjectModal() {
 
         if (!projectData) {
             // If there is no project, go to home page.
-            window.location.href = 'index.html';
+            window.location.href = 'index.html' + (isExperimental === 'true' ? '?experimental=true' : '');
         }
         // A copy of the current project is located in the browser localStorage
         setupWorkspace(projectData,
@@ -307,7 +307,7 @@ function OpenProjectModal() {
                 LOCAL_PROJECT_STORE_NAME,
                 window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
             window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
-            window.location = 'blocklyc.html';
+            window.location = 'blocklyc.html' + (isExperimental === 'true' ? '?experimental=true' : '');
         }
     });
 
