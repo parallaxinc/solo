@@ -22,6 +22,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <noscript>
+        <style>
+            #noScript {
+                margin-top: 10px;
+                margin-left: 30px;
+                background-color: #B94A48;
+                color: #FFFFFF;
+                font-size: large;
+            }
+        </style>
+    </noscript>
     <meta charset="utf-8">
     <meta name="base" content="">
     <meta name="cdn" content="src/">
@@ -81,10 +92,8 @@
 
     <!-- Blockly core/PropC generator -->
     <script type="text/javascript" src="src/lib/blockly/blockly_compressed.js"></script>
-
     <script type="text/javascript" src="src/blockly/generators/propc.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/field_range.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/field_code.js"></script>
+    <script type="text/javascript" src="src/blockly/generators/field_ace.js"></script>
 
     <!-- Internationalization text strings -->
     <script type="text/javascript" src="src/blockly/language/en/_messages.js"></script>
@@ -116,6 +125,14 @@
         <div id="branding" style="position: relative; top: 2px;">
             <a id="nav-logo" href="/" class="url-prefix"></a>
         </div>
+
+        <div id="noScript">
+            <noscript title="BlocklyProp-Solo">
+                <p>This site works best if JavaScript is enabled in your browser.</p>
+            </noscript>
+        </div>
+
+
         <div>
             <!-- Above toolbar -->
             <div style="overflow:auto;">
@@ -216,7 +233,6 @@
                     <select id="comPort" class="dropdown port-dropdown auth-true select-css" title="Ports"
                             data-displayas="inline-block" data-placement="left">
                     </select>
-
                 </div>
 
                 <!-- Right Toolbar buttons and menu -->

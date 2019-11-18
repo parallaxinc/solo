@@ -92,82 +92,60 @@ Blockly.propc.scribbler_exit_loop = function () {
 
 Blockly.Blocks.scribbler_simple_wait = {
     init: function () {
+        if (this.type === 'scribbler_simple_wait') {
+            this.appendDummyInput()
+                    .appendField("wait")
+                    .appendField(new Blockly.FieldNumber('5', null, null, 1), 'WAITTIME');
+        } else {
+            this.appendValueInput("WAITTIME", 'Number')
+                    .appendRange('R,1,2147483647,1')
+                    .appendField("wait")
+                    .setCheck('Number');        
+        }
         this.appendDummyInput()
-                .appendField("wait")
-                .appendField(new Blockly.FieldNumber('5', null, null, 1), 'WAITTIME')
                 .appendField(new Blockly.FieldDropdown([
-            ['seconds', '1000'], 
-            ['tenths of a second', '100'], 
-            ['milliseconds', '1']
-        ]), 'TIMESCALE');
-        this.setPreviousStatement(true, "Block");
-        this.setNextStatement(true, null);
-        this.setColour(colorPalette.getColor('programming'));
-        this.setHelpUrl(Blockly.MSG_S3_SIMPLE_CONTROL_HELPURL);
-        this.setTooltip(Blockly.MSG_S3_SCRIBBLER_SIMPLE_WAIT_TOOLTIP);
-        this.onchange();
-    },
-    onchange: function () {
-        var wait_time = Number(this.getFieldValue('WAITTIME') || '1');
-        var time_scale = Number(this.getFieldValue('TIMESCALE'));
-        if (time_scale === 1 && wait_time > 15000)
-            this.setWarningText('WARNING: If the units are in milliseconds,\nthe wait time must be less than 15000');
-        else
-            this.setWarningText(null);
-    }
-};
-
-Blockly.propc.scribbler_simple_wait = function () {
-    var wait_time = this.getFieldValue('WAITTIME') || '1';
-    var time_scale = this.getFieldValue('TIMESCALE');
-    if (time_scale !== '1')
-        return 'for(int __i = 0; __i < ' + wait_time + '; __i++) pause(' + time_scale + ');\n';
-    else
-        return 'pause(' + wait_time + ');\n';
-};
-
-Blockly.Blocks.scribbler_wait = {
-    init: function () {
-        this.appendValueInput("WAITTIME", 'Number')
-                .appendField('N,0,0,0', 'RANGEVALS0')
-                .appendField("wait")
-                .setCheck('Number');
-        this.appendDummyInput()
-                .appendField(new Blockly.FieldDropdown([['seconds', '1000'], ['tenths of a second', '100'], ['milliseconds', '1']], function (unit) {
-                    this.sourceBlock_.newUnit(unit);
-                }), 'TIMESCALE');
-        this.getField('RANGEVALS0').setVisible(false);
+                        ['seconds', '1000'], 
+                        ['tenths of a second', '100'], 
+                        ['milliseconds', '1']
+                    ], function (time_scale) {
+                        if (this.type !== 'scribbler_simple_wait') {
+                            this.getSourceBlock().getInput('WAITTIME')
+                                    .appendRange('R,0,' + (2147483647 / parseInt(time_scale)).toFixed(0) + ',1');
+                        }
+                    }), 'TIMESCALE');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
         this.setColour(colorPalette.getColor('programming'));
         this.setHelpUrl(Blockly.MSG_S3_CONTROL_HELPURL);
         this.setTooltip(Blockly.MSG_S3_SCRIBBLER_WAIT_TOOLTIP);
-    },
-    newUnit: function (unit) {
-        var thisConnection_ = this.getInput('WAITTIME').connection;
-        var thisBlock_ = thisConnection_.targetBlock();
-        var rangeText = 'N,0,0,0';
-
-        if (unit !== '1')
-            rangeText = 'R,0,15000,0';
-
-        this.setFieldValue(rangeText, 'RANGEVALS0');
-
-        if (thisBlock_)
-            if (thisBlock_.onchange)
-                thisBlock_.onchange.call(thisBlock_);
     }
 };
 
-Blockly.propc.scribbler_wait = function () {
-    var wait_time = Blockly.propc.valueToCode(this, 'WAITTIME', Blockly.propc.ORDER_NONE) || '1';
-    var time_scale = this.getFieldValue('TIMESCALE');
-    if (time_scale !== '1')
-        return 'for(int __i = 0; __i < ' + wait_time + '; __i++) pause(' + time_scale + ');\n';
-    else
-        return 'pause(' + wait_time + ');\n';
+Blockly.propc.scribbler_simple_wait = function () {
+    var time_scale = ' * ';
+    if (!this.getFieldValue('TIMESCALE') || this.getFieldValue('TIMESCALE') === '1') {
+        time_scale = '';
+    } else {
+        time_scale += this.getFieldValue('TIMESCALE');
+    }
+
+    var wait_time = '';
+    if (this.type === 'scribbler_simple_wait') {
+        wait_time = this.getFieldValue('WAITTIME') || '1';
+    } else {
+        wait_time = Blockly.propc.valueToCode(this, 'WAITTIME', Blockly.propc.ORDER_NONE) || '1';
+    }
+
+    if (wait_time !== '0') {
+        return 'pause(' + wait_time + time_scale + ');\n';
+    } else {
+        return '';
+    }
 };
+
+Blockly.Blocks.scribbler_wait = Blockly.Blocks.scribbler_simple_wait;
+Blockly.propc.scribbler_wait = Blockly.propc.scribbler_simple_wait;
 
 Blockly.Blocks.scribbler_if_line = {
     init: function () {
@@ -713,23 +691,20 @@ Blockly.Blocks.move_motors = {
         this.appendDummyInput()
                 .appendField("drive at speeds of (%)");
         this.appendValueInput("LEFT_MOTOR_SPEED")
-                .appendField('R,-100,100,0', 'RANGEVALS0')
+                .appendRange('R,-100,100,0')
                 .setCheck("Number")
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .appendField("left motor");
         this.appendValueInput("RIGHT_MOTOR_SPEED")
-                .appendField('R,-100,100,0', 'RANGEVALS1')
+                .appendRange('R,-100,100,0')
                 .setCheck("Number")
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .appendField("right motor");
         this.appendValueInput("MOTOR_DURATION")
-                .appendField('R,0,15000,0', 'RANGEVALS2')
+                .appendRange('R,0,15000,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("for (milliseconds, 0 is continuous)", "OPS");
-        this.getField('RANGEVALS0').setVisible(false);
-        this.getField('RANGEVALS1').setVisible(false);
-        this.getField('RANGEVALS2').setVisible(false);
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -761,23 +736,20 @@ Blockly.Blocks.move_motors_distance = {
                     this.sourceBlock_.newUnit(unit);
                 }), 'MULTIPLIER');
         this.appendValueInput("LEFT_MOTOR_DISTANCE")
-                .appendField('R,-633,633,0', 'RANGEVALS0')
+                .appendRange('R,-633,633,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("left motor distance");
         this.appendValueInput("RIGHT_MOTOR_DISTANCE")
-                .appendField('R,-633,633,0', 'RANGEVALS1')
+                .appendRange('R,-633,633,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("right motor distance");
         this.appendValueInput("MOTOR_SPEED")
-                .appendField('R,-100,100,0', 'RANGEVALS2')
+                .appendRange('R,-100,100,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("at speed (%)");
-        this.getField('RANGEVALS0').setVisible(false);
-        this.getField('RANGEVALS1').setVisible(false);
-        this.getField('RANGEVALS2').setVisible(false);
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -806,8 +778,8 @@ Blockly.Blocks.move_motors_distance = {
             rangeText = 'R,-32767,32767,0';
         }
 
-        this.setFieldValue(rangeText, 'RANGEVALS0');
-        this.setFieldValue(rangeText, 'RANGEVALS1');
+        this.getInput('RIGHT_MOTOR_DISTANCE').appendRange(rangeText);
+        this.getInput('LEFT_MOTOR_DISTANCE').appendRange(rangeText);
 
         if (blockLeft_)
             if (blockLeft_.onchange)
@@ -831,17 +803,17 @@ Blockly.Blocks.move_motors_xy = {
         this.appendDummyInput()
                 .appendField("drive to a location");
         this.appendValueInput("X_DISTANCE")
-                .appendField('R,-20755429,20755429,0', 'RANGEVALS0')
+                .appendRange('R,-20755429,20755429,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("change (+/\u2212) in X");
         this.appendValueInput("Y_DISTANCE")
-                .appendField('R,-20755429,20755429,0', 'RANGEVALS1')
+                .appendRange('R,-20755429,20755429,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("change (+/\u2212) in Y");
         this.appendValueInput("MOTOR_SPEED")
-                .appendField('R,-100,100,0', 'RANGEVALS2')
+                .appendRange('R,-100,100,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("at speed (%)");
@@ -857,9 +829,6 @@ Blockly.Blocks.move_motors_xy = {
                 ], function (unit) {
                     this.sourceBlock_.newUnit(unit);
                 }), 'MULTIPLIER');
-        this.getField('RANGEVALS0').setVisible(false);
-        this.getField('RANGEVALS1').setVisible(false);
-        this.getField('RANGEVALS2').setVisible(false);
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -887,8 +856,8 @@ Blockly.Blocks.move_motors_xy = {
             rangeText = 'R,-32768,32767,0';
         }
 
-        this.setFieldValue(rangeText, 'RANGEVALS0');
-        this.setFieldValue(rangeText, 'RANGEVALS1');
+        this.getInput('X_DISTANCE').appendRange(rangeText);
+        this.getInput('Y_DISTANCE').appendRange(rangeText);
 
         if (blockLeft_)
             if (blockLeft_.onchange)
@@ -913,12 +882,12 @@ Blockly.Blocks.move_motors_angle = {
         this.appendDummyInput()
                 .appendField("drive a turn");
         this.appendValueInput("ROTATE_ANGLE")
-                .appendField('R,-1080,1080,0', 'RANGEVALS0')
+                .appendRange('R,-1080,1080,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("that is (+/\u2212 degrees)");
         this.appendValueInput("ROTATE_RADIUS")
-                .appendField('R,-85,85,0', 'RANGEVALS1')
+                .appendRange('R,-85,85,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("around a radius in (+/\u2212)")
@@ -932,13 +901,10 @@ Blockly.Blocks.move_motors_angle = {
                     this.sourceBlock_.newUnit(unit);
                 }), 'RADIUS_MULTIPLIER');
         this.appendValueInput("ROTATE_SPEED")
-                .appendField('R,-100,100,0', 'RANGEVALS2')
+                .appendRange('R,-100,100,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("at speed (%)");
-        this.getField('RANGEVALS0').setVisible(false);
-        this.getField('RANGEVALS1').setVisible(false);
-        this.getField('RANGEVALS2').setVisible(false);
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -964,7 +930,7 @@ Blockly.Blocks.move_motors_angle = {
             rangeText = 'R,-4400,4400,0';
         }
 
-        this.setFieldValue(rangeText, 'RANGEVALS1');
+        this.getInput('ROTATE_RADIUS').appendRange(rangeText);
 
         if (thisBlock_)
             if (thisBlock_.onchange)
@@ -985,29 +951,25 @@ Blockly.Blocks.play_polyphony = {
         this.appendDummyInput()
                 .appendField("play tones");
         this.appendValueInput("FREQUENCY_1")
-                .appendField('R,0,2000,0', 'RANGEVALS0')
+                .appendRange('R,0,2000,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("tone 1 (Hz)");
         this.appendValueInput("FREQUENCY_2")
-                .appendField('R,0,2000,0', 'RANGEVALS1')
+                .appendRange('R,0,2000,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("tone 2 (Hz)");
         this.appendValueInput("POLYPHONY_DURATION")
-                .appendField('R,0,15000,0', 'RANGEVALS2')
+                .appendRange('R,0,15000,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("for (milliseconds)");
         this.appendValueInput("POLYPHONY_VOLUME")
-                .appendField('R,0,100,0', 'RANGEVALS3')
+                .appendRange('R,0,100,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
                 .appendField("at volume (%)");
-        this.getField('RANGEVALS0').setVisible(false);
-        this.getField('RANGEVALS1').setVisible(false);
-        this.getField('RANGEVALS2').setVisible(false);
-        this.getField('RANGEVALS3').setVisible(false);
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -1122,7 +1084,6 @@ Blockly.Blocks.spinning_sensor = {
 };
 
 Blockly.propc.spinning_sensor = function () {
-    var dir = this.getFieldValue("LGHT_SENSOR_CHOICE");
     return ['!s3_motorsMoving()', Blockly.propc.ORDER_ATOMIC];
 };
 
@@ -1200,8 +1161,7 @@ Blockly.Blocks.scribbler_stop_servo = {
             this.appendValueInput('SERVO_PIN')
                     .appendField(label)
                     .setCheck('Number')
-                    .appendField('A,' + profile.default.digital.toString(), 'RANGEVALS0');
-            this.getField('RANGEVALS0').setVisible(false);
+                    .appendRange('A,' + profile.default.digital.toString());
             if (moveBefore) {
                 this.moveInputBefore('SERVO_PIN', moveBefore);
             }
@@ -1568,9 +1528,8 @@ Blockly.Blocks.s3_eeprom_read = {
         this.setTooltip(Blockly.MSG_S3_SCRIBBLER_MEMORY_READ_TOOLTIP);
         this.appendValueInput("ADDR")
             .setCheck('Number')
-            .appendField('R,0,7936,0', 'RANGEVALS0')
+            .appendRange('R,0,7936,0')
             .appendField("memory read from address");
-        this.getField('RANGEVALS0').setVisible(false);
         this.setInputsInline(true);
         this.setOutput(true, 'Number');
         this.setColour(colorPalette.getColor('output'));
@@ -1592,9 +1551,8 @@ Blockly.Blocks.s3_eeprom_write = {
             .appendField("memory write");
         this.appendValueInput("ADDR")
             .setCheck('Number')
-            .appendField('R,0,7936,0', 'RANGEVALS0')
+            .appendRange('R,0,7936,0')
             .appendField("to address");
-        this.getField('RANGEVALS0').setVisible(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
         this.setInputsInline(true);
