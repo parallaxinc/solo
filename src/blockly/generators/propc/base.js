@@ -907,32 +907,17 @@ Blockly.Blocks.string_var_length = {
         var optionBlock = containerBlock.getInputTargetBlock('STACK');
         // Count number of inputs.
         this.optionList_.length = 0;
-        var data = [];
         var i = 0;
         while (optionBlock) {
             var obt = optionBlock.type.split('_');
             var obl = obt.length - 1;
             this.optionList_.push(obt[obl]);
-            data.push([
-                    //this.getFieldValue('VAR_NAME' + i) || Blockly.LANG_VARIABLES_GET_ITEM,
-                    this.getFieldValue('VAR_LEN' + i) || '64'
-            ]);
             i++;
             optionBlock = optionBlock.nextConnection &&
                     optionBlock.nextConnection.targetBlock();
         }
         this.updateConstMenu();
         this.updateShape_(true);
-
-        // Restore any data.
-        for (var i = 0; i < this.optionList_.length; i++) {
-            if (data[i][0] !== undefined) {
-                //this.setFieldValue(data[i][0], 'VAR_NAME' + i);
-            }
-            if (data[i][1] !== undefined) {
-                this.setFieldValue(data[i][1], 'VAR_LEN' + i);
-            }
-        }
     },
     updateConstMenu: function (ov, nv) {
         this.v_list = [];
@@ -954,18 +939,24 @@ Blockly.Blocks.string_var_length = {
 
         for (var i = 0; i < this.optionList_.length; i++) {
             var m = this.getFieldValue("VAR_LEN" + i);
+            var tempVariable = this.getFieldValue('VAR_NAME' + i);
             if (m && m === ov && nv) {
                 this.removeInput('VAR' + i);
                 this.appendDummyInput('VAR' + i)
                         .appendField('variable')
-                        //.appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'VAR_NAME' + i)
+                        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'VAR_NAME' + i)
                         .appendField('to')
                         .appendField(new Blockly.FieldDropdown(this.v_list.map(function (value) {
                             return [value, value]  // returns an array of arrays built from the original array.
                         })), "VAR_LEN" + i)
                         .appendField('characters'); 
                 this.setFieldValue(m || 'MYVALUE', "VAR_LEN" + i);
-                this.moveInputBefore('VAR' + i, 'VAR' + (i + 1));
+                if (tempVariable) {
+                    this.setFieldValue(tempVariable, 'VAR_NAME' + i);
+                }
+                if (this.getInput('VAR' + (i + 1))) {
+                    this.moveInputBefore('VAR' + i, 'VAR' + (i + 1));
+                }
             }
         }
     },
@@ -975,7 +966,8 @@ Blockly.Blocks.string_var_length = {
         while (this.getInput('VAR' + i)) {
             var tempVariableId = this.getFieldValue('VAR_NAME' + i);
             if (tempVariableId) {
-                this.variableFieldList[i] = tempVariableId;
+                this.variableFieldList[i] = Blockly.getMainWorkspace().getVariableById(tempVariableId);
+                this.variableFieldList[i].lengthValue = this.getFieldValue('VAR_LEN' + i);
             }
             this.removeInput('VAR' + i);
             i++;
@@ -985,7 +977,7 @@ Blockly.Blocks.string_var_length = {
             var type = this.optionList_[i];
             if (deleteVariableFields) {
                 this.appendDummyInput('VAR' + i)
-                        .appendField('variable ' + (this.variableFieldList[i] ? this.variableFieldList[i].name : 'item') + ' to');
+                        .appendField('variable ' + (this.variableFieldList[i] ? ' ' + this.variableFieldList[i].name + ' \u25be to' : ' item \u25be to'));
             } else {
                 this.appendDummyInput('VAR' + i)
                         .appendField('variable')
@@ -1003,12 +995,17 @@ Blockly.Blocks.string_var_length = {
                         .appendField(new Blockly.FieldNumber('64', null, null, 1), "VAR_LEN" + i)
                         .appendField('characters');
             }
+            if (!deleteVariableFields && this.variableFieldList[i]) {
+                this.setFieldValue(this.variableFieldList[i].getId(), 'VAR_NAME' + i);
+            }
+            if (this.variableFieldList[i] && this.variableFieldList[i].lengthValue) {
+                this.setFieldValue(this.variableFieldList[i].lengthValue, 'VAR_LEN' + i);
+            }
         }
     },
     onchange: function (event) {
-        if (event.blockId === this.id) {
-            console.log(event);
-            console.log(this);
+        if (event.blockId === this.id && event && event.element && event.element === 'mutatorOpen' && !event.newValue) {
+            this.updateShape_();   
         }
         this.updateConstMenu();
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
@@ -2514,12 +2511,7 @@ Blockly.Blocks.custom_code_multiple = {
         setTimeout(function() {
             currBlockTimeout.render();
         }, 200);
-    },
-    onchange: function (event) {
-        if (event && event.type === Blockly.Events.CHANGE && event.blockId === this.id) {
-            console.log(event);
-        }
-    } 
+    }
 };
 
 Blockly.propc.custom_code_multiple = function () {

@@ -1133,101 +1133,111 @@ function decodeFromValidXml(str) {
  * Save project to persistent storage
  */
 function downloadCode() {
-    let projXMLcode = getXml();
-
-    if (projectData && projectData['board'] !== 'propcfile' && projXMLcode.indexOf('<block') === -1) {
-        alert('You can\'t save an empty project!');
-        return;
-    }
-
-    // Create a filename from the project title
-    let project_filename = sanitizeFilename(projectData['name']);
-
-    projXMLcode = projXMLcode.substring(42, projXMLcode.length);
-    projXMLcode = projXMLcode.substring(0, (projXMLcode.length - 6));
-
-    utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD, project_filename, function (value) {
-        if (value) {
-            // get the paths of the blocks themselves and the size/position of the blocks
-            var projSVG = document.getElementsByClassName('blocklyBlockCanvas');
-            var projSVGcode = projSVG[0].outerHTML.replace(/&nbsp;/g, ' ');
-            var projSize = projSVG[0].getBoundingClientRect();
-            var projH = (parseInt(projSize.height) + parseInt(projSize.top) + 100).toString();
-            var projW = (parseInt(projSize.width) + parseInt(projSize.left) + 236).toString();
-
-            // put all of the pieces together into a downloadable file
-            var saveData = (function () {
-                var a = document.createElement("a");
-                document.body.appendChild(a);
-                a.style = "display: none";
-                return function (data, fileName) {
-                    var blob = new Blob([data], {type: "octet/stream"});
-                    var url = window.URL.createObjectURL(blob);
-                    a.href = url;
-                    a.download = fileName;
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                };
-            }());
-
-            // a header with the necessary svg XML header and style information to make the blocks render correctly
-            // TODO: make SVG valid.
-            var SVGheader = '';
-            SVGheader += '<svg blocklyprop="blocklypropproject" xmlns="http://www.w3.org/2000/svg" ';
-            SVGheader += 'xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink" ';
-            SVGheader += 'version="1.1" class="blocklySvg"><style>.blocklySvg { background-color: #fff; ';
-            SVGheader += 'overflow: auto; width:' + projW + 'px; height:' + projH + 'px;} .blocklyWidgetDiv {display: none; position: absolute; ';
-            SVGheader += 'z-index: 999;} .blocklyPathLight { fill: none; stroke-linecap: round; ';
-            SVGheader += 'stroke-width: 2;} .blocklyDisabled>.blocklyPath { fill-opacity: .5; ';
-            SVGheader += 'stroke-opacity: .5;} .blocklyDisabled>.blocklyPathLight, .blocklyDisabled>';
-            SVGheader += '.blocklyPathDark {display: none;} .blocklyText {cursor: default; fill: ';
-            SVGheader += '#fff; font-family: sans-serif; font-size: 11pt;} .blocklyNonEditableText>text { ';
-            SVGheader += 'pointer-events: none;} .blocklyNonEditableText>rect, .blocklyEditableText>rect ';
-            SVGheader += '{fill: #fff; fill-opacity: .6;} .blocklyNonEditableText>text, .blocklyEditableText>';
-            SVGheader += 'text {fill: #000;} .blocklyBubbleText {fill: #000;} .blocklySvg text {user';
-            SVGheader += '-select: none; -moz-user-select: none; -webkit-user-select: none; cursor: ';
-            SVGheader += 'inherit;} .blocklyHidden {display: none;} .blocklyFieldDropdown:not(.blocklyHidden) ';
-            SVGheader += '{display: block;} .bkginfo {cursor: default; fill: rgba(0, 0, 0, 0.3); font-family: ';
-            SVGheader += 'sans-serif; font-size: 10pt;}</style>';
-
-            // a footer to generate a watermark with the project's information at the bottom-right corner of the SVG
-            // and hold project metadata.
-            var SVGfooter = '';
-            var dt = new Date();
-            SVGfooter += '<rect x="100%" y="100%" rx="7" ry="7" width="218" height="84" style="fill:rgba(255,255,255,0.4);" transform="translate(-232,-100)" />';
-            SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-83)" style="font-weight:bold;">Parallax BlocklyProp Project</text>';
-            SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-68)">User: ' + encodeToValidXml(projectData['user']) + '</text>';
-            SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-53)">Title: ' + encodeToValidXml(projectData['name']) + '</text>';
-            SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-38)">Project ID: ' + idProject + '</text>';
-            SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-23)">Device: ' + projectData['board'] + '</text>';
-            SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-8)">Description: ' + encodeToValidXml(projectData['description']) + '</text>';
-            SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' + projectData['created'] + '" data-lastmodified="' + dt + '"></text>';
-
-            // Check for any file extentions at the end of the submitted name, and truncate if any
-            if (value.indexOf(".") !== -1) {
-                value = value.substring(0, value.indexOf("."));
-            }
-
-            // sanitize the filename
-            value = sanitizeFilename(value);
-
-            var xmlChecksum = hashCode(projXMLcode).toString();
-            xmlChecksum = '000000000000'.substring(xmlChecksum.length, 12) + xmlChecksum;
-
-            // Assemble both the SVG (image) of the blocks and the blocks' XML definition
-            saveData(SVGheader + projSVGcode + SVGfooter + projXMLcode + '<ckm>' + xmlChecksum + '</ckm></svg>', value + '.svg');
+    // TODO: Temporary - closes any open mutators.  Necessary because mutators containing variable inputs
+    // appear to be broken in the blockly core.
+    Blockly.getMainWorkspace().getAllBlocks().forEach(function (tempBlock) {
+        if (tempBlock.mutator) {
+            tempBlock.mutator.setVisible(false);
         }
     });
+    // TODO: remove timeout when mutators are fixed.
+    setTimeout(function () {
+        let projXMLcode = getXml();
 
-    // save the project into localStorage with a timestamp - if the page is simply refreshed,
-    // this will allow the project to be reloaded.
-    // make the projecData object reflect the current workspace and save it into localStorage
-    projectData.timestamp = getTimestamp();
-    projectData.code = EmptyProjectCodeHeader + projXMLcode + '</xml>';
-    window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
+        if (projectData && projectData['board'] !== 'propcfile' && projXMLcode.indexOf('<block') === -1) {
+            alert('You can\'t save an empty project!');
+            return;
+        }
 
-    // Mark the time when saved, add 20 minutes to it.
-    timestampSaveTime(SAVE_PROJECT_TIMER_DELAY, true);
+        // Create a filename from the project title
+        let project_filename = sanitizeFilename(projectData['name']);
+
+        projXMLcode = projXMLcode.substring(42, projXMLcode.length);
+        projXMLcode = projXMLcode.substring(0, (projXMLcode.length - 6));
+
+        utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD, project_filename, function (value) {
+            if (value) {
+                // get the paths of the blocks themselves and the size/position of the blocks
+                var projSVG = document.getElementsByClassName('blocklyBlockCanvas');
+                var projSVGcode = projSVG[0].outerHTML.replace(/&nbsp;/g, ' ');
+                var projSize = projSVG[0].getBoundingClientRect();
+                var projH = (parseInt(projSize.height) + parseInt(projSize.top) + 100).toString();
+                var projW = (parseInt(projSize.width) + parseInt(projSize.left) + 236).toString();
+
+                // put all of the pieces together into a downloadable file
+                var saveData = (function () {
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.style = "display: none";
+                    return function (data, fileName) {
+                        var blob = new Blob([data], {type: "octet/stream"});
+                        var url = window.URL.createObjectURL(blob);
+                        a.href = url;
+                        a.download = fileName;
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    };
+                }());
+
+                // a header with the necessary svg XML header and style information to make the blocks render correctly
+                // TODO: make SVG valid.
+                var SVGheader = '';
+                SVGheader += '<svg blocklyprop="blocklypropproject" xmlns="http://www.w3.org/2000/svg" ';
+                SVGheader += 'xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink" ';
+                SVGheader += 'version="1.1" class="blocklySvg"><style>.blocklySvg { background-color: #fff; ';
+                SVGheader += 'overflow: auto; width:' + projW + 'px; height:' + projH + 'px;} .blocklyWidgetDiv {display: none; position: absolute; ';
+                SVGheader += 'z-index: 999;} .blocklyPathLight { fill: none; stroke-linecap: round; ';
+                SVGheader += 'stroke-width: 2;} .blocklyDisabled>.blocklyPath { fill-opacity: .5; ';
+                SVGheader += 'stroke-opacity: .5;} .blocklyDisabled>.blocklyPathLight, .blocklyDisabled>';
+                SVGheader += '.blocklyPathDark {display: none;} .blocklyText {cursor: default; fill: ';
+                SVGheader += '#fff; font-family: sans-serif; font-size: 11pt;} .blocklyNonEditableText>text { ';
+                SVGheader += 'pointer-events: none;} .blocklyNonEditableText>rect, .blocklyEditableText>rect ';
+                SVGheader += '{fill: #fff; fill-opacity: .6;} .blocklyNonEditableText>text, .blocklyEditableText>';
+                SVGheader += 'text {fill: #000;} .blocklyBubbleText {fill: #000;} .blocklySvg text {user';
+                SVGheader += '-select: none; -moz-user-select: none; -webkit-user-select: none; cursor: ';
+                SVGheader += 'inherit;} .blocklyHidden {display: none;} .blocklyFieldDropdown:not(.blocklyHidden) ';
+                SVGheader += '{display: block;} .bkginfo {cursor: default; fill: rgba(0, 0, 0, 0.3); font-family: ';
+                SVGheader += 'sans-serif; font-size: 10pt;}</style>';
+
+                // a footer to generate a watermark with the project's information at the bottom-right corner of the SVG
+                // and hold project metadata.
+                var SVGfooter = '';
+                var dt = new Date();
+                SVGfooter += '<rect x="100%" y="100%" rx="7" ry="7" width="218" height="84" style="fill:rgba(255,255,255,0.4);" transform="translate(-232,-100)" />';
+                SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-83)" style="font-weight:bold;">Parallax BlocklyProp Project</text>';
+                SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-68)">User: ' + encodeToValidXml(projectData['user']) + '</text>';
+                SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-53)">Title: ' + encodeToValidXml(projectData['name']) + '</text>';
+                SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-38)">Project ID: ' + idProject + '</text>';
+                SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-23)">Device: ' + projectData['board'] + '</text>';
+                SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-8)">Description: ' + encodeToValidXml(projectData['description']) + '</text>';
+                SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' + projectData['created'] + '" data-lastmodified="' + dt + '"></text>';
+
+                // Check for any file extentions at the end of the submitted name, and truncate if any
+                if (value.indexOf(".") !== -1) {
+                    value = value.substring(0, value.indexOf("."));
+                }
+
+                // sanitize the filename
+                value = sanitizeFilename(value);
+
+                var xmlChecksum = hashCode(projXMLcode).toString();
+                xmlChecksum = '000000000000'.substring(xmlChecksum.length, 12) + xmlChecksum;
+
+                // Assemble both the SVG (image) of the blocks and the blocks' XML definition
+                saveData(SVGheader + projSVGcode + SVGfooter + projXMLcode + '<ckm>' + xmlChecksum + '</ckm></svg>', value + '.svg');
+            }
+        });
+
+        // save the project into localStorage with a timestamp - if the page is simply refreshed,
+        // this will allow the project to be reloaded.
+        // make the projecData object reflect the current workspace and save it into localStorage
+        projectData.timestamp = getTimestamp();
+        projectData.code = EmptyProjectCodeHeader + projXMLcode + '</xml>';
+        window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
+
+        // Mark the time when saved, add 20 minutes to it.
+        timestampSaveTime(SAVE_PROJECT_TIMER_DELAY, true);
+    }, 100);
 }
 
 

@@ -1479,6 +1479,7 @@ Blockly.Blocks.serial_scan_multiple = {
         this.setMutator(new Blockly.Mutator(['console_print_dec', 'console_print_hex', 'console_print_bin', 'console_print_float', 'console_print_char']));
         this.setWarningText(null);
         this.ser_pins = [];
+        this.variableFieldList = [];
         this.serPins();
         this.scanAfter = '';
     },
@@ -1547,47 +1548,31 @@ Blockly.Blocks.serial_scan_multiple = {
         var optionBlock = containerBlock.getInputTargetBlock('STACK');
         // Count number of inputs.
         this.optionList_.length = 0;
-        var data = [];
         while (optionBlock) {
             var obt = optionBlock.type.split('_');
             var obl = obt.length - 1;
             this.optionList_.push(obt[obl]);
-            data.push([optionBlock.userData_, optionBlock.cpuData_]);
             optionBlock = optionBlock.nextConnection &&
                     optionBlock.nextConnection.targetBlock();
         }
-        this.updateShape_();
-        // Restore any data.
-        for (var i = 0; i < this.optionList_.length; i++) {
-            if (data[i][1]) {
-                this.setFieldValue(data[i][1], 'CPU' + i);
-            }
-            if (data[i][0]) {
-                this.setFieldValue(data[i][0], 'MULT' + i);
-            }
-        }
+        this.updateShape_(true);
     },
     serPins: Blockly.Blocks['serial_send_text'].serPins,
     updateSerPin: Blockly.Blocks['serial_send_text'].updateSerPin,
-    saveConnections: function (containerBlock) {
-        // Store all data for each option.
-        var optionBlock = containerBlock.getInputTargetBlock('STACK');
-        var i = 0;
-        while (optionBlock) {
-            optionBlock.cpuData_ = this.getFieldValue('CPU' + i) || Blockly.LANG_VARIABLES_GET_ITEM;
-            optionBlock.userData_ = this.getFieldValue('MULT' + i) || null;
-            optionBlock = optionBlock.nextConnection && optionBlock.nextConnection.targetBlock();
-            i++;
-        }
-    },
-    updateShape_: function () {
+    updateShape_: function (deleteVariableFields) {
         // Delete everything.
         var i = 0;
         while (this.getInput('OPTION' + i)) {
+            var tempVariableId = this.getFieldValue('CPU' + i);
+            if (tempVariableId) {
+                this.variableFieldList[i] = Blockly.getMainWorkspace().getVariableById(tempVariableId);
+                this.variableFieldList[i].floatMultiplier = this.getFieldValue('MULT' + i);
+            }
             this.removeInput('OPTION' + i);
             i++;
         }
         if (this.getInput('SCAN_AFTER')) {
+            // TODO: capture and reconnect a connected block
             this.removeInput('SCAN_AFTER');
         }
         // Rebuild block.
@@ -1605,14 +1590,24 @@ Blockly.Blocks.serial_scan_multiple = {
                 this.appendDummyInput('OPTION' + i)
                         .appendField('store float point \u2715')
                         .appendField(new Blockly.FieldDropdown(Blockly.DROPDOWN_MULTIPLIER), 'MULT' + i)
-                        //.appendField(new Blockly.FieldTextInput('100'), 'MULT' + i)
                         .appendField('in', 'TYPE' + i)
-                        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'CPU' + i);
                 this.setFieldValue('100', 'MULT' + i);
             } else {
                 this.appendDummyInput('OPTION' + i)
                         .appendField(label, 'TYPE' + i)
-                        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'CPU' + i);
+            }
+            if (deleteVariableFields) {
+                this.getInput('OPTION' + i)
+                        .appendField((this.variableFieldList[i] ? ' ' + this.variableFieldList[i].name + ' \u25be' : ' item \u25be'));
+            } else {
+                this.getInput('OPTION' + i)
+                        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'CPU' + i)
+            }
+            if (!deleteVariableFields && this.variableFieldList && this.variableFieldList[i]) {
+                this.setFieldValue(this.variableFieldList[i].getId(), 'CPU' + i);
+            }
+            if (this.variableFieldList && this.variableFieldList[i] && this.variableFieldList[i].floatMultiplier) {
+                this.setFieldValue(this.variableFieldList[i].floatMultiplier, 'MULT' + i);
             }
         }
         if (this.scanAfter === 'AfterStr') {
@@ -1625,7 +1620,10 @@ Blockly.Blocks.serial_scan_multiple = {
                     //.setCheck('Number');
         }
     },
-    onchange: function () {
+    onchange: function (event) {
+        if (event.blockId === this.id && event && event.element && event.element === 'mutatorOpen' && !event.newValue) {
+            this.updateShape_();   
+        }
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         var warnTxt = null;
         if (allBlocks.toString().indexOf('Serial initialize') === -1) {
@@ -2635,16 +2633,18 @@ Blockly.Blocks.xbee_scan_multiple = {
         this.setWarningText(null);
         // not used, but allows this block to share functions from serial_scan_multiple block
         this.ser_pins = [];
-        //this.serPins();
+        this.variableFieldList = [];
     },
     mutationToDom: Blockly.Blocks['serial_scan_multiple'].mutationToDom,
     domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
     decompose: Blockly.Blocks['serial_scan_multiple'].decompose,
     compose: Blockly.Blocks['serial_scan_multiple'].compose,
-    saveConnections: Blockly.Blocks['serial_scan_multiple'].saveConnections,
     updateShape_: Blockly.Blocks['serial_scan_multiple'].updateShape_,
     updateSerPin: function () {},
-    onchange: function () {
+    onchange: function (event) {
+        if (event.blockId === this.id && event && event.element && event.element === 'mutatorOpen' && !event.newValue) {
+            this.updateShape_();   
+        }
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         var warnTxt = null;
         if (allBlocks.toString().indexOf('XBee initialize') === -1) {
@@ -4741,6 +4741,7 @@ Blockly.Blocks.wx_scan_multiple = {
         this.setWarningText(null);
         // not used, but allows this block to share functions from serial_scan_multiple block
         this.ser_pins = [];
+        this.variableFieldList = [];
     },
     setPrefix_: function (action) {
         var prefixValue = this.getFieldValue('START');
@@ -4758,10 +4759,12 @@ Blockly.Blocks.wx_scan_multiple = {
     domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
     decompose: Blockly.Blocks['serial_scan_multiple'].decompose,
     compose: Blockly.Blocks['serial_scan_multiple'].compose,
-    saveConnections: Blockly.Blocks['serial_scan_multiple'].saveConnections,
     updateShape_: Blockly.Blocks['serial_scan_multiple'].updateShape_,
     updateSerPin: function () {},
-    onchange: function () {
+    onchange: function (event) {
+        if (event.blockId === this.id && event && event.element && event.element === 'mutatorOpen' && !event.newValue) {
+            this.updateShape_();   
+        }
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         if (allBlocks.toString().indexOf('WX initialize') === -1 && projectData['board'] !== 'heb-wx')
         {
@@ -6486,15 +6489,19 @@ Blockly.Blocks.string_scan_multiple = {
         this.setWarningText(null);
         // not used, but allows this block to share functions from serial_scan_multiple block
         this.ser_pins = [];
-        //this.serPins();
+        this.variableFieldList = [];
     },
     mutationToDom: Blockly.Blocks['serial_scan_multiple'].mutationToDom,
     domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
     decompose: Blockly.Blocks['serial_scan_multiple'].decompose,
     compose: Blockly.Blocks['serial_scan_multiple'].compose,
-    saveConnections: Blockly.Blocks['serial_scan_multiple'].saveConnections,
     updateShape_: Blockly.Blocks['serial_scan_multiple'].updateShape_,
-    updateSerPin: function () {}
+    updateSerPin: function () {},
+    onchange: function (event) {
+        if (event.blockId === this.id && event && event.element && event.element === 'mutatorOpen' && !event.newValue) {
+            this.updateShape_();   
+        }
+    }
 };
 
 Blockly.Blocks.string_scan_container = {
