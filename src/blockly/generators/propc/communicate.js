@@ -1562,17 +1562,24 @@ Blockly.Blocks.serial_scan_multiple = {
     updateShape_: function (deleteVariableFields) {
         // Delete everything.
         var i = 0;
+        var connectedBlock = null;
         while (this.getInput('OPTION' + i)) {
+            // Cature and store any field values before the input is removed/deleted
             var tempVariableId = this.getFieldValue('CPU' + i);
             if (tempVariableId) {
                 this.variableFieldList[i] = Blockly.getMainWorkspace().getVariableById(tempVariableId);
                 this.variableFieldList[i].floatMultiplier = this.getFieldValue('MULT' + i);
             }
+            // delete the input
             this.removeInput('OPTION' + i);
             i++;
         }
         if (this.getInput('SCAN_AFTER')) {
-            // TODO: capture and reconnect a connected block
+            // Capture and disconnect a connected block
+            connectedBlock = this.getInput('SCAN_AFTER').connection.targetBlock();
+            if (connectedBlock) {
+                connectedBlock.outputConnection.disconnect();
+            }
             this.removeInput('SCAN_AFTER');
         }
         // Rebuild block.
@@ -1596,6 +1603,8 @@ Blockly.Blocks.serial_scan_multiple = {
                 this.appendDummyInput('OPTION' + i)
                         .appendField(label, 'TYPE' + i)
             }
+            // If the mutator is open, then don't build the variable field - instead show that 
+            // variable name in a plain text field. 
             if (deleteVariableFields) {
                 this.getInput('OPTION' + i)
                         .appendField((this.variableFieldList[i] ? ' ' + this.variableFieldList[i].name + ' \u25be' : ' item \u25be'));
@@ -1603,6 +1612,7 @@ Blockly.Blocks.serial_scan_multiple = {
                 this.getInput('OPTION' + i)
                         .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'CPU' + i)
             }
+            // Once the fields are built, restore their previous values
             if (!deleteVariableFields && this.variableFieldList && this.variableFieldList[i]) {
                 this.setFieldValue(this.variableFieldList[i].getId(), 'CPU' + i);
             }
@@ -1618,6 +1628,10 @@ Blockly.Blocks.serial_scan_multiple = {
             this.appendValueInput('SCAN_AFTER')
                     .appendField('start from position');
                     //.setCheck('Number');
+        }
+        // Reconnect a previously connected block
+        if (connectedBlock && this.getInput('SCAN_AFTER')) {
+            connectedBlock.outputConnection.connect(this.getInput('SCAN_AFTER').connection);
         }
     },
     onchange: function (event) {
