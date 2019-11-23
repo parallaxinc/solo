@@ -432,14 +432,14 @@ Blockly.Blocks.console_print_multiple = {
     saveConnections: function (containerBlock) {
         // Store a pointer to any connected child blocks.
         var clauseBlock = containerBlock.getInputTargetBlock('STACK');
-        var x = 0;
+        var i = 0;
         while (clauseBlock) {
-            var printInput = this.getInput('PRINT' + x);
+            var printInput = this.getInput('PRINT' + i);
             clauseBlock.valueConnection_ =
                     printInput && printInput.connection.targetConnection;
             clauseBlock = clauseBlock.nextConnection &&
                     clauseBlock.nextConnection.targetBlock();
-            x++;
+            i++;
         }
     },
     onchange: function () {
@@ -628,7 +628,7 @@ Blockly.propc.console_print_multiple = function () {
             code += 'oledprint("';
             break;
         case 'string_sprint_multiple':
-            var p = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+            p = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
             Blockly.propc.vartype_[p] = 'char *';
             code += 'sprint(' + p + ', "';
             break;
@@ -676,7 +676,7 @@ Blockly.propc.console_print_multiple = function () {
         }
 
         if (!this.getFieldValue('TYPE' + i).includes('float point  divide by')) {
-            varList += ', ' + (Blockly.propc.valueToCode(this, 'PRINT' + i, Blockly.propc.ORDER_NONE).replace('\/%\g', '%%') || orIt);
+            varList += ', ' + (Blockly.propc.valueToCode(this, 'PRINT' + i, Blockly.propc.ORDER_NONE).replace(/%/g, '%%') || orIt);
         } else {
             varList += ', ((float) ' + (Blockly.propc.valueToCode(this, 'PRINT' + i, Blockly.propc.ORDER_NONE) || orIt) +
                     ') / ' + this.getFieldValue('DIV' + i) + '.0';
@@ -697,7 +697,8 @@ Blockly.propc.console_print_multiple = function () {
     }
 
     if (projectData['board'] === 'heb-wx' && this.type === 'wx_print_multiple') {
-        var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+        Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
 
     return code;
@@ -911,15 +912,15 @@ Blockly.Blocks.serial_open = {
         this.serialPin = this.getFieldValue('RXPIN') + ',' + this.getFieldValue('TXPIN');
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         if (event && (event.blockId === this.id || event.oldXml)) {  // only fire when it's this block or a block got deleted
-            for (var x = 0; x < allBlocks.length; x++) {
-                var func = allBlocks[x].serPins;
+            for (var i = 0; i < allBlocks.length; i++) {
+                var func = allBlocks[i].serPins;
                 if (func) {
                     if (event.name === 'RXPIN') {
-                        func.call(allBlocks[x], event.oldValue + ',' + this.getFieldValue('TXPIN'), event.newValue + ',' + this.getFieldValue('TXPIN'));
+                        func.call(allBlocks[i], event.oldValue + ',' + this.getFieldValue('TXPIN'), event.newValue + ',' + this.getFieldValue('TXPIN'));
                     } else if (event.name === 'TXPIN') {
-                        func.call(allBlocks[x], this.getFieldValue('RXPIN') + ',' + event.oldValue, this.getFieldValue('RXPIN') + ',' + event.newValue);
+                        func.call(allBlocks[i], this.getFieldValue('RXPIN') + ',' + event.oldValue, this.getFieldValue('RXPIN') + ',' + event.newValue);
                     } else if (event.oldXml) {
-                        func.call(allBlocks[x]);
+                        func.call(allBlocks[i]);
                     }
                 }
             }
@@ -947,7 +948,7 @@ Blockly.Blocks.serial_open = {
     },
     setToMode: function (details) {
         if (!details) {
-            var details = ['FALSE', 'FALSE', 'FALSE', 'FALSE'];
+            details = ['FALSE', 'FALSE', 'FALSE', 'FALSE'];
         }
         if(this.getInput('MODE')) {
             this.removeInput('MODE');
@@ -1105,9 +1106,9 @@ Blockly.Blocks.serial_send_text = {
     updateSerPin: function () {
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         this.ser_pins.length = 0;
-        for (var x = 0; x < allBlocks.length; x++) {
-            if (allBlocks[x].type === 'serial_open') {
-                var sp = allBlocks[x].serialPin;
+        for (var i = 0; i < allBlocks.length; i++) {
+            if (allBlocks[i].type === 'serial_open') {
+                var sp = allBlocks[i].serialPin;
                 if (sp) {
                     this.ser_pins.push(sp);
                 }
@@ -1609,7 +1610,7 @@ Blockly.Blocks.serial_scan_multiple = {
             this.removeInput('SCAN_AFTER');
         }
         // Rebuild block.
-        for (var i = 0; i < this.optionList_.length; i++) {
+        for (i = 0; i < this.optionList_.length; i++) {
             var type = this.optionList_[i];
             var label = 'store ASCII character in';
             if (type === 'dec') {
@@ -1646,7 +1647,7 @@ Blockly.Blocks.serial_scan_multiple = {
             connectedBlock.outputConnection.connect(this.getInput('SCAN_AFTER').connection);
         }
     },
-    onchange: function (event) {
+    onchange: function () {
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         var warnTxt = null;
         if (allBlocks.toString().indexOf('Serial initialize') === -1) {
@@ -1789,9 +1790,9 @@ Blockly.Blocks.shift_in = {
     updateConstMenu: function (oldValue, newValue) {
         this.userDefinedConstantsList_ = [];
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-        for (var x = 0; x < allBlocks.length; x++) {
-            if (allBlocks[x].type === 'constant_define') {
-                var v_name = allBlocks[x].getFieldValue('CONSTANT_NAME');
+        for (var i = 0; i < allBlocks.length; i++) {
+            if (allBlocks[i].type === 'constant_define') {
+                var v_name = allBlocks[i].getFieldValue('CONSTANT_NAME');
                 if (v_name === oldValue && newValue) {
                     v_name = newValue;
                 }
@@ -2083,8 +2084,8 @@ Blockly.propc.debug_lcd_number = function () {
     if (this.type === 'parallel_lcd_print') {
         st = 'parallel';
     }
-    if ((!findBlocksByType('debug_lcd_init') && st === 'serial') || 
-    (!findBlocksByType('parallel_lcd_init') && st === 'parallel')) {
+    if ((Blockly.getMainWorkspace().getBlocksByType('debug_lcd_init').length === 0 && st === 'serial') || 
+    (Blockly.getMainWorkspace().getBlocksByType('parallel_lcd_init').length === 0 && st === 'parallel')) {
         code += '// ERROR: LCD is not initialized!\n';
     } else {
         var value = Blockly.propc.valueToCode(this, 'VALUE', Blockly.propc.ORDER_ATOMIC);
@@ -2130,8 +2131,7 @@ Blockly.Blocks.debug_lcd_action = {
         this.setWarningText(null);
     },
     onchange: function () {
-        if (!findBlocksByType('debug_lcd_init'))
-        {
+        if (Blockly.getMainWorkspace().getBlocksByType('debug_lcd_init').length === 0) {
             this.setWarningText('WARNING: You must use an LCD\ninitialize block at the beginning of your program!');
         } else {
             this.setWarningText(null);
@@ -2140,8 +2140,7 @@ Blockly.Blocks.debug_lcd_action = {
 };
 
 Blockly.propc.debug_lcd_action = function () {
-    if (!findBlocksByType('debug_lcd_init'))
-    {
+    if (Blockly.getMainWorkspace().getBlocksByType('debug_lcd_init').length === 0) {
        return '// ERROR: LCD is not initialized!\n';
     } else {
         var action = this.getFieldValue('ACTION');
@@ -2188,9 +2187,8 @@ Blockly.Blocks.debug_lcd_set_cursor = {
 };
 
 Blockly.propc.debug_lcd_set_cursor = function () {
-    if ((!findBlocksByType('debug_lcd_init') && this.type === 'debug_lcd_set_cursor') || 
-            (!findBlocksByType('parallel_lcd_init') && this.type === 'parallel_lcd_set_cursor'))
-    {
+    if ((Blockly.getMainWorkspace().getBlocksByType('debug_lcd_init').length === 0 && this.type === 'debug_lcd_set_cursor') || 
+            (Blockly.getMainWorkspace().getBlocksByType('parallel_lcd_init').length === 0 && this.type === 'parallel_lcd_set_cursor')) {
         return '// LCD is not initialized!\n';
     } else {
         var row = Blockly.propc.valueToCode(this, 'ROW', Blockly.propc.ORDER_NONE);
@@ -2242,9 +2240,8 @@ Blockly.Blocks.debug_lcd_print_multiple = {
         if (this.workspace && this.optionList_.length < 1) {
             warnTxt = 'LCD print multiple must have at least one term.';
         }
-        if ((!findBlocksByType('debug_lcd_init') && this.type === 'debug_lcd_print_multiple') || 
-                (!findBlocksByType('parallel_lcd_init') && this.type === 'parallel_lcd_print_multiple'))
-        {
+        if ((Blockly.getMainWorkspace().getBlocksByType('debug_lcd_init').length === 0 && this.type === 'debug_lcd_print_multiple') || 
+                (Blockly.getMainWorkspace().getBlocksByType('parallel_lcd_init').length === 0 && this.type === 'parallel_lcd_print_multiple')) {
             warnTxt = 'WARNING: You must use an LCD\ninitialize block at the beginning of your program!';
         }
         this.setWarningText(warnTxt);
@@ -2298,7 +2295,7 @@ Blockly.Blocks.parallel_lcd_init = {
                 .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinsConstantsList)), "DATA3");
         this.setFieldValue(m[0], mv[0]);
         this.setFieldValue(m[1], mv[1]);
-        for (var i = 2; i < 8; i++) {
+        for (i = 2; i < 8; i++) {
             if (m[i] && m[i] === oldValue && newValue) {
                 this.setFieldValue(newValue, mv[i]);
             } else if (m[i]) {
@@ -3829,8 +3826,8 @@ Blockly.propc.oled_bitmap = function () {
         if (allBlocks.toString().indexOf(this.displayKind + ' initialize') === -1) {
             return '// ERROR: ' + this.displayKind + ' is not initialized!\n';
         }        
-        for (var x = 0; x < allBlocks.length; x++) {
-            if (allBlocks[x].type === 'sd_init') {
+        for (var i = 0; i < allBlocks.length; i++) {
+            if (allBlocks[i].type === 'sd_init') {
                 initFound = true;
             }
         }
@@ -3893,16 +3890,16 @@ Blockly.Blocks.ws2812b_init = {
         var oldPin = this.rgbPin;
         this.rgbPin = myPin;
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-        for (var x = 0; x < allBlocks.length; x++) {
-            var func = allBlocks[x].rgbPins;
-            var fund = allBlocks[x].onchange;
+        for (var i = 0; i < allBlocks.length; i++) {
+            var func = allBlocks[i].rgbPins;
+            var fund = allBlocks[i].onchange;
             if (func && myPin) {
-                func.call(allBlocks[x], oldPin, myPin);
+                func.call(allBlocks[i], oldPin, myPin);
                 if (fund) {
-                    fund.call(allBlocks[x], {xml: true});
+                    fund.call(allBlocks[i], {xml: true});
                 }
             } else if (func) {
-                func.call(allBlocks[x]);
+                func.call(allBlocks[i]);
             }
         }
     }
@@ -4020,9 +4017,9 @@ Blockly.Blocks.ws2812b_set = {
     updateRGBpin: function () {
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         this.rgb_pins.length = 0;
-        for (var x = 0; x < allBlocks.length; x++) {
-            if (allBlocks[x].type === 'ws2812b_init') {
-                var cp = allBlocks[x].rgbPin || allBlocks[x].getFieldValue('PIN');
+        for (var i = 0; i < allBlocks.length; i++) {
+            if (allBlocks[i].type === 'ws2812b_init') {
+                var cp = allBlocks[i].rgbPin || allBlocks[i].getFieldValue('PIN');
                 if (cp) {
                     this.rgb_pins.push(cp);
                 }
@@ -4045,9 +4042,9 @@ Blockly.Blocks.ws2812b_set = {
                     this.warnFlag--;
                     if (this.getInput('RGBPIN')) {
                         var allRGBpins = '';
-                        for (var x = 0; x < allBlocks.length; x++) {
-                            if (allBlocks[x].type === 'ws2812b_init') {
-                                allRGBpins += (allBlocks[x].rgbPin || allBlocks[x].getFieldValue('PIN')) + ',';
+                        for (var i = 0; i < allBlocks.length; i++) {
+                            if (allBlocks[i].type === 'ws2812b_init') {
+                                allRGBpins += (allBlocks[i].rgbPin || allBlocks[i].getFieldValue('PIN')) + ',';
                             }
                         }
                         if (allRGBpins.indexOf(this.getFieldValue('RGB_PIN')) === -1) {
@@ -4315,7 +4312,7 @@ Blockly.Blocks.wx_config_page = {
 Blockly.propc.wx_config_page = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.wx_init.call();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
     }
     if (allBlocks.toString().indexOf('Simple WX initialize') === -1 && projectData['board'] !== 'heb-wx')
     {
@@ -4494,7 +4491,7 @@ Blockly.Blocks.wx_set_widget = {
 Blockly.propc.wx_set_widget = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.wx_init.call();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
     }
     if (allBlocks.toString().indexOf('Simple WX initialize') === -1 && projectData['board'] !== 'heb-wx')
     {
@@ -4546,7 +4543,7 @@ Blockly.Blocks.wx_send_widget = {
 Blockly.propc.wx_send_widget = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.wx_init.call();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
     }
     if (allBlocks.toString().indexOf('Simple WX initialize') === -1 && projectData['board'] !== 'heb-wx')
     {
@@ -4554,7 +4551,6 @@ Blockly.propc.wx_send_widget = function () {
     } else {
         var num = Blockly.propc.valueToCode(this, 'NUM', Blockly.propc.ORDER_NONE);
         var widget = this.getFieldValue('WIDGET');
-        var type = this.getFieldValue('TYPE');
         var code = 'wifi_print(WS, __wsHandle, "D,' + widget + ',%d", ' + num + ');\n';
 
         return code;
@@ -4579,7 +4575,7 @@ Blockly.Blocks.wx_read_widgets = {
 Blockly.propc.wx_read_widgets = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.wx_init.call();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
     }
     if (allBlocks.toString().indexOf('Simple WX initialize') === -1 && projectData['board'] !== 'heb-wx')
     {
@@ -4620,7 +4616,7 @@ Blockly.Blocks.wx_get_widget = {
 Blockly.propc.wx_get_widget = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.wx_init.call();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
     }
     if (allBlocks.toString().indexOf('Simple WX initialize') === -1 && projectData['board'] !== 'heb-wx')
     {
@@ -4650,7 +4646,7 @@ Blockly.Blocks.wx_evt_connected = {
 Blockly.propc.wx_evt_connected = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.wx_init.call();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
     }
     if (allBlocks.toString().indexOf('Simple WX initialize') === -1 && projectData['board'] !== 'heb-wx')
     {
@@ -4677,7 +4673,7 @@ Blockly.Blocks.wx_reconnect = {
 Blockly.propc.wx_reconnect = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.wx_init.call();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
     }
     if (allBlocks.toString().indexOf('Simple WX initialize') === -1 && projectData['board'] !== 'heb-wx')
     {
@@ -4829,7 +4825,8 @@ Blockly.Blocks.wx_scan_multiple = {
 Blockly.propc.wx_scan_multiple = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+        Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
     if (allBlocks.toString().indexOf('WX initialize') > -1 || projectData['board'] === 'heb-wx')
     {
@@ -4978,7 +4975,8 @@ Blockly.Blocks.wx_scan_string = {
 Blockly.propc.wx_scan_string = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+        Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
     if (allBlocks.indexOf('Simple WX initialize') === -1 && (allBlocks.indexOf('WX initialize') > -1 || projectData['board'] === 'heb-wx'))
     {
@@ -5023,7 +5021,8 @@ Blockly.Blocks.wx_send_string = {
 Blockly.propc.wx_send_string = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+        Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
     if (allBlocks.indexOf('Simple WX initialize') === -1 && (allBlocks.indexOf('WX initialize') > -1 || projectData['board'] === 'heb-wx'))
     {
@@ -5065,7 +5064,8 @@ Blockly.Blocks.wx_receive_string = {
 Blockly.propc.wx_receive_string = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+        Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
     if (allBlocks.indexOf('Simple WX initialize') === -1 && (allBlocks.indexOf('WX initialize') > -1 || projectData['board'] === 'heb-wx'))
     {
@@ -5104,7 +5104,8 @@ Blockly.Blocks.wx_poll = {
 Blockly.propc.wx_poll = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+        Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
     if (allBlocks.indexOf('Simple WX initialize') === -1 && (allBlocks.indexOf('WX initialize') > -1 || projectData['board'] === 'heb-wx'))
     {
@@ -5198,7 +5199,8 @@ Blockly.Blocks.wx_listen = {
 Blockly.propc.wx_listen = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+        Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
     if (allBlocks.indexOf('Simple WX initialize') === -1 && (allBlocks.indexOf('WX initialize') > -1 || projectData['board'] === 'heb-wx'))
     {
@@ -5248,7 +5250,8 @@ Blockly.Blocks.wx_join = {
 Blockly.propc.wx_join = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+        Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
     if (allBlocks.indexOf('WX initialize') > -1 || projectData['board'] === 'heb-wx')
     {
@@ -5398,7 +5401,8 @@ Blockly.Blocks.wx_mode = {
 Blockly.propc.wx_mode = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+        Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
     if (allBlocks.indexOf('WX initialize') > -1 || projectData['board'] === 'heb-wx')
     {
@@ -5440,7 +5444,8 @@ Blockly.Blocks.wx_buffer = {
 Blockly.propc.wx_buffer = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+        Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
     if (allBlocks.indexOf('Simple WX initialize') === -1 && (allBlocks.indexOf('WX initialize') > -1 || projectData['board'] === 'heb-wx')) {
         var size = this.getFieldValue('SIZE') || '64';
@@ -5496,7 +5501,7 @@ Blockly.Blocks.wx_disconnect = {
         if (details['ACTION'] === 'TCP') {
             this.setFieldValue('handle', 'TEXT');
         } else {
-            var tempIdVar = 'wxId';
+            tempIdVar = 'wxId';
             this.setFieldValue('ID', 'TEXT');
         }
         // Again, variables have to be completely set up and available, or these functions will throw errors.
@@ -5510,7 +5515,8 @@ Blockly.Blocks.wx_disconnect = {
 Blockly.propc.wx_disconnect = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (projectData['board'] === 'heb-wx') {
-        var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+        Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+        Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
     if (allBlocks.indexOf('Simple WX initialize') === -1 && (allBlocks.indexOf('WX initialize') > -1 || projectData['board'] === 'heb-wx'))
     {
@@ -5546,9 +5552,10 @@ Blockly.propc.wx_ip = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (projectData['board'] === 'heb-wx') {
         if (allBlocks.indexOf('Simple WX initialize') > -1) {
-            var runInit = Blockly.propc.wx_init();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+            Blockly.propc.wx_init.call();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
         } else {
-            var runInit = Blockly.propc.wx_init_adv();  // Runs the propc generator from the init block, since it's not included in the badge WX board type.
+            Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
+            Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
         }
     }
     if (allBlocks.indexOf('WX initialize') > -1 || projectData['board'] === 'heb-wx')
@@ -5642,7 +5649,7 @@ Blockly.Blocks.graph_output = {
             connection.connect(optionBlock.previousConnection);
             connection = optionBlock.nextConnection;
         }
-        var i = 0;
+        i = 0;
         this.graph_labels_ = null;
         this.graph_labels_ = [];
         while (this.getFieldValue('GRAPH_LABEL' + i)) {
@@ -5693,18 +5700,16 @@ Blockly.Blocks.graph_output = {
     saveConnections: function (containerBlock) {
         // Store a pointer to any connected child blocks.
         var clauseBlock = containerBlock.getInputTargetBlock('STACK');
-        var x = 0;
+        var i = 0;
         while (clauseBlock) {
-            //this.optionList_.push('dec');
-            var printInput = this.getInput('PRINT' + x);
+            var printInput = this.getInput('PRINT' + i);
             clauseBlock.valueConnection_ =
                     printInput && printInput.connection.targetConnection;
             clauseBlock = clauseBlock.nextConnection &&
                     clauseBlock.nextConnection.targetBlock();
-            x++;
-            //break;
+            i++;
         }
-        var i = 0;
+        i = 0;
         this.graph_labels_ = null;
         this.graph_labels_ = [];
         while (this.getFieldValue('GRAPH_LABEL' + i)) {
@@ -5714,12 +5719,10 @@ Blockly.Blocks.graph_output = {
 
     },
     onchange: function () {
-        var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+        var allBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_settings');
         var graphInitBlock = null;
-        for (var j = 0; j < allBlocks.length; j++) {
-            if (allBlocks[j].type === 'graph_settings') {
-                graphInitBlock = allBlocks[j];
-            }
+        if (allBlocks.length > 0) {
+            graphInitBlock = allBlocks[0];
         }
         if (!graphInitBlock) {
             this.setWarningText('WARNING: You must use a Graph\ninitialize block at the beginning of your program!');
@@ -5733,19 +5736,14 @@ Blockly.Blocks.graph_output = {
                     this.setWarningText(null);
                 }
             }
-            var j = 0;
-            while (this.getFieldValue('VALUE_LABEL' + j)) {
-                j++;
+            var i = 0;
+            while (this.getFieldValue('VALUE_LABEL' + i)) {
+                i++;
             }
-            if (j % 2 === 1 && graphInitBlock.getFieldValue('YSETTING').indexOf('XY') > -1) {
+            if (i % 2 === 1 && graphInitBlock.getFieldValue('YSETTING').indexOf('XY') > -1) {
                 this.setWarningText('Number of values must be EVEN when graphing an x/y series!');
             }
         }
-        /*
-        if (this.getInput('PRINT0') && this.getInput('PRINTa')) {
-            this.removeInput('PRINTa');
-        }
-        */
     }
 };
 
@@ -5774,14 +5772,10 @@ Blockly.propc.graph_output = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Graph initialize') > -1)
     {
-        var handle = this.getFieldValue('HANDLE');
-        var conn = this.getFieldValue('CONNECTION');
-
         var code = 'print("%u';
         var varList = '';
         var labelList = '';
         var i = 0;
-        var orIt = '';
         while (Blockly.propc.valueToCode(this, 'PRINT' + i, Blockly.propc.ORDER_NONE)) {
             code += ',%d';
             varList += ', ' + Blockly.propc.valueToCode(this, 'PRINT' + i, Blockly.propc.ORDER_NONE || '0');
@@ -6140,33 +6134,34 @@ Blockly.Blocks.i2c_send = {
 
         if (action === null) {
             var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-            for (var x = 0; x < allBlocks.length; x++) {
-                var func = allBlocks[x].checkI2cPins;
+            var func = null;
+            for (var i = 0; i < allBlocks.length; i++) {
+                func = allBlocks[i].checkI2cPins;
                 if (func) {
-                    var xda = allBlocks[x].getFieldValue('SDA');
-                    var xcl = allBlocks[x].getFieldValue('SCL');
+                    var xda = allBlocks[i].getFieldValue('SDA');
+                    var xcl = allBlocks[i].getFieldValue('SCL');
                     if (((sda === scl) || (xda === sda && xcl !== scl) ||
                             (xda !== sda && xcl === scl) ||
                             (xda === scl && xcl !== sda) ||
                             (xcl === sda && xda !== scl)) &&
-                            allBlocks[x] !== this &&
-                            allBlocks[x].type !== 'i2c_busy') {
+                            allBlocks[i] !== this &&
+                            allBlocks[i].type !== 'i2c_busy') {
                         this.pinWarn = warnTxt;
                     }
                 }
             }
-            for (var x = 0; x < allBlocks.length; x++) {
-                var func = allBlocks[x].checkI2cPins;
+            for (i = 0; i < allBlocks.length; i++) {
+                func = allBlocks[i].checkI2cPins;
                 if (func) {
-                    func.call(allBlocks[x], (this.pinWarn ? true : false));
+                    func.call(allBlocks[i], (this.pinWarn ? true : false));
                 }
-                func = allBlocks[x].setSdaPins;
+                func = allBlocks[i].setSdaPins;
                 if (func && sda !== this.getFieldValue('SDA')) {
-                    func.call(allBlocks[x], sda, this.getFieldValue('SDA'));
+                    func.call(allBlocks[i], sda, this.getFieldValue('SDA'));
                 }
-                func = allBlocks[x].setSclPins;
+                func = allBlocks[i].setSclPins;
                 if (func && scl !== this.getFieldValue('SCL')) {
-                    func.call(allBlocks[x], scl, this.getFieldValue('SCL'));
+                    func.call(allBlocks[i], scl, this.getFieldValue('SCL'));
                 }
             }
         } else if (action === true) {
@@ -6191,11 +6186,11 @@ Blockly.propc.i2c_send = function () {
     var devc = Blockly.propc.valueToCode(this, 'DEVICE', Blockly.propc.ORDER_NONE) || '0';
 
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-    for (var x = 0; x < allBlocks.length; x++) {
-        if (allBlocks[x].type === 'i2c_mode') {
-            var xcl = allBlocks[x].getFieldValue('SCL');
+    for (var i = 0; i < allBlocks.length; i++) {
+        if (allBlocks[i].type === 'i2c_mode') {
+            var xcl = allBlocks[i].getFieldValue('SCL');
             if (xcl === scl) {
-                mode = allBlocks[x].getFieldValue('MODE');
+                mode = allBlocks[i].getFieldValue('MODE');
             }
         }
     }
@@ -6234,6 +6229,7 @@ Blockly.propc.i2c_send = function () {
 
     if (dType === 'Number') {
         Blockly.propc.definitions_['i2c_Buf'] = 'unsigned char i2cBuf[4] = {0, 0, 0, 0};';
+        // eslint no-fallthrough
         switch (cnt) {
             default:
             case '4':
@@ -6350,11 +6346,11 @@ Blockly.propc.i2c_receive = function () {
     var devc = Blockly.propc.valueToCode(this, 'DEVICE', Blockly.propc.ORDER_NONE) || '0';
 
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-    for (var x = 0; x < allBlocks.length; x++) {
-        if (allBlocks[x].type === 'i2c_mode') {
-            var xcl = allBlocks[x].getFieldValue('SCL');
+    for (var i = 0; i < allBlocks.length; i++) {
+        if (allBlocks[i].type === 'i2c_mode') {
+            var xcl = allBlocks[i].getFieldValue('SCL');
             if (xcl === scl) {
-                mode = allBlocks[x].getFieldValue('MODE');
+                mode = allBlocks[i].getFieldValue('MODE');
             }
         }
     }
@@ -6445,21 +6441,21 @@ Blockly.Blocks.i2c_mode = {
             this.warnFlag--;
             var sda = null;
             this.pinWarn = 'WARNING: SCL on this block must match SCL on at least one i\u00B2c receieve or i\u00B2c send block!';
-            for (var x = 0; x < allBlocks.length; x++) {
-                if (allBlocks[x].type === 'i2c_send' || allBlocks[x].type === 'i2c_receive') {
-                    if (allBlocks[x].getFieldValue('SCL') === this.getFieldValue('SCL')) {
-                        if (sda && sda !== allBlocks[x].getFieldValue('SDA')) {
+            for (var i = 0; i < allBlocks.length; i++) {
+                if (allBlocks[i].type === 'i2c_send' || allBlocks[i].type === 'i2c_receive') {
+                    if (allBlocks[i].getFieldValue('SCL') === this.getFieldValue('SCL')) {
+                        if (sda && sda !== allBlocks[i].getFieldValue('SDA')) {
                             this.pinWarn = 'WARNING: Both SDA and SCL must match SDA and SCL on other i\u00B2c blocks if sharing ';
                             this.pinWarn += 'an i\u00B2c bus, or both must be different if on seperate i\u00B2c busses!';
                             sda = '-1';
                         } else {
-                            sda = allBlocks[x].getFieldValue('SDA');
+                            sda = allBlocks[i].getFieldValue('SDA');
                             this.pinWarn = null;
                         }
                     }
-                    if (allBlocks[x].getFieldValue('SCL') === allBlocks[x].getFieldValue('SDA')) {
+                    if (allBlocks[i].getFieldValue('SCL') === allBlocks[i].getFieldValue('SDA')) {
                         this.pinWarn = 'WARNING: SDA and SCL cannot be on the same pin!';
-                        x = allBlocks.length + 1;
+                        i = allBlocks.length + 1;
                     }
                 }
                 this.setWarningText(this.pinWarn);
@@ -6515,10 +6511,10 @@ Blockly.propc.i2c_busy = function () {
     } else {
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         var sda = '0';
-        for (var x = 0; x < allBlocks.length; x++) {
-            if ((allBlocks[x].type === 'i2c_send' || allBlocks[x].type === 'i2c_receive') &&
-                    allBlocks[x].getFieldValue('SCL') === this.getFieldValue('SCL')) {
-                sda = allBlocks[x].getFieldValue('SDA');
+        for (var i = 0; i < allBlocks.length; i++) {
+            if ((allBlocks[i].type === 'i2c_send' || allBlocks[i].type === 'i2c_receive') &&
+                    allBlocks[i].getFieldValue('SCL') === this.getFieldValue('SCL')) {
+                sda = allBlocks[i].getFieldValue('SDA');
             }
         }
         return ['i2c_busy(i2c' + sda + ', ' + devc + ')', Blockly.propc.ORDER_ATOMIC];
