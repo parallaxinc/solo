@@ -2647,7 +2647,6 @@ Blockly.Blocks.xbee_scan_multiple = {
         this.setWarningText(null);
         // not used, but allows this block to share functions from serial_scan_multiple block
         this.ser_pins = [];
-        this.variableFieldList = [];
     },
     mutationToDom: Blockly.Blocks['serial_scan_multiple'].mutationToDom,
     domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
@@ -2656,10 +2655,7 @@ Blockly.Blocks.xbee_scan_multiple = {
     saveConnections: Blockly.Blocks['serial_scan_multiple'].saveConnections,
     updateShape_: Blockly.Blocks['serial_scan_multiple'].updateShape_,
     updateSerPin: function () {},
-    onchange: function (event) {
-        if (event.blockId === this.id && event && event.element && event.element === 'mutatorOpen' && !event.newValue) {
-            this.updateShape_();   
-        }
+    onchange: function () {
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         var warnTxt = null;
         if (allBlocks.toString().indexOf('XBee initialize') === -1) {
@@ -4756,7 +4752,6 @@ Blockly.Blocks.wx_scan_multiple = {
         this.setWarningText(null);
         // not used, but allows this block to share functions from serial_scan_multiple block
         this.ser_pins = [];
-        this.variableFieldList = [];
     },
     setPrefix_: function (action) {
         var prefixValue = this.getFieldValue('START');
@@ -4777,10 +4772,7 @@ Blockly.Blocks.wx_scan_multiple = {
     saveConnections: Blockly.Blocks['serial_scan_multiple'].saveConnections,
     updateShape_: Blockly.Blocks['serial_scan_multiple'].updateShape_,
     updateSerPin: function () {},
-    onchange: function (event) {
-        if (event.blockId === this.id && event && event.element && event.element === 'mutatorOpen' && !event.newValue) {
-            this.updateShape_();   
-        }
+    onchange: function () {
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         if (allBlocks.toString().indexOf('WX initialize') === -1 && projectData['board'] !== 'heb-wx')
         {
@@ -6505,7 +6497,6 @@ Blockly.Blocks.string_scan_multiple = {
         this.setWarningText(null);
         // not used, but allows this block to share functions from serial_scan_multiple block
         this.ser_pins = [];
-        this.variableFieldList = [];
     },
     mutationToDom: Blockly.Blocks['serial_scan_multiple'].mutationToDom,
     domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
@@ -6514,11 +6505,6 @@ Blockly.Blocks.string_scan_multiple = {
     saveConnections: Blockly.Blocks['serial_scan_multiple'].saveConnections,
     updateShape_: Blockly.Blocks['serial_scan_multiple'].updateShape_,
     updateSerPin: function () {},
-    onchange: function (event) {
-        if (event.blockId === this.id && event && event.element && event.element === 'mutatorOpen' && !event.newValue) {
-            this.updateShape_();   
-        }
-    }
 };
 
 Blockly.Blocks.string_scan_container = {
