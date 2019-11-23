@@ -813,7 +813,7 @@ Blockly.Blocks.string_var_length = {
         this.appendDummyInput()
                 .appendField('String variable set size of');
         this.optionList_ = ['var'];
-        this.v_list = ['MYVALUE'];
+        this.userDefinedConstantsList_ = ['MYVALUE'];
         this.updateConstMenu();
         this.updateShape_();
         this.setPreviousStatement(true, "Block");
@@ -831,8 +831,7 @@ Blockly.Blocks.string_var_length = {
         var value = JSON.parse(container.getAttribute('options'));
         if (!value || value === []) {
             value = [];
-            var i = parseInt(container.getAttribute('vars') || '1');
-            for (var j = 0; j < i; j++) {
+            for (var i = 0; i < parseInt(container.getAttribute('vars') || '1'); i++) {
                 value.push('var');
             }
         }
@@ -859,13 +858,13 @@ Blockly.Blocks.string_var_length = {
         var optionBlock = containerBlock.getInputTargetBlock('STACK');
         // Count number of inputs.
         this.optionList_.length = 0;
-        var data = [];
+        var fieldData = [];
         while (optionBlock) {
             var obt = optionBlock.type.split('_');
             var obl = obt.length - 1;
             this.optionList_.push(obt[obl]);
             // collect the values of the fields that have been stored in the option blocks in the mutator
-            data.push([optionBlock.varName_, optionBlock.varLen_]);
+            fieldData.push([optionBlock.varName_, optionBlock.varLen_]);
             optionBlock = optionBlock.nextConnection &&
                     optionBlock.nextConnection.targetBlock();
         }
@@ -873,12 +872,12 @@ Blockly.Blocks.string_var_length = {
         this.updateShape_();
 
         // Restore field values
-        for (var i = 0; i < data.length; i++) {
-            if (data[i][0]) {
-                this.setFieldValue(data[i][0], 'VAR_NAME' + i);
+        for (var i = 0; i < fieldData.length; i++) {
+            if (fieldData[i][0]) {
+                this.setFieldValue(fieldData[i][0], 'VAR_NAME' + i);
             }
-            if (data[i][1]) {
-                this.setFieldValue(data[i][1], 'VAR_LEN' + i);
+            if (fieldData[i][1]) {
+                this.setFieldValue(fieldData[i][1], 'VAR_LEN' + i);
             }
         }
     },
@@ -893,37 +892,37 @@ Blockly.Blocks.string_var_length = {
                     optionBlock.nextConnection.targetBlock();
         }  
     },
-    updateConstMenu: function (ov, nv) {
-        this.v_list = [];
+    updateConstMenu: function (oldValue, newValue) {
+        this.userDefinedConstantsList_ = [];
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-        for (var x = 0; x < allBlocks.length; x++) {
-            if (allBlocks[x].type === 'constant_define') {
-                var v_name = allBlocks[x].getFieldValue('CONSTANT_NAME');
-                if (v_name === ov && nv) {
-                    v_name = nv;
+        for (var i = 0; i < allBlocks.length; i++) {
+            if (allBlocks[i].type === 'constant_define') {
+                var const_name = allBlocks[i].getFieldValue('CONSTANT_NAME');
+                if (const_name === oldValue && newValue) {
+                    const_name = newValue;
                 }
-                if (v_name) {
-                    this.v_list.push(v_name);
+                if (const_name) {
+                    this.userDefinedConstantsList_.push(const_name);
                 }
             }
         }
-        this.v_list.push('MYVALUE');
-        this.v_list = uniq_fast(this.v_list);
+        this.userDefinedConstantsList_.push('MYVALUE');
+        this.userDefinedConstantsList_ = uniq_fast(this.userDefinedConstantsList_);
 
         for (var i = 0; i < this.optionList_.length; i++) {
-            var m = this.getFieldValue("VAR_LEN" + i);
+            var currentValue = this.getFieldValue("VAR_LEN" + i);
             var tempVariable = this.getFieldValue('VAR_NAME' + i);
-            if (m && m === ov && nv) {
+            if (currentValue && currentValue === oldValue && newValue) {
                 this.removeInput('VAR' + i);
                 this.appendDummyInput('VAR' + i)
                         .appendField('variable')
                         .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'VAR_NAME' + i)
                         .appendField('to')
-                        .appendField(new Blockly.FieldDropdown(this.v_list.map(function (value) {
+                        .appendField(new Blockly.FieldDropdown(this.userDefinedConstantsList_.map(function (value) {
                             return [value, value]  // returns an array of arrays built from the original array.
                         })), "VAR_LEN" + i)
                         .appendField('characters');
-                this.setFieldValue(nv || 'MYVALUE', "VAR_LEN" + i);
+                this.setFieldValue(newValue || 'MYVALUE', "VAR_LEN" + i);
                 if (tempVariable) {
                     this.setFieldValue(tempVariable, 'VAR_NAME' + i);
                 }
@@ -949,7 +948,7 @@ Blockly.Blocks.string_var_length = {
                     .appendField('to')
             if (type === 'con') {
                 this.getInput('VAR' + i)
-                        .appendField(new Blockly.FieldDropdown(this.v_list.map(function (value) {
+                        .appendField(new Blockly.FieldDropdown(this.userDefinedConstantsList_.map(function (value) {
                             return [value, value];  // returns an array of arrays built from the original array.
                         })), "VAR_LEN" + i)
                         .appendField('characters');                
@@ -961,7 +960,6 @@ Blockly.Blocks.string_var_length = {
         }
     },
     onchange: function () {
-        this.updateConstMenu();
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         var strVarBlocksCount = 0;
         for (var x = 0; x < allBlocks.length; x++) {
@@ -2184,17 +2182,17 @@ Blockly.Blocks.constant_define = {
         this.setNextStatement(true, null);
         this.sendUpdate = true;
     },
-    sendConstantVal: function (ov, nv) {
-        if (this.sendUpdate || (ov === '-1' && nv === '-1')) {
-            if (ov === '-1' && nv === '-1') {
-                ov = null;
-                nv = null;
+    sendConstantVal: function (oldValue, newValue) {
+        if (this.sendUpdate || (oldValue === '-1' && newValue === '-1')) {
+            if (oldValue === '-1' && newValue === '-1') {
+                oldValue = null;
+                newValue = null;
             }
             // Find all the blocks that have my value and tell them to update it
             var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
             for (var x = 0; x < allBlocks.length; x++) {
                 if (allBlocks[x] && allBlocks[x].updateConstMenu) {
-                    allBlocks[x].updateConstMenu.call(allBlocks[x], ov, nv);
+                    allBlocks[x].updateConstMenu.call(allBlocks[x], oldValue, newValue);
                 }
             }
         }
@@ -2238,7 +2236,7 @@ Blockly.propc.constant_define = function () {
 Blockly.Blocks.constant_value = {
     helpUrl: Blockly.MSG_VALUES_HELPURL,
     init: function () {
-        this.v_list = [];
+        this.userDefinedConstantsList = [];
         this.setTooltip(Blockly.MSG_CONSTANT_VALUE_TOOLTIP);
         this.setColour(colorPalette.getColor('programming'));
         this.appendDummyInput('VALUE_LIST')
@@ -2250,32 +2248,32 @@ Blockly.Blocks.constant_value = {
         this.setOutput(true, null);
         this.updateConstMenu();
     },
-    updateConstMenu: function (ov, nv) {
-        this.v_list = [];
+    updateConstMenu: function (oldValue, newValue) {
+        this.userDefinedConstantsList = [];
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         for (var x = 0; x < allBlocks.length; x++) {
             if (allBlocks[x].type === 'constant_define') {
                 var v_name = allBlocks[x].getFieldValue('CONSTANT_NAME');
-                if (v_name === ov && nv) {
-                    v_name = nv;
+                if (v_name === oldValue && newValue) {
+                    v_name = newValue;
                 }
                 if (v_name) {
-                    this.v_list.push([v_name, v_name]);
+                    this.userDefinedConstantsList.push([v_name, v_name]);
                 }
             }
         }
-        this.v_list.push(['MYVALUE', 'MYVALUE']);
-        var m = this.getFieldValue('VALUE');
+        this.userDefinedConstantsList.push(['MYVALUE', 'MYVALUE']);
+        var currentValue = this.getFieldValue('VALUE');
 
         if (this.getInput('VALUE_LIST')) {
             this.removeInput('VALUE_LIST');
         }
         this.appendDummyInput('VALUE_LIST')
-                .appendField(new Blockly.FieldDropdown(uniq_fast(this.v_list)), "VALUE");
-        if (m && m === ov && nv) {
-            this.setFieldValue(nv, 'VALUE');
-        } else if (m) {
-            this.setFieldValue(m, 'VALUE');
+                .appendField(new Blockly.FieldDropdown(uniq_fast(this.userDefinedConstantsList)), "VALUE");
+        if (currentValue && currentValue === oldValue && newValue) {
+            this.setFieldValue(newValue, 'VALUE');
+        } else if (currentValue) {
+            this.setFieldValue(currentValue, 'VALUE');
         }
     },
     onchange: function () {
