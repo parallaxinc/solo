@@ -824,7 +824,6 @@ Blockly.Blocks.string_var_length = {
                 .appendField('String variable set size of');
         this.optionList_ = ['var'];
         this.v_list = ['MYVALUE'];
-        this.variableFieldList = [];
         this.updateConstMenu();
         this.updateShape_();
         this.setPreviousStatement(true, "Block");
@@ -870,17 +869,39 @@ Blockly.Blocks.string_var_length = {
         var optionBlock = containerBlock.getInputTargetBlock('STACK');
         // Count number of inputs.
         this.optionList_.length = 0;
-        var i = 0;
+        var data = [];
         while (optionBlock) {
             var obt = optionBlock.type.split('_');
             var obl = obt.length - 1;
             this.optionList_.push(obt[obl]);
-            i++;
+            // collect the values of the fields that have been stored in the option blocks in the mutator
+            data.push([optionBlock.varName_, optionBlock.varLen_]);
             optionBlock = optionBlock.nextConnection &&
                     optionBlock.nextConnection.targetBlock();
         }
         this.updateConstMenu();
         this.updateShape_();
+
+        // Restore field values
+        for (var i = 0; i < data.length; i++) {
+            if (data[i][0]) {
+                this.setFieldValue(data[i][0], 'VAR_NAME' + i);
+            }
+            if (data[i][1]) {
+                this.setFieldValue(data[i][1], 'VAR_LEN' + i);
+            }
+        }
+    },
+    saveConnections: function (containerBlock) {
+        var optionBlock = containerBlock.getInputTargetBlock('STACK');
+        var i = 0;
+        while (optionBlock) {
+            optionBlock.varName_ = this.getFieldValue('VAR_NAME' + i);
+            optionBlock.varLen_ = this.getFieldValue('VAR_LEN' + i);
+            i++;
+            optionBlock = optionBlock.nextConnection &&
+                    optionBlock.nextConnection.targetBlock();
+        }  
     },
     updateConstMenu: function (ov, nv) {
         this.v_list = [];
@@ -911,8 +932,8 @@ Blockly.Blocks.string_var_length = {
                         .appendField(new Blockly.FieldDropdown(this.v_list.map(function (value) {
                             return [value, value]  // returns an array of arrays built from the original array.
                         })), "VAR_LEN" + i)
-                        .appendField('characters'); 
-                this.setFieldValue(m || 'MYVALUE', "VAR_LEN" + i);
+                        .appendField('characters');
+                this.setFieldValue(nv || 'MYVALUE', "VAR_LEN" + i);
                 if (tempVariable) {
                     this.setFieldValue(tempVariable, 'VAR_NAME' + i);
                 }
@@ -926,11 +947,6 @@ Blockly.Blocks.string_var_length = {
         // Delete everything.
         var i = 0;
         while (this.getInput('VAR' + i)) {
-            var tempVariableId = this.getFieldValue('VAR_NAME' + i);
-            if (tempVariableId) {
-                this.variableFieldList[i] = Blockly.getMainWorkspace().getVariableById(tempVariableId);
-                this.variableFieldList[i].lengthValue = this.getFieldValue('VAR_LEN' + i);
-            }
             this.removeInput('VAR' + i);
             i++;
         }
@@ -952,22 +968,9 @@ Blockly.Blocks.string_var_length = {
                         .appendField(new Blockly.FieldNumber('64', null, null, 1), "VAR_LEN" + i)
                         .appendField('characters');
             }
-            if (this.variableFieldList[i]) {
-                this.setFieldValue(this.variableFieldList[i].getId(), 'VAR_NAME' + i);
-                var newType = 'con';
-                if (this.variableFieldList[i].lengthValue.replace(/[0-9]*/g, '') === '') { // test to see if the value is a number
-                    newType = 'var';
-                }
-                if (this.variableFieldList[i].lengthValue && type === newType) {
-                    this.setFieldValue(this.variableFieldList[i].lengthValue, 'VAR_LEN' + i);
-                }
-            }
         }
     },
-    onchange: function (event) {
-        if (event.blockId === this.id && event && event.element && event.element === 'mutatorOpen' && !event.newValue) {
-            this.updateShape_();   
-        }
+    onchange: function () {
         this.updateConstMenu();
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         var strVarBlocksCount = 0;

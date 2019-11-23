@@ -1479,7 +1479,6 @@ Blockly.Blocks.serial_scan_multiple = {
         this.setMutator(new Blockly.Mutator(['console_print_dec', 'console_print_hex', 'console_print_bin', 'console_print_float', 'console_print_char']));
         this.setWarningText(null);
         this.ser_pins = [];
-        this.variableFieldList = [];
         this.serPins();
         this.scanAfter = '';
     },
@@ -1548,34 +1547,52 @@ Blockly.Blocks.serial_scan_multiple = {
         var optionBlock = containerBlock.getInputTargetBlock('STACK');
         // Count number of inputs.
         this.optionList_.length = 0;
+        var data = [];
         while (optionBlock) {
             var obt = optionBlock.type.split('_');
             var obl = obt.length - 1;
             this.optionList_.push(obt[obl]);
+            // collect the values of the fields that have been stored in the option blocks in the mutator
+            data.push([optionBlock.varName_, optionBlock.floatMult_]);
             optionBlock = optionBlock.nextConnection &&
                     optionBlock.nextConnection.targetBlock();
         }
         this.updateShape_();
+        // Restore field values
+        for (var i = 0; i < data.length; i++) {
+            if (data[i][0]) {
+                this.setFieldValue(data[i][0], 'CPU' + i);
+            }
+            if (data[i][1]) {
+                this.setFieldValue(data[i][1], 'MULT' + i);
+            }
+        }
+
+    },
+    saveConnections: function (containerBlock) {
+        var optionBlock = containerBlock.getInputTargetBlock('STACK');
+        var i = 0;
+        // Cature and store any field values before the input is removed/deleted
+        while (optionBlock) {
+            optionBlock.varName_ = this.getFieldValue('CPU' + i);
+            optionBlock.floatMult_ = this.getFieldValue('MULT' + i);
+            i++;
+            optionBlock = optionBlock.nextConnection &&
+                    optionBlock.nextConnection.targetBlock();
+        }  
     },
     serPins: Blockly.Blocks['serial_send_text'].serPins,
     updateSerPin: Blockly.Blocks['serial_send_text'].updateSerPin,
     updateShape_: function () {
         // Delete everything.
         var i = 0;
-        var connectedBlock = null;
         while (this.getInput('OPTION' + i)) {
-            // Cature and store any field values before the input is removed/deleted
-            var tempVariableId = this.getFieldValue('CPU' + i);
-            if (tempVariableId) {
-                this.variableFieldList[i] = Blockly.getMainWorkspace().getVariableById(tempVariableId);
-                this.variableFieldList[i].floatMultiplier = this.getFieldValue('MULT' + i);
-            }
-            // delete the input
             this.removeInput('OPTION' + i);
             i++;
         }
+        // Capture and disconnect a connected block
+        var connectedBlock = null;
         if (this.getInput('SCAN_AFTER')) {
-            // Capture and disconnect a connected block
             connectedBlock = this.getInput('SCAN_AFTER').connection.targetBlock();
             if (connectedBlock) {
                 connectedBlock.outputConnection.disconnect();
@@ -1605,13 +1622,6 @@ Blockly.Blocks.serial_scan_multiple = {
             }
             this.getInput('OPTION' + i)
                     .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'CPU' + i)
-            // Once the fields are built, restore their previous values
-            if (this.variableFieldList && this.variableFieldList[i]) {
-                this.setFieldValue(this.variableFieldList[i].getId(), 'CPU' + i);
-                if (this.variableFieldList[i].floatMultiplier) {
-                    this.setFieldValue(this.variableFieldList[i].floatMultiplier, 'MULT' + i);
-                }
-            }
         }
         if (this.scanAfter === 'AfterStr') {
             this.appendValueInput('SCAN_AFTER')
@@ -1628,9 +1638,6 @@ Blockly.Blocks.serial_scan_multiple = {
         }
     },
     onchange: function (event) {
-        if (event.blockId === this.id && event && event.element && event.element === 'mutatorOpen' && !event.newValue) {
-            this.updateShape_();   
-        }
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         var warnTxt = null;
         if (allBlocks.toString().indexOf('Serial initialize') === -1) {
