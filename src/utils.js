@@ -114,11 +114,51 @@ if (!String.prototype.startsWith) {
  * @param {array} arr the array providing items to check for in the haystack.
  * @return {boolean} true|false if haystack contains at least one item from arr.
  */
-var findOne = function (haystack, arr) {
-    return arr.some(function (v) {
-        return haystack.indexOf(v) >= 0;
-    });
-};
+if (!Array.prototype.sharesElementWith) {
+    Array.prototype.sharesElementWith = function (inArray) {
+        return inArray.some(function (v) {
+            return this.indexOf(v) >= 0;
+        });
+    }
+}
+
+// polyfill that removes duplicates from an array and sorts it
+// From: https://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array
+if (!Array.prototype.sortedUnique) {
+    Array.prototype.sortedUnique = function uniq_fast() {
+        var seen = {};
+        var out = [];
+        var len = this.length;
+        var j = 0;
+        for (var i = 0; i < len; i++) {
+            var item = this[i];
+            if (seen[item] !== 1) {
+                seen[item] = 1;
+                out[j++] = item;
+            }
+        }
+        var tmpOut = out;
+        try {
+            var sorted = [];
+            j = 0;
+            while (out.length > 0) {
+                len = out.length;
+                var k = 0;
+                for (var i = 0; i < len; i++) {
+                    if (parseInt(out[i], 10) < parseInt(out[k], 10)) {
+                        k = i;
+                    }
+                }
+                sorted[j] = out[k];
+                j++;
+                out.splice(k, 1);
+            }
+            return sorted;
+        } catch (err) {
+            return tmpOut;
+        }
+    }
+}
 
 // http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
 function getURLParameter(name) {
