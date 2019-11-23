@@ -1555,11 +1555,11 @@ Blockly.Blocks.serial_scan_multiple = {
             optionBlock = optionBlock.nextConnection &&
                     optionBlock.nextConnection.targetBlock();
         }
-        this.updateShape_(true);
+        this.updateShape_();
     },
     serPins: Blockly.Blocks['serial_send_text'].serPins,
     updateSerPin: Blockly.Blocks['serial_send_text'].updateSerPin,
-    updateShape_: function (deleteVariableFields) {
+    updateShape_: function () {
         // Delete everything.
         var i = 0;
         var connectedBlock = null;
@@ -1603,21 +1603,14 @@ Blockly.Blocks.serial_scan_multiple = {
                 this.appendDummyInput('OPTION' + i)
                         .appendField(label, 'TYPE' + i)
             }
-            // If the mutator is open, then don't build the variable field - instead show that 
-            // variable name in a plain text field. 
-            if (deleteVariableFields) {
-                this.getInput('OPTION' + i)
-                        .appendField((this.variableFieldList[i] ? ' ' + this.variableFieldList[i].name + ' \u25be' : ' item \u25be'));
-            } else {
-                this.getInput('OPTION' + i)
-                        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'CPU' + i)
-            }
+            this.getInput('OPTION' + i)
+                    .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'CPU' + i)
             // Once the fields are built, restore their previous values
-            if (!deleteVariableFields && this.variableFieldList && this.variableFieldList[i]) {
+            if (this.variableFieldList && this.variableFieldList[i]) {
                 this.setFieldValue(this.variableFieldList[i].getId(), 'CPU' + i);
-            }
-            if (this.variableFieldList && this.variableFieldList[i] && this.variableFieldList[i].floatMultiplier) {
-                this.setFieldValue(this.variableFieldList[i].floatMultiplier, 'MULT' + i);
+                if (this.variableFieldList[i].floatMultiplier) {
+                    this.setFieldValue(this.variableFieldList[i].floatMultiplier, 'MULT' + i);
+                }
             }
         }
         if (this.scanAfter === 'AfterStr') {

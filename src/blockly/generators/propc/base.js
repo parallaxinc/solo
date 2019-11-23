@@ -880,7 +880,7 @@ Blockly.Blocks.string_var_length = {
                     optionBlock.nextConnection.targetBlock();
         }
         this.updateConstMenu();
-        this.updateShape_(true);
+        this.updateShape_();
     },
     updateConstMenu: function (ov, nv) {
         this.v_list = [];
@@ -922,7 +922,7 @@ Blockly.Blocks.string_var_length = {
             }
         }
     },
-    updateShape_: function (deleteVariableFields) {
+    updateShape_: function () {
         // Delete everything.
         var i = 0;
         while (this.getInput('VAR' + i)) {
@@ -937,15 +937,10 @@ Blockly.Blocks.string_var_length = {
         // Rebuild block.
         for (i = 0; i < this.optionList_.length; i++) {
             var type = this.optionList_[i];
-            if (deleteVariableFields) {
-                this.appendDummyInput('VAR' + i)
-                        .appendField('variable ' + (this.variableFieldList[i] ? ' ' + this.variableFieldList[i].name + ' \u25be to' : ' item \u25be to'));
-            } else {
-                this.appendDummyInput('VAR' + i)
-                        .appendField('variable')
-                        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'VAR_NAME' + i)
-                        .appendField('to')
-            }
+            this.appendDummyInput('VAR' + i)
+                    .appendField('variable')
+                    .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'VAR_NAME' + i)
+                    .appendField('to')
             if (type === 'con') {
                 this.getInput('VAR' + i)
                         .appendField(new Blockly.FieldDropdown(this.v_list.map(function (value) {
@@ -957,11 +952,15 @@ Blockly.Blocks.string_var_length = {
                         .appendField(new Blockly.FieldNumber('64', null, null, 1), "VAR_LEN" + i)
                         .appendField('characters');
             }
-            if (!deleteVariableFields && this.variableFieldList[i]) {
+            if (this.variableFieldList[i]) {
                 this.setFieldValue(this.variableFieldList[i].getId(), 'VAR_NAME' + i);
-            }
-            if (this.variableFieldList[i] && this.variableFieldList[i].lengthValue) {
-                this.setFieldValue(this.variableFieldList[i].lengthValue, 'VAR_LEN' + i);
+                var newType = 'con';
+                if (this.variableFieldList[i].lengthValue.replace(/[0-9]*/g, '') === '') { // test to see if the value is a number
+                    newType = 'var';
+                }
+                if (this.variableFieldList[i].lengthValue && type === newType) {
+                    this.setFieldValue(this.variableFieldList[i].lengthValue, 'VAR_LEN' + i);
+                }
             }
         }
     },
