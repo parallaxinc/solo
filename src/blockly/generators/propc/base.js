@@ -912,7 +912,7 @@ Blockly.Blocks.string_var_length = {
         for (var i = 0; i < this.optionList_.length; i++) {
             var currentValue = this.getFieldValue("VAR_LEN" + i);
             var tempVariable = this.getFieldValue('VAR_NAME' + i);
-            if (currentValue && currentValue === oldValue && newValue) {
+            if (currentValue && currentValue === oldValue && newValue && this.getInput('VAR' + i)) {
                 this.removeInput('VAR' + i);
                 this.appendDummyInput('VAR' + i)
                         .appendField('variable')
