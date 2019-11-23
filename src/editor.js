@@ -295,7 +295,7 @@ $(() => {
     window.addEventListener('beforeunload', function (e) {
 
         // Call checkLeave only if we are NOT loading a new project
-        if (getURLParameter('openFile') === "true") {
+        if (window.getURLParameter('openFile') === "true") {
             return;
         }
 
@@ -341,7 +341,7 @@ $(() => {
     initCdnImageUrls();
     initClientDownloadLinks();
 
-    idProject = getURLParameter('project');
+    idProject = window.getURLParameter('project');
 
     // TODO: Use the ping endpoint to verify that we are offline.
 
@@ -353,14 +353,14 @@ $(() => {
     $('.offline-only').removeClass('hidden');
 
     // Load a project file from local storage
-    if (getURLParameter('openFile') === "true") {
+    if (window.getURLParameter('openFile') === "true") {
         // Check for an existing project in localStorage
         if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
             // put a copy into projectData
             projectData = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
         }
         OpenProjectModal();
-    } else if (getURLParameter('newProject') === "true") {
+    } else if (window.getURLParameter('newProject') === "true") {
         NewProjectModal();
     } else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
         // Load a project from localStorage if available
@@ -883,7 +883,7 @@ function setupWorkspace(data, callback) {
  */
 function showInfo(data) {
     // TODO: Remove this.
-    if (getURLParameter('debug')) {
+    if (window.getURLParameter('debug')) {
         console.log(data);
     }
 
@@ -1337,7 +1337,7 @@ function uploadHandler(files) {
             // TODO: check to see if this is used when opened from the editor (and not the splash screen)
             // maybe projectData.code.length < 43??? i.e. empty project? instead of the URL parameter...
 
-            if (getURLParameter('openFile') === "true") {
+            if (window.getURLParameter('openFile') === "true") {
                 // Loading an offline .SVG project file. Create a project object and
                 // save it into the browser store.
                 var titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
@@ -1452,7 +1452,7 @@ function clearUploadInfo(redirect) {
 
     // when opening a file but the user cancels, return to the splash screen
     if (redirect === true) {
-        if (getURLParameter('openFile') === 'true') {
+        if (window.getURLParameter('openFile') === 'true') {
             window.location = 'index.html';
         }
     }
@@ -1482,7 +1482,7 @@ function uploadMergeCode(append) {
 
     // When opening a file when directed from the splash screen in
     // the offline app, load the selected project
-    if (!append && getURLParameter('openFile') === 'true') {
+    if (!append && window.getURLParameter('openFile') === 'true') {
         // The project was loaded into the localStorage. The global
         // variable tempProjectStoreName holds the name of the object
         // in the localStorage. At this point, load the projectData
@@ -1596,7 +1596,7 @@ function uploadMergeCode(append) {
 function initToolbox(profileName) {
 
     // TODO: Verify that custom fonts are required
-    var ff = getURLParameter('font');
+    var ff = window.getURLParameter('font');
 
     if (ff) {
         // Replace font family in Blockly's inline CSS

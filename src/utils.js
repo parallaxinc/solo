@@ -167,17 +167,22 @@ if (!Array.prototype.sortedUnique) {
 }
 
 // http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
-function getURLParameter(name) {
-    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(window.location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+if (!window.getURLParameter) {
+    Object.defineProperty(window, 'getURLParameter', {
+        value: function (name) {
+            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(window.location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+        },
+        enumerable: false
+    });
 }
 
 // Server (demo/production) detection & url parameter override
 var inDemo = $("meta[name=in-demo]").attr("content");
 
 // Does the 'experimental' URL parameter exist?
-if (getURLParameter('experimental')) {
+if (window.getURLParameter('experimental')) {
     // Production system does not support the use of the experimental flag
-    if (getURLParameter('experimental') !== 'true') {
+    if (window.getURLParameter('experimental') !== 'true') {
         inDemo = 'production';
     } else {
         inDemo = 'demo';
@@ -242,7 +247,7 @@ $(function () {
     // from the client instruction page to the modal that also shows them
     $("#client-instructions-copy").html($("#client-instructions-original").html());
     
-    if (getURLParameter('debug')) console.log(navigator.browserSpecs);
+    if (window.getURLParameter('debug')) console.log(navigator.browserSpecs);
 });
 
 
