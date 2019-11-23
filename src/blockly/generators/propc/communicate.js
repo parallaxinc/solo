@@ -2653,6 +2653,7 @@ Blockly.Blocks.xbee_scan_multiple = {
     domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
     decompose: Blockly.Blocks['serial_scan_multiple'].decompose,
     compose: Blockly.Blocks['serial_scan_multiple'].compose,
+    saveConnections: Blockly.Blocks['serial_scan_multiple'].saveConnections,
     updateShape_: Blockly.Blocks['serial_scan_multiple'].updateShape_,
     updateSerPin: function () {},
     onchange: function (event) {
@@ -4773,6 +4774,7 @@ Blockly.Blocks.wx_scan_multiple = {
     domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
     decompose: Blockly.Blocks['serial_scan_multiple'].decompose,
     compose: Blockly.Blocks['serial_scan_multiple'].compose,
+    saveConnections: Blockly.Blocks['serial_scan_multiple'].saveConnections,
     updateShape_: Blockly.Blocks['serial_scan_multiple'].updateShape_,
     updateSerPin: function () {},
     onchange: function (event) {
@@ -6509,6 +6511,7 @@ Blockly.Blocks.string_scan_multiple = {
     domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
     decompose: Blockly.Blocks['serial_scan_multiple'].decompose,
     compose: Blockly.Blocks['serial_scan_multiple'].compose,
+    saveConnections: Blockly.Blocks['serial_scan_multiple'].saveConnections,
     updateShape_: Blockly.Blocks['serial_scan_multiple'].updateShape_,
     updateSerPin: function () {},
     onchange: function (event) {
