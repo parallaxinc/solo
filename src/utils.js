@@ -125,10 +125,6 @@ function getURLParameter(name) {
     return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(window.location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
 }
 
-// Server (demo/production) detection & url parameter override
-// TODO: Remove for solo
-// var isExperimental = $("meta[name=in-demo]").attr("content");
-
 // Does the 'experimental' URL parameter exist?
 var isExperimental = getURLParameter('experimental') || 'false';
 

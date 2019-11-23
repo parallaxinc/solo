@@ -1006,7 +1006,7 @@ function saveAsDialog() {
             $("#save-as-board-type").append($('<option />').val(bt[1]).text(bt[0]));
         });
 
-        // Until release to production, make sure we are on demo before displaying the propc option
+        // Until the propc editor is ready, hide the save as propc option
         if (isExperimental.indexOf('saveas') > -1) {
             $("#save-as-board-type").append($('<option />').val('propcfile').text('Propeller C (code-only)'));
         }

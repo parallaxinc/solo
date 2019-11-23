@@ -1787,9 +1787,9 @@ function filterToolbox(profileName) {
             }
 
             // if the XML element has an experimental attribute and the current
-            // environment is not the Demo system, exclude the menu entry
+            // experimental>blocks fuse is not set, exclude the menu entry
             else if (experimental && isExperimental.indexOf('blocks') < 0) {
-                // Remove toolbox categories that are experimental if not in demo
+                // Remove toolbox categories that are experimental
                 toRemove.push(toolboxEntry);
             }
         }
