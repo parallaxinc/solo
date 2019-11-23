@@ -909,7 +909,7 @@ Blockly.Blocks.string_var_length = {
         this.userDefinedConstantsList_.push('MYVALUE');
         this.userDefinedConstantsList_ = uniq_fast(this.userDefinedConstantsList_);
 
-        for (var i = 0; i < this.optionList_.length; i++) {
+        for (i = 0; i < this.optionList_.length; i++) {
             var currentValue = this.getFieldValue("VAR_LEN" + i);
             var tempVariable = this.getFieldValue('VAR_NAME' + i);
             if (currentValue && currentValue === oldValue && newValue && this.getInput('VAR' + i)) {
@@ -2466,7 +2466,7 @@ Blockly.Blocks.custom_code_multiple = {
                 this.removeInput('ARG' + i.toString(10));
             }
         }
-        for (var i = 1; i <= Number(argsCount); i++) {
+        for (i = 1; i <= Number(argsCount); i++) {
             if (!this.getInput('ARG' + i.toString(10))) {
                 if (blockEditState) {
                     this.appendValueInput('ARG' + i.toString(10))
@@ -2500,11 +2500,11 @@ Blockly.propc.custom_code_multiple = function () {
         ccCode = 'my_' + ccCode;
     }
 
-    var incl = (this.getFieldValue("INCLUDES") || this.fieldValueTemp_['INCLUDES'] || '').replace(/\@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
-    var glob = (this.getFieldValue("GLOBALS") || this.fieldValueTemp_['GLOBALS'] || '').replace(/\@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
-    var sets = (this.getFieldValue("SETUPS") || this.fieldValueTemp_['SETUPS'] || '').replace(/\@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
-    var main = (this.getFieldValue("MAIN") || this.fieldValueTemp_['MAIN'] || '').replace(/\@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
-    var func = (this.getFieldValue("FUNCTIONS") || this.fieldValueTemp_['FUNCTIONS'] || '').replace(/\@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
+    var incl = (this.getFieldValue("INCLUDES") || this.fieldValueTemp_['INCLUDES'] || '').replace(/@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
+    var glob = (this.getFieldValue("GLOBALS") || this.fieldValueTemp_['GLOBALS'] || '').replace(/@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
+    var sets = (this.getFieldValue("SETUPS") || this.fieldValueTemp_['SETUPS'] || '').replace(/@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
+    var main = (this.getFieldValue("MAIN") || this.fieldValueTemp_['MAIN'] || '').replace(/@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
+    var func = (this.getFieldValue("FUNCTIONS") || this.fieldValueTemp_['FUNCTIONS'] || '').replace(/@([0-9])/g, function(m, p) {return in_arg[parseInt(p)-1]});
     var code = '';
 
     if (incl !== '') {
