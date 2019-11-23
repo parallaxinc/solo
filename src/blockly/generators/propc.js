@@ -739,7 +739,7 @@ function uniq_fast(a) {
  * Initialize the model for this field if it has not already been initialized.
  * If the value has not been set to a variable by the first render, we make up a
  * variable rather than let the value be invalid.
- * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - 
+ * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
  * @package
  */
 Blockly.FieldVariable.prototype.initModel = function() {
@@ -758,7 +758,7 @@ Blockly.FieldVariable.prototype.initModel = function() {
  * Update the source block when the mutator's blocks are changed.
  * Bump down any block that's too high.
  * Fired whenever a change is made to the mutator's workspace.
- * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - 
+ * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
  * @param {!Blockly.Events.Abstract} e Custom data for event.
  * @private
  */
@@ -817,9 +817,10 @@ Blockly.Mutator.prototype.workspaceChanged_ = function(e) {
     }
 };
 
-  /**
+/**
  * Bump unconnected blocks out of alignment.  Two blocks which aren't actually
  * connected should not coincidentally line up on screen.
+ * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
  */
 Blockly.BlockSvg.prototype.bumpNeighbours = function() {
     if (!this.workspace) {

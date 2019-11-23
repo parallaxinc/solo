@@ -804,16 +804,6 @@ Blockly.propc.custom_code = function () {
     return code;
 };
 
-/*
-Blockly.Field.prototype.render_ = function() {
-    if (!this.textContent_) {
-        this.initView();
-    }
-    this.textContent_.nodeValue = this.getDisplayText_();
-    this.updateSize_();
-}
-*/
-
 Blockly.Blocks.string_var_length = {
     helpUrl: Blockly.MSG_STRINGS_HELPURL,
     init: function () {
