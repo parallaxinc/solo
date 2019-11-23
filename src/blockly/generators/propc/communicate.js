@@ -6229,15 +6229,18 @@ Blockly.propc.i2c_send = function () {
 
     if (dType === 'Number') {
         Blockly.propc.definitions_['i2c_Buf'] = 'unsigned char i2cBuf[4] = {0, 0, 0, 0};';
-        // eslint no-fallthrough
         switch (cnt) {
             default:
+                // falls through
             case '4':
                 bufCode += 'i2cBuf[3] = (' + val + ' >> 24) & 255; ';
+                // falls through
             case '3':
                 bufCode += 'i2cBuf[2] = (' + val + ' >> 16) & 255; ';
+                // falls through
             case '2':
                 bufCode += 'i2cBuf[1] = (' + val + ' >> 8) & 255; ';
+                // falls through
             case '1':
                 bufCode += 'i2cBuf[0] = (' + val + ') & 255;';
                 break;
@@ -6377,12 +6380,17 @@ Blockly.propc.i2c_receive = function () {
         val = 'i2cBuf';
         bufCode += '(';
         switch (cnt) {
+            default:
+                // falls through
             case '4':
                 bufCode += '(i2cBuf[3] << 24) | ';
+                // falls through
             case '3':
                 bufCode += '(i2cBuf[2] << 16) | ';
+                // falls through
             case '2':
                 bufCode += '(i2cBuf[1] << 8) | ';
+                // falls through
             case '1':
                 bufCode += 'i2cBuf[0]';
                 break;
