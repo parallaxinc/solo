@@ -255,6 +255,8 @@ function renderContent(id) {
 
     if (isPropcOnlyProject) {
         id = 'propc';
+        // Show PropC editing UI elements
+        $('.propc-only').removeClass('hidden');        
     }
 
     switch (selectedTab) {
