@@ -348,6 +348,22 @@ function OpenProjectModal() {
     });
 
 
+    /* Trap the modal event that fires when the modal window is
+     * closed when the user clicks on the 'x' icon.
+     */
+    $('#open-project-dialog').on('hidden.bs.modal', function (e) {
+        if (!projectData) {
+            // If there is no project, go to home page.
+            window.location.href = 'index.html';
+        }
+        // Reload the the editor canvas from the active copy of the
+        // project.
+        setupWorkspace(projectData,
+            function () {
+                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
+            });
+    });
+
     // Import a project .SVG file
     $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
 
