@@ -62,9 +62,3 @@ function setCopyrightDate(element) {
     let d = new Date();
     element.html(d.getFullYear().toString());
 }
-
-// Access URL key-value pairs
-// http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
-function getURLParameter(name) {
-    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(window.location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
-}
