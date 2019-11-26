@@ -58,9 +58,9 @@ Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG = "Download Graph data as CSV - Filename
 Blockly.Msg.DIALOG_ERROR = 'Error';
 Blockly.Msg.DIALOG_LOADING_ERROR = 'Unable to load the project';
 Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER = 'BlocklyProp Launcher';
-Blockly.Msg.DIALOG_SIDE_FILES_ERROR = 'A problem occured when trying to create the SimpleIDE files: ';
+Blockly.Msg.DIALOG_SIDE_FILES_ERROR = 'A problem occurred when trying to create the SimpleIDE files: ';
 Blockly.Msg.DIALOG_NO_CLIENT = '<i class="glyphicon glyphicon-exclamation-sign"></i> BlocklyPropClient <strong>is not running</strong>';
-Blockly.Msg.DIALOG_NO_DEVICE_TEXT = 'ensure it is connected, powered, and selected in the ports list. Make sure your BlocklyPropClient is up-to-date.';
+Blockly.Msg.DIALOG_NO_DEVICE_TEXT = 'Ensure it is connected, powered on, and selected in the ports list. Make sure your BlocklyPropClient is up-to-date.';
 Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT = 'BlocklyProp-Client not available to communicate with a microcontroller. It may help to "Force Refresh" by pressing Control-Shift-R (Windows/Linux) or Command-Shift-R (Mac).';
 Blockly.Msg.DIALOG_NO_DEVICE = 'No device detected';
 Blockly.Msg.DIALOG_DEVICE_COMM_ERROR = 'Device communication error';
@@ -654,7 +654,7 @@ Blockly.MSG_S3_SERIAL_SEND_DECIMAL_TOOLTIP = "send number: send a number out fro
 Blockly.MSG_S3_SERIAL_SEND_CHAR_TOOLTIP = "send character: send a character out from the serial port";
 Blockly.MSG_S3_SERIAL_SEND_CTRL_TOOLTIP = "send control character: send a special character out from the serial port";
 Blockly.MSG_S3_SERIAL_CURSOR_XY_TOOLTIP = "set cursor position: set the cursor position in the terminal";
-Blockly.MSG_S3_SERIAL_RX_BYTE_TOOLTIP = "receive character: receieve a character from the serial port";
+Blockly.MSG_S3_SERIAL_RX_BYTE_TOOLTIP = "receive character: receive a character from the serial port";
 Blockly.MSG_S3_FACTORY_RESET_TOOLTIP = "factory reset: use to reload the factory default demo program back onto the Scribbler"; 
 
 var toolbox_label = [];
