@@ -425,7 +425,44 @@ function checkLeave() {
     let currentXml = getXml();
     let savedXml = projectData['code'];
 
-    return !(savedXml === currentXml);
+    // return !(savedXml === currentXml);
+    return compareProjectCode(currentXml, savedXml);
+}
+
+
+/**
+ * Compare the project block code of two projects for equality
+ *
+ * @param projectA is one of the two projects to compare for equality
+ * @param projectB is the second of two projects to compare for equalityy.
+ *
+ * @returns {boolean} True if projects are unequal, otherwise return false
+ */
+function compareProjectCode(projectA, projectB) {
+    // Looking for the first <block> XML element
+    const searchTerm = '<block';
+
+    // Get the offset to the first <block> xml element
+    let indexA = projectA.indexOf(searchTerm);
+    let indexB = projectB.indexOf(searchTerm);
+
+    // No blocks in either copy of the project
+    // They must be equally devoid of a project
+    if (indexA === -1 && indexB === -1) {
+        return false;
+    }
+
+    // Return false if the first block is not found
+    // in one of the two projects.
+    if (indexA === -1 || indexB === -1) {
+        return true;
+    }
+
+    // Start comparing the projects beginning with the first block
+    // that appears after the namespace declaration
+    return findFirstDiffPos(
+        projectA.substring(indexA, projectA.length),
+        projectB.substring(indexB, projectB.length)) === -1;
 }
 
 
@@ -587,14 +624,11 @@ function initEventHandlers() {
     $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
     $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
 
-    // Blocks/Code/XML button
-    $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
-    $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
-    $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
-        
+    // NEW Button
     // New Project toolbar button
     $('#new-project-button').on('click', () => NewProjectModal());
 
+    // OPEN Button
     // Open Project toolbar button
     $('#open-project-button').on('click', () => {
         // Save the project to localStorage
