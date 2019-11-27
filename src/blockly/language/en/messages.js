@@ -53,13 +53,26 @@ Blockly.Msg.DIALOG_PROJECT_SAVED = 'Project saved';
 Blockly.Msg.DIALOG_SAVE_TITLE = 'Save';
 Blockly.Msg.DIALOG_SAVE_FIRST = 'Save current project first?';
 Blockly.Msg.DIALOG_PROJECT_SAVED_TEXT = 'The project has been saved';
-Blockly.Msg.DIALOG_SIDE_FILES = '';
-Blockly.Msg.DIALOG_SIDE_FILES_WARNING = '';
+Blockly.Msg.DIALOG_DOWNLOAD_GRAPH_DIALOG = "Download Graph Output - Filename:";
+Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG = "Download Graph data as CSV - Filename:";
+Blockly.Msg.DIALOG_ERROR = 'Error';
+Blockly.Msg.DIALOG_LOADING_ERROR = 'Unable to load the project';
+Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER = 'BlocklyProp Launcher';
+Blockly.Msg.DIALOG_SIDE_FILES_ERROR = 'A problem occurred when trying to create the SimpleIDE files: ';
 Blockly.Msg.DIALOG_NO_CLIENT = '<i class="glyphicon glyphicon-exclamation-sign"></i> BlocklyPropClient <strong>is not running</strong>';
+Blockly.Msg.DIALOG_NO_DEVICE_TEXT = 'Ensure it is connected, powered on, and selected in the ports list. Make sure your BlocklyPropClient is up-to-date.';
+Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT = 'BlocklyProp-Client not available to communicate with a microcontroller. It may help to "Force Refresh" by pressing Control-Shift-R (Windows/Linux) or Command-Shift-R (Mac).';
+Blockly.Msg.DIALOG_NO_DEVICE = 'No device detected';
+Blockly.Msg.DIALOG_DEVICE_COMM_ERROR = 'Device communication error';
 Blockly.Msg.DIALOG_CLIENT_SEARCHING = '<i class="glyphicon glyphicon-info-sign"></i> Looking for BlocklyPropClient';
 Blockly.Msg.DIALOG_DOWNLOAD = 'Download Project - Filename:';
 Blockly.Msg.DIALOG_UNSAVED_PROJECT = 'Unsaved Project';
+Blockly.Msg.DIALOG_EMPTY_PROJECT = 'Empty Project';
+Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT = 'You cannot save an empty project';
+Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT = 'You cannot compile an empty project';
 Blockly.Msg.DIALOG_SAVE_BEFORE_ADD_BLOCKS = 'You must save your project before you can upload a blocks file to it.';
+Blockly.Msg.DIALOG_MISSING_BLOCKS = 'Blocks missing';
+Blockly.Msg.DIALOG_MISSING_BLOCKS_GRAPHING = 'To use the graphing feature, your program must have both a graph initialize block and a graph value block.';
 
 // Variable renaming.
 Blockly.MSG_CHANGE_VALUE_TITLE = 'Change value:';
@@ -641,7 +654,7 @@ Blockly.MSG_S3_SERIAL_SEND_DECIMAL_TOOLTIP = "send number: send a number out fro
 Blockly.MSG_S3_SERIAL_SEND_CHAR_TOOLTIP = "send character: send a character out from the serial port";
 Blockly.MSG_S3_SERIAL_SEND_CTRL_TOOLTIP = "send control character: send a special character out from the serial port";
 Blockly.MSG_S3_SERIAL_CURSOR_XY_TOOLTIP = "set cursor position: set the cursor position in the terminal";
-Blockly.MSG_S3_SERIAL_RX_BYTE_TOOLTIP = "receive character: receieve a character from the serial port";
+Blockly.MSG_S3_SERIAL_RX_BYTE_TOOLTIP = "receive character: receive a character from the serial port";
 Blockly.MSG_S3_FACTORY_RESET_TOOLTIP = "factory reset: use to reload the factory default demo program back onto the Scribbler"; 
 
 var toolbox_label = [];
@@ -1067,7 +1080,6 @@ page_text_label['register_do_password'] = "Password:";
 
 // eslint-disable-next-line no-useless-escape
 page_text_label['register_do_password_char_alert'] = "Only the characters A-Z,a-z,0-9,[space], and .,!?:;`'&quot;_~&num;$%&amp;@()[]{}*+-|\/^&lt;&gt;&equals; are allowed in your password. <em>(ASCII 32-126)</em>";
-
 page_text_label['register_do_screenname'] = "Screen name:";
 page_text_label['register_do_sponsor_email'] = "Alternate contact email:";
 page_text_label['register_do_sponsor_emailtype'] = "Select one:";
