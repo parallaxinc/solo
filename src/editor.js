@@ -425,7 +425,6 @@ function checkLeave() {
     let currentXml = getXml();
     let savedXml = projectData['code'];
 
-    // return !(savedXml === currentXml);
     return compareProjectCode(currentXml, savedXml);
 }
 
