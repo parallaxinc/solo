@@ -67,56 +67,37 @@ var textContainer = [''];
 
 /**
  *
- * @type {boolean}
+ * @type {number}
  */
-var terminalBeenScrolled = false;
+var terminalBeenScrolled = 0;
 
 
 /**
  *
  * @type {string}
  */
-var fontSize = '14px'; //$('#serial_console').css('font-size');
+var terminalPixelsWide;
 
 
 /**
  *
  * @type {string}
  */
-var terminalPixelsWide = '560px'; //$('#serial_console').css('width');
-
-
-/**
- *
- * @type {string}
- */
-var terminalPixelsHigh = '380px'; //$('#serial_console').css('height');
+var terminalPixelsHigh;
 
 
 /**
  *
  * @type {number}
  */
-var lineHeight = Math.floor(parseInt(fontSize.replace('px', '')) * 1.1);
+var terminalLineHeight;
 
 
 /**
  *
  * @type {number}
  */
-var terminalWidth = Math.floor(parseInt(fontSize.replace('px', ''))) / 1.65;
-// TODO: The terminalWidth is set to a default value and then immediately
-//   updated to a new value based on terminalPixelsHigh instead of fontSize
-
-
-/**
- *
- * @type {number}
- */
-var terminalHeight = Math.floor(parseInt(terminalPixelsHigh.replace('px', '')));
-
-// Setting terminal widt to a different value from the initializer above.
-terminalWidth = Math.floor((parseInt(terminalPixelsWide.replace('px', '')) - 25) / terminalWidth);
+var terminalCharactersWide = 256;  // if null, it's auto-calculated based on the pixel-width of the terminal
 
 
 /**
@@ -183,12 +164,11 @@ var updateTermInterval = null;
 var bufferAlert = false;
 
 
-// TODO: The compiler reports scrollerTimeout as an unused variable
 /**
  *
- * @type {null}
+ * @type {object}
  */
-var scrollerTimeout = null;
+var terminalContainerElement = {};
 
 
 /**
@@ -196,19 +176,32 @@ var scrollerTimeout = null;
  */
 $(document).ready(function () {
 
-    fontSize = $('#serial_console').css('font-size');
-    terminalPixelsWide = $('#serial_console').css('width');
-    terminalPixelsHigh = $('#serial_console').css('height');
-    lineHeight = Math.floor(parseInt(fontSize.replace('px', '')) * 1.1);
-    terminalWidth = 256; //Math.floor(parseInt(fontSize.replace('px', ''))) / 1.65;
+    terminalContainerElement = document.getElementById('serial_console');
+    var terminalComputedStyle = window.getComputedStyle(terminalContainerElement);
 
-    $('#serial_console').css({'overflow-x':'scroll'});
+    terminalPixelsWide = parseFloat(terminalComputedStyle.getPropertyValue('width') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('border-left') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('border-right') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('padding-left') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('padding-right') || '0');
 
-    terminalHeight = Math.floor(parseInt(terminalPixelsHigh.replace('px', '')));
-    //terminalWidth = Math.floor((parseInt(terminalPixelsWide.replace('px', '')) - 20) / terminalWidth);
+    terminalPixelsHigh = parseFloat(terminalComputedStyle.getPropertyValue('height') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('border-top') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('border-bottom') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('padding-top') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('padding-bottom') || '0');
+
+    terminalCharacterWidth = getCharacterSize(terminalComputedStyle.getPropertyValue('font'));
+    terminalLineHeight = parseFloat(terminalComputedStyle.getPropertyValue('line-height'));
+
+    if (!terminalCharactersWide) {
+        terminalCharactersWide = Math.floor(((terminalPixelsWide - 20) / terminalCharacterWidth));
+    }
+
+    terminalContainerElement.style.overflowX = 'scroll';    
 
     // Register a keydown event callback function
-    $("#serial_console").keydown(function (e) {
+    terminalContainerElement.addEventListener('keydown', function (e) {
         //Validate key (or emit special key character)
         var keycode = e.keyCode || e.which;
 
@@ -218,48 +211,34 @@ $(document).ready(function () {
         }
 
         //Validate key
-        var valid =
-                (keycode > 47 && keycode < 58) || // number keys
-                keycode === 32 || // spacebar
-                (keycode > 64 && keycode < 91) || // letter keys
-                (keycode > 95 && keycode < 112) || // numpad keys
-                (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
-                (keycode > 218 && keycode < 223); // [\]' (in order)
-        return valid;
-    });
+        if ((keycode > 47  && keycode < 58)  ||  //  number keys
+            (keycode === 32)                 ||  //  spacebar
+            (keycode > 64  && keycode < 91)  ||  //  letter keys
+            (keycode > 95  && keycode < 112) ||  //  numpad keys
+            (keycode > 185 && keycode < 193) ||  //  ;=,-./` (in order)
+            (keycode > 218 && keycode < 223)) {  //  [\]' (in order)
 
-    // Register a keypress event callback function
-    $("#serial_console").keypress(function (e) {
-        //Emit key character
-        processKey(e.charCode);
+            processKey(e.key.charCodeAt(0));
+        }
     });
 
     // Register a click event callback function
-    $("#serial_console").click(function () {
-        var terminalContainerElement = document.getElementById('serial_console').innerHTML;
-        if (terminalContainerElement[terminalContainerElement.length - 1] !== '\u258D') {
-            document.getElementById('serial_console').innerHTML = terminalContainerElement + '\u258D';
+    terminalContainerElement.addEventListener('click', function () {
+        var terminalHTML = terminalContainerElement.innerHTML;
+
+        if (terminalHTML[terminalHTML.length - 1] !== '\u258D') {
+            terminalContainerElement.innerHTML = terminalHTML + '\u258D';
         }
-        
-        /*
-        terminalBeenScrolled = true;
-        if(scrollerTimeout) {
-            clearTimeout(scrollerTimeout);
-        }
-        scrollerTimeout = setTimeout(function() {
-           terminalBeenScrolled = false;
-        },15000);
-        */
     });
 
     // Register a blur event callback function
-    $("#serial_console").blur(function () {
-        var terminalContainerElement = document.getElementById('serial_console').innerHTML;
+    terminalContainerElement.addEventListener('blur', function () {
+        var terminalHTML = terminalContainerElement.innerHTML;
 
-        if (terminalContainerElement[terminalContainerElement.length - 1] === '\u258D') {
-            document.getElementById('serial_console').innerHTML = terminalContainerElement.slice(0, -1);
-            if (terminalContainerElement === '\u258D') {
-                document.getElementById('serial_console').innerHTML = '';
+        if (terminalHTML[terminalHTML.length - 1] === '\u258D') {
+            terminalContainerElement.innerHTML = terminalHTML.slice(0, -1);
+            if (terminalHTML === '\u258D') {
+                terminalContainerElement.innerHTML = '';
             }
         }
     });
@@ -307,13 +286,18 @@ function processKey(keyPressCode) {
  * @param str
  */
 function displayInTerm(str) {
-    var termStatus = terminalBuffer.length;
-    terminalBuffer += str;
+    if(!str) {
+        updateTermBox(0);
+        terminalBuffer = '';
+    } else {
+        var termStatus = terminalBuffer.length;
+        terminalBuffer += str;
 
-    if (termStatus === 0) {
-        sendBufferToTerm();
-    } else if (termStatus > 255 && bufferAlert === false) {
-        termBufferWarning();
+        if (termStatus === 0) {
+            sendBufferToTerm();
+        } else if (termStatus > 255 && bufferAlert === false) {
+            termBufferWarning();
+        }
     }
 }
 
@@ -352,10 +336,12 @@ function sendBufferToTerm() {
  * @param c
  */
 function updateTermBox(c) {
-    for (zz = 0; zz < echoTrapBuffer.length; zz++) {
-        if (echoTrapBuffer[zz] === c) {
-            echoTrapBuffer.splice(zz, 1);
-            return;
+    if (trapEchos) {
+        for (var i = 0; i < echoTrapBuffer.length; i++) {
+            if (echoTrapBuffer[i] === c) {
+                echoTrapBuffer.splice(i, 1);
+                return;
+            }
         }
     }
 
@@ -399,8 +385,8 @@ function updateTermBox(c) {
                             if (cursorX === textContainer[cursorY].length) {
                                 textContainer[cursorY] = textContainer[cursorY].slice(0, -1);
                             } else if (cursorX > 0) {
-                                var the_line = textContainer[cursorY];
-                                textContainer[cursorY] = the_line.substr(0, cursorX - 1) + ' ' + the_line.substr(cursorX);
+                                var currentLine = textContainer[cursorY];
+                                textContainer[cursorY] = currentLine.substr(0, cursorX - 1) + ' ' + currentLine.substr(cursorX);
                             }
                         } else if (textContainer[cursorY].length === 1) {
                             textContainer[cursorY] = textContainer[cursorY] = '';
@@ -412,12 +398,12 @@ function updateTermBox(c) {
                 case 13:
                     // fall through
                 case 10:
-                    terminalBeenScrolled = true;
+                    terminalBeenScrolled = 2;  // check to see if the div needs to be scrolled down, and check again after any char is entered.
                     changeCursor(0, 1);
                     break;
                 case 9:
-                    var l = 5 - (cursorX) % 5;
-                    for (k = 0; k < l; k++) {
+                    var j = 5 - (cursorX) % 5;
+                    for (var k = 0; k < j; k++) {
                         textContainer[cursorY] += ' ';
                         changeCursor(1, 0);
                     }
@@ -447,9 +433,9 @@ function updateTermBox(c) {
                     changeCursor(0, 1);
                     break;
                 case 7: // Beep
-                    document.getElementById("serial_console").classList.remove("visual-beep");
-                    var ow = document.getElementById("serial_console").offsetWidth;
-                    document.getElementById("serial_console").classList.add("visual-beep");
+                    terminalContainerElement.classList.remove("visual-beep");
+                    var ow = terminalContainerElement.offsetWidth;
+                    terminalContainerElement.classList.add("visual-beep");
                     var sound = document.getElementById("term-beep");
                     sound.play();
                     break;
@@ -477,8 +463,8 @@ function updateTermBox(c) {
                         char = String.fromCharCode(c);
                     }
                     if ((textContainer[cursorY] || '').length > cursorX) {
-                        var the_line = textContainer[cursorY] || '';
-                        textContainer[cursorY] = the_line.substr(0, cursorX) + char + the_line.substr(cursorX + 1);
+                        currentLine = textContainer[cursorY] || '';
+                        textContainer[cursorY] = currentLine.substr(0, cursorX) + char + currentLine.substr(cursorX + 1);
                     } else {
                         textContainer[cursorY] += char;
                     }
@@ -512,8 +498,8 @@ function changeCursor(x, y) {
     cursorX += x;
     cursorY += y;
 
-    if (cursorX > terminalWidth - 1) {
-        cursorX -= terminalWidth;
+    if (cursorX > terminalCharactersWide - 1) {
+        cursorX -= terminalCharactersWide;
         cursorY++;
         if (!textContainer[cursorY])
             textContainer[cursorY] = '';
@@ -522,8 +508,8 @@ function changeCursor(x, y) {
     if (cursorX < 0) {
         cursorY--;
         cursorX = textContainer[cursorY].length;
-        if (cursorX > terminalWidth - 1) {
-            cursorX = terminalWidth - 1;
+        if (cursorX > terminalCharactersWide - 1) {
+            cursorX = terminalCharactersWide - 1;
             textContainer[cursorY] = textContainer[cursorY].substr(0, cursorX);
         }
     }
@@ -552,28 +538,28 @@ function displayTerm() {
         textContainer.pop();
     }
 
-    var tH = Math.floor(terminalHeight / lineHeight);
+    var terminalLinesHigh = Math.floor(terminalPixelsHigh / terminalLineHeight);
     var cursorChar = '';
-    var to_div = '';
+    var tempText = '';
 
-    if (document.getElementById('serial_console') === document.activeElement) {
+    if (terminalContainerElement === document.activeElement) {
         cursorChar = '\u258D';
     }
 
-    to_div = textContainer.join('\r') + cursorChar;
+    tempText = textContainer.join('\r') + cursorChar;
 
     if (textContainer.join('') === '') {
-        to_div = cursorChar;
+        tempText = cursorChar;
     }
 
-    if (cursorY >= tH && terminalBeenScrolled) {
-        $('#serial_console').css('overflow-y', 'hidden');
-        $('#serial_console').scrollTop((cursorY - tH + 1) * lineHeight);
-        $('#serial_console').css('overflow-y', 'scroll');
-        terminalBeenScrolled = false;
+    if (cursorY >= terminalLinesHigh && terminalBeenScrolled > 0) {
+        terminalContainerElement.style.overflowY = 'hidden';
+        terminalContainerElement.scroll(0, (cursorY - terminalLinesHigh + 1.1) * terminalLineHeight);
+        terminalContainerElement.style.overflowY = 'scroll';
+        terminalBeenScrolled--;
     }
 
-    document.getElementById('serial_console').innerHTML = to_div.replace(/ /g, '&nbsp;').replace(/\r/g, '<br>');
+    terminalContainerElement.innerHTML = tempText.replace(/ /g, '&nbsp;').replace(/\r/g, '<br>');
 }
 
 
@@ -583,13 +569,13 @@ function displayTerm() {
  * @param cy
  */
 function setCursor(cx, cy) {
-    if (cx > terminalWidth - 1) {
-        cx = cx % terminalWidth;
+    if (cx > terminalCharactersWide - 1) {
+        cx = cx % terminalCharactersWide;
     }
 
     if (!textContainer[cy]) {
-        for (t = textContainer.length; t <= cy; t++) {
-            textContainer[t] = '';
+        for (var i = textContainer.length; i <= cy; i++) {
+            textContainer[i] = '';
         }
     }
 
@@ -600,4 +586,18 @@ function setCursor(cx, cy) {
     cursorX = cx;
     cursorY = cy;
     changeCursor(0, 0);
+}
+
+/**
+ *
+ * @param font
+ * @returns a floating-point value representing how many pixels wide a character is.
+ */
+function getCharacterSize(font) {
+    // re-use canvas object for better performance
+    var canvas = getCharacterSize.canvas || (getCharacterSize.canvas = document.createElement("canvas"));
+    var context = canvas.getContext("2d");
+    context.font = font;
+    var metrics = context.measureText('AA').width - context.measureText('A').width;
+    return metrics;
 }
