@@ -1,4 +1,3 @@
-
 /*
  *   TERMS OF USE: MIT License
  *
@@ -20,6 +19,7 @@
  *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *   DEALINGS IN THE SOFTWARE.
  */
+
 
 
 /**
@@ -62,21 +62,14 @@ var termSetCursor = 0;
  *
  * @type {any[]}
  */
-var textContainer = new Array;
-
-
-/**
- *
- * @type {string}
- */
-textContainer[0] = '';
+var textContainer = [''];
 
 
 /**
  *
  * @type {boolean}
  */
-var term_been_scrolled = false;
+var terminalBeenScrolled = false;
 
 
 /**
@@ -90,14 +83,14 @@ var fontSize = '14px'; //$('#serial_console').css('font-size');
  *
  * @type {string}
  */
-var termPxWide = '560px'; //$('#serial_console').css('width');
+var terminalPixelsWide = '560px'; //$('#serial_console').css('width');
 
 
 /**
  *
  * @type {string}
  */
-var termPxHigh = '380px'; //$('#serial_console').css('height');
+var terminalPixelsHigh = '380px'; //$('#serial_console').css('height');
 
 
 /**
@@ -111,19 +104,19 @@ var lineHeight = Math.floor(parseInt(fontSize.replace('px', '')) * 1.1);
  *
  * @type {number}
  */
-var term_width = Math.floor(parseInt(fontSize.replace('px', ''))) / 1.65;
-// TODO: The term_width is set to a default value and then immediately
-//   updated to a new value based on termPxHigh instead of fontSize
+var terminalWidth = Math.floor(parseInt(fontSize.replace('px', ''))) / 1.65;
+// TODO: The terminalWidth is set to a default value and then immediately
+//   updated to a new value based on terminalPixelsHigh instead of fontSize
 
 
 /**
  *
  * @type {number}
  */
-var term_height = Math.floor(parseInt(termPxHigh.replace('px', '')));
+var terminalHeight = Math.floor(parseInt(terminalPixelsHigh.replace('px', '')));
 
 // Setting terminal widt to a different value from the initializer above.
-term_width = Math.floor((parseInt(termPxWide.replace('px', '')) - 25) / term_width);
+terminalWidth = Math.floor((parseInt(terminalPixelsWide.replace('px', '')) - 25) / terminalWidth);
 
 
 /**
@@ -152,28 +145,28 @@ var ascii2unicode = [
  *
  * @type {Array}
  */
-var echo_trap = [];
+var echoTrapBuffer = [];
 
 
 /**
  *
  * @type {boolean}
  */
-var trap_echos = false;
+var trapEchos = false;
 
 
 /**
  *
  * @type {boolean}
  */
-var echo_keys = true;
+var echoKeys = true;
 
 
 /**
  *
  * @type {string}
  */
-var terminal_buffer = '';
+var terminalBuffer = '';
 
 
 /**
@@ -204,15 +197,15 @@ var scrollerTimeout = null;
 $(document).ready(function () {
 
     fontSize = $('#serial_console').css('font-size');
-    termPxWide = $('#serial_console').css('width');
-    termPxHigh = $('#serial_console').css('height');
+    terminalPixelsWide = $('#serial_console').css('width');
+    terminalPixelsHigh = $('#serial_console').css('height');
     lineHeight = Math.floor(parseInt(fontSize.replace('px', '')) * 1.1);
-    term_width = 256; //Math.floor(parseInt(fontSize.replace('px', ''))) / 1.65;
+    terminalWidth = 256; //Math.floor(parseInt(fontSize.replace('px', ''))) / 1.65;
 
     $('#serial_console').css({'overflow-x':'scroll'});
 
-    term_height = Math.floor(parseInt(termPxHigh.replace('px', '')));
-    //term_width = Math.floor((parseInt(termPxWide.replace('px', '')) - 20) / term_width);
+    terminalHeight = Math.floor(parseInt(terminalPixelsHigh.replace('px', '')));
+    //terminalWidth = Math.floor((parseInt(terminalPixelsWide.replace('px', '')) - 20) / terminalWidth);
 
     // Register a keydown event callback function
     $("#serial_console").keydown(function (e) {
@@ -243,29 +236,29 @@ $(document).ready(function () {
 
     // Register a click event callback function
     $("#serial_console").click(function () {
-        var the_div = document.getElementById('serial_console').innerHTML;
-        if (the_div[the_div.length - 1] !== '\u258D') {
-            document.getElementById('serial_console').innerHTML = the_div + '\u258D';
+        var terminalContainerElement = document.getElementById('serial_console').innerHTML;
+        if (terminalContainerElement[terminalContainerElement.length - 1] !== '\u258D') {
+            document.getElementById('serial_console').innerHTML = terminalContainerElement + '\u258D';
         }
         
         /*
-        term_been_scrolled = true;
+        terminalBeenScrolled = true;
         if(scrollerTimeout) {
             clearTimeout(scrollerTimeout);
         }
         scrollerTimeout = setTimeout(function() {
-           term_been_scrolled = false;
+           terminalBeenScrolled = false;
         },15000);
         */
     });
 
     // Register a blur event callback function
     $("#serial_console").blur(function () {
-        var the_div = document.getElementById('serial_console').innerHTML;
+        var terminalContainerElement = document.getElementById('serial_console').innerHTML;
 
-        if (the_div[the_div.length - 1] === '\u258D') {
-            document.getElementById('serial_console').innerHTML = the_div.slice(0, -1);
-            if (the_div === '\u258D') {
+        if (terminalContainerElement[terminalContainerElement.length - 1] === '\u258D') {
+            document.getElementById('serial_console').innerHTML = terminalContainerElement.slice(0, -1);
+            if (terminalContainerElement === '\u258D') {
                 document.getElementById('serial_console').innerHTML = '';
             }
         }
@@ -275,26 +268,24 @@ $(document).ready(function () {
 
 /**
  *
- * @param code
+ * @param keyPressCode
  */
-function processKey(code) {
-    var t_str = String.fromCharCode(code);
+function processKey(keyPressCode) {
+    var characterToSend = String.fromCharCode(keyPressCode);
+
+    // TODO: Add callback here to send keypress to device
+
+    if (echoKeys) {
+        displayInTerm(characterToSend);
+    }
+    if (trapEchos) {
+        echoTrapBuffer.push(keyPressCode);
+    }
     
-    //Emit key code to properly destination
+    //TODO: move all of the below into a callback.
+    //Emit key keyPressCode to its proper destination
     if (active_connection !== null && active_connection !== 'simulated' && active_connection !== 'websocket') {
-        if (client_version >= minEnc64Ver) {
-            active_connection.send(btoa(t_str));
-            if (echo_keys) {
-                displayInTerm(t_str);
-            }
-        } else {
-            active_connection.send(t_str);
-            if (trap_echos) {
-                echo_trap.push(code);
-            }
-        }    
-    } else if (active_connection === 'simulated') {
-        displayInTerm(t_str);
+        active_connection.send(client_version >= minEnc64Ver ? btoa(characterToSend) : characterToSend);
 
     } else if (active_connection === 'websocket') {
         var msg_to_send = {
@@ -302,15 +293,11 @@ function processKey(code) {
             outTo: 'terminal',
             portPath: getComPort(),
             baudrate: baudrate.toString(10),
-            msg: t_str,
+            msg: characterToSend,
             action: 'msg'
         };
-
         client_ws_connection.send(JSON.stringify(msg_to_send));
 
-        if (echo_keys) {
-            displayInTerm(t_str);
-        }
     } 
 }
 
@@ -320,13 +307,8 @@ function processKey(code) {
  * @param str
  */
 function displayInTerm(str) {
-    /*
-     for (var f = 0; f < str.length; f++) {
-     updateTermBox(str.charCodeAt(f));
-     }
-     */
-    var termStatus = terminal_buffer.length;
-    terminal_buffer += str;
+    var termStatus = terminalBuffer.length;
+    terminalBuffer += str;
 
     if (termStatus === 0) {
         sendBufferToTerm();
@@ -357,13 +339,9 @@ function termBufferWarning() {
  */
 function sendBufferToTerm() {
     do {
-        //var o = echo_trap;
-        //echo_trap = echo_trap.replace(terminal_buffer[0], '');
-        //if (echo_trap.length >= o.length) {
-        updateTermBox(terminal_buffer.charCodeAt(0));
-        //}
-        terminal_buffer = terminal_buffer.substr(1);
-    } while (terminal_buffer.length > 0)
+        updateTermBox(terminalBuffer.charCodeAt(0));
+        terminalBuffer = terminalBuffer.substr(1);
+    } while (terminalBuffer.length > 0)
 
     displayTerm();
 }
@@ -374,9 +352,9 @@ function sendBufferToTerm() {
  * @param c
  */
 function updateTermBox(c) {
-    for (zz = 0; zz < echo_trap.length; zz++) {
-        if (echo_trap[zz] === c) {
-            echo_trap.splice(zz, 1);
+    for (zz = 0; zz < echoTrapBuffer.length; zz++) {
+        if (echoTrapBuffer[zz] === c) {
+            echoTrapBuffer.splice(zz, 1);
             return;
         }
     }
@@ -399,6 +377,7 @@ function updateTermBox(c) {
             termSetCursor = 4;
             break;
         case 2:
+            // fall through
         case 4:
             cursorGotoY = parseInt(c);
             termSetCursor = 0;
@@ -409,11 +388,11 @@ function updateTermBox(c) {
             termSetCursor = 0;
             setCursor(cursorGotoX, cursorGotoY);
             break;
-
         case 0:
             // TODO: Null is important to Parallax - Ask Jeff
             switch (c) {
                 case 127:
+                    // fall through
                 case 8:
                     if (cursorX + cursorY > -1) {
                         if (textContainer[cursorY].length > 1) {
@@ -429,9 +408,11 @@ function updateTermBox(c) {
                         changeCursor(-1, 0);
                         break;
                     }
+                    // fall through
                 case 13:
+                    // fall through
                 case 10:
-                    term_been_scrolled = true;
+                    terminalBeenScrolled = true;
                     changeCursor(0, 1);
                     break;
                 case 9:
@@ -442,10 +423,12 @@ function updateTermBox(c) {
                     }
                     break;
                 case 0:
+                    // fall through
                 case 16:
                     textContainer = null;
                     textContainer = new Array;
                     textContainer[0] = '';
+                    // fall through
                 case 1:
                     cursorX = 0;
                     cursorY = 0;
@@ -482,6 +465,7 @@ function updateTermBox(c) {
                     termSetCursor = 3;
                     break;
                 case 14:
+                    // fall through
                 case 15:
                     termSetCursor = c - 13;
                     break;
@@ -528,8 +512,8 @@ function changeCursor(x, y) {
     cursorX += x;
     cursorY += y;
 
-    if (cursorX > term_width - 1) {
-        cursorX -= term_width;
+    if (cursorX > terminalWidth - 1) {
+        cursorX -= terminalWidth;
         cursorY++;
         if (!textContainer[cursorY])
             textContainer[cursorY] = '';
@@ -538,8 +522,8 @@ function changeCursor(x, y) {
     if (cursorX < 0) {
         cursorY--;
         cursorX = textContainer[cursorY].length;
-        if (cursorX > term_width - 1) {
-            cursorX = term_width - 1;
+        if (cursorX > terminalWidth - 1) {
+            cursorX = terminalWidth - 1;
             textContainer[cursorY] = textContainer[cursorY].substr(0, cursorX);
         }
     }
@@ -568,7 +552,7 @@ function displayTerm() {
         textContainer.pop();
     }
 
-    var tH = Math.floor(term_height / lineHeight);
+    var tH = Math.floor(terminalHeight / lineHeight);
     var cursorChar = '';
     var to_div = '';
 
@@ -582,11 +566,11 @@ function displayTerm() {
         to_div = cursorChar;
     }
 
-    if (cursorY >= tH && term_been_scrolled) {
+    if (cursorY >= tH && terminalBeenScrolled) {
         $('#serial_console').css('overflow-y', 'hidden');
         $('#serial_console').scrollTop((cursorY - tH + 1) * lineHeight);
         $('#serial_console').css('overflow-y', 'scroll');
-        term_been_scrolled = false;
+        terminalBeenScrolled = false;
     }
 
     document.getElementById('serial_console').innerHTML = to_div.replace(/ /g, '&nbsp;').replace(/\r/g, '<br>');
@@ -599,8 +583,8 @@ function displayTerm() {
  * @param cy
  */
 function setCursor(cx, cy) {
-    if (cx > term_width - 1) {
-        cx = cx % term_width;
+    if (cx > terminalWidth - 1) {
+        cx = cx % terminalWidth;
     }
 
     if (!textContainer[cy]) {
