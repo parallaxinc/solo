@@ -460,9 +460,13 @@ function compareProjectCode(projectA, projectB) {
 
     // Start comparing the projects beginning with the first block
     // that appears after the namespace declaration
-    return findFirstDiffPos(
+    let result = findFirstDiffPos(
         projectA.substring(indexA, projectA.length),
-        projectB.substring(indexB, projectB.length)) === -1;
+        projectB.substring(indexB, projectB.length));
+
+    // findFirstDiffPos() will return a -1 if the projects are
+    // identical, that is, the project was not altered.
+    return result !== -1;
 }
 
 
