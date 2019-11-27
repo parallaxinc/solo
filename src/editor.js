@@ -245,7 +245,7 @@ function getTimestamp() {
  * if it is time to prompt the user to save their project code.
  *
  * The <span> tag is introduced as part of a message, located in the
- * _messages.js file, page_text_label['editor_save-check_warning'].
+ * messages.js file, page_text_label['editor_save-check_warning'].
  */
 const checkLastSavedTime = function () {
     const t_now = getTimestamp();
@@ -442,7 +442,7 @@ function initInternationalText() {
 
         // Get the associated key value that will be used to locate
         // the text string in the page_text_label array. This array
-        // is declared in _messages.js
+        // is declared in messages.js
         let pageLabel = span_tag.attr('data-key');
 
         // If there is a key value
