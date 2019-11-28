@@ -42,9 +42,11 @@
  * This is code that was refactored out of the editor.js
  * document.ready() handler.
  */
+// eslint-disable-next-line no-unused-vars
 function NewProjectModal() {
     // If the current project has been modified, give the user
     // an opportunity to abort the new project process.
+    // eslint-disable-next-line no-undef
     if (checkLeave()) {
         const message =
             'The current project has been modified. Click OK to\n' +
@@ -55,6 +57,7 @@ function NewProjectModal() {
             // result is true if the OK button was selected
             (result) => {
                 if (result) {
+                    // eslint-disable-next-line no-undef
                     downloadCode();
                 }},
             "OK",
@@ -92,7 +95,7 @@ function showNewProjectModal() {
 
 
     // let dialog = $("#new-project-board-type");
-    PopulateProjectBoardTypesUIElement($("#new-project-board-type"));
+    PopulateProjectBoardTypesUIElement($('#new-project-board-type'));
 
     // Show the New Project modal dialog box
     $('#new-project-dialog').modal({keyboard: false, backdrop: 'static'});
@@ -145,6 +148,7 @@ function NewProjectModalAcceptClick() {
             CreateNewProject();
         }
         // TODO: Add test for existing project before resizing
+        // eslint-disable-next-line no-undef
         resetToolBoxSizing(100); // use a short delay to ensure the DOM is fully ready (TODO: may not be necessary)
     });
 }
@@ -193,15 +197,17 @@ function NewProjectModalEscapeClick() {
     /* Trap the modal event that fires when the modal window is
  * closed when the user clicks on the 'x' icon.
  */
-    $('#new-project-dialog').on('hidden.bs.modal', function (e) {
+    $('#new-project-dialog').on('hidden.bs.modal', function () {
         if (!projectData) {
             // If there is no project, go to home page.
             window.location.href = 'index.html';
         }
         // Reload the the editor canvas from the active copy of the
         // project.
+        // eslint-disable-next-line no-undef
         setupWorkspace(projectData,
             function () {
+                // eslint-disable-next-line no-undef
                 window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
             });
     });
@@ -270,8 +276,10 @@ function CreateNewProject() {
 
     // If editing details, preserve the code, otherwise start over
     if (projectData && $('#new-project-dialog-title').html() === page_text_label['editor_edit-details']) {
+        // eslint-disable-next-line no-undef
         code = getXml();
     } else {
+        // eslint-disable-next-line no-undef
         code = EMPTY_PROJECT_CODE_HEADER;
     }
 
@@ -282,12 +290,15 @@ function CreateNewProject() {
     let description = $("#new-project-description").val();
     let boardType = $('#new-project-board-type').val();
 
+    // eslint-disable-next-line no-undef
     let newProject = new Project(
         projectName, description, boardType, "PROPC", code,
+        // eslint-disable-next-line no-undef
         createdDateHtml, createdDateHtml, getTimestamp());
 
     // Save the project to the browser local store for the page
     // transition
+    // eslint-disable-next-line no-undef
     newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
 
     // ------------------------------------------------------
@@ -311,6 +322,7 @@ function CreateNewProject() {
  *  The form Accept button handler should look there when it is
  *  time to process the new project.
  */
+// eslint-disable-next-line no-unused-vars
 function OpenProjectModal() {
 
     // set title to Open file
@@ -349,11 +361,15 @@ function OpenProjectModal() {
  */
 function OpenProjectModalOpenClick() {
     $('#open-project-select-file-open').on('click', () => {
+        // eslint-disable-next-line no-undef
         if (window.localStorage.getItem(TEMP_PROJECT_STORE_NAME)) {
             window.localStorage.setItem(
+                // eslint-disable-next-line no-undef
                 LOCAL_PROJECT_STORE_NAME,
+                // eslint-disable-next-line no-undef
                 window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
 
+            // eslint-disable-next-line no-undef
             window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
             window.location = 'blocklyc.html';
         }
@@ -380,8 +396,10 @@ function OpenProjectModalCancelClick() {
             window.location.href = 'index.html';
         }
         // A copy of the current project is located in the browser localStorage
+        // eslint-disable-next-line no-undef
         setupWorkspace(projectData,
             function () {
+                // eslint-disable-next-line no-undef
                 window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
             });
     });
@@ -395,15 +413,17 @@ function OpenProjectModalEscapeClick() {
     /* Trap the modal event that fires when the modal window is
      * closed when the user clicks on the 'x' icon.
      */
-    $('#open-project-dialog').on('hidden.bs.modal', function (e) {
+    $('#open-project-dialog').on('hidden.bs.modal', function () {
         if (!projectData) {
             // If there is no project, go to home page.
             window.location.href = 'index.html';
         }
         // Reload the the editor canvas from the active copy of the
         // project.
+        // eslint-disable-next-line no-undef
         setupWorkspace(projectData,
             function () {
+                // eslint-disable-next-line no-undef
                 window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
             });
     });
@@ -414,6 +434,8 @@ function OpenProjectModalEscapeClick() {
 
 /**
  *  Open the Open Project File dialog
+ *
+ *  @deprecated - no references to this function
  */
 function OpenProjectFileDialog() {
 
@@ -441,7 +463,9 @@ function OpenProjectFileDialog() {
     // TODO: what is this doing here? Shouldn't we be setting up projectData instead of localStore?
     //       Or can this simply be deleted, because the openFile functions will take care of this?
     if (projectData) {
+        // eslint-disable-next-line no-undef
         console.log("Loading workspace with project %s", LOCAL_PROJECT_STORE_NAME);
+        // eslint-disable-next-line no-undef
         setupWorkspace(JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)));
     }
 }
@@ -453,6 +477,7 @@ function OpenProjectFileDialog() {
  * @description
  * The dialog displays a number of project details.
  */
+// eslint-disable-next-line no-unused-vars
 function editProjectDetails() {
     EditOfflineProjectDetails();
 }
@@ -523,6 +548,7 @@ function setEditOfflineProjectDetailsContinueHandler() {
             $('#edit-project-dialog').modal('hide');
 
             UpdateProjectDetails();
+            // eslint-disable-next-line no-undef
             showInfo(projectData);
         }
     });
@@ -567,6 +593,8 @@ function setEditOfflineProjectDetailsCancelHandler() {
 
 /**
  *  Configure the Save-As modal UI elements
+ *
+ *  @deprecated - Orphaned code
  */
 function SetupSaveAsModalDialog() {
 // Set up Save-As modal dialog prompts
@@ -581,6 +609,8 @@ function SetupSaveAsModalDialog() {
 
 /**
  * Invoke the Save-As project modal dialog window
+ *
+ * @deprecated - Orphaned code
  */
 function SaveAsProjectModal() {
     PopulateProjectBoardTypesUIElement($("#save-as-board-type"));
@@ -593,6 +623,7 @@ function SaveAsProjectModal() {
 /**
  *
  */
+// eslint-disable-next-line no-unused-vars
 function initUploadModalLabels() {
 
     // set the upload modal's title to "import" if offline
@@ -608,6 +639,7 @@ function initUploadModalLabels() {
 /**
  * Reset the upload/import modal window to defaults after use
  */
+// eslint-disable-next-line no-unused-vars
 function resetUploadImportModalDialog() {
     // reset the title of the modal
     $('upload-dialog-title').html(page_text_label['editor_import']);
@@ -619,6 +651,7 @@ function resetUploadImportModalDialog() {
     $('#selectfile-replace').removeClass('btn-primary').addClass('btn-danger').html(page_text_label['editor_button_replace']);
 
     // reset the blockly toolbox sizing to ensure it renders correctly:
+    // eslint-disable-next-line no-undef
     resetToolBoxSizing(100);
 }
 
@@ -683,6 +716,7 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
  * Display the Timed Save Project modal dialog
  *
  */
+// eslint-disable-next-line no-unused-vars
 function ShowProjectTimerModalDialog() {
     $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
 }
