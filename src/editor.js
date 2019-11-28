@@ -359,7 +359,10 @@ $(() => {
             // put a copy into projectData
             projectData = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
         }
+
+        // Show the Open Project modal dialog
         OpenProjectModal();
+
     } else if (getURLParameter('newProject') === "true") {
         NewProjectModal();
     } else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
@@ -664,13 +667,6 @@ function initEventHandlers() {
     $('#download-side').on('click', () => downloadPropC());
 
     /**
-     * Download project to disk
-     * @deprecated
-     */
-    $('#download-project').on('click', () => downloadCode());
-
-
-    /**
      * Import (upload) project from storage
      * @description This is designed to merge code from an existing
      * project into the current project.
@@ -838,15 +834,6 @@ function setupWorkspace(data, callback) {
 
     projectData = data;
     showInfo(data);         // Update the UI with project related details
-
-    // --------------------------------------------------------------
-    // Set the global project ID. in the offline mode, the project
-    // id is set to 0 when the project is loaded from local storage.
-    // --------------------------------------------------------------
-    // TODO: Remove this code
-    if (!idProject) {
-        idProject = projectData['id'];
-    }
 
     // Set various project settings based on the project board type
     // NOTE: This function is in propc.js
