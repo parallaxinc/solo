@@ -60,7 +60,7 @@ var termSetCursor = 0;
 
 /**
  *
- * @type {any[]}
+ * @type {string[]}
  */
 var textContainer = [''];
 
