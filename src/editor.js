@@ -90,8 +90,34 @@ const PROJECT_NAME_MAX_LENGTH = 100;
  */
 const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
 
+/**
+ * The name used to store a project that is being loaded from
+ * offline storage.
+ *
+ * temp... is used to persist the imported SVG file. This file is a
+ * candidate until the user selects the 'Open' button to confirm that
+ * this file is the one to be loaded into the app.
+ *
+ * local... is used as the project that will either replace the
+ * current project or be appended to the current project.
+ *
+ * @type {string}
+ */
+const TEMP_PROJECT_STORE_NAME = "tempProject";
+const LOCAL_PROJECT_STORE_NAME = 'localProject';
 
 /**
+ * The default number of minutes to wait until the user is prompted
+ * to save the altered project.
+ *
+ * @type {number}
+ */
+const SAVE_PROJECT_TIMER_DELAY = 20;
+
+
+/**
+ *  Timestamp to indicate the amount of time that must expire before
+ *  the user is advised to save their project.
  *
  * @type {number}
  */
@@ -99,8 +125,8 @@ var last_saved_timestamp = 0;
 
 
 /**
- * Timestamp to record when the current project was last saved to
- * storage
+ * Timestamp to record the amount of time that has gone by since the
+ * current project was last saved to storage.
  *
  * @type {number}
  */
@@ -144,35 +170,11 @@ var bpIcons = {
 
 
 /**
- * The name used to store a project that is being loaded from
- * offline storage.
- *
- * temp... is used to persist the imported SVG file. This file is a
- * candidate until the user selects the 'Open' button to confirm that
- * this file is the one to be loaded into the app.
- *
- * local... is used as the project that will either replace the
- * current project or be appended to the current project.
- *
- * @type {string}
- */
-const TEMP_PROJECT_STORE_NAME = "tempProject";
-const LOCAL_PROJECT_STORE_NAME = 'localProject';
-
-
-/**
  * This is the object returned from the call to Blockly.inject()
  */
 var blocklyWorkSpace;
 
 
-/**
- * The default number of minutes to wait until the user is prompted
- * to save the altered project.
- *
- * @type {number}
- */
-const SAVE_PROJECT_TIMER_DELAY = 20;
 
 
 // TODO: set up a markdown editor (removed because it doesn't work in a Bootstrap modal...)
@@ -336,10 +338,6 @@ $(() => {
     // Stop pinging the Rest API
     clearInterval(pingInterval);
 
-    // hide save interaction elements
-    $('.online-only').addClass('hidden');
-    $('.offline-only').removeClass('hidden');
-
     // Load a project file from local storage
     if (getURLParameter('openFile') === "true") {
         // Check for an existing project in localStorage
@@ -353,6 +351,7 @@ $(() => {
 
     } else if (getURLParameter('newProject') === "true") {
         NewProjectModal();
+
     } else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
         // Load a project from localStorage if available
         try {
