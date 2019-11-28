@@ -645,18 +645,12 @@ function initEventHandlers() {
     // Save Project button goes here!
 
 
+    // --------------------------------
     // Hamburger menu items
-    //    $('#selectfile-replace').on('click',    function () {  uploadMergeCode(false); });
-    //    $('#selectfile-append').on('click',     function () {  uploadMergeCode(true); });
+    // --------------------------------
 
     // Edit project details
     $('#edit-project-details').on('click', () => editProjectDetails());
-
-    // New Project - Load a new project menu click handler
-    /**
-     * @deprecated
-     */
-    $('#new-project-menu-item').on('click', () => NewProjectModal());
 
     // Help and Reference - online help web pages
     // Implemented as an href in the menu
@@ -667,9 +661,11 @@ function initEventHandlers() {
     $('#download-side').on('click', () => downloadPropC());
 
     /**
-     * Import (upload) project from storage
-     * @description This is designed to merge code from an existing
-     * project into the current project.
+     * Import project file
+     *
+     * @description
+     * Import (upload) project from storage. This is designed to
+     * merge code from an existing project into the current project.
      */
     $('#upload-project').on('click', () => uploadCode());
 
