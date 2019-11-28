@@ -35,6 +35,7 @@
 
 
 /**
+ * Start the process to open a new project
  *
  * @description
  *
@@ -49,11 +50,15 @@ function NewProjectModal() {
             'The current project has been modified. Click OK to\n' +
             'discard the current changes and create a new project.';
 
-        utils.confirm("Save Project", message, (result) => {
-            if (result) {
-                downloadCode();
-            }
-        }, "OK", "Cancel");
+        utils.confirm(
+            "Save Project", message,
+            // result is true if the OK button was selected
+            (result) => {
+                if (result) {
+                    downloadCode();
+                }},
+            "OK",
+            "Cancel");
     } else {
         // Reset the values in the form to defaults
         $('#new-project-name').val('');
@@ -177,6 +182,13 @@ function NewProjectModalCancelClick() {
     });
 }
 
+
+/**
+ * New project modal 'x' click handler
+ *
+ * This is fired when the user clicks on the 'x' to dismiss
+ * the dialog.
+ */
 function NewProjectModalEscapeClick() {
     /* Trap the modal event that fires when the modal window is
  * closed when the user clicks on the 'x' icon.
@@ -292,12 +304,67 @@ function CreateNewProject() {
 
 /**
  *  Open the modal to select a project file to load
+ *
+ *  @description
+ *  If the user selects a file and successfully uploads it, the
+ *  project will be stored in localStorage.TEMP_PROJECT_STORE_NAME.
+ *  The form Accept button handler should look there when it is
+ *  time to process the new project.
  */
 function OpenProjectModal() {
 
     // set title to Open file
     $('#open-project-dialog-title').html(page_text_label['editor_open']);
 
+    OpenProjectModalCancelClick();
+    OpenProjectModalOpenClick();
+    OpenProjectModalEscapeClick();
+
+    // Import a project .SVG file
+    $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
+}
+
+
+/**
+ * Connect an event handler to the 'Open' button in the Open
+ * Project modal dialog.
+ *
+ * @description
+ * When a project is selected, the code responsible for retrieving
+ * project from disk will store it in the browser's localStorage
+ * under the key value TEMP_PROJECT_STORE_NAME. That same code will
+ * return control to the Open Project modal, where the user can
+ * select Open or Cancel.
+ *
+ * This event handler is invoked when the user selects the Open
+ * button. It looks for a project in the browser's local
+ * storage with a key value of TEMP_PROJECT_STORE_NAME. If one is
+ * found, it simply copies the project to a new key in the browser's
+ * local storage with the key LOCAL_PROJECT_STORE_NAME and removes
+ * the temporary copy stored in TEMP_PROJECT_STORE_NAME. It then
+ * redirects the browser to the editor page, where other code will
+ * look for a project in the browser's local storage under the
+ * LOCAL_PROJECT_STORE_NAME key and load it into the editor canvas
+ * if a project is found there.
+ */
+function OpenProjectModalOpenClick() {
+    $('#open-project-select-file-open').on('click', () => {
+        if (window.localStorage.getItem(TEMP_PROJECT_STORE_NAME)) {
+            window.localStorage.setItem(
+                LOCAL_PROJECT_STORE_NAME,
+                window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
+
+            window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
+            window.location = 'blocklyc.html';
+        }
+    });
+}
+
+
+/**
+ * Open project cancel button clicked event handler
+ */
+function OpenProjectModalCancelClick() {
     // Set button onClick event handlers
     // ----------------------------------------------------------
     // This is also handling the 'Edit Project Details' modal
@@ -318,19 +385,13 @@ function OpenProjectModal() {
                 window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
             });
     });
+}
 
 
-    $('#open-project-select-file-open').on('click', () => {
-        if (window.localStorage.getItem(TEMP_PROJECT_STORE_NAME)) {
-            window.localStorage.setItem(
-                LOCAL_PROJECT_STORE_NAME,
-                window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
-            window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
-            window.location = 'blocklyc.html';
-        }
-    });
-
-
+/**
+ * Open project escape ('x') click event handler
+ */
+function OpenProjectModalEscapeClick() {
     /* Trap the modal event that fires when the modal window is
      * closed when the user clicks on the 'x' icon.
      */
@@ -346,16 +407,10 @@ function OpenProjectModal() {
                 window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
             });
     });
-
-
-    // Import a project .SVG file
-    $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
-
-    // If the user selects a file and successfully uploads it, the
-    // project will be stored in localStorage.TEMP_PROJECT_STORE_NAME.
-    // The form Accept button handler should look there when it is
-    // time to proces the new project.
 }
+
+
+
 
 /**
  *  Open the Open Project File dialog
