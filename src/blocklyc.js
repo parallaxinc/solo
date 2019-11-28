@@ -40,7 +40,7 @@ var graph = null;
 /**
  * TODO: Identify the purpose of this variable
  *
- * @type {null}
+ * @type {{}}
  */
 var codePropC = null;
 
@@ -500,6 +500,9 @@ function init(blockly) {
 
     window.Blockly = blockly;
 
+    // TODO: Use constant EMPTY_PROJECT_CODE_HEADER instead of string.
+    //  Replace string length check with code that detects the first
+    //  <block> xml element.
     if (projectData) {
         if (!projectData['code'] || projectData['code'].length < 50) {
             projectData['code'] = '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>';
