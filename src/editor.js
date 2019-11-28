@@ -108,16 +108,6 @@ var last_saved_time = 0;
 
 
 /**
- * The primary key for the project (online version)
- *
- * @type {number}
- * @deprecated
- *  Solo does not have a concept of unique project identifiers.
- */
-var idProject = 0;
-
-
-/**
  * Uploaded project XML code
  *
  * @type {string}
@@ -340,8 +330,6 @@ $(() => {
 
     initCdnImageUrls();
     initClientDownloadLinks();
-
-    idProject = getURLParameter('project');
 
     // TODO: Use the ping endpoint to verify that we are offline.
 
@@ -1201,7 +1189,7 @@ function downloadCode() {
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-83)" style="font-weight:bold;">Parallax BlocklyProp Project</text>';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-68)">User: ' + encodeToValidXml(projectData['user']) + '</text>';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-53)">Title: ' + encodeToValidXml(projectData['name']) + '</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-38)">Project ID: ' + idProject + '</text>';
+        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-38)">Project ID: 0</text>';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-23)">Device: ' + projectData['board'] + '</text>';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-8)">Description: ' + encodeToValidXml(projectData['description']) + '</text>';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' + projectData['created'] + '" data-lastmodified="' + dt + '"></text>';
