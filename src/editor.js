@@ -906,7 +906,7 @@ function showInfo(data) {
 
 
 /**
- *
+ * @deprecated Cannot find any references to this function in code.
  */
 function saveProject() {
     // TODO: Refactor to remove the concept of project ownership
