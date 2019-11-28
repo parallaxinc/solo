@@ -642,7 +642,9 @@ function initEventHandlers() {
         window.location = "blocklyc.html?openFile=true";
     });
 
-    // Save Project button goes here!
+    // Save button
+    // Save Project modal 'Save' button click handler
+    $('#save-btn, #save-project').on('click', () => downloadCode());
 
 
     // --------------------------------
@@ -661,7 +663,7 @@ function initEventHandlers() {
     $('#download-side').on('click', () => downloadPropC());
 
     /**
-     * Import project file
+     * Import project file menu selector
      *
      * @description
      * Import (upload) project from storage. This is designed to
@@ -671,34 +673,36 @@ function initEventHandlers() {
 
     // ---- Hamburger drop down horizontal line ----
 
-    // Still looking for these buttons in the UI
+    // Configure client menu selector
     $('#client-setup').on('click', () => configure_client());
 
+    // --------------------------------
+    // End of hamburger menu items
+    // --------------------------------
 
-    // **  End of Drop-down menu
-    // **************************************************************
 
+    // Save As button
+    $('#save-as-btn').on('click', () => saveAsDialog());
+    // Save-As Project
+    $('#save-project-as').on('click', () => saveAsDialog());
+
+    // Save As new board type
+    $('#save-as-board-type').on('change', () => checkBoardType(
+        $('#saveAsDialogSender').html()));
+    $('#save-as-board-btn').on('click', () => saveProjectAs(
+        $('#save-as-board-type').val(),
+        $('#save-as-project-name').val()
+    ));
 
     $('#selectfile-clear').on('click', () => clearUploadInfo(true));
-    $('#save-as-btn').on('click', () => saveAsDialog());
-
-
-    // Save Project modal 'Save' button click handler
-    $('#save-btn, #save-project').on('click', () => downloadCode());
-
 
     $('#btn-graph-play').on('click', () => graph_play());
     $('#btn-graph-snapshot').on('click', () => downloadGraph());
     $('#btn-graph-csv').on('click', () => downloadCSV());
     $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
 
-    $('#save-as-board-type').on('change', () => checkBoardType($('#saveAsDialogSender').html()));
 
-    $('#save-as-board-btn').on('click', () => saveProjectAs(
-        $('#save-as-board-type').val(),
-        $('#save-as-project-name').val()
-    ));
-
+    // Client install instruction modals
     $('#win1-btn').on('click', () => showStep('win', 1, 3));
     $('#win2-btn').on('click', () => showStep('win', 2, 3));
     $('#win3-btn').on('click', () => showStep('win', 3, 3));
@@ -715,8 +719,6 @@ function initEventHandlers() {
     $('.show-os-chr').on('click', () => showOS('ChromeOS'));
     $('.show-os-lnx').on('click', () => showOS('Linux'));
 
-    // Save-As Project
-    $('#save-project-as').on('click', () => saveAsDialog());
 
     // --------------------------------------------------------------
     // Bootstrap modal event handler for the Save Project Timer
