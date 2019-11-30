@@ -771,7 +771,7 @@ function serial_console() {
             connection.onmessage = function (e) {
                 var c_buf = (client_version >= minEnc64Ver) ? atob(e.data) : e.data;
                 if (connStrYet) {
-                    displayInTerm(c_buf);
+                    pTerm.display(c_buf);
                 } else {
                     connString += c_buf;
                     if (connString.indexOf(baudrate.toString(10)) > -1) {
@@ -781,14 +781,14 @@ function serial_console() {
                             // send remainder of string to terminal???  Haven't seen any leak through yet...
                         }
                     } else {
-                        displayInTerm(e.data);
+                        pTerm.display(e.data);
                     }
                 }
                 $('#serial_console').focus();
             };
 
             if (!newTerminal) {
-                displayInTerm(null);
+                pTerm.display(null);
             }
 
             $('#console-dialog').on('hidden.bs.modal', function () {
@@ -799,7 +799,7 @@ function serial_console() {
                 if (document.getElementById('serial-conn-info')) {
                     document.getElementById('serial-conn-info').innerHTML = '';
                 }
-                displayInTerm(null);
+                pTerm.display(null);
                 term_been_scrolled = false;
                 term = null;
             });
@@ -807,14 +807,16 @@ function serial_console() {
             active_connection = 'simulated';
 
             if (newTerminal) {
-                displayInTerm("Simulated terminal because you are in demo mode\n");
-                displayInTerm("Connection established with: " + getComPort() + "\n");
+                if (document.getElementById('serial-conn-info')) {
+                    document.getElementById('serial-conn-info').innerHTML = Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT;
+                }
+                pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
             }
 
             $('#console-dialog').on('hidden.bs.modal', function () {
                 term_been_scrolled = false;
                 active_connection = null;
-                displayInTerm(null);
+                pTerm.display(null);
                 term = null;
             });
         }
@@ -836,8 +838,8 @@ function serial_console() {
 
         active_connection = 'websocket';
         if (document.getElementById('serial-conn-info')) {
-            document.getElementById('serial-conn-info').innerHTML = 'Connection established with ' +
-                msg_to_send.portPath + ' at baudrate ' + msg_to_send.baudrate;
+            document.getElementById('serial-conn-info').innerHTML = Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED +
+            ' ' + msg_to_send.portPath + ' ' + Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE + ' ' + msg_to_send.baudrate;
         }
         client_ws_connection.send(JSON.stringify(msg_to_send));
 
@@ -851,7 +853,7 @@ function serial_console() {
                 client_ws_connection.send(JSON.stringify(msg_to_send));
             }
             term_been_scrolled = false;
-            displayInTerm(null);
+            pTerm.display(null);
         });
     }
 
@@ -989,8 +991,8 @@ function graphing_console() {
             };
 
             if (document.getElementById('graph-conn-info')) {
-                document.getElementById('graph-conn-info').innerHTML = 'Connection established with ' +
-                    msg_to_send.portPath + ' at baudrate ' + msg_to_send.baudrate;
+                document.getElementById('graph-conn-info').innerHTML = Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED +
+                ' ' + msg_to_send.portPath + ' ' + Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE + ' ' + msg_to_send.baudrate;
             }
 
             client_ws_connection.send(JSON.stringify(msg_to_send));

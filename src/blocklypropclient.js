@@ -437,7 +437,7 @@ function establish_socket() {
                 if (ws_msg.msg !== undefined) {
                     if (term !== null) { // is the terminal open?
 
-                        displayInTerm(msg_in);
+                        pTerm.display(msg_in);
                         $('#serial_console').focus();
                     } else if (graph !== null) { // is the graph open?
                         graph_new_data(msg_in);
@@ -464,7 +464,7 @@ function establish_socket() {
                     $('#console-dialog').modal('hide');
                     newTerminal = false;
                     //term.destroy();
-                    displayInTerm(null);
+                    pTerm.display(null);
 
                 } else if (ws_msg.action === 'close-graph') {
                     $('#graphing-dialog').modal('hide');

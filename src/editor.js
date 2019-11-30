@@ -175,6 +175,11 @@ const LOCAL_PROJECT_STORE_NAME = 'localProject';
  */
 var blocklyWorkSpace;
 
+/**
+ * The prop terminal object
+ */
+var pTerm;
+
 
 /**
  * The default number of minutes to wait until the user is prompted
@@ -396,6 +401,26 @@ $(() => {
 
     // Make sure the toolbox appears correctly, just for good measure.
     resetToolBoxSizing(250);
+
+    // Initialize the terminal
+    pTerm = new propTerm(document.getElementById('serial_console'), function(characterToSend) {
+        if (active_connection !== null && 
+            active_connection !== 'simulated' && 
+            active_connection !== 'websocket') {
+            active_connection.send(client_version >= minEnc64Ver ? btoa(characterToSend) : characterToSend);
+    
+        } else if (active_connection === 'websocket') {
+            var msg_to_send = {
+                type: 'serial-terminal',
+                outTo: 'terminal',
+                portPath: getComPort(),
+                baudrate: baudrate.toString(10),
+                msg: characterToSend,
+                action: 'msg'
+            };
+            client_ws_connection.send(JSON.stringify(msg_to_send));
+        }    
+    });
 });
 
 
