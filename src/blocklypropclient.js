@@ -590,7 +590,7 @@ function clearComPortUI() {
     let portUI = $("#comPort");
     if (portUI) {
         try {
-            let port = portUI.val().toString();
+            let port = portUI.val();
             portUI.empty();
             return port;
         }

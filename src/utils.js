@@ -217,3 +217,36 @@ navigator.browserSpecs = (function(){
         M.splice(1, 1, tem[1]);
     return {name:M[0], version:M[1], system:osName};
 })();
+
+
+/**
+ * Find offset to first unequal character in two strings.
+ * @param a
+ * @param b
+ *
+ * @returns {number}
+ * Returns the offset to first character in either string
+ * where the characters differ at that location.
+ *
+ * Returns the length of the shorter string if the strings are of
+ * differing lengths but are equal up to the end of the shorter
+ * string.
+ *
+ * Returns -1 if none of the above conditions are met.
+ *
+ * @description
+ * https://stackoverflow.com/questions/32858626/detect-position-of-first-difference-in-2-strings
+ *
+ */
+function findFirstDiffPos(a, b)
+{
+    let shorterLength = Math.min(a.length, b.length);
+
+    for (let i = 0; i < shorterLength; i++) {
+        if (a[i] !== b[i]) return i;
+    }
+
+    if (a.length !== b.length) return shorterLength;
+
+    return -1;
+}

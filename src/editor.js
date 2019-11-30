@@ -90,8 +90,34 @@ const PROJECT_NAME_MAX_LENGTH = 100;
  */
 const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
 
+/**
+ * The name used to store a project that is being loaded from
+ * offline storage.
+ *
+ * temp... is used to persist the imported SVG file. This file is a
+ * candidate until the user selects the 'Open' button to confirm that
+ * this file is the one to be loaded into the app.
+ *
+ * local... is used as the project that will either replace the
+ * current project or be appended to the current project.
+ *
+ * @type {string}
+ */
+const TEMP_PROJECT_STORE_NAME = "tempProject";
+const LOCAL_PROJECT_STORE_NAME = 'localProject';
 
 /**
+ * The default number of minutes to wait until the user is prompted
+ * to save the altered project.
+ *
+ * @type {number}
+ */
+const SAVE_PROJECT_TIMER_DELAY = 20;
+
+
+/**
+ *  Timestamp to indicate the amount of time that must expire before
+ *  the user is advised to save their project.
  *
  * @type {number}
  */
@@ -99,22 +125,12 @@ var last_saved_timestamp = 0;
 
 
 /**
- * Timestamp to record when the current project was last saved to
- * storage
+ * Timestamp to record the amount of time that has gone by since the
+ * current project was last saved to storage.
  *
  * @type {number}
  */
 var last_saved_time = 0;
-
-
-/**
- * The primary key for the project (online version)
- *
- * @type {number}
- * @deprecated
- *  Solo does not have a concept of unique project identifiers.
- */
-var idProject = 0;
 
 
 /**
@@ -154,23 +170,6 @@ var bpIcons = {
 
 
 /**
- * The name used to store a project that is being loaded from
- * offline storage.
- *
- * temp... is used to persist the imported SVG file. This file is a
- * candidate until the user selects the 'Open' button to confirm that
- * this file is the one to be loaded into the app.
- *
- * local... is used as the project that will either replace the
- * current project or be appended to the current project.
- *
- * @type {string}
- */
-const TEMP_PROJECT_STORE_NAME = "tempProject";
-const LOCAL_PROJECT_STORE_NAME = 'localProject';
-
-
-/**
  * This is the object returned from the call to Blockly.inject()
  */
 var blocklyWorkSpace;
@@ -181,13 +180,6 @@ var blocklyWorkSpace;
 var pTerm;
 
 
-/**
- * The default number of minutes to wait until the user is prompted
- * to save the altered project.
- *
- * @type {number}
- */
-const SAVE_PROJECT_TIMER_DELAY = 20;
 
 
 // TODO: set up a markdown editor (removed because it doesn't work in a Bootstrap modal...)
@@ -250,7 +242,7 @@ function getTimestamp() {
  * if it is time to prompt the user to save their project code.
  *
  * The <span> tag is introduced as part of a message, located in the
- * _messages.js file, page_text_label['editor_save-check_warning'].
+ * messages.js file, page_text_label['editor_save-check_warning'].
  */
 const checkLastSavedTime = function () {
     const t_now = getTimestamp();
@@ -346,16 +338,10 @@ $(() => {
     initCdnImageUrls();
     initClientDownloadLinks();
 
-    idProject = getURLParameter('project');
-
     // TODO: Use the ping endpoint to verify that we are offline.
 
     // Stop pinging the Rest API
     clearInterval(pingInterval);
-
-    // hide save interaction elements
-    $('.online-only').addClass('hidden');
-    $('.offline-only').removeClass('hidden');
 
     // Load a project file from local storage
     if (getURLParameter('openFile') === "true") {
@@ -364,9 +350,13 @@ $(() => {
             // put a copy into projectData
             projectData = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
         }
+
+        // Show the Open Project modal dialog
         OpenProjectModal();
+
     } else if (getURLParameter('newProject') === "true") {
         NewProjectModal();
+
     } else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
         // Load a project from localStorage if available
         try {
@@ -450,7 +440,47 @@ function checkLeave() {
     let currentXml = getXml();
     let savedXml = projectData['code'];
 
-    return !(savedXml === currentXml);
+    return compareProjectCode(currentXml, savedXml);
+}
+
+
+/**
+ * Compare the project block code of two projects for equality
+ *
+ * @param projectA is one of the two projects to compare for equality
+ * @param projectB is the second of two projects to compare for equalityy.
+ *
+ * @returns {boolean} True if projects are unequal, otherwise return false
+ */
+function compareProjectCode(projectA, projectB) {
+    // Looking for the first <block> XML element
+    const searchTerm = '<block';
+
+    // Get the offset to the first <block> xml element
+    let indexA = projectA.indexOf(searchTerm);
+    let indexB = projectB.indexOf(searchTerm);
+
+    // No blocks in either copy of the project
+    // They must be equally devoid of a project
+    if (indexA === -1 && indexB === -1) {
+        return false;
+    }
+
+    // Return false if the first block is not found
+    // in one of the two projects.
+    if (indexA === -1 || indexB === -1) {
+        return true;
+    }
+
+    // Start comparing the projects beginning with the first block
+    // that appears after the namespace declaration
+    let result = findFirstDiffPos(
+        projectA.substring(indexA, projectA.length),
+        projectB.substring(indexB, projectB.length));
+
+    // findFirstDiffPos() will return a -1 if the projects are
+    // identical, that is, the project was not altered.
+    return result !== -1;
 }
 
 
@@ -467,7 +497,7 @@ function initInternationalText() {
 
         // Get the associated key value that will be used to locate
         // the text string in the page_text_label array. This array
-        // is declared in _messages.js
+        // is declared in messages.js
         let pageLabel = span_tag.attr('data-key');
 
         // If there is a key value
@@ -612,14 +642,11 @@ function initEventHandlers() {
     $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
     $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
 
-    // Blocks/Code/XML button
-    $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
-    $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
-    $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
-        
+    // NEW Button
     // New Project toolbar button
     $('#new-project-button').on('click', () => NewProjectModal());
 
+    // OPEN Button
     // Open Project toolbar button
     $('#open-project-button').on('click', () => {
         // Save the project to localStorage
@@ -627,21 +654,17 @@ function initEventHandlers() {
         window.location = "blocklyc.html?openFile=true";
     });
 
-    // Save Project button goes here!
+    // Save button
+    // Save Project modal 'Save' button click handler
+    $('#save-btn, #save-project').on('click', () => downloadCode());
 
 
+    // --------------------------------
     // Hamburger menu items
-    //    $('#selectfile-replace').on('click',    function () {  uploadMergeCode(false); });
-    //    $('#selectfile-append').on('click',     function () {  uploadMergeCode(true); });
+    // --------------------------------
 
     // Edit project details
     $('#edit-project-details').on('click', () => editProjectDetails());
-
-    // New Project - Load a new project menu click handler
-    /**
-     * @deprecated
-     */
-    $('#new-project-menu-item').on('click', () => NewProjectModal());
 
     // Help and Reference - online help web pages
     // Implemented as an href in the menu
@@ -652,49 +675,46 @@ function initEventHandlers() {
     $('#download-side').on('click', () => downloadPropC());
 
     /**
-     * Download project to disk
-     * @deprecated
-     */
-    $('#download-project').on('click', () => downloadCode());
-
-
-    /**
-     * Import (upload) project from storage
-     * @description This is designed to merge code from an existing
-     * project into the current project.
+     * Import project file menu selector
+     *
+     * @description
+     * Import (upload) project from storage. This is designed to
+     * merge code from an existing project into the current project.
      */
     $('#upload-project').on('click', () => uploadCode());
 
     // ---- Hamburger drop down horizontal line ----
 
-    // Still looking for these buttons in the UI
+    // Configure client menu selector
     $('#client-setup').on('click', () => configure_client());
 
+    // --------------------------------
+    // End of hamburger menu items
+    // --------------------------------
 
-    // **  End of Drop-down menu
-    // **************************************************************
 
+    // Save As button
+    $('#save-as-btn').on('click', () => saveAsDialog());
+    // Save-As Project
+    $('#save-project-as').on('click', () => saveAsDialog());
+
+    // Save As new board type
+    $('#save-as-board-type').on('change', () => checkBoardType(
+        $('#saveAsDialogSender').html()));
+    $('#save-as-board-btn').on('click', () => saveProjectAs(
+        $('#save-as-board-type').val(),
+        $('#save-as-project-name').val()
+    ));
 
     $('#selectfile-clear').on('click', () => clearUploadInfo(true));
-    $('#save-as-btn').on('click', () => saveAsDialog());
-
-
-    // Save Project modal 'Save' button click handler
-    $('#save-btn, #save-project').on('click', () => downloadCode());
-
 
     $('#btn-graph-play').on('click', () => graph_play());
     $('#btn-graph-snapshot').on('click', () => downloadGraph());
     $('#btn-graph-csv').on('click', () => downloadCSV());
     $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
 
-    $('#save-as-board-type').on('change', () => checkBoardType($('#saveAsDialogSender').html()));
 
-    $('#save-as-board-btn').on('click', () => saveProjectAs(
-        $('#save-as-board-type').val(),
-        $('#save-as-project-name').val()
-    ));
-
+    // Client install instruction modals
     $('#win1-btn').on('click', () => showStep('win', 1, 3));
     $('#win2-btn').on('click', () => showStep('win', 2, 3));
     $('#win3-btn').on('click', () => showStep('win', 3, 3));
@@ -711,8 +731,6 @@ function initEventHandlers() {
     $('.show-os-chr').on('click', () => showOS('ChromeOS'));
     $('.show-os-lnx').on('click', () => showOS('Linux'));
 
-    // Save-As Project
-    $('#save-project-as').on('click', () => saveAsDialog());
 
     // --------------------------------------------------------------
     // Bootstrap modal event handler for the Save Project Timer
@@ -827,15 +845,6 @@ function setupWorkspace(data, callback) {
     projectData = data;
     showInfo(data);         // Update the UI with project related details
 
-    // --------------------------------------------------------------
-    // Set the global project ID. in the offline mode, the project
-    // id is set to 0 when the project is loaded from local storage.
-    // --------------------------------------------------------------
-    // TODO: Remove this code
-    if (!idProject) {
-        idProject = projectData['id'];
-    }
-
     // Set various project settings based on the project board type
     // NOTE: This function is in propc.js
     setProfile(projectData['board']);
@@ -922,7 +931,7 @@ function showInfo(data) {
 
 
 /**
- *
+ * @deprecated Cannot find any references to this function in code.
  */
 function saveProject() {
     // TODO: Refactor to remove the concept of project ownership
@@ -1204,7 +1213,7 @@ function downloadCode() {
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-83)" style="font-weight:bold;">Parallax BlocklyProp Project</text>';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-68)">User: ' + encodeToValidXml(projectData['user']) + '</text>';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-53)">Title: ' + encodeToValidXml(projectData['name']) + '</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-38)">Project ID: ' + idProject + '</text>';
+        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-38)">Project ID: 0</text>';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-23)">Device: ' + projectData['board'] + '</text>';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-8)">Description: ' + encodeToValidXml(projectData['description']) + '</text>';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' + projectData['created'] + '" data-lastmodified="' + dt + '"></text>';
