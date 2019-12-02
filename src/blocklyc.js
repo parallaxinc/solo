@@ -559,7 +559,7 @@ function cloudCompile(text, action, successHandler) {
 
         // Contact the docker container running cloud compiler
         // Compute the url based on where we are now
-        let postUrl = 'http://solo.parallax.com:5001/single/prop-c/' + action;
+        let postUrl = 'https://solo.parallax.com:5001/single/prop-c/' + action;
 //        let postUrl = getCompilerUrl(action);
 
         $.ajax({
