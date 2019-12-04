@@ -464,7 +464,7 @@ function establish_socket() {
                     $('#console-dialog').modal('hide');
                     newTerminal = false;
                     //term.destroy();
-                    updateTermBox(0);
+                    displayInTerm(null);
 
                 } else if (ws_msg.action === 'close-graph') {
                     $('#graphing-dialog').modal('hide');

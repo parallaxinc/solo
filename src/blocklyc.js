@@ -501,8 +501,11 @@ function init(blockly) {
     window.Blockly = blockly;
 
     if (projectData) {
-        if (!projectData['code'] || projectData['code'].length < 50) {
-            projectData['code'] = '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>';
+        // Looking for the first <block> XML element
+        const searchTerm = '<block';
+
+        if (!projectData['code'] || projectData['code'].indexOf(searchTerm) < 0) {
+            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + '</xml>';
         }
         if (projectData['board'] !== 'propcfile') {
             loadToolbox(projectData['code']);
@@ -788,7 +791,7 @@ function serial_console() {
             };
 
             if (!newTerminal) {
-                updateTermBox(0);
+                displayInTerm(null);
             }
 
             $('#console-dialog').on('hidden.bs.modal', function () {
@@ -799,7 +802,7 @@ function serial_console() {
                 if (document.getElementById('serial-conn-info')) {
                     document.getElementById('serial-conn-info').innerHTML = '';
                 }
-                updateTermBox(0);
+                displayInTerm(null);
                 term_been_scrolled = false;
                 term = null;
             });
@@ -814,7 +817,7 @@ function serial_console() {
             $('#console-dialog').on('hidden.bs.modal', function () {
                 term_been_scrolled = false;
                 active_connection = null;
-                updateTermBox(0);
+                displayInTerm(null);
                 term = null;
             });
         }
@@ -851,7 +854,7 @@ function serial_console() {
                 client_ws_connection.send(JSON.stringify(msg_to_send));
             }
             term_been_scrolled = false;
-            updateTermBox(0);
+            displayInTerm(null);
         });
     }
 
