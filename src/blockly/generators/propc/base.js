@@ -814,6 +814,7 @@ Blockly.Blocks.string_var_length = {
                 .appendField('String variable set size of');
         this.optionList_ = ['var'];
         this.userDefinedConstantsList_ = ['MYVALUE'];
+        this.setMYVALUEconstantValue = false;
         this.updateConstMenu();
         this.updateShape_();
         this.setPreviousStatement(true, "Block");
@@ -960,18 +961,27 @@ Blockly.Blocks.string_var_length = {
         }
     },
     onchange: function () {
-        var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-        var strVarBlocksCount = 0;
-        for (var x = 0; x < allBlocks.length; x++) {
-            if (allBlocks[x].type === 'string_var_length') {
-                strVarBlocksCount++;
+        this.setMYVALUEconstantValue = '';
+
+        var mainWorkspace = Blockly.getMainWorkspace();
+        var warnTxt = '';
+        if (mainWorkspace.getBlocksByType('string_var_length').length > 1) {
+            warnTxt += 'WARNING! Only use one of these blocks!';
+        }
+
+        var myDefineBlockWarning = '\n\nWARNING! MYVALUE is not defined!';
+        mainWorkspace.getBlocksByType('constant_define').forEach(function (theBlock) {
+            if (theBlock.getFieldValue('CONSTANT_NAME') === 'MYVALUE') {
+                myDefineBlockWarning = '';
             }
+        });
+        warnTxt += myDefineBlockWarning;
+
+        if (myDefineBlockWarning !== '') {
+            this.setMYVALUEconstantValue = true;
         }
-        if (strVarBlocksCount > 1) {
-            this.setWarningText('WARNING! Only use one of these blocks!');
-        } else {
-            this.setWarningText(null);
-        }
+
+        this.setWarningText(warnTxt === '' ? null : warnTxt.trim());
     }
 };
 
@@ -1009,6 +1019,10 @@ Blockly.Blocks.string_var_length_con = {
 };
 
 Blockly.propc.string_var_length = function () {
+    if (!this.disabled && this.setMYVALUEconstantValue) {
+        Blockly.propc.definitions_["USER_MYVALUE"] = '#define MY_MYVALUE\t64';
+    }
+
     var i = 0;
     Blockly.propc.string_var_lengths = [];
     while (this.getInput('VAR' + i.toString(10))) {
