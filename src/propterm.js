@@ -1,4 +1,3 @@
-
 /*
  *   TERMS OF USE: MIT License
  *
@@ -20,6 +19,7 @@
  *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *   DEALINGS IN THE SOFTWARE.
  */
+
 
 
 /**
@@ -60,70 +60,44 @@ var termSetCursor = 0;
 
 /**
  *
- * @type {any[]}
+ * @type {string[]}
  */
-var textContainer = new Array;
-
-
-/**
- *
- * @type {string}
- */
-textContainer[0] = '';
-
-
-/**
- *
- * @type {boolean}
- */
-var term_been_scrolled = false;
-
-
-/**
- *
- * @type {string}
- */
-var fontSize = '14px'; //$('#serial_console').css('font-size');
-
-
-/**
- *
- * @type {string}
- */
-var termPxWide = '560px'; //$('#serial_console').css('width');
-
-
-/**
- *
- * @type {string}
- */
-var termPxHigh = '380px'; //$('#serial_console').css('height');
+var textContainer = [''];
 
 
 /**
  *
  * @type {number}
  */
-var lineHeight = Math.floor(parseInt(fontSize.replace('px', '')) * 1.1);
+var terminalBeenScrolled = 0;
+
+
+/**
+ *
+ * @type {string}
+ */
+var terminalPixelsWide;
+
+
+/**
+ *
+ * @type {string}
+ */
+var terminalPixelsHigh;
 
 
 /**
  *
  * @type {number}
  */
-var term_width = Math.floor(parseInt(fontSize.replace('px', ''))) / 1.65;
-// TODO: The term_width is set to a default value and then immediately
-//   updated to a new value based on termPxHigh instead of fontSize
+var terminalLineHeight;
 
 
 /**
  *
  * @type {number}
  */
-var term_height = Math.floor(parseInt(termPxHigh.replace('px', '')));
-
-// Setting terminal widt to a different value from the initializer above.
-term_width = Math.floor((parseInt(termPxWide.replace('px', '')) - 25) / term_width);
+var terminalCharactersWide = 256;  // if null, it's auto-calculated based on the pixel-width of the terminal
 
 
 /**
@@ -152,28 +126,28 @@ var ascii2unicode = [
  *
  * @type {Array}
  */
-var echo_trap = [];
+var echoTrapBuffer = [];
 
 
 /**
  *
  * @type {boolean}
  */
-var trap_echos = false;
+var trapEchos = false;
 
 
 /**
  *
  * @type {boolean}
  */
-var echo_keys = true;
+var echoKeys = true;
 
 
 /**
  *
  * @type {string}
  */
-var terminal_buffer = '';
+var terminalBuffer = '';
 
 
 /**
@@ -190,12 +164,11 @@ var updateTermInterval = null;
 var bufferAlert = false;
 
 
-// TODO: The compiler reports scrollerTimeout as an unused variable
 /**
  *
- * @type {null}
+ * @type {object}
  */
-var scrollerTimeout = null;
+var terminalContainerElement = {};
 
 
 /**
@@ -203,19 +176,40 @@ var scrollerTimeout = null;
  */
 $(document).ready(function () {
 
-    fontSize = $('#serial_console').css('font-size');
-    termPxWide = $('#serial_console').css('width');
-    termPxHigh = $('#serial_console').css('height');
-    lineHeight = Math.floor(parseInt(fontSize.replace('px', '')) * 1.1);
-    term_width = 256; //Math.floor(parseInt(fontSize.replace('px', ''))) / 1.65;
+    // add the terminal beep sound to the end of the HTML body.
+    var sound      = document.createElement('audio');
+    sound.id       = 'term-beep';
+    sound.controls = 'controls';
+    sound.src      = 'data:audio/wav;base64,UklGRrQJAABXQVZFZm10IBAAAAABAAIAESsAACJWAAACAAgATElTVBoAAABJTkZPSVNGVA4AAABMYXZmNTguMjAuMTAwAGRhdGFuCQAAg4OqqrCwiYlfX0lJbm6Wlre3m5tyckpKW1uEhK6ura2Dg1lZS0t0dJyct7eUlGxsSUlhYYqKsrKnp35+U1NQUHl5o6O1tY6OZmZHR2hokJC2tqGheHhPT1VVf3+pqbGxiYlgYElJbW2Vlbe3m5tzc0tLWlqEhK6urq6EhFpaS0tzc5ubt7eVlW1tSUlgYImJsrKoqH5+VFRPT3l5oqK1tY+PZ2dHR2dnj4+1taKieXlPT1RUfn6oqLKyiYlgYElJbW2UlLe3nJx0dEtLWVmDg62trq6EhFtbSkpycpubt7eWlm5uSUlgYIiIsbGpqX9/VVVPT3h4oaG2tpCQaGhHR2Zmjo61taOjeXlQUFNTfn6np7KyiophYUlJbGyUlLe3nJx1dUxMWVmCgqysr6+FhVxcSkpycpqat7eXl29vSUlfX4iIsbGpqYCAVlZOTnd3oKC2tpCQaGhISGVljY21taOjenpQUFNTfX2mprOzi4tiYkhIa2uUlLe3nZ10dExMWVmBgaysr6+GhlxcSkpxcZmZuLiXl29vSUleXoeHsLCqqoCAVlZOTnd3n5+2tpGRaWlISGRkjY21taSke3tRUVJSfHymprS0i4tjY0hIa2uTk7a2np51dU1NWFiCgqysr6+Ghl1dSkpwcJiYuLiYmHBwSkpdXYaGsLCrq4GBV1dNTXZ2n5+2tpKSampISGRkjIy0tKWle3tRUVFRe3ulpbS0jIxkZEhIamqSkra2n592dk1NV1eBgaursLCGhl1dSkpwcJeXuLiZmXFxSkpcXIaGr6+srIGBWFhNTXV1np62tpOTa2tISGNji4u0tKamfHxSUlFRe3ukpLW1jY1kZEhIaWmRkba2n593d05OVlaAgKqqsLCHh15eSUlvb5eXuLiZmXJySkpcXIWFr6+srIKCWVlMTHR0nZ23t5SUa2tISGJii4uzs6amfX1TU1BQenqjo7W1jY1lZUhIaGiQkLa2oKB3d05OVlaAgKmpsbGIiF9fSUlvb5eXt7eamnJySkpbW4SErq6trYODWVlLS3R0nJy3t5SUbGxJSWFhioqysqenfn5TU1BQeXmjo7W1jo5mZkdHaGiQkLa2oaF4eE9PVVV/f6mpsbGIiGBgSUlubpaWt7ebm3JySkpbW4SErq6trYSEWlpLS3Nzm5u3t5WVbW1JSWBgiYmysqiofn5UVE9PeXmiorW1j49nZ0dHZ2ePj7W1oqJ5eU9PVFR+fqiosrKJiWBgSUltbZWVt7ebm3NzS0taWoSErq6uroODWlpLS3Jym5u3t5aWbm5JSWBgiIixsampf39VVU9PeHihoba2kJBoaEdHZmaOjrW1o6N5eVBQU1N+fqensrKKimFhSUlsbJSUt7ecnHR0S0tZWYODra2uroSEW1tKSnJympq4uJeXb29JSV9fiIixsampgIBWVk5Od3egoLa2kJBoaEhIZWWNjbW1o6N6elBQU1N9faams7OLi2JiSEhra5SUt7ednXR0TExZWYKCrKyvr4WFXFxKSnJympq3t5eXb29JSV5eh4ewsKqqgIBWVk5Od3efn7a2kZFpaUhIZGSNjbW1pKR7e1FRUlJ8fKamtLSLi2NjSEhra5OTtraennV1TU1YWIGBrKyvr4aGXFxKSnFxmZm4uJeXb29JSV5eh4ewsKurgYFXV01Ndnafn7a2kpJqakhIZGSMjLS0paV7e1FRUVF7e6WltLSMjGRkSEhqapKStrafn3Z2TU1XV4GBq6uwsIaGXV1KSnBwmJi4uJiYcHBKSl1dhoawsKurgYFXV0xMdXWenra2k5Nra0hIY2OLi7S0pqZ8fFJSUVF7e6SktbWNjWRkSEhpaZGRtrafn3d3Tk5WVoCAqqqwsIeHXl5JSW9vl5e4uJmZcXFKSlxchoavr6ysgYFYWExMdXWenre3lJRra0hIYmKLi7OzpqZ9fVNTUFB6eqOjtbWNjWVlSEhoaJCQtragoHd3Tk5WVoCAqamxsYiIX19JSW9vl5e3t5qacnJKSlxchYWvr6ysgoJZWUxMdHSdnbe3lJRsbEhIYWGKirOzp6d+flNTUFB5eaOjtbWOjmZmR0doaJCQtrahoXh4T09VVX9/qamxsYiIYGBJSW5ulpa3t5ubcnJKSltbhISurq2tg4NZWUtLdHScnLe3lJRsbElJYWGKirKyqKh+flRUT095eaKitbWPj2dnR0dnZ4+PtbWionl5T09UVH5+qKiysomJYWFKSm1tlJS2tpubdHRMTFtbg4Otra2tg4NbW0xMdHSbm7a2lJRtbUpKYWGJibGxp6d+flVVUFB4eKCgtbWPj2hoSEhnZ46OtbWionl5UVFUVH5+pqaysomJYmJJSW1tlJS2tpubdHRMTFpag4OsrK2thIRcXEtLc3Oamre3lZVubkpKYGCIiLGxqKh/f1ZWT094eKCgtbWQkGlpSEhmZo2NtLSjo3p6UVFTU319pqaysoqKY2NJSWxsk5O2tpycdXVNTVlZgoKsrK6uhYVcXEtLcnKZmbe3lpZvb0pKYGCIiLCwqal/f1ZWT093d5+ftbWQkGpqSEhlZYyMtLSjo3t7UlJTU3x8paWzs4uLZGRJSWtrkpK2tp2ddnZNTVlZgYGrq6+vhoZdXUpKcXGYmLe3l5dwcEpKX1+Hh7CwqamAgFdXTk53d5+ftbWRkWpqSEhlZYyMs7OkpHx8UlJSUnx8pKSzs4uLZGRJSWtrkpK1tZ6ednZOTlhYgYGqqq+vhoZeXkpKcXGXl7e3l5dxcUpKXl6Ghq+vqqqBgVhYTk52dp6etbWRkWtrSUlkZIuLs7OkpHx8U1NSUnt7o6O0tIyMZWVISGpqkZG1tZ+fd3dOTldXgICpqbCwh4dfX0pKcHCXl7e3mJhxcUpKXV2Ghq+vq6uBgVlZTU12dp2dtraSkmtrSUlkZIuLs7OlpXx8U1NSUnt7o6O0tI2NZmZISGlpkJC1tZ+fd3dPT1ZWgICpqbCwiIhgYEpKb2+Wlre3mZlycktLXFyFha6uq6uCgllZTU11dZyctraTk2xsSUljY4qKsrKlpX19VFRRUXp6o6O0tI2NZ2dISGhoj4+1taCgeHhQUFZWf3+oqLCwiIhgYEpKbm6Vlba2mppzc0tLXFyEhK2trKyDg1paTEx0dJubtraUlG1tSkpiYomJsbGmpn5+VVVRUXp6np6rq4qKcHBhYXV1hYWOjoaGfn4=';
+    sound.type     = 'audio/wav';
+    document.getElementsByTagName('body')[0].appendChild(sound);
 
-    $('#serial_console').css({'overflow-x':'scroll'});
+    terminalContainerElement = document.getElementById('serial_console');
+    var terminalComputedStyle = window.getComputedStyle(terminalContainerElement);
 
-    term_height = Math.floor(parseInt(termPxHigh.replace('px', '')));
-    //term_width = Math.floor((parseInt(termPxWide.replace('px', '')) - 20) / term_width);
+    terminalPixelsWide = parseFloat(terminalComputedStyle.getPropertyValue('width') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('border-left') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('border-right') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('padding-left') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('padding-right') || '0');
+
+    terminalPixelsHigh = parseFloat(terminalComputedStyle.getPropertyValue('height') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('border-top') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('border-bottom') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('padding-top') || '0') - 
+            parseFloat(terminalComputedStyle.getPropertyValue('padding-bottom') || '0');
+
+    terminalCharacterWidth = getCharacterSize(terminalComputedStyle.getPropertyValue('font'));
+    terminalLineHeight = parseFloat(terminalComputedStyle.getPropertyValue('line-height'));
+
+    if (!terminalCharactersWide) {
+        terminalCharactersWide = Math.floor(((terminalPixelsWide - 20) / terminalCharacterWidth));
+    }
+
+    terminalContainerElement.style.overflowX = 'scroll';    
 
     // Register a keydown event callback function
-    $("#serial_console").keydown(function (e) {
+    terminalContainerElement.addEventListener('keydown', function (e) {
         //Validate key (or emit special key character)
         var keycode = e.keyCode || e.which;
 
@@ -225,48 +219,34 @@ $(document).ready(function () {
         }
 
         //Validate key
-        var valid =
-                (keycode > 47 && keycode < 58) || // number keys
-                keycode === 32 || // spacebar
-                (keycode > 64 && keycode < 91) || // letter keys
-                (keycode > 95 && keycode < 112) || // numpad keys
-                (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
-                (keycode > 218 && keycode < 223); // [\]' (in order)
-        return valid;
-    });
+        if ((keycode > 47  && keycode < 58)  ||  //  number keys
+            (keycode === 32)                 ||  //  spacebar
+            (keycode > 64  && keycode < 91)  ||  //  letter keys
+            (keycode > 95  && keycode < 112) ||  //  numpad keys
+            (keycode > 185 && keycode < 193) ||  //  ;=,-./` (in order)
+            (keycode > 218 && keycode < 223)) {  //  [\]' (in order)
 
-    // Register a keypress event callback function
-    $("#serial_console").keypress(function (e) {
-        //Emit key character
-        processKey(e.charCode);
+            processKey(e.key.charCodeAt(0));
+        }
     });
 
     // Register a click event callback function
-    $("#serial_console").click(function () {
-        var the_div = document.getElementById('serial_console').innerHTML;
-        if (the_div[the_div.length - 1] !== '\u258D') {
-            document.getElementById('serial_console').innerHTML = the_div + '\u258D';
+    terminalContainerElement.addEventListener('click', function () {
+        var terminalHTML = terminalContainerElement.innerHTML;
+
+        if (terminalHTML[terminalHTML.length - 1] !== '\u258D') {
+            terminalContainerElement.innerHTML = terminalHTML + '\u258D';
         }
-        
-        /*
-        term_been_scrolled = true;
-        if(scrollerTimeout) {
-            clearTimeout(scrollerTimeout);
-        }
-        scrollerTimeout = setTimeout(function() {
-           term_been_scrolled = false;
-        },15000);
-        */
     });
 
     // Register a blur event callback function
-    $("#serial_console").blur(function () {
-        var the_div = document.getElementById('serial_console').innerHTML;
+    terminalContainerElement.addEventListener('blur', function () {
+        var terminalHTML = terminalContainerElement.innerHTML;
 
-        if (the_div[the_div.length - 1] === '\u258D') {
-            document.getElementById('serial_console').innerHTML = the_div.slice(0, -1);
-            if (the_div === '\u258D') {
-                document.getElementById('serial_console').innerHTML = '';
+        if (terminalHTML[terminalHTML.length - 1] === '\u258D') {
+            terminalContainerElement.innerHTML = terminalHTML.slice(0, -1);
+            if (terminalHTML === '\u258D') {
+                terminalContainerElement.innerHTML = '';
             }
         }
     });
@@ -275,26 +255,24 @@ $(document).ready(function () {
 
 /**
  *
- * @param code
+ * @param keyPressCode
  */
-function processKey(code) {
-    var t_str = String.fromCharCode(code);
+function processKey(keyPressCode) {
+    var characterToSend = String.fromCharCode(keyPressCode);
+
+    // TODO: Add callback here to send keypress to device
+
+    if (echoKeys) {
+        displayInTerm(characterToSend);
+    }
+    if (trapEchos) {
+        echoTrapBuffer.push(keyPressCode);
+    }
     
-    //Emit key code to properly destination
+    //TODO: move all of the below into a callback.
+    //Emit key keyPressCode to its proper destination
     if (active_connection !== null && active_connection !== 'simulated' && active_connection !== 'websocket') {
-        if (client_version >= minEnc64Ver) {
-            active_connection.send(btoa(t_str));
-            if (echo_keys) {
-                displayInTerm(t_str);
-            }
-        } else {
-            active_connection.send(t_str);
-            if (trap_echos) {
-                echo_trap.push(code);
-            }
-        }    
-    } else if (active_connection === 'simulated') {
-        displayInTerm(t_str);
+        active_connection.send(client_version >= minEnc64Ver ? btoa(characterToSend) : characterToSend);
 
     } else if (active_connection === 'websocket') {
         var msg_to_send = {
@@ -302,15 +280,11 @@ function processKey(code) {
             outTo: 'terminal',
             portPath: getComPort(),
             baudrate: baudrate.toString(10),
-            msg: t_str,
+            msg: characterToSend,
             action: 'msg'
         };
-
         client_ws_connection.send(JSON.stringify(msg_to_send));
 
-        if (echo_keys) {
-            displayInTerm(t_str);
-        }
     } 
 }
 
@@ -320,18 +294,18 @@ function processKey(code) {
  * @param str
  */
 function displayInTerm(str) {
-    /*
-     for (var f = 0; f < str.length; f++) {
-     updateTermBox(str.charCodeAt(f));
-     }
-     */
-    var termStatus = terminal_buffer.length;
-    terminal_buffer += str;
+    if (!str) {
+        updateTermBox(0);
+        terminalBuffer = '';
+    } else {
+        var termStatus = terminalBuffer.length;
+        terminalBuffer += str;
 
-    if (termStatus === 0) {
-        sendBufferToTerm();
-    } else if (termStatus > 255 && bufferAlert === false) {
-        termBufferWarning();
+        if (termStatus === 0) {
+            sendBufferToTerm();
+        } else if (termStatus > 255 && bufferAlert === false) {
+            termBufferWarning();
+        }
     }
 }
 
@@ -357,13 +331,9 @@ function termBufferWarning() {
  */
 function sendBufferToTerm() {
     do {
-        //var o = echo_trap;
-        //echo_trap = echo_trap.replace(terminal_buffer[0], '');
-        //if (echo_trap.length >= o.length) {
-        updateTermBox(terminal_buffer.charCodeAt(0));
-        //}
-        terminal_buffer = terminal_buffer.substr(1);
-    } while (terminal_buffer.length > 0)
+        updateTermBox(terminalBuffer.charCodeAt(0));
+        terminalBuffer = terminalBuffer.substr(1);
+    } while (terminalBuffer.length > 0)
 
     displayTerm();
 }
@@ -374,10 +344,12 @@ function sendBufferToTerm() {
  * @param c
  */
 function updateTermBox(c) {
-    for (zz = 0; zz < echo_trap.length; zz++) {
-        if (echo_trap[zz] === c) {
-            echo_trap.splice(zz, 1);
-            return;
+    if (trapEchos) {
+        for (var i = 0; i < echoTrapBuffer.length; i++) {
+            if (echoTrapBuffer[i] === c) {
+                echoTrapBuffer.splice(i, 1);
+                return;
+            }
         }
     }
 
@@ -391,37 +363,40 @@ function updateTermBox(c) {
 
 
     // FIXME: Convert the values evaluated in the switch statement to constants
-    //  to make this code more readable.
+    // to make this code more readable.
     // https://www.parallax.com/portals/0/help/BASICStamp/PBASIC click on Debug
     switch (termSetCursor) {
         case 3:
-            cursorGotoX = parseInt(c);
+            cursorGotoX = c;
             termSetCursor = 4;
             break;
         case 2:
+            // fall through
         case 4:
-            cursorGotoY = parseInt(c);
+            cursorGotoY = c;
             termSetCursor = 0;
             setCursor(cursorGotoX, cursorGotoY);
             break;
         case 1:
-            cursorGotoX = parseInt(c);
+            cursorGotoX = c;
             termSetCursor = 0;
             setCursor(cursorGotoX, cursorGotoY);
             break;
-
         case 0:
+            // fall through
+        default:
             // TODO: Null is important to Parallax - Ask Jeff
             switch (c) {
                 case 127:
+                    // fall through
                 case 8:
                     if (cursorX + cursorY > -1) {
                         if (textContainer[cursorY].length > 1) {
                             if (cursorX === textContainer[cursorY].length) {
                                 textContainer[cursorY] = textContainer[cursorY].slice(0, -1);
                             } else if (cursorX > 0) {
-                                var the_line = textContainer[cursorY];
-                                textContainer[cursorY] = the_line.substr(0, cursorX - 1) + ' ' + the_line.substr(cursorX);
+                                var currentLine = textContainer[cursorY];
+                                textContainer[cursorY] = currentLine.substr(0, cursorX - 1) + ' ' + currentLine.substr(cursorX);
                             }
                         } else if (textContainer[cursorY].length === 1) {
                             textContainer[cursorY] = textContainer[cursorY] = '';
@@ -429,23 +404,27 @@ function updateTermBox(c) {
                         changeCursor(-1, 0);
                         break;
                     }
+                    // fall through
                 case 13:
+                    // fall through
                 case 10:
-                    term_been_scrolled = true;
+                    terminalBeenScrolled = 2;  // check to see if the div needs to be scrolled down, and check again after any char is entered.
                     changeCursor(0, 1);
                     break;
                 case 9:
-                    var l = 5 - (cursorX) % 5;
-                    for (k = 0; k < l; k++) {
+                    var j = 5 - (cursorX) % 5;
+                    for (var k = 0; k < j; k++) {
                         textContainer[cursorY] += ' ';
                         changeCursor(1, 0);
                     }
                     break;
                 case 0:
+                    // fall through
                 case 16:
                     textContainer = null;
                     textContainer = new Array;
                     textContainer[0] = '';
+                    // fall through
                 case 1:
                     cursorX = 0;
                     cursorY = 0;
@@ -464,9 +443,9 @@ function updateTermBox(c) {
                     changeCursor(0, 1);
                     break;
                 case 7: // Beep
-                    document.getElementById("serial_console").classList.remove("visual-beep");
-                    var ow = document.getElementById("serial_console").offsetWidth;
-                    document.getElementById("serial_console").classList.add("visual-beep");
+                    terminalContainerElement.classList.remove("visual-beep");
+                    var ow = terminalContainerElement.offsetWidth;
+                    terminalContainerElement.classList.add("visual-beep");
                     var sound = document.getElementById("term-beep");
                     sound.play();
                     break;
@@ -482,6 +461,7 @@ function updateTermBox(c) {
                     termSetCursor = 3;
                     break;
                 case 14:
+                    // fall through
                 case 15:
                     termSetCursor = c - 13;
                     break;
@@ -493,8 +473,8 @@ function updateTermBox(c) {
                         char = String.fromCharCode(c);
                     }
                     if ((textContainer[cursorY] || '').length > cursorX) {
-                        var the_line = textContainer[cursorY] || '';
-                        textContainer[cursorY] = the_line.substr(0, cursorX) + char + the_line.substr(cursorX + 1);
+                        currentLine = textContainer[cursorY] || '';
+                        textContainer[cursorY] = currentLine.substr(0, cursorX) + char + currentLine.substr(cursorX + 1);
                     } else {
                         textContainer[cursorY] += char;
                     }
@@ -528,8 +508,8 @@ function changeCursor(x, y) {
     cursorX += x;
     cursorY += y;
 
-    if (cursorX > term_width - 1) {
-        cursorX -= term_width;
+    if (cursorX > terminalCharactersWide - 1) {
+        cursorX -= terminalCharactersWide;
         cursorY++;
         if (!textContainer[cursorY])
             textContainer[cursorY] = '';
@@ -538,8 +518,8 @@ function changeCursor(x, y) {
     if (cursorX < 0) {
         cursorY--;
         cursorX = textContainer[cursorY].length;
-        if (cursorX > term_width - 1) {
-            cursorX = term_width - 1;
+        if (cursorX > terminalCharactersWide - 1) {
+            cursorX = terminalCharactersWide - 1;
             textContainer[cursorY] = textContainer[cursorY].substr(0, cursorX);
         }
     }
@@ -568,28 +548,28 @@ function displayTerm() {
         textContainer.pop();
     }
 
-    var tH = Math.floor(term_height / lineHeight);
+    var terminalLinesHigh = Math.floor(terminalPixelsHigh / terminalLineHeight);
     var cursorChar = '';
-    var to_div = '';
+    var tempText = '';
 
-    if (document.getElementById('serial_console') === document.activeElement) {
+    if (terminalContainerElement === document.activeElement) {
         cursorChar = '\u258D';
     }
 
-    to_div = textContainer.join('\r') + cursorChar;
+    tempText = textContainer.join('\r') + cursorChar;
 
     if (textContainer.join('') === '') {
-        to_div = cursorChar;
+        tempText = cursorChar;
     }
 
-    if (cursorY >= tH && term_been_scrolled) {
-        $('#serial_console').css('overflow-y', 'hidden');
-        $('#serial_console').scrollTop((cursorY - tH + 1) * lineHeight);
-        $('#serial_console').css('overflow-y', 'scroll');
-        term_been_scrolled = false;
+    if (cursorY >= terminalLinesHigh && terminalBeenScrolled > 0) {
+        terminalContainerElement.style.overflowY = 'hidden';
+        terminalContainerElement.scroll(0, (cursorY - terminalLinesHigh + 1.1) * terminalLineHeight);
+        terminalContainerElement.style.overflowY = 'scroll';
+        terminalBeenScrolled--;
     }
 
-    document.getElementById('serial_console').innerHTML = to_div.replace(/ /g, '&nbsp;').replace(/\r/g, '<br>');
+    terminalContainerElement.innerHTML = tempText.replace(/ /g, '&nbsp;').replace(/\r/g, '<br>');
 }
 
 
@@ -599,13 +579,13 @@ function displayTerm() {
  * @param cy
  */
 function setCursor(cx, cy) {
-    if (cx > term_width - 1) {
-        cx = cx % term_width;
+    if (cx > terminalCharactersWide - 1) {
+        cx = cx % terminalCharactersWide;
     }
 
     if (!textContainer[cy]) {
-        for (t = textContainer.length; t <= cy; t++) {
-            textContainer[t] = '';
+        for (var i = textContainer.length; i <= cy; i++) {
+            textContainer[i] = '';
         }
     }
 
@@ -616,4 +596,18 @@ function setCursor(cx, cy) {
     cursorX = cx;
     cursorY = cy;
     changeCursor(0, 0);
+}
+
+/**
+ *
+ * @param font
+ * @returns a floating-point value representing how many pixels wide a character is.
+ */
+function getCharacterSize(font) {
+    // re-use canvas object for better performance
+    var canvas = getCharacterSize.canvas || (getCharacterSize.canvas = document.createElement("canvas"));
+    var context = canvas.getContext("2d");
+    context.font = font;
+    var metrics = context.measureText('AA').width - context.measureText('A').width;
+    return metrics;
 }

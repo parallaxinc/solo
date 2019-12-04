@@ -255,6 +255,8 @@ function renderContent(id) {
 
     if (isPropcOnlyProject) {
         id = 'propc';
+        // Show PropC editing UI elements
+        $('.propc-only').removeClass('hidden');        
     }
 
     switch (selectedTab) {
@@ -499,8 +501,11 @@ function init(blockly) {
     window.Blockly = blockly;
 
     if (projectData) {
-        if (!projectData['code'] || projectData['code'].length < 50) {
-            projectData['code'] = '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>';
+        // Looking for the first <block> XML element
+        const searchTerm = '<block';
+
+        if (!projectData['code'] || projectData['code'].indexOf(searchTerm) < 0) {
+            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + '</xml>';
         }
         if (projectData['board'] !== 'propcfile') {
             loadToolbox(projectData['code']);
@@ -542,7 +547,7 @@ function cloudCompile(text, action, successHandler) {
     let isEmptyProject = propcCode.indexOf("EMPTY_PROJECT") > -1;
 
     if (isEmptyProject) {
-        alert("You can't compile an empty project");
+        utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
     } else {
         $("#compile-dialog-title").text(text);
         $("#compile-console").val('Compile... ');
@@ -726,10 +731,9 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
             }
         });
     } else if (client_available) {
-        alert("No device detected - ensure it is connected, powered, and selected in the ports list.\n\nMake sure your BlocklyPropClient is up-to-date.");
+        utils.showMessage(Blockly.Msg.DIALOG_NO_DEVICE, Blockly.Msg.DIALOG_NO_DEVICE_TEXT);
     } else {
-        alert("BlocklyPropClient not available to communicate with a microcontroller."
-            + "\n\nIt may help to \"Force Refresh\" by pressing Control-Shift-R (Windows/Linux) or Shift-Command-R (Mac).");
+        utils.showMessage(Blockly.Msg.DIALOG_DEVICE_COMM_ERROR, Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT);
     }
 }
 
@@ -787,7 +791,7 @@ function serial_console() {
             };
 
             if (!newTerminal) {
-                updateTermBox(0);
+                displayInTerm(null);
             }
 
             $('#console-dialog').on('hidden.bs.modal', function () {
@@ -798,7 +802,7 @@ function serial_console() {
                 if (document.getElementById('serial-conn-info')) {
                     document.getElementById('serial-conn-info').innerHTML = '';
                 }
-                updateTermBox(0);
+                displayInTerm(null);
                 term_been_scrolled = false;
                 term = null;
             });
@@ -813,7 +817,7 @@ function serial_console() {
             $('#console-dialog').on('hidden.bs.modal', function () {
                 term_been_scrolled = false;
                 active_connection = null;
-                updateTermBox(0);
+                displayInTerm(null);
                 term = null;
             });
         }
@@ -850,7 +854,7 @@ function serial_console() {
                 client_ws_connection.send(JSON.stringify(msg_to_send));
             }
             term_been_scrolled = false;
-            updateTermBox(0);
+            displayInTerm(null);
         });
     }
 
@@ -1018,7 +1022,7 @@ function graphing_console() {
             document.getElementById('btn-graph-play').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="15"><path d="M5.5,2 L4,2 4,11 5.5,11 Z M8.5,2 L10,2 10,11 8.5,11 Z" style="stroke:#fff;stroke-width:1;fill:#fff;"/></svg>';
         }
     } else {
-        alert('To use the graphing feature, your program must have both a graph initialize block and a graph value block.');
+        utils.showMessage(Blockly.Msg.DIALOG_MISSING_BLOCKS, Blockly.Msg.DIALOG_MISSING_BLOCKS_GRAPHING);
     }
 }
 
@@ -1132,43 +1136,30 @@ function downloadPropC() {
     var propcCode = Blockly.propc.workspaceToCode(Blockly.mainWorkspace);
     var isEmptyProject = propcCode.indexOf("EMPTY_PROJECT") > -1;
     if (isEmptyProject) {
-        alert("You can't download an empty project");
+        // The project is empty, so warn and exit.
+        utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT);
+        return;
     } else {
-        utils.confirm('Downloading a SimpleIDE project', 'To open your project in SimpleIDE, two files will be downloaded.  They must both be saved in the same folder on your computer.', function (confirmed) {
-            if (confirmed) {
-                utils.prompt("Enter a filename:", 'BlocklyProp_Code', function (value) {
-                    if (value) {
+        // Make sure the filename doesn't have any illegal characters
+        value = sanitizeFilename(projectData['name']);
 
-                        var sideFileContent = ".c\n>compiler=C\n>memtype=cmm main ram compact\n";
-                        sideFileContent += ">optimize=-Os\n>-m32bit-doubles\n>-fno-exceptions\n>defs::-std=c99\n";
-                        sideFileContent += ">-lm\n>BOARD::ACTIVITYBOARD";
-                        var saveData = (function () {
-                            var a = document.createElement("a");
-                            document.body.appendChild(a);
-                            a.style = "display: none";
-                            return function (data, fileName) {
-                                var blob = new Blob([data], {type: "octet/stream"});
-                                var url = window.URL.createObjectURL(blob);
-                                a.href = url;
-                                a.download = fileName;
-                                a.click();
-                                window.URL.revokeObjectURL(url);
-                            };
-                        }());
-                        // Check for any file extentions at the end of the submitted name, and truncate if any
-                        if (value.indexOf(".") !== -1)
-                            value = value.substring(0, value.indexOf("."));
-                        // Check to make sure the filename is not too long
-                        if (value.length >= 30)
-                            value = value.substring(0, 29);
-                        // Replace any illegal characters
-                        value = value.replace(/[\\/:*?"<>|]/g, '_');
-                        saveData(propcCode, value + ".c");
-                        saveData(value + sideFileContent, value + ".side");
-                    }
-                });
-            }
-        });
+        var sideFileContent = ".c\n>compiler=C\n>memtype=cmm main ram compact\n";
+        sideFileContent += ">optimize=-Os\n>-m32bit-doubles\n>-fno-exceptions\n>defs::-std=c99\n";
+        sideFileContent += ">-lm\n>BOARD::ACTIVITYBOARD";
+
+        var fileCblob = new Blob([propcCode], {type: 'text/plain'});
+        var fileSIDEblob = new Blob([value + sideFileContent], {type: 'text/plain'});
+        
+        var zip = new JSZip();
+        var sideFolder = zip.folder(value);
+        sideFolder.file(value + ".c", fileCblob);
+        sideFolder.file(value + ".side", fileSIDEblob);
+
+        sideFolder.generateAsync({type:"blob"}).then(function (blob) { // 1) generate the zip file
+            saveAs(blob, value + ".zip");                                 // 2) trigger the download
+        }, function (err) {
+            utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_SIDE_FILES_ERROR + err);
+        }); 
     }
 }
 
@@ -1316,25 +1307,11 @@ function graph_play(setTo) {
  * Save a graph to the local file system
  */
 function downloadGraph() {
-    utils.prompt("Download Graph Output - Filename:", 'BlocklyProp_Graph', function (value) {
+    utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_GRAPH_DIALOG, 'BlocklyProp_Graph', function (value) {
         if (value) {
-
-            // put all of the pieces together into a downloadable file
-            var saveData = (function () {
-                var a = document.createElement("a");
-                document.body.appendChild(a);
-                a.style = "display: none";
-                return function (data, fileName) {
-                    var blob = new Blob([data], {type: "octet/stream"});
-                    var url = window.URL.createObjectURL(blob);
-                    a.href = url;
-                    a.download = fileName;
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                };
-            }());
-
-            // TODO: The chartStyle contains 16 CSS errors. These need to be addressed.
+            // Make sure filename is safe
+            value = sanitizeFilename(value);
+                
             var svgGraph = document.getElementById('serial_graphing');
             var pattern = new RegExp('xmlns="http://www.w3.org/2000/xmlns/"', 'g');
             var findY = 'class="ct-label ct-horizontal ct-end"';
@@ -1355,7 +1332,9 @@ function downloadGraph() {
             var breakpoint = svgxml.indexOf('>') + 1;
             svgxml = svgxml.substring(0, breakpoint) + chartStyle + svgxml.substring(breakpoint, svgxml.length);
             svgxml = svgxml.replace(/<text style="overflow: visible;" ([xy])="([0-9.-]+)" ([xy])="([0-9.-]+)" [a-z]+="[0-9.]+" [a-z]+="[0-9.]+"><span[0-9a-zA-Z =.":;/-]+>([0-9.-]+)<\/span>/g, '<text $1="$2" $3="$4">$5');
-            saveData(svgxml, value + '.svg');
+
+            var blob = new Blob([svgxml], {type: 'image/svg+xml'});
+            saveAs(blob, value + '.svg');
         }
     });
 }
@@ -1365,27 +1344,16 @@ function downloadGraph() {
  * Download the graph as a csv file to the local file system
  */
 function downloadCSV() {
-    utils.prompt("Download Graph data as CSV - Filename:", 'BlocklyProp_Data', function (value) {
+    utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG, 'BlocklyProp_Data', function (value) {
         if (value) {
+            // Make sure filename is safe
+            value = sanitizeFilename(value);
 
-            // put all of the pieces together into a downloadable file
-            var saveData = (function () {
-                var a = document.createElement("a");
-                document.body.appendChild(a);
-                a.style = "display: none";
-                return function (data, fileName) {
-                    var blob = new Blob([data], {type: "octet/stream"});
-                    var url = window.URL.createObjectURL(blob);
-                    a.href = url;
-                    a.download = fileName;
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                };
-            }());
             var graph_csv_temp = graph_csv_data.join('\n');
             var idx1 = graph_csv_temp.indexOf('\n') + 1;
             var idx2 = graph_csv_temp.indexOf('\n', idx1 + 1);
-            saveData(graph_csv_temp.substring(0, idx1) + graph_csv_temp.substring(idx2 + 1, graph_csv_temp.length - 1), value + '.csv');
+            var blob = new Blob([graph_csv_temp.substring(0, idx1) + graph_csv_temp.substring(idx2 + 1, graph_csv_temp.length - 1)], {type: 'text/csv'});
+            saveAs(blob, value + '.csv');
         }
     });
 }
