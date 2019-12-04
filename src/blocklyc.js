@@ -248,7 +248,7 @@ function renderContent(id) {
     const selectedTab = id.replace('tab_', '');
     const isPropcOnlyProject = (projectData['board'] === 'propcfile');
 
-    let isDebug = getURLParameter('debug');
+    let isDebug = window.getURLParameter('debug');
     if (!isDebug) {
         isDebug = false;
     }
@@ -465,7 +465,7 @@ function init(blockly) {
         }
     }
 
-    if (!codeXml && (getURLParameter('debug'))) {
+    if (!codeXml && (window.getURLParameter('debug'))) {
         codeXml = ace.edit("code-xml");
         codeXml.setTheme("ace/theme/chrome");
         codeXml.getSession().setMode("ace/mode/xml");
@@ -902,7 +902,7 @@ function graphing_console() {
             graph_reset();
             graph_temp_string = '';
             graph = new Chartist.Line('#serial_graphing', graph_data, graph_options);
-            if (getURLParameter('debug')) console.log(graph_options);
+            if (window.getURLParameter('debug')) console.log(graph_options);
         } else {
             graph.update(graph_data, graph_options);
         }

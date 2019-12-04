@@ -908,7 +908,7 @@ Blockly.Blocks.string_var_length = {
             }
         }
         this.userDefinedConstantsList_.push('MYVALUE');
-        this.userDefinedConstantsList_ = uniq_fast(this.userDefinedConstantsList_);
+        this.userDefinedConstantsList_ = this.userDefinedConstantsList_.sortedUnique();
 
         for (i = 0; i < this.optionList_.length; i++) {
             var currentValue = this.getFieldValue("VAR_LEN" + i);
@@ -2250,7 +2250,7 @@ Blockly.propc.constant_define = function () {
 Blockly.Blocks.constant_value = {
     helpUrl: Blockly.MSG_VALUES_HELPURL,
     init: function () {
-        this.userDefinedConstantsList = [];
+        this.userDefinedConstantsList_ = [];
         this.setTooltip(Blockly.MSG_CONSTANT_VALUE_TOOLTIP);
         this.setColour(colorPalette.getColor('programming'));
         this.appendDummyInput('VALUE_LIST')
@@ -2263,7 +2263,7 @@ Blockly.Blocks.constant_value = {
         this.updateConstMenu();
     },
     updateConstMenu: function (oldValue, newValue) {
-        this.userDefinedConstantsList = [];
+        this.userDefinedConstantsList_ = [];
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         for (var x = 0; x < allBlocks.length; x++) {
             if (allBlocks[x].type === 'constant_define') {
@@ -2272,18 +2272,21 @@ Blockly.Blocks.constant_value = {
                     v_name = newValue;
                 }
                 if (v_name) {
-                    this.userDefinedConstantsList.push([v_name, v_name]);
+                    this.userDefinedConstantsList_.push(v_name);
                 }
             }
         }
-        this.userDefinedConstantsList.push(['MYVALUE', 'MYVALUE']);
+        this.userDefinedConstantsList_.push('MYVALUE');
+        this.userDefinedConstantsList_ = this.userDefinedConstantsList_.sortedUnique();
         var currentValue = this.getFieldValue('VALUE');
 
         if (this.getInput('VALUE_LIST')) {
             this.removeInput('VALUE_LIST');
         }
         this.appendDummyInput('VALUE_LIST')
-                .appendField(new Blockly.FieldDropdown(uniq_fast(this.userDefinedConstantsList)), "VALUE");
+                .appendField(new Blockly.FieldDropdown(this.userDefinedConstantsList_.map(function (value) {
+                    return [value, value]  // returns an array of arrays built from the original array.
+                })), "VALUE");
         if (currentValue && currentValue === oldValue && newValue) {
             this.setFieldValue(newValue, 'VALUE');
         } else if (currentValue) {

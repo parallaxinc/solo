@@ -1735,7 +1735,7 @@ function filterToolbox(profileName) {
     });
 
     // Set the palette colors
-    if (getURLParameter('grayscale') == '1') {
+    if (window.getURLParameter('grayscale') == '1') {
         xmlToolbox = xmlToolbox.replace(/colour="([\S]+)"/g, function (m, p) {
             return 'colour="' + colorChanges[p] + '"';
         });

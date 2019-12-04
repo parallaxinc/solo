@@ -168,7 +168,7 @@ function NewProjectModalCancelClick() {
 
         if (!projectData) {
             // If there is no project, go to home page.
-            window.location.href = 'index.html' + getAllURLParameters();
+            window.location.href = 'index.html' + window.getAllURLParameters();
         }
 
         // if the project is being edited, clear the fields and close the modal
@@ -298,7 +298,7 @@ function CreateNewProject() {
     projectData = '';
 
     // Redirect to the editor page
-    window.location = 'blocklyc.html' + getAllURLParameters();
+    window.location = 'blocklyc.html' + window.getAllURLParameters();
 }
 
 
@@ -377,7 +377,7 @@ function OpenProjectModalCancelClick() {
 
         if (!projectData) {
             // If there is no project, go to home page.
-            window.location.href = 'index.html' + getAllURLParameters();
+            window.location.href = 'index.html' + window.getAllURLParameters();
         }
         // A copy of the current project is located in the browser localStorage
         setupWorkspace(projectData,
