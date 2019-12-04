@@ -788,7 +788,7 @@ function serial_console() {
             };
 
             if (!newTerminal) {
-                updateTermBox(0);
+                displayInTerm(null);
             }
 
             $('#console-dialog').on('hidden.bs.modal', function () {
@@ -799,7 +799,7 @@ function serial_console() {
                 if (document.getElementById('serial-conn-info')) {
                     document.getElementById('serial-conn-info').innerHTML = '';
                 }
-                updateTermBox(0);
+                displayInTerm(null);
                 term_been_scrolled = false;
                 term = null;
             });
@@ -814,7 +814,7 @@ function serial_console() {
             $('#console-dialog').on('hidden.bs.modal', function () {
                 term_been_scrolled = false;
                 active_connection = null;
-                updateTermBox(0);
+                displayInTerm(null);
                 term = null;
             });
         }
@@ -851,7 +851,7 @@ function serial_console() {
                 client_ws_connection.send(JSON.stringify(msg_to_send));
             }
             term_been_scrolled = false;
-            updateTermBox(0);
+            displayInTerm(null);
         });
     }
 
