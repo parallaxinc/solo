@@ -1552,34 +1552,37 @@ Blockly.Blocks.serial_scan_multiple = {
             var obt = optionBlock.type.split('_');
             var obl = obt.length - 1;
             this.optionList_.push(obt[obl]);
-            data.push([optionBlock.userData_, optionBlock.cpuData_]);
+            // collect the values of the fields that have been stored in the option blocks in the mutator
+            data.push([optionBlock.varName_, optionBlock.floatMult_]);
             optionBlock = optionBlock.nextConnection &&
                     optionBlock.nextConnection.targetBlock();
         }
         this.updateShape_();
-        // Restore any data.
-        for (var i = 0; i < this.optionList_.length; i++) {
-            if (data[i][1]) {
-                this.setFieldValue(data[i][1], 'CPU' + i);
-            }
+        // Restore field values
+        for (var i = 0; i < data.length; i++) {
             if (data[i][0]) {
-                this.setFieldValue(data[i][0], 'MULT' + i);
+                this.setFieldValue(data[i][0], 'CPU' + i);
+            }
+            if (data[i][1]) {
+                this.setFieldValue(data[i][1], 'MULT' + i);
             }
         }
+
+    },
+    saveConnections: function (containerBlock) {
+        var optionBlock = containerBlock.getInputTargetBlock('STACK');
+        var i = 0;
+        // Cature and store any field values before the input is removed/deleted
+        while (optionBlock) {
+            optionBlock.varName_ = this.getFieldValue('CPU' + i);
+            optionBlock.floatMult_ = this.getFieldValue('MULT' + i);
+            i++;
+            optionBlock = optionBlock.nextConnection &&
+                    optionBlock.nextConnection.targetBlock();
+        }  
     },
     serPins: Blockly.Blocks['serial_send_text'].serPins,
     updateSerPin: Blockly.Blocks['serial_send_text'].updateSerPin,
-    saveConnections: function (containerBlock) {
-        // Store all data for each option.
-        var optionBlock = containerBlock.getInputTargetBlock('STACK');
-        var i = 0;
-        while (optionBlock) {
-            optionBlock.cpuData_ = this.getFieldValue('CPU' + i) || Blockly.LANG_VARIABLES_GET_ITEM;
-            optionBlock.userData_ = this.getFieldValue('MULT' + i) || null;
-            optionBlock = optionBlock.nextConnection && optionBlock.nextConnection.targetBlock();
-            i++;
-        }
-    },
     updateShape_: function () {
         // Delete everything.
         var i = 0;
@@ -1587,7 +1590,13 @@ Blockly.Blocks.serial_scan_multiple = {
             this.removeInput('OPTION' + i);
             i++;
         }
+        // Capture and disconnect a connected block
+        var connectedBlock = null;
         if (this.getInput('SCAN_AFTER')) {
+            connectedBlock = this.getInput('SCAN_AFTER').connection.targetBlock();
+            if (connectedBlock) {
+                connectedBlock.outputConnection.disconnect();
+            }
             this.removeInput('SCAN_AFTER');
         }
         // Rebuild block.
@@ -1605,15 +1614,14 @@ Blockly.Blocks.serial_scan_multiple = {
                 this.appendDummyInput('OPTION' + i)
                         .appendField('store float point \u2715')
                         .appendField(new Blockly.FieldDropdown(Blockly.DROPDOWN_MULTIPLIER), 'MULT' + i)
-                        //.appendField(new Blockly.FieldTextInput('100'), 'MULT' + i)
                         .appendField('in', 'TYPE' + i)
-                        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'CPU' + i);
                 this.setFieldValue('100', 'MULT' + i);
             } else {
                 this.appendDummyInput('OPTION' + i)
                         .appendField(label, 'TYPE' + i)
-                        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'CPU' + i);
             }
+            this.getInput('OPTION' + i)
+                    .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'CPU' + i)
         }
         if (this.scanAfter === 'AfterStr') {
             this.appendValueInput('SCAN_AFTER')
@@ -1624,8 +1632,12 @@ Blockly.Blocks.serial_scan_multiple = {
                     .appendField('start from position');
                     //.setCheck('Number');
         }
+        // Reconnect a previously connected block
+        if (connectedBlock && this.getInput('SCAN_AFTER')) {
+            connectedBlock.outputConnection.connect(this.getInput('SCAN_AFTER').connection);
+        }
     },
-    onchange: function () {
+    onchange: function (event) {
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         var warnTxt = null;
         if (allBlocks.toString().indexOf('Serial initialize') === -1) {
@@ -2635,7 +2647,6 @@ Blockly.Blocks.xbee_scan_multiple = {
         this.setWarningText(null);
         // not used, but allows this block to share functions from serial_scan_multiple block
         this.ser_pins = [];
-        //this.serPins();
     },
     mutationToDom: Blockly.Blocks['serial_scan_multiple'].mutationToDom,
     domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
@@ -6486,7 +6497,6 @@ Blockly.Blocks.string_scan_multiple = {
         this.setWarningText(null);
         // not used, but allows this block to share functions from serial_scan_multiple block
         this.ser_pins = [];
-        //this.serPins();
     },
     mutationToDom: Blockly.Blocks['serial_scan_multiple'].mutationToDom,
     domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
@@ -6494,7 +6504,7 @@ Blockly.Blocks.string_scan_multiple = {
     compose: Blockly.Blocks['serial_scan_multiple'].compose,
     saveConnections: Blockly.Blocks['serial_scan_multiple'].saveConnections,
     updateShape_: Blockly.Blocks['serial_scan_multiple'].updateShape_,
-    updateSerPin: function () {}
+    updateSerPin: function () {},
 };
 
 Blockly.Blocks.string_scan_container = {

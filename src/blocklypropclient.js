@@ -167,10 +167,6 @@ var version_as_number = function (rawVersion) {
         $(".client-your-version").html('<b>UNKNOWN</b>');
         $('#client-version-modal').modal('show');
 
-        //bootbox.alert("BlocklyProp is unable to determine what version of " +
-        //        "BlocklyPropClient is installed on your computer.\nYou may need to install" +
-        //        "or reinstall the BlocklyPropClient.");
-
         if (tempVersion.length === 1)
             tempVersion = '0.0.0';
         else
@@ -468,7 +464,7 @@ function establish_socket() {
                     $('#console-dialog').modal('hide');
                     newTerminal = false;
                     //term.destroy();
-                    updateTermBox(0);
+                    displayInTerm(null);
 
                 } else if (ws_msg.action === 'close-graph') {
                     $('#graphing-dialog').modal('hide');
@@ -516,7 +512,7 @@ function establish_socket() {
                     client_ws_connection.close();
 
                 } else if (ws_msg.action === 'alert') {
-                    alert(ws_msg.msg);
+                    utils.showMessage(Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER, ws_msg.msg);
                 }
             }
 
@@ -594,7 +590,7 @@ function clearComPortUI() {
     let portUI = $("#comPort");
     if (portUI) {
         try {
-            let port = portUI.val().toString();
+            let port = portUI.val();
             portUI.empty();
             return port;
         }

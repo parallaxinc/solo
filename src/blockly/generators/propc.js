@@ -733,3 +733,132 @@ function uniq_fast(a) {
         return tmpOut;
     }
 }
+
+// TODO: Remove the following overrides after updating to a blockly core with these patches (targeted for 2019Q4).
+/**
+ * Initialize the model for this field if it has not already been initialized.
+ * If the value has not been set to a variable by the first render, we make up a
+ * variable rather than let the value be invalid.
+ * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
+ * @package
+ */
+Blockly.FieldVariable.prototype.initModel = function() {
+    if (this.variable_) {
+      return; // Initialization already happened.
+    }
+    var variable = Blockly.Variables.getOrCreateVariablePackage(
+        this.sourceBlock_.workspace, null,
+        this.defaultVariableName, this.defaultType_);
+  
+    // Don't call setValue because we don't want to cause a rerender.
+    this.doValueUpdate_(variable.getId());	
+};
+
+/**
+ * Update the source block when the mutator's blocks are changed.
+ * Bump down any block that's too high.
+ * Fired whenever a change is made to the mutator's workspace.
+ * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
+ * @param {!Blockly.Events.Abstract} e Custom data for event.
+ * @private
+ */
+Blockly.Mutator.prototype.workspaceChanged_ = function(e) {
+    if (e.type == Blockly.Events.UI ||
+        (e.type == Blockly.Events.CHANGE && e.element == 'disabled')) {
+      return;
+    }
+  
+    if (!this.workspace_.isDragging()) {
+      var blocks = this.workspace_.getTopBlocks(false);
+      var MARGIN = 20;
+      for (var b = 0, block; (block = blocks[b]); b++) {
+        var blockXY = block.getRelativeToSurfaceXY();
+        var blockHW = block.getHeightWidth();
+        if (blockXY.y + blockHW.height < MARGIN) {
+          // Bump any block that's above the top back inside.
+          block.moveBy(0, MARGIN - blockHW.height - blockXY.y);
+        }
+      }
+    }
+  
+    // When the mutator's workspace changes, update the source block.
+    if (this.rootBlock_.workspace == this.workspace_) {
+      Blockly.Events.setGroup(true);
+      var block = this.block_;
+      var oldMutationDom = block.mutationToDom();
+      var oldMutation = oldMutationDom && Blockly.Xml.domToText(oldMutationDom);
+      // Allow the source block to rebuild itself.
+      block.compose(this.rootBlock_);
+      block.render();
+      var newMutationDom = block.mutationToDom();
+      var newMutation = newMutationDom && Blockly.Xml.domToText(newMutationDom);
+      if (oldMutation != newMutation) {
+        Blockly.Events.fire(new Blockly.Events.BlockChange(
+            block, 'mutation', null, oldMutation, newMutation));
+        // Ensure that any bump is part of this mutation's event group.
+        var group = Blockly.Events.getGroup();
+        setTimeout(function() {
+          Blockly.Events.setGroup(group);
+          block.bumpNeighbours();
+          Blockly.Events.setGroup(false);
+        }, Blockly.BUMP_DELAY);
+      }
+  
+      if (oldMutation != newMutation &&
+          this.workspace_.keyboardAccessibilityMode) {
+        Blockly.navigation.moveCursorOnBlockMutation(block);
+      }
+      // Don't update the bubble until the drag has ended, to avoid moving blocks
+      // under the cursor.
+      if (!this.workspace_.isDragging()) {
+        this.resizeBubble_();
+      }
+      Blockly.Events.setGroup(false);
+    }
+};
+
+/**
+ * Bump unconnected blocks out of alignment.  Two blocks which aren't actually
+ * connected should not coincidentally line up on screen.
+ * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
+ */
+Blockly.BlockSvg.prototype.bumpNeighbours = function() {
+    if (!this.workspace) {
+      return;  // Deleted block.
+    }
+    if (this.workspace.isDragging()) {
+      return;  // Don't bump blocks during a drag.
+    }
+    var rootBlock = this.getRootBlock();
+    if (rootBlock.isInFlyout) {
+      return;  // Don't move blocks around in a flyout.
+    }
+    // Loop through every connection on this block.
+    var myConnections = this.getConnections_(false);
+    for (var i = 0, connection; connection = myConnections[i]; i++) {
+  
+      // Spider down from this block bumping all sub-blocks.
+      if (connection.isConnected() && connection.isSuperior()) {
+        connection.targetBlock().bumpNeighbours();
+      }
+  
+      var neighbours = connection.neighbours_(Blockly.SNAP_RADIUS);
+      for (var j = 0, otherConnection; otherConnection = neighbours[j]; j++) {
+  
+        // If both connections are connected, that's probably fine.  But if
+        // either one of them is unconnected, then there could be confusion.
+        if (!connection.isConnected() || !otherConnection.isConnected()) {
+          // Only bump blocks if they are from different tree structures.
+          if (otherConnection.getSourceBlock().getRootBlock() != rootBlock) {
+  
+            // Always bump the inferior block.
+            if (connection.isSuperior()) {
+              otherConnection.bumpAwayFrom_(connection);
+            } else {
+              connection.bumpAwayFrom_(otherConnection);
+            }
+          }
+        }
+      }
+    }
+};
