@@ -896,8 +896,8 @@ Blockly.Blocks.serial_open = {
                 .appendField(new Blockly.FieldDropdown([
                     ["standard", "standard"],
                     ["other", "other"]
-                ], function () {
-                    this.sourceBlock_.setToMode();
+                ], function (value) {
+                    this.sourceBlock_.setToMode(value);
                 }), "TYPE");
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
@@ -946,22 +946,24 @@ Blockly.Blocks.serial_open = {
         }
     },
     setToMode: function (details) {
-        if (!details) {
-            var details = ['FALSE', 'FALSE', 'FALSE', 'FALSE'];
+        if (details === 'other') {
+            details = ['FALSE', 'FALSE', 'FALSE', 'FALSE'];
         }
-        if(this.getInput('MODE')) {
-            this.removeInput('MODE');
+        if (details !== 'standard') {
+            if(this.getInput('MODE')) {
+                this.removeInput('MODE');
+            }
+            this.appendDummyInput('MODE')
+                    .appendField("invert RX")
+                    .appendField(new Blockly.FieldCheckbox(details[0]), "ck_bit0")
+                    .appendField("invert TX")
+                    .appendField(new Blockly.FieldCheckbox(details[1]), "ck_bit1")
+                    .appendField("open-drain")
+                    .appendField(new Blockly.FieldCheckbox(details[2]), "ck_bit2")
+                    .appendField("remove TX echo")
+                    .appendField(new Blockly.FieldCheckbox(details[3]), "ck_bit3");
+            this.otherMode = true;
         }
-        this.appendDummyInput('MODE')
-                .appendField("invert RX")
-                .appendField(new Blockly.FieldCheckbox(details[0]), "ck_bit0")
-                .appendField("invert TX")
-                .appendField(new Blockly.FieldCheckbox(details[1]), "ck_bit1")
-                .appendField("open-drain")
-                .appendField(new Blockly.FieldCheckbox(details[2]), "ck_bit2")
-                .appendField("remove TX echo")
-                .appendField(new Blockly.FieldCheckbox(details[3]), "ck_bit3");
-        this.otherMode = true;
     },
     mutationToDom: function () {
         if (this.otherBaud || this.otherMode) {
