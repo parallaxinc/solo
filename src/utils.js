@@ -176,20 +176,22 @@ if (!window.getURLParameter) {
     });
 }
 
-// Server (demo/production) detection & url parameter override
-var inDemo = $("meta[name=in-demo]").attr("content");
-
 // Does the 'experimental' URL parameter exist?
-if (window.getURLParameter('experimental')) {
-    // Production system does not support the use of the experimental flag
-    if (window.getURLParameter('experimental') !== 'true') {
-        inDemo = 'production';
+var isExperimental = getURLParameter('experimental') || 'false';
+
+
+/**
+ * Helper function for passing on URL parameters between page reloads and changes
+ * @param keepNewOpen {boolean} if true, keep the newProject and openFile parameters, otherwise filter them out.
+ * @returns {string} all or filtered URL parameters
+ */
+function getAllURLParameters(keepNewOpen) {
+    if (keepNewOpen) {
+        return window.location.search;
     } else {
-        inDemo = 'demo';
+        return window.location.search.replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g,'');
     }
 }
-
-
 
 /**
  * Operating system detection
