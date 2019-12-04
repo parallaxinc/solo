@@ -966,14 +966,19 @@ Blockly.Blocks.serial_open = {
         }
     },
     mutationToDom: function () {
+        var container;
         if (this.otherBaud || this.otherMode) {
-            var container = document.createElement('mutation');
+            container = document.createElement('mutation');
+        }
+        if (this.otherBaud) {
             container.setAttribute('baud', this.getFieldValue('BAUD') || '1200');
+        }
+        if (this.otherMode) {
             for (var k = 0; k < 4; k++) {
                 container.setAttribute('ck_bit' + k.toString(10), this.getFieldValue('ck_bit' + k.toString(10)) || 'FALSE');
             }
-            return container;
         }
+        return container;
     },
     domToMutation: function (xmlElement) {
         var br = xmlElement.getAttribute('baud');
