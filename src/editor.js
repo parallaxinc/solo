@@ -378,11 +378,11 @@ $(() => {
                 utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_LOADING_ERROR);
             }
             // No viable project available, so redirect to index page.
-            window.location.href = 'index.html' + getAllURLParameters();
+            window.location.href = 'index.html' + window.getAllURLParameters();
         }
     } else {
         // No viable project available, so redirect to index page.
-        window.location.href = 'index.html' + getAllURLParameters();
+        window.location.href = 'index.html' + window.getAllURLParameters();
     }
 
     // Make sure the toolbox appears correctly, just for good measure.
@@ -628,7 +628,7 @@ function initEventHandlers() {
     $('#open-project-button').on('click', () => {
         // Save the project to localStorage
         window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
-        window.location = "blocklyc.html?openFile=true" + getAllURLParameters().replace('?', '&');
+        window.location = "blocklyc.html?openFile=true" + window.getAllURLParameters().replace('?', '&');
     });
 
     // Save button
@@ -1082,7 +1082,7 @@ function saveProjectAs(boardType, projectName) {
     };
 
     window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
-    window.location = 'blocklyc.html' + getAllURLParameters();
+    window.location = 'blocklyc.html' + window.getAllURLParameters();
 }
 
 
@@ -1424,7 +1424,7 @@ function clearUploadInfo(redirect) {
     // when opening a file but the user cancels, return to the splash screen
     if (redirect === true) {
         if (window.getURLParameter('openFile') === 'true') {
-            window.location = 'index.html' + getAllURLParameters();
+            window.location = 'index.html' + window.getAllURLParameters();
         }
     }
 }
@@ -1474,7 +1474,7 @@ function uploadMergeCode(append) {
 
         window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
 
-        window.location = 'blocklyc.html' + getAllURLParameters();
+        window.location = 'blocklyc.html' + window.getAllURLParameters();
     }
 
     if (uploadedXML !== '') {

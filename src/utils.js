@@ -177,7 +177,7 @@ if (!window.getURLParameter) {
 }
 
 // Does the 'experimental' URL parameter exist?
-var isExperimental = getURLParameter('experimental') || 'false';
+var isExperimental = window.getURLParameter('experimental') || 'false';
 
 
 /**
@@ -185,12 +185,17 @@ var isExperimental = getURLParameter('experimental') || 'false';
  * @param keepNewOpen {boolean} if true, keep the newProject and openFile parameters, otherwise filter them out.
  * @returns {string} all or filtered URL parameters
  */
-function getAllURLParameters(keepNewOpen) {
-    if (keepNewOpen) {
-        return window.location.search;
-    } else {
-        return window.location.search.replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g,'');
-    }
+if (!window.getURLParameter) {
+    Object.defineProperty(window, 'getAllURLParameters', {
+        value: function (keepNewOpen) {
+            if (keepNewOpen) {
+                return window.location.search;
+            } else {
+                return window.location.search.replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g,'');
+            }
+        },
+        enumerable: false
+    });
 }
 
 /**
