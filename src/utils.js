@@ -125,20 +125,17 @@ function getURLParameter(name) {
     return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(window.location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
 }
 
-// Server (demo/production) detection & url parameter override
-var inDemo = $("meta[name=in-demo]").attr("content");
-
 // Does the 'experimental' URL parameter exist?
-if (getURLParameter('experimental')) {
-    // Production system does not support the use of the experimental flag
-    if (getURLParameter('experimental') !== 'true') {
-        inDemo = 'production';
+var isExperimental = getURLParameter('experimental') || 'false';
+
+
+function getAllURLParameters(keepNewOpen) {
+    if (keepNewOpen) {
+        return window.location.search;
     } else {
-        inDemo = 'demo';
+        return window.location.search.replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g,'');
     }
 }
-
-
 
 /**
  * Operating system detection

@@ -254,7 +254,6 @@ function renderContent(id) {
     }
 
     if (isPropcOnlyProject) {
-        id = 'propc';
         // Show PropC editing UI elements
         $('.propc-only').removeClass('hidden');        
     }
@@ -463,31 +462,6 @@ function init(blockly) {
         // if the project is a propc code-only project, enable code editing.
         if (projectData['board'] === 'propcfile') {
             codePropC.setReadOnly(false);
-            codePropC.commands.addCommand({
-                name: "undo",
-                bindKey: {win: "Ctrl-z", mac: "Command-z"},
-                exec: function (codePropC) {
-                    codePropC.undo();
-                },
-                readOnly: true
-            });
-            codePropC.commands.addCommand({
-                name: "redo",
-                bindKey: {win: "Ctrl-y", mac: "Command-y"},
-                exec: function (codePropC) {
-                    codePropC.redo();
-                },
-                readOnly: true
-            });
-            codePropC.commands.addCommand({
-                name: "find_replace",
-                bindKey: {win: "Ctrl-f", mac: "Command-f"},
-                exec: function () {
-                    findReplaceCode();
-                },
-                readOnly: true
-            });
-            renderContent('tab_propc');
         }
     }
 

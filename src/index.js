@@ -32,6 +32,13 @@ $(function () {
 
     // The browser localStorage object should be empty
     window.localStorage.clear();
+
+    // If the experimental URL parameter is used, add it to the open and new project links
+    if (getURLParameter('experimental')) {
+        $('.editor-link').attr('href', function () {
+            return this + getAllURLParameters().replace('?', '&');
+        });
+    }
 });
 
 // Display the BlocklyProp Solo license in a modal window

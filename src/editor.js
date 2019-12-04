@@ -377,11 +377,11 @@ $(() => {
                 utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_LOADING_ERROR);
             }
             // No viable project available, so redirect to index page.
-            window.location.href = 'index.html';
+            window.location.href = 'index.html' + getAllURLParameters();
         }
     } else {
         // No viable project available, so redirect to index page.
-        window.location.href = 'index.html';
+        window.location.href = 'index.html' + getAllURLParameters();
     }
 
     // Make sure the toolbox appears correctly, just for good measure.
@@ -627,7 +627,7 @@ function initEventHandlers() {
     $('#open-project-button').on('click', () => {
         // Save the project to localStorage
         window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
-        window.location = "blocklyc.html?openFile=true";
+        window.location = "blocklyc.html?openFile=true" + getAllURLParameters().replace('?', '&');
     });
 
     // Save button
@@ -837,7 +837,7 @@ function setupWorkspace(data, callback) {
         $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
         // Create UI block content from project details
         renderContent('blocks');
-    } else if (projectData.board === 'propc') {
+    } else if (projectData.board === 'propcfile') {
         init(Blockly);
         $('#online-help').attr('href', 'https://learn.parallax.com/support/C/propeller-c-reference');
         // Create UI block content from project details
@@ -984,7 +984,7 @@ function saveProject() {
  */
 function saveAsDialog() {
     // Production still uses the uses the plain 'save-as' endpoint for now.
-    if (inDemo !== 'demo') {     // if (1 === 1) {
+    if (isExperimental.indexOf('saveas') > -1) {     // if (1 === 1) {
 
         // Old function - still in use because save-as+board type is not approved for use.
         utils.prompt("Save project as", projectData['name'], function (value) {
@@ -1021,8 +1021,8 @@ function saveAsDialog() {
             $("#save-as-board-type").append($('<option />').val(bt[1]).text(bt[0]));
         });
 
-        // Until release to production, make sure we are on demo before displaying the propc option
-        if (inDemo === 'demo') {
+        // Until the propc editor is ready, hide the save as propc option
+        if (isExperimental.indexOf('saveas') > -1) {
             $("#save-as-board-type").append($('<option />').val('propcfile').text('Propeller C (code-only)'));
         }
 
@@ -1081,7 +1081,7 @@ function saveProjectAs(boardType, projectName) {
     };
 
     window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
-    window.location = 'blocklyc.html';
+    window.location = 'blocklyc.html' + getAllURLParameters();
 }
 
 
@@ -1423,7 +1423,7 @@ function clearUploadInfo(redirect) {
     // when opening a file but the user cancels, return to the splash screen
     if (redirect === true) {
         if (getURLParameter('openFile') === 'true') {
-            window.location = 'index.html';
+            window.location = 'index.html' + getAllURLParameters();
         }
     }
 }
@@ -1473,7 +1473,7 @@ function uploadMergeCode(append) {
 
         window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
 
-        window.location = 'blocklyc.html';
+        window.location = 'blocklyc.html' + getAllURLParameters();
     }
 
     if (uploadedXML !== '') {
