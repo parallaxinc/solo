@@ -338,7 +338,6 @@ function propTerm(terminalContainerElement, outputCallback, options) {
         if (cx > terminalCharactersWide - 1) {
             cx = cx % terminalCharactersWide;
         }
-    
         if (!textContainer[cy]) {
             for (var i = textContainer.length; i <= cy; i++) {
                 textContainer[i] = '';
@@ -355,12 +354,11 @@ function propTerm(terminalContainerElement, outputCallback, options) {
     }
 
     this.setCursor = setCursor;
-    
+
+    // 0 = normal, 1 = set X, 2 = set Y, 3 = set X then to 2 to set Y
+    var termSetCursor;
+
     var updateTermBox = function (c) {
-
-        // 0 = normal, 1 = set X, 2 = set Y, 3 = set X then to 2 to set Y
-        var termSetCursor;
-
         if (trapEchos) {
             for (var i = 0; i < echoTrapBuffer.length; i++) {
                 if (echoTrapBuffer[i] === c) {
@@ -382,30 +380,30 @@ function propTerm(terminalContainerElement, outputCallback, options) {
         // to make this code more readable.
         // https://www.parallax.com/portals/0/help/BASICStamp/PBASIC click on Debug
         switch (termSetCursor) {
-            case 3:
+            case 3:  // Save character into X, then, on the next loop through, use the next character to set Y
                 cursorGotoX = c;
                 termSetCursor = 4;
                 break;
             case 2:
                 // fall through
-            case 4:
+            case 4:  // Set Y only
                 cursorGotoY = c;
                 termSetCursor = 0;
                 setCursor(cursorGotoX, cursorGotoY);
                 break;
-            case 1:
+            case 1:  // Set X only
                 cursorGotoX = c;
                 termSetCursor = 0;
                 setCursor(cursorGotoX, cursorGotoY);
                 break;
-            case 0:
+            case 0:  // No character positioning this round, process it as an ASCII character.
                 // fall through
             default:
                 // TODO: Null is important to Parallax - Ask Jeff
                 switch (c) {
                     case 127:
                         // fall through
-                    case 8:
+                    case 8:  // Backspace
                         if (cursorX + cursorY > -1) {
                             if (textContainer[cursorY].length > 1) {
                                 if (cursorX === textContainer[cursorY].length) {
@@ -421,12 +419,12 @@ function propTerm(terminalContainerElement, outputCallback, options) {
                             break;
                         }
                         // fall through
-                    case 13:
+                    case 13:  // Carriage Return
                         // fall through
-                    case 10:
+                    case 10:  // Line Feed
                         changeCursor(0, 1);
                         break;
-                    case 9:
+                    case 9:   // Tab (5-character spacing)
                         var j = 5 - (cursorX) % 5;
                         for (var k = 0; k < j; k++) {
                             textContainer[cursorY] += ' ';
@@ -435,26 +433,26 @@ function propTerm(terminalContainerElement, outputCallback, options) {
                         break;
                     case 0:
                         // fall through
-                    case 16:
+                    case 16:  // Clear the terminal
                         textContainer = null;
                         textContainer = new Array;
                         textContainer[0] = '';
                         // fall through
-                    case 1:
+                    case 1:  // Return to Home (0,0)
                         cursorX = 0;
                         cursorY = 0;
                         changeCursor(0, 0);
                         break;
-                    case 3:
+                    case 3:  // Move cursor left 1 position
                         changeCursor(-1, 0);
                         break;
-                    case 4:
+                    case 4:  // Move cursor right 1 position
                         changeCursor(1, 0);
                         break;
-                    case 5:
+                    case 5:  // Move character up 1 position
                         changeCursor(0, -1);
                         break;
-                    case 6:
+                    case 6:  // Move character down 1 position
                         changeCursor(0, 1);
                         break;
                     case 7: // Beep
@@ -464,23 +462,23 @@ function propTerm(terminalContainerElement, outputCallback, options) {
                         var sound = document.getElementById("term-beep_");
                         sound.play();
                         break;
-                    case 11: // clear to end of line
+                    case 11: // Clear to end of line
                         textContainer[cursorY] = textContainer[cursorY].substr(0, cursorX);
                         break;
-                    case 12: // clear down
+                    case 12: // Clear down
                         for (var n = cursorY + 1; n < textContainer.length; n++) {
                             textContainer[n].pop();
                         }
                         break;
-                    case 2:
+                    case 2: // Set cursor position (use next two chars to set the position)
                         termSetCursor = 3;
                         break;
-                    case 14:
+                    case 14: // Set the cursor X position (use next character to set the position)
                         // fall through
-                    case 15:
+                    case 15: //  Set the cursor Y position (use next character to set the position)
                         termSetCursor = c - 13;
                         break;
-                    default:
+                    default:  // The character is printable, so display it in the terminal at the current cursor position.
                         var char = '';
                         if (c > 127 && c < 256) {
                             char = ascii2unicode[c - 128];
@@ -498,6 +496,7 @@ function propTerm(terminalContainerElement, outputCallback, options) {
                 }
         }
     
+        // If the character was not used to define a new cursor position, update and refresh the display.
         if (c === 0) {
             displayTerm();
         }
