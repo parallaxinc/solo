@@ -20,6 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+
 /**
  * @description A lightweight, generic in-browser terminal with cursor positioning, clearing, and text-wrapping support.
  * @author Matthew Matz matt.m.matz@gmail.com

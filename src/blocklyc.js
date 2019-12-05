@@ -248,13 +248,12 @@ function renderContent(id) {
     const selectedTab = id.replace('tab_', '');
     const isPropcOnlyProject = (projectData['board'] === 'propcfile');
 
-    let isDebug = getURLParameter('debug');
+    let isDebug = window.getURLParameter('debug');
     if (!isDebug) {
         isDebug = false;
     }
 
     if (isPropcOnlyProject) {
-        id = 'propc';
         // Show PropC editing UI elements
         $('.propc-only').removeClass('hidden');        
     }
@@ -463,35 +462,10 @@ function init(blockly) {
         // if the project is a propc code-only project, enable code editing.
         if (projectData['board'] === 'propcfile') {
             codePropC.setReadOnly(false);
-            codePropC.commands.addCommand({
-                name: "undo",
-                bindKey: {win: "Ctrl-z", mac: "Command-z"},
-                exec: function (codePropC) {
-                    codePropC.undo();
-                },
-                readOnly: true
-            });
-            codePropC.commands.addCommand({
-                name: "redo",
-                bindKey: {win: "Ctrl-y", mac: "Command-y"},
-                exec: function (codePropC) {
-                    codePropC.redo();
-                },
-                readOnly: true
-            });
-            codePropC.commands.addCommand({
-                name: "find_replace",
-                bindKey: {win: "Ctrl-f", mac: "Command-f"},
-                exec: function () {
-                    findReplaceCode();
-                },
-                readOnly: true
-            });
-            renderContent('tab_propc');
         }
     }
 
-    if (!codeXml && (getURLParameter('debug'))) {
+    if (!codeXml && (window.getURLParameter('debug'))) {
         codeXml = ace.edit("code-xml");
         codeXml.setTheme("ace/theme/chrome");
         codeXml.getSession().setMode("ace/mode/xml");
@@ -501,8 +475,11 @@ function init(blockly) {
     window.Blockly = blockly;
 
     if (projectData) {
-        if (!projectData['code'] || projectData['code'].length < 50) {
-            projectData['code'] = '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>';
+        // Looking for the first <block> XML element
+        const searchTerm = '<block';
+
+        if (!projectData['code'] || projectData['code'].indexOf(searchTerm) < 0) {
+            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + '</xml>';
         }
         if (projectData['board'] !== 'propcfile') {
             loadToolbox(projectData['code']);
@@ -927,7 +904,7 @@ function graphing_console() {
             graph_reset();
             graph_temp_string = '';
             graph = new Chartist.Line('#serial_graphing', graph_data, graph_options);
-            if (getURLParameter('debug')) console.log(graph_options);
+            if (window.getURLParameter('debug')) console.log(graph_options);
         } else {
             graph.update(graph_data, graph_options);
         }
