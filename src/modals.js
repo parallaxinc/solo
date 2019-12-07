@@ -172,7 +172,7 @@ function NewProjectModalCancelClick() {
 
         if (!projectData) {
             // If there is no project, go to home page.
-            window.location.href = 'index.html';
+            window.location.href = 'index.html' + window.getAllURLParameters();
         }
 
         // if the project is being edited, clear the fields and close the modal
@@ -309,7 +309,7 @@ function CreateNewProject() {
     projectData = '';
 
     // Redirect to the editor page
-    window.location = 'blocklyc.html';
+    window.location = 'blocklyc.html' + window.getAllURLParameters();
 }
 
 
@@ -393,7 +393,7 @@ function OpenProjectModalCancelClick() {
 
         if (!projectData) {
             // If there is no project, go to home page.
-            window.location.href = 'index.html';
+            window.location.href = 'index.html' + window.getAllURLParameters();
         }
         // A copy of the current project is located in the browser localStorage
         // eslint-disable-next-line no-undef
@@ -428,8 +428,6 @@ function OpenProjectModalEscapeClick() {
             });
     });
 }
-
-
 
 
 /**
@@ -696,11 +694,14 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
         // defined in propc.js in the 'profile' object
         // (except 'default', which is where the current project's type is stored)
         for (let boardTypes in profile) {
-            if (boardTypes !== 'default' && boardTypes !== 'propcfile') {
+            if (boardTypes !== 'default') {
+                // Use the experimental tag to show code-only view
+                if (boardTypes !== 'propcfile' || (boardTypes === 'propcfile' && isExperimental.indexOf('propc') > -1)) {
 
-                element.append($('<option />')
-                    .val(boardTypes)
-                    .text(profile[boardTypes].description));
+                    element.append($('<option />')
+                        .val(boardTypes)
+                        .text(profile[boardTypes].description));
+                }
             }
 
             // Optionally set the selected option element

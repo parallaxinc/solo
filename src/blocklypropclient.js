@@ -395,7 +395,7 @@ function establish_socket() {
                  }, 10000);
                  */
 
-                if (getURLParameter('debug')) {
+                if (window.getURLParameter('debug')) {
                     console.log("Websocket client/launcher found - version " + ws_msg.version);
                 }
 
@@ -464,7 +464,7 @@ function establish_socket() {
                     $('#console-dialog').modal('hide');
                     newTerminal = false;
                     //term.destroy();
-                    updateTermBox(0);
+                    displayInTerm(null);
 
                 } else if (ws_msg.action === 'close-graph') {
                     $('#graphing-dialog').modal('hide');

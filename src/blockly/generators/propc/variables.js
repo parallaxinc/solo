@@ -206,7 +206,7 @@ Blockly.Blocks.array_get = {
             return;
         }
         var currentValue = this.getFieldValue('VAR');
-        var initBlockList = [];
+        var initBlockList = ['list'];  // Needs to contain 'list' - otherwise when it tries to set it as a default, lots of warnings get thrown in the console.
         Blockly.getMainWorkspace().getBlocksByType('array_init', false).forEach(function(element) {
             initBlockList.push(element.getFieldValue('VAR'));
         });
@@ -221,7 +221,7 @@ Blockly.Blocks.array_get = {
             });
         }
 
-        this.arrayList = uniq_fast(this.arrayList);       // sort and remove duplicates from the list of arrays
+        this.arrayList = this.arrayList.sortedUnique();       // sort and remove duplicates from the list of arrays
         this.buildArrayMenu(this.arrayList);
 
         // update the menu on the block
@@ -230,6 +230,7 @@ Blockly.Blocks.array_get = {
         } else if (currentValue && this.getField('VAR')) {
             if (this.arrayList.indexOf(currentValue) >= 0) {
                 this.setFieldValue(currentValue, 'VAR');
+                this.arrayInitWarnFlag = false;
             } else {
                 // the init block for this array got deleted, so revert to "list" and toggle the warning icon on the block
                 this.setFieldValue('list', 'VAR');
