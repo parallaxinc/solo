@@ -287,7 +287,7 @@ $(() => {
     window.addEventListener('beforeunload', function (e) {
 
         // Call checkLeave only if we are NOT loading a new project
-        if (getURLParameter('openFile') === "true") {
+        if (window.getURLParameter('openFile') === "true") {
             return;
         }
 
@@ -333,13 +333,14 @@ $(() => {
     initCdnImageUrls();
     initClientDownloadLinks();
 
+
     // TODO: Use the ping endpoint to verify that we are offline.
 
     // Stop pinging the Rest API
     clearInterval(pingInterval);
 
     // Load a project file from local storage
-    if (getURLParameter('openFile') === "true") {
+    if (window.getURLParameter('openFile') === "true") {
         // Check for an existing project in localStorage
         if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
             // put a copy into projectData
@@ -349,7 +350,7 @@ $(() => {
         // Show the Open Project modal dialog
         OpenProjectModal();
 
-    } else if (getURLParameter('newProject') === "true") {
+    } else if (window.getURLParameter('newProject') === "true") {
         NewProjectModal();
 
     } else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
@@ -377,11 +378,11 @@ $(() => {
                 utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_LOADING_ERROR);
             }
             // No viable project available, so redirect to index page.
-            window.location.href = 'index.html';
+            window.location.href = 'index.html' + window.getAllURLParameters();
         }
     } else {
         // No viable project available, so redirect to index page.
-        window.location.href = 'index.html';
+        window.location.href = 'index.html' + window.getAllURLParameters();
     }
 
     // Make sure the toolbox appears correctly, just for good measure.
@@ -627,7 +628,7 @@ function initEventHandlers() {
     $('#open-project-button').on('click', () => {
         // Save the project to localStorage
         window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
-        window.location = "blocklyc.html?openFile=true";
+        window.location = "blocklyc.html?openFile=true" + window.getAllURLParameters().replace('?', '&');
     });
 
     // Save button
@@ -837,7 +838,7 @@ function setupWorkspace(data, callback) {
         $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
         // Create UI block content from project details
         renderContent('blocks');
-    } else if (projectData.board === 'propc') {
+    } else if (projectData.board === 'propcfile') {
         init(Blockly);
         $('#online-help').attr('href', 'https://learn.parallax.com/support/C/propeller-c-reference');
         // Create UI block content from project details
@@ -877,7 +878,7 @@ function setupWorkspace(data, callback) {
  */
 function showInfo(data) {
     // TODO: Remove this.
-    if (getURLParameter('debug')) {
+    if (window.getURLParameter('debug')) {
         console.log(data);
     }
 
@@ -984,7 +985,7 @@ function saveProject() {
  */
 function saveAsDialog() {
     // Production still uses the uses the plain 'save-as' endpoint for now.
-    if (inDemo !== 'demo') {     // if (1 === 1) {
+    if (isExperimental.indexOf('saveas') > -1) {     // if (1 === 1) {
 
         // Old function - still in use because save-as+board type is not approved for use.
         utils.prompt("Save project as", projectData['name'], function (value) {
@@ -1021,8 +1022,8 @@ function saveAsDialog() {
             $("#save-as-board-type").append($('<option />').val(bt[1]).text(bt[0]));
         });
 
-        // Until release to production, make sure we are on demo before displaying the propc option
-        if (inDemo === 'demo') {
+        // Until the propc editor is ready, hide the save as propc option
+        if (isExperimental.indexOf('saveas') > -1) {
             $("#save-as-board-type").append($('<option />').val('propcfile').text('Propeller C (code-only)'));
         }
 
@@ -1081,7 +1082,7 @@ function saveProjectAs(boardType, projectName) {
     };
 
     window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
-    window.location = 'blocklyc.html';
+    window.location = 'blocklyc.html' + window.getAllURLParameters();
 }
 
 
@@ -1307,7 +1308,7 @@ function uploadHandler(files) {
             // TODO: check to see if this is used when opened from the editor (and not the splash screen)
             // maybe projectData.code.length < 43??? i.e. empty project? instead of the URL parameter...
 
-            if (getURLParameter('openFile') === "true") {
+            if (window.getURLParameter('openFile') === "true") {
                 // Loading an offline .SVG project file. Create a project object and
                 // save it into the browser store.
                 var titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
@@ -1422,8 +1423,8 @@ function clearUploadInfo(redirect) {
 
     // when opening a file but the user cancels, return to the splash screen
     if (redirect === true) {
-        if (getURLParameter('openFile') === 'true') {
-            window.location = 'index.html';
+        if (window.getURLParameter('openFile') === 'true') {
+            window.location = 'index.html' + window.getAllURLParameters();
         }
     }
 }
@@ -1452,7 +1453,7 @@ function uploadMergeCode(append) {
 
     // When opening a file when directed from the splash screen in
     // the offline app, load the selected project
-    if (!append && getURLParameter('openFile') === 'true') {
+    if (!append && window.getURLParameter('openFile') === 'true') {
         // The project was loaded into the localStorage. The global
         // variable tempProjectStoreName holds the name of the object
         // in the localStorage. At this point, load the projectData
@@ -1473,7 +1474,7 @@ function uploadMergeCode(append) {
 
         window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
 
-        window.location = 'blocklyc.html';
+        window.location = 'blocklyc.html' + window.getAllURLParameters();
     }
 
     if (uploadedXML !== '') {
@@ -1566,7 +1567,7 @@ function uploadMergeCode(append) {
 function initToolbox(profileName) {
 
     // TODO: Verify that custom fonts are required
-    var ff = getURLParameter('font');
+    var ff = window.getURLParameter('font');
 
     if (ff) {
         // Replace font family in Blockly's inline CSS

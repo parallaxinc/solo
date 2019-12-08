@@ -221,7 +221,7 @@ Blockly.Blocks.array_get = {
             });
         }
 
-        this.arrayList = uniq_fast(this.arrayList);       // sort and remove duplicates from the list of arrays
+        this.arrayList = this.arrayList.sortedUnique();       // sort and remove duplicates from the list of arrays
         this.buildArrayMenu(this.arrayList);
 
         // update the menu on the block
