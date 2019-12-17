@@ -665,6 +665,10 @@ function initEventHandlers() {
     // ---- Hamburger drop down horizontal line ----
 
     // Configure client menu selector
+    // Client configuration is only possible with the deprecated
+    // BlocklyProp Client. The BlocklyProp Launcher does not require
+    // a configuration dialog
+    // TODO: Client configuration is deprecated. No needed for Launcher
     $('#client-setup').on('click', () => configure_client());
 
     // --------------------------------
