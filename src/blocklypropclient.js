@@ -220,6 +220,10 @@ var set_ui_buttons = function (ui_btn_state) {
     }
 };
 
+
+/**
+ * This is evaluating the BlocklyProp Client or BlocklyProp Launcher version??
+ */
 var check_client = function () {
     $.get(client_url, function (data) {
         if (!client_available) {
@@ -551,6 +555,7 @@ function lostWSConnection() {
     //Create new ws socket timeout (find_client)
     check_ws_socket_timeout = setTimeout(find_client, 3000);
 };
+
 
 // set communication port list
 //   leave data unspecified when searching

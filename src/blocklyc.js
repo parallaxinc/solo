@@ -40,7 +40,7 @@ var graph = null;
 /**
  * TODO: Identify the purpose of this variable
  *
- * @type {null}
+ * @type {{}}
  */
 var codePropC = null;
 
@@ -474,6 +474,9 @@ function init(blockly) {
 
     window.Blockly = blockly;
 
+    // TODO: Use constant EMPTY_PROJECT_CODE_HEADER instead of string.
+    //  Replace string length check with code that detects the first
+    //  <block> xml element.
     if (projectData) {
         // Looking for the first <block> XML element
         const searchTerm = '<block';
@@ -1052,9 +1055,10 @@ var graphStartStop = function (action) {
 
 
 /**
- * Update the list of serail ports available on the host machine
+ * Update the list of serial ports available on the host machine
  */
 var check_com_ports = function () {
+    // TODO: We need to evaluate this when using web sockets ('ws') === true
     if (client_use_type !== 'ws') {
         if (client_url !== undefined) {
             if (client_version >= minVer) {

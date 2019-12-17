@@ -285,7 +285,6 @@ $(() => {
     // continues.
     // --------------------------------------------------------------
     window.addEventListener('beforeunload', function (e) {
-
         // Call checkLeave only if we are NOT loading a new project
         if (window.getURLParameter('openFile') === "true") {
             return;
@@ -297,13 +296,20 @@ $(() => {
         // ------------------------------------------------------
         if (projectData) {
             if (projectData['name'] !== "undefined") {
+                // Deep copy of the projectData object
                 let tempProject = {};
                 Object.assign(tempProject, projectData);
 
+                // Overwrite the code blocks with the current
+                // project state
                 tempProject.code = getXml();
                 tempProject.timestamp = getTimestamp();
 
-                window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(tempProject));
+                // Save the current project into the browser store
+                // where it will get picked up by the page loading
+                // code.
+                window.localStorage.setItem(
+                    LOCAL_PROJECT_STORE_NAME, JSON.stringify(tempProject));
             }
         }
 
@@ -521,16 +527,9 @@ function initEditorIcons() {
 }
 
 /**
- * Configure all of the event handlers
+ * Set up event handlers - Attach events to nav/action menus/buttons
  */
 function initEventHandlers() {
-    /*
- * TODO: Move javascript that is inline in the HTML files to included scripts.
- *    This keeps the HTML simple and clean.
- *
- * This is a WIP.
-*/
-    // Set up event handlers - Attach events to nav/action menus/buttons
     // Toolbar - left side
     $('#prop-btn-comp').on('click', () => compile());
     $('#prop-btn-ram').on('click', () => {
@@ -545,14 +544,12 @@ function initEventHandlers() {
     $('#prop-btn-graph').on('click', () => graphing_console());
     $('#prop-btn-find-replace').on('click', () => findReplaceCode());
     $('#prop-btn-pretty').on('click', () => formatWizard());
+
     $('#prop-btn-undo').on('click', () => codePropC.undo());
     $('#prop-btn-redo').on('click', () => codePropC.redo());
 
-    // This arrived on 6/6/2019 from CDN PR#129.
-    // zfi merged 1 commit into parallaxinc:1.2 from MatzElectronics:1.2on Jun 6
-    // TODO: Correct missing configure_term_graph() function.
+    // TODO: The event handler is just stub code.
     $('#term-graph-setup').on('click', () => configureTermGraph());
-
 
     $('#propc-find-btn').on('click', () => {
         codePropC.find(document.getElementById('propc-find').value, {}, true);
@@ -578,39 +575,44 @@ function initEventHandlers() {
     $('.project-name').attr('contenteditable', 'true')
     // Change the styling to indicate to the user that they are editing this field
         .on('focus', () => {
-            $('.project-name').html(projectData.name);
-            $('.project-name').addClass('project-name-editable');
+            let projectName = $('.project-name');
+            projectName.html(projectData['name']);
+            projectName.addClass('project-name-editable');
         })
         // reset the style and save the new project name to the projectData object
         .on('blur', () => {
-            if ($('.project-name').setSelectionRange) {
-                $('.project-name').focus();
-                $('.project-name').setSelectionRange(0, 0);
-            } else if ($('.project-name').createTextRange) {
-                var range = $('.project-name').createTextRange();
+            let projectName = $('.project-name');
+
+            if (projectName.setSelectionRange) {
+                projectName.focus();
+                projectName.setSelectionRange(0, 0);
+            } else if (projectName.createTextRange) {
+                let range = projectName.createTextRange();
                 range.moveStart('character', 0);
                 range.select();
             }
-            $('.project-name').removeClass('project-name-editable');
+
+            projectName.removeClass('project-name-editable');
             // if the project name is greater than 25 characters, only display the first 25
-            if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-                $('.project-name').html(projectData.name.substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+            if (projectData['name'].length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+                projectName.html(
+                    projectData['name'].substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
             }
         })
         // change the behavior of the enter key
         .on('keydown', (e) => {
-            if (e.which == 13 || e.keyCode == 13) {
+            if (e.which === 13 || e.keyCode === 13) {
                 e.preventDefault();
                 $('.project-name').trigger('blur');
             }
         })
         // validate the input to ensure it's not too long, and save changes as the user types.
         .on('keyup', () => {
-            var tempProjectName = $('.project-name').html()
+            let tempProjectName = $('.project-name').html()
             if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH || tempProjectName.length < 1) {
-                $('.project-name').html(projectData.name);
+                $('.project-name').html(projectData['name']);
             } else {
-                projectData.name = tempProjectName;
+                projectData['name'] = tempProjectName;
             }
         });
 
