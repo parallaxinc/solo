@@ -395,13 +395,13 @@ $(() => {
     resetToolBoxSizing(250, true);
 
     // Initialize the terminal
-    pTerm = new propTerm(document.getElementById('serial_console'), function(characterToSend) {
+    pTerm = new PropTerm(document.getElementById('serial_console'), function(characterToSend) {
         if (active_connection !== null && 
             active_connection !== 'simulated' && 
             active_connection !== 'websocket') {
             active_connection.send(client_version >= minEnc64Ver ? btoa(characterToSend) : characterToSend);
     
-        } else if (active_connection === 'websocket') {
+        } else if (active_connection === 'websocket' ) {
             var msg_to_send = {
                 type: 'serial-terminal',
                 outTo: 'terminal',
