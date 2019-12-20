@@ -369,6 +369,8 @@ class PropTerm {
      * @description Processes an ASCII character and calls the appropriate helpers based on the character entered
      */
     _updateTermBox(c) {
+        let j;
+        
         if (this.echo.trap) {
             for (let i = 0; i < this.echo.buffer.length; i++) {
                 if (this.echo.buffer[i] === c) {
@@ -433,7 +435,7 @@ class PropTerm {
                         this._changeCursor(0, 1);
                         break;
                     case 9:   // Tab (default 5-character spacing)
-                        let j = 5 - (this.cursor.x) % this.size.tabSpacing;
+                        j = 5 - (this.cursor.x) % this.size.tabSpacing;
                         for (let k = 0; k < j; k++) {
                             this.buffer.textArray[this.cursor.y] += ' ';
                             this._changeCursor(1, 0);
@@ -465,7 +467,7 @@ class PropTerm {
                         break;
                     case 7: // Beep
                         this.element.classList.remove("visual-beep_");
-                        let ow = this.element.offsetWidth;
+                        j = this.element.offsetWidth;
                         this.element.classList.add("visual-beep_");
                         document.getElementById('term-beep_').play();
                         break;
@@ -486,17 +488,17 @@ class PropTerm {
                         this.cursor.setFlag = c - 13;
                         break;
                     default:  // The character is printable, so display it in the terminal at the current cursor position.
-                        let char = '';
+                        j = '';
                         if (c > 127 && c < 256) {
-                            char = this.ascii2unicode[c - 128];
+                            j = this.ascii2unicode[c - 128];
                         } else {
-                            char = String.fromCharCode(c);
+                            j = String.fromCharCode(c);
                         }
                         if ((this.buffer.textArray[this.cursor.y] || '').length > this.cursor.x) {
                             let currentLine = this.buffer.textArray[this.cursor.y] || '';
-                            this.buffer.textArray[this.cursor.y] = currentLine.substr(0, this.cursor.x) + char + currentLine.substr(this.cursor.x + 1);
+                            this.buffer.textArray[this.cursor.y] = currentLine.substr(0, this.cursor.x) + j + currentLine.substr(this.cursor.x + 1);
                         } else {
-                            this.buffer.textArray[this.cursor.y] += char;
+                            this.buffer.textArray[this.cursor.y] += j;
                         }
                         this._changeCursor(1, 0);
                         break;
