@@ -33,3 +33,26 @@
  */
 let projectData = '';
 
+
+/**
+ * The application brand name in the production system
+ * @type {string}
+ */
+const ApplicationName = "Solo";
+
+
+/**
+ * The application brand name as used in the Test system
+ * @type {string}
+ */
+const TestApplicationName = "Solocup";
+
+
+/**
+ * This is the name of the test ECS cluster. A matching hostname will
+ * trigger a few UI changes to visually confirm that the visitor has reached
+ * the test site.
+ *
+ * @type {string}
+ */
+const product_banner_host_trigger = 'solocup.parallax.com';

@@ -21,16 +21,16 @@
  */
 
 
-const product_banner_host_trigger = 'solocup.parallax.com';
+
 
 
 // Update page elements
 // This construct replaces the document.ready() that was
 // deprecated in jquery 1.9
 $(function () {
-    let appName = "Solo";
+    let appName = ApplicationName;
     if (window.location.hostname === product_banner_host_trigger) {
-        appName = "Solocup"
+        appName = TestApplicationName;
     }
 
     showAppName();
@@ -58,7 +58,7 @@ function showLicense() {
 function showAppName() {
     let html = 'BlocklyProp<br><strong>Solo</strong>';
     if (window.location.hostname === product_banner_host_trigger) {
-        html = 'BlocklyProp<br><strong>Solocup</strong>';
+        html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
     }
     $('#nav-logo').html(html);
 }
