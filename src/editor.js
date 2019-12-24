@@ -272,6 +272,8 @@ const checkLastSavedTime = function () {
  * Replaces the old document.ready() construct
  */
 $(() => {
+    RenderPageBrandingElements();
+
     /* -- Set up amy event handlers once the DOM is ready -- */
 
     // Update the blockly workspace to ensure that it takes
@@ -1828,4 +1830,22 @@ function testProjectEquality(projectA, projectB) {
  */
 function configureTermGraph() {
     return true;
+}
+
+
+/**
+ * Render the branding logo and related text.
+ */
+function RenderPageBrandingElements() {
+    let appName = ApplicationName;
+    let html = 'BlocklyProp<br><strong>' + ApplicationName + '</strong>';
+
+    if (window.location.hostname === product_banner_host_trigger) {
+        appName = TestApplicationName;
+        html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
+        document.getElementById('nav-logo').style.backgroundImage = 'url(\'src/images/dev-toolkit.png\')';
+    }
+
+    $('#nav-logo').html(html);
+    $('#app-banner-title').html('BlocklyProp ' + appName);
 }
