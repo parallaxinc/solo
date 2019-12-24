@@ -21,12 +21,20 @@
  */
 
 
+const product_banner_host_trigger = 'solocup.parallax.com';
+
+
 // Update page elements
 // This construct replaces the document.ready() that was
 // deprecated in jquery 1.9
 $(function () {
+    let appName = "Solo";
+    if (window.location.hostname === product_banner_host_trigger) {
+        appName = "Solocup"
+    }
+
     showAppName();
-    showAppBannerTitle('Solo');
+    showAppBannerTitle(appName);
     setCopyrightDate($('#footer_copyright'));
     setCopyrightDate($('#license-copyright-date'));
 
@@ -49,12 +57,19 @@ function showLicense() {
 // Display the application name
 function showAppName() {
     let html = 'BlocklyProp<br><strong>Solo</strong>';
+    if (window.location.hostname === product_banner_host_trigger) {
+        html = 'BlocklyProp<br><strong>Solocup</strong>';
+    }
     $('#nav-logo').html(html);
 }
+
 
 // Display the app name in the banner
 function showAppBannerTitle(appName) {
     $('#app-banner-title').html('BlocklyProp ' + appName);
+    if (window.location.hostname === product_banner_host_trigger) {
+        document.getElementById('nav-logo').style.backgroundImage = 'url(\'src/images/dev-toolkit.png\')';
+    }
 }
 
 // Set the ending copyright date

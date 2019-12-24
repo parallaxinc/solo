@@ -537,10 +537,17 @@ function cloudCompile(text, action, successHandler) {
         else if (propcCode.indexOf("SERIAL_GRAPHING USED") > -1)
             terminalNeeded = 'graph';
 
-        // Contact the docker container running cloud compiler
-        // Compute the url based on where we are now
-        let postUrl = window.location.protocol + '//' + window.location.hostname + ':5001/single/prop-c/' + action;
-//        let postUrl = getCompilerUrl(action);
+        // Contact the container running cloud compiler. If the browser is
+        // connected via https, direct the compile request to the same port and
+        // let the load balancer direct the request to the compiler.
+        // --------------------------------------------------------------------
+        let postUrl;
+        if (window.location.protocol === 'http:') {
+            postUrl = 'http://' + window.location.hostname + ':5001/single/prop-c/' + action;
+        }
+        else {
+            postUrl = 'https://' + window.location.hostname + ':443/single/prop-c/' + action;
+        }
 
         $.ajax({
             'method': 'POST',
