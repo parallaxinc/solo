@@ -174,6 +174,11 @@ var bpIcons = {
  */
 var blocklyWorkSpace;
 
+/**
+ * The prop terminal object
+ */
+var pTerm;
+
 
 
 
@@ -394,6 +399,26 @@ $(() => {
     // Make sure the toolbox appears correctly, just for good measure.
     // And center the blocks on the workspace
     resetToolBoxSizing(250, true);
+
+    // Initialize the terminal
+    pTerm = new PropTerm(document.getElementById('serial_console'), function(characterToSend) {
+        if (active_connection !== null && 
+            active_connection !== 'simulated' && 
+            active_connection !== 'websocket') {
+            active_connection.send(client_version >= minEnc64Ver ? btoa(characterToSend) : characterToSend);
+    
+        } else if (active_connection === 'websocket' ) {
+            var msg_to_send = {
+                type: 'serial-terminal',
+                outTo: 'terminal',
+                portPath: getComPort(),
+                baudrate: baudrate.toString(10),
+                msg: characterToSend,
+                action: 'msg'
+            };
+            client_ws_connection.send(JSON.stringify(msg_to_send));
+        }    
+    });
 });
 
 
