@@ -21,7 +21,7 @@
  */
 
 
-const product_banner_host_trigger = 'solocup';
+const product_banner_host_trigger = 'solocup.parallax.com';
 
 
 // Update page elements
