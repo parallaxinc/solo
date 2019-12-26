@@ -25,22 +25,14 @@
  * @description A lightweight, generic in-browser terminal with cursor positioning, clearing, and text-wrapping support.
  * @author Matthew Matz matt.m.matz@gmail.com
  * @function PropTerm
- * @param {object} terminalElement HTML element to populate the terminal into.
- * @param {object} outputCallback function to call and send characters typed into the terminal.
- * @param {object} options options for configuring the terminal.
- * @param {boolean} options.echoKeys optional - if set to true, echo keys typed into the terminal.  Default is true.
- * @param {boolean} options.trapEchos optional - if set to true, trap and do not display characters echoed by the device.  Default is false.
- * @param {array} options.extendedAsciiMap optional - an array of 127 characters mapped to the 127 extended ASCII characters (ASCII 128-255).  A default set of unicode characters is available if not provided.
- * @param {number} options.charactersWide optional - number of characters wide the terminal should display in a single line before wrapping to the next line.  Default is 256.
- * @param {string} options.overrunWarningText optional - text to display if the browser is unable to keep up with the display of incoming characters.  A default warning in American English is used if none is provided.
- * @param {string} options.warningDivClassName optional - CSS class to apply to the overrun warning element.  A default Bootstrap-v3-like 'danger' class is used if none is provided.
- * @param {boolean} options.scrollToCursor optional - if set to true, automatically scroll to the cursor's location.  Only applies to the vertical scroll.  Default is true.
- * @param {number} options.tabIndex optional - set the tab index of the HTML element that contains the terminal.  Default is "1".
- * @param {number} options.tabSpacing optional - set the size of a tab in the terminal (measured in characters).  Default is 5.
  */
 class PropTerm {
+    /**
+     * @param {Element} terminalElement HTML element to populate the terminal into.
+     * @param {object} outputCallback function to call and send characters typed into the terminal.
+     * @param {TerminalOptions} options for configuring the terminal.
+     */
     constructor(terminalElement, outputCallback, options) {
-
         this.callback = outputCallback;
         this.element = terminalElement;
 
@@ -59,7 +51,7 @@ class PropTerm {
             x: 0,            // horizontal position
             y: 0,            // vertical position
             xf: 0,           // horizontal target (final)
-            yf: 0,           // vertial target (final)
+            yf: 0,           // vertical target (final)
             setFlag: 0,
             scrollTo: true,
             scrolled: 0
@@ -120,7 +112,7 @@ class PropTerm {
 
     /**
      * @private
-     * @param {object} options
+     * @param {TerminalOptions} options
      * @description Adds CSS to the HTML page to support the appearance of the Terminal
      */
     _setupTerminalCss(options) {
@@ -132,7 +124,7 @@ class PropTerm {
 
         // set the scrolling and text alignment
         let sheet = window.document.styleSheets[0];
-        let propTermCSStext = '';
+        let propTermCSStext;
         propTermCSStext =  '.propTerm_ {';
         propTermCSStext += 'vertical-align: text-top;';
         propTermCSStext += 'overflow-y: scroll;';
@@ -201,7 +193,7 @@ class PropTerm {
     _addSoundElement() {
         if (!document.getElementById('term-beep_')) {
             // add the terminal beep this.sound to the end of the HTML body.
-            let sound           = document.createElement('audio');
+            let sound      = document.createElement('audio');
             //this.sound.style.display = 'none';
             sound.id       = 'term-beep_';
             sound.controls = 'controls';
@@ -248,8 +240,7 @@ class PropTerm {
             (this.getCharacterSize.canvas = document.createElement("canvas"));
         let context = canvas.getContext("2d");
         context.font = font;
-        let metrics = context.measureText('AA').width - context.measureText('A').width;
-        return metrics;
+        return context.measureText('AA').width - context.measureText('A').width;
     }
 
     /**
@@ -684,4 +675,37 @@ class PropTerm {
     getText() {
         return this.buffer.textArray.join('\r');
     }
+}
+
+
+/**
+ * Terminal options for the PropTerm class
+ */
+class TerminalOptions {
+    /**
+     * @param {boolean} echoKeys optional- if set to true, echo keys typed into the terminal.  Default is true.
+     * @param {boolean} trapEchos optional - if set to true, trap and do not display characters echoed by the device.  Default is false.
+     * @param {boolean} scrollToCursor optional - if set to true, automatically scroll to the cursor's location.  Only applies to the vertical scroll.  Default is true.
+     * @param {array}  extendedAsciiMap optional - an array of 127 characters mapped to the 127 extended ASCII characters (ASCII 128-255).  A default set of unicode characters is available if not provided.
+     * @param {number} charactersWide optional - number of characters wide the terminal should display in a single line before wrapping to the next line.  Default is 256.
+     * @param {number} tabSpacing optional - set the size of a tab in the terminal (measured in characters).  Default is 5.
+     * @param {number} tabIndex optional - set the tab index of the HTML element that contains the terminal.  Default is "1".
+     * @param {string} overrunWarningText optional - text to display if the browser is unable to keep up with the display of incoming characters.  A default warning in American English is used if none is provided.
+     * @param {string} warningDivClassName optional - CSS class to apply to the overrun warning element.  A default Bootstrap-v3-like 'danger' class is used if none is provided.
+     */
+    constructor(
+        echoKeys, trapEchos, scrollToCursor, extendedAsciiMap,
+        charactersWide, tabSpacing, tabIndex,overrunWarningText,
+        warningDivClassName) {
+
+        this.echoKeys = echoKeys;
+        this.trapEchos = trapEchos;
+        this.scrollToCursor = scrollToCursor;
+        this.extendedAsciiMap = extendedAsciiMap;
+        this.charactersWide = charactersWide;
+        this.tabSpacing = tabSpacing;
+        this.tabIndex = tabIndex;
+        this.overrunWarningText = overrunWarningText;
+        this.warningDivClassName = warningDivClassName;
+        }
 }

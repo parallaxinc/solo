@@ -403,7 +403,10 @@ $(() => {
     resetToolBoxSizing(250, true);
 
     // Initialize the terminal
-    pTerm = new PropTerm(document.getElementById('serial_console'), function(characterToSend) {
+    pTerm = new PropTerm(
+        document.getElementById('serial_console'),
+        function(characterToSend) {
+
         if (active_connection !== null && 
             active_connection !== 'simulated' && 
             active_connection !== 'websocket') {
