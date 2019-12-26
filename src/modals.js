@@ -53,15 +53,14 @@ function NewProjectModal() {
             'discard the current changes and create a new project.';
 
         utils.confirm(
-            "Save Project", message,
+            "Abandon Current Project", message,
             // result is true if the OK button was selected
             (result) => {
                 if (result) {
-                    // eslint-disable-next-line no-undef
                     downloadCode();
                 }},
-            "OK",
-            "Cancel");
+            "Cancel",
+            "OK");
     } else {
         // Reset the values in the form to defaults
         $('#new-project-name').val('');
@@ -589,35 +588,8 @@ function setEditOfflineProjectDetailsCancelHandler() {
 }
 
 
-/**
- *  Configure the Save-As modal UI elements
- *
- *  @deprecated - Orphaned code
- */
-function SetupSaveAsModalDialog() {
-// Set up Save-As modal dialog prompts
-    $("#save_as_dialog_title_text").html('Choose a project name and board type');
-    $("#save_as_dialog_button").html('Continue');
-    $(".save-as-close").addClass('hidden');
-    $('#save-as-project-name').val('MyProject');
-    $("#saveAsDialogSender").html('offline');
-    $("#save-as-board-type").empty();
-}
-
-
-/**
- * Invoke the Save-As project modal dialog window
- *
- * @deprecated - Orphaned code
- */
-function SaveAsProjectModal() {
-    PopulateProjectBoardTypesUIElement($("#save-as-board-type"));
-    $('#save-as-type-dialog').modal({keyboard: false, backdrop: 'static'});
-}
-
 
 /*   Load a Project file    */
-
 /**
  *
  */
