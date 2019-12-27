@@ -635,7 +635,7 @@ Blockly.propc.console_print_multiple = function () {
         case 'wx_print_multiple':
             initBlock = 'WX initialize';
             errorString = '// ERROR: WX is not initialized!\n';
-            if (projectData && projectData['board'] === 'heb-wx') {
+            if (projectData && projectData.board === 'heb-wx') {
                 initBlock = null;
             }
             var handle = Blockly.propc.variableDB_.getName(this.getFieldValue('HANDLE'), Blockly.Variables.NAME_TYPE);
@@ -696,7 +696,7 @@ Blockly.propc.console_print_multiple = function () {
         code = '// ERROR: You cannot use Advanced WX blocks with Simple WX blocks!';
     }
 
-    if (projectData['board'] === 'heb-wx' && this.type === 'wx_print_multiple') {
+    if (projectData.board === 'heb-wx' && this.type === 'wx_print_multiple') {
         Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
         Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }

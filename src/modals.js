@@ -305,7 +305,7 @@ function CreateNewProject() {
     // event handler from storing the old project code into
     // the browser storage.
     // ------------------------------------------------------
-    projectData = '';
+    projectData = {};
 
     // Redirect to the editor page
     window.location = 'blocklyc.html' + window.getAllURLParameters();
@@ -493,15 +493,15 @@ function EditOfflineProjectDetails() {
     setEditOfflineProjectDetailsEnterHandler();
 
     // Load the current project details into the html form data
-    $('#edit-project-name').val(projectData['name']);
-    $('#edit-project-description').val(projectData['description']);
+    $('#edit-project-name').val(projectData.name);
+    $('#edit-project-description').val(projectData.description);
 
     // Display additional project details.
     let projectBoardType = $('#edit-project-board-type-ro');
-    projectBoardType.val(projectData['board']);
+    projectBoardType.val(projectData.board);
     projectBoardType.html(profile.default.description);
-    $('#edit-project-created-date-ro').html(projectData['created']);
-    $('#edit-project-last-modified-ro').html(projectData['modified']);
+    $('#edit-project-created-date-ro').html(projectData.created);
+    $('#edit-project-last-modified-ro').html(projectData.modified);
 
     // Show the dialog
     $('#edit-project-dialog').modal({keyboard: false, backdrop: 'static'});
@@ -557,13 +557,13 @@ function setEditOfflineProjectDetailsContinueHandler() {
  */
 function UpdateProjectDetails() {
     let newName = $('#edit-project-name').val();
-    if (!(projectData['name'] === newName)) {
-        projectData['name'] = newName;
+    if (!(projectData.name === newName)) {
+        projectData.name = newName;
     }
 
     let newDescription = $('#edit-project-description').val();
-    if (!(projectData['description'] === newDescription)) {
-        projectData['description'] = newDescription;
+    if (!(projectData.description === newDescription)) {
+        projectData.description = newDescription;
     }
 }
 
