@@ -302,7 +302,7 @@ $(() => {
         // be reloaded
         // ------------------------------------------------------
         if (projectData) {
-            if (projectData['name'] !== "undefined") {
+            if (projectData.name !== "undefined") {
                 // Deep copy of the projectData object
                 let tempProject = {};
                 Object.assign(tempProject, projectData);
@@ -451,7 +451,7 @@ function checkLeave() {
     }
 
     let currentXml = getXml();
-    let savedXml = projectData['code'];
+    let savedXml = projectData.code;
 
     return compareProjectCode(currentXml, savedXml);
 }
@@ -606,7 +606,7 @@ function initEventHandlers() {
     // Change the styling to indicate to the user that they are editing this field
         .on('focus', () => {
             let projectName = $('.project-name');
-            projectName.html(projectData['name']);
+            projectName.html(projectData.name);
             projectName.addClass('project-name-editable');
         })
         // reset the style and save the new project name to the projectData object
@@ -624,9 +624,9 @@ function initEventHandlers() {
 
             projectName.removeClass('project-name-editable');
             // if the project name is greater than 25 characters, only display the first 25
-            if (projectData['name'].length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+            if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
                 projectName.html(
-                    projectData['name'].substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+                    projectData.name.substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
             }
         })
         // change the behavior of the enter key
@@ -640,9 +640,9 @@ function initEventHandlers() {
         .on('keyup', () => {
             let tempProjectName = $('.project-name').html()
             if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH || tempProjectName.length < 1) {
-                $('.project-name').html(projectData['name']);
+                $('.project-name').html(projectData.name);
             } else {
-                projectData['name'] = tempProjectName;
+                projectData.name = tempProjectName;
             }
         });
 
@@ -854,8 +854,8 @@ function resetToolBoxSizing(resizeDelay, centerBlocks) {
 /**
  * Populate the projectData global
  *
- * @param data is the current project object
- * @param callback is called if provided when the function completes
+ * @param {{}} data is the current project object
+ * @param {function} callback is called if provided when the function completes
  */
 function setupWorkspace(data, callback) {
     ClearBlocklyWorkspace();
@@ -865,7 +865,7 @@ function setupWorkspace(data, callback) {
 
     // Set various project settings based on the project board type
     // NOTE: This function is in propc.js
-    setProfile(projectData['board']);
+    setProfile(projectData.board);
 
     // Set the help link to the ab-blocks, s3 reference, or propc reference
     // TODO: modify blocklyc.html/jsp and use an id or class selector
@@ -886,11 +886,8 @@ function setupWorkspace(data, callback) {
         renderContent('blocks');
     }
 
-
-    // View or edit project details menu item
-    if (projectData && projectData['yours'] === false) {
-        $('#edit-project-details').html(page_text_label['editor_view-details'])
-    } else {
+    // Edit project details menu item
+    if (projectData) {
         $('#edit-project-details').html(page_text_label['editor_edit-details']);
     }
 
@@ -953,14 +950,14 @@ function showInfo(data) {
  */
 function saveProject() {
     // TODO: Refactor to remove the concept of project ownership
-    if (projectData['yours']) {
+    if (projectData.yours) {
         var code = getXml();
-        projectData['code'] = code;
+        projectData.code = code;
 
         $.post(BASE_URL + 'rest/project/code', projectData, function (data) {
-            var previousOwner = projectData['yours'];
+            var previousOwner = projectData.yours;
             projectData = data;
-            projectData['code'] = code; // Save code in projectdata to be able to verify if code has changed upon leave
+            projectData.code = code; // Save code in projectdata to be able to verify if code has changed upon leave
 
             // If the current user doesn't own this project, a new one is created and the page is redirected to the new project.
             if (!previousOwner) {
@@ -1024,15 +1021,16 @@ function saveAsDialog() {
     if (isExperimental.indexOf('saveas') > -1) {     // if (1 === 1) {
 
         // Old function - still in use because save-as+board type is not approved for use.
-        utils.prompt("Save project as", projectData['name'], function (value) {
+        utils.prompt("Save project as", projectData.name, function (value) {
             if (value) {
                 var code = getXml();
-                projectData['code'] = code;
-                projectData['name'] = value;
+                projectData.code = code;
+                projectData.name = value;
+
                 $.post(BASE_URL + 'rest/project/code-as', projectData, function (data) {
-                    var previousOwner = projectData['yours'];
+                    var previousOwner = projectData.yours;
                     projectData = data;
-                    projectData['code'] = code; // Save code in projectdata to be able to verify if code has changed upon leave
+                    projectData.code = code; // Save code in projectdata to be able to verify if code has changed upon leave
                     utils.showMessage(Blockly.Msg.DIALOG_PROJECT_SAVED, Blockly.Msg.DIALOG_PROJECT_SAVED_TEXT);
                     // Reloading project with new id
                     window.location.href = BASE_URL + 'projecteditor?id=' + data['id'];
@@ -1043,7 +1041,7 @@ function saveAsDialog() {
     } else {
 
         // Prompt user to save current project first if unsaved
-        if (checkLeave() && projectData['yours']) {
+        if (checkLeave() && projectData.yours) {
             utils.confirm(Blockly.Msg.DIALOG_SAVE_TITLE, Blockly.Msg.DIALOG_SAVE_FIRST, function (value) {
                 if (value) {
                     downloadCode();
@@ -1052,7 +1050,7 @@ function saveAsDialog() {
         }
 
         // Reset the save-as modal's fields
-        $('#save-as-project-name').val(projectData['name']);
+        $('#save-as-project-name').val(projectData.name);
         $("#save-as-board-type").empty();
         profile.default.saves_to.forEach(function (bt) {
             $("#save-as-board-type").append($('<option />').val(bt[1]).text(bt[0]));
@@ -1075,7 +1073,7 @@ function saveAsDialog() {
  */
 function checkBoardType(requester) {
     if (requester !== 'offline') {
-        var current_type = projectData['board'];
+        var current_type = projectData.board;
         var save_as_type = $('#save-as-board-type').val();
         // save-as-verify-boardtype
         if (current_type === save_as_type || save_as_type === 'propcfile') {
@@ -1184,14 +1182,14 @@ function decodeFromValidXml(str) {
 function downloadCode() {
     let projXMLcode = getXml();
 
-    if (projectData && projectData['board'] !== 'propcfile' && projXMLcode.indexOf('<block') === -1) {
+    if (projectData && projectData.board !== 'propcfile' && projXMLcode.indexOf('<block') === -1) {
         // The project is empty, so warn and exit.
         utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT);
         return;
     } else {
 
         // Create a filename from the project title
-        let project_filename = sanitizeFilename(projectData['name']);
+        let project_filename = sanitizeFilename(projectData.name);
 
         projXMLcode = projXMLcode.substring(42, projXMLcode.length);
         projXMLcode = projXMLcode.substring(0, (projXMLcode.length - 6));
@@ -1229,12 +1227,12 @@ function downloadCode() {
         var dt = new Date();
         SVGfooter += '<rect x="100%" y="100%" rx="7" ry="7" width="218" height="84" style="fill:rgba(255,255,255,0.4);" transform="translate(-232,-100)" />';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-83)" style="font-weight:bold;">Parallax BlocklyProp Project</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-68)">User: ' + encodeToValidXml(projectData['user']) + '</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-53)">Title: ' + encodeToValidXml(projectData['name']) + '</text>';
+        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-68)">User: ' + encodeToValidXml(projectData.user) + '</text>';
+        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-53)">Title: ' + encodeToValidXml(projectData.name) + '</text>';
         SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-38)">Project ID: 0</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-23)">Device: ' + projectData['board'] + '</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-8)">Description: ' + encodeToValidXml(projectData['description']) + '</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' + projectData['created'] + '" data-lastmodified="' + dt + '"></text>';
+        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-23)">Device: ' + projectData.board + '</text>';
+        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-8)">Description: ' + encodeToValidXml(projectData.description) + '</text>';
+        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' + projectData.created + '" data-lastmodified="' + dt + '"></text>';
 
         var xmlChecksum = hashCode(projXMLcode).toString();
         xmlChecksum = '000000000000'.substring(xmlChecksum.length, 12) + xmlChecksum;
@@ -1331,7 +1329,7 @@ function uploadHandler(files) {
                 xmlValid = true;
             }
             if (xmlValid) {
-                if (projectData && uploadBoardType !== projectData['board']) {
+                if (projectData && uploadBoardType !== projectData.board) {
                     $('#selectfile-verify-boardtype').css('display', 'block');
                 } else {
                     $('#selectfile-verify-boardtype').css('display', 'none');
@@ -1578,17 +1576,17 @@ function uploadMergeCode(append) {
             });
             tmpv += '</variables>';
             // add everything back together
-            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + tmpv + projCode + newCode + '</xml>';
+            projectData.code = EMPTY_PROJECT_CODE_HEADER + tmpv + projCode + newCode + '</xml>';
         } else if (newCode.indexOf('<variables>') > -1 && projCode.indexOf('<variables>') === -1) {
-            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + newCode + projCode + '</xml>';
+            projectData.code = EMPTY_PROJECT_CODE_HEADER + newCode + projCode + '</xml>';
         } else {
-            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + projCode + newCode + '</xml>';
+            projectData.code = EMPTY_PROJECT_CODE_HEADER + projCode + newCode + '</xml>';
         }
 
         ClearBlocklyWorkspace();
 
         // This call fails because there is no Blockly workspace context
-        loadToolbox(projectData['code']);
+        loadToolbox(projectData.code);
 
         // CAUTION: This call can redirect to the home page
         clearUploadInfo(false);
@@ -1675,7 +1673,7 @@ function loadToolbox(xmlText) {
  * @returns {string}
  */
 function getXml() {
-    if (projectData && projectData['board'] === 'propcfile') {
+    if (projectData && projectData.board === 'propcfile') {
         return propcAsBlocksXml();
     }
 
@@ -1684,8 +1682,8 @@ function getXml() {
         return Blockly.Xml.domToText(xml);
     }
 
-    if (projectData && projectData['code']) {
-        return projectData['code'];
+    if (projectData && projectData.code) {
+        return projectData.code;
     }
 
     // Return the XML for a blank project if none is found.

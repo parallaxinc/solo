@@ -29,9 +29,9 @@
  * This should be updated with a current copy of the project after
  * every save and save-as operation.
  *
- * @type {string}
+ * @type {{}}
  */
-let projectData = '';
+let projectData = {};
 
 
 /**

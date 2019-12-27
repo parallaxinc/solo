@@ -246,7 +246,7 @@ const minVer = version_as_number(client_min_version);
 function renderContent(id) {
     // Select the active tab.
     const selectedTab = id.replace('tab_', '');
-    const isPropcOnlyProject = (projectData['board'] === 'propcfile');
+    const isPropcOnlyProject = (projectData.board === 'propcfile');
 
     let isDebug = window.getURLParameter('debug');
     if (!isDebug) {
@@ -293,7 +293,7 @@ function renderContent(id) {
                 codePropC.gotoLine(0);
             } else {
                 if (!codePropC || codePropC.getValue() === '') {
-                    codePropC.setValue(atob((projectData['code'].match(/<field name="CODE">(.*)<\/field>/) || ['', ''])[1] || ''));
+                    codePropC.setValue(atob((projectData.code.match(/<field name="CODE">(.*)<\/field>/) || ['', ''])[1] || ''));
                     codePropC.gotoLine(0);
                 }
                 if (codePropC.getValue() === '') {
@@ -460,7 +460,7 @@ function init(blockly) {
         codePropC.setReadOnly(true);
 
         // if the project is a propc code-only project, enable code editing.
-        if (projectData['board'] === 'propcfile') {
+        if (projectData.board === 'propcfile') {
             codePropC.setReadOnly(false);
         }
     }
@@ -481,11 +481,11 @@ function init(blockly) {
         // Looking for the first <block> XML element
         const searchTerm = '<block';
 
-        if (!projectData['code'] || projectData['code'].indexOf(searchTerm) < 0) {
-            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + '</xml>';
+        if (!projectData.code || projectData.code.indexOf(searchTerm) < 0) {
+            projectData.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
         }
-        if (projectData['board'] !== 'propcfile') {
-            loadToolbox(projectData['code']);
+        if (projectData.board !== 'propcfile') {
+            loadToolbox(projectData.code);
         }
     }
 }
@@ -1128,7 +1128,7 @@ function downloadPropC() {
         return;
     } else {
         // Make sure the filename doesn't have any illegal characters
-        value = sanitizeFilename(projectData['name']);
+        value = sanitizeFilename(projectData.name);
 
         var sideFileContent = ".c\n>compiler=C\n>memtype=cmm main ram compact\n";
         sideFileContent += ">optimize=-Os\n>-m32bit-doubles\n>-fno-exceptions\n>defs::-std=c99\n";
