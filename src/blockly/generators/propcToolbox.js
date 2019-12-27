@@ -1727,6 +1727,13 @@ var colorChanges = {
     '340': '#111111'
 };
 
+
+/**
+ * Filter the blocks available in the toolbox.
+ *
+ * @param {string} profileName
+ * @returns {string}
+ */
 function filterToolbox(profileName) {
 
     // Set the category's label (internationalization)
@@ -1742,14 +1749,14 @@ function filterToolbox(profileName) {
     }
 
     // Convert the xmlToolBox string to an XML object
-    parser = new DOMParser();
-    xmlDoc = parser.parseFromString(xmlToolbox, "text/xml");
+    let parser = new DOMParser();
+    let xmlDoc = parser.parseFromString(xmlToolbox, "text/xml");
 
     // Loop through the specified tags and filter based on their attributes
-    tagSearch = ['category', 'sep', 'block'];
+    let tagSearch = ['category', 'sep', 'block'];
 
-    // Toolbnox entries to be removed from the menu
-    var toRemove = [];
+    // Toolbox entries to be removed from the menu
+    let toRemove = [];
 
     //Scan the toolBox XML document for each search tag
     for (var j = 0; j < tagSearch.length; j++) {
@@ -1801,8 +1808,8 @@ function filterToolbox(profileName) {
     }
 
     // Turn the XML object back into a string
-    out = new XMLSerializer();
-    var outStr = out.serializeToString(xmlDoc);
+    let out = new XMLSerializer();
+    let outStr = out.serializeToString(xmlDoc);
     outStr = outStr.replace(/ include="[\S]+"/g, '').replace(/ exclude="[\S]+"/g, '');
 
     return outStr;

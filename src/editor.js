@@ -870,7 +870,7 @@ function setupWorkspace(data, callback) {
     // Set the help link to the ab-blocks, s3 reference, or propc reference
     // TODO: modify blocklyc.html/jsp and use an id or class selector
     if (projectData.board === 's3') {
-        initToolbox(projectData.board, []);
+        initToolbox(projectData.board);
         $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
         // Create UI block content from project details
         renderContent('blocks');
@@ -880,7 +880,7 @@ function setupWorkspace(data, callback) {
         // Create UI block content from project details
         renderContent('propc');
     } else {
-        initToolbox(projectData.board, []);
+        initToolbox(projectData.board);
         $('#online-help').attr('href', 'https://learn.parallax.com/ab-blocks');
         // Create UI block content from project details
         renderContent('blocks');
@@ -1598,7 +1598,7 @@ function uploadMergeCode(append) {
 
 /**
  *
- * @param profileName - aka Board Type
+ * @param {string} profileName - aka Board Type
  */
 function initToolbox(profileName) {
 
