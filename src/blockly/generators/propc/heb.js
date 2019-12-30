@@ -785,7 +785,7 @@ Blockly.Blocks.heb_touchpad_status = {
         this.setTooltip(Blockly.MSG_HEB_TOUCHPAD_STATUS_TOOLTIP);
         this.setHelpUrl(Blockly.MSG_BADGE_BUTTONS_HELPURL);
         this.setColour(colorPalette.getColor('input'));
-        if (projectData && projectData['board'] !== 'heb-wx') {
+        if (projectData && projectData.board !== 'heb-wx') {
             this.appendDummyInput()
                     .appendField("Touchpad")
                     .appendField(new Blockly.FieldDropdown([

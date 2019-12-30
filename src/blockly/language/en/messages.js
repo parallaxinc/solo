@@ -73,6 +73,10 @@ Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT = 'You cannot compile an empty p
 Blockly.Msg.DIALOG_SAVE_BEFORE_ADD_BLOCKS = 'You must save your project before you can upload a blocks file to it.';
 Blockly.Msg.DIALOG_MISSING_BLOCKS = 'Blocks missing';
 Blockly.Msg.DIALOG_MISSING_BLOCKS_GRAPHING = 'To use the graphing feature, your program must have both a graph initialize block and a graph value block.';
+Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT = 'Simulated terminal because there are no devices available to connect to';
+Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES = 'No connection established.';
+Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED = 'Connection established with';
+Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE = 'at baudrate';
 
 // Variable renaming.
 Blockly.MSG_CHANGE_VALUE_TITLE = 'Change value:';
@@ -82,7 +86,6 @@ Blockly.MSG_RENAME_VARIABLE = 'Rename variable...';
 Blockly.MSG_RENAME_VARIABLE_TITLE = 'Rename all "%1" variables to:';
 Blockly.LANG_VARIABLES_SET_ITEM = 'item';
 Blockly.LANG_VARIABLES_GET_ITEM = 'item';
-
 
 // Control Blocks.
 Blockly.LANG_CATEGORY_CONTROLS = 'Control';

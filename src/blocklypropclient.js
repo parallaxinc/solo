@@ -180,7 +180,7 @@ var version_as_number = function (rawVersion) {
 
 var set_ui_buttons = function (ui_btn_state) {
     if (ui_btn_state === 'available') {
-        if (projectData && projectData['board'] === 's3') {
+        if (projectData && projectData.board === 's3') {
             // Hide the buttons that are not required for the S3 robot
             $('#prop-btn-ram').addClass('hidden');
             $('#prop-btn-graph').addClass('hidden');
@@ -220,6 +220,10 @@ var set_ui_buttons = function (ui_btn_state) {
     }
 };
 
+
+/**
+ * This is evaluating the BlocklyProp Client or BlocklyProp Launcher version??
+ */
 var check_client = function () {
     $.get(client_url, function (data) {
         if (!client_available) {
@@ -279,28 +283,46 @@ var connection_heartbeat = function () {
     }
 };
 
+/**
+ * @deprecated - This function will become obsolete when the
+ * BlocklyProp Client is deprecated and removed from service.
+ */
 var configure_client = function () {
-    var url_input = $("<form/>", {
+    // All of this code is building the UI for the Configure
+    // BlocklyProp Client dialog.
+    let url_input = $("<form/>", {
         class: "form-inline"
     });
+
+    // This is hard-coding the HTTP protocol for the BlocklyProp Client
     $("<span/>", {
         class: "space_right"
     }).text("http://").appendTo(url_input);
-    var domain_name_group = $("<div/>", {
+
+    // Add the form group to the DOM for the input field defined next
+    let domain_name_group = $("<div/>", {
         class: "form-group"
     }).appendTo(url_input);
+
+    // Default the domain input box
     $("<input/>", {
         id: "domain_name",
         type: "text",
         class: "form-control",
         value: client_domain_name
     }).appendTo(domain_name_group);
+
+    // Hard code the ':' between the domain name and port input fields
     $("<span/>", {
         class: "space_left space_right"
     }).text(":").appendTo(url_input);
-    var domain_port_group = $("<div/>", {
+
+    // Add the form group to the DOM for the next input field
+    let domain_port_group = $("<div/>", {
         class: "form-group"
     }).appendTo(url_input);
+
+    // Get the port number
     $("<input/>", {
         id: "port_number",
         type: "number",
@@ -308,6 +330,7 @@ var configure_client = function () {
         value: client_domain_port
     }).appendTo(domain_port_group);
 
+    // Show the modal dialog
     bootbox.dialog({
         title: "Configure BlocklyPropClient",
         message: url_input,
@@ -437,7 +460,7 @@ function establish_socket() {
                 if (ws_msg.msg !== undefined) {
                     if (term !== null) { // is the terminal open?
 
-                        displayInTerm(msg_in);
+                        pTerm.display(msg_in);
                         $('#serial_console').focus();
                     } else if (graph !== null) { // is the graph open?
                         graph_new_data(msg_in);
@@ -464,7 +487,7 @@ function establish_socket() {
                     $('#console-dialog').modal('hide');
                     newTerminal = false;
                     //term.destroy();
-                    displayInTerm(null);
+                    pTerm.display(null);
 
                 } else if (ws_msg.action === 'close-graph') {
                     $('#graphing-dialog').modal('hide');
@@ -551,6 +574,7 @@ function lostWSConnection() {
     //Create new ws socket timeout (find_client)
     check_ws_socket_timeout = setTimeout(find_client, 3000);
 };
+
 
 // set communication port list
 //   leave data unspecified when searching

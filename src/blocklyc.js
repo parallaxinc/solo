@@ -40,7 +40,7 @@ var graph = null;
 /**
  * TODO: Identify the purpose of this variable
  *
- * @type {null}
+ * @type {{}}
  */
 var codePropC = null;
 
@@ -246,7 +246,7 @@ const minVer = version_as_number(client_min_version);
 function renderContent(id) {
     // Select the active tab.
     const selectedTab = id.replace('tab_', '');
-    const isPropcOnlyProject = (projectData['board'] === 'propcfile');
+    const isPropcOnlyProject = (projectData.board === 'propcfile');
 
     let isDebug = window.getURLParameter('debug');
     if (!isDebug) {
@@ -293,7 +293,7 @@ function renderContent(id) {
                 codePropC.gotoLine(0);
             } else {
                 if (!codePropC || codePropC.getValue() === '') {
-                    codePropC.setValue(atob((projectData['code'].match(/<field name="CODE">(.*)<\/field>/) || ['', ''])[1] || ''));
+                    codePropC.setValue(atob((projectData.code.match(/<field name="CODE">(.*)<\/field>/) || ['', ''])[1] || ''));
                     codePropC.gotoLine(0);
                 }
                 if (codePropC.getValue() === '') {
@@ -460,7 +460,7 @@ function init(blockly) {
         codePropC.setReadOnly(true);
 
         // if the project is a propc code-only project, enable code editing.
-        if (projectData['board'] === 'propcfile') {
+        if (projectData.board === 'propcfile') {
             codePropC.setReadOnly(false);
         }
     }
@@ -474,15 +474,18 @@ function init(blockly) {
 
     window.Blockly = blockly;
 
+    // TODO: Use constant EMPTY_PROJECT_CODE_HEADER instead of string.
+    //  Replace string length check with code that detects the first
+    //  <block> xml element.
     if (projectData) {
         // Looking for the first <block> XML element
         const searchTerm = '<block';
 
-        if (!projectData['code'] || projectData['code'].indexOf(searchTerm) < 0) {
-            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + '</xml>';
+        if (!projectData.code || projectData.code.indexOf(searchTerm) < 0) {
+            projectData.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
         }
-        if (projectData['board'] !== 'propcfile') {
-            loadToolbox(projectData['code']);
+        if (projectData.board !== 'propcfile') {
+            loadToolbox(projectData.code);
         }
     }
 }
@@ -534,10 +537,17 @@ function cloudCompile(text, action, successHandler) {
         else if (propcCode.indexOf("SERIAL_GRAPHING USED") > -1)
             terminalNeeded = 'graph';
 
-        // Contact the docker container running cloud compiler
-        // Compute the url based on where we are now
-        let postUrl = window.location.protocol + '//' + window.location.hostname + ':5001/single/prop-c/' + action;
-//        let postUrl = getCompilerUrl(action);
+        // Contact the container running cloud compiler. If the browser is
+        // connected via https, direct the compile request to the same port and
+        // let the load balancer direct the request to the compiler.
+        // --------------------------------------------------------------------
+        let postUrl;
+        if (window.location.protocol === 'http:') {
+            postUrl = 'http://' + window.location.hostname + ':5001/single/prop-c/' + action;
+        }
+        else {
+            postUrl = 'https://' + window.location.hostname + ':443/single/prop-c/' + action;
+        }
 
         $.ajax({
             'method': 'POST',
@@ -748,7 +758,7 @@ function serial_console() {
             connection.onmessage = function (e) {
                 var c_buf = (client_version >= minEnc64Ver) ? atob(e.data) : e.data;
                 if (connStrYet) {
-                    displayInTerm(c_buf);
+                    pTerm.display(c_buf);
                 } else {
                     connString += c_buf;
                     if (connString.indexOf(baudrate.toString(10)) > -1) {
@@ -758,14 +768,14 @@ function serial_console() {
                             // send remainder of string to terminal???  Haven't seen any leak through yet...
                         }
                     } else {
-                        displayInTerm(e.data);
+                        pTerm.display(e.data);
                     }
                 }
                 $('#serial_console').focus();
             };
 
             if (!newTerminal) {
-                displayInTerm(null);
+                pTerm.display(null);
             }
 
             $('#console-dialog').on('hidden.bs.modal', function () {
@@ -776,7 +786,7 @@ function serial_console() {
                 if (document.getElementById('serial-conn-info')) {
                     document.getElementById('serial-conn-info').innerHTML = '';
                 }
-                displayInTerm(null);
+                pTerm.display(null);
                 term_been_scrolled = false;
                 term = null;
             });
@@ -784,14 +794,16 @@ function serial_console() {
             active_connection = 'simulated';
 
             if (newTerminal) {
-                displayInTerm("Simulated terminal because you are in demo mode\n");
-                displayInTerm("Connection established with: " + getComPort() + "\n");
+                if (document.getElementById('serial-conn-info')) {
+                    document.getElementById('serial-conn-info').innerHTML = Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT;
+                }
+                pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
             }
 
             $('#console-dialog').on('hidden.bs.modal', function () {
                 term_been_scrolled = false;
                 active_connection = null;
-                displayInTerm(null);
+                pTerm.display(null);
                 term = null;
             });
         }
@@ -813,8 +825,8 @@ function serial_console() {
 
         active_connection = 'websocket';
         if (document.getElementById('serial-conn-info')) {
-            document.getElementById('serial-conn-info').innerHTML = 'Connection established with ' +
-                msg_to_send.portPath + ' at baudrate ' + msg_to_send.baudrate;
+            document.getElementById('serial-conn-info').innerHTML = Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED +
+            ' ' + msg_to_send.portPath + ' ' + Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE + ' ' + msg_to_send.baudrate;
         }
         client_ws_connection.send(JSON.stringify(msg_to_send));
 
@@ -828,7 +840,7 @@ function serial_console() {
                 client_ws_connection.send(JSON.stringify(msg_to_send));
             }
             term_been_scrolled = false;
-            displayInTerm(null);
+            pTerm.display(null);
         });
     }
 
@@ -966,8 +978,8 @@ function graphing_console() {
             };
 
             if (document.getElementById('graph-conn-info')) {
-                document.getElementById('graph-conn-info').innerHTML = 'Connection established with ' +
-                    msg_to_send.portPath + ' at baudrate ' + msg_to_send.baudrate;
+                document.getElementById('graph-conn-info').innerHTML = Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED +
+                ' ' + msg_to_send.portPath + ' ' + Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE + ' ' + msg_to_send.baudrate;
             }
 
             client_ws_connection.send(JSON.stringify(msg_to_send));
@@ -1052,9 +1064,10 @@ var graphStartStop = function (action) {
 
 
 /**
- * Update the list of serail ports available on the host machine
+ * Update the list of serial ports available on the host machine
  */
 var check_com_ports = function () {
+    // TODO: We need to evaluate this when using web sockets ('ws') === true
     if (client_use_type !== 'ws') {
         if (client_url !== undefined) {
             if (client_version >= minVer) {
@@ -1115,7 +1128,7 @@ function downloadPropC() {
         return;
     } else {
         // Make sure the filename doesn't have any illegal characters
-        value = sanitizeFilename(projectData['name']);
+        value = sanitizeFilename(projectData.name);
 
         var sideFileContent = ".c\n>compiler=C\n>memtype=cmm main ram compact\n";
         sideFileContent += ">optimize=-Os\n>-m32bit-doubles\n>-fno-exceptions\n>defs::-std=c99\n";
