@@ -381,7 +381,7 @@ $(() => {
             setupWorkspace(localProject,
                 function () {
                     window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-                });
+                });        
         } catch (objError) {
             if (objError instanceof SyntaxError) {
                 console.error(objError.name);
@@ -841,12 +841,13 @@ function resetToolBoxSizing(resizeDelay, centerBlocks) {
         // Update the Blockly editor canvas to use the new space
         if (Blockly.mainWorkspace && blocklyDiv[0].style.display !== 'none') {
             Blockly.svgResize(Blockly.mainWorkspace);
+
+            // center the blocks on the workspace
+            if (centerBlocks) {
+                Blockly.getMainWorkspace().scrollCenter();
+            }
         }
 
-        // center the blocks on the workspace
-        if (centerBlocks) {
-            Blockly.getMainWorkspace().scrollCenter();
-        }
     }, resizeDelay || 10);  // 10 millisecond delay
 }
 
@@ -916,7 +917,7 @@ function showInfo(data) {
     }
 
     // Display the project name
-    if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+    if (data.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
         $('.project-name').html(data['name'].substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
     } else {
         $(".project-name").html(data['name']);

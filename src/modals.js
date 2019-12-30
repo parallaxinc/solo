@@ -305,7 +305,7 @@ function CreateNewProject() {
     // event handler from storing the old project code into
     // the browser storage.
     // ------------------------------------------------------
-    projectData = {};
+    projectData = null;
 
     // Redirect to the editor page
     window.location = 'blocklyc.html' + window.getAllURLParameters();
