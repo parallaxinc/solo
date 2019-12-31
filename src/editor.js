@@ -816,27 +816,26 @@ function resetToolBoxSizing(resizeDelay, centerBlocks) {
     // could probably be used, but this is faster. Force
     // the toolbox to render correctly
     setTimeout(() => {
-        if (projectData && typeof(projectData.code) !== "undefined") {
-            // find the height of just the blockly workspace by
-            // subtracting the height of the navigation bar
-            let navTop = document.getElementById('editor').offsetHeight;
-            let navHeight = window.innerHeight - navTop;
-            let navWidth = window.innerWidth;
+        // find the height of just the blockly workspace by
+        // subtracting the height of the navigation bar
+        let navTop = document.getElementById('editor').offsetHeight;
+        let navHeight = window.innerHeight - navTop;
+        let navWidth = window.innerWidth;
 
-            // Build an array of UI divs that display content
-            let blocklyDiv = [
-                document.getElementById('content_blocks'),
-                document.getElementById('content_propc'),
-                document.getElementById('content_xml')
-            ];
+        // Build an array of UI divs that display content
+        let blocklyDiv = [
+            document.getElementById('content_blocks'),
+            document.getElementById('content_propc'),
+            document.getElementById('content_xml')
+        ];
 
-            // Set the size of the divs
-            for (let i = 0; i < 3; i++) {
-                blocklyDiv[i].style.left = '0px';
-                blocklyDiv[i].style.top = navTop + 'px';
-                blocklyDiv[i].style.width = navWidth + 'px';
-                blocklyDiv[i].style.height = navHeight + 'px';
-            }
+        // Set the size of the divs
+        for (let i = 0; i < 3; i++) {
+            blocklyDiv[i].style.left = '0px';
+            blocklyDiv[i].style.top = navTop + 'px';
+            blocklyDiv[i].style.width = navWidth + 'px';
+            blocklyDiv[i].style.height = navHeight + 'px';
+        }
 
         // Update the Blockly editor canvas to use the new space
         if (Blockly.mainWorkspace && blocklyDiv[0].style.display !== 'none') {
