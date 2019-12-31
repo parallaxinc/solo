@@ -58,6 +58,7 @@ Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG = "Download Graph data as CSV - Filename
 Blockly.Msg.DIALOG_ERROR = 'Error';
 Blockly.Msg.DIALOG_LOADING_ERROR = 'Unable to load the project';
 Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER = 'BlocklyProp Launcher';
+Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER_CONFIGURE_TITLE = 'Configure the BlocklyProp-Launcher connection';
 Blockly.Msg.DIALOG_SIDE_FILES_ERROR = 'A problem occurred when trying to create the SimpleIDE files: ';
 Blockly.Msg.DIALOG_NO_CLIENT = '<i class="glyphicon glyphicon-exclamation-sign"></i> BlocklyPropClient <strong>is not running</strong>';
 Blockly.Msg.DIALOG_NO_DEVICE_TEXT = 'Ensure it is connected, powered on, and selected in the ports list. Make sure your BlocklyPropClient is up-to-date.';

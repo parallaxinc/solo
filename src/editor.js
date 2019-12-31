@@ -400,24 +400,24 @@ $(() => {
     pTerm = new PropTerm(
         document.getElementById('serial_console'),
         function(characterToSend) {
-
-        if (active_connection !== null && 
-            active_connection !== 'simulated' && 
-            active_connection !== 'websocket') {
-            active_connection.send(client_version >= minEnc64Ver ? btoa(characterToSend) : characterToSend);
-    
-        } else if (active_connection === 'websocket' ) {
-            var msg_to_send = {
-                type: 'serial-terminal',
-                outTo: 'terminal',
-                portPath: getComPort(),
-                baudrate: baudrate.toString(10),
-                msg: characterToSend,
-                action: 'msg'
-            };
-            client_ws_connection.send(JSON.stringify(msg_to_send));
-        }    
-    });
+            if (active_connection !== null && 
+                active_connection !== 'simulated' && 
+                active_connection !== 'websocket') {
+                active_connection.send(btoa(characterToSend));
+        
+            } else if (active_connection === 'websocket' ) {
+                var msg_to_send = {
+                    type: 'serial-terminal',
+                    outTo: 'terminal',
+                    portPath: getComPort(),
+                    baudrate: baudrate.toString(10),
+                    msg: characterToSend,
+                    action: 'msg'
+                };
+                client_ws_connection.send(JSON.stringify(msg_to_send));
+            }    
+        }
+    );
 });
 
 
@@ -838,16 +838,16 @@ function resetToolBoxSizing(resizeDelay, centerBlocks) {
                 blocklyDiv[i].style.height = navHeight + 'px';
             }
 
-            // Update the Blockly editor canvas to use the new space
-            if (Blockly.mainWorkspace && blocklyDiv[0].style.display !== 'none') {
-                Blockly.svgResize(Blockly.mainWorkspace);
-            }
+        // Update the Blockly editor canvas to use the new space
+        if (Blockly.mainWorkspace && blocklyDiv[0].style.display !== 'none') {
+            Blockly.svgResize(Blockly.mainWorkspace);
 
             // center the blocks on the workspace
             if (centerBlocks) {
                 Blockly.getMainWorkspace().scrollCenter();
             }
         }
+
     }, resizeDelay || 10);  // 10 millisecond delay
 }
 
@@ -923,8 +923,8 @@ function setupWorkspace(data, callback) {
  */
 function showInfo(data) {
     // Display the project name
-    if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-        $('.project-name').html(data.name.substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+    if (data.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+        $('.project-name').html(data['name'].substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
     } else {
         $(".project-name").html(data.name);
     }

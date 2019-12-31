@@ -675,6 +675,22 @@ class PropTerm {
     getText() {
         return this.buffer.textArray.join('\r');
     }
+
+    /**
+     * @function focus
+     * @description forces the terminal element to gain focus.
+     */
+    focus() {
+        this.element.focus();
+    }
+
+    /**
+     * @function blur
+     * @description removes focus from the terminal element.
+     */
+    blur() {
+        this.element.blur();
+    }
 }
 
 
