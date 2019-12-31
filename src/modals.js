@@ -21,24 +21,10 @@
  */
 
 
-/* ------------------------------------------------------------------
- *                       Modal dialog boxes
- *                  ----------------------------
- *
- *  [done]  New Project
- *  [wip ]  Open an Existing Project
- *          Import from Existing Project
- *  [done[  Edit Project Details
- *  [wip ]  Save Current Project
- *          Save Current Project Timer
- * ----------------------------------------------------------------*/
-
-
 /**
  * Start the process to open a new project
  *
  * @description
- *
  * This is code that was refactored out of the editor.js
  * document.ready() handler.
  */
@@ -52,26 +38,28 @@ function NewProjectModal() {
             'The current project has been modified. Click OK to\n' +
             'discard the current changes and create a new project.';
 
+        // Default to the Cancel button to prevent inattentive users from
+        // inadvertently destroying their projects.
         utils.confirm(
             "Abandon Current Project", message,
             // result is true if the OK button was selected
             (result) => {
-                if (result) {
-                    downloadCode();
-                }},
+                if (!result) {
+                    // Open up a modal window to get new project details.
+                    showNewProjectModal();
+                }
+            },
             "Cancel",
             "OK");
     } else {
         // Reset the values in the form to defaults
         $('#new-project-name').val('');
         $('#new-project-description').val('');
-        $('#new-project-dialog-title').html(page_text_label['editor_newproject_title']);
+        $('#new-project-dialog-title').html(page_text_label['editor_new_project_title']);
 
         // Open up a modal window to get new project details.
         showNewProjectModal();
     }
-
-    showNewProjectModal();
 }
 
 
@@ -175,14 +163,6 @@ function NewProjectModalCancelClick() {
             // If there is no project, go to home page.
             window.location.href = 'index.html' + window.getAllURLParameters();
         }
-        // Reload the the editor canvas from the active copy of the
-        // project.
-        // eslint-disable-next-line no-undef
-        setupWorkspace(projectData,
-            function () {
-                // eslint-disable-next-line no-undef
-                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-            });
 
         // if the project is being edited, clear the fields and close the modal
         $('#new-project-board-dropdown').removeClass('hidden');
@@ -203,25 +183,17 @@ function NewProjectModalCancelClick() {
  * the dialog.
  */
 function NewProjectModalEscapeClick() {
-    /* Trap the modal event that fires when the modal window is
- * closed when the user clicks on the 'x' icon.
- */
+    // Trap the modal event that fires when the modal window is
+    // closed when the user clicks on the 'x' icon.
     $('#new-project-dialog').on('hidden.bs.modal', function () {
         if (!projectData || typeof(projectData.board) === 'undefined') {
             // If there is no project, go to home page.
             window.location.href = 'index.html';
         }
-        // Reload the the editor canvas from the active copy of the
-        // project.
-        // eslint-disable-next-line no-undef
-        setupWorkspace(projectData,
-            function () {
-                // eslint-disable-next-line no-undef
-                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-            });
     });
-
 }
+
+
 /**
  * Verify that the project name and board type form fields have data
  *
@@ -352,22 +324,17 @@ function OpenProjectModal() {
                 "Abandon Current Project", message,
                 // result is true if the OK button was selected
                 (result) => {
-                    if (result) {
+                    if (!result) {
                         OpenProjectModalSetHandlers();
                     }
                 },
                 "Cancel",
                 "OK");
         }
+    } else {
+        // The project has not changed. Continue with the dialog.
+        OpenProjectModalSetHandlers();
     }
-    else {
-        // There is no current project. That means we arrived via the
-        // Open Project link from the home page. So...???
-
-    }
-
-    // The project has not changed. Continue with the dialog.
-    OpenProjectModalSetHandlers();
 }
 
 function OpenProjectModalSetHandlers() {
@@ -440,17 +407,6 @@ function OpenProjectModalCancelClick() {
             // If there is no project, go to home page.
             window.location.href = 'index.html' + window.getAllURLParameters();
         }
-
-        if (Blockly.Workspace.getAll().length === 0) {
-        // A copy of the current project is located in the browser localStorage
-        // eslint-disable-next-line no-undef
-        setupWorkspace(projectData,
-            function () {
-                // eslint-disable-next-line no-undef
-                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-            });
-
-        }
     });
 }
 
@@ -466,17 +422,6 @@ function OpenProjectModalEscapeClick() {
         if (!projectData | typeof(projectData.board) === 'undefined') {
             // If there is no project, go to home page.
             window.location.href = 'index.html';
-        }
-
-        // Reload the Blockly workspace only if it is empty
-        if (Blockly.Workspace.getAll().length === 0) {
-            // eslint-disable-next-line no-undef
-            setupWorkspace(projectData,
-                function () {
-                    // Remove the project from the browser's store
-                    // eslint-disable-next-line no-undef
-                    window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-                });
         }
     });
 }

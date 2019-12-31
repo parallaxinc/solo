@@ -1623,6 +1623,8 @@ function uploadMergeCode(append) {
 
 
 /**
+ * Initialize the Blockly toolbox with a collection of blocks that are
+ * appropriate for the passe in board type.
  *
  * @param {string} profileName - aka Board Type
  */
@@ -1795,6 +1797,14 @@ function sanitizeFilename(input) {
 }
 
 
+/**
+ * Compare two instances of a Project.
+ *
+ * @param {Project} projectA
+ * @param {Project} projectB
+ *
+ * @returns {boolean} True if the Project objects are equivalent, otherwise returns false.
+ */
 function testProjectEquality(projectA, projectB) {
     if (!projectA) {
         console.log("Project A is empty");
