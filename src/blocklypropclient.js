@@ -151,11 +151,6 @@ var version_as_number = function (rawVersion) {
     tempVersion.push('0');
 
     if (tempVersion.length < 3) {
-        $("#client-unknown-span").removeClass("hidden");
-        $(".client-required-version").html(client_recommended_version);
-        $(".client-your-version").html('<b>UNKNOWN</b>');
-        $('#client-version-modal').modal('show');
-
         if (tempVersion.length === 1)
             tempVersion = '0.0.0';
         else
@@ -209,6 +204,29 @@ var set_ui_buttons = function (ui_btn_state) {
     }
 };
 
+/**
+ * @function checkClientVersionModal Evaluates the client version based on the string it reports its version with.
+ * If the version is below the recommended version, the user is warned, and versions below the minimum are alerted. 
+ * @param {string} clientVersionString string representing the client version in '0.0.0' format (Semantic versioning)
+ */
+function checkClientVersionModal(clientVersionString) {
+    let clientVersion = version_as_number(clientVersionString);
+    if (clientVersion < version_as_number(client_recommended_version)) {
+        $('.bpc-version').addClass('hidden');
+
+        if (clientVersion === 0) {
+            $("#client-unknown-span").removeClass("hidden");
+        } else if (clientVersion >= version_as_number(client_min_version)) {
+            $("#client-warning-span").removeClass("hidden");
+        } else {
+            $("#client-danger-span").removeClass("hidden");     
+        }
+
+        $(".client-required-version").html(client_recommended_version);
+        $(".client-your-version").html(clientVersion > 0 ? clientVersionString : '<b>UNKNOWN</b>');
+        $('#client-version-modal').modal('show');
+    }
+}
 
 /**
  * This is evaluating the BlocklyProp Client or BlocklyProp Launcher version??
@@ -217,18 +235,11 @@ var check_client = function () {
     $.get("http://" + client_domain_name + ":" + client_domain_port + "/", function (data) {
         if (!client_available) {
             let client_version_str = (typeof data.version_str !== "undefined") ? data.version_str : data.version;
-            client_version = version_as_number(client_version_str);
-            if (!data.server || data.server !== 'BlocklyPropHTTP' || client_version < version_as_number(client_recommended_version)) {
-                $('.bpc-version').addClass('hidden');
-                if (client_version >= version_as_number(client_min_version)) {
-                    $("#client-warning-span").removeClass("hidden");
-                } else {
-                    $("#client-danger-span").removeClass("hidden");     
-                }           
-                $(".client-required-version").html(client_recommended_version);
-                $(".client-your-version").html(client_version_str);
-                $('#client-version-modal').modal('show');
+            if (!data.server || data.server !== 'BlocklyPropHTTP') {
+                client_version_str = '0.0.0';
             }
+
+            checkClientVersionModal(client_version_str);
 
             client_use_type = 'http';
             client_available = true;
@@ -362,11 +373,13 @@ function establish_socket() {
             if (ws_msg.type === 'hello-client') {
                 // type: 'hello-client',
                 // version: [String version (semantic versioning)]
-                client_version = version_as_number(ws_msg.version);
+                checkClientVersionModal(ws_msg.version);
 
                 if (window.getURLParameter('debug')) {
                     console.log("Websocket client/launcher found - version " + ws_msg.version);
                 }
+
+                // TODO: Add version checking here.
 
                 client_use_type = 'ws';
                 client_available = true;
@@ -403,14 +416,11 @@ function establish_socket() {
 
                 var msg_in = atob(ws_msg.msg);
 
-                if (ws_msg.msg !== undefined) {
-                    if (term !== null) { // is the terminal open?
-
-                        pTerm.display(msg_in);
-                        $('#serial_console').focus();
-                    } else if (graph !== null) { // is the graph open?
-                        graph_new_data(msg_in);
-                    }
+                if (term !== null) { // is the terminal open?
+                    pTerm.display(msg_in);
+                    pTerm.focus();
+                } else if (graph !== null) { // is the graph open?
+                    graph_new_data(msg_in);
                 }
             }
 
@@ -439,27 +449,21 @@ function establish_socket() {
                     $('#compile-console').val('');
 
                 } else if (ws_msg.action === 'message-compile') {
-                    if (client_version >= minCodedVer) {
-                        //Messages are coded; check codes, log all and filter out nsDownloading duplicates
-                        var msg = ws_msg.msg.split("-");
-                        if (msg[0] != nsDownloading || !launcher_download) {
-                            launcher_result = launcher_result + msg[1] + "\n";
-                            launcher_download |= (msg[0] == nsDownloading);
-                        }
-                        if (msg[0] == nsDownloadSuccessful) {
-                            //Success! Keep it simple
-                            $('#compile-console').val($('#compile-console').val() + ' Succeeded.');
-                        } else if (msg[0] == neDownloadFailed) {
-                            //Failed! Show the details
-                            $('#compile-console').val($('#compile-console').val() + ' Failed!\n\n-------- loader messages --------\n' + launcher_result);
-                        } else {
-                            //Show progress during downloading
-                            $('#compile-console').val($('#compile-console').val() + ".");
-                        }
+                    //Messages are coded; check codes, log all and filter out nsDownloading duplicates
+                    var msg = ws_msg.msg.split("-");
+                    if (msg[0] != nsDownloading || !launcher_download) {
+                        launcher_result = launcher_result + msg[1] + "\n";
+                        launcher_download |= (msg[0] == nsDownloading);
+                    }
+                    if (msg[0] == nsDownloadSuccessful) {
+                        //Success! Keep it simple
+                        $('#compile-console').val($('#compile-console').val() + ' Succeeded.');
+                    } else if (msg[0] == neDownloadFailed) {
+                        //Failed! Show the details
+                        $('#compile-console').val($('#compile-console').val() + ' Failed!\n\n-------- loader messages --------\n' + launcher_result);
                     } else {
-                        //TODO: Remove this once client_min_version (and thus minVer) is >= minCodedVer
-                        //Messages are not coded; display all as they come
-                        $('#compile-console').val($('#compile-console').val() + ws_msg.msg);
+                        //Show progress during downloading
+                        $('#compile-console').val($('#compile-console').val() + ".");
                     }
 
                     // Scoll automatically to the bottom after new data is added

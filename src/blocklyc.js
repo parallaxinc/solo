@@ -926,7 +926,7 @@ function graphing_console() {
             };
 
             connection.onmessage = function (e) {
-                var c_buf = (client_version >= minEnc64Ver) ? atob(e.data) : e.data;
+                var c_buf = atob(e.data);
                 if (connStrYet) {
                     graph_new_data(c_buf);
                 } else {
