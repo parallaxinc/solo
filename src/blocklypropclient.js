@@ -1,4 +1,3 @@
-
 /*
  *   TERMS OF USE: MIT License
  *
@@ -25,79 +24,51 @@
 // Annotations to help the closure compiler to be even more efficient.
 // https://github.com/google/closure-compiler/wiki/Annotating-JavaScript-for-the-Closure-Compiler
 
-/**
- * Client_available flags whether BP Client/Launcher is found
- *
- * @type {boolean}
- */
-var client_available = false;
+var clientService = {
+    available: false,
+    portsAvailable: false,
+    path: 'localhost',
+    port: 6009,
+    type: null,
+    rxBase64: true,
+    activeConnection: null,
+    url: function (protocol) {
+        return protocol + '://' + this.path + ':' + this.port + '/';
+    },
+    version: {
+        minimumAllowed: '0.7.0',
+        recommended: '0.11.0',
+        current: '0.0.0',
+        codedMinimum: '0.7.5',  // Minimum client/launcher version supporting coded/verbose responses (remove after minimumAllowed > this)
+        currentAsNumber: 0,
+        isValid: false,
+        isRecommended: false,
+        isCoded: false,
+        getNumeric: function (rawVersion) {
+            var tempVersion = rawVersion.toString().split(".");
+            tempVersion.push('0');
+        
+            if (tempVersion.length < 3) {
+                if (tempVersion.length === 1)
+                    tempVersion = '0.0.0';
+                else
+                    tempVersion.unshift('0');
+            }
+        
+            // Allow for any of the three numbers to be between 0 and 1023.
+            // Equivalent to: (Major * 104856) + (Minor * 1024) + Revision.
+            return (Number(tempVersion[0]) << 20 | Number(tempVersion[1]) << 10 | Number(tempVersion[2]));
+        },
+        set: function (rawVersion) {
+            this.current = rawVersion;
+            this.currentAsNumber = this.getNumeric(rawVersion);
+            this.isValid = (this.getNumeric(rawVersion) >= this.getNumeric(this.minimumAllowed));
+            this.isRecommended = (this.getNumeric(rawVersion) >= this.getNumeric(this.recommended));
+            this.isCoded = (this.getNumeric(rawVersion) >= this.getNumeric(this.codedMinimum));   // remove after minimumAllowed is greater
+        }
+    }
+}
 
-
-/**
- * Ports_available flags whether one or more communication ports are available
- *
- * @type {boolean}
- */
-var ports_available = false;
-
-
-/**
- * The version number the BlocklyProp Client reported
- *
- * @type {number}
- */
-var client_version = 0;
-
-
-// TODO: Verify that this variable is a host name and not a domain name
-/**
- * Client host name
- *
- * @type {string}
- */
-var client_domain_name = "localhost";
-
-
-/**
- * Port number component of the BlocklyProp Client interface
- *
- * @type {number}
- */
-var client_domain_port = 6009;
-
-
-/**
- * The minimum version of the BlocklyProp Client that can be used with this interface
- *
- * @type {string}
- */
-var client_min_version = "0.7.0";
-
-
-/**
- * The most recent version of the BlocklyPro Client that can be used with this interface
- *
- * @type {string}
- */
-var client_recommended_version = "0.8.0";
-
-
-// TODO: Document what the 'client_use_type' variable represents
-/**
- * Not sure what this does
- *
- * @type {string}
- */
-var client_use_type = 'none';
-
-
-// TODO: Document what the 'client_ws_connection' variable represents
-/**
- * Not sure what this does
- *
- * @type {null}
- */
-var client_ws_connection = null;
 
 
 // TODO: Uninitialized variable
@@ -119,14 +90,13 @@ var launcher_result = "";
 var launcher_download = false;
 
 // Status Notice IDs
-//const nsDownloading                = 002;
-//const nsDownloadSuccessful         = 005;
-const nsDownloading                = 2;
-const nsDownloadSuccessful         = 5;
-
+//const NS_DOWNLOADING               = 002;
+//const NS_DOWNLOAD_SUCCESSFUL       = 005;
+const NS_DOWNLOADING                 = 2;
+const NS_DOWNLOAD_SUCCESSFUL         = 5;
 
 // Error Notice IDs
-const neDownloadFailed             = 102;
+const NE_DOWNLOAD_FAILED             = 102;
 
 
 $(document).ready(function () {
@@ -140,26 +110,11 @@ var find_client = function () {
     }
 
     establish_socket();
-    if (client_use_type !== 'ws') {
+
+    if (clientService.type !== 'ws') {
         // WebSocket'd launcher not found?  Try Http'd client
         check_client();
     }
-};
-
-var version_as_number = function (rawVersion) {
-    var tempVersion = rawVersion.toString().split(".");
-    tempVersion.push('0');
-
-    if (tempVersion.length < 3) {
-        if (tempVersion.length === 1)
-            tempVersion = '0.0.0';
-        else
-            tempVersion.unshift('0');
-    }
-
-    // Allow for any of the three numbers to be between 0 and 1023.
-    // Equivalent to: (Major * 104856) + (Minor * 1024) + Revision.
-    return (Number(tempVersion[0]) << 20 | Number(tempVersion[1]) << 10 | Number(tempVersion[2]));
 };
 
 var set_ui_buttons = function (ui_btn_state) {
@@ -205,25 +160,29 @@ var set_ui_buttons = function (ui_btn_state) {
 };
 
 /**
- * @function checkClientVersionModal Evaluates the client version based on the string it reports its version with.
- * If the version is below the recommended version, the user is warned, and versions below the minimum are alerted. 
- * @param {string} clientVersionString string representing the client version in '0.0.0' format (Semantic versioning)
+ * @function checkClientVersionModal Displays a modal with information 
+ * about the client version if the one being used is outdated.
+ * If the version is below the recommended version, the user is 
+ * warned, and versions below the minimum are alerted. 
  */
-function checkClientVersionModal(clientVersionString) {
-    let clientVersion = version_as_number(clientVersionString);
-    if (clientVersion < version_as_number(client_recommended_version)) {
+function checkClientVersionModal() {
+    if (!clientService.version.isRecommended) {
         $('.bpc-version').addClass('hidden');
 
-        if (clientVersion === 0) {
+        if (clientService.version.currentAsNumber === 0) {
             $("#client-unknown-span").removeClass("hidden");
-        } else if (clientVersion >= version_as_number(client_min_version)) {
+        } else if (clientService.version.isValid) {
             $("#client-warning-span").removeClass("hidden");
         } else {
             $("#client-danger-span").removeClass("hidden");     
         }
 
-        $(".client-required-version").html(client_recommended_version);
-        $(".client-your-version").html(clientVersion > 0 ? clientVersionString : '<b>UNKNOWN</b>');
+        $(".client-required-version").html(clientService.version.recommended);
+        if (clientService.version.currentAsNumber === 0) {
+            $(".client-your-version").html('<b>UNKNOWN</b>')
+        } else {
+            $(".client-your-version").html(clientService.version.current);
+        }
         $('#client-version-modal').modal('show');
     }
 }
@@ -232,17 +191,19 @@ function checkClientVersionModal(clientVersionString) {
  * This is evaluating the BlocklyProp Client or BlocklyProp Launcher version??
  */
 var check_client = function () {
-    $.get("http://" + client_domain_name + ":" + client_domain_port + "/", function (data) {
-        if (!client_available) {
+    $.get(clientService.url('http'), function (data) {
+        if (!clientService.available) {
             let client_version_str = (typeof data.version_str !== "undefined") ? data.version_str : data.version;
             if (!data.server || data.server !== 'BlocklyPropHTTP') {
                 client_version_str = '0.0.0';
             }
 
+            clientService.version.set(client_version_str);
+
             checkClientVersionModal(client_version_str);
 
-            client_use_type = 'http';
-            client_available = true;
+            clientService.type = 'http';
+            clientService.available = true;
             set_ui_buttons('available');
             if (check_com_ports && typeof (check_com_ports) === "function") {
                 check_com_ports();
@@ -253,9 +214,9 @@ var check_client = function () {
 
     }).fail(function () {
         clearInterval(check_com_ports_interval);
-        client_use_type = 'none';
-        client_available = false;
-        ports_available = false;
+        clientService.type = null;
+        clientService.available = false;
+        clientService.portsAvailable = false;
         set_ui_buttons('unavailable');
         check_ws_socket_timeout = setTimeout(find_client, 3000);
     });
@@ -264,12 +225,12 @@ var check_client = function () {
 var connection_heartbeat = function () {
     // Check the last time the port list was received.
     // If it's been too long, close the connection.
-    if (client_use_type === 'ws') {
+    if (clientService.type === 'ws') {
         var d = new Date();
         if (client_ws_heartbeat + 12000 < d.getTime()) {
             console.log("Lost client websocket connection");
             // Client is taking too long to check in - close the connection and clean up
-            client_ws_connection.close();
+            clientService.activeConnection.close();
             lostWSConnection();
         }
     }
@@ -301,7 +262,7 @@ var configure_client = function () {
         id: "domain_name",
         type: "text",
         class: "form-control",
-        value: client_domain_name
+        value: clientService.path
     }).appendTo(domain_name_group);
 
     // Hard code the ':' between the domain name and port input fields
@@ -319,14 +280,14 @@ var configure_client = function () {
         id: "port_number",
         type: "number",
         class: "form-control",
-        value: client_domain_port
+        value: clientService.port
     }).appendTo(domain_port_group);
 
     // Show the modal dialog
     utils.confirm(Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER_CONFIGURE_TITLE, url_input, function (action) {
         if (action) {
-            client_domain_name = $("#domain_name").val();
-            client_domain_port = $("#port_number").val();
+            clientService.path = $("#domain_name").val();
+            clientService.port = $("#port_number").val();
         }
     }, Blockly.Msg.DIALOG_SAVE_TITLE);
 };
@@ -335,33 +296,31 @@ var configure_client = function () {
 function establish_socket() {
 
     // TODO: set/clear and load buttons based on status
-    if (!client_available) {
+    if (!clientService.available) {
 
         // Clear the port list
         set_port_list();
 
-        var url = "ws://" + client_domain_name + ":" + client_domain_port + "/";
-        var connection = new WebSocket(url);
+        var connection = new WebSocket(clientService.url('ws'));
 
         connection.onopen = function () {
 
-            if (client_ws_connection !== null) {
-                client_ws_connection.close();
+            if (clientService.activeConnection !== null) {
+                clientService.activeConnection.close();
             }
 
             var ws_msg = {type: 'hello-browser', baud: baudrate};
-            client_ws_connection = connection;
+            clientService.activeConnection = connection;
             connection.send(JSON.stringify(ws_msg));
         };
 
         // Log errors
         connection.onerror = function (error) {
             // Only display a message on the first attempt
-            if (client_use_type !== 'ws' && !check_ws_socket_timeout) {
+            if (!clientService.type && !check_ws_socket_timeout) {
                 console.log('Unable to find websocket client');
             } else {
                 console.log('Websocket Communication Error');
-                console.log(error);
             }
         };
 
@@ -373,16 +332,20 @@ function establish_socket() {
             if (ws_msg.type === 'hello-client') {
                 // type: 'hello-client',
                 // version: [String version (semantic versioning)]
-                checkClientVersionModal(ws_msg.version);
+                // rxBase64: [boolean, accepts base64-encoded serial comms (all versions transmit base64)]
+
+                clientService.rxBase64 = (ws_msg.rxBase64 || false);
 
                 if (window.getURLParameter('debug')) {
                     console.log("Websocket client/launcher found - version " + ws_msg.version);
                 }
 
-                // TODO: Add version checking here.
+                // update the clientService version info, then display a modal if necessary
+                clientService.version.set(ws_msg.version)
+                checkClientVersionModal();
 
-                client_use_type = 'ws';
-                client_available = true;
+                clientService.type = 'ws';
+                clientService.available = true;
 
                 set_ui_buttons('available');
 
@@ -449,16 +412,16 @@ function establish_socket() {
                     $('#compile-console').val('');
 
                 } else if (ws_msg.action === 'message-compile') {
-                    //Messages are coded; check codes, log all and filter out nsDownloading duplicates
+                    //Messages are coded; check codes, log all and filter out NS_DOWNLOADING duplicates
                     var msg = ws_msg.msg.split("-");
-                    if (msg[0] != nsDownloading || !launcher_download) {
+                    if (msg[0] != NS_DOWNLOADING || !launcher_download) {
                         launcher_result = launcher_result + msg[1] + "\n";
-                        launcher_download |= (msg[0] == nsDownloading);
+                        launcher_download |= (msg[0] == NS_DOWNLOADING);
                     }
-                    if (msg[0] == nsDownloadSuccessful) {
+                    if (msg[0] == NS_DOWNLOAD_SUCCESSFUL) {
                         //Success! Keep it simple
                         $('#compile-console').val($('#compile-console').val() + ' Succeeded.');
-                    } else if (msg[0] == neDownloadFailed) {
+                    } else if (msg[0] == NE_DOWNLOAD_FAILED) {
                         //Failed! Show the details
                         $('#compile-console').val($('#compile-console').val() + ' Failed!\n\n-------- loader messages --------\n' + launcher_result);
                     } else {
@@ -478,7 +441,7 @@ function establish_socket() {
                     console.log(ws_msg.msg);
 
                 } else if (ws_msg.action === 'websocket-close') {
-                    client_ws_connection.close();
+                    clientService.activeConnection.close();
 
                 } else if (ws_msg.action === 'alert') {
                     utils.showMessage(Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER, ws_msg.msg);
@@ -491,7 +454,8 @@ function establish_socket() {
             }
         };
 
-        connection.onClose = function () {
+        connection.onclose = function (code) {
+            console.log(code);
             lostWSConnection();
         };
     }
@@ -499,10 +463,10 @@ function establish_socket() {
 
 function lostWSConnection() {
 // Lost websocket connection, clean up and restart find_client processing
-    client_ws_connection = null;
-    client_use_type = 'none';
-    client_available = false;
-    ports_available = false;
+    clientService.activeConnection = null;
+    clientService.type = null;
+    clientService.available = false;
+    clientService.portsAvailable = false;
 
     set_ui_buttons('unavailable');
     term = null;
@@ -531,10 +495,10 @@ var set_port_list = function (data) {
         data.forEach(function (port) {
             addComPortDeviceOption(port);
         });
-        ports_available = true;
+        clientService.portsAvailable = true;
     } else {
         addComPortDeviceOption((data === 'searching') ? 'Searching...' : 'No devices found');
-        ports_available = false;
+        clientService.portsAvailable = false;
     }
     select_com_port(selected_port);
 };

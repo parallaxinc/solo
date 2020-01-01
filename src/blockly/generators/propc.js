@@ -222,7 +222,7 @@ function setProfile(profileName) {
     }
 
     // Setting a default baud rate
-    window.parent.setBaudrate(profile["default"]["baudrate"]);
+    baudrate = profile["default"]["baudrate"];
 }
 
 /**

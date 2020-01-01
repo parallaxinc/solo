@@ -160,14 +160,6 @@ var graph_csv_data = new Array;
 /**
  * TODO: Identify the purpose of this variable
  *
- * @type {null}
- */
-var active_connection = null;
-
-
-/**
- * TODO: Identify the purpose of this variable
- *
  * @type {string}
  */
 var connString = '';
@@ -218,12 +210,6 @@ var graph_data = {
         []
     ]
 };
-
-
-/**
- *  Minimum client/launcher version supporting coded/verbose responses
- */
-const minCodedVer = version_as_number('0.7.5');
 
 
 /**
@@ -478,19 +464,6 @@ function init(blockly) {
     }
 }
 
-
-/**
- * Set the global value for baudrate
- *
- * @param _baudrate
- */
-function setBaudrate(_baudrate) {
-    // TODO: Check the supplied baudrate value to ensure that it is reasonable
-    // Set the global baudrate variable
-    baudrate = _baudrate;
-}
-
-
 /**
  * Submit a project's source code to the cloud compiler
  *
@@ -607,10 +580,10 @@ function getCompilerUrl(action) {
  */
 function loadInto(modal_message, compile_command, load_option, load_action) {
 
-    if (ports_available) {
+    if (clientService.portsAvailable) {
         cloudCompile(modal_message, compile_command, function (data, terminalNeeded) {
 
-            if (client_use_type === 'ws') {
+            if (clientService.type === 'ws') {
                 // Prep for new download messages
                 launcher_result = "";
                 launcher_download = false;
@@ -623,13 +596,13 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
                     portPath: getComPort()
                 };
 
-                client_ws_connection.send(JSON.stringify(prog_to_send));
+                clientService.activeConnection.send(JSON.stringify(prog_to_send));
 
             } else {
 
-                if (client_version >= minCodedVer) {
+                if (clientService.version.isCoded) {
                     //Request load with options from BlocklyProp Client
-                    $.post("http://" + client_domain_name + ":" + client_domain_port + "/load.action", {
+                    $.post(clientService.url('http') + 'load.action', {
                         option: load_option,
                         action: load_action,
                         binary: data.binary,
@@ -673,9 +646,9 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
                         }
                     });
                 } else {
-                    //TODO: Remove this once client_min_version is >= minCodedVer
+                    //TODO: Remove this once clientService.version.isCoded is no longer used
                     //Request load without options from old BlocklyProp Client
-                    $.post("http://" + client_domain_name + ":" + client_domain_port + "/load.action", {
+                    $.post(clientService.url('http') + 'load.action', {
                         action: load_action,
                         binary: data.binary,
                         extension: data.extension,
@@ -696,7 +669,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
                 }
             }
         });
-    } else if (client_available) {
+    } else if (clientService.available) {
         utils.showMessage(Blockly.Msg.DIALOG_NO_DEVICE, Blockly.Msg.DIALOG_NO_DEVICE_TEXT);
     } else {
         utils.showMessage(Blockly.Msg.DIALOG_DEVICE_COMM_ERROR, Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT);
@@ -711,7 +684,7 @@ function serial_console() {
     var newTerminal = false;
 
     // HTTP client
-    if (client_use_type !== 'ws') {
+    if (clientService.type !== 'ws') {
         if (term === null) {
             term = {
                 portPath: getComPort()
@@ -719,17 +692,15 @@ function serial_console() {
             newTerminal = true;
         }
 
-        if (ports_available) {
-            var url = "http://" + client_domain_name + ":" + client_domain_port + "/serial.connect";
-            url = url.replace('http', 'ws');
-            var connection = new WebSocket(url);
+        if (clientService.portsAvailable) {
+            var connection = new WebSocket(clientService.url('ws'));
 
             // When the connection is open, open com port
             connection.onopen = function () {
                 connString = '';
                 connStrYet = false;
                 connection.send('+++ open port ' + getComPort() + (baudrate ? ' ' + baudrate : ''));
-                active_connection = connection;
+                clientService.activeConnection = connection;
             };
             // Log errors
             connection.onerror = function (error) {
@@ -751,7 +722,7 @@ function serial_console() {
                         pTerm.display(e.data);
                     }
                 }
-                $('#serial_console').focus();
+                pTerm.focus();
             };
 
             if (!newTerminal) {
@@ -759,7 +730,7 @@ function serial_console() {
             }
 
             $('#console-dialog').on('hidden.bs.modal', function () {
-                active_connection = null;
+                clientService.activeConnection = null;
                 connString = '';
                 connStrYet = false;
                 connection.close();
@@ -768,7 +739,8 @@ function serial_console() {
                 term = null;
             });
         } else {
-            active_connection = 'simulated';
+            clientService.activeConnection = null;
+            clientService.type = null;
 
             if (newTerminal) {
                 displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
@@ -776,12 +748,11 @@ function serial_console() {
             }
 
             $('#console-dialog').on('hidden.bs.modal', function () {
-                active_connection = null;
                 pTerm.display(null);
                 term = null;
             });
         }
-    } else if (client_use_type === 'ws') {
+    } else if (clientService.type === 'ws') {
         // using Websocket-only client
 
         term = {
@@ -797,21 +768,21 @@ function serial_console() {
             action: 'open'
         };
 
-        active_connection = 'websocket';
+        clientService.type = 'websocket';
         displayTerminalConnectionStatus([
             Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
             msg_to_send.portPath,
             Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
             msg_to_send.baudrate
         ].join[' ']);
-        client_ws_connection.send(JSON.stringify(msg_to_send));
+        clientService.activeConnection.send(JSON.stringify(msg_to_send));
 
         $('#console-dialog').on('hidden.bs.modal', function () {
             if (msg_to_send.action !== 'close') { // because this is getting called multiple times...?
                 msg_to_send.action = 'close';
+                clientService.type = null;
                 displayTerminalConnectionStatus(null);
-                active_connection = null;
-                client_ws_connection.send(JSON.stringify(msg_to_send));
+                clientService.activeConnection.send(JSON.stringify(msg_to_send));
             }
             pTerm.display(null);
         });
@@ -828,9 +799,7 @@ function displayTerminalConnectionStatus(connectionInfo) {
     if (!connectionInfo) {
         connectionInfo = '';
     }
-    if (document.getElementById('serial-conn-info')) {
-        document.getElementById('serial-conn-info').innerHTML = connectionInfo;
-    }
+    $('.connection-string').html(connectionInfo);
 }
 
 
@@ -905,8 +874,8 @@ function graphing_console() {
             graph.update(graph_data, graph_options);
         }
 
-        if (client_use_type !== 'ws' && ports_available) {
-            var connection = new WebSocket("ws://" + client_domain_name + ":" + client_domain_port + "/serial.connect");
+        if (clientService.type !== 'ws' && clientService.portsAvailable) {
+            var connection = new WebSocket(clientService.url('ws') + 'serial.connect');
 
             // When the connection is open, open com port
             connection.onopen = function () {
@@ -933,10 +902,7 @@ function graphing_console() {
                     connString += c_buf;
                     if (connString.indexOf(baudrate.toString(10)) > -1) {
                         connStrYet = true;
-                        if (document.getElementById('graph-conn-info')) {
-                            document.getElementById('graph-conn-info').innerHTML = connString.trim();
-                            // send remainder of string to terminal???  Haven't seen any leak through yet...
-                        }
+                        displayTerminalConnectionStatus(connString.trim());
                     } else {
                         graph_new_data(c_buf);
                     }
@@ -948,10 +914,10 @@ function graphing_console() {
                 graphStartStop('stop');
                 connString = '';
                 connStrYet = false;
-                document.getElementById('graph-conn-info').innerHTML = '';
+                displayTerminalConnectionStatus('');
             });
 
-        } else if (client_use_type === 'ws' && ports_available) {
+        } else if (clientService.type === 'ws' && clientService.portsAvailable) {
             var msg_to_send = {
                 type: 'serial-terminal',
                 outTo: 'graph',
@@ -961,12 +927,14 @@ function graphing_console() {
                 action: 'open'
             };
 
-            if (document.getElementById('graph-conn-info')) {
-                document.getElementById('graph-conn-info').innerHTML = Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED +
-                ' ' + msg_to_send.portPath + ' ' + Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE + ' ' + msg_to_send.baudrate;
-            }
-
-            client_ws_connection.send(JSON.stringify(msg_to_send));
+            displayTerminalConnectionStatus([
+                Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
+                msg_to_send.portPath,
+                Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
+                msg_to_send.baudrate
+            ].join[' ']);
+    
+            clientService.activeConnection.send(JSON.stringify(msg_to_send));
 
             if (!graph_interval_id) {
                 graphStartStop('start');
@@ -976,10 +944,8 @@ function graphing_console() {
                 graphStartStop('stop');
                 if (msg_to_send.action !== 'close') { // because this is getting called multiple times.... ?
                     msg_to_send.action = 'close';
-                    if (document.getElementById('graph-conn-info')) {
-                        document.getElementById('graph-conn-info').innerHTML = '';
-                    }
-                    client_ws_connection.send(JSON.stringify(msg_to_send));
+                    displayTerminalConnectionStatus('');
+                    clientService.activeConnection.send(JSON.stringify(msg_to_send));
                 }
             });
 
@@ -1049,17 +1015,16 @@ var graphStartStop = function (action) {
 
 /**
  * Update the list of serial ports available on the host machine
+ * This function is used by the BP-client only.  The BP-Launcher handles this
+ * differently inside of blocklypropclient.js
  */
 var check_com_ports = function () {
-    // TODO: We need to evaluate this when using web sockets ('ws') === true
-    if (client_use_type !== 'ws') {
-        if (client_domain_name && client_domain_port) {
-            $.get("http://" + client_domain_name + ":" + client_domain_port + "ports.json", function (data) {
-                set_port_list(data);
-            }).fail(function () {
-                set_port_list();
-            });
-        }
+    if (clientService.type !== 'ws') {
+        $.get(clientService.url('http') + 'ports.json', function (data) {
+            set_port_list(data);
+        }).fail(function () {
+            set_port_list();
+        });
     }
 };
 
@@ -1138,7 +1103,7 @@ function graph_new_data(stream) {
 
     // Check for a failed connection:
     if (stream.indexOf('ailed') > -1) {
-        $("#graph-conn-info").html(stream);
+        displayTerminalConnectionStatus(stream);
 
     } else {
         var ts = 0;

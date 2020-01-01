@@ -406,21 +406,19 @@ $(() => {
     pTerm = new PropTerm(
         document.getElementById('serial_console'),
         function(characterToSend) {
-            if (active_connection !== null && 
-                active_connection !== 'simulated' && 
-                active_connection !== 'websocket') {
-                active_connection.send(btoa(characterToSend));
+            if (clientService.type === 'http') {
+                clientService.activeConnection.send(btoa(characterToSend));
         
-            } else if (active_connection === 'websocket' ) {
+            } else if (clientService.type === 'websocket' ) {
                 var msg_to_send = {
                     type: 'serial-terminal',
                     outTo: 'terminal',
                     portPath: getComPort(),
                     baudrate: baudrate.toString(10),
-                    msg: characterToSend,
+                    msg: (clientService.rxBase64 ? btoa(characterToSend) : characterToSend),
                     action: 'msg'
                 };
-                client_ws_connection.send(JSON.stringify(msg_to_send));
+                clientService.activeConnection.send(JSON.stringify(msg_to_send));
             }    
         }
     );
