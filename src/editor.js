@@ -409,7 +409,7 @@ $(() => {
             if (clientService.type === 'http') {
                 clientService.activeConnection.send(btoa(characterToSend));
         
-            } else if (clientService.type === 'websocket' ) {
+            } else if (clientService.type === 'ws' ) {
                 var msg_to_send = {
                     type: 'serial-terminal',
                     outTo: 'terminal',

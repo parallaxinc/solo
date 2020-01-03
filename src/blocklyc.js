@@ -684,7 +684,7 @@ function serial_console() {
     var newTerminal = false;
 
     // HTTP client
-    if (clientService.type !== 'ws') {
+    if (clientService.type === 'http') {
         if (term === null) {
             term = {
                 portPath: getComPort()
@@ -740,7 +740,6 @@ function serial_console() {
             });
         } else {
             clientService.activeConnection = null;
-            clientService.type = null;
 
             if (newTerminal) {
                 displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
@@ -748,6 +747,7 @@ function serial_console() {
             }
 
             $('#console-dialog').on('hidden.bs.modal', function () {
+                displayTerminalConnectionStatus(null);
                 pTerm.display(null);
                 term = null;
             });
@@ -768,7 +768,6 @@ function serial_console() {
             action: 'open'
         };
 
-        clientService.type = 'websocket';
         displayTerminalConnectionStatus([
             Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
             msg_to_send.portPath,
@@ -780,11 +779,11 @@ function serial_console() {
         $('#console-dialog').on('hidden.bs.modal', function () {
             if (msg_to_send.action !== 'close') { // because this is getting called multiple times...?
                 msg_to_send.action = 'close';
-                clientService.type = null;
                 displayTerminalConnectionStatus(null);
                 clientService.activeConnection.send(JSON.stringify(msg_to_send));
             }
             pTerm.display(null);
+            term = null;
         });
     }
 
@@ -874,7 +873,7 @@ function graphing_console() {
             graph.update(graph_data, graph_options);
         }
 
-        if (clientService.type !== 'ws' && clientService.portsAvailable) {
+        if (clientService.type === 'http' && clientService.portsAvailable) {
             var connection = new WebSocket(clientService.url('ws') + 'serial.connect');
 
             // When the connection is open, open com port
@@ -1019,7 +1018,7 @@ var graphStartStop = function (action) {
  * differently inside of blocklypropclient.js
  */
 var check_com_ports = function () {
-    if (clientService.type !== 'ws') {
+    if (clientService.type === 'http') {
         $.get(clientService.url('http') + 'ports.json', function (data) {
             set_port_list(data);
         }).fail(function () {

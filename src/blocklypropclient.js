@@ -188,7 +188,10 @@ function checkClientVersionModal() {
 }
 
 /**
- * This is evaluating the BlocklyProp Client or BlocklyProp Launcher version??
+ * This attempts to connect to an http client (BP-Client) only after
+ * an attempted connection to the BP-Launcher has failed.
+ * If both attempts have failed, it sets the client availablility to null
+ * and sets an interval to continue checking for a client.
  */
 var check_client = function () {
     $.get(clientService.url('http'), function (data) {
@@ -377,7 +380,14 @@ function establish_socket() {
                 // type: 'serial-terminal'
                 // msg: [String Base64-encoded message]
 
-                var msg_in = atob(ws_msg.msg);
+                console.log(ws_msg);
+                var msg_in = '';
+                try {
+                    msg_in = atob(ws_msg.msg);
+                } catch (error) {
+                    console.log(error);
+                    msg_in = ws_msg.msg;
+                }
 
                 if (term !== null) { // is the terminal open?
                     pTerm.display(msg_in);
