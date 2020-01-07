@@ -990,6 +990,242 @@ Blockly.propc.HMC5883L_read = function () {
     return code;
 };
 
+
+// ---------------- LIS3DH Accelerometer Sensor Blocks -------------------------------
+Blockly.Blocks.lis3dh_init = {
+    helpUrl: Blockly.MSG_LIS3DH_HELPURL,
+    init: function () {
+        this.setTooltip(Blockly.MSG_LIS3DH_INIT_TOOLTIP);
+        this.setColour(colorPalette.getColor('input'));
+        this.buildPinMenu();
+        this.setPreviousStatement(true, "Block");
+        this.setNextStatement(true, null);
+    },
+    buildPinMenu: function () {
+        this.appendDummyInput('PINS')
+                .appendField('LIS3DH initialize SCK')
+                .appendField(new Blockly.FieldDropdown(profile.default.digital), 'SCK_PIN')
+                .appendField('SDI')
+                .appendField(new Blockly.FieldDropdown(profile.default.digital), 'SDI_PIN')
+                .appendField("CS")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital), 'CS_PIN');
+    },
+    onchange: function (event) {
+        if (event && (event.type == Blockly.Events.BLOCK_CREATE || 
+                event.type == Blockly.Events.BLOCK_DELETE || 
+                event.type == Blockly.Events.BLOCK_CHANGE)) 
+            {
+            var warnText = null;
+            var cs_pin = this.getFieldValue('CS_PIN');
+            var lisInitBlocks = Blockly.getMainWorkspace().getBlocksByType(this.type);
+            var currentBlock = this;
+            lisInitBlocks.forEach(function (tempBlock) {
+                console.log(tempBlock);
+                if (tempBlock.id !== currentBlock.id && tempBlock.getFieldValue('CS_PIN') === cs_pin) {
+                    warnText = 'WARNING! The CS pin must be different for each LIS3DH initialize block!';
+                }
+            });
+            this.setWarningText(warnText);
+        }
+    }
+};
+
+Blockly.propc.lis3dh_init = function () {
+    var sck_pin = this.getFieldValue('SCK_PIN');
+    var sdi_pin = this.getFieldValue('SDI_PIN');
+    var cs_pin = this.getFieldValue('CS_PIN');
+    if (!this.disabled) {
+        Blockly.propc.definitions_["lis3dh"] = '#include "lis3dh.h"';
+        Blockly.propc.global_vars_["lis3dh" + cs_pin] = 'lis3dh *lis3dh_' + cs_pin + ';';
+        Blockly.propc.setups_["lis3dh" + cs_pin] = 'lis3dh_' + cs_pin + ' = lis3dh_init(' + sck_pin + ', ' + sdi_pin + ', ' + cs_pin + ');';
+    }
+    return '';
+};
+
+Blockly.Blocks.lis3dh_read = {
+    //helpUrl: Blockly.MSG_COLORPAL_HELPURL,
+    init: function () {
+        //this.setTooltip(Blockly.MSG_COLORPAL_GET_COLORS_RAW_TOOLTIP);
+        this.setColour(colorPalette.getColor('input'));
+        this.setInputsInline(true);
+        this.setPreviousStatement(true, "Block");
+        this.setNextStatement(true, null);
+        this.initBlockCount = 0;
+        this.buildFields();
+    },
+    buildFields: function (action) {
+        if (!action || action === '') {
+            action = this.getFieldValue('SENSOR') || 'accel_mg';
+        }
+        var blockText = {
+            menuItems: [
+                ['acceleration (1000ths of g\'s)', 'accel_mg'],
+                ['voltage (mV)', 'adc_mv']
+            ],
+            'accel_mg': {
+                label: ['X', 'Y', 'Z'],
+                menu: [menuItems[0], menuItems[1]]
+            },
+            'adc_mv': {
+                label: ['AD1', 'AD2', 'AD3'],
+                menu: [menuItems[1], menuItems[0]]
+            },
+        }
+        var inputs = ['INIT', 'ACTION', 'VARS'];
+        var fields = ['SENSOR', 'STORE_1', 'STORE_2', 'STORE_3'];
+        var fieldVals = [];
+        for (var i = 0; i < fields.length; i++) {
+            fieldVals[i] = this.getFieldValue(fields[i]);
+        }
+        for (i = 0; i < inputs.length; i++) {
+            if (this.getInput(inputs[i])) {
+                this.removeInput(inputs[i]);
+            }
+        }
+
+        this.appendDummyInput(inputs[0])
+                .appendField("LIS3DH")
+        this.appendValueInput(inputs[1])
+                .appendField("read")
+                .appendField(new Blockly.FieldDropdown(blockText[action].menu, function (act) {
+                    this.sourceBlock_.buildFields(act);
+                }), fields[0])
+        this.appendDummyInput(inputs[2])
+                .appendField("store" + blockText[action].label[0] + " in")
+                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), fields[1])
+                .appendField(blockText[action].label[1] + " in")
+                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), fields[2])
+                .appendField(blockText[action].label[2] + " in")
+                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), fields[3])
+
+        for (var i = 0; i < fields.length; i++) {
+            this.setFieldValue(fieldVals[i], fields[i]);
+        }
+    }
+    /*
+    mutationToDom: function () {
+        var container = document.createElement('mutation');
+        if (this.getInput('CPIN')) {
+            container.setAttribute('cpin', this.getFieldValue('CP_PIN'));
+        }
+        container.setAttribute('pinmenu', JSON.stringify(this.cp_pins));
+        return container;
+    },
+    domToMutation: function (xmlElement) {
+        var cpin = xmlElement.getAttribute('cpin');
+        this.cp_pins = JSON.parse(xmlElement.getAttribute('pinmenu'));
+        if (Array.isArray(this.cp_pins)) {
+            this.cp_pins = this.cp_pins.map(function (value) {
+                return value[0];
+            })
+        }
+        if (cpin === 'null') {
+            cpin = null;
+        }
+        if (this.getInput('CPIN')) {
+            this.removeInput('CPIN');
+        }
+        if (cpin) {
+            this.appendDummyInput('CPIN')
+                    .appendField('PIN')
+                    .appendField(new Blockly.FieldDropdown(this.cp_pins.map(function (value) {
+                        return [value, value]  // returns an array of arrays built from the original array.
+                    })), 'CP_PIN');
+            this.setFieldValue(cpin, 'CP_PIN');
+        }
+    },
+    colorpalPins: function (oldPin, newPin) {
+        var currentPin = '-1';
+        if (this.cp_pins.length > 0) {
+            currentPin = this.cp_pins[0];
+        }
+        this.cp_pins.length = 0;
+        if (this.getInput('CPIN')) {
+            currentPin = this.getFieldValue('CP_PIN');
+        }
+        this.updateCpin();
+        if (this.getInput('CPIN')) {
+            this.removeInput('CPIN');
+        }
+        if (this.cp_pins.length > 1) {
+            this.appendDummyInput('CPIN')
+                    .appendField('PIN')
+                    .appendField(new Blockly.FieldDropdown(this.cp_pins.map(function (value) {
+                        return [value, value]  // returns an array of arrays built from the original array.
+                    })), 'CP_PIN');
+            if (currentPin === oldPin || oldPin === null) {
+                this.setFieldValue(newPin, 'CP_PIN');
+            } else {
+                if (this.getInput('CPIN') && currentPin !== '-1') {
+                    this.setFieldValue(currentPin, 'CP_PIN');
+                }
+            }
+        }
+    },
+    updateCpin: function () {
+        var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+        this.cp_pins.length = 0;
+        for (var x = 0; x < allBlocks.length; x++) {
+            if (allBlocks[x].type === 'colorpal_enable') {
+                var cp = allBlocks[x].colorPalPin || allBlocks[x].getFieldValue('IO_PIN');
+                if (cp) {
+                    this.cp_pins.push(cp);
+                }
+            }
+        }
+        this.cp_pins = this.cp_pins.sortedUnique();
+    },
+    onchange: function (event) {
+        if (event) {
+            // only fire when a block got deleted or created, the CP_PIN field was changed
+            if (event.type == Blockly.Events.BLOCK_CREATE || event.type == Blockly.Events.BLOCK_DELETE || (event.name === 'CP_PIN' && event.blockId === this.id) || this.warnFlag > 0) {
+                var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+                if (allBlocks.toString().indexOf('ColorPal initialize') === -1)
+                {
+                    this.setWarningText('WARNING: You must use a ColorPal\ninitialize block at the beginning of your program!');
+                } else {
+                    this.setWarningText(null);
+                    this.warnFlag--;
+                    if (this.getInput('CPIN')) {
+                        var allCpPins = '';
+                        for (var x = 0; x < allBlocks.length; x++) {
+                            if (allBlocks[x].type === 'colorpal_enable') {
+                                allCpPins += (allBlocks[x].colorPalPin || allBlocks[x].getFieldValue('IO_PIN')) + ',';
+                            }
+                        }
+                        if (allCpPins.indexOf(this.getFieldValue('CP_PIN')) === -1) {
+                            this.setWarningText('WARNING: You must use choose a new PIN for this block!');
+                            // let all changes through long enough to ensure this is set properly.
+                            this.warnFlag = allBlocks.length * 3;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    */
+};
+
+Blockly.propc.lis3dh_read = function () {
+    var s1 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_1'), Blockly.Variables.NAME_TYPE);
+    var s2 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_2'), Blockly.Variables.NAME_TYPE);
+    var s3 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_3'), Blockly.Variables.NAME_TYPE);
+    var action = this.getFieldValue('ACTION');
+    var p = '0';
+    /*
+    if (this.cp_pins.length > 0) {
+        p = this.cp_pins[0];
+    }
+    if (this.getInput('CPIN')) {
+        p = this.getFieldValue('CP_PIN');
+    }
+    */
+    return 'lis3dh_' + action + '(lis3dh_' + p + ', &' + s1 + ', &' + s2 + ', &' + s3 + ');';
+};
+
+
+
+
 // ------------------ IMU (LSM9DS1 module) Blocks ------------------------------
 Blockly.Blocks.lsm9ds1_init = {
     helpUrl: Blockly.MSG_IMU_HELPURL,

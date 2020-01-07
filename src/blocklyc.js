@@ -372,6 +372,7 @@ var prettyCode = function (raw_code) {
         .replace(/bme680 \* /g, "bme680 *")
         .replace(/serial \* /g, "serial *")
         .replace(/lcdParallel \* /g, "lcdParallel *")
+        .replace(/lis3dh \* /g, "lis3dh *")
         .replace(/colorPal \* /g, "colorPal *")
         .replace(/ws2812 \* /g, "ws2812 *")
         .replace(/i2c \* /g, "i2c *")

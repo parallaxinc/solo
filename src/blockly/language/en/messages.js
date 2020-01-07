@@ -279,6 +279,7 @@ Blockly.MSG_AUDIO_HELPURL = "http://learn.parallax.com/ab-blocks/audio";
 Blockly.MSG_SERVO_HELPURL = "http://learn.parallax.com/ab-blocks/servo";
 Blockly.MSG_ROBOT_HELPURL = "http://learn.parallax.com/ab-blocks/robot";
 Blockly.MSG_IMU_HELPURL = "http://learn.parallax.com/ab-blocks/lsm9ds1";
+Blockly.MSG_LIS3DH_HELPURL = "http://learn.parallax.com/ab-blocks/lis3dh";
 Blockly.MSG_WS2812B_HELPURL = "http://learn.parallax.com/ab-blocks/ws2812b";
 Blockly.MSG_SYSTEM_HELPURL = "http://learn.parallax.com/ab-blocks/system";
 Blockly.MSG_BADGE_LEDS_HELPURL = "http://learn.parallax.com/ab-blocks/badge-leds";
@@ -464,6 +465,10 @@ Blockly.MSG_LSM9DS1_READ_TOOLTIP = "IMU read: get measurements from specified se
 Blockly.MSG_LSM9DS1_MAG_CALIBRATE_TOOLTIP = "IMU Calibrate Magnetometer: Initialize first. Rotate slowly thru all 3 axes until P26/P27 LEDs turn off.";
 Blockly.MSG_LSM9DS1_TILT_TOOLTIP = "IMU tilt: gets tilt along specified axis.";
 Blockly.MSG_LSM9DS1_HEADING_TOOLTIP = "IMU heading: specify axes, get current heading in degrees.";
+
+Blockly.MSG_LIS3DH_INIT_TOOLTIP = "LIS3DH initialize: match to Propeller I/O pin connections.";
+
+
 Blockly.MSG_SENSOR_PING_TOOLTIP = "Ping))) distance: gets distance measured in the specified units, match to Propeller I/O pin.";
 Blockly.MSG_PIR_SENSOR_TOOLTIP = "PIR sensor: returns 1/true if motion is detected, match to Propeller I/O pin.";
 Blockly.MSG_RFID_ENABLE_TOOLTIP = "RFID initialize: match to Propeller I/O pin connections.";
@@ -685,6 +690,7 @@ toolbox_label['category_communicate_protocols'] = "Protocols";
 toolbox_label['category_communicate_xbee'] = "XBee";
 toolbox_label['category_communicate_WS2812B'] = "RGB LEDs";
 toolbox_label['category_sensor-input'] = "Sensor";
+toolbox_label['category_sensor-input_LIS3DH'] = "LIS3DH Accelerometer"
 toolbox_label['category_sensor-input_LSM9DS1'] = "LSM9DS1 IMU";
 toolbox_label['category_sensor-input_etape'] = "ETape liquid level";
 toolbox_label['category_sensor-input_fingerprint'] = "Fingerprint Scanner";
