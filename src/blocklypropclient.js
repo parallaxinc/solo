@@ -31,15 +31,19 @@ var clientService = {
     port: 6009,
     type: null,
     rxBase64: true,
+    portListReceiveCountUp: 0,  // This is set to 0 each time the port list is received, and incremented once each 4 second heartbeat
     activeConnection: null,
     url: function (protocol) {
         return protocol + '://' + this.path + ':' + this.port + '/';
     },
     version: {
-        minimumAllowed: '0.7.0',
-        recommended: '0.11.0',
+        // Constants
+        MINIMUM_ALLOWED: '0.7.0',
+        RECOMMENDED: '0.11.0',
+        CODED_MINIMUM: '0.7.5',  // Minimum client/launcher version supporting coded/verbose responses (remove after MINIMUM_ALLOWED > this)
+
+        // Variables
         current: '0.0.0',
-        codedMinimum: '0.7.5',  // Minimum client/launcher version supporting coded/verbose responses (remove after minimumAllowed > this)
         currentAsNumber: 0,
         isValid: false,
         isRecommended: false,
@@ -62,36 +66,20 @@ var clientService = {
         set: function (rawVersion) {
             this.current = rawVersion;
             this.currentAsNumber = this.getNumeric(rawVersion);
-            this.isValid = (this.getNumeric(rawVersion) >= this.getNumeric(this.minimumAllowed));
-            this.isRecommended = (this.getNumeric(rawVersion) >= this.getNumeric(this.recommended));
-            this.isCoded = (this.getNumeric(rawVersion) >= this.getNumeric(this.codedMinimum));   // remove after minimumAllowed is greater
+            this.isValid = (this.getNumeric(rawVersion) >= this.getNumeric(this.MINIMUM_ALLOWED));
+            this.isRecommended = (this.getNumeric(rawVersion) >= this.getNumeric(this.RECOMMENDED));
+            this.isCoded = (this.getNumeric(rawVersion) >= this.getNumeric(this.CODED_MINIMUM));   // remove after MINIMUM_ALLOWED is greater
         }
     }
 }
 
 
 
-// TODO: Uninitialized variable
-// TODO: Document what the 'client_ws_heatbeat' variable represents
-/**
- *
- */
-var client_ws_heartbeat;
-
-
-
-var client_ws_heartbeat_interval = null;
-
-var check_com_ports_interval = null;
-var check_ws_socket_timeout = null;
-
 // BP Launcher result log and download message flag
 var launcher_result = "";
 var launcher_download = false;
 
 // Status Notice IDs
-//const NS_DOWNLOADING               = 002;
-//const NS_DOWNLOAD_SUCCESSFUL       = 005;
 const NS_DOWNLOADING                 = 2;
 const NS_DOWNLOAD_SUCCESSFUL         = 5;
 
@@ -100,62 +88,64 @@ const NE_DOWNLOAD_FAILED             = 102;
 
 
 $(document).ready(function () {
-    find_client();
+    checkClient();
+    setInterval(checkClient, 3500);
 });
 
-var find_client = function () {
-    if (check_ws_socket_timeout) {
-        //Clear timeout if it exists; without this, back-to-back find_client() calls seem to occur
-        clearTimeout(check_ws_socket_timeout);
+var checkClient = function () {
+    // Try to connect to the BP-Launcher (websocket) first.
+    if (!clientService.available && clientService.type !== 'http') {
+        establishBPLauncherConnection();
     }
 
-    establish_socket();
-
+    // If the BP-Launcher is not found, try to connect to the BP-Client.
     if (clientService.type !== 'ws') {
-        // WebSocket'd launcher not found?  Try Http'd client
-        check_client();
+        establishBPClientConnection();
+    }
+
+    // Check the last time the port list was received from the BP-Launcher.
+    // If it's been too long, close the connection.
+    if (clientService.type === 'ws') {
+
+        clientService.messageReceived++;
+
+        if (clientService.messageReceived > 2) {
+            // Client is taking too long to check in - close the connection and clean up
+            clientService.activeConnection.close();
+            // TODO: this may not be necessary (gets called by 'onclose' in websocket)
+            lostWSConnection();
+        }
+    }
+
+    // If connected to the BP-Client, poll it for changes in the com port list
+    if (clientService.type === 'http') {
+        checkForComPorts();
     }
 };
 
-var set_ui_buttons = function (ui_btn_state) {
-    if (ui_btn_state === 'available') {
+var setPropToolbarButtons = function () {
+    if (clientService.available) {
         if (projectData && projectData.board === 's3') {
             // Hide the buttons that are not required for the S3 robot
-            $('#prop-btn-ram').addClass('hidden');
-            $('#prop-btn-graph').addClass('hidden');
+            $('.no-s3').addClass('hidden');
             $('#client-available').addClass('hidden');
             // Reveal the short client available message
             $('#client-available-short').removeClass('hidden');
         } else {
             // Reveal these buttons
-            $('#prop-btn-ram').removeClass('hidden');
-            $('#prop-btn-graph').removeClass('hidden');
+            $('.no-s3').removeClass('hidden');
             $('#client-available').removeClass('hidden');
             $('#client-available-short').addClass('hidden');
         }
 
-        $("#client-searching").addClass("hidden");
         $("#client-unavailable").addClass("hidden");
-        $("#prop-btn-ram").removeClass("disabled");
-        $("#prop-btn-eeprom").removeClass("disabled");
-        $("#prop-btn-term").removeClass("disabled");
-        $("#prop-btn-graph").removeClass("disabled");
+        $(".client-action").removeClass("disabled");
     } else {
         // Disable the toolbar buttons
+        $("#client-unavailable").removeClass("hidden");
         $("#client-available").addClass("hidden");
         $("#client-available-short").addClass("hidden");
-        $("#prop-btn-ram").addClass("disabled");
-        $("#prop-btn-eeprom").addClass("disabled");
-        $("#prop-btn-term").addClass("disabled");
-        $("#prop-btn-graph").addClass("disabled");
-
-        if (ui_btn_state === 'searching') {
-            $("#client-searching").removeClass("hidden");
-            $("#client-unavailable").addClass("hidden");
-        } else {
-            $("#client-searching").addClass("hidden");
-            $("#client-unavailable").removeClass("hidden");
-        }
+        $(".client-action").addClass("disabled");
     }
 };
 
@@ -177,7 +167,7 @@ function checkClientVersionModal() {
             $("#client-danger-span").removeClass("hidden");     
         }
 
-        $(".client-required-version").html(clientService.version.recommended);
+        $(".client-required-version").html(clientService.version.RECOMMENDED);
         if (clientService.version.currentAsNumber === 0) {
             $(".client-your-version").html('<b>UNKNOWN</b>')
         } else {
@@ -193,7 +183,7 @@ function checkClientVersionModal() {
  * If both attempts have failed, it sets the client availablility to null
  * and sets an interval to continue checking for a client.
  */
-var check_client = function () {
+var establishBPClientConnection = function () {
     $.get(clientService.url('http'), function (data) {
         if (!clientService.available) {
             let client_version_str = (typeof data.version_str !== "undefined") ? data.version_str : data.version;
@@ -207,36 +197,18 @@ var check_client = function () {
 
             clientService.type = 'http';
             clientService.available = true;
-            set_ui_buttons('available');
-            if (check_com_ports && typeof (check_com_ports) === "function") {
-                check_com_ports();
-                check_com_ports_interval = setInterval(check_com_ports, 5000);
-            }
+            setPropToolbarButtons();
         }
-        setTimeout(check_client, 20000);
 
     }).fail(function () {
-        clearInterval(check_com_ports_interval);
-        clientService.type = null;
-        clientService.available = false;
-        clientService.portsAvailable = false;
-        set_ui_buttons('unavailable');
-        check_ws_socket_timeout = setTimeout(find_client, 3000);
-    });
-};
-
-var connection_heartbeat = function () {
-    // Check the last time the port list was received.
-    // If it's been too long, close the connection.
-    if (clientService.type === 'ws') {
-        var d = new Date();
-        if (client_ws_heartbeat + 12000 < d.getTime()) {
-            console.log("Lost client websocket connection");
-            // Client is taking too long to check in - close the connection and clean up
-            clientService.activeConnection.close();
-            lostWSConnection();
+        if (clientService.type !== 'ws') {
+            clientService.type = null;
+            clientService.available = false;
+            clientService.portsAvailable = false;
+            setPropToolbarButtons();
         }
-    }
+        
+    });
 };
 
 /**
@@ -296,13 +268,13 @@ var configure_client = function () {
 };
 
 // checks for and, if found, uses a newer WebSockets-only client
-function establish_socket() {
+function establishBPLauncherConnection() {
 
     // TODO: set/clear and load buttons based on status
     if (!clientService.available) {
 
         // Clear the port list
-        set_port_list();
+        setComPortList();
 
         var connection = new WebSocket(clientService.url('ws'));
 
@@ -320,16 +292,21 @@ function establish_socket() {
         // Log errors
         connection.onerror = function (error) {
             // Only display a message on the first attempt
-            if (!clientService.type && !check_ws_socket_timeout) {
+            if (!clientService.type) {
                 console.log('Unable to find websocket client');
+                connection.close();
             } else {
                 console.log('Websocket Communication Error');
+                console.log(error);
             }
         };
 
         // handle messages from the client
         connection.onmessage = function (e) {
             var ws_msg = JSON.parse(e.data);
+
+            // set this to zero to note that the connection is still alive.
+            clientService.messageReceived = 0;
 
             // --- hello handshake - establish new connection
             if (ws_msg.type === 'hello-client') {
@@ -349,8 +326,7 @@ function establish_socket() {
 
                 clientService.type = 'ws';
                 clientService.available = true;
-
-                set_ui_buttons('available');
+                setPropToolbarButtons();
 
                 var portRequestMsg = JSON.stringify({type: 'port-list-request', msg: 'port-list-request'});
                 connection.send(portRequestMsg);
@@ -361,16 +337,7 @@ function establish_socket() {
             else if (ws_msg.type === 'port-list') {
                 // type: 'port-list',
                 // ports: ['port1', 'port2', 'port3'...]
-
-                // mark the time that this was received
-                var d = new Date();
-                client_ws_heartbeat = d.getTime();
-
-                if (!client_ws_heartbeat_interval) {
-                    client_ws_heartbeat_interval = setInterval(connection_heartbeat, 4000);
-                }
-
-                set_port_list(ws_msg.ports);
+                setComPortList(ws_msg.ports);
             }
 
             // --- serial terminal/graph
@@ -380,19 +347,21 @@ function establish_socket() {
                 // type: 'serial-terminal'
                 // msg: [String Base64-encoded message]
 
-                console.log(ws_msg);
                 var msg_in = '';
                 try {
                     msg_in = atob(ws_msg.msg);
                 } catch (error) {
-                    console.log(error);
+                    // only show the error if it's something other than the base64 encoding
+                    if (error.toString().indexOf("'atob'") < 0) {
+                        console.log(error);
+                    }
                     msg_in = ws_msg.msg;
                 }
 
-                if (term !== null) { // is the terminal open?
+                if (term !== null && msg_in !== '' && ws_msg.packetID) {
                     pTerm.display(msg_in);
                     pTerm.focus();
-                } else if (graph !== null) { // is the graph open?
+                } else if (graph !== null && msg_in !== '' && ws_msg.packetID) { // is the graph open?
                     graph_new_data(msg_in);
                 }
             }
@@ -411,7 +380,6 @@ function establish_socket() {
 
                 } else if (ws_msg.action === 'close-terminal') {
                     $('#console-dialog').modal('hide');
-                    newTerminal = false;
                     pTerm.display(null);
 
                 } else if (ws_msg.action === 'close-graph') {
@@ -464,50 +432,40 @@ function establish_socket() {
             }
         };
 
-        connection.onclose = function (code) {
-            console.log(code);
+        connection.onclose = function () {
             lostWSConnection();
         };
     }
 }
 
 function lostWSConnection() {
-// Lost websocket connection, clean up and restart find_client processing
-    clientService.activeConnection = null;
-    clientService.type = null;
-    clientService.available = false;
-    clientService.portsAvailable = false;
-
-    set_ui_buttons('unavailable');
+    // Lost websocket connection, clean up and restart find_client processing
+    if (clientService.type !== 'http') {
+        clientService.activeConnection = null;
+        clientService.type = null;
+        clientService.available = false;
+        setPropToolbarButtons();
+    }
+    
     term = null;
-    newTerminal = false;
 
     // Clear ports list
-    set_port_list();
-
-    if (client_ws_heartbeat_interval) {
-        clearInterval(client_ws_heartbeat_interval);
-        client_ws_heartbeat_interval = null;
-    }
-
-    //Create new ws socket timeout (find_client)
-    check_ws_socket_timeout = setTimeout(find_client, 3000);
+    setComPortList();
 };
 
 
 // set communication port list
 // leave data unspecified when searching
-var set_port_list = function (data) {
-    data = (data ? data : 'searching');
+var setComPortList = function (data) {
     var selected_port = clearComPortUI();
 
-    if (typeof (data) === 'object' && data.length) {
+    if (typeof (data) === 'object' && data.length > 0) {
         data.forEach(function (port) {
             addComPortDeviceOption(port);
         });
         clientService.portsAvailable = true;
     } else {
-        addComPortDeviceOption((data === 'searching') ? 'Searching...' : 'No devices found');
+        addComPortDeviceOption(clientService.available ? Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
         clientService.portsAvailable = false;
     }
     select_com_port(selected_port);

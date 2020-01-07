@@ -681,19 +681,20 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
  * Serial console support
  */
 function serial_console() {
-    var newTerminal = false;
+    // clear the terminal
+    pTerm.display(null);
+    displayTerminalConnectionStatus(null);
 
     // HTTP client
     if (clientService.type === 'http') {
-        if (term === null) {
-            term = {
-                portPath: getComPort()
-            };
-            newTerminal = true;
+        //clientService.activeConnection = null;
+
+        if (!term ) {
+            term = { portPath: getComPort() };
         }
 
         if (clientService.portsAvailable) {
-            var connection = new WebSocket(clientService.url('ws'));
+            var connection = new WebSocket(clientService.url('ws') + 'serial.connect');
 
             // When the connection is open, open com port
             connection.onopen = function () {
@@ -725,10 +726,6 @@ function serial_console() {
                 pTerm.focus();
             };
 
-            if (!newTerminal) {
-                pTerm.display(null);
-            }
-
             $('#console-dialog').on('hidden.bs.modal', function () {
                 clientService.activeConnection = null;
                 connString = '';
@@ -741,10 +738,8 @@ function serial_console() {
         } else {
             clientService.activeConnection = null;
 
-            if (newTerminal) {
-                displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
-                pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
-            }
+            displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
+            pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
 
             $('#console-dialog').on('hidden.bs.modal', function () {
                 displayTerminalConnectionStatus(null);
@@ -768,12 +763,18 @@ function serial_console() {
             action: 'open'
         };
 
-        displayTerminalConnectionStatus([
-            Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
-            msg_to_send.portPath,
-            Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
-            msg_to_send.baudrate
-        ].join[' ']);
+        if (msg_to_send.portPath !== 'none') {
+            displayTerminalConnectionStatus([
+                Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
+                msg_to_send.portPath,
+                Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
+                msg_to_send.baudrate
+            ].join(' '));
+        } else {
+            displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
+            pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');    
+        }
+
         clientService.activeConnection.send(JSON.stringify(msg_to_send));
 
         $('#console-dialog').on('hidden.bs.modal', function () {
@@ -795,10 +796,7 @@ function serial_console() {
  * @param {string} connectionInfo text to display above the console or graph
  */
 function displayTerminalConnectionStatus(connectionInfo) {
-    if (!connectionInfo) {
-        connectionInfo = '';
-    }
-    $('.connection-string').html(connectionInfo);
+    $('.connection-string').html(connectionInfo ? connectionInfo : '');
 }
 
 
@@ -926,12 +924,16 @@ function graphing_console() {
                 action: 'open'
             };
 
-            displayTerminalConnectionStatus([
-                Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
-                msg_to_send.portPath,
-                Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
-                msg_to_send.baudrate
-            ].join[' ']);
+            if (msg_to_send.portPath !== 'none') {
+                displayTerminalConnectionStatus([
+                    Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
+                    msg_to_send.portPath,
+                    Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
+                    msg_to_send.baudrate
+                ].join(' '));
+            } else {
+                displayTerminalConnectionStatus(Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT);
+            }
     
             clientService.activeConnection.send(JSON.stringify(msg_to_send));
 
@@ -949,7 +951,8 @@ function graphing_console() {
             });
 
         } else {
-            // create simulated graph?
+            // TODO: create simulated graph?
+            displayTerminalConnectionStatus(Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT);
         }
 
         $('#graphing-dialog').modal('show');
@@ -1017,12 +1020,12 @@ var graphStartStop = function (action) {
  * This function is used by the BP-client only.  The BP-Launcher handles this
  * differently inside of blocklypropclient.js
  */
-var check_com_ports = function () {
+var checkForComPorts = function () {
     if (clientService.type === 'http') {
         $.get(clientService.url('http') + 'ports.json', function (data) {
-            set_port_list(data);
+            setComPortList(data);
         }).fail(function () {
-            set_port_list();
+            setComPortList();
         });
     }
 };
@@ -1043,18 +1046,21 @@ var select_com_port = function (com_port) {
 $(document).ready(function () {
     // Display the app name in the upper-left corner of the page
     showAppName();
-
-    check_com_ports();
 });
 
 
 /**
- * Return the select com port name
+ * Return the selected com port name
  *
- * @returns {jQuery}
+ * @returns {string}
  */
 var getComPort = function () {
-    return $('#comPort').find(":selected").text();
+    let commPortSelection = $('#comPort').val();
+    if (commPortSelection === Blockly.Msg.DIALOG_PORT_SEARCHING || commPortSelection === Blockly.Msg.DIALOG_NO_DEVICE) {
+        return 'none';
+    } else {
+        return commPortSelection;
+    }
 };
 
 

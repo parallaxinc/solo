@@ -406,7 +406,7 @@ $(() => {
     pTerm = new PropTerm(
         document.getElementById('serial_console'),
         function(characterToSend) {
-            if (clientService.type === 'http') {
+            if (clientService.type === 'http' && clientService.activeConnection) {
                 clientService.activeConnection.send(btoa(characterToSend));
         
             } else if (clientService.type === 'ws' ) {

@@ -63,9 +63,10 @@ Blockly.Msg.DIALOG_SIDE_FILES_ERROR = 'A problem occurred when trying to create 
 Blockly.Msg.DIALOG_NO_CLIENT = '<i class="glyphicon glyphicon-exclamation-sign"></i> BlocklyPropClient <strong>is not running</strong>';
 Blockly.Msg.DIALOG_NO_DEVICE_TEXT = 'Ensure it is connected, powered on, and selected in the ports list. Make sure your BlocklyPropClient is up-to-date.';
 Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT = 'BlocklyProp-Client not available to communicate with a microcontroller. It may help to "Force Refresh" by pressing Control-Shift-R (Windows/Linux) or Command-Shift-R (Mac).';
-Blockly.Msg.DIALOG_NO_DEVICE = 'No device detected';
+Blockly.Msg.DIALOG_NO_DEVICE = 'No devices found';
 Blockly.Msg.DIALOG_DEVICE_COMM_ERROR = 'Device communication error';
 Blockly.Msg.DIALOG_CLIENT_SEARCHING = '<i class="glyphicon glyphicon-info-sign"></i> Looking for BlocklyPropClient';
+Blockly.Msg.DIALOG_PORT_SEARCHING = 'Searching...';
 Blockly.Msg.DIALOG_DOWNLOAD = 'Download Project - Filename:';
 Blockly.Msg.DIALOG_UNSAVED_PROJECT = 'Unsaved Project';
 Blockly.Msg.DIALOG_EMPTY_PROJECT = 'Empty Project';
@@ -75,6 +76,7 @@ Blockly.Msg.DIALOG_SAVE_BEFORE_ADD_BLOCKS = 'You must save your project before y
 Blockly.Msg.DIALOG_MISSING_BLOCKS = 'Blocks missing';
 Blockly.Msg.DIALOG_MISSING_BLOCKS_GRAPHING = 'To use the graphing feature, your program must have both a graph initialize block and a graph value block.';
 Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT = 'Simulated terminal because there are no devices available to connect to';
+Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT = 'Simulated graph because there are no devices available to connect to';
 Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES = 'No connection established.';
 Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED = 'Connection established with';
 Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE = 'at baudrate';
