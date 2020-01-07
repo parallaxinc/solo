@@ -196,7 +196,12 @@ class PropTerm {
             let sound      = document.createElement('audio');
             //this.sound.style.display = 'none';
             sound.id       = 'term-beep_';
-            sound.controls = 'controls';
+
+            // If present, the browser will offer controls to allow the user
+            // to control audio playback, including volume, seeking, and
+            // pause/resume playback.
+            sound.controls = true;
+
             sound.src      = 'data:audio/wav;base64,UklGRrQJAABXQVZFZm10IBAAAAABAAIAESsAACJWAAACAAgATElTVBoAAABJTkZPSVNGVA4AAABMYXZmNTguMjAuMTAwAGRhdGFuCQAAg4OqqrCwiYlfX0lJbm6Wlre3m5tyckpKW1uEhK6ura2Dg1lZS0t0dJyct7eUlGxsSUlhYYqKsrKnp35+U1NQUHl5o6O1tY6OZmZHR2hokJC2tqGheHhPT1VVf3+pqbGxiYlgYElJbW2Vlbe3m5tzc0tLWlqEhK6urq6EhFpaS0tzc5ubt7eVlW1tSUlgYImJsrKoqH5+VFRPT3l5oqK1tY+PZ2dHR2dnj4+1taKieXlPT1RUfn6oqLKyiYlgYElJbW2UlLe3nJx0dEtLWVmDg62trq6EhFtbSkpycpubt7eWlm5uSUlgYIiIsbGpqX9/VVVPT3h4oaG2tpCQaGhHR2Zmjo61taOjeXlQUFNTfn6np7KyiophYUlJbGyUlLe3nJx1dUxMWVmCgqysr6+FhVxcSkpycpqat7eXl29vSUlfX4iIsbGpqYCAVlZOTnd3oKC2tpCQaGhISGVljY21taOjenpQUFNTfX2mprOzi4tiYkhIa2uUlLe3nZ10dExMWVmBgaysr6+GhlxcSkpxcZmZuLiXl29vSUleXoeHsLCqqoCAVlZOTnd3n5+2tpGRaWlISGRkjY21taSke3tRUVJSfHymprS0i4tjY0hIa2uTk7a2np51dU1NWFiCgqysr6+Ghl1dSkpwcJiYuLiYmHBwSkpdXYaGsLCrq4GBV1dNTXZ2n5+2tpKSampISGRkjIy0tKWle3tRUVFRe3ulpbS0jIxkZEhIamqSkra2n592dk1NV1eBgaursLCGhl1dSkpwcJeXuLiZmXFxSkpcXIaGr6+srIGBWFhNTXV1np62tpOTa2tISGNji4u0tKamfHxSUlFRe3ukpLW1jY1kZEhIaWmRkba2n593d05OVlaAgKqqsLCHh15eSUlvb5eXuLiZmXJySkpcXIWFr6+srIKCWVlMTHR0nZ23t5SUa2tISGJii4uzs6amfX1TU1BQenqjo7W1jY1lZUhIaGiQkLa2oKB3d05OVlaAgKmpsbGIiF9fSUlvb5eXt7eamnJySkpbW4SErq6trYODWVlLS3R0nJy3t5SUbGxJSWFhioqysqenfn5TU1BQeXmjo7W1jo5mZkdHaGiQkLa2oaF4eE9PVVV/f6mpsbGIiGBgSUlubpaWt7ebm3JySkpbW4SErq6trYSEWlpLS3Nzm5u3t5WVbW1JSWBgiYmysqiofn5UVE9PeXmiorW1j49nZ0dHZ2ePj7W1oqJ5eU9PVFR+fqiosrKJiWBgSUltbZWVt7ebm3NzS0taWoSErq6uroODWlpLS3Jym5u3t5aWbm5JSWBgiIixsampf39VVU9PeHihoba2kJBoaEdHZmaOjrW1o6N5eVBQU1N+fqensrKKimFhSUlsbJSUt7ecnHR0S0tZWYODra2uroSEW1tKSnJympq4uJeXb29JSV9fiIixsampgIBWVk5Od3egoLa2kJBoaEhIZWWNjbW1o6N6elBQU1N9faams7OLi2JiSEhra5SUt7ednXR0TExZWYKCrKyvr4WFXFxKSnJympq3t5eXb29JSV5eh4ewsKqqgIBWVk5Od3efn7a2kZFpaUhIZGSNjbW1pKR7e1FRUlJ8fKamtLSLi2NjSEhra5OTtraennV1TU1YWIGBrKyvr4aGXFxKSnFxmZm4uJeXb29JSV5eh4ewsKurgYFXV01Ndnafn7a2kpJqakhIZGSMjLS0paV7e1FRUVF7e6WltLSMjGRkSEhqapKStrafn3Z2TU1XV4GBq6uwsIaGXV1KSnBwmJi4uJiYcHBKSl1dhoawsKurgYFXV0xMdXWenra2k5Nra0hIY2OLi7S0pqZ8fFJSUVF7e6SktbWNjWRkSEhpaZGRtrafn3d3Tk5WVoCAqqqwsIeHXl5JSW9vl5e4uJmZcXFKSlxchoavr6ysgYFYWExMdXWenre3lJRra0hIYmKLi7OzpqZ9fVNTUFB6eqOjtbWNjWVlSEhoaJCQtragoHd3Tk5WVoCAqamxsYiIX19JSW9vl5e3t5qacnJKSlxchYWvr6ysgoJZWUxMdHSdnbe3lJRsbEhIYWGKirOzp6d+flNTUFB5eaOjtbWOjmZmR0doaJCQtrahoXh4T09VVX9/qamxsYiIYGBJSW5ulpa3t5ubcnJKSltbhISurq2tg4NZWUtLdHScnLe3lJRsbElJYWGKirKyqKh+flRUT095eaKitbWPj2dnR0dnZ4+PtbWionl5T09UVH5+qKiysomJYWFKSm1tlJS2tpubdHRMTFtbg4Otra2tg4NbW0xMdHSbm7a2lJRtbUpKYWGJibGxp6d+flVVUFB4eKCgtbWPj2hoSEhnZ46OtbWionl5UVFUVH5+pqaysomJYmJJSW1tlJS2tpubdHRMTFpag4OsrK2thIRcXEtLc3Oamre3lZVubkpKYGCIiLGxqKh/f1ZWT094eKCgtbWQkGlpSEhmZo2NtLSjo3p6UVFTU319pqaysoqKY2NJSWxsk5O2tpycdXVNTVlZgoKsrK6uhYVcXEtLcnKZmbe3lpZvb0pKYGCIiLCwqal/f1ZWT093d5+ftbWQkGpqSEhlZYyMtLSjo3t7UlJTU3x8paWzs4uLZGRJSWtrkpK2tp2ddnZNTVlZgYGrq6+vhoZdXUpKcXGYmLe3l5dwcEpKX1+Hh7CwqamAgFdXTk53d5+ftbWRkWpqSEhlZYyMs7OkpHx8UlJSUnx8pKSzs4uLZGRJSWtrkpK1tZ6ednZOTlhYgYGqqq+vhoZeXkpKcXGXl7e3l5dxcUpKXl6Ghq+vqqqBgVhYTk52dp6etbWRkWtrSUlkZIuLs7OkpHx8U1NSUnt7o6O0tIyMZWVISGpqkZG1tZ+fd3dOTldXgICpqbCwh4dfX0pKcHCXl7e3mJhxcUpKXV2Ghq+vq6uBgVlZTU12dp2dtraSkmtrSUlkZIuLs7OlpXx8U1NSUnt7o6O0tI2NZmZISGlpkJC1tZ+fd3dPT1ZWgICpqbCwiIhgYEpKb2+Wlre3mZlycktLXFyFha6uq6uCgllZTU11dZyctraTk2xsSUljY4qKsrKlpX19VFRRUXp6o6O0tI2NZ2dISGhoj4+1taCgeHhQUFZWf3+oqLCwiIhgYEpKbm6Vlba2mppzc0tLXFyEhK2trKyDg1paTEx0dJubtraUlG1tSkpiYomJsbGmpn5+VVVRUXp6np6rq4qKcHBhYXV1hYWOjoaGfn4=';
             sound.type     = 'audio/wav';
             document.getElementsByTagName('body')[0].appendChild(sound);
@@ -236,8 +241,8 @@ class PropTerm {
      */
     _getCharacterSize(font) {
         // re-use canvas object for better performance
-        let canvas = this.getCharacterSize.canvas || 
-            (this.getCharacterSize.canvas = document.createElement("canvas"));
+        let canvas = this._getCharacterSize.canvas ||
+            (this._getCharacterSize.canvas = document.createElement("canvas"));
         let context = canvas.getContext("2d");
         context.font = font;
         return context.measureText('AA').width - context.measureText('A').width;
@@ -252,20 +257,20 @@ class PropTerm {
         // Register a keydown event callback function
         this.element.addEventListener('keydown', function (e) {
             //Validate key (or emit special key character)
-            let keycode = e.keyCode || e.which;
+            let keyCode = e.keyCode || e.which;
 
-            if (keycode === 8 || keycode === 13) {
+            if (keyCode === 8 || keyCode === 13) {
                 //Emit special character
-                obj._processKey(keycode, obj);
+                obj._processKey(keyCode, obj);
             }
 
             //Validate key
-            if ((keycode === 32)                 ||  //  spacebar
-                (keycode > 47  && keycode < 58)  ||  //  number keys
-                (keycode > 64  && keycode < 91)  ||  //  letter keys
-                (keycode > 95  && keycode < 112) ||  //  numpad keys
-                (keycode > 185 && keycode < 193) ||  //  ;=,-./` (in order)
-                (keycode > 218 && keycode < 223)) {  //  [\]' (in order)
+            if ((keyCode === 32)                 ||  //  spacebar
+                (keyCode > 47  && keyCode < 58)  ||  //  number keys
+                (keyCode > 64  && keyCode < 91)  ||  //  letter keys
+                (keyCode > 95  && keyCode < 112) ||  //  numpad keys
+                (keyCode > 185 && keyCode < 193) ||  //  ;=,-./` (in order)
+                (keyCode > 218 && keyCode < 223)) {  //  [\]' (in order)
                     obj._processKey(e.key.charCodeAt(0), obj);
             }
         });
@@ -356,7 +361,7 @@ class PropTerm {
 
     /**
      * @private
-     * @param {number} c ASCII character to display (or to set a psotioning value)
+     * @param {number} c ASCII character to display (or to set a positioning value)
      * @description Processes an ASCII character and calls the appropriate helpers based on the character entered
      */
     _updateTermBox(c) {
@@ -376,7 +381,8 @@ class PropTerm {
         if (this.cursor.setFlag !== 4) {
             this.cursor.xf = this.cursor.x;
         }
-    
+
+        // TODO: Cannot use an number as a parameter to parseInt().
         c = parseInt(c);
     
         // https://www.parallax.com/portals/0/help/BASICStamp/PBASIC click on Debug
@@ -436,7 +442,7 @@ class PropTerm {
                         // fall through
                     case 16:  // Clear the terminal
                         this.buffer.textArray = null;
-                        this.buffer.textArray = new Array;
+                        this.buffer.textArray = [];
                         this.buffer.textArray[0] = '';
                         // fall through
                     case 1:  // Return to Home (0,0)
@@ -458,7 +464,10 @@ class PropTerm {
                         break;
                     case 7: // Beep
                         this.element.classList.remove("visual-beep_");
+
+                        // TODO: Unknown element 'offsetWidth'
                         j = this.element.offsetWidth;
+
                         this.element.classList.add("visual-beep_");
                         document.getElementById('term-beep_').play();
                         break;
@@ -501,8 +510,6 @@ class PropTerm {
         if (c === 0) {
             this._displayTerm();
         }
-    
-        return;
     }
 
     /**
@@ -535,7 +542,7 @@ class PropTerm {
     
         let terminalLinesHigh = Math.floor(this.size.height / this.size.linesHigh);
         let cursorChar = '';
-        let tempText = '';
+        let tempText;
     
         if (this.element === document.activeElement) {
             cursorChar = '\u258D';
@@ -548,6 +555,8 @@ class PropTerm {
         }
     
         if (this.cursor.scrolled > 0 && this.cursor.scrollTo) {
+
+            // TODO: Unresolved attribute 'style'
             this.element.style.overflowY = 'hidden';
             this.element.scroll(0, (this.cursor.y - terminalLinesHigh/2) * this.size.linesHigh);
             this.element.style.overflowY = 'scroll';
@@ -565,7 +574,7 @@ class PropTerm {
         do {
             this._updateTermBox(this.buffer.chars.charCodeAt(0));
             this.buffer.chars = this.buffer.chars.substr(1);
-        } while (this.buffer.chars.length > 0)
+        } while (this.buffer.chars.length > 0);
     
         this._displayTerm();
     }
@@ -674,6 +683,25 @@ class PropTerm {
      */
     getText() {
         return this.buffer.textArray.join('\r');
+    }
+
+    /**
+     * @function focus
+     * @description forces the terminal element to gain focus.
+     */
+    focus() {
+
+        // TODO: Unresolved element 'focus'.
+        this.element.focus();
+    }
+
+    /**
+     * @function blur
+     * @description removes focus from the terminal element.
+     */
+    blur() {
+        // TODO: Unresolved element 'blur'.
+        this.element.blur();
     }
 }
 

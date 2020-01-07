@@ -21,24 +21,10 @@
  */
 
 
-/* ------------------------------------------------------------------
- *                       Modal dialog boxes
- *                  ----------------------------
- *
- *  [done]  New Project
- *  [wip ]  Open an Existing Project
- *          Import from Existing Project
- *  [done[  Edit Project Details
- *  [wip ]  Save Current Project
- *          Save Current Project Timer
- * ----------------------------------------------------------------*/
-
-
 /**
  * Start the process to open a new project
  *
  * @description
- *
  * This is code that was refactored out of the editor.js
  * document.ready() handler.
  */
@@ -52,20 +38,24 @@ function NewProjectModal() {
             'The current project has been modified. Click OK to\n' +
             'discard the current changes and create a new project.';
 
+        // Default to the Cancel button to prevent inattentive users from
+        // inadvertently destroying their projects.
         utils.confirm(
             "Abandon Current Project", message,
             // result is true if the OK button was selected
             (result) => {
-                if (result) {
-                    downloadCode();
-                }},
+                if (!result) {
+                    // Open up a modal window to get new project details.
+                    showNewProjectModal();
+                }
+            },
             "Cancel",
             "OK");
     } else {
         // Reset the values in the form to defaults
         $('#new-project-name').val('');
         $('#new-project-description').val('');
-        $('#new-project-dialog-title').html(page_text_label['editor_newproject_title']);
+        $('#new-project-dialog-title').html(page_text_label['editor_new_project_title']);
 
         // Open up a modal window to get new project details.
         showNewProjectModal();
@@ -169,7 +159,7 @@ function NewProjectModalCancelClick() {
         // Dismiss the modal in the UX
         $('#new-project-dialog').modal('hide');
 
-        if (!projectData) {
+        if (!projectData || typeof(projectData.board) === 'undefined' ) {
             // If there is no project, go to home page.
             window.location.href = 'index.html' + window.getAllURLParameters();
         }
@@ -193,25 +183,17 @@ function NewProjectModalCancelClick() {
  * the dialog.
  */
 function NewProjectModalEscapeClick() {
-    /* Trap the modal event that fires when the modal window is
- * closed when the user clicks on the 'x' icon.
- */
+    // Trap the modal event that fires when the modal window is
+    // closed when the user clicks on the 'x' icon.
     $('#new-project-dialog').on('hidden.bs.modal', function () {
-        if (!projectData) {
+        if (!projectData || typeof(projectData.board) === 'undefined') {
             // If there is no project, go to home page.
             window.location.href = 'index.html';
         }
-        // Reload the the editor canvas from the active copy of the
-        // project.
-        // eslint-disable-next-line no-undef
-        setupWorkspace(projectData,
-            function () {
-                // eslint-disable-next-line no-undef
-                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-            });
     });
-
 }
+
+
 /**
  * Verify that the project name and board type form fields have data
  *
@@ -271,10 +253,12 @@ function validateEditProjectForm() {
  * from the browser localStorage
  */
 function CreateNewProject() {
-    let code = '';
+    let code;
 
     // If editing details, preserve the code, otherwise start over
-    if (projectData && $('#new-project-dialog-title').html() === page_text_label['editor_edit-details']) {
+    if (projectData
+        && typeof(projectData.board) !== 'undefined'
+        && $('#new-project-dialog-title').html() === page_text_label['editor_edit-details']) {
         // eslint-disable-next-line no-undef
         code = getXml();
     } else {
@@ -305,7 +289,7 @@ function CreateNewProject() {
     // event handler from storing the old project code into
     // the browser storage.
     // ------------------------------------------------------
-    projectData = {};
+    projectData = null;
 
     // Redirect to the editor page
     window.location = 'blocklyc.html' + window.getAllURLParameters();
@@ -323,7 +307,37 @@ function CreateNewProject() {
  */
 // eslint-disable-next-line no-unused-vars
 function OpenProjectModal() {
+    // Save a copy of the original project in case the page gets reloaded
+    if (projectData && typeof (projectData.name) !== 'undefined') {
+        window.localStorage.setItem(
+            LOCAL_PROJECT_STORE_NAME,
+            JSON.stringify(projectData));
 
+        // Has the project been revised. If it has, offer to persist it before
+        // opening a new project
+        if (checkLeave()) {
+            const message =
+                'The current project has been modified. Click OK to\n' +
+                'discard the current changes and create a new project.';
+
+            utils.confirm(
+                "Abandon Current Project", message,
+                // result is true if the OK button was selected
+                (result) => {
+                    if (!result) {
+                        OpenProjectModalSetHandlers();
+                    }
+                },
+                "Cancel",
+                "OK");
+        }
+    } else {
+        // The project has not changed. Continue with the dialog.
+        OpenProjectModalSetHandlers();
+    }
+}
+
+function OpenProjectModalSetHandlers() {
     // set title to Open file
     $('#open-project-dialog-title').html(page_text_label['editor_open']);
 
@@ -334,7 +348,6 @@ function OpenProjectModal() {
     // Import a project .SVG file
     $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
 }
-
 
 /**
  * Connect an event handler to the 'Open' button in the Open
@@ -390,17 +403,10 @@ function OpenProjectModalCancelClick() {
         // Dismiss the modal in the UX
         $('#open-project-dialog').modal('hide');
 
-        if (!projectData) {
+        if (!projectData || typeof(projectData.board) === 'undefined') {
             // If there is no project, go to home page.
             window.location.href = 'index.html' + window.getAllURLParameters();
         }
-        // A copy of the current project is located in the browser localStorage
-        // eslint-disable-next-line no-undef
-        setupWorkspace(projectData,
-            function () {
-                // eslint-disable-next-line no-undef
-                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-            });
     });
 }
 
@@ -413,18 +419,10 @@ function OpenProjectModalEscapeClick() {
      * closed when the user clicks on the 'x' icon.
      */
     $('#open-project-dialog').on('hidden.bs.modal', function () {
-        if (!projectData) {
+        if (!projectData | typeof(projectData.board) === 'undefined') {
             // If there is no project, go to home page.
             window.location.href = 'index.html';
         }
-        // Reload the the editor canvas from the active copy of the
-        // project.
-        // eslint-disable-next-line no-undef
-        setupWorkspace(projectData,
-            function () {
-                // eslint-disable-next-line no-undef
-                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-            });
     });
 }
 
@@ -459,7 +457,7 @@ function OpenProjectFileDialog() {
 
     // TODO: what is this doing here? Shouldn't we be setting up projectData instead of localStore?
     //       Or can this simply be deleted, because the openFile functions will take care of this?
-    if (projectData) {
+    if (projectData || typeof(projectData.board) === 'undefined') {
         // eslint-disable-next-line no-undef
         console.log("Loading workspace with project %s", LOCAL_PROJECT_STORE_NAME);
         // eslint-disable-next-line no-undef
