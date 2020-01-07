@@ -58,6 +58,7 @@ Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG = "Download Graph data as CSV - Filename
 Blockly.Msg.DIALOG_ERROR = 'Error';
 Blockly.Msg.DIALOG_LOADING_ERROR = 'Unable to load the project';
 Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER = 'BlocklyProp Launcher';
+Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER_CONFIGURE_TITLE = 'Configure the BlocklyProp-Launcher connection';
 Blockly.Msg.DIALOG_SIDE_FILES_ERROR = 'A problem occurred when trying to create the SimpleIDE files: ';
 Blockly.Msg.DIALOG_NO_CLIENT = '<i class="glyphicon glyphicon-exclamation-sign"></i> BlocklyPropClient <strong>is not running</strong>';
 Blockly.Msg.DIALOG_NO_DEVICE_TEXT = 'Ensure it is connected, powered on, and selected in the ports list. Make sure your BlocklyPropClient is up-to-date.';
@@ -847,7 +848,7 @@ page_text_label['editor_find_label'] = "Find: ";
 page_text_label['editor_replace_label'] = "Replace: ";
 page_text_label['editor_newproject_c'] = "Propeller C";
 page_text_label['editor_newproject_spin'] = "Scribbler Robot";
-page_text_label['editor_newproject_title'] = "New project";
+page_text_label['editor_new_project_title'] = "New project";
 page_text_label['editor_open'] = "Open project file";
 page_text_label['editor_import'] = "Import project file";
 page_text_label['editor_project'] = "Project";
