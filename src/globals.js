@@ -31,7 +31,7 @@
  *
  * @type {{}}
  */
-let projectData = {};
+let projectData = null;
 
 
 /**
