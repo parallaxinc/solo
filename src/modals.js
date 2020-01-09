@@ -318,7 +318,7 @@ function OpenProjectModal() {
         if (checkLeave()) {
             const message =
                 'The current project has been modified. Click OK to\n' +
-                'discard the current changes and create a new project.';
+                'discard the current changes and open an existing project.';
 
             utils.confirm(
                 "Abandon Current Project", message,
