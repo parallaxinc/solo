@@ -1255,7 +1255,8 @@ function downloadCode() {
         // this will allow the project to be reloaded.
         // make the projecData object reflect the current workspace and save it into localStorage
         projectData.timestamp = getTimestamp();
-        projectData.code = Project.prototype.EmptyProjectCodeHeader + projectXmlCode + '</xml>';
+        // projectData.code = Project.prototype.EmptyProjectCodeHeader + projectXmlCode + '</xml>';
+        projectData.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
         window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
 
         // Mark the time when saved, add 20 minutes to it.
