@@ -382,12 +382,6 @@ class PropTerm {
             this.cursor.xf = this.cursor.x;
         }
 
-        // Cannot use an number as a parameter to parseInt().
-        if (typeof c === 'string') {
-            let str = c.toString();
-            c = parseInt(str);
-        }
-
         // https://www.parallax.com/portals/0/help/BASICStamp/PBASIC click on Debug
         switch (this.cursor.setFlag) {
             case 3:  // Save character into X, then, on the next loop through, use the next character to set Y
@@ -467,10 +461,6 @@ class PropTerm {
                         break;
                     case 7: // Beep
                         this.element.classList.remove("visual-beep_");
-
-                        // TODO: Unknown element 'offsetWidth'
-                        j = this.element.offsetWidth;
-
                         this.element.classList.add("visual-beep_");
                         document.getElementById('term-beep_').play();
                         break;
@@ -699,9 +689,9 @@ class PropTerm {
      * @description forces the terminal element to gain focus.
      */
     focus() {
-
-        // TODO: Unresolved element 'focus'.
-        this.element.focus();
+        if (this.element.tagName.toLowerCase() === 'div') {
+            this.element.focus();
+        }
     }
 
     /**
@@ -709,8 +699,9 @@ class PropTerm {
      * @description removes focus from the terminal element.
      */
     blur() {
-        // TODO: Unresolved element 'blur'.
-        this.element.blur();
+        if (this.element.tagName.toLowerCase() === 'div') {
+            this.element.blur();
+        }
     }
 }
 
