@@ -439,8 +439,9 @@ $(() => {
  * the project name and descriptions for changes.
  */
 function checkLeave() {
-    // Return if there is no project data
-    if (!projectData || projectData.length === 0) {
+    // The projectData variable is now officially an object. Consider it empty
+    // if it is null or if the name property is undefined.
+    if (!projectData || typeof projectData.name === 'undefined') {
         return false;
     }
 

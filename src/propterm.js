@@ -382,9 +382,12 @@ class PropTerm {
             this.cursor.xf = this.cursor.x;
         }
 
-        // TODO: Cannot use an number as a parameter to parseInt().
-        c = parseInt(c);
-    
+        // Cannot use an number as a parameter to parseInt().
+        if (typeof c === 'string') {
+            let str = c.toString();
+            c = parseInt(str);
+        }
+
         // https://www.parallax.com/portals/0/help/BASICStamp/PBASIC click on Debug
         switch (this.cursor.setFlag) {
             case 3:  // Save character into X, then, on the next loop through, use the next character to set Y
@@ -406,7 +409,7 @@ class PropTerm {
             case 0:  // No character positioning this round, process it as an ASCII character.
                 // fall through
             default:
-                // TODO: Null is important to Parallax - Ask Jeff
+                // Null is important to Parallax - Ask Jeff
                 switch (c) {
                     case 127:
                         // fall through
@@ -536,14 +539,20 @@ class PropTerm {
      * @description Helper function to convert the text buffer to properly formatted HTML to display.
      */
     _displayTerm() {
-        if (this.cursor.y < this.buffer.textArray.length - 1 && this.buffer.textArray[this.buffer.textArray.length - 1] === '') {
+        if (this.cursor.y < this.buffer.textArray.length - 1 &&
+            this.buffer.textArray[this.buffer.textArray.length - 1] === '') {
             this.buffer.textArray.pop();
         }
     
         let terminalLinesHigh = Math.floor(this.size.height / this.size.linesHigh);
         let cursorChar = '';
         let tempText;
-    
+
+        // The activeElement read-only property of the Document and ShadowRoot
+        // interfaces returns the Element within the DOM or shadow DOM tree
+        // that currently has focus.
+        // --------------------------------------------------------------------
+        // if the current DOM element is equal to the currently active element
         if (this.element === document.activeElement) {
             cursorChar = '\u258D';
         }
