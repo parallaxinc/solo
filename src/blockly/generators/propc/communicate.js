@@ -1923,7 +1923,7 @@ Blockly.Blocks.debug_lcd_init = {
         }
         this.appendDummyInput('PINS')
                 .appendField("Serial LCD initialize PIN")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.map(function (value) {
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
                     return [value, value]  // returns an array of arrays built from the original array.
                 }))), "PIN")
                 .appendField("baud")
