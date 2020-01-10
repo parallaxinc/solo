@@ -1169,6 +1169,12 @@ xmlToolbox += '        <category key="category_sensor-input_hmc5883l" include="o
 xmlToolbox += '            <block type="HMC5883L_init"></block>';
 xmlToolbox += '            <block type="HMC5883L_read"></block>';
 xmlToolbox += '        </category>';
+xmlToolbox += '        <category key="category_sensor-input_LIS3DH" >';
+xmlToolbox += '            <block type="lis3dh_init"></block>';
+xmlToolbox += '            <block type="lis3dh_read"></block>';
+xmlToolbox += '            <block type="lis3dh_temp"></block>';
+//xmlToolbox += '            <block type="lis3dh_tilt"></block>';
+xmlToolbox += '        </category>';
 xmlToolbox += '        <category key="category_sensor-input_LSM9DS1" >';
 xmlToolbox += '            <block type="lsm9ds1_init"></block>';
 xmlToolbox += '            <block type="lsm9ds1_mag_calibrate"></block>';
