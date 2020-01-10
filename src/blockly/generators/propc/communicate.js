@@ -990,9 +990,10 @@ Blockly.Blocks.serial_open = {
         var ck_bits = ['FALSE', 'FALSE', 'FALSE', 'FALSE'];
         var otherMode = false;
         for (var k = 0; k < 4; k++) {
-            ck_bits[k] = xmlElement.getAttribute('ck_bit' + k.toString(10));
-            if (ck_bits[k] === 'TRUE') {
+            var ck_bit = xmlElement.getAttribute('ck_bit' + k.toString(10));
+            if (ck_bit) {
                 otherMode = true;
+                ck_bits[k] = ck_bit;
             }
         }
         if (otherMode) {
