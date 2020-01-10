@@ -302,20 +302,26 @@ $(() => {
             return;
         }
 
-        // Store the current project into the localStore so that if the page
-        // is being refreshed, it will automatically be reloaded
-        if (projectData && projectData.name !== "undefined") {
-            // Deep copy of the projectData object
-            let tempProject = {};
-            Object.assign(tempProject, projectData);
+        // If the localStorage is empty, store the current project into the
+        // localStore so that if the page is being refreshed, it will
+        // automatically be reloaded.
+        if (projectData &&
+            projectData.name !== "undefined" &&
+            ! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
 
-            // Overwrite the code blocks with the current project state
-            tempProject.code = getXml();
-            tempProject.timestamp = getTimestamp();
+            if (! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
+                // Deep copy of the projectData object
+                let tempProject = {};
+                Object.assign(tempProject, projectData);
 
-            // Save the current project into the browser store where it will
-            // get picked up by the page loading code.
-            window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(tempProject));
+                // Overwrite the code blocks with the current project state
+                tempProject.code = getXml();
+                tempProject.timestamp = getTimestamp();
+
+                // Save the current project into the browser store where it will
+                // get picked up by the page loading code.
+                window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(tempProject));
+            }
         }
 
         if (checkLeave()) {
@@ -1249,7 +1255,8 @@ function downloadCode() {
         // this will allow the project to be reloaded.
         // make the projecData object reflect the current workspace and save it into localStorage
         projectData.timestamp = getTimestamp();
-        projectData.code = EmptyProjectCodeHeader + projectXmlCode + '</xml>';
+        // projectData.code = Project.prototype.EmptyProjectCodeHeader + projectXmlCode + '</xml>';
+        projectData.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
         window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
 
         // Mark the time when saved, add 20 minutes to it.
@@ -1379,10 +1386,11 @@ function uploadHandler(files) {
                 uploadedXML = EMPTY_PROJECT_CODE_HEADER + uploadedXML + '</xml>';
             }
 
-            // TODO: check to see if this is used when opened from the editor (and not the splash screen)
+            // TODO: check to see if this is used when opened from the editor
+            //  (and not the splash screen)
             // maybe projectData.code.length < 43??? i.e. empty project? instead of the URL parameter...
 
-            if (window.getURLParameter('openFile') === "true") {
+//            if (window.getURLParameter('openFile') === "true") {
                 // Loading an offline .SVG project file. Create a project object and
                 // save it into the browser store.
                 var titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
@@ -1460,7 +1468,7 @@ function uploadHandler(files) {
 
                 // Save the project to the browser store
                 window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
-            }
+//            }
         }
 
         if (xmlValid === true) {
