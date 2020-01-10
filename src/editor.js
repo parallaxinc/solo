@@ -461,6 +461,17 @@ function checkLeave() {
  * @returns {boolean} True if projects are unequal, otherwise return false
  */
 function compareProjectCode(projectA, projectB) {
+    // Sanity checks
+    if (typeof projectA === 'undefined') {
+        console.log("project A is undefined.");
+        return true;
+    }
+
+    if (typeof projectB === 'undefined') {
+        console.log("project B is undefined.");
+        return true;
+    }
+
     // Looking for the first <block> XML element
     const searchTerm = '<block';
 
@@ -1826,11 +1837,12 @@ function testProjectEquality(projectA, projectB) {
         console.log("Project description mismatch");
     }
 
-    if (projectA.type !== projectB.type) {
+    if (projectA.projectType !== projectB.projectType) {
+        console.log("ProjectType mismatch")
         return false;
     }
 
-    if (projectA.board !== projectB.board) {
+    if (projectA.boardType !== projectB.boardType) {
         console.log("Board type mismatch");
         return false;
     }
@@ -1841,18 +1853,22 @@ function testProjectEquality(projectA, projectB) {
     }
 
     if (projectA.created !== projectB.created) {
+        console.log("Project created timestamp mismatch");
         return false;
     }
 
     if (projectA.modified !== projectB.modified) {
+        console.log("Project last modified timestamp mismatch");
         return false;
     }
 
     if (projectA.descriptionHtml !== projectB.descriptionHtml) {
+        console.log("Project HTML description mismatch");
         return false;
     }
 
     if (projectA.id !== projectB.id) {
+        console.log("Project A is not the same object as project B");
         return false;
     }
 
