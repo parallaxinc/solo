@@ -990,9 +990,10 @@ Blockly.Blocks.serial_open = {
         var ck_bits = ['FALSE', 'FALSE', 'FALSE', 'FALSE'];
         var otherMode = false;
         for (var k = 0; k < 4; k++) {
-            ck_bits[k] = xmlElement.getAttribute('ck_bit' + k.toString(10));
-            if (ck_bits[k] === 'TRUE') {
+            var ck_bit = xmlElement.getAttribute('ck_bit' + k.toString(10));
+            if (ck_bit) {
                 otherMode = true;
+                ck_bits[k] = ck_bit;
             }
         }
         if (otherMode) {
@@ -1923,7 +1924,7 @@ Blockly.Blocks.debug_lcd_init = {
         }
         this.appendDummyInput('PINS')
                 .appendField("Serial LCD initialize PIN")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.map(function (value) {
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
                     return [value, value]  // returns an array of arrays built from the original array.
                 }))), "PIN")
                 .appendField("baud")

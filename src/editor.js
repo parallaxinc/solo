@@ -302,20 +302,26 @@ $(() => {
             return;
         }
 
-        // Store the current project into the localStore so that if the page
-        // is being refreshed, it will automatically be reloaded
-        if (projectData && projectData.name !== "undefined") {
-            // Deep copy of the projectData object
-            let tempProject = {};
-            Object.assign(tempProject, projectData);
+        // If the localStorage is empty, store the current project into the
+        // localStore so that if the page is being refreshed, it will
+        // automatically be reloaded.
+        if (projectData &&
+            projectData.name !== "undefined" &&
+            ! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
 
-            // Overwrite the code blocks with the current project state
-            tempProject.code = getXml();
-            tempProject.timestamp = getTimestamp();
+            if (! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
+                // Deep copy of the projectData object
+                let tempProject = {};
+                Object.assign(tempProject, projectData);
 
-            // Save the current project into the browser store where it will
-            // get picked up by the page loading code.
-            window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(tempProject));
+                // Overwrite the code blocks with the current project state
+                tempProject.code = getXml();
+                tempProject.timestamp = getTimestamp();
+
+                // Save the current project into the browser store where it will
+                // get picked up by the page loading code.
+                window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(tempProject));
+            }
         }
 
         if (checkLeave()) {
@@ -461,6 +467,17 @@ function checkLeave() {
  * @returns {boolean} True if projects are unequal, otherwise return false
  */
 function compareProjectCode(projectA, projectB) {
+    // Sanity checks
+    if (typeof projectA === 'undefined') {
+        console.log("project A is undefined.");
+        return true;
+    }
+
+    if (typeof projectB === 'undefined') {
+        console.log("project B is undefined.");
+        return true;
+    }
+
     // Looking for the first <block> XML element
     const searchTerm = '<block';
 
@@ -1238,7 +1255,8 @@ function downloadCode() {
         // this will allow the project to be reloaded.
         // make the projecData object reflect the current workspace and save it into localStorage
         projectData.timestamp = getTimestamp();
-        projectData.code = EmptyProjectCodeHeader + projectXmlCode + '</xml>';
+        // projectData.code = Project.prototype.EmptyProjectCodeHeader + projectXmlCode + '</xml>';
+        projectData.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
         window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
 
         // Mark the time when saved, add 20 minutes to it.
@@ -1368,10 +1386,11 @@ function uploadHandler(files) {
                 uploadedXML = EMPTY_PROJECT_CODE_HEADER + uploadedXML + '</xml>';
             }
 
-            // TODO: check to see if this is used when opened from the editor (and not the splash screen)
+            // TODO: check to see if this is used when opened from the editor
+            //  (and not the splash screen)
             // maybe projectData.code.length < 43??? i.e. empty project? instead of the URL parameter...
 
-            if (window.getURLParameter('openFile') === "true") {
+//            if (window.getURLParameter('openFile') === "true") {
                 // Loading an offline .SVG project file. Create a project object and
                 // save it into the browser store.
                 var titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
@@ -1449,7 +1468,7 @@ function uploadHandler(files) {
 
                 // Save the project to the browser store
                 window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
-            }
+//            }
         }
 
         if (xmlValid === true) {
@@ -1826,11 +1845,12 @@ function testProjectEquality(projectA, projectB) {
         console.log("Project description mismatch");
     }
 
-    if (projectA.type !== projectB.type) {
+    if (projectA.projectType !== projectB.projectType) {
+        console.log("ProjectType mismatch")
         return false;
     }
 
-    if (projectA.board !== projectB.board) {
+    if (projectA.boardType !== projectB.boardType) {
         console.log("Board type mismatch");
         return false;
     }
@@ -1841,18 +1861,22 @@ function testProjectEquality(projectA, projectB) {
     }
 
     if (projectA.created !== projectB.created) {
+        console.log("Project created timestamp mismatch");
         return false;
     }
 
     if (projectA.modified !== projectB.modified) {
+        console.log("Project last modified timestamp mismatch");
         return false;
     }
 
     if (projectA.descriptionHtml !== projectB.descriptionHtml) {
+        console.log("Project HTML description mismatch");
         return false;
     }
 
     if (projectA.id !== projectB.id) {
+        console.log("Project A is not the same object as project B");
         return false;
     }
 

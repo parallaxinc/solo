@@ -331,6 +331,9 @@ function OpenProjectModal() {
                 "Cancel",
                 "OK");
         }
+        else {
+            OpenProjectModalSetHandlers();
+        }
     } else {
         // The project has not changed. Continue with the dialog.
         OpenProjectModalSetHandlers();
@@ -355,10 +358,10 @@ function OpenProjectModalSetHandlers() {
  *
  * @description
  * When a project is selected, the code responsible for retrieving
- * project from disk will store it in the browser's localStorage
- * under the key value TEMP_PROJECT_STORE_NAME. That same code will
- * return control to the Open Project modal, where the user can
- * select Open or Cancel.
+ * project from disk, uploadHandler(), will store it in the browser's
+ * localStorage under the key value TEMP_PROJECT_STORE_NAME. That
+ * same code will return control to the Open Project modal, where the
+ * user can select Open or Cancel.
  *
  * This event handler is invoked when the user selects the Open
  * button. It looks for a project in the browser's local
@@ -384,6 +387,9 @@ function OpenProjectModalOpenClick() {
             // eslint-disable-next-line no-undef
             window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
             window.location = 'blocklyc.html';
+        }
+        else {
+            console.log("The opened project cannot be found in storage");
         }
     });
 }
