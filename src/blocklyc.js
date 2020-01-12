@@ -418,8 +418,10 @@ function generateBlockId(nonce) {
  * @returns {string}
  */
 var propcAsBlocksXml = function () {
-    let code = '<xml xmlns="http://www.w3.org/1999/xhtml">';
-    code += '<block type="propc_file" id="' + generateBlockId(codePropC ? codePropC.getValue() : 'thequickbrownfoxjumpedoverthelazydog') + '" x="100" y="100">';
+    let code = EMPTY_PROJECT_CODE_HEADER;
+    code += '<block type="propc_file" id="' + 
+            generateBlockId(codePropC ? codePropC.getValue() : 'thequickbrownfoxjumpedoverthelazydog') + 
+            '" x="100" y="100">';
     code += '<field name="FILENAME">single.c</field>';
     code += '<field name="CODE">';
 
