@@ -46,7 +46,9 @@
     <meta name="win64client" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-64.exe">
     <meta name="win64zipclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-64.zip">
     <meta name="macOSclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-MacOS.pkg">
-
+    <meta name="win64launcher" content="http://downloads.parallax.com/blockly/clients/launcher/Setup-BPLauncher-v0.11.0-Win.exe">
+    <meta name="win64ziplauncher" content="http://downloads.parallax.com/blockly/clients/launcher/Setup-BPLauncher-v0.11.0-Win.exe.zip">
+    <meta name="macOSlauncher" content="http://downloads.parallax.com/blockly/clients/launcher/Setup-BPLauncher-v0.11.0-MacOS.zip">
 
     <meta name="application-name" content="BlocklyProp Solo" />
     <meta name="msapplication-TileColor" content="#FFFFFF" />
@@ -744,118 +746,69 @@
                         <!-- MacOS instructions -->
                         <div class="client-instructions MacOS">
                             <h4><span class="keyed-lang-string" data-key="client_macOS_run_title"></span>&nbsp;</h4>
-                            <div style="background:#f5f5f5; border-radius:6px; height:220px; padding:6px;">
+                            <div style="background:#f5f5f5; border-radius:6px; padding:6px;">
                                 <div id="mac1">
-                                    <p class="keyed-lang-string" data-key="client_macOS_run_instructions1"></p>
-                                    <div style="text-align:center;"><img
-                                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                            data-src="images/client-run/mac_os1.png"
-                                            alt="Instructions to launch the client" /></div>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <p class="keyed-lang-string" data-key="client_macOS_run_instructions1"></p>
+                                                <p class="keyed-lang-string" data-key="client_run_instructions2"></p>
+                                            </td>
+                                            <td>
+                                                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                                                        data-src="images/client-run/mac_os.png"
+                                                        alt="Instructions to launch the client" 
+                                                        style="padding:10px"/>
+                                            </td>
+                                        </tr>
+                                        </table>
                                 </div>
-                                <div id="mac2" class="hidden">
-                                    <p class="keyed-lang-string" data-key="client_macOS_run_instructions2"></p>
-                                    <div style="text-align:center;"><img
-                                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                            data-src="images/client-run/mac_os2.png"
-                                            alt="Instructions to launch the client" /></div>
-                                </div>
-                                <div id="mac3" class="hidden">
-                                    <p class="keyed-lang-string" data-key="client_macOS_run_instructions3"></p>
-                                    <div style="text-align:center;"><img
-                                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                            data-src="images/client-run/mac_os3.png"
-                                            alt="Instructions to launch the client" /></div>
-                                </div>
-                                <div id="mac4" class="hidden">
-                                    <p class="keyed-lang-string" data-key="client_run_instructions2"></p>
-                                    <div style="text-align:center;"><img
-                                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                            data-src="images/client-run/usbok.png"
-                                            alt="Safe to plug in USB and Propeller hardware" /></div>
-                                </div>
-                            </div>
-                            <div style="padding-top:10px;">
-                                <button id="mac1-btn" class="btn btn-sm btn-primary keyed-lang-string"
-                                    data-key="client_run_step1"></button>
-                                <button id="mac2-btn" class="btn btn-sm btn-default keyed-lang-string"
-                                    data-key="client_run_step2"></button>
-                                <button id="mac3-btn" class="btn btn-sm btn-default keyed-lang-string"
-                                    data-key="client_run_step3"></button>
-                                <button id="mac4-btn" class="btn btn-sm btn-default keyed-lang-string"
-                                    data-key="client_run_step4"></button>
                             </div>
                         </div>
 
                         <!-- Windows instructions -->
                         <div class="client-instructions Windows">
                             <h4 class="keyed-lang-string" data-key="client_windows_run_title">&nbsp;</h4>
-                            <div style="background:#f5f5f5; border-radius:6px; height:250px; padding:6px;">
+                            <div style="background:#f5f5f5; border-radius:6px; padding:6px;">
                                 <div id="win1">
-                                    <p class="keyed-lang-string" data-key="client_windows_run_instructions1"></p>
-                                    <div style="text-align:center;"><img
-                                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                            data-src="images/client-run/windows1.png"
-                                            alt="Instructions to launch the client" /></div>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <p class="keyed-lang-string" data-key="client_windows_run_instructions1"></p>
+                                                <p class="keyed-lang-string" data-key="client_run_instructions2"></p>
+                                            </td>
+                                            <td>
+                                                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                                                        data-src="images/client-run/windows.png"
+                                                        alt="Instructions to launch the client"
+                                                        style="padding:10px"/>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </div>
-                                <div id="win2" class="hidden">
-                                    <p class="keyed-lang-string" data-key="client_windows_run_instructions2"></p>
-                                    <p class="keyed-lang-string" data-key="client_windows_run_instructions3"></p>
-                                    <div style="text-align:center;"><img
-                                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                            data-src="images/client-run/windows2.png"
-                                            alt="Instructions to launch the client" /></div>
-                                </div>
-                                <div id="win3" class="hidden">
-                                    <p class="keyed-lang-string" data-key="client_run_instructions2"></p>
-                                    <div style="text-align:center;"><img
-                                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                            data-src="images/client-run/usbok.png"
-                                            alt="Safe to plug in USB and Propeller hardware" /></div>
-                                </div>
-                            </div>
-                            <div style="padding-top:10px;">
-                                <button id="win1-btn" class="btn btn-sm btn-primary keyed-lang-string"
-                                    data-key="client_run_step1"></button>
-                                <button id="win2-btn" class="btn btn-sm btn-default keyed-lang-string"
-                                    data-key="client_run_step2"></button>
-                                <button id="win3-btn" class="btn btn-sm btn-default keyed-lang-string"
-                                    data-key="client_run_step3"></button>
                             </div>
                         </div>
 
                         <!-- Chrome OS instructions -->
                         <div class="client-instructions ChromeOS">
                             <h4 class="keyed-lang-string" data-key="client_chrome_run_title">&nbsp;</h4>
-                            <div style="background:#f5f5f5; border-radius:6px; height:220px; padding:6px;">
+                            <div style="background:#f5f5f5; border-radius:6px; padding:6px;">
                                 <div id="chr1">
-                                    <p class="keyed-lang-string" data-key="client_chrome_run_instructions1"></p>
-                                    <div style="text-align:center;"><img
-                                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                            data-src="images/client-run/chrome1.png"
-                                            alt="Instructions to launch the client" /></div>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <p class="keyed-lang-string" data-key="client_chrome_run_instructions1"></p>
+                                                <p class="keyed-lang-string" data-key="client_run_instructions2"></p>
+                                            </td>
+                                            <td>
+                                                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                                                        data-src="images/client-run/chrome.png"
+                                                        alt="Instructions to launch the client"
+                                                        style="padding:10px"/>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </div>
-                                <div id="chr2" class="hidden">
-                                    <p class="keyed-lang-string" data-key="client_chrome_run_instructions2"></p>
-                                    <div style="text-align:center;"><img
-                                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                            data-src="images/client-run/chrome2.png"
-                                            alt="Instructions to launch the client" /></div>
-                                </div>
-                                <div id="chr3" class="hidden">
-                                    <p class="keyed-lang-string" data-key="client_run_instructions2"></p>
-                                    <div style="text-align:center;"><img
-                                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                            data-src="images/client-run/usbok.png"
-                                            alt="Safe to plug in USB and Propeller hardware" /></div>
-                                </div>
-                            </div>
-                            <div style="padding-top:10px;">
-                                <button id="chr1-btn" class="btn btn-sm btn-primary keyed-lang-string"
-                                    data-key="client_run_step1"></button>
-                                <button id="chr2-btn" class="btn btn-sm btn-default keyed-lang-string"
-                                    data-key="client_run_step2"></button>
-                                <button id="chr3-btn" class="btn btn-sm btn-default keyed-lang-string"
-                                    data-key="client_run_step3"></button>
                             </div>
                         </div>
 
@@ -864,7 +817,7 @@
                         <div id="client-instructions-copy"></div>
                     </div>
                     <hr />
-                    <div class="dropup">
+                    <div class="dropup" style="display: inline-block;">
                         <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
                             <span class="keyed-lang-string" data-key="clientdownload_os_menu"></span>
                             <span class="caret"></span></button>
@@ -878,6 +831,10 @@
                             <!-- <li><a href="#" class="show-os-lnx"><span class="keyed-lang-string" data-key="os_name_lnx"></span></a></li> -->
                         </ul>
                     </div>
+                    <button style="display:inline-block; margin-left:20px;" 
+                            class="btn btn-sm btn-primary" 
+                            onclick="$('.bpc-old').removeClass('hidden'); $(this).addClass('hidden');">
+                        Show BlocklyProp-Client (older) downloads</button>
                 </div>
             </div>
         </div>
@@ -915,7 +872,18 @@
                         <div class="client-instructions MacOS">
                             <h4 class="keyed-lang-string" data-key="clientdownload_download_installer">&nbsp;</h4>
                         </div>
+
+                        <!-- MacOS Launcher -->
                         <div class="client MacOS">
+                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                                data-src="images/os-icons/mac_os.png" alt="Mac OS icon" />
+                            <a href="#" class="launcher-mac-link">
+                                <span class="keyed-lang-string"
+                                    data-key="clientdownload_launcher_macos_installer"></span></a>
+                        </div>
+
+                        <!-- MacOS Client -->
+                        <div class="client MacOS bpc-old hidden">
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                                 data-src="images/os-icons/mac_os.png" alt="Mac OS icon" />
                             <a href="#" class="client-mac-link">
@@ -928,8 +896,29 @@
                             <h4 class="keyed-lang-string" data-key="clientdownload_download_installer">&nbsp;</h4>
                         </div>
 
-                        <!-- Windows x32 client -->
+                        <!-- Windows x64 Launcher -->
                         <div class="client Windows">
+                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                                data-src="images/os-icons/windows.png" alt="Windows OS icon" />
+                            <a href="#" class="launcher-win64-link">
+                                <span class="keyed-lang-string"
+                                    data-key="clientdownload_launcher_windows64_installer"></span>
+                            </a>
+                        </div>
+
+
+                        <!-- Windows x64 Launcher -->
+                        <div class="client Windows">
+                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                                 data-src="images/os-icons/windows.png" alt="Windows OS icon" />
+                            <a href="#" class="launcher-win64zip-link">
+                                <span class="keyed-lang-string"
+                                      data-key="clientdownload_launcher_windows64zip_installer"></span>
+                            </a>
+                        </div>
+
+                        <!-- Windows x32 client -->
+                        <div class="client Windows bpc-old hidden">
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                                 data-src="images/os-icons/windows.png" alt="Windows OS icon" />
                             <a href="#" class="client-win32-link">
@@ -939,7 +928,7 @@
                         </div>
 
                         <!-- Windows x32 client zip file -->
-                        <div class="client Windows">
+                        <div class="client Windows bpc-old hidden">
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                                  data-src="images/os-icons/windows.png" alt="Windows OS icon" />
                             <a href="#" class="client-win32zip-link">
@@ -949,7 +938,7 @@
                         </div>
 
                         <!-- Windows x64 client -->
-                        <div class="client Windows">
+                        <div class="client Windows bpc-old hidden">
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                                 data-src="images/os-icons/windows.png" alt="Windows OS icon" />
                             <a href="#" class="client-win64-link">
@@ -960,7 +949,7 @@
 
 
                         <!-- Windows x64 client -->
-                        <div class="client Windows">
+                        <div class="client Windows bpc-old hidden">
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                                  data-src="images/os-icons/windows.png" alt="Windows OS icon" />
                             <a href="#" class="client-win64zip-link">
@@ -1018,6 +1007,10 @@
                              -->
                         </ul>
                     </div>
+                    <button style="display:inline-block; margin-left:20px;" 
+                            class="btn btn-sm btn-primary" 
+                            onclick="$('.bpc-old').removeClass('hidden'); $(this).addClass('hidden');">
+                        Show BlocklyProp-Client (older) downloads</button>
                 </div>
 
                 <div class="modal-footer">
