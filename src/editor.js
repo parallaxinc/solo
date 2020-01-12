@@ -174,6 +174,11 @@ var bpIcons = {
  */
 var blocklyWorkSpace;
 
+/**
+ * The prop terminal object
+ */
+var pTerm;
+
 
 
 
@@ -267,42 +272,54 @@ const checkLastSavedTime = function () {
  * Replaces the old document.ready() construct
  */
 $(() => {
+    RenderPageBrandingElements();
+
     /* -- Set up amy event handlers once the DOM is ready -- */
 
     // Update the blockly workspace to ensure that it takes
     // the remainder of the window. This is an async call.
     $(window).on('resize', function () {
-        resetToolBoxSizing()
+        // TODO: Add correct parameters to the resetToolBoxSizing()
+        resetToolBoxSizing(100, true);
     });
 
     // Event handler for the OnBeforeUnload event
-    // --------------------------------------------------------------
-    // This event fires just before the document begins to unload.
-    // The unload can be stopped by returning a string message. The
-    // browser will then open a modal dialog the presents the
-    // message and options for Cancel and Leave. If the Cancel option
-    // is selected the unload event is cancelled and page processing
-    // continues.
-    // --------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // This event fires just before the document begins to unload. The unload
+    // can be stopped by returning a string message. The browser will then
+    // open a modal dialog the presents the message and options for Cancel and
+    // Leave. If the Cancel option is selected the unload event is cancelled
+    // and page processing continues.
+    // ------------------------------------------------------------------------
     window.addEventListener('beforeunload', function (e) {
-
         // Call checkLeave only if we are NOT loading a new project
-        if (getURLParameter('openFile') === "true") {
+        if (window.getURLParameter('openFile') === "true") {
             return;
         }
 
-        // Store the current project into the localStore so that
-        // if the page is being refreshed, it will automatically
-        // be reloaded
-        // ------------------------------------------------------
-        if (projectData) {
-            if (projectData['name'] !== "undefined") {
+        // Or creating a new project
+        if (window.getURLParameter('newProject') === "true") {
+            return;
+        }
+
+        // If the localStorage is empty, store the current project into the
+        // localStore so that if the page is being refreshed, it will
+        // automatically be reloaded.
+        if (projectData &&
+            projectData.name !== "undefined" &&
+            ! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
+
+            if (! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
+                // Deep copy of the projectData object
                 let tempProject = {};
                 Object.assign(tempProject, projectData);
 
+                // Overwrite the code blocks with the current project state
                 tempProject.code = getXml();
                 tempProject.timestamp = getTimestamp();
 
+                // Save the current project into the browser store where it will
+                // get picked up by the page loading code.
                 window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(tempProject));
             }
         }
@@ -333,23 +350,19 @@ $(() => {
     initCdnImageUrls();
     initClientDownloadLinks();
 
+
     // TODO: Use the ping endpoint to verify that we are offline.
 
     // Stop pinging the Rest API
     clearInterval(pingInterval);
 
     // Load a project file from local storage
-    if (getURLParameter('openFile') === "true") {
-        // Check for an existing project in localStorage
-        if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
-            // put a copy into projectData
-            projectData = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
-        }
-
+    if (window.getURLParameter('openFile') === "true") {
         // Show the Open Project modal dialog
         OpenProjectModal();
 
-    } else if (getURLParameter('newProject') === "true") {
+    } else if (window.getURLParameter('newProject') === "true") {
+        // Show the New Project modal dialog
         NewProjectModal();
 
     } else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
@@ -364,10 +377,10 @@ $(() => {
             // and reset Blockly core for a new project. That
             // does not appear to be happening.
             // **************************************************
-            setupWorkspace(localProject,
-                function () {
-                    window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-                });
+
+            setupWorkspace(localProject, function () {
+                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
+            });
         } catch (objError) {
             if (objError instanceof SyntaxError) {
                 console.error(objError.name);
@@ -377,15 +390,40 @@ $(() => {
                 utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_LOADING_ERROR);
             }
             // No viable project available, so redirect to index page.
-            window.location.href = 'index.html';
+            window.location.href = 'index.html' + window.getAllURLParameters();
         }
     } else {
         // No viable project available, so redirect to index page.
-        window.location.href = 'index.html';
+        window.location.href = 'index.html' + window.getAllURLParameters();
     }
 
     // Make sure the toolbox appears correctly, just for good measure.
-    resetToolBoxSizing(250);
+    // And center the blocks on the workspace. This assumes that there is
+    // an active project in the Blockly object.
+    resetToolBoxSizing(250, true);
+
+    // Initialize the terminal
+    pTerm = new PropTerm(
+        document.getElementById('serial_console'),
+        function(characterToSend) {
+            if (active_connection !== null && 
+                active_connection !== 'simulated' && 
+                active_connection !== 'websocket') {
+                active_connection.send(btoa(characterToSend));
+        
+            } else if (active_connection === 'websocket' ) {
+                var msg_to_send = {
+                    type: 'serial-terminal',
+                    outTo: 'terminal',
+                    portPath: getComPort(),
+                    baudrate: baudrate.toString(10),
+                    msg: characterToSend,
+                    action: 'msg'
+                };
+                client_ws_connection.send(JSON.stringify(msg_to_send));
+            }    
+        }
+    );
 });
 
 
@@ -407,13 +445,14 @@ $(() => {
  * the project name and descriptions for changes.
  */
 function checkLeave() {
-    // Return if there is no project data
-    if (!projectData || projectData.length === 0) {
+    // The projectData variable is now officially an object. Consider it empty
+    // if it is null or if the name property is undefined.
+    if (!projectData || typeof projectData.name === 'undefined') {
         return false;
     }
 
     let currentXml = getXml();
-    let savedXml = projectData['code'];
+    let savedXml = projectData.code;
 
     return compareProjectCode(currentXml, savedXml);
 }
@@ -422,12 +461,23 @@ function checkLeave() {
 /**
  * Compare the project block code of two projects for equality
  *
- * @param projectA is one of the two projects to compare for equality
- * @param projectB is the second of two projects to compare for equalityy.
+ * @param {string} projectA is one of the two projects to compare for equality
+ * @param {string} projectB is the second of two projects to compare for equalityy.
  *
  * @returns {boolean} True if projects are unequal, otherwise return false
  */
 function compareProjectCode(projectA, projectB) {
+    // Sanity checks
+    if (typeof projectA === 'undefined') {
+        console.log("project A is undefined.");
+        return true;
+    }
+
+    if (typeof projectB === 'undefined') {
+        console.log("project B is undefined.");
+        return true;
+    }
+
     // Looking for the first <block> XML element
     const searchTerm = '<block';
 
@@ -504,31 +554,20 @@ function initInternationalText() {
  * Initialize the tool bar icons
  */
 function initEditorIcons() {
-    // Locate each element that has a class 'bpIcon' assigned and
-    // contains a 'data-icon' attribute. Itereate through each
-    // match and draw the custom icons into the specified element
-    // --------------------------------------------------------------
-    // TODO: not sure why, but the ES6 shorthand function notation
-    //      breaks this...
-    //      ... because the arrow function does not set the 'this'
-    //          value whereas an anonymous function does.
-    // --------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // Locate each element that has a class 'bpIcon' assigned and contains a
+    // 'data-icon' attribute. Iterate through each match and draw the custom
+    // icons into the specified element.
+    // ------------------------------------------------------------------------
     $('.bpIcon[data-icon]').each(function () {
         $(this).html(bpIcons[$(this).attr('data-icon')]);
     });
 }
 
 /**
- * Configure all of the event handlers
+ * Set up event handlers - Attach events to nav/action menus/buttons
  */
 function initEventHandlers() {
-    /*
- * TODO: Move javascript that is inline in the HTML files to included scripts.
- *    This keeps the HTML simple and clean.
- *
- * This is a WIP.
-*/
-    // Set up event handlers - Attach events to nav/action menus/buttons
     // Toolbar - left side
     $('#prop-btn-comp').on('click', () => compile());
     $('#prop-btn-ram').on('click', () => {
@@ -543,14 +582,12 @@ function initEventHandlers() {
     $('#prop-btn-graph').on('click', () => graphing_console());
     $('#prop-btn-find-replace').on('click', () => findReplaceCode());
     $('#prop-btn-pretty').on('click', () => formatWizard());
+
     $('#prop-btn-undo').on('click', () => codePropC.undo());
     $('#prop-btn-redo').on('click', () => codePropC.redo());
 
-    // This arrived on 6/6/2019 from CDN PR#129.
-    // zfi merged 1 commit into parallaxinc:1.2 from MatzElectronics:1.2on Jun 6
-    // TODO: Correct missing configure_term_graph() function.
+    // TODO: The event handler is just stub code.
     $('#term-graph-setup').on('click', () => configureTermGraph());
-
 
     $('#propc-find-btn').on('click', () => {
         codePropC.find(document.getElementById('propc-find').value, {}, true);
@@ -576,35 +613,40 @@ function initEventHandlers() {
     $('.project-name').attr('contenteditable', 'true')
     // Change the styling to indicate to the user that they are editing this field
         .on('focus', () => {
-            $('.project-name').html(projectData.name);
-            $('.project-name').addClass('project-name-editable');
+            let projectName = $('.project-name');
+            projectName.html(projectData.name);
+            projectName.addClass('project-name-editable');
         })
         // reset the style and save the new project name to the projectData object
         .on('blur', () => {
-            if ($('.project-name').setSelectionRange) {
-                $('.project-name').focus();
-                $('.project-name').setSelectionRange(0, 0);
-            } else if ($('.project-name').createTextRange) {
-                var range = $('.project-name').createTextRange();
+            let projectName = $('.project-name');
+
+            if (projectName.setSelectionRange) {
+                projectName.focus();
+                projectName.setSelectionRange(0, 0);
+            } else if (projectName.createTextRange) {
+                let range = projectName.createTextRange();
                 range.moveStart('character', 0);
                 range.select();
             }
-            $('.project-name').removeClass('project-name-editable');
+
+            projectName.removeClass('project-name-editable');
             // if the project name is greater than 25 characters, only display the first 25
             if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-                $('.project-name').html(projectData.name.substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+                projectName.html(
+                    projectData.name.substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
             }
         })
         // change the behavior of the enter key
         .on('keydown', (e) => {
-            if (e.which == 13 || e.keyCode == 13) {
+            if (e.which === 13 || e.keyCode === 13) {
                 e.preventDefault();
                 $('.project-name').trigger('blur');
             }
         })
         // validate the input to ensure it's not too long, and save changes as the user types.
         .on('keyup', () => {
-            var tempProjectName = $('.project-name').html()
+            let tempProjectName = $('.project-name').html()
             if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH || tempProjectName.length < 1) {
                 $('.project-name').html(projectData.name);
             } else {
@@ -619,15 +661,18 @@ function initEventHandlers() {
 
     // NEW Button
     // New Project toolbar button
+    // TODO: New Project should be treated the same way as Open Project.
     $('#new-project-button').on('click', () => NewProjectModal());
 
     // OPEN Button
-    // Open Project toolbar button
-    $('#open-project-button').on('click', () => {
-        // Save the project to localStorage
-        window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
-        window.location = "blocklyc.html?openFile=true";
-    });
+    // Open Project toolbar button. Stash the current project into the
+    // browser localStorage and then redirect to the OpenFile URL.
+    $('#open-project-button').on('click', () => OpenProjectModal());
+    // {
+    //     // Save the project to localStorage
+    //     window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
+    //     window.location = "blocklyc.html?openFile=true" + window.getAllURLParameters().replace('?', '&');
+    // });
 
     // Save button
     // Save Project modal 'Save' button click handler
@@ -661,6 +706,10 @@ function initEventHandlers() {
     // ---- Hamburger drop down horizontal line ----
 
     // Configure client menu selector
+    // Client configuration is only possible with the deprecated
+    // BlocklyProp Client. The BlocklyProp Launcher does not require
+    // a configuration dialog
+    // TODO: Client configuration is deprecated. No needed for Launcher
     $('#client-setup').on('click', () => configure_client());
 
     // --------------------------------
@@ -743,8 +792,13 @@ function initClientDownloadLinks() {
     $('.client-win64-link').attr('href', $("meta[name=win64client]").attr("content"));
     $('.client-win64zip-link').attr('href', $("meta[name=win64zipclient]").attr("content"));
 
+    // TODO: Add link for BlocklyProp Launcher for Windows
+
     // MacOS
     $('.client-mac-link').attr('href', $("meta[name=macOSclient]").attr("content"));
+
+    // TODO: Add link for BlocklyProp Launcher for MacOS
+
 }
 
 
@@ -770,11 +824,12 @@ function initCdnImageUrls() {
  * NOTE: This is a workaround to ensure that it renders correctly
  * TODO: Find a permanent replacement for this workaround.
  *
- * @param resizeDelay milliseconds to delay the resizing, especially
+ * @param {number} resizeDelay milliseconds to delay the resizing, especially
  * if used after a change in the window's location or a during page
  * reload.
+ * @param {boolean} centerBlocks Center the project blocks if true.
  */
-function resetToolBoxSizing(resizeDelay) {
+function resetToolBoxSizing(resizeDelay, centerBlocks) {
     // Vanilla Javascript is used here for speed - jQuery
     // could probably be used, but this is faster. Force
     // the toolbox to render correctly
@@ -803,7 +858,13 @@ function resetToolBoxSizing(resizeDelay) {
         // Update the Blockly editor canvas to use the new space
         if (Blockly.mainWorkspace && blocklyDiv[0].style.display !== 'none') {
             Blockly.svgResize(Blockly.mainWorkspace);
+
+            // center the blocks on the workspace
+            if (centerBlocks) {
+                Blockly.getMainWorkspace().scrollCenter();
+            }
         }
+
     }, resizeDelay || 10);  // 10 millisecond delay
 }
 
@@ -811,43 +872,51 @@ function resetToolBoxSizing(resizeDelay) {
 /**
  * Populate the projectData global
  *
- * @param data is the current project object
- * @param callback is called if provided when the function completes
+ * @param {{}} data is the current project object
+ * @param {function} callback is called if provided when the function completes
  */
 function setupWorkspace(data, callback) {
+    if (data && typeof(data.board) === 'undefined') {
+        if (callback) {
+            callback({
+                "error": 1,
+                "message": "Project data is null."
+            });
+        }
+        return -1;
+    }
+
+    // Delete all existing blocks, comments and undo stacks
     ClearBlocklyWorkspace();
 
-    projectData = data;
+    projectData = data;     // Set the master project image
     showInfo(data);         // Update the UI with project related details
 
     // Set various project settings based on the project board type
     // NOTE: This function is in propc.js
-    setProfile(projectData['board']);
+    setProfile(projectData.board);
 
     // Set the help link to the ab-blocks, s3 reference, or propc reference
     // TODO: modify blocklyc.html/jsp and use an id or class selector
     if (projectData.board === 's3') {
-        initToolbox(projectData.board, []);
+        initToolbox(projectData.board);
         $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
         // Create UI block content from project details
         renderContent('blocks');
-    } else if (projectData.board === 'propc') {
+    } else if (projectData.board === 'propcfile') {
         init(Blockly);
         $('#online-help').attr('href', 'https://learn.parallax.com/support/C/propeller-c-reference');
         // Create UI block content from project details
         renderContent('propc');
     } else {
-        initToolbox(projectData.board, []);
+        initToolbox(projectData.board);
         $('#online-help').attr('href', 'https://learn.parallax.com/ab-blocks');
         // Create UI block content from project details
         renderContent('blocks');
     }
 
-
-    // View or edit project details menu item
-    if (projectData && projectData['yours'] === false) {
-        $('#edit-project-details').html(page_text_label['editor_view-details'])
-    } else {
+    // Edit project details menu item
+    if (projectData) {
         $('#edit-project-details').html(page_text_label['editor_edit-details']);
     }
 
@@ -867,26 +936,14 @@ function setupWorkspace(data, callback) {
 /**
  * Set the UI fields for the project name, project owner and project type icon
  *
- * @param data is the project data structure
+ * @param {{}} data is the project data structure
  */
 function showInfo(data) {
-    // TODO: Remove this.
-    if (getURLParameter('debug')) {
-        console.log(data);
-    }
-
     // Display the project name
-    if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+    if (data.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
         $('.project-name').html(data['name'].substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
     } else {
-        $(".project-name").html(data['name']);
-    }
-
-    // Does the current user own the project?
-    // TODO: There is no project-owner context in Solo.
-    if (!data['yours']) {
-        // If not, display owner username
-        $(".project-owner").text("(" + data['user'] + ")");
+        $(".project-name").html(data.name);
     }
 
     // Create an array of board type icons
@@ -900,8 +957,8 @@ function showInfo(data) {
         "propcfile": "images/board-icons/IconC.png"
     };
 
-    // Set the prject icon to the correct board type
-    $(".project-icon").html('<img src="' + CDN_URL + projectBoardIcon[data['board']] + '"/>');
+    // Set the project icon to the correct board type
+    $(".project-icon").html('<img src="' + CDN_URL + projectBoardIcon[data.board] + '"/>');
 };
 
 
@@ -910,14 +967,14 @@ function showInfo(data) {
  */
 function saveProject() {
     // TODO: Refactor to remove the concept of project ownership
-    if (projectData['yours']) {
+    if (projectData.yours) {
         var code = getXml();
-        projectData['code'] = code;
+        projectData.code = code;
 
         $.post(BASE_URL + 'rest/project/code', projectData, function (data) {
-            var previousOwner = projectData['yours'];
+            var previousOwner = projectData.yours;
             projectData = data;
-            projectData['code'] = code; // Save code in projectdata to be able to verify if code has changed upon leave
+            projectData.code = code; // Save code in projectdata to be able to verify if code has changed upon leave
 
             // If the current user doesn't own this project, a new one is created and the page is redirected to the new project.
             if (!previousOwner) {
@@ -970,26 +1027,27 @@ function saveProject() {
         // an endpoint that will make the project private.
         saveAsDialog();
     }
-};
+}
 
 
 /**
- *
+ * Save project as a different board type
  */
 function saveAsDialog() {
     // Production still uses the uses the plain 'save-as' endpoint for now.
-    if (inDemo !== 'demo') {     // if (1 === 1) {
+    if (isExperimental.indexOf('saveas') > -1) {     // if (1 === 1) {
 
         // Old function - still in use because save-as+board type is not approved for use.
-        utils.prompt("Save project as", projectData['name'], function (value) {
+        utils.prompt("Save project as", projectData.name, function (value) {
             if (value) {
                 var code = getXml();
-                projectData['code'] = code;
-                projectData['name'] = value;
+                projectData.code = code;
+                projectData.name = value;
+
                 $.post(BASE_URL + 'rest/project/code-as', projectData, function (data) {
-                    var previousOwner = projectData['yours'];
+                    var previousOwner = projectData.yours;
                     projectData = data;
-                    projectData['code'] = code; // Save code in projectdata to be able to verify if code has changed upon leave
+                    projectData.code = code; // Save code in projectdata to be able to verify if code has changed upon leave
                     utils.showMessage(Blockly.Msg.DIALOG_PROJECT_SAVED, Blockly.Msg.DIALOG_PROJECT_SAVED_TEXT);
                     // Reloading project with new id
                     window.location.href = BASE_URL + 'projecteditor?id=' + data['id'];
@@ -1000,7 +1058,7 @@ function saveAsDialog() {
     } else {
 
         // Prompt user to save current project first if unsaved
-        if (checkLeave() && projectData['yours']) {
+        if (checkLeave() && projectData.yours) {
             utils.confirm(Blockly.Msg.DIALOG_SAVE_TITLE, Blockly.Msg.DIALOG_SAVE_FIRST, function (value) {
                 if (value) {
                     downloadCode();
@@ -1009,31 +1067,32 @@ function saveAsDialog() {
         }
 
         // Reset the save-as modal's fields
-        $('#save-as-project-name').val(projectData['name']);
+        $('#save-as-project-name').val(projectData.name);
         $("#save-as-board-type").empty();
         profile.default.saves_to.forEach(function (bt) {
             $("#save-as-board-type").append($('<option />').val(bt[1]).text(bt[0]));
         });
 
-        // Until release to production, make sure we are on demo before displaying the propc option
-        if (inDemo === 'demo') {
+        // Until the propc editor is ready, hide the save as propc option
+        if (isExperimental.indexOf('saveas') > -1) {
             $("#save-as-board-type").append($('<option />').val('propcfile').text('Propeller C (code-only)'));
         }
 
         // Open modal
         $('#save-as-type-dialog').modal({keyboard: false, backdrop: 'static'});
     }
-};
+}
 
 
 /**
  *
- * @param requester
+ * @param {string} requester
  */
 function checkBoardType(requester) {
     if (requester !== 'offline') {
-        var current_type = projectData['board'];
-        var save_as_type = $('#save-as-board-type').val();
+        let current_type = projectData.board;
+        let save_as_type = $('#save-as-board-type').val();
+
         // save-as-verify-boardtype
         if (current_type === save_as_type || save_as_type === 'propcfile') {
             document.getElementById('save-as-verify-boardtype').style.display = 'none';
@@ -1041,19 +1100,13 @@ function checkBoardType(requester) {
             document.getElementById('save-as-verify-boardtype').style.display = 'block';
         }
     }
-};
+}
 
-
-/**
- *
- *
- * @param requestor
- */
 
 /**
  * Save an existing project under a new project ID with the new project owner
- * @param boardType
- * @param projectName
+ * @param {string} boardType
+ * @param {string} projectName
  */
 function saveProjectAs(boardType, projectName) {
     let tt = new Date();
@@ -1075,13 +1128,13 @@ function saveProjectAs(boardType, projectName) {
     };
 
     window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
-    window.location = 'blocklyc.html';
+    window.location = 'blocklyc.html' + window.getAllURLParameters();
 }
 
 
 /**
  *
- * @param str
+ * @param {string} str
  * @returns {number}
  */
 function hashCode(str) {
@@ -1097,7 +1150,7 @@ function hashCode(str) {
  * Encode a string to an XML-safe string by replacing unsafe
  * characters with HTML entities
  *
- * @param str
+ * @param {string} str
  * @returns {string}
  */
 function encodeToValidXml(str) {
@@ -1118,7 +1171,7 @@ function encodeToValidXml(str) {
  * Decode a string from an XML-safe string by replacing HTML
  * entities with their standard characters
  *
- * @param str
+ * @param {string} str
  * @returns {string}
  */
 function decodeFromValidXml(str) {
@@ -1139,19 +1192,23 @@ function decodeFromValidXml(str) {
  * Save project to persistent storage
  */
 function downloadCode() {
-    let projXMLcode = getXml();
+    let projectXmlCode = getXml();
 
-    if (projectData && projectData['board'] !== 'propcfile' && projXMLcode.indexOf('<block') === -1) {
+    if (projectData
+        && projectData.board !== 'propcfile'
+        && projectXmlCode.indexOf('<block') === -1) {
+
         // The project is empty, so warn and exit.
-        utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT);
-        return;
+        utils.showMessage(
+            Blockly.Msg.DIALOG_EMPTY_PROJECT,
+            Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT);
     } else {
 
         // Create a filename from the project title
-        let project_filename = sanitizeFilename(projectData['name']);
+        let project_filename = sanitizeFilename(projectData.name);
 
-        projXMLcode = projXMLcode.substring(42, projXMLcode.length);
-        projXMLcode = projXMLcode.substring(0, (projXMLcode.length - 6));
+        projectXmlCode = projectXmlCode.substring(42, projectXmlCode.length);
+        projectXmlCode = projectXmlCode.substring(0, (projectXmlCode.length - 6));
 
         // get the paths of the blocks themselves and the size/position of the blocks
         var projSVG = document.getElementsByClassName('blocklyBlockCanvas');
@@ -1182,29 +1239,24 @@ function downloadCode() {
 
         // a footer to generate a watermark with the project's information at the bottom-right corner of the SVG
         // and hold project metadata.
-        var SVGfooter = '';
-        var dt = new Date();
-        SVGfooter += '<rect x="100%" y="100%" rx="7" ry="7" width="218" height="84" style="fill:rgba(255,255,255,0.4);" transform="translate(-232,-100)" />';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-83)" style="font-weight:bold;">Parallax BlocklyProp Project</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-68)">User: ' + encodeToValidXml(projectData['user']) + '</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-53)">Title: ' + encodeToValidXml(projectData['name']) + '</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-38)">Project ID: 0</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-23)">Device: ' + projectData['board'] + '</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-8)">Description: ' + encodeToValidXml(projectData['description']) + '</text>';
-        SVGfooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' + projectData['created'] + '" data-lastmodified="' + dt + '"></text>';
-
-        var xmlChecksum = hashCode(projXMLcode).toString();
+        let SVGfooter = generateSvgFooter(projectData);
+        let xmlChecksum = hashCode(projectXmlCode).toString();
         xmlChecksum = '000000000000'.substring(xmlChecksum.length, 12) + xmlChecksum;
 
         // Assemble both the SVG (image) of the blocks and the blocks' XML definition
-        var blob = new Blob([SVGheader + projSVGcode + SVGfooter + projXMLcode + '<ckm>' + xmlChecksum + '</ckm></svg>'], {type: 'image/svg+xml'});
+        let blob = new Blob(
+            [SVGheader + projSVGcode + SVGfooter + projectXmlCode + '<ckm>' + xmlChecksum + '</ckm></svg>'],
+            {type: 'image/svg+xml'});
+
+        // Persist the svg date to a project file
         saveAs(blob, project_filename + '.svg');
 
         // save the project into localStorage with a timestamp - if the page is simply refreshed,
         // this will allow the project to be reloaded.
         // make the projecData object reflect the current workspace and save it into localStorage
         projectData.timestamp = getTimestamp();
-        projectData.code = EmptyProjectCodeHeader + projXMLcode + '</xml>';
+        // projectData.code = Project.prototype.EmptyProjectCodeHeader + projectXmlCode + '</xml>';
+        projectData.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
         window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
 
         // Mark the time when saved, add 20 minutes to it.
@@ -1212,6 +1264,42 @@ function downloadCode() {
     }
 }
 
+
+/**
+ * Generate a watermark with the project's information at the bottom-right corner of the SVG
+ * and hold project metadata.
+ *
+ * @param {{}} project Project details object
+ * @returns {string}
+ */
+function generateSvgFooter( project ) {
+
+    let svgFooter = '';
+    let dt = new Date();
+
+    svgFooter += '<rect x="100%" y="100%" rx="7" ry="7" width="218" height="84" style="fill:rgba(255,255,255,0.4);" transform="translate(-232,-100)" />';
+    svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-83)" style="font-weight:bold;">Parallax BlocklyProp Project</text>';
+
+    svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-68)">' +
+        'User: ' + encodeToValidXml(project.user) + '</text>';
+
+    svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-53)">' +
+        'Title: ' + encodeToValidXml(project.name) + '</text>';
+
+    svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-38)">' +
+        'Project ID: 0</text>';
+
+    svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-23)">' +
+        'Device: ' + project.board + '</text>';
+
+    svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-8)">' +
+        'Description: ' + encodeToValidXml(project.description) + '</text>';
+
+    svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)"' +
+        ' data-createdon="' + project.created + '" data-lastmodified="' + dt + '"></text>';
+
+    return svgFooter;
+}
 
 /**
  * Import project file from disk
@@ -1288,7 +1376,7 @@ function uploadHandler(files) {
                 xmlValid = true;
             }
             if (xmlValid) {
-                if (projectData && uploadBoardType !== projectData['board']) {
+                if (projectData && uploadBoardType !== projectData.board) {
                     $('#selectfile-verify-boardtype').css('display', 'block');
                 } else {
                     $('#selectfile-verify-boardtype').css('display', 'none');
@@ -1298,10 +1386,11 @@ function uploadHandler(files) {
                 uploadedXML = EMPTY_PROJECT_CODE_HEADER + uploadedXML + '</xml>';
             }
 
-            // TODO: check to see if this is used when opened from the editor (and not the splash screen)
+            // TODO: check to see if this is used when opened from the editor
+            //  (and not the splash screen)
             // maybe projectData.code.length < 43??? i.e. empty project? instead of the URL parameter...
 
-            if (getURLParameter('openFile') === "true") {
+//            if (window.getURLParameter('openFile') === "true") {
                 // Loading an offline .SVG project file. Create a project object and
                 // save it into the browser store.
                 var titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
@@ -1379,7 +1468,7 @@ function uploadHandler(files) {
 
                 // Save the project to the browser store
                 window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
-            }
+//            }
         }
 
         if (xmlValid === true) {
@@ -1416,8 +1505,8 @@ function clearUploadInfo(redirect) {
 
     // when opening a file but the user cancels, return to the splash screen
     if (redirect === true) {
-        if (getURLParameter('openFile') === 'true') {
-            window.location = 'index.html';
+        if (window.getURLParameter('openFile') === 'true') {
+            window.location = 'index.html' + window.getAllURLParameters();
         }
     }
 }
@@ -1446,7 +1535,7 @@ function uploadMergeCode(append) {
 
     // When opening a file when directed from the splash screen in
     // the offline app, load the selected project
-    if (!append && getURLParameter('openFile') === 'true') {
+    if (!append && window.getURLParameter('openFile') === 'true') {
         // The project was loaded into the localStorage. The global
         // variable tempProjectStoreName holds the name of the object
         // in the localStorage. At this point, load the projectData
@@ -1467,7 +1556,7 @@ function uploadMergeCode(append) {
 
         window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
 
-        window.location = 'blocklyc.html';
+        window.location = 'blocklyc.html' + window.getAllURLParameters();
     }
 
     if (uploadedXML !== '') {
@@ -1535,17 +1624,17 @@ function uploadMergeCode(append) {
             });
             tmpv += '</variables>';
             // add everything back together
-            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + tmpv + projCode + newCode + '</xml>';
+            projectData.code = EMPTY_PROJECT_CODE_HEADER + tmpv + projCode + newCode + '</xml>';
         } else if (newCode.indexOf('<variables>') > -1 && projCode.indexOf('<variables>') === -1) {
-            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + newCode + projCode + '</xml>';
+            projectData.code = EMPTY_PROJECT_CODE_HEADER + newCode + projCode + '</xml>';
         } else {
-            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + projCode + newCode + '</xml>';
+            projectData.code = EMPTY_PROJECT_CODE_HEADER + projCode + newCode + '</xml>';
         }
 
         ClearBlocklyWorkspace();
 
         // This call fails because there is no Blockly workspace context
-        loadToolbox(projectData['code']);
+        loadToolbox(projectData.code);
 
         // CAUTION: This call can redirect to the home page
         clearUploadInfo(false);
@@ -1554,26 +1643,29 @@ function uploadMergeCode(append) {
 
 
 /**
+ * Initialize the Blockly toolbox with a collection of blocks that are
+ * appropriate for the passe in board type.
  *
- * @param profileName - aka Board Type
+ * @param {string} profileName - aka Board Type
  */
 function initToolbox(profileName) {
 
     // TODO: Verify that custom fonts are required
-    var ff = getURLParameter('font');
+    if (Blockly.Css.CONTENT) {
+        let ff = window.getURLParameter('font');
 
-    if (ff) {
-        // Replace font family in Blockly's inline CSS
-        for (var f = 0; f < Blockly.Css.CONTENT.length; f++) {
-            Blockly.Css.CONTENT[f] = Blockly.Css.CONTENT[f].replace(/Arial, /g, '').replace(/sans-serif;/g, "'" + ff + "', sans-serif;");
-        }
+        if (ff) {
+            // Replace font family in Blockly's inline CSS
+            for (var f = 0; f < Blockly.Css.CONTENT.length; f++) {
+                Blockly.Css.CONTENT[f] = Blockly.Css.CONTENT[f].replace(/Arial, /g, '').replace(/sans-serif;/g, "'" + ff + "', sans-serif;");
+            }
 
-        $('html, body').css('font-family', "'" + ff + "', sans-serif");
-        $('.blocklyWidgetDiv .goog-menuitem-content').css('font', "'normal 14px '" + ff + "', sans-serif !important'"); //    font: normal 14px Arimo, sans-serif !important;
-
-    } else {
-        for (var f = 0; f < Blockly.Css.CONTENT.length; f++) {
-            Blockly.Css.CONTENT[f] = Blockly.Css.CONTENT[f].replace(/Arial, /g, '').replace(/sans-serif;/g, "Arimo, sans-serif;");
+            $('html, body').css('font-family', "'" + ff + "', sans-serif");
+            $('.blocklyWidgetDiv .goog-menuitem-content').css('font', "'normal 14px '" + ff + "', sans-serif !important'"); //    font: normal 14px Arimo, sans-serif !important;
+        } else {
+            for (var f = 0; f < Blockly.Css.CONTENT.length; f++) {
+                Blockly.Css.CONTENT[f] = Blockly.Css.CONTENT[f].replace(/Arial, /g, '').replace(/sans-serif;/g, "Arimo, sans-serif;");
+            }
         }
     }
 
@@ -1632,7 +1724,7 @@ function loadToolbox(xmlText) {
  * @returns {string}
  */
 function getXml() {
-    if (projectData && projectData['board'] === 'propcfile') {
+    if (projectData && projectData.board === 'propcfile') {
         return propcAsBlocksXml();
     }
 
@@ -1641,8 +1733,8 @@ function getXml() {
         return Blockly.Xml.domToText(xml);
     }
 
-    if (projectData && projectData['code']) {
-        return projectData['code'];
+    if (projectData && projectData.code) {
+        return projectData.code;
     }
 
     // Return the XML for a blank project if none is found.
@@ -1680,11 +1772,18 @@ function showStep(o, i, t) {
 }
 
 
+/**
+ * Clear the main workspace in the Blockly object
+ */
 function ClearBlocklyWorkspace() {
-    let space = Blockly.getMainWorkspace();
-    if (space) {
-        space.clearUndo();
-        space.clear();
+    let workspace = Blockly.getMainWorkspace();
+
+    if (workspace) {
+        // Clear the undo/redo stacks in the workspace
+        workspace.clearUndo();
+
+        // Dispose of all blocks and comments in workspace.
+        workspace.clear();
     }
 }
 
@@ -1718,6 +1817,14 @@ function sanitizeFilename(input) {
 }
 
 
+/**
+ * Compare two instances of a Project.
+ *
+ * @param {Project} projectA
+ * @param {Project} projectB
+ *
+ * @returns {boolean} True if the Project objects are equivalent, otherwise returns false.
+ */
 function testProjectEquality(projectA, projectB) {
     if (!projectA) {
         console.log("Project A is empty");
@@ -1738,11 +1845,12 @@ function testProjectEquality(projectA, projectB) {
         console.log("Project description mismatch");
     }
 
-    if (projectA.type !== projectB.type) {
+    if (projectA.projectType !== projectB.projectType) {
+        console.log("ProjectType mismatch")
         return false;
     }
 
-    if (projectA.board !== projectB.board) {
+    if (projectA.boardType !== projectB.boardType) {
         console.log("Board type mismatch");
         return false;
     }
@@ -1753,18 +1861,22 @@ function testProjectEquality(projectA, projectB) {
     }
 
     if (projectA.created !== projectB.created) {
+        console.log("Project created timestamp mismatch");
         return false;
     }
 
     if (projectA.modified !== projectB.modified) {
+        console.log("Project last modified timestamp mismatch");
         return false;
     }
 
     if (projectA.descriptionHtml !== projectB.descriptionHtml) {
+        console.log("Project HTML description mismatch");
         return false;
     }
 
     if (projectA.id !== projectB.id) {
+        console.log("Project A is not the same object as project B");
         return false;
     }
 
@@ -1790,4 +1902,22 @@ function testProjectEquality(projectA, projectB) {
  */
 function configureTermGraph() {
     return true;
+}
+
+
+/**
+ * Render the branding logo and related text.
+ */
+function RenderPageBrandingElements() {
+    let appName = ApplicationName;
+    let html = 'BlocklyProp<br><strong>' + ApplicationName + '</strong>';
+
+    if (window.location.hostname === product_banner_host_trigger) {
+        appName = TestApplicationName;
+        html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
+        document.getElementById('nav-logo').style.backgroundImage = 'url(\'src/images/dev-toolkit.png\')';
+    }
+
+    $('#nav-logo').html(html);
+    $('#app-banner-title').html('BlocklyProp ' + appName);
 }

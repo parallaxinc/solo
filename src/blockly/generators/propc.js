@@ -414,7 +414,7 @@ Blockly.propc.finish = function (code) {
         for (var idk in function_vars) {
             if (definitions[idx] === function_vars[idk] && definitions[idx].indexOf('volatile') === -1) {
                 //TODO: uncomment this when optimization is utilized!
-                if(inDemo) {
+                if(isExperimental.indexOf('volatile' > -1)) {
                     definitions[idx] = 'volatile ' + definitions[idx];
                 }
 
@@ -698,41 +698,6 @@ Blockly.Input.prototype.getRange = function() {
     return this.inputRange;
 }
 
-// polyfill that removes duplicates from an array and sorts it
-// From: https://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array
-function uniq_fast(a) {
-    var seen = {};
-    var out = [];
-    var len = a.length;
-    var j = 0;
-    for (var i = 0; i < len; i++) {
-        var item = a[i];
-        if (seen[item] !== 1) {
-            seen[item] = 1;
-            out[j++] = item;
-        }
-    }
-    var tmpOut = out;
-    try {
-        var sorted = [];
-        j = 0;
-        while (out.length > 0) {
-            len = out.length;
-            var k = 0;
-            for (var i = 0; i < len; i++) {
-                if (parseInt(out[i], 10) < parseInt(out[k], 10)) {
-                    k = i;
-                }
-            }
-            sorted[j] = out[k];
-            j++;
-            out.splice(k, 1);
-        }
-        return sorted;
-    } catch (err) {
-        return tmpOut;
-    }
-}
 
 // TODO: Remove the following overrides after updating to a blockly core with these patches (targeted for 2019Q4).
 /**

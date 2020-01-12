@@ -58,6 +58,7 @@ Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG = "Download Graph data as CSV - Filename
 Blockly.Msg.DIALOG_ERROR = 'Error';
 Blockly.Msg.DIALOG_LOADING_ERROR = 'Unable to load the project';
 Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER = 'BlocklyProp Launcher';
+Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER_CONFIGURE_TITLE = 'Configure the BlocklyProp-Launcher connection';
 Blockly.Msg.DIALOG_SIDE_FILES_ERROR = 'A problem occurred when trying to create the SimpleIDE files: ';
 Blockly.Msg.DIALOG_NO_CLIENT = '<i class="glyphicon glyphicon-exclamation-sign"></i> BlocklyPropClient <strong>is not running</strong>';
 Blockly.Msg.DIALOG_NO_DEVICE_TEXT = 'Ensure it is connected, powered on, and selected in the ports list. Make sure your BlocklyPropClient is up-to-date.';
@@ -73,6 +74,10 @@ Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT = 'You cannot compile an empty p
 Blockly.Msg.DIALOG_SAVE_BEFORE_ADD_BLOCKS = 'You must save your project before you can upload a blocks file to it.';
 Blockly.Msg.DIALOG_MISSING_BLOCKS = 'Blocks missing';
 Blockly.Msg.DIALOG_MISSING_BLOCKS_GRAPHING = 'To use the graphing feature, your program must have both a graph initialize block and a graph value block.';
+Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT = 'Simulated terminal because there are no devices available to connect to';
+Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES = 'No connection established.';
+Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED = 'Connection established with';
+Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE = 'at baudrate';
 
 // Variable renaming.
 Blockly.MSG_CHANGE_VALUE_TITLE = 'Change value:';
@@ -82,7 +87,6 @@ Blockly.MSG_RENAME_VARIABLE = 'Rename variable...';
 Blockly.MSG_RENAME_VARIABLE_TITLE = 'Rename all "%1" variables to:';
 Blockly.LANG_VARIABLES_SET_ITEM = 'item';
 Blockly.LANG_VARIABLES_GET_ITEM = 'item';
-
 
 // Control Blocks.
 Blockly.LANG_CATEGORY_CONTROLS = 'Control';
@@ -276,6 +280,7 @@ Blockly.MSG_AUDIO_HELPURL = "http://learn.parallax.com/ab-blocks/audio";
 Blockly.MSG_SERVO_HELPURL = "http://learn.parallax.com/ab-blocks/servo";
 Blockly.MSG_ROBOT_HELPURL = "http://learn.parallax.com/ab-blocks/robot";
 Blockly.MSG_IMU_HELPURL = "http://learn.parallax.com/ab-blocks/lsm9ds1";
+Blockly.MSG_LIS3DH_HELPURL = "http://learn.parallax.com/ab-blocks/lis3dh";
 Blockly.MSG_WS2812B_HELPURL = "http://learn.parallax.com/ab-blocks/ws2812b";
 Blockly.MSG_SYSTEM_HELPURL = "http://learn.parallax.com/ab-blocks/system";
 Blockly.MSG_BADGE_LEDS_HELPURL = "http://learn.parallax.com/ab-blocks/badge-leds";
@@ -461,6 +466,10 @@ Blockly.MSG_LSM9DS1_READ_TOOLTIP = "IMU read: get measurements from specified se
 Blockly.MSG_LSM9DS1_MAG_CALIBRATE_TOOLTIP = "IMU Calibrate Magnetometer: Initialize first. Rotate slowly thru all 3 axes until P26/P27 LEDs turn off.";
 Blockly.MSG_LSM9DS1_TILT_TOOLTIP = "IMU tilt: gets tilt along specified axis.";
 Blockly.MSG_LSM9DS1_HEADING_TOOLTIP = "IMU heading: specify axes, get current heading in degrees.";
+
+Blockly.MSG_LIS3DH_INIT_TOOLTIP = "LIS3DH initialize: match to Propeller I/O pin connections.";
+
+
 Blockly.MSG_SENSOR_PING_TOOLTIP = "Ping))) distance: gets distance measured in the specified units, match to Propeller I/O pin.";
 Blockly.MSG_PIR_SENSOR_TOOLTIP = "PIR sensor: returns 1/true if motion is detected, match to Propeller I/O pin.";
 Blockly.MSG_RFID_ENABLE_TOOLTIP = "RFID initialize: match to Propeller I/O pin connections.";
@@ -682,6 +691,7 @@ toolbox_label['category_communicate_protocols'] = "Protocols";
 toolbox_label['category_communicate_xbee'] = "XBee";
 toolbox_label['category_communicate_WS2812B'] = "RGB LEDs";
 toolbox_label['category_sensor-input'] = "Sensor";
+toolbox_label['category_sensor-input_LIS3DH'] = "LIS3DH Accelerometer"
 toolbox_label['category_sensor-input_LSM9DS1'] = "LSM9DS1 IMU";
 toolbox_label['category_sensor-input_etape'] = "ETape liquid level";
 toolbox_label['category_sensor-input_fingerprint'] = "Fingerprint Scanner";
@@ -844,7 +854,7 @@ page_text_label['editor_find_label'] = "Find: ";
 page_text_label['editor_replace_label'] = "Replace: ";
 page_text_label['editor_newproject_c'] = "Propeller C";
 page_text_label['editor_newproject_spin'] = "Scribbler Robot";
-page_text_label['editor_newproject_title'] = "New project";
+page_text_label['editor_new_project_title'] = "New project";
 page_text_label['editor_open'] = "Open project file";
 page_text_label['editor_import'] = "Import project file";
 page_text_label['editor_project'] = "Project";

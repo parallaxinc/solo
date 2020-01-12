@@ -192,33 +192,35 @@ Blockly.Blocks.sound_impact_run = {
         this.setPreviousStatement(true, "Block");
         this.updateConstMenu();
     },
-    updateConstMenu: function (ov, nv) {
-        this.v_list = [];
+    updateConstMenu: function (oldValue, newValue) {
+        this.userDefinedConstantsList_ = [];
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         for (var x = 0; x < allBlocks.length; x++) {
             if (allBlocks[x].type === 'constant_define') {
                 var v_name = allBlocks[x].getFieldValue('CONSTANT_NAME');
-                if (v_name === ov && nv) {
-                    v_name = nv;
+                if (v_name === oldValue && newValue) {
+                    v_name = newValue;
                 }
                 if (v_name) {
-                    this.v_list.push([v_name, v_name]);
+                    this.userDefinedConstantsList_.push(v_name);
                 }
             }
         }
-        this.v_list = uniq_fast(this.v_list);
-        this.setPinMenus(ov, nv);
+        this.userDefinedConstantsList_ = this.userDefinedConstantsList_.sortedUnique();
+        this.setPinMenus(oldValue, newValue);
     },
-    setPinMenus: function (ov, nv) {
+    setPinMenus: function (oldValue, newValue) {
         var m1 = this.getFieldValue('PIN');
         if(this.getInput('PINS')) {
             this.removeInput('PINS');
         }
         this.appendDummyInput('PINS')
                 .appendField("Sound Impact initialize PIN")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "PIN");
-        if (m1 && m1 === ov && nv) {
-            this.setFieldValue(nv, 'PIN');
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
+                    return [value, value]  // returns an array of arrays built from the original array.
+                }))), "PIN");
+        if (m1 && m1 === oldValue && newValue) {
+            this.setFieldValue(newValue, 'PIN');
         } else if (m1) {
             this.setFieldValue(m1, 'PIN');
         }
@@ -380,6 +382,11 @@ Blockly.Blocks.colorpal_get_colors_raw = {
     domToMutation: function (xmlElement) {
         var cpin = xmlElement.getAttribute('cpin');
         this.cp_pins = JSON.parse(xmlElement.getAttribute('pinmenu'));
+        if (Array.isArray(this.cp_pins)) {
+            this.cp_pins = this.cp_pins.map(function (value) {
+                return value[0];
+            })
+        }
         if (cpin === 'null') {
             cpin = null;
         }
@@ -389,14 +396,16 @@ Blockly.Blocks.colorpal_get_colors_raw = {
         if (cpin) {
             this.appendDummyInput('CPIN')
                     .appendField('PIN')
-                    .appendField(new Blockly.FieldDropdown(this.cp_pins), 'CP_PIN');
+                    .appendField(new Blockly.FieldDropdown(this.cp_pins.map(function (value) {
+                        return [value, value]  // returns an array of arrays built from the original array.
+                    })), 'CP_PIN');
             this.setFieldValue(cpin, 'CP_PIN');
         }
     },
     colorpalPins: function (oldPin, newPin) {
         var currentPin = '-1';
         if (this.cp_pins.length > 0) {
-            currentPin = this.cp_pins[0][0];
+            currentPin = this.cp_pins[0];
         }
         this.cp_pins.length = 0;
         if (this.getInput('CPIN')) {
@@ -409,7 +418,9 @@ Blockly.Blocks.colorpal_get_colors_raw = {
         if (this.cp_pins.length > 1) {
             this.appendDummyInput('CPIN')
                     .appendField('PIN')
-                    .appendField(new Blockly.FieldDropdown(this.cp_pins), 'CP_PIN');
+                    .appendField(new Blockly.FieldDropdown(this.cp_pins.map(function (value) {
+                        return [value, value]  // returns an array of arrays built from the original array.
+                    })), 'CP_PIN');
             if (currentPin === oldPin || oldPin === null) {
                 this.setFieldValue(newPin, 'CP_PIN');
             } else {
@@ -426,11 +437,11 @@ Blockly.Blocks.colorpal_get_colors_raw = {
             if (allBlocks[x].type === 'colorpal_enable') {
                 var cp = allBlocks[x].colorPalPin || allBlocks[x].getFieldValue('IO_PIN');
                 if (cp) {
-                    this.cp_pins.push([cp, cp]);
+                    this.cp_pins.push(cp);
                 }
             }
         }
-        this.cp_pins = uniq_fast(this.cp_pins);
+        this.cp_pins = this.cp_pins.sortedUnique();
     },
     onchange: function (event) {
         if (event) {
@@ -473,7 +484,7 @@ Blockly.propc.colorpal_get_colors_raw = function () {
         var b = Blockly.propc.variableDB_.getName(this.getFieldValue('B_STORAGE'), Blockly.Variables.NAME_TYPE);
         var p = '0';
         if (this.cp_pins.length > 0) {
-            p = this.cp_pins[0][0];
+            p = this.cp_pins[0];
         }
         if (this.getInput('CPIN')) {
             p = this.getFieldValue('CP_PIN');
@@ -521,7 +532,7 @@ Blockly.propc.colorpal_get_colors = function () {
 
         var p = '0';
         if (this.cp_pins.length > 0) {
-            p = this.cp_pins[0][0];
+            p = this.cp_pins[0];
         }
         if (this.getInput('CPIN')) {
             p = this.getFieldValue('CP_PIN');
@@ -545,7 +556,7 @@ Blockly.Blocks.fp_scanner_init = {
         this.updateConstMenu();
     },
     updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
-    setPinMenus: function (ov, nv) {
+    setPinMenus: function (oldValue, newValue) {
         var m1 = this.getFieldValue('RXPIN');
         var m2 = this.getFieldValue('TXPIN');
         if(this.getInput('PINS')) {
@@ -553,17 +564,21 @@ Blockly.Blocks.fp_scanner_init = {
         }
         this.appendDummyInput()
                 .appendField("Fingerprint Scanner initialize RX")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "RXPIN")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
+                    return [value, value]  // returns an array of arrays built from the original array.
+                }))), "RXPIN")
                 .appendField("TX")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "TXPIN");
-        if (m1 && m1 === ov && nv) {
-            this.setFieldValue(nv, 'RXPIN');
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
+                    return [value, value]  // returns an array of arrays built from the original array.
+                }))), "TXPIN");
+        if (m1 && m1 === oldValue && newValue) {
+            this.setFieldValue(newValue, 'RXPIN');
         } else if (m1) {
             this.setFieldValue(m1, 'RXPIN');
         }
 
-        if (m2 && m2 === ov && nv) {
-            this.setFieldValue(nv, 'TXPIN');
+        if (m2 && m2 === oldValue && newValue) {
+            this.setFieldValue(newValue, 'TXPIN');
         } else if (m2) {
             this.setFieldValue(m2, 'TXPIN');
         }
@@ -975,6 +990,377 @@ Blockly.propc.HMC5883L_read = function () {
     return code;
 };
 
+
+// ---------------- LIS3DH Accelerometer Sensor Blocks -------------------------------
+Blockly.Blocks.lis3dh_init = {
+    helpUrl: Blockly.MSG_LIS3DH_HELPURL,
+    init: function () {
+        this.setTooltip(Blockly.MSG_LIS3DH_INIT_TOOLTIP);
+        this.setColour(colorPalette.getColor('input'));
+        this.appendDummyInput('PINS')
+                .appendField('LIS3DH initialize SCK')
+                .appendField(new Blockly.FieldDropdown(profile.default.digital), 'SCK_PIN')
+                .appendField('SDI')
+                .appendField(new Blockly.FieldDropdown(profile.default.digital), 'SDI_PIN')
+                .appendField("CS")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital), 'CS_PIN')
+                .appendField('', 'TEMP')
+                .appendField('', 'UNIT')
+        this.setInputsInline(false);
+        this.setPreviousStatement(true, "Block");
+        this.setNextStatement(true, null);
+    },
+    buildTempInput: function (hasTempBlocks) {
+        if (hasTempBlocks && !this.getInput('TEMP_CALIBRATE')) {
+            var temp = this.getFieldValue('TEMP');
+            var unit = this.getFieldValue('UNIT');
+
+            this.getInput('PINS').removeField('TEMP');
+            this.getInput('PINS').removeField('UNIT');
+
+            this.appendDummyInput('TEMP_CALIBRATE')
+                    .appendField('Set ambient temperature to')
+                    .appendField(new Blockly.FieldNumber('72', null, null, 1), "TEMP")
+                    .appendField(new Blockly.FieldDropdown([
+                            ["\u00b0F", "F"], 
+                            ["\u00b0C", "C"]
+                        ]), "UNIT");
+
+            this.setFieldValue(temp || '72', 'TEMP');
+            this.setFieldValue(unit || 'F', 'UNIT');
+
+        } else {
+            if (!hasTempBlocks && this.getInput('TEMP_CALIBRATE')) {
+                this.removeInput('TEMP_CALIBRATE');
+                this.getInput('PINS').appendField('', 'TEMP').appendField('', 'UNIT');
+            }
+        }
+    },
+    onchange: function (event) {
+        if (event && (event.type === Blockly.Events.BLOCK_CREATE || 
+                event.type === Blockly.Events.BLOCK_DELETE || 
+                event.type === Blockly.Events.BLOCK_CHANGE)) 
+            {
+            var warnText = null;
+            var cs_pin = this.getFieldValue('CS_PIN');
+            var tempBlockList = Blockly.getMainWorkspace().getBlocksByType(this.type);
+            var currentBlock = this;
+            tempBlockList.forEach(function (tempBlock) {
+                if (tempBlock.id !== currentBlock.id && tempBlock.getFieldValue('CS_PIN') === cs_pin && tempBlock.rendered) {
+                    warnText = 'WARNING! The CS pin must be different for each LIS3DH initialize block!';
+                }
+            });
+            this.setWarningText(warnText);
+
+            // Look for read temperature blocks
+            tempBlockList = Blockly.getMainWorkspace().getBlocksByType('lis3dh_temp') || [];
+            this.buildTempInput(tempBlockList.length > 0 ? true : false);
+        }
+    }
+};
+
+Blockly.propc.lis3dh_init = function () {
+    var sck_pin = this.getFieldValue('SCK_PIN');
+    var sdi_pin = this.getFieldValue('SDI_PIN');
+    var cs_pin = this.getFieldValue('CS_PIN');
+    if (!this.disabled) {
+        Blockly.propc.definitions_["lis3dh"] = '#include "lis3dh.h"';
+        Blockly.propc.global_vars_["lis3dh" + cs_pin] = 'lis3dh *lis3dh_' + cs_pin + ';';
+        var setupCode = 'lis3dh_' + cs_pin + ' = lis3dh_init(' + sck_pin + ', ' + sdi_pin + ', ' + cs_pin + ');';
+        if (this.getInput('TEMP_CALIBRATE')) {
+            var temp_val = this.getFieldValue('TEMP');
+            var temp_unit = this.getFieldValue('UNIT');
+            setupCode += 'lis3dh_tempCal_' + temp_unit + '(lis3dh_' + cs_pin + ', ' + temp_val + ');' 
+        } 
+        Blockly.propc.setups_["lis3dh" + cs_pin] = setupCode;
+    }
+    return '';
+};
+
+Blockly.Blocks.lis3dh_read = {
+    //helpUrl: Blockly.MSG_COLORPAL_HELPURL,
+    init: function () {
+        //this.setTooltip(Blockly.MSG_COLORPAL_GET_COLORS_RAW_TOOLTIP);
+        this.setColour(colorPalette.getColor('input'));
+        this.setInputsInline(false);
+        this.setPreviousStatement(true, "Block");
+        this.setNextStatement(true, null);
+        this.initBlocks = [];
+        this.buildFields();
+    },
+    buildFields: function (oldValue, newValue) { 
+        // The value of this field determines how the block will appear
+        var action = this.getFieldValue('SENSOR') || 'accel_mg';
+        var blockText = {
+            'accel_mg': {
+                label: ['X', 'Y', 'Z'],
+            },
+            'adc_mv': {
+                label: ['AD1', 'AD2', 'AD3'],
+            },
+        }
+
+        // Read the values of all of the fields before rebuilding all of the block's inputs
+        var fields = ['SENSOR', 'STORE_1', 'STORE_2', 'STORE_3', 'CS_PIN'];
+        var fieldVals = [];
+        for (var i = 0; i < fields.length; i++) {
+            fieldVals[i] = this.getFieldValue(fields[i]);
+        }
+
+        // If the CS_pin value changed, make sure the field will get populated with the new value
+        if (oldValue && newValue && fieldVals[4] === oldValue) {
+            fieldVals[4] = newValue;
+        }
+        if (this.initBlocks.indexOf(fieldVals[4]) < 0 && this.initBlocks.length > 1 && fieldVals[4]) {
+            // TODO: set warning flag if this changed due to its init being deleted?
+            // Hard to capture EVERY use case, but testing for deletion is doable enough.
+            // Use a change to the pin menu to clear the warning.
+            fieldVals[4] = this.initBlocks[0];
+        }
+
+        // This input will only get built once when the block is initialized.
+        if (!this.getInput('ACTION')) {
+            this.appendDummyInput('ACTION')
+                    .appendField("LIS3DH read")
+                    .appendField(new Blockly.FieldDropdown([
+                        ['acceleration (1000ths of g\'s)', 'accel_mg'], 
+                        ['voltage (mV)', 'adc_mv']
+                    ]), fields[0]);
+        }
+
+        //  This input will get rebuilt depending on the state of the dropdown menu.
+        if (this.getInput('VARS')) {
+            this.removeInput('VARS');
+        }
+        this.appendDummyInput('VARS')
+                .appendField("store " + blockText[action].label[0] + " in")
+                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), fields[1])
+                .appendField(blockText[action].label[1] + " in")
+                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), fields[2])
+                .appendField(blockText[action].label[2] + " in")
+                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), fields[3])
+
+        // If there is a spereate field for multiple inits - place it in it's own input when rebulding.
+        if (this.getInput('INIT')) {
+            this.removeInput('INIT');
+        }
+        // Only show the dropdown for CS-pin selection if there is more than one init block.
+        if (this.initBlocks.length > 1) {
+            this.appendDummyInput('INIT')
+                    .appendField("pin CS")
+                    .appendField(new Blockly.FieldDropdown(this.initBlocks.map(function (value) {
+                        return [value, value]  // returns an array of arrays built from the original array.
+                    })), 'CS_PIN')
+        } else {
+            // Attach a blank field just to make sure it exists when the block fields are populated.
+            // Blockly will throw a warning if this isn't here.
+            this.getInput('VARS').appendField('', 'CS_PIN');
+        }
+
+        // Repopulate all of the field values (make sure there is a CS-pin field before trying to populate it)
+        for (var i = 0; i < fields.length; i++) {
+            if (fieldVals[i] && 
+                    (fields[i] !== 'CS_PIN' || 
+                    (this.getField(fields[i]) && this.initBlocks.length > 1))) {
+                this.setFieldValue(fieldVals[i], fields[i]);
+            }
+        }
+    },
+    mutationToDom: function () {
+        var container = document.createElement('mutation');
+        container.setAttribute('pinmenu', JSON.stringify(this.initBlocks));
+        return container;
+    },
+    domToMutation: function (container) {
+        this.initBlocks = JSON.parse(container.getAttribute('pinmenu'));
+        this.buildFields();
+    },
+    onchange: function(event) {
+        // Only initiate this if there is a change that affects the field values in the block
+        if (event && (event.type === Blockly.Events.BLOCK_CREATE || 
+                event.type === Blockly.Events.BLOCK_DELETE || 
+                event.type === Blockly.Events.BLOCK_CHANGE)) {
+
+            // If the sensor dropdown changed, rebuild the block
+            if (this.type === 'lis3dh_read' && event.blockId === this.id && event.name === 'SENSOR') {
+                this.buildFields();
+            } else {
+                // If there was a change in the init blocks, adjust the CS-pin field 
+                // (and the array that populates it).
+                var tempInitBlockList = this.initBlocks;
+
+                var result = this.getValuesFromBlocksByType(event, 'lis3dh_init', 'CS_PIN');
+                if (result.blocks.length > 0) {
+                    this.initBlocks = result.list;
+
+                    // Only rebuild if there is a change to the list of CS_pins, or if a block got deleted
+                    if (tempInitBlockList != this.initBlocks &&
+                            (result.isChanged || event.type === Blockly.Events.BLOCK_DELETE)) {
+                        this.buildFields(event.oldValue, event.newValue);
+                    }
+                }
+
+                // If there are no init blocks, throw a warning.
+                this.setWarningText(this.initBlocks.length < 1 ? 'WARNING: Missing init block!' : null);
+
+            }
+        }
+    },
+    getValuesFromBlocksByType: function (event, blockType, fieldName) {
+        var tempValueList = [];
+        var tempBlockList = Blockly.getMainWorkspace().getBlocksByType(blockType) || [];
+        var blockChange = false;
+
+        if (tempBlockList.length > 0) {
+            tempBlockList.forEach(function (tempBlock) {
+                if (event.blockId === tempBlock.id) {
+                    blockChange = true;
+                }
+                var tempBlockValue = tempBlock.getFieldValue(fieldName);
+                if (tempBlockValue && tempBlockValue !== '') {
+                    tempValueList.push(tempBlockValue);
+                }
+            });
+        }
+        return {blocks: tempBlockList, list: tempValueList.sortedUnique(), isChanged: blockChange};
+    },
+/*
+    // TODO: Copied these here as a starting point get named constants supported for pin selection
+    updateConstMenu: function (oldValue, newValue) {
+        this.userDefinedConstantsList_ = [];
+        var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+        for (var x = 0; x < allBlocks.length; x++) {
+            if (allBlocks[x].type === 'constant_define') {
+                var v_name = allBlocks[x].getFieldValue('CONSTANT_NAME');
+                if (v_name === oldValue && newValue) {
+                    v_name = newValue;
+                }
+                if (v_name) {
+                    this.userDefinedConstantsList_.push(v_name);
+                }
+            }
+        }
+        this.userDefinedConstantsList_ = this.userDefinedConstantsList_.sortedUnique();
+        this.setPinMenus(oldValue, newValue);
+    },
+    setPinMenus: function (oldValue, newValue) {
+        var m1 = this.getFieldValue('PIN');
+        if(this.getInput('PINS')) {
+            this.removeInput('PINS');
+        }
+        this.appendDummyInput('PINS')
+                .appendField("Sound Impact initialize PIN")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
+                    return [value, value]  // returns an array of arrays built from the original array.
+                }))), "PIN");
+        if (m1 && m1 === oldValue && newValue) {
+            this.setFieldValue(newValue, 'PIN');
+        } else if (m1) {
+            this.setFieldValue(m1, 'PIN');
+        }
+    }
+*/
+
+};
+
+Blockly.propc.lis3dh_read = function () {
+    var s1 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_1'), Blockly.Variables.NAME_TYPE);
+    var s2 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_2'), Blockly.Variables.NAME_TYPE);
+    var s3 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_3'), Blockly.Variables.NAME_TYPE);
+    var action = this.getFieldValue('SENSOR');
+    var p = null;
+    if (this.initBlocks.length === 1) {
+        p = this.initBlocks[0];
+    } else if (this.initBlocks.length > 1) {
+        p = this.getFieldValue('CS_PIN');
+    }
+    if (p) {
+        return 'lis3dh_' + action + '(lis3dh_' + p + ', &' + s1 + ', &' + s2 + ', &' + s3 + ');';
+    } else {
+        return '// WARNING: Missing init block!';
+    }
+};
+
+Blockly.Blocks.lis3dh_temp = {
+    //helpUrl: Blockly.MSG_COLORPAL_HELPURL,
+    init: function () {
+        //this.setTooltip(Blockly.MSG_COLORPAL_GET_COLORS_RAW_TOOLTIP);
+        this.setColour(colorPalette.getColor('input'));
+        this.setInputsInline(false);
+        this.setOutput(true, 'Number');
+        this.initBlocks = [];
+        this.buildFields();
+    },
+    buildFields: function (oldValue, newValue) { 
+        // Read the values of all of the fields before rebuilding all of the block's inputs
+        var unit = this.getFieldValue('UNIT');
+        var csPin = this.getFieldValue('CS_PIN');
+
+        // If the CS_pin value changed, make sure the field will get populated with the new value
+        if (oldValue && newValue && csPin === oldValue) {
+            csPin = newValue;
+        }
+        if (this.initBlocks.indexOf(csPin) < 0 && this.initBlocks.length > 1 && csPin) {
+            // TODO: set warning flag if this changed due to its init being deleted?
+            // Hard to capture EVERY use case, but testing for deletion is doable enough.
+            // Use a change to the pin menu to clear the warning.
+            csPin = this.initBlocks[0];
+        }
+
+        //  This input will get rebuilt depending on the state of the dropdown menu.
+        if (this.getInput('MAIN')) {
+            this.removeInput('MAIN');
+        }
+        this.appendDummyInput('MAIN')
+                .appendField("LIS3DH temperature in")
+                .appendField(new Blockly.FieldDropdown([
+                    ["\u00b0F", "F"], 
+                    ["\u00b0C", "C"]
+                ]), "UNIT");
+
+        // Only show the dropdown for CS-pin selection if there is more than one init block.
+        if (this.initBlocks.length > 1) {
+            this.getInput('MAIN')
+                    .appendField("pin CS")
+                    .appendField(new Blockly.FieldDropdown(this.initBlocks.map(function (value) {
+                        return [value, value]  // returns an array of arrays built from the original array.
+                    })), 'CS_PIN')
+        } else {
+            // Attach a blank field just to make sure it exists when the block fields are populated.
+            // Blockly will throw a warning if this isn't here.
+            this.getInput('MAIN').appendField('', 'CS_PIN');
+        }
+
+        // Repopulate all of the field values (make sure there is a CS-pin field before trying to populate it)
+        this.setFieldValue(unit, 'UNIT');
+        if (this.getField('CS_PIN') && this.initBlocks.length > 1 && csPin && csPin !== '') {
+                this.setFieldValue(csPin, 'CS_PIN');
+        }
+    },
+    mutationToDom: Blockly.Blocks['lis3dh_read'].mutationToDom,
+    domToMutation: Blockly.Blocks['lis3dh_read'].domToMutation,
+    onchange: Blockly.Blocks['lis3dh_read'].onchange,
+    getValuesFromBlocksByType: Blockly.Blocks['lis3dh_read'].getValuesFromBlocksByType
+
+};
+
+Blockly.propc.lis3dh_temp = function () {
+    var unit = this.getFieldValue('UNIT');
+    var p = null;
+    if (this.initBlocks.length === 1) {
+        p = this.initBlocks[0];
+    } else if (this.initBlocks.length > 1) {
+        p = this.getFieldValue('CS_PIN');
+    }
+    if (p) {
+        return ['lis3dh_temp_' + unit + '(lis3dh_' + p + ');', Blockly.propc.ORDER_NONE];
+    } else {
+        return ['0 // WARNING: Missing init block!', Blockly.propc.ORDER_NONE];
+    }
+};
+
+
+
 // ------------------ IMU (LSM9DS1 module) Blocks ------------------------------
 Blockly.Blocks.lsm9ds1_init = {
     helpUrl: Blockly.MSG_IMU_HELPURL,
@@ -988,24 +1374,27 @@ Blockly.Blocks.lsm9ds1_init = {
         this.updateConstMenu();
     },
     updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
-    setPinMenus: function (ov, nv) {
+    setPinMenus: function (oldValue, newValue) {
         var mv = ['PIN_SCL', 'PIN_SDIO', 'PIN_CSAG', 'PIN_CSM'];
         var m = [this.getFieldValue('PIN_SCL'), this.getFieldValue('PIN_SDIO'), this.getFieldValue('PIN_CSAG'), this.getFieldValue('PIN_CSM')];
         if(this.getInput('PINS')) {
             this.removeInput('PINS');
         }
+        var pinConstantList = this.userDefinedConstantsList_.map(function (value) {
+            return [value, value]  // returns an array of arrays built from the original array.
+        });
         this.appendDummyInput('PINS')
                 .appendField("IMU initialize SCL")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "PIN_SCL")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "PIN_SCL")
                 .appendField("SDIO")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "PIN_SDIO")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "PIN_SDIO")
                 .appendField("CS_AG")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "PIN_CSAG")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "PIN_CSAG")
                 .appendField("CS_M")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "PIN_CSM");
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "PIN_CSM");
         for (var i = 0; i < 4; i++) {
-            if (m[i] && m[i] === ov && nv) {
-                this.setFieldValue(nv, mv[i]);
+            if (m[i] && m[i] === oldValue && newValue) {
+                this.setFieldValue(newValue, mv[i]);
             } else if (m[i]) {
                 this.setFieldValue(m[i], mv[i]);
             }
@@ -1299,7 +1688,7 @@ Blockly.Blocks.GPS_init = {
         this.updateConstMenu();
     },
     updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
-    setPinMenus: function (ov, nv) {
+    setPinMenus: function (oldValue, newValue) {
         var m = this.getFieldValue('TXPIN');
         var b = this.getFieldValue('BAUD')
         if(this.getInput('PINS')) {
@@ -1307,7 +1696,9 @@ Blockly.Blocks.GPS_init = {
         }
         this.appendDummyInput('PINS')
                 .appendField("GPS module initialize TX")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "TXPIN")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
+                    return [value, value]  // returns an array of arrays built from the original array.
+                }))), "TXPIN")
                 .appendField("baud")
                 .appendField(new Blockly.FieldDropdown([
                     ["9600", "9600"], 
@@ -1316,8 +1707,8 @@ Blockly.Blocks.GPS_init = {
                     ["19200", "19200"]
                 ]), "BAUD");
         this.setFieldValue(b ,'BAUD')
-        if (m && m === ov && nv) {
-            this.setFieldValue(nv, 'TXPIN');
+        if (m && m === oldValue && newValue) {
+            this.setFieldValue(newValue, 'TXPIN');
         } else if (m) {
             this.setFieldValue(m, 'TXPIN');
         }
@@ -1781,7 +2172,7 @@ Blockly.Blocks.rfid_enable = {
         this.updateConstMenu();
     },
     updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
-    setPinMenus: function (ov, nv) {
+    setPinMenus: function (oldValue, newValue) {
         var m1 = this.getFieldValue('PIN_IN');
         var m2 = this.getFieldValue('PIN_OUT');
         if(this.getInput('PINS')) {
@@ -1789,17 +2180,21 @@ Blockly.Blocks.rfid_enable = {
         }
         this.appendDummyInput('PINS')
                 .appendField("RFID initialize EN")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "PIN_IN")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
+                    return [value, value]  // returns an array of arrays built from the original array.
+                }))), "PIN_IN")
                 .appendField("SOUT")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "PIN_OUT");
-        if (m1 && m1 === ov && nv) {
-            this.setFieldValue(nv, 'PIN_IN');
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
+                    return [value, value]  // returns an array of arrays built from the original array.
+                }))), "PIN_OUT");
+        if (m1 && m1 === oldValue && newValue) {
+            this.setFieldValue(newValue, 'PIN_IN');
         } else if (m1) {
             this.setFieldValue(m1, 'PIN_IN');
         }
 
-        if (m2 && m2 === ov && nv) {
-            this.setFieldValue(nv, 'PIN_OUT');
+        if (m2 && m2 === oldValue && newValue) {
+            this.setFieldValue(newValue, 'PIN_OUT');
         } else if (m2) {
             this.setFieldValue(m2, 'PIN_OUT');
         }
@@ -1868,7 +2263,7 @@ Blockly.Blocks.sirc_get = {
         this.setColour(colorPalette.getColor('input'));
         this.pinChoices = ['PIN'];
         this.otherPin = [false];
-        if (projectData['board'] && projectData['board'] === "heb-wx") {
+        if (projectData.board && projectData.board === "heb-wx") {
             this.appendDummyInput()
                 .appendField("Sony Remote value received");
         } else {
@@ -1887,7 +2282,7 @@ Blockly.Blocks.sirc_get = {
 
 Blockly.propc.sirc_get = function () {
     var pin = '0';
-    if (projectData['board'] && projectData['board'] === "heb-wx") {
+    if (projectData.board && projectData.board === "heb-wx") {
         pin = '23';
     } else if (this.otherPin[0]) {
         pin = Blockly.propc.valueToCode(this, 'PIN', Blockly.propc.ORDER_ATOMIC) || '0';
@@ -1915,7 +2310,7 @@ Blockly.Blocks.keypad_initialize = {
         this.updateConstMenu();
     },
     updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
-    setPinMenus: function (ov, nv) {
+    setPinMenus: function (oldValue, newValue) {
         var m = [];
         for (var i = 0; i < 8; i++) {
             m[i] = this.getFieldValue('P' + i.toString(10));
@@ -1923,21 +2318,24 @@ Blockly.Blocks.keypad_initialize = {
         if(this.getInput('PINS')) {
             this.removeInput('PINS');
         }
+        var pinConstantList = this.userDefinedConstantsList_.map(function (value) {
+            return [value, value]  // returns an array of arrays built from the original array.
+        });
         this.appendDummyInput('PINS')
                 .appendField("4x4 Keypad initialize PINS left")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "P0")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "P1")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "P2")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "P3")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "P0")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "P1")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "P2")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "P3")
                 .appendField('|')
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "P4")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "P5")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "P6")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "P7")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "P4")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "P5")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "P6")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "P7")
                 .appendField("right");
         for (i = 0; i < 8; i++) {
-            if (m[i] && m[i] === ov && nv) {
-                this.setFieldValue(nv, 'P' + i.toString(10));
+            if (m[i] && m[i] === oldValue && newValue) {
+                this.setFieldValue(newValue, 'P' + i.toString(10));
             } else if (m[i]) {
                 this.setFieldValue(m[i], 'P' + i.toString(10));
             }
@@ -2063,24 +2461,27 @@ Blockly.Blocks.bme680_init = {
         this.updateConstMenu();
     },
     updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
-    setPinMenus: function (ov, nv) {
+    setPinMenus: function (oldValue, newValue) {
         var mv = ['PIN_CLK', 'PIN_SDI', 'PIN_SDO', 'PIN_CS'];
         var m = [this.getFieldValue('PIN_CLK'), this.getFieldValue('PIN_SDI'), this.getFieldValue('PIN_SDO'), this.getFieldValue('PIN_CS')];
         if(this.getInput('PINS')) {
             this.removeInput('PINS');
         }
+        var pinConstantList = this.userDefinedConstantsList_.map(function (value) {
+            return [value, value]  // returns an array of arrays built from the original array.
+        });
         this.appendDummyInput('PINS')
                 .appendField("Air Quality initialize SCK")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "PIN_CLK")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "PIN_CLK")
                 .appendField("SDI")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "PIN_SDI")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "PIN_SDI")
                 .appendField("SDO")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "PIN_SDO")
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "PIN_SDO")
                 .appendField("CS")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.v_list)), "PIN_CS");
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(pinConstantList)), "PIN_CS");
         for (var i = 0; i < 4; i++) {
-            if (m[i] && m[i] === ov && nv) {
-                this.setFieldValue(nv, mv[i]);
+            if (m[i] && m[i] === oldValue && newValue) {
+                this.setFieldValue(newValue, mv[i]);
             } else if (m[i]) {
                 this.setFieldValue(m[i], mv[i]);
             }
