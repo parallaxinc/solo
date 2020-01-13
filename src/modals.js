@@ -386,7 +386,7 @@ function OpenProjectModalOpenClick() {
 
             // eslint-disable-next-line no-undef
             window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
-            window.location = 'blocklyc.html';
+            window.location = 'blocklyc.html'+ window.getAllURLParameters();
         }
         else {
             console.log("The opened project cannot be found in storage");
@@ -425,7 +425,7 @@ function OpenProjectModalEscapeClick() {
      * closed when the user clicks on the 'x' icon.
      */
     $('#open-project-dialog').on('hidden.bs.modal', function () {
-        if (!projectData | typeof(projectData.board) === 'undefined') {
+        if (!projectData || typeof projectData.board === 'undefined') {
             // If there is no project, go to home page.
             window.location.href = 'index.html';
         }
