@@ -739,17 +739,6 @@ function initEventHandlers() {
 
 
     // Client install instruction modals
-    $('#win1-btn').on('click', () => showStep('win', 1, 3));
-    $('#win2-btn').on('click', () => showStep('win', 2, 3));
-    $('#win3-btn').on('click', () => showStep('win', 3, 3));
-    $('#chr1-btn').on('click', () => showStep('chr', 1, 3));
-    $('#chr2-btn').on('click', () => showStep('chr', 2, 3));
-    $('#chr3-btn').on('click', () => showStep('chr', 3, 3));
-    $('#mac1-btn').on('click', () => showStep('mac', 1, 4));
-    $('#mac2-btn').on('click', () => showStep('mac', 2, 4));
-    $('#mac3-btn').on('click', () => showStep('mac', 3, 4));
-    $('#mac4-btn').on('click', () => showStep('mac', 4, 4));
-
     $('.show-os-win').on('click', () => showOS('Windows'));
     $('.show-os-mac').on('click', () => showOS('MacOS'));
     $('.show-os-chr').on('click', () => showOS('ChromeOS'));
@@ -791,13 +780,12 @@ function initClientDownloadLinks() {
     // Windows 64-bit
     $('.client-win64-link').attr('href', $("meta[name=win64client]").attr("content"));
     $('.client-win64zip-link').attr('href', $("meta[name=win64zipclient]").attr("content"));
-
-    // TODO: Add link for BlocklyProp Launcher for Windows
+    $('.launcher-win64-link').attr('href', $("meta[name=win64launcher]").attr("content"));
+    $('.launcher-win64zip-link').attr('href', $("meta[name=win64ziplauncher]").attr("content"));
 
     // MacOS
     $('.client-mac-link').attr('href', $("meta[name=macOSclient]").attr("content"));
-
-    // TODO: Add link for BlocklyProp Launcher for MacOS
+    $('.launcher-mac-link').attr('href', $("meta[name=macOSlauncher]").attr("content"));
 
 }
 
@@ -1753,22 +1741,6 @@ function showOS(o) {
         .removeClass('Linux')
         .removeClass('ChromeOS');
     body.addClass(o);
-}
-
-
-/**
- *
- * @param o
- * @param i
- * @param t
- */
-function showStep(o, i, t) {
-    for (var j = 1; j <= t; j++) {
-        $('#' + o + j.toString() + '-btn').addClass('btn-default').removeClass('btn-primary');
-        $('#' + o + j.toString()).addClass('hidden');
-    }
-    $('#' + o + i.toString() + '-btn').removeClass('btn-default').addClass('btn-primary');
-    $('#' + o + i.toString()).removeClass('hidden');
 }
 
 
