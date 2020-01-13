@@ -425,7 +425,7 @@ function OpenProjectModalEscapeClick() {
      * closed when the user clicks on the 'x' icon.
      */
     $('#open-project-dialog').on('hidden.bs.modal', function () {
-        if (!projectData | typeof(projectData.board) === 'undefined') {
+        if (!projectData || typeof projectData.board === 'undefined') {
             // If there is no project, go to home page.
             window.location.href = 'index.html';
         }
