@@ -40,7 +40,7 @@ var graph = null;
 /**
  * TODO: Identify the purpose of this variable
  *
- * @type {null}
+ * @type {{}}
  */
 var codePropC = null;
 
@@ -221,21 +221,9 @@ var graph_data = {
 
 
 /**
- * Minimum client/launcher version supporting base64-encoding
- */
-const minEnc64Ver = version_as_number('0.7.0');
-
-
-/**
  *  Minimum client/launcher version supporting coded/verbose responses
  */
 const minCodedVer = version_as_number('0.7.5');
-
-
-/**
- * Minimum client/launcher allowed for use with this system
- */
-const minVer = version_as_number(client_min_version);
 
 
 /**
@@ -246,7 +234,7 @@ const minVer = version_as_number(client_min_version);
 function renderContent(id) {
     // Select the active tab.
     const selectedTab = id.replace('tab_', '');
-    const isPropcOnlyProject = (projectData['board'] === 'propcfile');
+    const isPropcOnlyProject = (projectData.board === 'propcfile');
 
     let isDebug = window.getURLParameter('debug');
     if (!isDebug) {
@@ -293,7 +281,7 @@ function renderContent(id) {
                 codePropC.gotoLine(0);
             } else {
                 if (!codePropC || codePropC.getValue() === '') {
-                    codePropC.setValue(atob((projectData['code'].match(/<field name="CODE">(.*)<\/field>/) || ['', ''])[1] || ''));
+                    codePropC.setValue(atob((projectData.code.match(/<field name="CODE">(.*)<\/field>/) || ['', ''])[1] || ''));
                     codePropC.gotoLine(0);
                 }
                 if (codePropC.getValue() === '') {
@@ -372,6 +360,7 @@ var prettyCode = function (raw_code) {
         .replace(/bme680 \* /g, "bme680 *")
         .replace(/serial \* /g, "serial *")
         .replace(/lcdParallel \* /g, "lcdParallel *")
+        .replace(/lis3dh \* /g, "lis3dh *")
         .replace(/colorPal \* /g, "colorPal *")
         .replace(/ws2812 \* /g, "ws2812 *")
         .replace(/i2c \* /g, "i2c *")
@@ -429,8 +418,10 @@ function generateBlockId(nonce) {
  * @returns {string}
  */
 var propcAsBlocksXml = function () {
-    let code = '<xml xmlns="http://www.w3.org/1999/xhtml">';
-    code += '<block type="propc_file" id="' + generateBlockId(codePropC ? codePropC.getValue() : 'thequickbrownfoxjumpedoverthelazydog') + '" x="100" y="100">';
+    let code = EMPTY_PROJECT_CODE_HEADER;
+    code += '<block type="propc_file" id="' + 
+            generateBlockId(codePropC ? codePropC.getValue() : 'thequickbrownfoxjumpedoverthelazydog') + 
+            '" x="100" y="100">';
     code += '<field name="FILENAME">single.c</field>';
     code += '<field name="CODE">';
 
@@ -460,7 +451,7 @@ function init(blockly) {
         codePropC.setReadOnly(true);
 
         // if the project is a propc code-only project, enable code editing.
-        if (projectData['board'] === 'propcfile') {
+        if (projectData.board === 'propcfile') {
             codePropC.setReadOnly(false);
         }
     }
@@ -474,15 +465,18 @@ function init(blockly) {
 
     window.Blockly = blockly;
 
+    // TODO: Use constant EMPTY_PROJECT_CODE_HEADER instead of string.
+    //  Replace string length check with code that detects the first
+    //  <block> xml element.
     if (projectData) {
         // Looking for the first <block> XML element
         const searchTerm = '<block';
 
-        if (!projectData['code'] || projectData['code'].indexOf(searchTerm) < 0) {
-            projectData['code'] = EMPTY_PROJECT_CODE_HEADER + '</xml>';
+        if (!projectData.code || projectData.code.indexOf(searchTerm) < 0) {
+            projectData.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
         }
-        if (projectData['board'] !== 'propcfile') {
-            loadToolbox(projectData['code']);
+        if (projectData.board !== 'propcfile') {
+            loadToolbox(projectData.code);
         }
     }
 }
@@ -534,10 +528,17 @@ function cloudCompile(text, action, successHandler) {
         else if (propcCode.indexOf("SERIAL_GRAPHING USED") > -1)
             terminalNeeded = 'graph';
 
-        // Contact the docker container running cloud compiler
-        // Compute the url based on where we are now
-        let postUrl = window.location.protocol + '//' + window.location.hostname + ':5001/single/prop-c/' + action;
-//        let postUrl = getCompilerUrl(action);
+        // Contact the container running cloud compiler. If the browser is
+        // connected via https, direct the compile request to the same port and
+        // let the load balancer direct the request to the compiler.
+        // --------------------------------------------------------------------
+        let postUrl;
+        if (window.location.protocol === 'http:') {
+            postUrl = 'http://' + window.location.hostname + ':5001/single/prop-c/' + action;
+        }
+        else {
+            postUrl = 'https://' + window.location.hostname + ':443/single/prop-c/' + action;
+        }
 
         $.ajax({
             'method': 'POST',
@@ -613,20 +614,14 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
         cloudCompile(modal_message, compile_command, function (data, terminalNeeded) {
 
             if (client_use_type === 'ws') {
-
-                //Prep for new download messages
+                // Prep for new download messages
                 launcher_result = "";
                 launcher_download = false;
-                //Set dbug flag if needed
-                var dbug = 'none';
-                if (terminalNeeded === 'term' || terminalNeeded === 'graph') {
-                    dbug = terminalNeeded;
-                }
                 var prog_to_send = {
                     type: 'load-prop',
                     action: load_action,
                     payload: data.binary,
-                    debug: dbug,
+                    debug: (terminalNeeded === 'term' || terminalNeeded === 'graph') ? terminalNeeded : 'none',
                     extension: data.extension,
                     portPath: getComPort()
                 };
@@ -637,7 +632,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
 
                 if (client_version >= minCodedVer) {
                     //Request load with options from BlocklyProp Client
-                    $.post(client_url + 'load.action', {
+                    $.post("http://" + client_domain_name + ":" + client_domain_port + "/load.action", {
                         option: load_option,
                         action: load_action,
                         binary: data.binary,
@@ -681,9 +676,9 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
                         }
                     });
                 } else {
-                    //todo - Remove this once client_min_version (and thus minVer) is >= minCodedVer
+                    //TODO: Remove this once client_min_version is >= minCodedVer
                     //Request load without options from old BlocklyProp Client
-                    $.post(client_url + 'load.action', {
+                    $.post("http://" + client_domain_name + ":" + client_domain_port + "/load.action", {
                         action: load_action,
                         binary: data.binary,
                         extension: data.extension,
@@ -728,7 +723,7 @@ function serial_console() {
         }
 
         if (ports_available) {
-            var url = client_url + 'serial.connect';
+            var url = "http://" + client_domain_name + ":" + client_domain_port + "/serial.connect";
             url = url.replace('http', 'ws');
             var connection = new WebSocket(url);
 
@@ -746,17 +741,15 @@ function serial_console() {
             };
 
             connection.onmessage = function (e) {
-                var c_buf = (client_version >= minEnc64Ver) ? atob(e.data) : e.data;
+                // incoming data is base64 encoded
+                var c_buf = atob(e.data);
                 if (connStrYet) {
                     pTerm.display(c_buf);
                 } else {
                     connString += c_buf;
                     if (connString.indexOf(baudrate.toString(10)) > -1) {
                         connStrYet = true;
-                        if (document.getElementById('serial-conn-info')) {
-                            document.getElementById('serial-conn-info').innerHTML = connString.trim();
-                            // send remainder of string to terminal???  Haven't seen any leak through yet...
-                        }
+                        displayTerminalConnectionStatus(connString.trim());
                     } else {
                         pTerm.display(e.data);
                     }
@@ -773,25 +766,19 @@ function serial_console() {
                 connString = '';
                 connStrYet = false;
                 connection.close();
-                if (document.getElementById('serial-conn-info')) {
-                    document.getElementById('serial-conn-info').innerHTML = '';
-                }
+                displayTerminalConnectionStatus(null);
                 pTerm.display(null);
-                term_been_scrolled = false;
                 term = null;
             });
         } else {
             active_connection = 'simulated';
 
             if (newTerminal) {
-                if (document.getElementById('serial-conn-info')) {
-                    document.getElementById('serial-conn-info').innerHTML = Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT;
-                }
+                displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
                 pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
             }
 
             $('#console-dialog').on('hidden.bs.modal', function () {
-                term_been_scrolled = false;
                 active_connection = null;
                 pTerm.display(null);
                 term = null;
@@ -814,27 +801,39 @@ function serial_console() {
         };
 
         active_connection = 'websocket';
-        if (document.getElementById('serial-conn-info')) {
-            document.getElementById('serial-conn-info').innerHTML = Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED +
-            ' ' + msg_to_send.portPath + ' ' + Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE + ' ' + msg_to_send.baudrate;
-        }
+        displayTerminalConnectionStatus([
+            Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
+            msg_to_send.portPath,
+            Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
+            msg_to_send.baudrate
+        ].join[' ']);
         client_ws_connection.send(JSON.stringify(msg_to_send));
 
         $('#console-dialog').on('hidden.bs.modal', function () {
             if (msg_to_send.action !== 'close') { // because this is getting called multiple times...?
                 msg_to_send.action = 'close';
-                if (document.getElementById('serial-conn-info')) {
-                    document.getElementById('serial-conn-info').innerHTML = '';
-                }
+                displayTerminalConnectionStatus(null);
                 active_connection = null;
                 client_ws_connection.send(JSON.stringify(msg_to_send));
             }
-            term_been_scrolled = false;
             pTerm.display(null);
         });
     }
 
     $('#console-dialog').modal('show');
+}
+
+/**
+ * Display information about the serial connection to the device
+ * @param {string} connectionInfo text to display above the console or graph
+ */
+function displayTerminalConnectionStatus(connectionInfo) {
+    if (!connectionInfo) {
+        connectionInfo = '';
+    }
+    if (document.getElementById('serial-conn-info')) {
+        document.getElementById('serial-conn-info').innerHTML = connectionInfo;
+    }
 }
 
 
@@ -910,9 +909,7 @@ function graphing_console() {
         }
 
         if (client_use_type !== 'ws' && ports_available) {
-            var url = client_url + 'serial.connect';
-            url = url.replace('http', 'ws');
-            var connection = new WebSocket(url);
+            var connection = new WebSocket("ws://" + client_domain_name + ":" + client_domain_port + "/serial.connect");
 
             // When the connection is open, open com port
             connection.onopen = function () {
@@ -932,7 +929,7 @@ function graphing_console() {
             };
 
             connection.onmessage = function (e) {
-                var c_buf = (client_version >= minEnc64Ver) ? atob(e.data) : e.data;
+                var c_buf = atob(e.data);
                 if (connStrYet) {
                     graph_new_data(c_buf);
                 } else {
@@ -1054,22 +1051,17 @@ var graphStartStop = function (action) {
 
 
 /**
- * Update the list of serail ports available on the host machine
+ * Update the list of serial ports available on the host machine
  */
 var check_com_ports = function () {
+    // TODO: We need to evaluate this when using web sockets ('ws') === true
     if (client_use_type !== 'ws') {
-        if (client_url !== undefined) {
-            if (client_version >= minVer) {
-                // Client is >= minimum supported version
-                $.get(client_url + "ports.json", function (data) {
-                    set_port_list(data);
-                }).fail(function () {
-                    set_port_list();
-                });
-            } else {
-                // else keep port list clear (searching...)
+        if (client_domain_name && client_domain_port) {
+            $.get("http://" + client_domain_name + ":" + client_domain_port + "ports.json", function (data) {
+                set_port_list(data);
+            }).fail(function () {
                 set_port_list();
-            }
+            });
         }
     }
 };
@@ -1117,7 +1109,7 @@ function downloadPropC() {
         return;
     } else {
         // Make sure the filename doesn't have any illegal characters
-        value = sanitizeFilename(projectData['name']);
+        value = sanitizeFilename(projectData.name);
 
         var sideFileContent = ".c\n>compiler=C\n>memtype=cmm main ram compact\n";
         sideFileContent += ">optimize=-Os\n>-m32bit-doubles\n>-fno-exceptions\n>defs::-std=c99\n";

@@ -185,7 +185,7 @@ var isExperimental = window.getURLParameter('experimental') || 'false';
  * @param keepNewOpen {boolean} if true, keep the newProject and openFile parameters, otherwise filter them out.
  * @returns {string} all or filtered URL parameters
  */
-if (!window.getURLParameter) {
+if (!window.getAllURLParameters) {
     Object.defineProperty(window, 'getAllURLParameters', {
         value: function (keepNewOpen) {
             if (keepNewOpen) {

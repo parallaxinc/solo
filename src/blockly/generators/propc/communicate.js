@@ -635,7 +635,7 @@ Blockly.propc.console_print_multiple = function () {
         case 'wx_print_multiple':
             initBlock = 'WX initialize';
             errorString = '// ERROR: WX is not initialized!\n';
-            if (projectData && projectData['board'] === 'heb-wx') {
+            if (projectData && projectData.board === 'heb-wx') {
                 initBlock = null;
             }
             var handle = Blockly.propc.variableDB_.getName(this.getFieldValue('HANDLE'), Blockly.Variables.NAME_TYPE);
@@ -696,7 +696,7 @@ Blockly.propc.console_print_multiple = function () {
         code = '// ERROR: You cannot use Advanced WX blocks with Simple WX blocks!';
     }
 
-    if (projectData['board'] === 'heb-wx' && this.type === 'wx_print_multiple') {
+    if (projectData.board === 'heb-wx' && this.type === 'wx_print_multiple') {
         Blockly.propc.definitions_["wx_def"] = '#include "wifi.h"';
         Blockly.propc.setups_["wx_init"] = 'wifi_start(31, 30, 115200, WX_ALL_COM);';
     }
@@ -990,9 +990,10 @@ Blockly.Blocks.serial_open = {
         var ck_bits = ['FALSE', 'FALSE', 'FALSE', 'FALSE'];
         var otherMode = false;
         for (var k = 0; k < 4; k++) {
-            ck_bits[k] = xmlElement.getAttribute('ck_bit' + k.toString(10));
-            if (ck_bits[k] === 'TRUE') {
+            var ck_bit = xmlElement.getAttribute('ck_bit' + k.toString(10));
+            if (ck_bit) {
                 otherMode = true;
+                ck_bits[k] = ck_bit;
             }
         }
         if (otherMode) {
@@ -1923,7 +1924,7 @@ Blockly.Blocks.debug_lcd_init = {
         }
         this.appendDummyInput('PINS')
                 .appendField("Serial LCD initialize PIN")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.map(function (value) {
+                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
                     return [value, value]  // returns an array of arrays built from the original array.
                 }))), "PIN")
                 .appendField("baud")

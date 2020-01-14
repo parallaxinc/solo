@@ -1375,7 +1375,7 @@ Blockly.Blocks.sound_play = {
         this.setSoundAction(action);
     },
     onchange: function (event) {
-        if (!(projectData['board'] && (projectData['board'] === "heb" || projectData['board'] === "heb-wx"))) {
+        if (!(projectData.board && (projectData.board === "heb" || projectData.board === "heb-wx"))) {
             if (event.type == Blockly.Events.BLOCK_CREATE || event.type == Blockly.Events.BLOCK_DELETE) {
                 var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
                 if (allBlocks.indexOf('sound initialize') === -1) {
@@ -1410,8 +1410,8 @@ Blockly.propc.sound_play = function () {
     var code = 'sound_' + action + '(audio0, ' + channel + ', ' + value + ');';
     
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-    if (allBlocks.indexOf('sound initialize') === -1 && !(projectData['board'] && 
-            (projectData['board'] === "heb") || (projectData['board'] === "heb-wx"))) {
+    if (allBlocks.indexOf('sound initialize') === -1 && !(projectData.board &&
+            (projectData.board === "heb") || (projectData.board === "heb-wx"))) {
         code = '// WARNING: You must use a sound initialize block at the beginning of your program!\n';
     }
     
