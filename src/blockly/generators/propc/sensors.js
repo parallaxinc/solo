@@ -1353,7 +1353,7 @@ Blockly.propc.lis3dh_temp = function () {
         p = this.getFieldValue('CS_PIN');
     }
     if (p) {
-        return ['lis3dh_temp_' + unit + '(lis3dh_' + p + ');', Blockly.propc.ORDER_NONE];
+        return ['lis3dh_temp_' + unit + '(lis3dh_' + p + ')', Blockly.propc.ORDER_NONE];
     } else {
         return ['0 // WARNING: Missing init block!', Blockly.propc.ORDER_NONE];
     }
