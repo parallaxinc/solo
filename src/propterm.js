@@ -28,7 +28,7 @@
  */
 class PropTerm {
     /**
-     * @param {Element} terminalElement HTML element to populate the terminal into.
+     * @param {HTMLElement} terminalElement HTML element to populate the terminal into.
      * @param {object} outputCallback function to call and send characters typed into the terminal.
      * @param {TerminalOptions} options for configuring the terminal.
      */
@@ -554,11 +554,9 @@ class PropTerm {
         }
     
         if (this.cursor.scrolled > 0 && this.cursor.scrollTo) {
-
-            // TODO: Unresolved attribute 'style'
-            this.element.style.overflowY = 'hidden';
+            this.element.style['overflow-y'] = 'hidden';
             this.element.scroll(0, (this.cursor.y - terminalLinesHigh/2) * this.size.linesHigh);
-            this.element.style.overflowY = 'scroll';
+            this.element.style['overflow-y'] = 'scroll';
             this.cursor.scrolled--;
         }
     
