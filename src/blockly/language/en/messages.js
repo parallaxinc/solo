@@ -800,7 +800,7 @@ page_text_label['clientdownload_showall'] = "Show clients for all operating syst
 page_text_label['clientdownload_title'] = "BlocklyProp Launcher";
 
 page_text_label['client_unknown'] = "BlocklyProp is unable to determine what version of BlocklyProp Launcher is installed on your computer.<br>You may need to install or reinstall the BlocklyProp Launcher.";
-page_text_label['client_update_warning'] = "BlocklyProp now recommends at least version <span class=\"client-required-version\"></span> of BlocklyProp Launcher.<br>You appear to be using BlocklyProp Launcher version <span class=\"client-your-version\"></span>.<br>Please use the link below to download the newest version of BlocklyProp Launcher.";
+page_text_label['client_update_warning'] = "BlocklyProp Solo requires BlocklyProp Launcher version <span class=\"client-required-version\"></span>, or later.<br>You are using incompatible software: BlocklyProp Client version <span class=\"client-your-version\"></span>.<br>Download and install the latest software from the link below.";
 page_text_label['client_update_danger'] = "BlocklyProp now requires at least version <span class=\"client-required-version\"></span> of BlocklyProp Launcher.<br>You appear to be using BlocklyProp Launcher version <span class=\"client-your-version\"></span>.<br>You will not be able to load projects to your device until you upgrade your BlocklyProp Launcher.<br>Please use the link below to download the newest version.";
 
 page_text_label['confirm_do_email'] = "Email:";
