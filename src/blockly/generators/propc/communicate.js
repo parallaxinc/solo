@@ -37,6 +37,11 @@ if (!Blockly.Blocks)
     Blockly.Blocks = {};
 
 // ------------------ Terminal Console Blocks ----------------------------------
+
+/**
+ * Console Print block definition
+ * @type {{init: Blockly.Blocks.console_print.init, helpUrl: string}}
+ */
 Blockly.Blocks.console_print = {
     helpUrl: Blockly.MSG_TERMINAL_HELPURL,
     init: function () {
@@ -54,6 +59,11 @@ Blockly.Blocks.console_print = {
     }
 };
 
+
+/**
+ * Console Print code generator
+ * @returns {string}
+ */
 Blockly.propc.console_print = function () {
     var text = Blockly.propc.valueToCode(this, 'MESSAGE', Blockly.propc.ORDER_ATOMIC);
     var checkbox = this.getFieldValue('ck_nl');
@@ -67,6 +77,11 @@ Blockly.propc.console_print = function () {
     return code;
 };
 
+
+/**
+ * Console Print Variables block definition
+ * @type {{init: Blockly.Blocks.console_print_variables.init, helpUrl: string}}
+ */
 Blockly.Blocks.console_print_variables = {
     helpUrl: Blockly.MSG_TERMINAL_HELPURL,
     init: function () {
@@ -92,6 +107,11 @@ Blockly.Blocks.console_print_variables = {
     }
 };
 
+
+/**
+ * Console Print Variables code generator
+ * @returns {string}
+ */
 Blockly.propc.console_print_variables = function () {
     var value = Blockly.propc.valueToCode(this, 'VALUE', Blockly.propc.ORDER_ATOMIC);
     var format = this.getFieldValue('FORMAT');
@@ -136,6 +156,21 @@ Blockly.propc.console_print_variables = function () {
     return code;
 };
 
+
+/**
+ * Console Print Multiple block definition
+ *
+ * @type {{
+ *  init: Blockly.Blocks.console_print_multiple.init,
+ *  saveConnections: Blockly.Blocks.console_print_multiple.saveConnections,
+ *  compose: Blockly.Blocks.console_print_multiple.compose,
+ *  mutationToDom: (function(): HTMLElement),
+ *  decompose: (function(*): Blockly.Block),
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.console_print_multiple.onchange,
+ *  domToMutation: Blockly.Blocks.console_print_multiple.domToMutation
+ *  }}
+ */
 Blockly.Blocks.console_print_multiple = {
     helpUrl: Blockly.MSG_TERMINAL_HELPURL,
     init: function () {
@@ -451,6 +486,11 @@ Blockly.Blocks.console_print_multiple = {
     }
 };
 
+
+/**
+ * Console Print Container block definition
+ * @type {{init: Blockly.Blocks.console_print_container.init}}
+ */
 Blockly.Blocks.console_print_container = {
     init: function () {
         this.setColour(colorPalette.getColor('protocols'));
@@ -464,6 +504,11 @@ Blockly.Blocks.console_print_container = {
     }
 };
 
+
+/**
+ * Serial Print Container block definition
+ * @type {{init: Blockly.Blocks.serial_print_container.init}}
+ */
 Blockly.Blocks.serial_print_container = {
     init: function () {
         this.setColour(colorPalette.getColor('protocols'));
@@ -474,6 +519,11 @@ Blockly.Blocks.serial_print_container = {
     }
 };
 
+
+/**
+ * String Sprint Container block definition
+ * @type {{init: Blockly.Blocks.string_sprint_container.init}}
+ */
 Blockly.Blocks.string_sprint_container = {
     init: function () {
         this.setColour(colorPalette.getColor('math'));
@@ -487,6 +537,11 @@ Blockly.Blocks.string_sprint_container = {
     }
 };
 
+
+/**
+ * Console Print Decimal block definition
+ * @type {{init: Blockly.Blocks.console_print_dec.init}}
+ */
 Blockly.Blocks.console_print_dec = {
     init: function () {
         var myColor = 'protocols';
@@ -502,6 +557,11 @@ Blockly.Blocks.console_print_dec = {
     }
 };
 
+
+/**
+ * Console Print Hexadecimal block definition
+ * @type {{init: Blockly.Blocks.console_print_hex.init}}
+ */
 Blockly.Blocks.console_print_hex = {
     init: function () {
         var myColor = 'protocols';
@@ -517,6 +577,11 @@ Blockly.Blocks.console_print_hex = {
     }
 };
 
+
+/**
+ * Console Print Binary block definition
+ * @type {{init: Blockly.Blocks.console_print_bin.init}}
+ */
 Blockly.Blocks.console_print_bin = {
     init: function () {
         var myColor = 'protocols';
@@ -532,6 +597,11 @@ Blockly.Blocks.console_print_bin = {
     }
 };
 
+
+/**
+ * Console Print String block defintion
+ * @type {{init: Blockly.Blocks.console_print_str.init}}
+ */
 Blockly.Blocks.console_print_str = {
     init: function () {
         var myColor = 'protocols';
@@ -547,6 +617,11 @@ Blockly.Blocks.console_print_str = {
     }
 };
 
+
+/**
+ * Console Print Character block definition
+ * @type {{init: Blockly.Blocks.console_print_char.init}}
+ */
 Blockly.Blocks.console_print_char = {
     init: function () {
         var myColor = 'protocols';
@@ -562,6 +637,11 @@ Blockly.Blocks.console_print_char = {
     }
 };
 
+
+/**
+ * Console Print Float block definition
+ * @type {{init: Blockly.Blocks.console_print_float.init}}
+ */
 Blockly.Blocks.console_print_float = {
     init: function () {
         var myColor = 'protocols';
@@ -577,6 +657,12 @@ Blockly.Blocks.console_print_float = {
     }
 };
 
+
+/**
+ * Console Print Multiple code generator
+ *
+ * @returns {string}
+ */
 Blockly.propc.console_print_multiple = function () {
     var code = '';
     var initBlock = null;
@@ -704,6 +790,11 @@ Blockly.propc.console_print_multiple = function () {
     return code;
 };
 
+
+/**
+ * Console Scan Text block definition
+ * @type {{init: Blockly.Blocks.console_scan_text.init, helpUrl: string}}
+ */
 Blockly.Blocks.console_scan_text = {
     helpUrl: Blockly.MSG_TERMINAL_HELPURL,
     init: function () {
@@ -718,6 +809,11 @@ Blockly.Blocks.console_scan_text = {
     }
 };
 
+
+/**
+ * Console Scan Text code generator
+ * @returns {string}
+ */
 Blockly.propc.console_scan_text = function () {
     var data = Blockly.propc.variableDB_.getName(this.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
     Blockly.propc.vartype_[data] = 'char *';
@@ -732,6 +828,11 @@ Blockly.propc.console_scan_text = function () {
     }
 };
 
+
+/**
+ * Console Scan Number block definition
+ * @type {{init: Blockly.Blocks.console_scan_number.init, helpUrl: string}}
+ */
 Blockly.Blocks.console_scan_number = {
     helpUrl: Blockly.MSG_TERMINAL_HELPURL,
     init: function () {
@@ -748,6 +849,11 @@ Blockly.Blocks.console_scan_number = {
     }
 };
 
+
+/**
+ * Console Scan Number code generator
+ * @returns {string}
+ */
 Blockly.propc.console_scan_number = function () {
     var type = this.getFieldValue('TYPE');
     var data = Blockly.propc.variableDB_.getName(this.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
@@ -767,6 +873,11 @@ Blockly.propc.console_scan_number = function () {
     }
 };
 
+
+/**
+ * Console Newline block definition
+ * @type {{init: Blockly.Blocks.console_newline.init, helpUrl: string}}
+ */
 Blockly.Blocks.console_newline = {
     helpUrl: Blockly.MSG_TERMINAL_HELPURL,
     init: function () {
@@ -780,11 +891,21 @@ Blockly.Blocks.console_newline = {
     }
 };
 
+
+/**
+ * Console Newline code generator
+ * @returns {string}
+ */
 Blockly.propc.console_newline = function () {
     Blockly.propc.serial_terminal_ = true;
     return 'term_cmd(CR);\n';
 };
 
+
+/**
+ * Console Close block definition
+ * @type {{init: Blockly.Blocks.console_close.init, helpUrl: string}}
+ */
 Blockly.Blocks.console_close = {
     helpUrl: Blockly.MSG_TERMINAL_HELPURL,
     init: function () {
@@ -798,6 +919,11 @@ Blockly.Blocks.console_close = {
     }
 };
 
+
+/**
+ * Console Close code generator
+ * @returns {string}
+ */
 Blockly.propc.console_close = function () {
     // Blockly.propc.serial_terminal_ = true;
     if (!this.disabled) {
@@ -806,6 +932,11 @@ Blockly.propc.console_close = function () {
     return '';
 };
 
+
+/**
+ * Console Clear block definition
+ * @type {{init: Blockly.Blocks.console_clear.init, helpUrl: string}}
+ */
 Blockly.Blocks.console_clear = {
     helpUrl: Blockly.MSG_TERMINAL_HELPURL,
     init: function () {
@@ -819,11 +950,21 @@ Blockly.Blocks.console_clear = {
     }
 };
 
+
+/**
+ * Console Clear code generator
+ * @returns {string}
+ */
 Blockly.propc.console_clear = function () {
     Blockly.propc.serial_terminal_ = true;
     return 'term_cmd(CLS);\n';
 };
 
+
+/**
+ * Console MoveToPosition block definition
+ * @type {{init: Blockly.Blocks.console_move_to_position.init, helpUrl: string}}
+ */
 Blockly.Blocks.console_move_to_position = {
     helpUrl: Blockly.MSG_TERMINAL_HELPURL,
     init: function () {
@@ -844,6 +985,11 @@ Blockly.Blocks.console_move_to_position = {
     }
 };
 
+
+/**
+ * Console MoveToPosition code generator
+ * @returns {string}
+ */
 Blockly.propc.console_move_to_position = function () {
     Blockly.propc.serial_terminal_ = true;
     var row = Blockly.propc.valueToCode(this, 'ROW', Blockly.propc.ORDER_NONE);
@@ -864,7 +1010,23 @@ Blockly.propc.console_move_to_position = function () {
     return 'term_cmd(CRSRXY, ' + column + ', ' + row + ');\n';
 };
 
+
+
 // ----------------------- Serial Protocol Blocks ------------------------------
+
+
+/**
+ * Serial Open block definition
+ * @type {{
+ *  init: Blockly.Blocks.serial_open.init,
+ *  mutationToDom: (function(): HTMLElement),
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.serial_open.onchange,
+ *  setToOther: Blockly.Blocks.serial_open.setToOther,
+ *  domToMutation: Blockly.Blocks.serial_open.domToMutation,
+ *  setToMode: Blockly.Blocks.serial_open.setToMode
+ *  }}
+ */
 Blockly.Blocks.serial_open = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
     init: function () {
@@ -1002,6 +1164,11 @@ Blockly.Blocks.serial_open = {
     }
 };
 
+
+/**
+ * Serial Open code generator
+ * @returns {string}
+ */
 Blockly.propc.serial_open = function () {
     var rx_pin = this.getFieldValue('RXPIN').replace('None', '-1');
     var tx_pin = this.getFieldValue('TXPIN').replace('None', '-1');
@@ -1021,6 +1188,19 @@ Blockly.propc.serial_open = function () {
     return '';
 };
 
+
+/**
+ * Serial Send Text block definition
+ * @type {{
+ *  init: Blockly.Blocks.serial_send_text.init,
+ *  mutationToDom: (function(): HTMLElement),
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.serial_send_text.onchange,
+ *  domToMutation: Blockly.Blocks.serial_send_text.domToMutation,
+ *  serPins: Blockly.Blocks.serial_send_text.serPins,
+ *  updateSerPin: Blockly.Blocks.serial_send_text.updateSerPin
+ *  }}
+ */
 Blockly.Blocks.serial_send_text = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
     init: function () {
@@ -1146,6 +1326,11 @@ Blockly.Blocks.serial_send_text = {
      */
 };
 
+
+/**
+ * Serial Send Text code generator
+ * @returns {string}
+ */
 Blockly.propc.serial_send_text = function () {
     var p = '';
     if (this.ser_pins.length > 0) {
@@ -1188,6 +1373,18 @@ Blockly.propc.serial_send_text = function () {
     }
 };
 
+
+/**
+ * Serial Receive Text block definition
+ * @type {{
+ *  init: Blockly.Blocks.serial_receive_text.init,
+ *  mutationToDom: *,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.serial_receive_text.onchange,
+ *  domToMutation: *,
+ *  serPins: (Blockly.Blocks.serial_send_text.serPins|Blockly.Blocks.serial_send_text.serPins),
+ *  updateSerPin: (Blockly.Blocks.serial_send_text.updateSerPin | Blockly.Blocks.xbee_scan_multiple.updateSerPin | Blockly.Blocks.wx_scan_multiple.updateSerPin | Blockly.Blocks.string_scan_multiple.updateSerPin | Blockly.Blocks.serial_send_text.updateSerPin)}}
+ */
 Blockly.Blocks.serial_receive_text = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
     init: function () {
@@ -1226,6 +1423,11 @@ Blockly.Blocks.serial_receive_text = {
     }
 };
 
+
+/**
+ * Serial Receive Text code generator
+ * @returns {string}
+ */
 Blockly.propc.serial_receive_text = function () {
     var p = '';
     if (this.ser_pins.length > 0) {
@@ -1259,6 +1461,19 @@ Blockly.propc.serial_receive_text = function () {
     }
 };
 
+
+/**
+ * Serial Status block definition
+ * @type {{
+ *  init: Blockly.Blocks.serial_status.init,
+ *  mutationToDom: *,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.serial_status.onchange,
+ *  domToMutation: *,
+ *  serPins: (Blockly.Blocks.serial_send_text.serPins|Blockly.Blocks.serial_send_text.serPins),
+ *  updateSerPin: (Blockly.Blocks.serial_send_text.updateSerPin | Blockly.Blocks.xbee_scan_multiple.updateSerPin | Blockly.Blocks.wx_scan_multiple.updateSerPin | Blockly.Blocks.string_scan_multiple.updateSerPin | Blockly.Blocks.serial_send_text.updateSerPin | Blockly.Blocks.xbee_scan_multiple.updateSerPin|*)
+ *  }}
+ */
 Blockly.Blocks.serial_status = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
     init: function () {
@@ -1293,6 +1508,11 @@ Blockly.Blocks.serial_status = {
     }
 };
 
+
+/**
+ * Serial Status code generator
+ * @returns {string|[string, number]}
+ */
 Blockly.propc.serial_status = function () {
     var p = '';
     if (this.ser_pins.length > 0) {
