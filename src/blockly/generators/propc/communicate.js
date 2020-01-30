@@ -1217,6 +1217,8 @@ Blockly.Blocks.serial_send_text = {
                 ]
                         //, function(type) {this.sourceBlock_.stringTypeCheck(type);}
                         ), 'TYPE');
+        this.appendDummyInput('SERPIN')
+                .appendField('', 'SER_PIN');
         this.appendValueInput('VALUE');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
@@ -1238,6 +1240,13 @@ Blockly.Blocks.serial_send_text = {
     domToMutation: function (xmlElement) {
         var serpin = xmlElement.getAttribute('serpin');
         this.ser_pins = JSON.parse(xmlElement.getAttribute('pinmenu')) || ['0,0'];
+        /*
+        if (Array.isArray(this.ser_pins)) {     // TODO: More testing required here, but commenting this out seems to help.
+            this.ser_pins = this.ser_pins.map(function (value) {
+                return value[0];
+            })
+        }
+        */
         if (this.getInput('SERPIN')) {
             this.removeInput('SERPIN');
         }
@@ -1281,7 +1290,7 @@ Blockly.Blocks.serial_send_text = {
             if (currentPin === oldPin || oldPin === null) {
                 this.setFieldValue(newPin, 'SER_PIN');
             } else {
-                if (this.getInput('SERPIN') && currentPin !== '-1') {
+                if (this.getInput('SERPIN') && currentPin !== '-1' && currentPin !== '') {
                     this.setFieldValue(currentPin, 'SER_PIN');
                 }
             }
@@ -1842,7 +1851,6 @@ Blockly.Blocks.serial_scan_multiple = {
                             return [value, value]
                             })),
                         'SER_PIN');
-
             this.setFieldValue(serpin, 'SER_PIN');
             if (this.getInput('OPTION0')) {
                 this.moveInputBefore('SERPIN', 'OPTION0');
