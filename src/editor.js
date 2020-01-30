@@ -1420,11 +1420,7 @@ function uploadHandler(files) {
                     'description-html': '',
                     'id': 0,
                     'modified': projectModified,
-
-                    // TODO: Set project name from filename (files[0]) Solo-#250
-                    // 'name': decodeFromValidXml(projectTitle),
                     'name': files[0].name.substring(0, files[0].name.lastIndexOf('.')),
-
                     'private': true,
                     'shared': false,
                     'type': "PROPC",
