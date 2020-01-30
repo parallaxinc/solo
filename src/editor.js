@@ -1018,6 +1018,7 @@ function saveProject() {
 }
 
 
+// TODO: Is this function relevant in Solo?
 /**
  * Save project as a different board type
  */
@@ -1311,7 +1312,7 @@ function uploadCode() {
  *  and then stores the verified resulting project into the uploadXML
  *  string.
  *
- * @param files
+ * @param files []
  */
 function uploadHandler(files) {
     var UploadReader = new FileReader();
@@ -1378,7 +1379,6 @@ function uploadHandler(files) {
             //  (and not the splash screen)
             // maybe projectData.code.length < 43??? i.e. empty project? instead of the URL parameter...
 
-//            if (window.getURLParameter('openFile') === "true") {
                 // Loading an offline .SVG project file. Create a project object and
                 // save it into the browser store.
                 var titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
@@ -1420,7 +1420,11 @@ function uploadHandler(files) {
                     'description-html': '',
                     'id': 0,
                     'modified': projectModified,
-                    'name': decodeFromValidXml(projectTitle),
+
+                    // TODO: Set project name from filename (files[0]) Solo-#250
+                    // 'name': decodeFromValidXml(projectTitle),
+                    'name': files[0].name.substring(0, files[0].name.lastIndexOf('.')),
+
                     'private': true,
                     'shared': false,
                     'type': "PROPC",
