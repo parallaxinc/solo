@@ -1259,7 +1259,6 @@ Blockly.Blocks.serial_send_text = {
                     })), 'SER_PIN');
             this.setFieldValue(serpin, 'SER_PIN');
         }
-        // this.stringTypeCheck(xmlElement.getAttribute('type'));
     },
     serPins: function (oldPin, newPin) {
         var currentPin = '-1';
@@ -1278,9 +1277,11 @@ Blockly.Blocks.serial_send_text = {
             this.appendDummyInput('SERPIN')
                     .setAlign(Blockly.ALIGN_RIGHT)
                     .appendField('RXTX')
-                    .appendField(new Blockly.FieldDropdown(this.ser_pins.map(function (value) {
-                        return [value, value]  // returns an array of arrays built from the original array.
-                    })), 'SER_PIN');
+                    .appendField(
+                        new Blockly.FieldDropdown(this.ser_pins.map(function (value) {
+                            return [value, value]  // returns an array of arrays built from the original array.
+                            })),
+                        'SER_PIN');
             if (this.getInput('PRINT0')) {
                 this.moveInputBefore('SERPIN', 'PRINT0');
             } else if (this.getInput('OPTION0')) {
@@ -1386,8 +1387,14 @@ Blockly.propc.serial_send_text = function () {
  *  helpUrl: string,
  *  onchange: Blockly.Blocks.serial_receive_text.onchange,
  *  domToMutation: *,
- *  serPins: (Blockly.Blocks.serial_send_text.serPins|Blockly.Blocks.serial_send_text.serPins),
- *  updateSerPin: (Blockly.Blocks.serial_send_text.updateSerPin | Blockly.Blocks.xbee_scan_multiple.updateSerPin | Blockly.Blocks.wx_scan_multiple.updateSerPin | Blockly.Blocks.string_scan_multiple.updateSerPin | Blockly.Blocks.serial_send_text.updateSerPin)}}
+ *  serPins: (Blockly.Blocks.serial_send_text.serPins | Blockly.Blocks.serial_send_text.serPins),
+ *  updateSerPin: (
+ *        Blockly.Blocks.serial_send_text.updateSerPin
+ *      | Blockly.Blocks.xbee_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.wx_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.string_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.serial_send_text.updateSerPin)
+ *  }}
  */
 Blockly.Blocks.serial_receive_text = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
@@ -1474,8 +1481,15 @@ Blockly.propc.serial_receive_text = function () {
  *  helpUrl: string,
  *  onchange: Blockly.Blocks.serial_status.onchange,
  *  domToMutation: *,
- *  serPins: (Blockly.Blocks.serial_send_text.serPins|Blockly.Blocks.serial_send_text.serPins),
- *  updateSerPin: (Blockly.Blocks.serial_send_text.updateSerPin | Blockly.Blocks.xbee_scan_multiple.updateSerPin | Blockly.Blocks.wx_scan_multiple.updateSerPin | Blockly.Blocks.string_scan_multiple.updateSerPin | Blockly.Blocks.serial_send_text.updateSerPin | Blockly.Blocks.xbee_scan_multiple.updateSerPin|*)
+ *  serPins: (Blockly.Blocks.serial_send_text.serPins | Blockly.Blocks.serial_send_text.serPins),
+ *  updateSerPin: (
+ *        Blockly.Blocks.serial_send_text.updateSerPin
+ *      | Blockly.Blocks.xbee_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.wx_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.string_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.serial_send_text.updateSerPin
+ *      | Blockly.Blocks.xbee_scan_multiple.updateSerPin
+ *      |*)
  *  }}
  */
 Blockly.Blocks.serial_status = {
@@ -1534,6 +1548,43 @@ Blockly.propc.serial_status = function () {
     }
 };
 
+
+/**
+ * Serial Print Multiple block definition
+ * @type {{
+ *  init: Blockly.Blocks.serial_print_multiple.init,
+ *  saveConnections: (
+ *        Blockly.Blocks.console_print_multiple.saveConnections
+ *      | Blockly.Blocks.serial_scan_multiple.saveConnections
+ *      | Blockly.Blocks.graph_output.saveConnections
+ *      | Blockly.Blocks.math_arithmetic.saveConnections
+ *      | Blockly.Blocks.string_var_length.saveConnections
+ *      | Blockly.Blocks.controls_if.saveConnections
+ *      |*),
+ *  compose: Blockly.Blocks.serial_print_multiple.compose,
+ *  mutationToDom: (function(): HTMLElement),
+ *  decompose: (
+ *         Blockly.Blocks.procedures_defnoreturn.decompose
+ *      | (function(*): Blockly.Block)
+ *      | (function(*): Blockly.Block)
+ *      | (function(*): Blockly.Block)
+ *      | Blockly.Blocks.math_arithmetic.decompose
+ *      | Blockly.Blocks.string_var_length.decompose
+ *      |*),
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.serial_print_multiple.onchange,
+ *  domToMutation: Blockly.Blocks.serial_print_multiple.domToMutation,
+ *  serPins: (Blockly.Blocks.serial_send_text.serPins | Blockly.Blocks.serial_send_text.serPins),
+ *  updateSerPin: (
+ *      Blockly.Blocks.serial_send_text.updateSerPin
+ *      | Blockly.Blocks.xbee_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.wx_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.string_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.serial_send_text.updateSerPin
+ *      | Blockly.Blocks.xbee_scan_multiple.updateSerPin
+ *      |*)
+ *  }}
+ */
 Blockly.Blocks.serial_print_multiple = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
     init: function () {
@@ -1552,7 +1603,14 @@ Blockly.Blocks.serial_print_multiple = {
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
         this.setInputsInline(false);
-        this.setMutator(new Blockly.Mutator(['console_print_str', 'console_print_dec', 'console_print_hex', 'console_print_bin', 'console_print_float', 'console_print_char']));
+        this.setMutator(new Blockly.Mutator([
+            'console_print_str',
+            'console_print_dec',
+            'console_print_hex',
+            'console_print_bin',
+            'console_print_float',
+            'console_print_char'
+        ]));
         this.optionList_ = ['str', 'dec'];
         this.setWarningText(null);
         this.ser_pins = [];
@@ -1623,9 +1681,11 @@ Blockly.Blocks.serial_print_multiple = {
             this.appendDummyInput('SERPIN')
                     .setAlign(Blockly.ALIGN_RIGHT)
                     .appendField('RXTX')
-                    .appendField(new Blockly.FieldDropdown(this.ser_pins.map(function (value) {
-                        return [value, value]  // returns an array of arrays built from the original array.
-                    })), 'SER_PIN');
+                    .appendField(
+                        new Blockly.FieldDropdown(this.ser_pins.map(function (value) {
+                            return [value, value]
+                            })),
+                        'SER_PIN');
             this.setFieldValue(serpin, 'SER_PIN');
             if (this.getInput('PRINT0')) {
                 this.moveInputBefore('SERPIN', 'PRINT0');
@@ -1707,8 +1767,33 @@ Blockly.Blocks.serial_print_multiple = {
     }
 };
 
+
 Blockly.propc.serial_print_multiple = Blockly.propc.console_print_multiple;
 
+
+/**
+ * Serial Scan Multiple block definition
+ * @type {{
+ *  init: Blockly.Blocks.serial_scan_multiple.init,
+ *  saveConnections: Blockly.Blocks.serial_scan_multiple.saveConnections,
+ *  updateShape_: Blockly.Blocks.serial_scan_multiple.updateShape_,
+ *  compose: Blockly.Blocks.serial_scan_multiple.compose,
+ *  mutationToDom: (function(): HTMLElement),
+ *  decompose: (function(*): Blockly.Block),
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.serial_scan_multiple.onchange,
+ *  domToMutation: Blockly.Blocks.serial_scan_multiple.domToMutation,
+ *  serPins: (Blockly.Blocks.serial_send_text.serPins | Blockly.Blocks.serial_send_text.serPins),
+ *  updateSerPin: (
+ *        Blockly.Blocks.serial_send_text.updateSerPin
+ *      | Blockly.Blocks.xbee_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.wx_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.string_scan_multiple.updateSerPin
+ *      | Blockly.Blocks.serial_send_text.updateSerPin
+ *      | Blockly.Blocks.xbee_scan_multiple.updateSerPin
+ *      | *)
+ *  }}
+ */
 Blockly.Blocks.serial_scan_multiple = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
     init: function () {
@@ -1720,7 +1805,13 @@ Blockly.Blocks.serial_scan_multiple = {
         this.updateShape_();
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
-        this.setMutator(new Blockly.Mutator(['console_print_dec', 'console_print_hex', 'console_print_bin', 'console_print_float', 'console_print_char']));
+        this.setMutator(new Blockly.Mutator([
+            'console_print_dec',
+            'console_print_hex',
+            'console_print_bin',
+            'console_print_float',
+            'console_print_char'
+        ]));
         this.setWarningText(null);
         this.ser_pins = [];
         this.serPins();
@@ -1755,9 +1846,11 @@ Blockly.Blocks.serial_scan_multiple = {
             this.appendDummyInput('SERPIN')
                     .setAlign(Blockly.ALIGN_RIGHT)
                     .appendField('RXTX')
-                    .appendField(new Blockly.FieldDropdown(this.ser_pins.map(function (value) {
-                        return [value, value]  // returns an array of arrays built from the original array.
-                    })), 'SER_PIN');
+                    .appendField(
+                        new Blockly.FieldDropdown(this.ser_pins.map(function (value) {
+                            return [value, value]
+                            })),
+                        'SER_PIN');
             this.setFieldValue(serpin, 'SER_PIN');
             if (this.getInput('OPTION0')) {
                 this.moveInputBefore('SERPIN', 'OPTION0');
@@ -1896,6 +1989,11 @@ Blockly.Blocks.serial_scan_multiple = {
     }
 };
 
+
+/**
+ * Serial Scan Container block definition
+ * @type {{init: Blockly.Blocks.serial_scan_container.init}}
+ */
 Blockly.Blocks.serial_scan_container = {
     // Container.
     init: function () {
@@ -1907,6 +2005,11 @@ Blockly.Blocks.serial_scan_container = {
     }
 };
 
+
+/**
+ * Serial Scan Multiple code generator
+ * @returns {string}
+ */
 Blockly.propc.serial_scan_multiple = function () {
     var p = '';
     if (this.ser_pins.length > 0) {
@@ -1953,6 +2056,15 @@ Blockly.propc.serial_scan_multiple = function () {
     }
 };
 
+
+/**
+ * Serial Transmit block definition
+ * @type {{
+ *  init: Blockly.Blocks.serial_tx.init,
+ *  helpUrl: string
+ *  }}
+ *  @deprecated
+ */
 Blockly.Blocks.serial_tx = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
     init: function () {
@@ -1973,10 +2085,25 @@ Blockly.Blocks.serial_tx = {
     }
 };
 
+
+/**
+ * Serial Transmit code generator
+ * @returns {string}
+ * @deprecated
+ */
 Blockly.propc.serial_tx = function () {
-    return '// ERROR: This block has been depricated, please use a different serial transmit block!\n';
+    return '// ERROR: This block has been deprecated, please use a different serial transmit block!\n';
 };
 
+
+/**
+ * Serial Receive block definition
+ * @type {{
+ *  init: Blockly.Blocks.serial_rx.init,
+ *  helpUrl: string
+ *  }}
+ *  @deprecated
+ */
 Blockly.Blocks.serial_rx = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
     init: function () {
@@ -1997,6 +2124,12 @@ Blockly.Blocks.serial_rx = {
     }
 };
 
+
+/**
+ * Serial Receive code generator
+ * @returns {string}
+ * @deprecated
+ */
 Blockly.propc.serial_rx = function () {
     return '// ERROR: This block has been deprecated, please use a different serial receive block!\n';
 };
