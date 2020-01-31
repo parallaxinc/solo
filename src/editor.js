@@ -1459,7 +1459,7 @@ function uploadHandler(files) {
 /**
  * Parse the xml string to locate and return the project board type
  *
- * @param xmlString {string}
+ * @param {string} xmlString
  * @return {string}
  */
 function getProjectBoardType(xmlString) {
@@ -1494,7 +1494,7 @@ function getProjectTitleFromXML(xmlString) {
 /**
  * Parse the xml string to locate and return the text of the project description
  *
- * @param xmlString
+ * @param {string} xmlString
  * @return {string}
  */
 function getProjectDescriptionFromXML(xmlString) {
