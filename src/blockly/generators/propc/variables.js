@@ -274,10 +274,16 @@ Blockly.Blocks.array_get = {
         var warnText = null;
         var elementCount = null;
         if (this.type === 'array_get' || this.type === 'array_set' ) {
-            var elementValue = Blockly.propc.valueToCode(this, 'NUM', Blockly.propc.ORDER_NONE) || '0';
-            // Only run this check if the field is populated with a numeric value.  If it contains a variable, skip this.
-            if (elementValue.replace(/[^0-9]+/g, "") === elementValue) {
-                elementCount = parseInt(elementValue);
+            var connectedBlock = this.getInput('NUM').connection.targetBlock();
+            if (connectedBlock && connectedBlock.type === 'math_number') {
+                // Only run this check if the field is populated with a numeric value.  
+                // If it contains any other block, this will be skipped.
+                var elementValue = connectedBlock.getFieldValue('NUM');
+                if (typeof(elementValue) === 'number' || 
+                        (typeof(elementValue) === 'string' && 
+                        elementValue.replace(/[^0-9]+/g, "") === elementValue)) {
+                    elementCount = parseInt(elementValue);
+                }
             }
         } else if (this.type === 'array_fill') {
             elementCount = (this.getFieldValue('NUM').split(',')).length
