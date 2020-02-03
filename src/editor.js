@@ -1325,6 +1325,10 @@ function uploadHandler(files) {
         var xmlValid = false;
         var uploadBoardType = '';
 
+        // TODO: Solo #261
+        // Loop through blocks to verify blocks are supported for the project board type
+        // validateProjectBlockList(this.result);
+
         // Flag to indicate that we are importing a file that
         // was exported from the blockly.parallax.com site
         var isSvgeFile = false;
@@ -1356,10 +1360,8 @@ function uploadHandler(files) {
             var computedChecksum = hashCode(uploadedXML).toString();
             computedChecksum = '000000000000'.substring(computedChecksum.length, 12) + computedChecksum;
 
-            var boardIndex = xmlString.indexOf('transform="translate(-225,-23)">Device: ');
-            uploadBoardType = xmlString.substring(
-                (boardIndex + 40),
-                xmlString.indexOf('</text>', (boardIndex + 41)));
+            // Get project board type
+            uploadBoardType = getProjectBoardType(xmlString);
 
             if (computedChecksum === uploadedChecksum) {
                 xmlValid = true;
@@ -1379,38 +1381,15 @@ function uploadHandler(files) {
             //  (and not the splash screen)
             // maybe projectData.code.length < 43??? i.e. empty project? instead of the URL parameter...
 
-                // Loading an offline .SVG project file. Create a project object and
-                // save it into the browser store.
-                var titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
-                var projectTitle = xmlString.substring(
-                    (titleIndex + 39), xmlString.indexOf('</text>', (titleIndex + 39)));
-                titleIndex = xmlString.indexOf('transform="translate(-225,-8)">Description: ');
-                var projectDesc = '';
+            // Loading a .SVG project file. Create a project object and
+            // save it into the browser store.
+            var projectTitle = getProjectTitleFromXML(xmlString);
+            var projectDesc = getProjectDescriptionFromXML(xmlString);
 
-                if (titleIndex > -1) {
-                    projectDesc = xmlString.substring(
-                        (titleIndex + 44),
-                        xmlString.indexOf('</text>', (titleIndex + 44)));
-                }
+            var tt = new Date();
+            var projectCreated = getProjectCreatedDateFromXML(xmlString, tt);
+            var projectModified = getProjectModifiedDateFromXML(xmlString, tt);
 
-                var tt = new Date();
-                titleIndex = xmlString.indexOf('data-createdon="');
-                var projectCreated = tt;
-
-                if (titleIndex > -1) {
-                    projectCreated = xmlString.substring(
-                        (titleIndex + 16),
-                        xmlString.indexOf('"', (titleIndex + 17)));
-                }
-
-                titleIndex = xmlString.indexOf('data-lastmodified="');
-                var projectModified = tt;
-
-                if (titleIndex > -1) {
-                    projectModified = xmlString.substring(
-                        (titleIndex + 19),
-                        xmlString.indexOf('"', (titleIndex + 20)));
-                }
 
                 var pd = {
                     'board': uploadBoardType,
@@ -1474,6 +1453,100 @@ function uploadHandler(files) {
 
     // Load the SVG project file.
     UploadReader.readAsText(files[0]);
+}
+
+
+/**
+ * Parse the xml string to locate and return the project board type
+ *
+ * @param {string} xmlString
+ * @return {string}
+ */
+function getProjectBoardType(xmlString) {
+    let boardIndex = xmlString.indexOf('transform="translate(-225,-23)">Device: ');
+
+    return xmlString.substring(
+        (boardIndex + 40),
+        xmlString.indexOf('</text>', (boardIndex + 41)));
+}
+
+
+/**
+ * Parse the xml string to locate and return the project title
+ *
+ * @param {string} xmlString
+ * @return {string}
+ */
+function getProjectTitleFromXML(xmlString) {
+    const titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
+
+    if (titleIndex > -1) {
+        return xmlString.substring(
+            (titleIndex + 39),
+            xmlString.indexOf('</text>', (titleIndex + 39)));
+    }
+    else {
+        return "New Project";
+    }
+}
+
+
+/**
+ * Parse the xml string to locate and return the text of the project description
+ *
+ * @param {string} xmlString
+ * @return {string}
+ */
+function getProjectDescriptionFromXML(xmlString) {
+    const titleIndex = xmlString.indexOf('transform="translate(-225,-8)">Description: ');
+
+    if (titleIndex > -1) {
+        return xmlString.substring(
+            (titleIndex + 44),
+            xmlString.indexOf('</text>', (titleIndex + 44)));
+    }
+
+    return "";
+}
+
+
+/**
+ * Parse the xml string to locate and return the project created timestamp
+ *
+ * @param {string} xmlString
+ * @param {Date} defaultTimestamp
+ * @return {string|*}
+ */
+function getProjectCreatedDateFromXML(xmlString, defaultTimestamp) {
+    const titleIndex = xmlString.indexOf('data-createdon="');
+
+    if (titleIndex > -1) {
+        return xmlString.substring(
+            (titleIndex + 16),
+            xmlString.indexOf('"', (titleIndex + 17)));
+    }
+
+    return defaultTimestamp;
+}
+
+
+/**
+ * Parse the xml string to locate and return the project last modified timestamp
+ *
+ * @param {string} xmlString
+ * @param {Date} defaultTimestamp
+ * @return {string|*}
+ */
+function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
+    const titleIndex = xmlString.indexOf('data-lastmodified="');
+
+    if (titleIndex > -1) {
+        return xmlString.substring(
+            (titleIndex + 19),
+            xmlString.indexOf('"', (titleIndex + 20)));
+    } else {
+        return defaultTimestamp;
+    }
 }
 
 
@@ -1892,4 +1965,61 @@ function RenderPageBrandingElements() {
 
     $('#nav-logo').html(html);
     $('#app-banner-title').html('BlocklyProp ' + appName);
+}
+
+
+/**
+ * Validates the blocks in the project
+ *
+ * @param fileContent string
+ * @return array of block names
+ */
+function validateProjectBlockList(fileContent) {
+    // Loop through blocks to verify blocks are supported for the project board type
+    const parser = new DOMParser();
+    let xmlDoc = parser.parseFromString(fileContent,"image/svg+xml");
+    let blockNodes = xmlDoc.getElementsByTagName("block");
+
+    if (blockNodes.length > 0) {
+        let blockList = enumerateProjectBlockNames(blockNodes);
+        for (const property in blockList) {
+            if (! evaluateProjectBlockBoardType(blockList[property])) {
+                console.log("Block '" + blockList[property] + "' is incompatible with this project.");
+            }
+        }
+    }
+}
+
+
+/**
+ *
+ * @param nodes
+ * @return {[]}
+ */
+function enumerateProjectBlockNames(nodes) {
+    let blockList = [];
+
+    // blockNodes contains a list of block element objects and a list of block name objects.
+    // The block element objects are enumerated as an array, starting at 0. This loops through
+    // the block element objects to obtain the individual block names.
+    for (const property in nodes) {
+        if (! isNaN(parseInt(property, 10))) {
+            blockList.push(nodes[property].getAttribute("type"));
+            console.log(`${property}: ${nodes[property].getAttribute("type")}`);
+        }
+    }
+
+    return blockList;
+}
+
+/**
+ *
+ * @param blockName
+ * @return {boolean}
+ */
+function evaluateProjectBlockBoardType(blockName) {
+    if (blockName === "comments") {
+        return false;
+    }
+    return true;
 }
