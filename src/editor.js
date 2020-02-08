@@ -465,7 +465,7 @@ function initEventHandlers() {
 
     $('#prop-btn-term').on('click', () => serial_console());
     $('#prop-btn-graph').on('click', () => graphing_console());
-    $('#prop-btn-find-replace').on('click', () => findReplaceCode());	
+    $('#prop-btn-find-replace').on('click', () => findReplaceCode());
     $('#prop-btn-pretty').on('click', () => formatWizard());
 
     $('#prop-btn-undo').on('click', () => codePropC.undo());
@@ -474,16 +474,16 @@ function initEventHandlers() {
     // TODO: The event handler is just stub code.
     $('#term-graph-setup').on('click', () => configureTermGraph());
 
-    $('#propc-find-btn').on('click', () => {	
-        codePropC.find(document.getElementById('propc-find').value, {}, true);	
-    });	
+    $('#propc-find-btn').on('click', () => {
+        codePropC.find(document.getElementById('propc-find').value, {}, true);
+    });
 
-    $('#propc-replace-btn').on('click', () => {	
-        codePropC.replace(document.getElementById(	
-            'propc-replace').value,	
-            {needle: document.getElementById('propc-find').value},	
-            true);	
-    });	
+    $('#propc-replace-btn').on('click', () => {
+        codePropC.replace(document.getElementById(
+            'propc-replace').value,
+            {needle: document.getElementById('propc-find').value},
+            true);
+    });
 
     $('#find-replace-close').on('click', () => findReplaceCode());
     $('#upload-close').on('click', () => clearUploadInfo(false));
