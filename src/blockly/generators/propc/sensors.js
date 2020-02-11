@@ -1006,6 +1006,7 @@ Blockly.Blocks.lis3dh_init = {
                 .appendField(new Blockly.FieldDropdown(profile.default.digital), 'CS_PIN')
                 .appendField('', 'TEMP')
                 .appendField('', 'UNIT')
+                .appendField('', 'SMOOTHING');
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -1029,6 +1030,9 @@ Blockly.Blocks.lis3dh_init = {
             this.setFieldValue(temp || '72', 'TEMP');
             this.setFieldValue(unit || 'F', 'UNIT');
 
+            if (this.getInput('TILT_CALIBRATE') ) {
+                this.moveInputBefore('TEMP_CALIBRATE', 'TILT_CALIBRATE');
+            }
         } else {
             if (!hasTempBlocks && this.getInput('TEMP_CALIBRATE')) {
                 this.removeInput('TEMP_CALIBRATE');
@@ -1036,25 +1040,64 @@ Blockly.Blocks.lis3dh_init = {
             }
         }
     },
+    buildSmoothingInput: function (hasTiltBlocks) {
+        if (hasTiltBlocks && !this.getInput('TILT_CALIBRATE')) {
+            var smoothing = this.getFieldValue('SMOOTHING');
+
+            this.getInput('PINS').removeField('SMOOTHING');
+
+            this.appendDummyInput('TILT_CALIBRATE')
+                    .appendField('Set tilt smoothing')
+                    .appendField(new Blockly.FieldNumber('0', 0, 100, 1), "SMOOTHING");
+            this.setFieldValue(smoothing || '0', 'SMOOTHING');
+
+        } else {
+            if (!hasTiltBlocks && this.getInput('TILT_CALIBRATE')) {
+                this.removeInput('TILT_CALIBRATE');
+                this.getInput('PINS').appendField('', 'SMOOTHING');
+            }
+        }
+    },
     onchange: function (event) {
         if (event && (event.type === Blockly.Events.BLOCK_CREATE || 
                 event.type === Blockly.Events.BLOCK_DELETE || 
-                event.type === Blockly.Events.BLOCK_CHANGE)) 
+                event.type === Blockly.Events.BLOCK_CHANGE) && !this.isInFlyout) 
             {
             var warnText = null;
             var cs_pin = this.getFieldValue('CS_PIN');
-            var tempBlockList = Blockly.getMainWorkspace().getBlocksByType(this.type);
-            var currentBlock = this;
-            tempBlockList.forEach(function (tempBlock) {
-                if (tempBlock.id !== currentBlock.id && tempBlock.getFieldValue('CS_PIN') === cs_pin && tempBlock.rendered) {
+            var initBlockList = Blockly.getMainWorkspace().getBlocksByType(this.type);
+            for (var i = 0; i < initBlockList.length; i++) {
+                if (initBlockList[i].id !== this.id && initBlockList[i].getFieldValue('CS_PIN') === cs_pin && initBlockList[i].rendered) {
                     warnText = 'WARNING! The CS pin must be different for each LIS3DH initialize block!';
+                    break;
                 }
-            });
+            }
             this.setWarningText(warnText);
 
             // Look for read temperature blocks
-            tempBlockList = Blockly.getMainWorkspace().getBlocksByType('lis3dh_temp') || [];
-            this.buildTempInput(tempBlockList.length > 0 ? true : false);
+            var tempBlockList = Blockly.getMainWorkspace().getBlocksByType('lis3dh_temp') || [];
+            var tempBlocksPresent = false;
+            for (i = 0; i < tempBlockList.length; i++) {
+                if (tempBlockList[i].getFieldValue('CS_PIN') === this.getFieldValue('CS_PIN') ||
+                        initBlockList.length === 1) {
+                    tempBlocksPresent = true;
+                    break;
+                }
+            }        
+            this.buildTempInput(tempBlocksPresent);
+
+            // Look for read tilt blocks
+            tempBlockList = Blockly.getMainWorkspace().getBlocksByType('lis3dh_read') || [];
+            var tiltBlocksPresent = false;
+            for (i = 0; i < tempBlockList.length; i++) {
+                if (tempBlockList[i].getFieldValue('SENSOR') === 'tilt' &&
+                        (tempBlockList[i].getFieldValue('CS_PIN') === this.getFieldValue('CS_PIN') ||
+                        initBlockList.length === 1)) {
+                    tiltBlocksPresent = true;
+                    break;
+                }
+            }
+            this.buildSmoothingInput(tiltBlocksPresent);
         }
     }
 };
@@ -1070,27 +1113,57 @@ Blockly.propc.lis3dh_init = function () {
         if (this.getInput('TEMP_CALIBRATE')) {
             var temp_val = this.getFieldValue('TEMP');
             var temp_unit = this.getFieldValue('UNIT');
-            setupCode += 'lis3dh_tempCal_' + temp_unit + '(lis3dh_' + cs_pin + ', ' + temp_val + ');' 
+            setupCode += 'lis3dh_tempCal_' + temp_unit + '(lis3dh_' + cs_pin + ', ' + temp_val + ');';
         } 
+        var tilt_smoothing = this.getFieldValue('SMOOTHING') || 0;
+        if (this.getInput('TILT_CALIBRATE') && tilt_smoothing !== 0) {
+            setupCode += 'lis3dh_tiltConfig(lis3dh_' + cs_pin + ', 100 - ' + tilt_smoothing + ');';
+        }
         Blockly.propc.setups_["lis3dh" + cs_pin] = setupCode;
     }
     return '';
 };
 
 Blockly.Blocks.lis3dh_read = {
-    //helpUrl: Blockly.MSG_COLORPAL_HELPURL,
+    helpUrl: Blockly.MSG_LIS3DH_HELPURL,
     init: function () {
-        //this.setTooltip(Blockly.MSG_COLORPAL_GET_COLORS_RAW_TOOLTIP);
+        this.setTooltip(Blockly.MSG_LIS3DH_READ_TOOLTIP);
         this.setColour(colorPalette.getColor('input'));
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
         this.initBlocks = [];
+        this.fieldVals = [];
         this.buildFields();
     },
-    buildFields: function (oldValue, newValue) { 
+    buildFields: function () {
+        // This input will only get built once when the block is initialized.
+        if (!this.getInput('ACTION')) {
+            this.appendDummyInput('ACTION')
+                        .appendField("LIS3DH read")
+                        .appendField(new Blockly.FieldDropdown([
+                            ['acceleration (1000ths of g\'s)', 'accel_mg'], 
+                            ['voltage (mV)', 'adc_mv'],
+                            ['tilt (degrees)', 'tilt']
+                        ]), 'SENSOR');
+        }
+
+        if (this.getInput('VARS')) {
+            this.removeInput('VARS');
+        }
+
+        // Build the fields for the user to select variables
+        this.appendDummyInput('VARS')
+                .appendField("store X in")
+                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_1')
+                .appendField("Y in")
+                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_2')
+                .appendField("Z in")
+                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_3')
+    },
+    configureFields: function (oldValue, newValue) { 
         // The value of this field determines how the block will appear
-        var action = this.getFieldValue('SENSOR') || 'accel_mg';
+        var action = this.getFieldValue('SENSOR') || this.fieldVals[0] || 'tilt';
         var blockText = {
             'accel_mg': {
                 label: ['X', 'Y', 'Z'],
@@ -1098,82 +1171,106 @@ Blockly.Blocks.lis3dh_read = {
             'adc_mv': {
                 label: ['AD1', 'AD2', 'AD3'],
             },
+            'tilt': {
+                label: ['X', 'Y', 'Z', 'combined motion']
+            }
         }
 
         // Read the values of all of the fields before rebuilding all of the block's inputs
-        var fields = ['SENSOR', 'STORE_1', 'STORE_2', 'STORE_3', 'CS_PIN'];
-        var fieldVals = [];
-        for (var i = 0; i < fields.length; i++) {
-            fieldVals[i] = this.getFieldValue(fields[i]);
+        var fields = ['SENSOR', 'CS_PIN', 'STORE_1', 'STORE_2', 'STORE_3', 'STORE_4'];
+        if (!this.isInFlyout) {
+            for (var i = 0; i < fields.length; i++) {
+                if (action === 'tilt' || i !== fields.length - 1) {
+                    this.fieldVals[i] = this.getFieldValue(fields[i]);
+                }
+            }
         }
 
         // If the CS_pin value changed, make sure the field will get populated with the new value
-        if (oldValue && newValue && fieldVals[4] === oldValue) {
-            fieldVals[4] = newValue;
+        if (oldValue && newValue && this.fieldVals[1] === oldValue) {
+            this.fieldVals[1] = newValue;
         }
-        if (this.initBlocks.indexOf(fieldVals[4]) < 0 && this.initBlocks.length > 1 && fieldVals[4]) {
-            // TODO: set warning flag if this changed due to its init being deleted?
-            // Hard to capture EVERY use case, but testing for deletion is doable enough.
-            // Use a change to the pin menu to clear the warning.
-            fieldVals[4] = this.initBlocks[0];
-        }
-
-        // This input will only get built once when the block is initialized.
-        if (!this.getInput('ACTION')) {
-            this.appendDummyInput('ACTION')
-                    .appendField("LIS3DH read")
-                    .appendField(new Blockly.FieldDropdown([
-                        ['acceleration (1000ths of g\'s)', 'accel_mg'], 
-                        ['voltage (mV)', 'adc_mv']
-                    ]), fields[0]);
+        if (this.initBlocks.indexOf(this.fieldVals[1]) < 0 && this.initBlocks.length > 1 && this.fieldVals[1]) {
+            this.fieldVals[1] = this.initBlocks[0];
         }
 
         //  This input will get rebuilt depending on the state of the dropdown menu.
-        if (this.getInput('VARS')) {
-            this.removeInput('VARS');
+        if (this.getInput('VARS_2') && action !== 'tilt') {
+            this.removeInput('VARS_2');
         }
-        this.appendDummyInput('VARS')
-                .appendField("store " + blockText[action].label[0] + " in")
-                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), fields[1])
-                .appendField(blockText[action].label[1] + " in")
-                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), fields[2])
-                .appendField(blockText[action].label[2] + " in")
-                .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), fields[3])
+
+        // If the placeholder field is present, delete it.
+        if (this.getField('STORE_4') && !this.getField('STORE_4').EDITABLE) {
+            this.getInput('VARS').removeField('STORE_4');
+        }
+
+        // Only add a fourth field if 
+        if (action === 'tilt' && !this.getInput('VARS_2') && !this.isInFlyout) {
+            this.appendDummyInput('VARS_2').appendField("store " + blockText[action].label[3] + " in")
+                    .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), fields[5]);
+        } else if (!this.getField(fields[5])) {
+            // Attach a blank field just to make sure it exists when the block fields are populated.
+            // Blockly will throw a warning if this isn't here.
+            this.getInput('VARS').appendField('', fields[5]);
+            this.fieldVals[4] = '';
+        }
 
         // If there is a spereate field for multiple inits - place it in it's own input when rebulding.
         if (this.getInput('INIT')) {
             this.removeInput('INIT');
         }
         // Only show the dropdown for CS-pin selection if there is more than one init block.
-        if (this.initBlocks.length > 1) {
+        if (this.initBlocks.length > 1 && !this.isInFlyout) {
             this.appendDummyInput('INIT')
                     .appendField("pin CS")
                     .appendField(new Blockly.FieldDropdown(this.initBlocks.map(function (value) {
                         return [value, value]  // returns an array of arrays built from the original array.
                     })), 'CS_PIN')
-        } else {
+        } else if (!this.getField('CS_PIN')) {
             // Attach a blank field just to make sure it exists when the block fields are populated.
             // Blockly will throw a warning if this isn't here.
             this.getInput('VARS').appendField('', 'CS_PIN');
         }
 
-        // Repopulate all of the field values (make sure there is a CS-pin field before trying to populate it)
-        for (var i = 0; i < fields.length; i++) {
-            if (fieldVals[i] && 
-                    (fields[i] !== 'CS_PIN' || 
-                    (this.getField(fields[i]) && this.initBlocks.length > 1))) {
-                this.setFieldValue(fieldVals[i], fields[i]);
+        // Repopulate all of the field values (make sure there is a field before trying to populate it)
+        for (var i = 0; i < fields.length - 1; i++) {
+            if (this.fieldVals[i] && this.getField(fields[i])) {
+                this.setFieldValue(this.fieldVals[i], fields[i]);
             }
         }
+        
+        // Restore the variable field - this is a bit of a workaround, because the name, not the ID is
+        // somehow being stored, so it needs to be converted to an ID before repopulating the field.
+        if (action === 'tilt' && this.fieldVals[4] && this.fieldVals[5] !== '') {
+            var tempVar = Blockly.getMainWorkspace().getVariable(this.fieldVals[5]);
+            if (tempVar) {
+                this.setFieldValue(tempVar.getId(), 'STORE_4');
+            }
+        }
+
+        // If the placeholder field is present, make sure it is empty.
+        if (this.getField('STORE_4') && !this.getField('STORE_4').EDITABLE) {
+            this.setFieldValue('', 'STORE_4');
+        }        
     },
     mutationToDom: function () {
         var container = document.createElement('mutation');
+
+        // capture and store the field values (this is used to make sure block is mutated correctly)
+        var fields = ['SENSOR', 'CS_PIN', 'STORE_1', 'STORE_2', 'STORE_3', 'STORE_4'];
+        for (var i = 0; i < fields.length; i++) {
+            this.fieldVals[i] = this.getFieldValue(fields[i]);
+        }
         container.setAttribute('pinmenu', JSON.stringify(this.initBlocks));
+        container.setAttribute('fieldvals', JSON.stringify(this.fieldVals));
         return container;
     },
     domToMutation: function (container) {
         this.initBlocks = JSON.parse(container.getAttribute('pinmenu'));
-        this.buildFields();
+        this.fieldVals = JSON.parse(container.getAttribute('fieldvals'));
+        if (this.configureFields) {
+            this.configureFields();
+        }
     },
     onchange: function(event) {
         // Only initiate this if there is a change that affects the field values in the block
@@ -1183,7 +1280,7 @@ Blockly.Blocks.lis3dh_read = {
 
             // If the sensor dropdown changed, rebuild the block
             if (this.type === 'lis3dh_read' && event.blockId === this.id && event.name === 'SENSOR') {
-                this.buildFields();
+                this.configureFields();
             } else {
                 // If there was a change in the init blocks, adjust the CS-pin field 
                 // (and the array that populates it).
@@ -1195,8 +1292,8 @@ Blockly.Blocks.lis3dh_read = {
 
                     // Only rebuild if there is a change to the list of CS_pins, or if a block got deleted
                     if (tempInitBlockList != this.initBlocks &&
-                            (result.isChanged || event.type === Blockly.Events.BLOCK_DELETE)) {
-                        this.buildFields(event.oldValue, event.newValue);
+                            (result.isChanged || event.type === Blockly.Events.BLOCK_DELETE) && this.configureFields) {
+                        this.configureFields(event.oldValue, event.newValue);
                     }
                 }
 
@@ -1264,34 +1361,46 @@ Blockly.Blocks.lis3dh_read = {
 };
 
 Blockly.propc.lis3dh_read = function () {
+    // retrieve the sensor type selected
+    var action = this.getFieldValue('SENSOR');
+    // retrieve the field values
     var s1 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_1'), Blockly.Variables.NAME_TYPE);
     var s2 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_2'), Blockly.Variables.NAME_TYPE);
     var s3 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_3'), Blockly.Variables.NAME_TYPE);
-    var action = this.getFieldValue('SENSOR');
+    var s4 = null;
+    // if 'tilt' is selected, grab the fourth variable
+    if (action === 'tilt') {
+        s4 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_4'), Blockly.Variables.NAME_TYPE);
+    }
+
+    // get the CS pin from the block list (if there is only 1), or the selection dropdown (>1).
     var p = null;
     if (this.initBlocks.length === 1) {
         p = this.initBlocks[0];
     } else if (this.initBlocks.length > 1) {
         p = this.getFieldValue('CS_PIN');
     }
+
+    // generate the c code for this block.
     if (p) {
-        return 'lis3dh_' + action + '(lis3dh_' + p + ', &' + s1 + ', &' + s2 + ', &' + s3 + ');';
+        return 'lis3dh_' + action + '(lis3dh_' + p + ', &' + s1 + ', &' + s2 + ', &' + s3 + (s4 ? ', &' + s4 : '') + ');\n';
     } else {
         return '// WARNING: Missing init block!';
     }
 };
 
 Blockly.Blocks.lis3dh_temp = {
-    //helpUrl: Blockly.MSG_COLORPAL_HELPURL,
+    helpUrl: Blockly.MSG_LIS3DH_HELPURL,
     init: function () {
-        //this.setTooltip(Blockly.MSG_COLORPAL_GET_COLORS_RAW_TOOLTIP);
+        this.setTooltip(Blockly.MSG_LIS3DH_TEMP_TOOLTIP);
         this.setColour(colorPalette.getColor('input'));
         this.setInputsInline(false);
         this.setOutput(true, 'Number');
         this.initBlocks = [];
-        this.buildFields();
+        this.fieldVals = [];  // Allows sharing of domToMutation and mutationToDom functions
+        this.configureFields();
     },
-    buildFields: function (oldValue, newValue) { 
+    configureFields: function (oldValue, newValue) { 
         // Read the values of all of the fields before rebuilding all of the block's inputs
         var unit = this.getFieldValue('UNIT');
         var csPin = this.getFieldValue('CS_PIN');
@@ -1337,8 +1446,15 @@ Blockly.Blocks.lis3dh_temp = {
                 this.setFieldValue(csPin, 'CS_PIN');
         }
     },
-    mutationToDom: Blockly.Blocks['lis3dh_read'].mutationToDom,
-    domToMutation: Blockly.Blocks['lis3dh_read'].domToMutation,
+    mutationToDom: function () {
+        var container = document.createElement('mutation');
+        container.setAttribute('pinmenu', JSON.stringify(this.initBlocks));
+        return container;
+    },
+    domToMutation: function (container) {
+        this.initBlocks = JSON.parse(container.getAttribute('pinmenu'));
+        this.configureFields();
+    },
     onchange: Blockly.Blocks['lis3dh_read'].onchange,
     getValuesFromBlocksByType: Blockly.Blocks['lis3dh_read'].getValuesFromBlocksByType
 
