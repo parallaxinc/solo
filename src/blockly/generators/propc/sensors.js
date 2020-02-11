@@ -1134,6 +1134,7 @@ Blockly.Blocks.lis3dh_read = {
         this.setNextStatement(true, null);
         this.initBlocks = [];
         this.fieldVals = [];
+        this.fieldNameStrings = ['SENSOR', 'CS_PIN', 'STORE_1', 'STORE_2', 'STORE_3', 'STORE_4'];
         this.buildFields();
     },
     buildFields: function () {
@@ -1177,11 +1178,10 @@ Blockly.Blocks.lis3dh_read = {
         }
 
         // Read the values of all of the fields before rebuilding all of the block's inputs
-        var fields = ['SENSOR', 'CS_PIN', 'STORE_1', 'STORE_2', 'STORE_3', 'STORE_4'];
         if (!this.isInFlyout) {
-            for (var i = 0; i < fields.length; i++) {
-                if (action === 'tilt' || i !== fields.length - 1) {
-                    this.fieldVals[i] = this.getFieldValue(fields[i]);
+            for (var i = 0; i < this.fieldNameStrings.length; i++) {
+                if (action === 'tilt' || i !== this.fieldNameStrings.length - 1) {
+                    this.fieldVals[i] = this.getFieldValue(this.fieldNameStrings[i]);
                 }
             }
         }
@@ -1207,11 +1207,11 @@ Blockly.Blocks.lis3dh_read = {
         // Only add a fourth field if 
         if (action === 'tilt' && !this.getInput('VARS_2') && !this.isInFlyout) {
             this.appendDummyInput('VARS_2').appendField("store " + blockText[action].label[3] + " in")
-                    .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), fields[5]);
-        } else if (!this.getField(fields[5])) {
+                    .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), this.fieldNameStrings[5]);
+        } else if (!this.getField(this.fieldNameStrings[5])) {
             // Attach a blank field just to make sure it exists when the block fields are populated.
             // Blockly will throw a warning if this isn't here.
-            this.getInput('VARS').appendField('', fields[5]);
+            this.getInput('VARS').appendField('', this.fieldNameStrings[5]);
             this.fieldVals[4] = '';
         }
 
@@ -1233,9 +1233,9 @@ Blockly.Blocks.lis3dh_read = {
         }
 
         // Repopulate all of the field values (make sure there is a field before trying to populate it)
-        for (var i = 0; i < fields.length - 1; i++) {
-            if (this.fieldVals[i] && this.getField(fields[i])) {
-                this.setFieldValue(this.fieldVals[i], fields[i]);
+        for (var i = 0; i < this.fieldNameStrings.length - 1; i++) {
+            if (this.fieldVals[i] && this.getField(this.fieldNameStrings[i])) {
+                this.setFieldValue(this.fieldVals[i], this.fieldNameStrings[i]);
             }
         }
         
@@ -1257,9 +1257,8 @@ Blockly.Blocks.lis3dh_read = {
         var container = document.createElement('mutation');
 
         // capture and store the field values (this is used to make sure block is mutated correctly)
-        var fields = ['SENSOR', 'CS_PIN', 'STORE_1', 'STORE_2', 'STORE_3', 'STORE_4'];
-        for (var i = 0; i < fields.length; i++) {
-            this.fieldVals[i] = this.getFieldValue(fields[i]);
+        for (var i = 0; i < this.fieldNameStrings.length; i++) {
+            this.fieldVals[i] = this.getFieldValue(this.fieldNameStrings[i]);
         }
         container.setAttribute('pinmenu', JSON.stringify(this.initBlocks));
         container.setAttribute('fieldvals', JSON.stringify(this.fieldVals));
@@ -1268,9 +1267,7 @@ Blockly.Blocks.lis3dh_read = {
     domToMutation: function (container) {
         this.initBlocks = JSON.parse(container.getAttribute('pinmenu'));
         this.fieldVals = JSON.parse(container.getAttribute('fieldvals'));
-        if (this.configureFields) {
-            this.configureFields();
-        }
+        this.configureFields();
     },
     onchange: function(event) {
         // Only initiate this if there is a change that affects the field values in the block
