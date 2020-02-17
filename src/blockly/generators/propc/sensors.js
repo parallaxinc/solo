@@ -592,7 +592,7 @@ Blockly.propc.fp_scanner_init = function () {
         if (profile.default.digital.toString().indexOf(rxpin + ',' + rxpin) === -1) {
             rxpin = 'MY_' + rxpin;
         }
-        if (profile.default.digital.toString().indexOf(pin_out + ',' + pin_out) === -1) {
+        if (profile.default.digital.toString().indexOf(txpin + ',' + txpin) === -1) {
             txpin = 'MY_' + txpin;
         }
         Blockly.propc.global_vars_["fpScannerObj"] = 'fpScanner *fpScan;';
@@ -1232,7 +1232,7 @@ Blockly.Blocks.lis3dh_read = {
         }
 
         // Repopulate all of the field values (make sure there is a field before trying to populate it)
-        for (var i = 0; i < this.fieldNameStrings.length - 1; i++) {
+        for (i = 0; i < this.fieldNameStrings.length - 1; i++) {
             if (this.fieldVals[i] && this.fieldVals[i] !== '' && this.getField(this.fieldNameStrings[i])) {
                 this.setFieldValue(this.fieldVals[i], this.fieldNameStrings[i]);
             }
