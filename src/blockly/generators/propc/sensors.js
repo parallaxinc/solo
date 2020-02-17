@@ -1118,7 +1118,7 @@ Blockly.propc.lis3dh_init = function () {
         if (this.getInput('TILT_CALIBRATE') && tilt_smoothing !== 0) {
             setupCode += 'lis3dh_tiltConfig(lis3dh_' + cs_pin + ', 100 - ' + tilt_smoothing + ');';
         }
-        Blockly.propc.setups_["lis3dh" + cs_pin] = setupCode;
+        Blockly.propc.setups_["lis3dh" + cs_pin] = setupCode + '\n';
     }
     return '';
 };
