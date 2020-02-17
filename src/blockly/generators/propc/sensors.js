@@ -1033,18 +1033,20 @@ Blockly.Blocks.lis3dh_init = {
             if (this.getInput('TILT_CALIBRATE') ) {
                 this.moveInputBefore('TEMP_CALIBRATE', 'TILT_CALIBRATE');
             }
-        } else {
-            if (!hasTempBlocks && this.getInput('TEMP_CALIBRATE')) {
-                this.removeInput('TEMP_CALIBRATE');
-                this.getInput('PINS').appendField('', 'TEMP').appendField('', 'UNIT');
-            }
+        } else if (!hasTempBlocks && this.getInput('TEMP_CALIBRATE')) {
+            this.removeInput('TEMP_CALIBRATE');
+            this.getInput('PINS').appendField('', 'TEMP').appendField('', 'UNIT');
         }
     },
     buildSmoothingInput: function (hasTiltBlocks) {
-        if (hasTiltBlocks && !this.getInput('TILT_CALIBRATE')) {
+        if (hasTiltBlocks) {
             var smoothing = this.getFieldValue('SMOOTHING');
-
-            this.getInput('PINS').removeField('SMOOTHING');
+            if (this.getInput('TILT_CALIBRATE')) {
+                this.removeInput('TILT_CALIBRATE');
+            }
+            if (this.getField('SMOOTHING')) {
+                this.getInput('PINS').removeField('SMOOTHING');
+            }
 
             this.appendDummyInput('TILT_CALIBRATE')
                     .appendField('Set tilt smoothing')
@@ -1052,17 +1054,16 @@ Blockly.Blocks.lis3dh_init = {
             this.setFieldValue(smoothing || '0', 'SMOOTHING');
 
         } else {
-            if (!hasTiltBlocks && this.getInput('TILT_CALIBRATE')) {
+            if (this.getInput('TILT_CALIBRATE')) {
                 this.removeInput('TILT_CALIBRATE');
+            }
+            if (!this.getField('SMOOTHING')) {
                 this.getInput('PINS').appendField('', 'SMOOTHING');
             }
         }
     },
     onchange: function (event) {
-        if (event && (event.type === Blockly.Events.BLOCK_CREATE || 
-                event.type === Blockly.Events.BLOCK_DELETE || 
-                event.type === Blockly.Events.BLOCK_CHANGE) && !this.isInFlyout) 
-            {
+        if (event && !this.isInFlyout) {
             var warnText = null;
             var cs_pin = this.getFieldValue('CS_PIN');
             var initBlockList = Blockly.getMainWorkspace().getBlocksByType(this.type);
@@ -1081,7 +1082,6 @@ Blockly.Blocks.lis3dh_init = {
                 if (tempBlockList[i].getFieldValue('CS_PIN') === this.getFieldValue('CS_PIN') ||
                         initBlockList.length === 1) {
                     tempBlocksPresent = true;
-                    break;
                 }
             }        
             this.buildTempInput(tempBlocksPresent);
@@ -1094,7 +1094,6 @@ Blockly.Blocks.lis3dh_init = {
                         (tempBlockList[i].getFieldValue('CS_PIN') === this.getFieldValue('CS_PIN') ||
                         initBlockList.length === 1)) {
                     tiltBlocksPresent = true;
-                    break;
                 }
             }
             this.buildSmoothingInput(tiltBlocksPresent);
@@ -1223,7 +1222,7 @@ Blockly.Blocks.lis3dh_read = {
         if (this.initBlocks.length > 1 && !this.isInFlyout) {
             this.appendDummyInput('INIT')
                     .appendField("pin CS")
-                    .appendField(new Blockly.FieldDropdown(this.initBlocks.map(function (value) {
+                    .appendField(new Blockly.FieldDropdown(this.initBlocks.sortedUnique().map(function (value) {
                         return [value, value]  // returns an array of arrays built from the original array.
                     })), 'CS_PIN')
         } else if (!this.getField('CS_PIN')) {
@@ -1234,7 +1233,7 @@ Blockly.Blocks.lis3dh_read = {
 
         // Repopulate all of the field values (make sure there is a field before trying to populate it)
         for (var i = 0; i < this.fieldNameStrings.length - 1; i++) {
-            if (this.fieldVals[i] && this.getField(this.fieldNameStrings[i])) {
+            if (this.fieldVals[i] && this.fieldVals[i] !== '' && this.getField(this.fieldNameStrings[i])) {
                 this.setFieldValue(this.fieldVals[i], this.fieldNameStrings[i]);
             }
         }
@@ -1248,10 +1247,13 @@ Blockly.Blocks.lis3dh_read = {
             }
         }
 
-        // If the placeholder field is present, make sure it is empty.
+        // If the placeholder fields are present, make sure they are empty.
         if (this.getField('STORE_4') && !this.getField('STORE_4').EDITABLE) {
             this.setFieldValue('', 'STORE_4');
-        }        
+        }
+        if (this.getField('CS_PIN') && !this.getField('CS_PIN').EDITABLE) {
+            this.setFieldValue('', 'CS_PIN');
+        }    
     },
     mutationToDom: function () {
         var container = document.createElement('mutation');
@@ -1316,7 +1318,7 @@ Blockly.Blocks.lis3dh_read = {
                 }
             });
         }
-        return {blocks: tempBlockList, list: tempValueList.sortedUnique(), isChanged: blockChange};
+        return {blocks: tempBlockList, list: tempValueList, isChanged: blockChange};
     },
 /*
     // TODO: Copied these here as a starting point get named constants supported for pin selection
@@ -1372,7 +1374,7 @@ Blockly.propc.lis3dh_read = function () {
 
     // get the CS pin from the block list (if there is only 1), or the selection dropdown (>1).
     var p = null;
-    if (this.initBlocks.length === 1) {
+    if (this.initBlocks.sortedUnique().length === 1) {
         p = this.initBlocks[0];
     } else if (this.initBlocks.length > 1) {
         p = this.getFieldValue('CS_PIN');
@@ -1428,7 +1430,7 @@ Blockly.Blocks.lis3dh_temp = {
         if (this.initBlocks.length > 1) {
             this.getInput('MAIN')
                     .appendField("pin CS")
-                    .appendField(new Blockly.FieldDropdown(this.initBlocks.map(function (value) {
+                    .appendField(new Blockly.FieldDropdown(this.initBlocks.sortedUnique().map(function (value) {
                         return [value, value]  // returns an array of arrays built from the original array.
                     })), 'CS_PIN')
         } else {
