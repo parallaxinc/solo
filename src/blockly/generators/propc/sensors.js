@@ -1159,7 +1159,6 @@ Blockly.Blocks.lis3dh_read = {
     configureFields: function (oldValue, newValue) { 
         // The value of this field determines how the block will appear
         var action = this.getFieldValue('SENSOR') || this.fieldVals[0] || 'tilt';
-        console.log(action);
         var blockText = {
             'accel_mg': {
                 label: ['X', 'Y', 'Z'],
