@@ -144,13 +144,6 @@
                 <!-- BlocklyProp Client or Loader UI -->
                 <div id="client-status-alerts" style="float: left;">
                     <span class="auth-true" style="padding-left: 10px; line-height: 30px;">
-                        <span id="client-searching" class="bp-client-warning">
-                            <a class="client-searching-link" data-toggle="modal" data-target="#client-download-modal"
-                                href="#">
-                                <span class="bpIcon" data-icon="warningCircle">!</span>
-                                <span class="keyed-lang-string" data-key="editor_client_checking"></span>
-                            </a>
-                        </span>
                         <span id="client-unavailable" class="bp-client-danger hidden">
                             <a class="client-unavailable-link" data-toggle="modal" data-target="#client-download-modal"
                                 href="#">
@@ -187,24 +180,24 @@
                     </a>
 
                     <!-- Load to RAM -->
-                    <a id="prop-btn-ram" class="btn btn-success btn-circle disabled auth-true" title=""
+                    <a id="prop-btn-ram" class="btn btn-success btn-circle disabled auth-true client-action no-s3" title=""
                     data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="downArrowWhite"></span>
                     </a>
 
                     <!-- Load to EEPROM -->
-                    <a id="prop-btn-eeprom" class="btn btn-success btn-circle disabled auth-true" title=""
+                    <a id="prop-btn-eeprom" class="btn btn-success btn-circle disabled auth-true client-action" title=""
                     data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="downArrowBoxWhite">&gt;&gt;</span></a>
 
                     <!-- Open a terminal -->
-                    <a id="prop-btn-term" class="btn btn-primary btn-circle disabled auth-true" title=""
+                    <a id="prop-btn-term" class="btn btn-primary btn-circle disabled auth-true client-action" title=""
                     data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="terminalWhite">#</span>
                     </a>
 
                     <!-- Open a graphing window -->
-                    <a id="prop-btn-graph" class="btn btn-primary btn-circle disabled auth-true" title=""
+                    <a id="prop-btn-graph" class="btn btn-primary btn-circle disabled auth-true client-action no-s3" title=""
                     data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="graphWhite">~</span>
                     </a>
@@ -481,7 +474,7 @@
                         data-key="editor_title_terminal">&nbsp;</h4>
                 </div>
                 <div class="modal-body">
-                    <div id="serial-conn-info"></div>
+                    <div class="connection-string"></div>
                     <div id="serial_console" class="prop-term"></div>
                 </div>
                 <div class="modal-footer">
@@ -502,7 +495,7 @@
                         data-key="editor_title_graphing">&nbsp;</h4>
                 </div>
                 <div class="modal-body" style="height: 445px;">
-                    <div id="graph-conn-info"></div>
+                    <div class="connection-string"></div>
                     <table>
                         <tr>
                             <td>
