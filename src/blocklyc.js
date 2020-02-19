@@ -821,9 +821,7 @@ function displayTerminalConnectionStatus(connectionInfo) {
     if (!connectionInfo) {
         connectionInfo = '';
     }
-    if (document.getElementById('serial-conn-info')) {
-        document.getElementById('serial-conn-info').innerHTML = connectionInfo;
-    }
+    $('.connection-string').html(connectionInfo);
 }
 
 
@@ -926,10 +924,8 @@ function graphing_console() {
                     connString += c_buf;
                     if (connString.indexOf(baudrate.toString(10)) > -1) {
                         connStrYet = true;
-                        if (document.getElementById('graph-conn-info')) {
-                            document.getElementById('graph-conn-info').innerHTML = connString.trim();
-                            // send remainder of string to terminal???  Haven't seen any leak through yet...
-                        }
+                        // send remainder of string to terminal???  Haven't seen any leak through yet...
+                        $('.connection_string').html(connString.trim());
                     } else {
                         graph_new_data(c_buf);
                     }
@@ -941,7 +937,7 @@ function graphing_console() {
                 graphStartStop('stop');
                 connString = '';
                 connStrYet = false;
-                document.getElementById('graph-conn-info').innerHTML = '';
+                $('.connection-string').html('');
             });
 
         } else if (client_use_type === 'ws' && ports_available) {
@@ -954,10 +950,8 @@ function graphing_console() {
                 action: 'open'
             };
 
-            if (document.getElementById('graph-conn-info')) {
-                document.getElementById('graph-conn-info').innerHTML = Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED +
-                ' ' + msg_to_send.portPath + ' ' + Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE + ' ' + msg_to_send.baudrate;
-            }
+            $('.connection-string').html(Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED +
+                ' ' + msg_to_send.portPath + ' ' + Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE + ' ' + msg_to_send.baudrate);
 
             client_ws_connection.send(JSON.stringify(msg_to_send));
 
@@ -969,9 +963,7 @@ function graphing_console() {
                 graphStartStop('stop');
                 if (msg_to_send.action !== 'close') { // because this is getting called multiple times.... ?
                     msg_to_send.action = 'close';
-                    if (document.getElementById('graph-conn-info')) {
-                        document.getElementById('graph-conn-info').innerHTML = '';
-                    }
+                    $('.connection-string').html('');
                     client_ws_connection.send(JSON.stringify(msg_to_send));
                 }
             });
@@ -1131,7 +1123,7 @@ function graph_new_data(stream) {
 
     // Check for a failed connection:
     if (stream.indexOf('ailed') > -1) {
-        $("#graph-conn-info").html(stream);
+        $(".connection-string").html(stream);
 
     } else {
         var ts = 0;

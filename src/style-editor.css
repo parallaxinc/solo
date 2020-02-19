@@ -158,7 +158,7 @@ button:hover {
     border: 2px solid black;
 }
 
-#serial-conn-info, #graph-conn-info {
+.connection-string {
     color: #bbb;
     font-size: 11px;
     overflow: hidden;
