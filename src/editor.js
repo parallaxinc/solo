@@ -1268,49 +1268,48 @@ function uploadHandler(files) {
 
             // Loading a .SVG project file. Create a project object and
             // save it into the browser store.
-            var projectTitle = getProjectTitleFromXML(xmlString);
-            var projectDesc = getProjectDescriptionFromXML(xmlString);
+            let projectTitle = getProjectTitleFromXML(xmlString);
+            let projectDesc = getProjectDescriptionFromXML(xmlString);
 
-            var tt = new Date();
-            var projectCreated = getProjectCreatedDateFromXML(xmlString, tt);
-            var projectModified = getProjectModifiedDateFromXML(xmlString, tt);
+            let tt = new Date();
+            let projectCreated = getProjectCreatedDateFromXML(xmlString, tt);
+            let projectModified = getProjectModifiedDateFromXML(xmlString, tt);
 
+            let pd = {
+                'board': uploadBoardType,
+                'code': uploadedXML,
+                'created': projectCreated,
+                'description': decodeFromValidXml(projectDesc),
+                'description-html': '',
+                'id': 0,
+                'modified': projectModified,
+                'name': files[0].name.substring(0, files[0].name.lastIndexOf('.')),
+                'private': true,
+                'shared': false,
+                'type': "PROPC",
+                'user': "offline",
+                'yours': true,
+                'timestamp': getTimestamp(),
+            };
 
-                var pd = {
-                    'board': uploadBoardType,
-                    'code': uploadedXML,
-                    'created': projectCreated,
-                    'description': decodeFromValidXml(projectDesc),
-                    'description-html': '',
-                    'id': 0,
-                    'modified': projectModified,
-                    'name': files[0].name.substring(0, files[0].name.lastIndexOf('.')),
-                    'private': true,
-                    'shared': false,
-                    'type': "PROPC",
-                    'user': "offline",
-                    'yours': true,
-                    'timestamp': getTimestamp(),
-                };
+            // Compute a parallel dataset to replace 'pd'
+            let project = new Project(
+                decodeFromValidXml(projectTitle),
+                decodeFromValidXml(projectDesc),
+                uploadBoardType,
+                ProjectTypes.PROPC,
+                uploadedXML,
+                projectCreated,
+                projectModified,
+                getTimestamp());
 
-                // Compute a parallel dataset to replace 'pd'
-                // let project = new Project(
-                //     decodeFromValidXml(projectTitle),
-                //     decodeFromValidXml(projectDesc),
-                //     uploadBoardType,
-                //     ProjectTypes.PROPC,
-                //     uploadedXML,
-                //     projectCreated,
-                //     projectModified,
-                //     getTimestamp());
-                //
-                // let projectOutput = project.getDetails();
-                //
-                // if (! testProjectEquality(pd, projectOutput)) {
-                //     console.log("Project output differs.");
-                //     console.log("Old: " + pd);
-                //     console.log("New: " + projectOutput);
-                // }
+                let projectOutput = project.getDetails();
+
+                if (! testProjectEquality(pd, projectOutput)) {
+                    console.log("Project output differs.");
+                    console.log("Old: " + pd);
+                    console.log("New: " + projectOutput);
+                }
 
                 // Save the output in a temp storage space
                 // TODO: Test this result with the value 'pd'
@@ -1320,7 +1319,6 @@ function uploadHandler(files) {
 
                 // Save the project to the browser store
                 window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
-//            }
         }
 
         if (xmlValid === true) {
@@ -1750,8 +1748,8 @@ function sanitizeFilename(input) {
 /**
  * Compare two instances of a Project.
  *
- * @param {Project} projectA
- * @param {Project} projectB
+ * @param {object} projectA
+ * @param {object} projectB
  *
  * @returns {boolean} True if the Project objects are equivalent, otherwise returns false.
  */
