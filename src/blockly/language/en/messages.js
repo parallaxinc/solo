@@ -466,10 +466,9 @@ Blockly.MSG_LSM9DS1_READ_TOOLTIP = "IMU read: get measurements from specified se
 Blockly.MSG_LSM9DS1_MAG_CALIBRATE_TOOLTIP = "IMU Calibrate Magnetometer: Initialize first. Rotate slowly thru all 3 axes until P26/P27 LEDs turn off.";
 Blockly.MSG_LSM9DS1_TILT_TOOLTIP = "IMU tilt: gets tilt along specified axis.";
 Blockly.MSG_LSM9DS1_HEADING_TOOLTIP = "IMU heading: specify axes, get current heading in degrees.";
-
-Blockly.MSG_LIS3DH_INIT_TOOLTIP = "LIS3DH initialize: match to Propeller I/O pin connections.";
-
-
+Blockly.MSG_LIS3DH_INIT_TOOLTIP = "LIS3DH initialize: match to Propeller I/O pin connections. If LIS3DH tilt blocks are used, specify a smoothing factor (between 0-100). If LIS3DH temperature blocks are used, set an initial temperature.";
+Blockly.MSG_LIS3DH_READ_TOOLTIP = "LIS3DH read: Select the sensors to read, then select the variables to store the readings into.";
+Blockly.MSG_LIS3DH_TEMP_TOOLTIP = "LIS3DH temperature: read the temperature.";
 Blockly.MSG_SENSOR_PING_TOOLTIP = "Ping))) distance: gets distance measured in the specified units, match to Propeller I/O pin.";
 Blockly.MSG_PIR_SENSOR_TOOLTIP = "PIR sensor: returns 1/true if motion is detected, match to Propeller I/O pin.";
 Blockly.MSG_RFID_ENABLE_TOOLTIP = "RFID initialize: match to Propeller I/O pin connections.";

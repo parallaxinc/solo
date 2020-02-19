@@ -328,7 +328,7 @@ function renderContent(id) {
  */
 var formatWizard = function () {
     var currentLine = codePropC.getCursorPosition()['row'] + 1;
-    codePropC.setValue(prettyCode());
+    codePropC.setValue(prettyCode(codePropC.getValue()));
     codePropC.focus();
     codePropC.gotoLine(currentLine);
 };
@@ -341,40 +341,30 @@ var formatWizard = function () {
  * @returns {*}
  */
 var prettyCode = function (raw_code) {
-    if (!raw_code) {
-        raw_code = codePropC.getValue();
-    }
+    // Prevent JS beautify from improperly formatting reference, dereference, and arrow operators
+    raw_code = raw_code.replace(/\*([_a-zA-Z\()])/g, "___REFERENCE_OPERATOR___$1")
+            .replace(/([_a-zA-Z\()])\*/g, "$1___REFERENCE_OPERATOR___")
+            .replace(/&([_a-zA-Z\()])/g, "___DEREFERENCE_OPERATOR___$1")
+            .replace(/->/g, '___ARROW_OPERATOR___');
 
+    // run the beatufier
     raw_code = js_beautify(raw_code, {
         'brace_style': 'expand',
         'indent_size': 2
     });
+
+    // restore the reference, dereference, and arrow operators
     raw_code = raw_code.replace(/,\n[\s\xA0]+/g, ", ")
+            .replace(/___REFERENCE_OPERATOR___/g, '*')
+            .replace(/___DEREFERENCE_OPERATOR___/g, '&')
+            .replace(/___ARROW_OPERATOR___/g, '->')
 
-    // improve the way reference and dereference operands are rendered
-        .replace(/, & /g, ", &")
-        .replace(/, \* /g, ", *")
-        .replace(/\( & /g, "(&")
-        .replace(/\( \* /g, "(*")
-        .replace(/char \* /g, "char *")
-        .replace(/bme680 \* /g, "bme680 *")
-        .replace(/serial \* /g, "serial *")
-        .replace(/lcdParallel \* /g, "lcdParallel *")
-        .replace(/lis3dh \* /g, "lis3dh *")
-        .replace(/colorPal \* /g, "colorPal *")
-        .replace(/ws2812 \* /g, "ws2812 *")
-        .replace(/i2c \* /g, "i2c *")
-        .replace(/talk \* /g, "talk *")
-        .replace(/sound \* /g, "sound *")
-        .replace(/screen \* /g, "screen *")
-        .replace(/FILE \* /g, "FILE* ")
-
-        // improve the way functions and arrays are rendered
-        .replace(/\)\s*[\n\r]\s*{/g, ") {")
-        .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g, function (str, m1, m2) {
-            m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
-            return "[" + m1 + "] = {" + m2 + "};";
-        });
+            // improve the way functions and arrays are rendered
+            .replace(/\)\s*[\n\r]\s*{/g, ") {")
+            .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g, function (str, m1, m2) {
+                m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
+                return "[" + m1 + "] = {" + m2 + "};";
+            });
 
     return (raw_code);
 };
@@ -831,9 +821,7 @@ function displayTerminalConnectionStatus(connectionInfo) {
     if (!connectionInfo) {
         connectionInfo = '';
     }
-    if (document.getElementById('serial-conn-info')) {
-        document.getElementById('serial-conn-info').innerHTML = connectionInfo;
-    }
+    $('.connection-string').html(connectionInfo);
 }
 
 
@@ -936,10 +924,8 @@ function graphing_console() {
                     connString += c_buf;
                     if (connString.indexOf(baudrate.toString(10)) > -1) {
                         connStrYet = true;
-                        if (document.getElementById('graph-conn-info')) {
-                            document.getElementById('graph-conn-info').innerHTML = connString.trim();
-                            // send remainder of string to terminal???  Haven't seen any leak through yet...
-                        }
+                        // send remainder of string to terminal???  Haven't seen any leak through yet...
+                        $('.connection_string').html(connString.trim());
                     } else {
                         graph_new_data(c_buf);
                     }
@@ -951,7 +937,7 @@ function graphing_console() {
                 graphStartStop('stop');
                 connString = '';
                 connStrYet = false;
-                document.getElementById('graph-conn-info').innerHTML = '';
+                $('.connection-string').html('');
             });
 
         } else if (client_use_type === 'ws' && ports_available) {
@@ -964,10 +950,8 @@ function graphing_console() {
                 action: 'open'
             };
 
-            if (document.getElementById('graph-conn-info')) {
-                document.getElementById('graph-conn-info').innerHTML = Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED +
-                ' ' + msg_to_send.portPath + ' ' + Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE + ' ' + msg_to_send.baudrate;
-            }
+            $('.connection-string').html(Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED +
+                ' ' + msg_to_send.portPath + ' ' + Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE + ' ' + msg_to_send.baudrate);
 
             client_ws_connection.send(JSON.stringify(msg_to_send));
 
@@ -979,9 +963,7 @@ function graphing_console() {
                 graphStartStop('stop');
                 if (msg_to_send.action !== 'close') { // because this is getting called multiple times.... ?
                     msg_to_send.action = 'close';
-                    if (document.getElementById('graph-conn-info')) {
-                        document.getElementById('graph-conn-info').innerHTML = '';
-                    }
+                    $('.connection-string').html('');
                     client_ws_connection.send(JSON.stringify(msg_to_send));
                 }
             });
@@ -1141,7 +1123,7 @@ function graph_new_data(stream) {
 
     // Check for a failed connection:
     if (stream.indexOf('ailed') > -1) {
-        $("#graph-conn-info").html(stream);
+        $(".connection-string").html(stream);
 
     } else {
         var ts = 0;

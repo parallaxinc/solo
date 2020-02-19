@@ -162,45 +162,29 @@ var version_as_number = function (rawVersion) {
     return (Number(tempVersion[0]) << 20 | Number(tempVersion[1]) << 10 | Number(tempVersion[2]));
 };
 
-var set_ui_buttons = function (ui_btn_state) {
+var setPropToolbarButtons = function (ui_btn_state) {
     if (ui_btn_state === 'available') {
         if (projectData && projectData.board === 's3') {
             // Hide the buttons that are not required for the S3 robot
-            $('#prop-btn-ram').addClass('hidden');
-            $('#prop-btn-graph').addClass('hidden');
+            $('.no-s3').addClass('hidden');
             $('#client-available').addClass('hidden');
             // Reveal the short client available message
             $('#client-available-short').removeClass('hidden');
         } else {
             // Reveal these buttons
-            $('#prop-btn-ram').removeClass('hidden');
-            $('#prop-btn-graph').removeClass('hidden');
+            $('.no-s3').removeClass('hidden');
             $('#client-available').removeClass('hidden');
             $('#client-available-short').addClass('hidden');
         }
 
-        $("#client-searching").addClass("hidden");
         $("#client-unavailable").addClass("hidden");
-        $("#prop-btn-ram").removeClass("disabled");
-        $("#prop-btn-eeprom").removeClass("disabled");
-        $("#prop-btn-term").removeClass("disabled");
-        $("#prop-btn-graph").removeClass("disabled");
+        $(".client-action").removeClass("disabled");
     } else {
         // Disable the toolbar buttons
+        $("#client-unavailable").removeClass("hidden");
         $("#client-available").addClass("hidden");
         $("#client-available-short").addClass("hidden");
-        $("#prop-btn-ram").addClass("disabled");
-        $("#prop-btn-eeprom").addClass("disabled");
-        $("#prop-btn-term").addClass("disabled");
-        $("#prop-btn-graph").addClass("disabled");
-
-        if (ui_btn_state === 'searching') {
-            $("#client-searching").removeClass("hidden");
-            $("#client-unavailable").addClass("hidden");
-        } else {
-            $("#client-searching").addClass("hidden");
-            $("#client-unavailable").removeClass("hidden");
-        }
+        $(".client-action").addClass("disabled");
     }
 };
 
@@ -243,7 +227,7 @@ var check_client = function () {
 
             client_use_type = 'http';
             client_available = true;
-            set_ui_buttons('available');
+            setPropToolbarButtons('available');
             if (check_com_ports && typeof (check_com_ports) === "function") {
                 check_com_ports();
                 check_com_ports_interval = setInterval(check_com_ports, 5000);
@@ -256,7 +240,7 @@ var check_client = function () {
         client_use_type = 'none';
         client_available = false;
         ports_available = false;
-        set_ui_buttons('unavailable');
+        setPropToolbarButtons('unavailable');
         check_ws_socket_timeout = setTimeout(find_client, 3000);
     });
 };
@@ -384,7 +368,7 @@ function establish_socket() {
                 client_use_type = 'ws';
                 client_available = true;
 
-                set_ui_buttons('available');
+                setPropToolbarButtons('available');
 
                 var portRequestMsg = JSON.stringify({type: 'port-list-request', msg: 'port-list-request'});
                 connection.send(portRequestMsg);
@@ -504,7 +488,7 @@ function lostWSConnection() {
     client_available = false;
     ports_available = false;
 
-    set_ui_buttons('unavailable');
+    setPropToolbarButtons('unavailable');
     term = null;
     newTerminal = false;
 
