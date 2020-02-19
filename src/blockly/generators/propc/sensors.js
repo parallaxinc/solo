@@ -1109,9 +1109,9 @@ Blockly.propc.lis3dh_init = function () {
 };
 
 Blockly.Blocks.lis3dh_read = {
-    //helpUrl: Blockly.MSG_LIS3DH_HELPURL,
+    helpUrl: Blockly.MSG_LIS3DH_HELPURL,
     init: function () {
-        //this.setTooltip(Blockly.MSG_LIS3DH_READ_TOOLTIP);
+        this.setTooltip(Blockly.MSG_LIS3DH_READ_TOOLTIP);
         this.setColour(colorPalette.getColor('input'));
         this.appendDummyInput('ACTION')
                     .appendField("LIS3DH read")
@@ -1251,9 +1251,9 @@ Blockly.propc.lis3dh_read = function () {
 };
 
 Blockly.Blocks.lis3dh_temp = {
-    //helpUrl: Blockly.MSG_LIS3DH_HELPURL,
+    helpUrl: Blockly.MSG_LIS3DH_HELPURL,
     init: function () {
-        //this.setTooltip(Blockly.MSG_LIS3DH_TEMP_TOOLTIP);
+        this.setTooltip(Blockly.MSG_LIS3DH_TEMP_TOOLTIP);
         this.setColour(colorPalette.getColor('input'));
         this.appendDummyInput('MAIN')
                 .appendField("LIS3DH temperature in")
