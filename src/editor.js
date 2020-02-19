@@ -1114,8 +1114,9 @@ function downloadCode() {
         // a footer to generate a watermark with the project's information at the bottom-right corner of the SVG
         // and hold project metadata.
         let SVGfooter = generateSvgFooter(projectData);
-        let xmlChecksum = hashCode(projectXmlCode).toString();
-        xmlChecksum = '000000000000'.substring(xmlChecksum.length, 12) + xmlChecksum;
+
+        // Deprecating project checksum. Install a dummy checksum to keep the project loader happy.
+        let xmlChecksum = '000000000000';
 
         // Assemble both the SVG (image) of the blocks and the blocks' XML definition
         let blob = new Blob(
@@ -1206,9 +1207,9 @@ function uploadHandler(files) {
     // from local storage
     UploadReader.onload = function () {
         // Save the file contents in xmlString
-        var xmlString = this.result;
-        var xmlValid = false;
-        var uploadBoardType = '';
+        let xmlString = this.result;
+        const xmlValid = true;
+        let uploadBoardType = '';
 
         // TODO: Solo #261
         // Loop through blocks to verify blocks are supported for the project board type
@@ -1216,11 +1217,11 @@ function uploadHandler(files) {
 
         // Flag to indicate that we are importing a file that
         // was exported from the blockly.parallax.com site
-        var isSvgeFile = false;
+        let isSvgeFile = false;
 
         // We need to support our rouge .svge type
         if (files[0].type === "") {
-            var name = files[0].name;
+            let name = files[0].name;
             if (name.slice(name.length - 4) === "svge") {
                 isSvgeFile = true;
             }
@@ -1234,23 +1235,15 @@ function uploadHandler(files) {
             && xmlString.indexOf("<!--") === -1) {
 
             // TODO: instead of parsing by text indexOf's, use XML properly.
-            var uploadedChecksum = xmlString.substring((xmlString.length - 24), (xmlString.length - 12));
-            var findBPCstart = '<block';
+            let findBPCstart = '<block';
 
             if (xmlString.indexOf("<variables>") > -1) {
                 findBPCstart = '<variables>';
             }
+
             uploadedXML = xmlString.substring(xmlString.indexOf(findBPCstart), (xmlString.length - 29));
-
-            var computedChecksum = hashCode(uploadedXML).toString();
-            computedChecksum = '000000000000'.substring(computedChecksum.length, 12) + computedChecksum;
-
-            // Get project board type
             uploadBoardType = getProjectBoardType(xmlString);
 
-            if (computedChecksum === uploadedChecksum) {
-                xmlValid = true;
-            }
             if (xmlValid) {
                 if (projectData && uploadBoardType !== projectData.board) {
                     $('#selectfile-verify-boardtype').css('display', 'block');
