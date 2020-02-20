@@ -1117,7 +1117,7 @@ Blockly.Blocks.lis3dh_read = {
                     .appendField("LIS3DH read")
                     .appendField(new Blockly.FieldDropdown([
                         ['acceleration (1000ths of g\'s)', 'accel_mg'], 
-                        ['voltage (mV)', 'adc_mv'],
+                        ['voltage (mV)', 'adc_mV'],
                         ['tilt (degrees)', 'tilt']
                     ], function (action) {this.getSourceBlock().configureFields(action)}), 'SENSOR');
         this.appendDummyInput('VARS')
@@ -1143,7 +1143,7 @@ Blockly.Blocks.lis3dh_read = {
             'accel_mg': {
                 label: ['store X in', 'Y in', 'Z in'],
             },
-            'adc_mv': {
+            'adc_mV': {
                 label: ['store AD1 in', 'AD2 in', 'AD3 in'],
             },
             'tilt': {
