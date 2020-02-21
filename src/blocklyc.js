@@ -237,7 +237,7 @@ function renderContent(id) {
     const isPropcOnlyProject = (projectData.board === 'propcfile');
 
     // Read the URL for experimental parameters to turn on XML editing
-    let allowXmlEditing = isExperimental.indexOf('xml') > -1;
+    let allowXmlEditing = isExperimental.indexOf('xedit') > -1;
 
     if (isPropcOnlyProject) {
         // Show PropC editing UI elements
@@ -256,7 +256,7 @@ function renderContent(id) {
             $('#btn-view-propc').css('display', 'inline-block');
             $('#btn-view-blocks').css('display', 'none');
 
-            if ((allowXmlEditing) && codeXml.getValue().length > 40) {
+            if ((allowXmlEditing) && Blockly && codeXml && codeXml.getValue().length > 40) {
                 Blockly.Xml.clearWorkspaceAndLoadFromXml(Blockly.Xml.textToDom(codeXml.getValue()), Blockly.mainWorkspace);
             } 
             Blockly.svgResize(Blockly.mainWorkspace);
@@ -307,7 +307,7 @@ function renderContent(id) {
             $('#btn-view-blocks').css('display', 'inline-block');
 
             // Load project code
-            codeXml.setValue(Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.mainWorkspace)));
+            codeXml.setValue(Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.mainWorkspace)) || '');
             codeXml.getSession().setUseWrapMode(true);
             codeXml.gotoLine(0);
 
@@ -442,18 +442,15 @@ function init(blockly) {
         }
     }
 
-    if (!codeXml && (window.getURLParameter('debug'))) {
+    if (!codeXml && isExperimental.indexOf('xedit') > -1) {
         codeXml = ace.edit("code-xml");
         codeXml.setTheme("ace/theme/chrome");
         codeXml.getSession().setMode("ace/mode/xml");
-        //codeXml.setReadOnly(true);
     }
 
     window.Blockly = blockly;
 
-    // TODO: Use constant EMPTY_PROJECT_CODE_HEADER instead of string.
-    //  Replace string length check with code that detects the first
-    //  <block> xml element.
+    // TODO: Replace string length check with code that detects the first <block> xml element.
     if (projectData) {
         // Looking for the first <block> XML element
         const searchTerm = '<block';
