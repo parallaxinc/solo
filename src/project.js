@@ -64,7 +64,7 @@ class Project {
 
         this.projectType = ProjectTypes[projectType];
 
-        this.code = (code) ? code : EmptyProjectCodeHeader;
+        this.code = (code) ? code : this.EmptyProjectCodeHeader;
 
         // This should be a timestamp but is received as a string
         // TODO: Convert timestamp string to numeric values
@@ -81,6 +81,18 @@ class Project {
         this.yours = true;
     }
 }
+
+
+/**
+ * Constant string that represents the base, empty project header
+ *
+ * @type {string}
+ *
+ * @description Converting the string to a constant because it is referenced
+ * in a number of places. The string is sufficiently complex that it could
+ * be misspelled without detection.
+ */
+Project.prototype.EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 
 
 /**
@@ -284,15 +296,3 @@ const ProjectProfiles = {
         saves_to: []
     }
 };
-
-
-/**
- * Constant string that represents the base, empty project header
- *
- * @type {string}
- *
- * @description Converting the string to a constant because it is referenced
- * in a number of places. The string is sufficiently complex that it could
- * be misspelled without detection.
- */
-const EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';

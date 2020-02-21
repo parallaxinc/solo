@@ -1169,6 +1169,12 @@ xmlToolbox += '        <category key="category_sensor-input_hmc5883l" include="o
 xmlToolbox += '            <block type="HMC5883L_init"></block>';
 xmlToolbox += '            <block type="HMC5883L_read"></block>';
 xmlToolbox += '        </category>';
+xmlToolbox += '        <category key="category_sensor-input_LIS3DH" >';
+xmlToolbox += '            <block type="lis3dh_init"></block>';
+xmlToolbox += '            <block type="lis3dh_read"></block>';
+xmlToolbox += '            <block type="lis3dh_temp"></block>';
+//xmlToolbox += '            <block type="lis3dh_tilt"></block>';
+xmlToolbox += '        </category>';
 xmlToolbox += '        <category key="category_sensor-input_LSM9DS1" >';
 xmlToolbox += '            <block type="lsm9ds1_init"></block>';
 xmlToolbox += '            <block type="lsm9ds1_mag_calibrate"></block>';
@@ -1727,6 +1733,13 @@ var colorChanges = {
     '340': '#111111'
 };
 
+
+/**
+ * Filter the blocks available in the toolbox.
+ *
+ * @param {string} profileName
+ * @returns {string}
+ */
 function filterToolbox(profileName) {
 
     // Set the category's label (internationalization)
@@ -1735,21 +1748,21 @@ function filterToolbox(profileName) {
     });
 
     // Set the palette colors
-    if (getURLParameter('grayscale') == '1') {
+    if (window.getURLParameter('grayscale') == '1') {
         xmlToolbox = xmlToolbox.replace(/colour="([\S]+)"/g, function (m, p) {
             return 'colour="' + colorChanges[p] + '"';
         });
     }
 
     // Convert the xmlToolBox string to an XML object
-    parser = new DOMParser();
-    xmlDoc = parser.parseFromString(xmlToolbox, "text/xml");
+    let parser = new DOMParser();
+    let xmlDoc = parser.parseFromString(xmlToolbox, "text/xml");
 
     // Loop through the specified tags and filter based on their attributes
-    tagSearch = ['category', 'sep', 'block'];
+    let tagSearch = ['category', 'sep', 'block'];
 
-    // Toolbnox entries to be removed from the menu
-    var toRemove = [];
+    // Toolbox entries to be removed from the menu
+    let toRemove = [];
 
     //Scan the toolBox XML document for each search tag
     for (var j = 0; j < tagSearch.length; j++) {
@@ -1787,9 +1800,9 @@ function filterToolbox(profileName) {
             }
 
             // if the XML element has an experimental attribute and the current
-            // environment is not the Demo system, exclude the menu entry
-            else if (experimental && inDemo !== 'demo') {
-                // Remove toolbox categories that are experimental if not in demo
+            // experimental>blocks fuse is not set, exclude the menu entry
+            else if (experimental && isExperimental.indexOf('blocks') < 0) {
+                // Remove toolbox categories that are experimental
                 toRemove.push(toolboxEntry);
             }
         }
@@ -1801,8 +1814,8 @@ function filterToolbox(profileName) {
     }
 
     // Turn the XML object back into a string
-    out = new XMLSerializer();
-    var outStr = out.serializeToString(xmlDoc);
+    let out = new XMLSerializer();
+    let outStr = out.serializeToString(xmlDoc);
     outStr = outStr.replace(/ include="[\S]+"/g, '').replace(/ exclude="[\S]+"/g, '');
 
     return outStr;

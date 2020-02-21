@@ -280,6 +280,7 @@ Blockly.propc.init = function (workspace) {
         }
     }
 };
+
 /**
  * Prepend the generated code with the variable definitions.
  * @param {string} code Generated code.
@@ -413,7 +414,7 @@ Blockly.propc.finish = function (code) {
         for (var idk in function_vars) {
             if (definitions[idx] === function_vars[idk] && definitions[idx].indexOf('volatile') === -1) {
                 //TODO: uncomment this when optimization is utilized!
-                if(inDemo) {
+                if(isExperimental.indexOf('volatile' > -1)) {
                     definitions[idx] = 'volatile ' + definitions[idx];
                 }
 
@@ -584,86 +585,13 @@ if (!Object.keys) {
     }());
 };
 
-
-
-/**
- * Used by getSize() to move/resize any dom elements, and get the new size.
- *
- * All rendering that has an effect on the size/shape of the block should be
- * done here, and should be triggered by getSize().
- * @protected
- */
-/*
- * Original blockly core code:
- *
-Blockly.Field.prototype.render_ = function() {
-    this.textContent_.nodeValue = this.getDisplayText_();
-    this.updateSize_();
-};
-*
-*/
-
-// NOTE: Replaces core function!                   // USE WHEN CORE IS UPDATED
-/*
-Blockly.Field.prototype.render_ = function() {
- /*
-    if (!this.visible_) {
-      this.size_.width = 0;
-      return;
-    }
-  
-    // Replace the text.
-    if (this.textElement_) {
-        this.textElement_.textContent = this.getDisplayText_();
-        this.updateWidth();
-    } 
-};
-*/
-
-
-//NOTE: Replaces core function!
-/*
-Blockly.FieldDropdown.prototype.render_ = function() {
-    if (!this.visible_) {
-        this.size_.width = 0;
-        return;
-    }
-    if (this.sourceBlock_ && this.arrow_) {
-      // Update arrow's colour.
-        this.arrow_.style.fill = this.sourceBlock_.getColour();
-    }
-    var child;
-    if (this.textElement_) {
-        while ((child = this.textElement_.firstChild)) {
-            this.textElement_.removeChild(child);
-        }
-    } else {
-        this.textElement_ = Blockly.utils.createSvgElement('text',
-        {'class': 'blocklyText', 'y': this.size_.height - 12.5},
-        this.fieldGroup_);
-    }
-    
-    if (this.imageElement_) {
-        Blockly.utils.removeNode(this.imageElement_);
-        this.imageElement_ = null;
-    }
-
-    if (this.imageJson_) {
-        this.renderSelectedImage_();
-    } else {
-        this.renderSelectedText_();
-    }
-
-    this.borderRect_.setAttribute('height', this.size_.height - 9);
-    this.borderRect_.setAttribute('width', this.size_.width + Blockly.BlockSvg.SEP_SPACE_X);
-};
-*/
   
 
 // NOTE: Replaces core function!                   // USE WHEN CORE IS UPDATED	
 /**	
  * Return a sorted list of variable names for variable dropdown menus.	
  * Include a special option at the end for creating a new variable name.	
+ * @override
  * @return {!Array.<string>} Array of variable names.	
  * @this {Blockly.FieldVariable}	
  */	
@@ -711,42 +639,11 @@ Blockly.FieldVariable.dropdownCreate = function() {
 };
 
 
-// NOTE: Replaces core function!
-Blockly.BlockSvg.prototype.setCollapsed = function (b) {
-    if (this.collapsed_ !== b) {
-        for (var c = [], a = 0, d; d = this.inputList[a]; a++)
-            c.push.apply(c, d.setVisible(!b));
-        for (a = 0; 10 > a; a++)
-            this.getField("RANGEVALS" + a) && this.getField("RANGEVALS" + a).setVisible(!1);
-        if (b) {
-            d = this.getIcons();
-            for (a = 0; a < d.length; a++)
-                d[a].setVisible(!1);
-            a = this.toString().replace(/[ANRS],.[0-9,-]+[ \xa0]/g, "\u00a0");
-            a.length > Blockly.COLLAPSE_CHARS && (a = a.substr(0, Blockly.COLLAPSE_CHARS) + "...");
-            this.appendDummyInput("_TEMP_COLLAPSED_INPUT").appendField(a).init();
-        } else
-            this.removeInput("_TEMP_COLLAPSED_INPUT"),
-                    this.setWarningText(null);
-        Blockly.BlockSvg.superClass_.setCollapsed.call(this, b);
-        if (!c.length) {
-            // No child blocks, just render this block.
-            c[0] = this;
-        }
-        if (this.rendered) {
-            for (var x = 0, block; block = c[x]; x++) {
-                block.render();
-            }
-            this.bumpNeighbours_();
-        }
-    }
-};
-
-// NOTE!  Replaces core function:
 /**
  * Given a proposed entity name, generate a name that conforms to the
  * [_A-Za-z][_A-Za-z0-9]* format that most languages consider legal for
  * variables.
+ * @override
  * @param {string} name Potentially illegal entity name.
  * @return {string} Safe entity name.
  * @private
@@ -780,38 +677,153 @@ var findBlocksByType = function(blockType) {
     return null;
 };
 
-// polyfill that removes duplicates from an array and sorts it
-// From: https://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array
-function uniq_fast(a) {
-    var seen = {};
-    var out = [];
-    var len = a.length;
-    var j = 0;
-    for (var i = 0; i < len; i++) {
-        var item = a[i];
-        if (seen[item] !== 1) {
-            seen[item] = 1;
-            out[j++] = item;
-        }
-    }
-    var tmpOut = out;
-    try {
-        var sorted = [];
-        j = 0;
-        while (out.length > 0) {
-            len = out.length;
-            var k = 0;
-            for (var i = 0; i < len; i++) {
-                if (parseInt(out[i], 10) < parseInt(out[k], 10)) {
-                    k = i;
-                }
-            }
-            sorted[j] = out[k];
-            j++;
-            out.splice(k, 1);
-        }
-        return sorted;
-    } catch (err) {
-        return tmpOut;
-    }
+/**
+ * Extends Blockly.Input to allow the input to have a specific range or allowed values.
+ * Allows blocks to read the input's range and show warnings if the user enters values outside of the range.
+ * See base.js->Blockly.Blocks.math_number for more information about formatting the range string.
+ * @param rangeInfo String containing information about the range/allowed values:  
+ * @returns the specified input
+ */ 
+Blockly.Input.prototype.appendRange = function(rangeInfo) {
+    this.inputRange = rangeInfo;
+    return this;
 }
+
+/**
+ * Extends Blockly.Input to allow the input to have a specific range or allowed values.
+ * See base.js->Blockly.Blocks.math_number for more information about formatting the range string.
+ * @returns the String populated by Blockly.Input.appendRange()
+ */
+Blockly.Input.prototype.getRange = function() {
+    return this.inputRange;
+}
+
+
+// TODO: Remove the following overrides after updating to a blockly core with these patches (targeted for 2019Q4).
+/**
+ * Initialize the model for this field if it has not already been initialized.
+ * If the value has not been set to a variable by the first render, we make up a
+ * variable rather than let the value be invalid.
+ * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
+ * @package
+ */
+Blockly.FieldVariable.prototype.initModel = function() {
+    if (this.variable_) {
+      return; // Initialization already happened.
+    }
+    var variable = Blockly.Variables.getOrCreateVariablePackage(
+        this.sourceBlock_.workspace, null,
+        this.defaultVariableName, this.defaultType_);
+  
+    // Don't call setValue because we don't want to cause a rerender.
+    this.doValueUpdate_(variable.getId());	
+};
+
+/**
+ * Update the source block when the mutator's blocks are changed.
+ * Bump down any block that's too high.
+ * Fired whenever a change is made to the mutator's workspace.
+ * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
+ * @param {!Blockly.Events.Abstract} e Custom data for event.
+ * @private
+ */
+Blockly.Mutator.prototype.workspaceChanged_ = function(e) {
+    if (e.type == Blockly.Events.UI ||
+        (e.type == Blockly.Events.CHANGE && e.element == 'disabled')) {
+      return;
+    }
+  
+    if (!this.workspace_.isDragging()) {
+      var blocks = this.workspace_.getTopBlocks(false);
+      var MARGIN = 20;
+      for (var b = 0, block; (block = blocks[b]); b++) {
+        var blockXY = block.getRelativeToSurfaceXY();
+        var blockHW = block.getHeightWidth();
+        if (blockXY.y + blockHW.height < MARGIN) {
+          // Bump any block that's above the top back inside.
+          block.moveBy(0, MARGIN - blockHW.height - blockXY.y);
+        }
+      }
+    }
+  
+    // When the mutator's workspace changes, update the source block.
+    if (this.rootBlock_.workspace == this.workspace_) {
+      Blockly.Events.setGroup(true);
+      var block = this.block_;
+      var oldMutationDom = block.mutationToDom();
+      var oldMutation = oldMutationDom && Blockly.Xml.domToText(oldMutationDom);
+      // Allow the source block to rebuild itself.
+      block.compose(this.rootBlock_);
+      block.render();
+      var newMutationDom = block.mutationToDom();
+      var newMutation = newMutationDom && Blockly.Xml.domToText(newMutationDom);
+      if (oldMutation != newMutation) {
+        Blockly.Events.fire(new Blockly.Events.BlockChange(
+            block, 'mutation', null, oldMutation, newMutation));
+        // Ensure that any bump is part of this mutation's event group.
+        var group = Blockly.Events.getGroup();
+        setTimeout(function() {
+          Blockly.Events.setGroup(group);
+          block.bumpNeighbours();
+          Blockly.Events.setGroup(false);
+        }, Blockly.BUMP_DELAY);
+      }
+  
+      if (oldMutation != newMutation &&
+          this.workspace_.keyboardAccessibilityMode) {
+        Blockly.navigation.moveCursorOnBlockMutation(block);
+      }
+      // Don't update the bubble until the drag has ended, to avoid moving blocks
+      // under the cursor.
+      if (!this.workspace_.isDragging()) {
+        this.resizeBubble_();
+      }
+      Blockly.Events.setGroup(false);
+    }
+};
+
+/**
+ * Bump unconnected blocks out of alignment.  Two blocks which aren't actually
+ * connected should not coincidentally line up on screen.
+ * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
+ */
+Blockly.BlockSvg.prototype.bumpNeighbours = function() {
+    if (!this.workspace) {
+      return;  // Deleted block.
+    }
+    if (this.workspace.isDragging()) {
+      return;  // Don't bump blocks during a drag.
+    }
+    var rootBlock = this.getRootBlock();
+    if (rootBlock.isInFlyout) {
+      return;  // Don't move blocks around in a flyout.
+    }
+    // Loop through every connection on this block.
+    var myConnections = this.getConnections_(false);
+    for (var i = 0, connection; connection = myConnections[i]; i++) {
+  
+      // Spider down from this block bumping all sub-blocks.
+      if (connection.isConnected() && connection.isSuperior()) {
+        connection.targetBlock().bumpNeighbours();
+      }
+  
+      var neighbours = connection.neighbours_(Blockly.SNAP_RADIUS);
+      for (var j = 0, otherConnection; otherConnection = neighbours[j]; j++) {
+  
+        // If both connections are connected, that's probably fine.  But if
+        // either one of them is unconnected, then there could be confusion.
+        if (!connection.isConnected() || !otherConnection.isConnected()) {
+          // Only bump blocks if they are from different tree structures.
+          if (otherConnection.getSourceBlock().getRootBlock() != rootBlock) {
+  
+            // Always bump the inferior block.
+            if (connection.isSuperior()) {
+              otherConnection.bumpAwayFrom_(connection);
+            } else {
+              connection.bumpAwayFrom_(otherConnection);
+            }
+          }
+        }
+      }
+    }
+};

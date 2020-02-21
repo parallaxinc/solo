@@ -21,17 +21,32 @@
  */
 
 
+
+
+
 // Update page elements
 // This construct replaces the document.ready() that was
 // deprecated in jquery 1.9
 $(function () {
+    let appName = ApplicationName;
+    if (window.location.hostname === product_banner_host_trigger) {
+        appName = TestApplicationName;
+    }
+
     showAppName();
-    showAppBannerTitle('Solo');
+    showAppBannerTitle(appName);
     setCopyrightDate($('#footer_copyright'));
     setCopyrightDate($('#license-copyright-date'));
 
     // The browser localStorage object should be empty
     window.localStorage.clear();
+
+    // If the experimental URL parameter is used, add it to the open and new project links
+    if (window.getURLParameter('experimental')) {
+        $('.editor-link').attr('href', function () {
+            return this + window.getAllURLParameters().replace('?', '&');
+        });
+    }
 });
 
 // Display the BlocklyProp Solo license in a modal window
@@ -42,12 +57,19 @@ function showLicense() {
 // Display the application name
 function showAppName() {
     let html = 'BlocklyProp<br><strong>Solo</strong>';
+    if (window.location.hostname === product_banner_host_trigger) {
+        html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
+    }
     $('#nav-logo').html(html);
 }
+
 
 // Display the app name in the banner
 function showAppBannerTitle(appName) {
     $('#app-banner-title').html('BlocklyProp ' + appName);
+    if (window.location.hostname === product_banner_host_trigger) {
+        document.getElementById('nav-logo').style.backgroundImage = 'url(\'src/images/dev-toolkit.png\')';
+    }
 }
 
 // Set the ending copyright date

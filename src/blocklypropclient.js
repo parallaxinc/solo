@@ -25,8 +25,6 @@
 // Annotations to help the closure compiler to be even more efficient.
 // https://github.com/google/closure-compiler/wiki/Annotating-JavaScript-for-the-Closure-Compiler
 
-//var terminal_dump = null;
-
 /**
  * Client_available flags whether BP Client/Launcher is found
  *
@@ -41,15 +39,6 @@ var client_available = false;
  * @type {boolean}
  */
 var ports_available = false;
-
-
-/**
- * The URL used to talk with the BlocklyProp Client via HTTP
- *
- * @type {string}
- * URL used to reach the client
- */
-var client_url = 'http://localhost:6009/';
 
 
 /**
@@ -82,7 +71,7 @@ var client_domain_port = 6009;
  *
  * @type {string}
  */
-var client_min_version = "0.6.0";
+var client_min_version = "0.7.0";
 
 
 /**
@@ -90,7 +79,7 @@ var client_min_version = "0.6.0";
  *
  * @type {string}
  */
-var client_recommended_version = "0.7.0";
+var client_recommended_version = "0.8.0";
 
 
 // TODO: Document what the 'client_use_type' variable represents
@@ -162,15 +151,6 @@ var version_as_number = function (rawVersion) {
     tempVersion.push('0');
 
     if (tempVersion.length < 3) {
-        $("#client-unknown-span").removeClass("hidden");
-        $(".client-required-version").html(client_recommended_version);
-        $(".client-your-version").html('<b>UNKNOWN</b>');
-        $('#client-version-modal').modal('show');
-
-        //bootbox.alert("BlocklyProp is unable to determine what version of " +
-        //        "BlocklyPropClient is installed on your computer.\nYou may need to install" +
-        //        "or reinstall the BlocklyPropClient.");
-
         if (tempVersion.length === 1)
             tempVersion = '0.0.0';
         else
@@ -182,76 +162,72 @@ var version_as_number = function (rawVersion) {
     return (Number(tempVersion[0]) << 20 | Number(tempVersion[1]) << 10 | Number(tempVersion[2]));
 };
 
-var set_ui_buttons = function (ui_btn_state) {
+var setPropToolbarButtons = function (ui_btn_state) {
     if (ui_btn_state === 'available') {
-        if (projectData && projectData['board'] === 's3') {
+        if (projectData && projectData.board === 's3') {
             // Hide the buttons that are not required for the S3 robot
-            $('#prop-btn-ram').addClass('hidden');
-            $('#prop-btn-graph').addClass('hidden');
+            $('.no-s3').addClass('hidden');
             $('#client-available').addClass('hidden');
             // Reveal the short client available message
             $('#client-available-short').removeClass('hidden');
         } else {
             // Reveal these buttons
-            $('#prop-btn-ram').removeClass('hidden');
-            $('#prop-btn-graph').removeClass('hidden');
+            $('.no-s3').removeClass('hidden');
             $('#client-available').removeClass('hidden');
             $('#client-available-short').addClass('hidden');
         }
 
-        $("#client-searching").addClass("hidden");
         $("#client-unavailable").addClass("hidden");
-        $("#prop-btn-ram").removeClass("disabled");
-        $("#prop-btn-eeprom").removeClass("disabled");
-        $("#prop-btn-term").removeClass("disabled");
-        $("#prop-btn-graph").removeClass("disabled");
+        $(".client-action").removeClass("disabled");
     } else {
         // Disable the toolbar buttons
+        $("#client-unavailable").removeClass("hidden");
         $("#client-available").addClass("hidden");
         $("#client-available-short").addClass("hidden");
-        $("#prop-btn-ram").addClass("disabled");
-        $("#prop-btn-eeprom").addClass("disabled");
-        $("#prop-btn-term").addClass("disabled");
-        $("#prop-btn-graph").addClass("disabled");
-
-        if (ui_btn_state === 'searching') {
-            $("#client-searching").removeClass("hidden");
-            $("#client-unavailable").addClass("hidden");
-        } else {
-            $("#client-searching").addClass("hidden");
-            $("#client-unavailable").removeClass("hidden");
-        }
+        $(".client-action").addClass("disabled");
     }
 };
 
+/**
+ * @function checkClientVersionModal Evaluates the client version based on the string it reports its version with.
+ * If the version is below the recommended version, the user is warned, and versions below the minimum are alerted. 
+ * @param {string} clientVersionString string representing the client version in '0.0.0' format (Semantic versioning)
+ */
+function checkClientVersionModal(clientVersionString) {
+    let clientVersion = version_as_number(clientVersionString);
+    if (clientVersion < version_as_number(client_recommended_version)) {
+        $('.bpc-version').addClass('hidden');
+
+        if (clientVersion === 0) {
+            $("#client-unknown-span").removeClass("hidden");
+        } else if (clientVersion >= version_as_number(client_min_version)) {
+            $("#client-warning-span").removeClass("hidden");
+        } else {
+            $("#client-danger-span").removeClass("hidden");     
+        }
+
+        $(".client-required-version").html(client_recommended_version);
+        $(".client-your-version").html(clientVersion > 0 ? clientVersionString : '<b>UNKNOWN</b>');
+        $('#client-version-modal').modal('show');
+    }
+}
+
+/**
+ * This is evaluating the BlocklyProp Client or BlocklyProp Launcher version??
+ */
 var check_client = function () {
-    $.get(client_url, function (data) {
+    $.get("http://" + client_domain_name + ":" + client_domain_port + "/", function (data) {
         if (!client_available) {
-            client_version = version_as_number((typeof data.version_str !== "undefined") ? data.version_str : data.version);
+            let client_version_str = (typeof data.version_str !== "undefined") ? data.version_str : data.version;
             if (!data.server || data.server !== 'BlocklyPropHTTP') {
-                $('.bpc-version').addClass('hidden');
-                $("#client-unknown-span").removeClass("hidden");
-                $(".client-required-version").html(client_min_version);
-                $(".client-your-version").html(data.version || '<b>UNKNOWN</b>');
-                $('#client-version-modal').modal('show');
-            } else if (client_version < version_as_number(client_min_version)) {
-                //bootbox.alert("This system now requires at least version " + client_min_version + " of BlocklyPropClient- yours is: " + data.version);
-                $('.bpc-version').addClass('hidden');
-                $("#client-danger-span").removeClass("hidden");
-                $(".client-required-version").html(client_min_version);
-                $(".client-your-version").html(data.version);
-                $('#client-version-modal').modal('show');
-            } else if (client_version < version_as_number(client_recommended_version)) {
-                $('.bpc-version').addClass('hidden');
-                $("#client-warning-span").removeClass("hidden");
-                $(".client-required-version").html(client_recommended_version);
-                $(".client-your-version").html(data.version);
-                $('#client-version-modal').modal('show');
+                client_version_str = '0.0.0';
             }
+
+            checkClientVersionModal(client_version_str);
 
             client_use_type = 'http';
             client_available = true;
-            set_ui_buttons('available');
+            setPropToolbarButtons('available');
             if (check_com_ports && typeof (check_com_ports) === "function") {
                 check_com_ports();
                 check_com_ports_interval = setInterval(check_com_ports, 5000);
@@ -264,7 +240,7 @@ var check_client = function () {
         client_use_type = 'none';
         client_available = false;
         ports_available = false;
-        set_ui_buttons('unavailable');
+        setPropToolbarButtons('unavailable');
         check_ws_socket_timeout = setTimeout(find_client, 3000);
     });
 };
@@ -283,28 +259,46 @@ var connection_heartbeat = function () {
     }
 };
 
+/**
+ * @deprecated - This function will become obsolete when the
+ * BlocklyProp Client is deprecated and removed from service.
+ */
 var configure_client = function () {
-    var url_input = $("<form/>", {
+    // All of this code is building the UI for the Configure
+    // BlocklyProp Client dialog.
+    let url_input = $("<form/>", {
         class: "form-inline"
     });
+
+    // This is hard-coding the HTTP protocol for the BlocklyProp Client
     $("<span/>", {
         class: "space_right"
     }).text("http://").appendTo(url_input);
-    var domain_name_group = $("<div/>", {
+
+    // Add the form group to the DOM for the input field defined next
+    let domain_name_group = $("<div/>", {
         class: "form-group"
     }).appendTo(url_input);
+
+    // Default the domain input box
     $("<input/>", {
         id: "domain_name",
         type: "text",
         class: "form-control",
         value: client_domain_name
     }).appendTo(domain_name_group);
+
+    // Hard code the ':' between the domain name and port input fields
     $("<span/>", {
         class: "space_left space_right"
     }).text(":").appendTo(url_input);
-    var domain_port_group = $("<div/>", {
+
+    // Add the form group to the DOM for the next input field
+    let domain_port_group = $("<div/>", {
         class: "form-group"
     }).appendTo(url_input);
+
+    // Get the port number
     $("<input/>", {
         id: "port_number",
         type: "number",
@@ -312,51 +306,29 @@ var configure_client = function () {
         value: client_domain_port
     }).appendTo(domain_port_group);
 
-    bootbox.dialog({
-        title: "Configure BlocklyPropClient",
-        message: url_input,
-        buttons: {
-            cancel: {
-                label: "Cancel",
-                className: "btn-default"
-            },
-            save: {
-                label: "Save",
-                className: "btn-success",
-                callback: function () {
-                    client_domain_name = $("#domain_name").val();
-                    client_domain_port = $("#port_number").val();
-                    client_url = "http://" + client_domain_name + ":" + client_domain_port + "/";
-                }
-            }
+    // Show the modal dialog
+    utils.confirm(Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER_CONFIGURE_TITLE, url_input, function (action) {
+        if (action) {
+            client_domain_name = $("#domain_name").val();
+            client_domain_port = $("#port_number").val();
         }
-    });
+    }, Blockly.Msg.DIALOG_SAVE_TITLE);
 };
 
 // checks for and, if found, uses a newer WebSockets-only client
 function establish_socket() {
-    /* TODO: needs testing - is it better to do this here, or in the next TODO
-    if(client_ws_connection !== null && client_use_type !== 'ws') {
-
-      //check_ws_socket_interval = null;
-
-      //client_ws_connection.close();
-    }*/
 
     // TODO: set/clear and load buttons based on status
-
     if (!client_available) {
 
         // Clear the port list
         set_port_list();
 
-        var url = client_url.replace('http', 'ws');
+        var url = "ws://" + client_domain_name + ":" + client_domain_port + "/";
         var connection = new WebSocket(url);
 
         connection.onopen = function () {
 
-            // TODO: needs testing - is it better to do this here or in the previous TODO
-            // Is there already a connection?  If so, close it:
             if (client_ws_connection !== null) {
                 client_ws_connection.close();
             }
@@ -368,17 +340,13 @@ function establish_socket() {
 
         // Log errors
         connection.onerror = function (error) {
-            console.log('WebSocket Error');
-            console.log(error);
-
-            //$("#client-searching").removeClass("hidden");
-            //$("#client-available").addClass("hidden");
-            //$("#client-unavailable").addClass("hidden");
-
-            // TODO: Should we shutdown and try again? - needs testing
-            //check_ws_socket_timeout = setTimeout(function () {
-            //    find_client();
-            //}, 3000);
+            // Only display a message on the first attempt
+            if (client_use_type !== 'ws' && !check_ws_socket_timeout) {
+                console.log('Unable to find websocket client');
+            } else {
+                console.log('Websocket Communication Error');
+                console.log(error);
+            }
         };
 
         // handle messages from the client
@@ -389,24 +357,18 @@ function establish_socket() {
             if (ws_msg.type === 'hello-client') {
                 // type: 'hello-client',
                 // version: [String version (semantic versioning)]
-                client_version = version_as_number(ws_msg.version);
+                checkClientVersionModal(ws_msg.version);
 
-                /* Test code: Terminal dump
-                 setInterval(function() {
-                 Terminal dumper!
-                 console.log('Terminal Dump!\n-------------------\n' + terminal_dump);
-                 terminal_dump = null;
-                 }, 10000);
-                 */
-
-                if (getURLParameter('debug')) {
+                if (window.getURLParameter('debug')) {
                     console.log("Websocket client/launcher found - version " + ws_msg.version);
                 }
+
+                // TODO: Add version checking here.
 
                 client_use_type = 'ws';
                 client_available = true;
 
-                set_ui_buttons('available');
+                setPropToolbarButtons('available');
 
                 var portRequestMsg = JSON.stringify({type: 'port-list-request', msg: 'port-list-request'});
                 connection.send(portRequestMsg);
@@ -438,18 +400,12 @@ function establish_socket() {
 
                 var msg_in = atob(ws_msg.msg);
 
-                if (ws_msg.msg !== undefined) {
-                    if (term !== null) { // is the terminal open?
-
-                        displayInTerm(msg_in);
-                        $('#serial_console').focus();
-                    } else if (graph !== null) { // is the graph open?
-                        graph_new_data(msg_in);
-                    }
+                if (term !== null) { // is the terminal open?
+                    pTerm.display(msg_in);
+                    pTerm.focus();
+                } else if (graph !== null) { // is the graph open?
+                    graph_new_data(msg_in);
                 }
-
-                // var ws_cts = {type: 'debug-cts', msg: 'ok'};
-                // client_ws_connection.send(JSON.stringify(ws_cts));
             }
 
             // --- UI Commands coming from the client
@@ -467,8 +423,7 @@ function establish_socket() {
                 } else if (ws_msg.action === 'close-terminal') {
                     $('#console-dialog').modal('hide');
                     newTerminal = false;
-                    //term.destroy();
-                    updateTermBox(0);
+                    pTerm.display(null);
 
                 } else if (ws_msg.action === 'close-graph') {
                     $('#graphing-dialog').modal('hide');
@@ -478,27 +433,21 @@ function establish_socket() {
                     $('#compile-console').val('');
 
                 } else if (ws_msg.action === 'message-compile') {
-                    if (client_version >= minCodedVer) {
-                        //Messages are coded; check codes, log all and filter out nsDownloading duplicates
-                        var msg = ws_msg.msg.split("-");
-                        if (msg[0] != nsDownloading || !launcher_download) {
-                            launcher_result = launcher_result + msg[1] + "\n";
-                            launcher_download |= (msg[0] == nsDownloading);
-                        }
-                        if (msg[0] == nsDownloadSuccessful) {
-                            //Success! Keep it simple
-                            $('#compile-console').val($('#compile-console').val() + ' Succeeded.');
-                        } else if (msg[0] == neDownloadFailed) {
-                            //Failed! Show the details
-                            $('#compile-console').val($('#compile-console').val() + ' Failed!\n\n-------- loader messages --------\n' + launcher_result);
-                        } else {
-                            //Show progress during downloading
-                            $('#compile-console').val($('#compile-console').val() + ".");
-                        }
+                    //Messages are coded; check codes, log all and filter out nsDownloading duplicates
+                    var msg = ws_msg.msg.split("-");
+                    if (msg[0] != nsDownloading || !launcher_download) {
+                        launcher_result = launcher_result + msg[1] + "\n";
+                        launcher_download |= (msg[0] == nsDownloading);
+                    }
+                    if (msg[0] == nsDownloadSuccessful) {
+                        //Success! Keep it simple
+                        $('#compile-console').val($('#compile-console').val() + ' Succeeded.');
+                    } else if (msg[0] == neDownloadFailed) {
+                        //Failed! Show the details
+                        $('#compile-console').val($('#compile-console').val() + ' Failed!\n\n-------- loader messages --------\n' + launcher_result);
                     } else {
-                        //todo - Remove this once client_min_version (and thus minVer) is >= minCodedVer
-                        //Messages are not coded; display all as they come
-                        $('#compile-console').val($('#compile-console').val() + ws_msg.msg);
+                        //Show progress during downloading
+                        $('#compile-console').val($('#compile-console').val() + ".");
                     }
 
                     // Scoll automatically to the bottom after new data is added
@@ -516,14 +465,13 @@ function establish_socket() {
                     client_ws_connection.close();
 
                 } else if (ws_msg.action === 'alert') {
-                    alert(ws_msg.msg);
+                    utils.showMessage(Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER, ws_msg.msg);
                 }
             }
 
             // --- older client - disconnect it?
             else {
                 console.log('Unknown WS msg: ' + JSON.stringify(ws_msg));
-                //connection.close();
             }
         };
 
@@ -540,7 +488,7 @@ function lostWSConnection() {
     client_available = false;
     ports_available = false;
 
-    set_ui_buttons('unavailable');
+    setPropToolbarButtons('unavailable');
     term = null;
     newTerminal = false;
 
@@ -556,28 +504,20 @@ function lostWSConnection() {
     check_ws_socket_timeout = setTimeout(find_client, 3000);
 };
 
+
 // set communication port list
-//   leave data unspecified when searching
+// leave data unspecified when searching
 var set_port_list = function (data) {
     data = (data ? data : 'searching');
-
-//    var selected_port = $("#comPort").val();
     var selected_port = clearComPortUI();
-//    $("#comPort").empty();
 
     if (typeof (data) === 'object' && data.length) {
         data.forEach(function (port) {
             addComPortDeviceOption(port);
-
-//            $("#comPort").append($('<option>', {
-//                text: port
-//            }));
         });
         ports_available = true;
     } else {
-        $("#comPort").append($('<option>', {
-            text: (data === 'searching') ? 'Searching...' : 'No devices found'
-        }));
+        addComPortDeviceOption((data === 'searching') ? Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
         ports_available = false;
     }
     select_com_port(selected_port);
@@ -594,7 +534,7 @@ function clearComPortUI() {
     let portUI = $("#comPort");
     if (portUI) {
         try {
-            let port = portUI.val().toString();
+            let port = portUI.val();
             portUI.empty();
             return port;
         }

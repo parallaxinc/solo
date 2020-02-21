@@ -114,31 +114,89 @@ if (!String.prototype.startsWith) {
  * @param {array} arr the array providing items to check for in the haystack.
  * @return {boolean} true|false if haystack contains at least one item from arr.
  */
-var findOne = function (haystack, arr) {
-    return arr.some(function (v) {
-        return haystack.indexOf(v) >= 0;
+if (!Array.prototype.sharesElementWith) {
+    Object.defineProperty(Array.prototype, 'sharesElementWith', {
+        value: function (isInArray) {
+            return isInArray.some(function (v) {
+                return this.indexOf(v) >= 0;
+            });
+        },
+        enumerable: false
     });
-};
+}
+
+// polyfill that removes duplicates from an array and sorts it
+// From: https://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array
+if (!Array.prototype.sortedUnique) {
+    Object.defineProperty(Array.prototype, 'sortedUnique', {
+        value: function () {
+            var seen = {};
+            var out = [];
+            var len = this.length;
+            var j = 0;
+            for (var i = 0; i < len; i++) {
+                var item = this[i];
+                if (seen[item] !== 1) {
+                    seen[item] = 1;
+                    out[j++] = item;
+                }
+            }
+            var tmpOut = out;
+            try {
+                var sorted = [];
+                j = 0;
+                while (out.length > 0) {
+                    len = out.length;
+                    var k = 0;
+                    for (var i = 0; i < len; i++) {
+                        if (parseInt(out[i], 10) < parseInt(out[k], 10)) {
+                            k = i;
+                        }
+                    }
+                    sorted[j] = out[k];
+                    j++;
+                    out.splice(k, 1);
+                }
+                return sorted;
+            } catch (err) {
+                return tmpOut;
+            }
+        },
+        enumerable: false
+    });
+}
 
 // http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
-function getURLParameter(name) {
-    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(window.location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+if (!window.getURLParameter) {
+    Object.defineProperty(window, 'getURLParameter', {
+        value: function (name) {
+            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(window.location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+        },
+        enumerable: false
+    });
 }
-
-// Server (demo/production) detection & url parameter override
-var inDemo = $("meta[name=in-demo]").attr("content");
 
 // Does the 'experimental' URL parameter exist?
-if (getURLParameter('experimental')) {
-    // Production system does not support the use of the experimental flag
-    if (getURLParameter('experimental') !== 'true') {
-        inDemo = 'production';
-    } else {
-        inDemo = 'demo';
-    }
+var isExperimental = window.getURLParameter('experimental') || 'false';
+
+
+/**
+ * Helper function for passing on URL parameters between page reloads and changes
+ * @param keepNewOpen {boolean} if true, keep the newProject and openFile parameters, otherwise filter them out.
+ * @returns {string} all or filtered URL parameters
+ */
+if (!window.getAllURLParameters) {
+    Object.defineProperty(window, 'getAllURLParameters', {
+        value: function (keepNewOpen) {
+            if (keepNewOpen) {
+                return window.location.search;
+            } else {
+                return window.location.search.replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g,'');
+            }
+        },
+        enumerable: false
+    });
 }
-
-
 
 /**
  * Operating system detection
@@ -196,7 +254,7 @@ $(function () {
     // from the client instruction page to the modal that also shows them
     $("#client-instructions-copy").html($("#client-instructions-original").html());
     
-    if (getURLParameter('debug')) console.log(navigator.browserSpecs);
+    if (window.getURLParameter('debug')) console.log(navigator.browserSpecs);
 });
 
 
@@ -217,3 +275,36 @@ navigator.browserSpecs = (function(){
         M.splice(1, 1, tem[1]);
     return {name:M[0], version:M[1], system:osName};
 })();
+
+
+/**
+ * Find offset to first unequal character in two strings.
+ * @param a
+ * @param b
+ *
+ * @returns {number}
+ * Returns the offset to first character in either string
+ * where the characters differ at that location.
+ *
+ * Returns the length of the shorter string if the strings are of
+ * differing lengths but are equal up to the end of the shorter
+ * string.
+ *
+ * Returns -1 if none of the above conditions are met.
+ *
+ * @description
+ * https://stackoverflow.com/questions/32858626/detect-position-of-first-difference-in-2-strings
+ *
+ */
+function findFirstDiffPos(a, b)
+{
+    let shorterLength = Math.min(a.length, b.length);
+
+    for (let i = 0; i < shorterLength; i++) {
+        if (a[i] !== b[i]) return i;
+    }
+
+    if (a.length !== b.length) return shorterLength;
+
+    return -1;
+}

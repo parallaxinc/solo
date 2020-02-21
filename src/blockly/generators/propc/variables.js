@@ -206,7 +206,7 @@ Blockly.Blocks.array_get = {
             return;
         }
         var currentValue = this.getFieldValue('VAR');
-        var initBlockList = [];
+        var initBlockList = ['list'];  // Needs to contain 'list' - otherwise when it tries to set it as a default, lots of warnings get thrown in the console.
         Blockly.getMainWorkspace().getBlocksByType('array_init', false).forEach(function(element) {
             initBlockList.push(element.getFieldValue('VAR'));
         });
@@ -221,7 +221,7 @@ Blockly.Blocks.array_get = {
             });
         }
 
-        this.arrayList = uniq_fast(this.arrayList);       // sort and remove duplicates from the list of arrays
+        this.arrayList = this.arrayList.sortedUnique();       // sort and remove duplicates from the list of arrays
         this.buildArrayMenu(this.arrayList);
 
         // update the menu on the block
@@ -230,6 +230,7 @@ Blockly.Blocks.array_get = {
         } else if (currentValue && this.getField('VAR')) {
             if (this.arrayList.indexOf(currentValue) >= 0) {
                 this.setFieldValue(currentValue, 'VAR');
+                this.arrayInitWarnFlag = false;
             } else {
                 // the init block for this array got deleted, so revert to "list" and toggle the warning icon on the block
                 this.setFieldValue('list', 'VAR');
@@ -273,10 +274,16 @@ Blockly.Blocks.array_get = {
         var warnText = null;
         var elementCount = null;
         if (this.type === 'array_get' || this.type === 'array_set' ) {
-            var elementValue = Blockly.propc.valueToCode(this, 'NUM', Blockly.propc.ORDER_NONE) || '0';
-            // Only run this check if the field is populated with a numeric value.  If it contains a variable, skip this.
-            if (elementValue.replace(/[^0-9]+/g, "") === elementValue) {
-                elementCount = parseInt(elementValue);
+            var connectedBlock = this.getInput('NUM').connection.targetBlock();
+            if (connectedBlock && connectedBlock.type === 'math_number') {
+                // Only run this check if the field is populated with a numeric value.  
+                // If it contains any other block, this will be skipped.
+                var elementValue = connectedBlock.getFieldValue('NUM');
+                if (typeof(elementValue) === 'number' || 
+                        (typeof(elementValue) === 'string' && 
+                        elementValue.replace(/[^0-9]+/g, "") === elementValue)) {
+                    elementCount = parseInt(elementValue);
+                }
             }
         } else if (this.type === 'array_fill') {
             elementCount = (this.getFieldValue('NUM').split(',')).length
@@ -290,7 +297,8 @@ Blockly.Blocks.array_get = {
         });
         if (!initBlockCount) {
             warnText = 'WARNING: The array "' + arrayName + '" has not been initialized!';
-        } else if (elementCount && (elementCount >= initBlockCount || elementCount < 0)) {
+        } else if (elementCount && (elementCount > initBlockCount || elementCount < 0)) {
+            // We have more array elements than places to store them. (#159)
             warnText = 'WARNING: You are trying to get an element from your array that does not exist!';
         }
         if (!this.arrayInitWarnFlag) {

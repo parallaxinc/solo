@@ -21,44 +21,41 @@
  */
 
 
-/* ------------------------------------------------------------------
- *                       Modal dialog boxes
- *                  ----------------------------
- *
- *  [done]  New Project
- *  [wip ]  Open an Existing Project
- *          Import from Existing Project
- *  [done[  Edit Project Details
- *  [wip ]  Save Current Project
- *          Save Current Project Timer
- * ----------------------------------------------------------------*/
-
-
 /**
+ * Start the process to open a new project
  *
  * @description
- *
  * This is code that was refactored out of the editor.js
  * document.ready() handler.
  */
+// eslint-disable-next-line no-unused-vars
 function NewProjectModal() {
     // If the current project has been modified, give the user
     // an opportunity to abort the new project process.
+    // eslint-disable-next-line no-undef
     if (checkLeave()) {
         const message =
             'The current project has been modified. Click OK to\n' +
             'discard the current changes and create a new project.';
 
-        utils.confirm("Save Project", message, (result) => {
-            if (result) {
-                downloadCode();
-            }
-        }, "OK", "Cancel");
+        // Default to the Cancel button to prevent inattentive users from
+        // inadvertently destroying their projects.
+        utils.confirm(
+            "Abandon Current Project", message,
+            // result is true if the OK button was selected
+            (result) => {
+                if (!result) {
+                    // Open up a modal window to get new project details.
+                    showNewProjectModal();
+                }
+            },
+            "Cancel",
+            "OK");
     } else {
         // Reset the values in the form to defaults
         $('#new-project-name').val('');
         $('#new-project-description').val('');
-        $('#new-project-dialog-title').html(page_text_label['editor_newproject_title']);
+        $('#new-project-dialog-title').html(page_text_label['editor_new_project_title']);
 
         // Open up a modal window to get new project details.
         showNewProjectModal();
@@ -87,7 +84,7 @@ function showNewProjectModal() {
 
 
     // let dialog = $("#new-project-board-type");
-    PopulateProjectBoardTypesUIElement($("#new-project-board-type"));
+    PopulateProjectBoardTypesUIElement($('#new-project-board-type'));
 
     // Show the New Project modal dialog box
     $('#new-project-dialog').modal({keyboard: false, backdrop: 'static'});
@@ -140,6 +137,7 @@ function NewProjectModalAcceptClick() {
             CreateNewProject();
         }
         // TODO: Add test for existing project before resizing
+        // eslint-disable-next-line no-undef
         resetToolBoxSizing(100); // use a short delay to ensure the DOM is fully ready (TODO: may not be necessary)
     });
 }
@@ -161,9 +159,9 @@ function NewProjectModalCancelClick() {
         // Dismiss the modal in the UX
         $('#new-project-dialog').modal('hide');
 
-        if (!projectData) {
+        if (!projectData || typeof(projectData.board) === 'undefined' ) {
             // If there is no project, go to home page.
-            window.location.href = 'index.html';
+            window.location.href = 'index.html' + window.getAllURLParameters();
         }
 
         // if the project is being edited, clear the fields and close the modal
@@ -177,24 +175,25 @@ function NewProjectModalCancelClick() {
     });
 }
 
-function NewProjectModalEscapeClick() {
-    /* Trap the modal event that fires when the modal window is
- * closed when the user clicks on the 'x' icon.
+
+/**
+ * New project modal 'x' click handler
+ *
+ * This is fired when the user clicks on the 'x' to dismiss
+ * the dialog.
  */
-    $('#new-project-dialog').on('hidden.bs.modal', function (e) {
-        if (!projectData) {
+function NewProjectModalEscapeClick() {
+    // Trap the modal event that fires when the modal window is
+    // closed when the user clicks on the 'x' icon.
+    $('#new-project-dialog').on('hidden.bs.modal', function () {
+        if (!projectData || typeof(projectData.board) === 'undefined') {
             // If there is no project, go to home page.
             window.location.href = 'index.html';
         }
-        // Reload the the editor canvas from the active copy of the
-        // project.
-        setupWorkspace(projectData,
-            function () {
-                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-            });
     });
-
 }
+
+
 /**
  * Verify that the project name and board type form fields have data
  *
@@ -254,12 +253,16 @@ function validateEditProjectForm() {
  * from the browser localStorage
  */
 function CreateNewProject() {
-    let code = '';
+    let code;
 
     // If editing details, preserve the code, otherwise start over
-    if (projectData && $('#new-project-dialog-title').html() === page_text_label['editor_edit-details']) {
+    if (projectData
+        && typeof(projectData.board) !== 'undefined'
+        && $('#new-project-dialog-title').html() === page_text_label['editor_edit-details']) {
+        // eslint-disable-next-line no-undef
         code = getXml();
     } else {
+        // eslint-disable-next-line no-undef
         code = EMPTY_PROJECT_CODE_HEADER;
     }
 
@@ -270,12 +273,15 @@ function CreateNewProject() {
     let description = $("#new-project-description").val();
     let boardType = $('#new-project-board-type').val();
 
+    // eslint-disable-next-line no-undef
     let newProject = new Project(
         projectName, description, boardType, "PROPC", code,
+        // eslint-disable-next-line no-undef
         createdDateHtml, createdDateHtml, getTimestamp());
 
     // Save the project to the browser local store for the page
     // transition
+    // eslint-disable-next-line no-undef
     newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
 
     // ------------------------------------------------------
@@ -283,21 +289,116 @@ function CreateNewProject() {
     // event handler from storing the old project code into
     // the browser storage.
     // ------------------------------------------------------
-    projectData = '';
+    projectData = null;
 
     // Redirect to the editor page
-    window.location = 'blocklyc.html';
+    window.location = 'blocklyc.html' + window.getAllURLParameters();
 }
 
 
 /**
  *  Open the modal to select a project file to load
+ *
+ *  @description
+ *  If the user selects a file and successfully uploads it, the
+ *  project will be stored in localStorage.TEMP_PROJECT_STORE_NAME.
+ *  The form Accept button handler should look there when it is
+ *  time to process the new project.
  */
+// eslint-disable-next-line no-unused-vars
 function OpenProjectModal() {
+    // Save a copy of the original project in case the page gets reloaded
+    if (projectData && typeof (projectData.name) !== 'undefined') {
+        window.localStorage.setItem(
+            LOCAL_PROJECT_STORE_NAME,
+            JSON.stringify(projectData));
 
+        // Has the project been revised. If it has, offer to persist it before
+        // opening a new project
+        if (checkLeave()) {
+            const message =
+                'The current project has been modified. Click OK to\n' +
+                'discard the current changes and open an existing project.';
+
+            utils.confirm(
+                "Abandon Current Project", message,
+                // result is true if the OK button was selected
+                (result) => {
+                    if (!result) {
+                        OpenProjectModalSetHandlers();
+                    }
+                },
+                "Cancel",
+                "OK");
+        }
+        else {
+            OpenProjectModalSetHandlers();
+        }
+    } else {
+        // The project has not changed. Continue with the dialog.
+        OpenProjectModalSetHandlers();
+    }
+}
+
+function OpenProjectModalSetHandlers() {
     // set title to Open file
     $('#open-project-dialog-title').html(page_text_label['editor_open']);
 
+    OpenProjectModalCancelClick();
+    OpenProjectModalOpenClick();
+    OpenProjectModalEscapeClick();
+
+    // Import a project .SVG file
+    $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
+}
+
+/**
+ * Connect an event handler to the 'Open' button in the Open
+ * Project modal dialog.
+ *
+ * @description
+ * When a project is selected, the code responsible for retrieving
+ * project from disk, uploadHandler(), will store it in the browser's
+ * localStorage under the key value TEMP_PROJECT_STORE_NAME. That
+ * same code will return control to the Open Project modal, where the
+ * user can select Open or Cancel.
+ *
+ * This event handler is invoked when the user selects the Open
+ * button. It looks for a project in the browser's local
+ * storage with a key value of TEMP_PROJECT_STORE_NAME. If one is
+ * found, it simply copies the project to a new key in the browser's
+ * local storage with the key LOCAL_PROJECT_STORE_NAME and removes
+ * the temporary copy stored in TEMP_PROJECT_STORE_NAME. It then
+ * redirects the browser to the editor page, where other code will
+ * look for a project in the browser's local storage under the
+ * LOCAL_PROJECT_STORE_NAME key and load it into the editor canvas
+ * if a project is found there.
+ */
+function OpenProjectModalOpenClick() {
+    $('#open-project-select-file-open').on('click', () => {
+        // eslint-disable-next-line no-undef
+        if (window.localStorage.getItem(TEMP_PROJECT_STORE_NAME)) {
+            window.localStorage.setItem(
+                // eslint-disable-next-line no-undef
+                LOCAL_PROJECT_STORE_NAME,
+                // eslint-disable-next-line no-undef
+                window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
+
+            // eslint-disable-next-line no-undef
+            window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
+            window.location = 'blocklyc.html'+ window.getAllURLParameters();
+        }
+        else {
+            console.log("The opened project cannot be found in storage");
+        }
+    });
+}
+
+
+/**
+ * Open project cancel button clicked event handler
+ */
+function OpenProjectModalCancelClick() {
     // Set button onClick event handlers
     // ----------------------------------------------------------
     // This is also handling the 'Edit Project Details' modal
@@ -308,57 +409,34 @@ function OpenProjectModal() {
         // Dismiss the modal in the UX
         $('#open-project-dialog').modal('hide');
 
-        if (!projectData) {
+        if (!projectData || typeof(projectData.board) === 'undefined') {
             // If there is no project, go to home page.
-            window.location.href = 'index.html';
-        }
-        // A copy of the current project is located in the browser localStorage
-        setupWorkspace(projectData,
-            function () {
-                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-            });
-    });
-
-
-    $('#open-project-select-file-open').on('click', () => {
-        if (window.localStorage.getItem(TEMP_PROJECT_STORE_NAME)) {
-            window.localStorage.setItem(
-                LOCAL_PROJECT_STORE_NAME,
-                window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
-            window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
-            window.location = 'blocklyc.html';
+            window.location.href = 'index.html' + window.getAllURLParameters();
         }
     });
+}
 
 
+/**
+ * Open project escape ('x') click event handler
+ */
+function OpenProjectModalEscapeClick() {
     /* Trap the modal event that fires when the modal window is
      * closed when the user clicks on the 'x' icon.
      */
-    $('#open-project-dialog').on('hidden.bs.modal', function (e) {
-        if (!projectData) {
+    $('#open-project-dialog').on('hidden.bs.modal', function () {
+        if (!projectData || typeof projectData.board === 'undefined') {
             // If there is no project, go to home page.
             window.location.href = 'index.html';
         }
-        // Reload the the editor canvas from the active copy of the
-        // project.
-        setupWorkspace(projectData,
-            function () {
-                window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-            });
     });
-
-
-    // Import a project .SVG file
-    $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
-
-    // If the user selects a file and successfully uploads it, the
-    // project will be stored in localStorage.TEMP_PROJECT_STORE_NAME.
-    // The form Accept button handler should look there when it is
-    // time to proces the new project.
 }
+
 
 /**
  *  Open the Open Project File dialog
+ *
+ *  @deprecated - no references to this function
  */
 function OpenProjectFileDialog() {
 
@@ -385,8 +463,10 @@ function OpenProjectFileDialog() {
 
     // TODO: what is this doing here? Shouldn't we be setting up projectData instead of localStore?
     //       Or can this simply be deleted, because the openFile functions will take care of this?
-    if (projectData) {
+    if (projectData || typeof(projectData.board) === 'undefined') {
+        // eslint-disable-next-line no-undef
         console.log("Loading workspace with project %s", LOCAL_PROJECT_STORE_NAME);
+        // eslint-disable-next-line no-undef
         setupWorkspace(JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)));
     }
 }
@@ -398,6 +478,7 @@ function OpenProjectFileDialog() {
  * @description
  * The dialog displays a number of project details.
  */
+// eslint-disable-next-line no-unused-vars
 function editProjectDetails() {
     EditOfflineProjectDetails();
 }
@@ -416,15 +497,15 @@ function EditOfflineProjectDetails() {
     setEditOfflineProjectDetailsEnterHandler();
 
     // Load the current project details into the html form data
-    $('#edit-project-name').val(projectData['name']);
-    $('#edit-project-description').val(projectData['description']);
+    $('#edit-project-name').val(projectData.name);
+    $('#edit-project-description').val(projectData.description);
 
     // Display additional project details.
     let projectBoardType = $('#edit-project-board-type-ro');
-    projectBoardType.val(projectData['board']);
+    projectBoardType.val(projectData.board);
     projectBoardType.html(profile.default.description);
-    $('#edit-project-created-date-ro').html(projectData['created']);
-    $('#edit-project-last-modified-ro').html(projectData['modified']);
+    $('#edit-project-created-date-ro').html(projectData.created);
+    $('#edit-project-last-modified-ro').html(projectData.modified);
 
     // Show the dialog
     $('#edit-project-dialog').modal({keyboard: false, backdrop: 'static'});
@@ -468,6 +549,7 @@ function setEditOfflineProjectDetailsContinueHandler() {
             $('#edit-project-dialog').modal('hide');
 
             UpdateProjectDetails();
+            // eslint-disable-next-line no-undef
             showInfo(projectData);
         }
     });
@@ -479,13 +561,13 @@ function setEditOfflineProjectDetailsContinueHandler() {
  */
 function UpdateProjectDetails() {
     let newName = $('#edit-project-name').val();
-    if (!(projectData['name'] === newName)) {
-        projectData['name'] = newName;
+    if (!(projectData.name === newName)) {
+        projectData.name = newName;
     }
 
     let newDescription = $('#edit-project-description').val();
-    if (!(projectData['description'] === newDescription)) {
-        projectData['description'] = newDescription;
+    if (!(projectData.description === newDescription)) {
+        projectData.description = newDescription;
     }
 }
 
@@ -510,34 +592,12 @@ function setEditOfflineProjectDetailsCancelHandler() {
 }
 
 
-/**
- *  Configure the Save-As modal UI elements
- */
-function SetupSaveAsModalDialog() {
-// Set up Save-As modal dialog prompts
-    $("#save_as_dialog_title_text").html('Choose a project name and board type');
-    $("#save_as_dialog_button").html('Continue');
-    $(".save-as-close").addClass('hidden');
-    $('#save-as-project-name').val('MyProject');
-    $("#saveAsDialogSender").html('offline');
-    $("#save-as-board-type").empty();
-}
-
-
-/**
- * Invoke the Save-As project modal dialog window
- */
-function SaveAsProjectModal() {
-    PopulateProjectBoardTypesUIElement($("#save-as-board-type"));
-    $('#save-as-type-dialog').modal({keyboard: false, backdrop: 'static'});
-}
-
 
 /*   Load a Project file    */
-
 /**
  *
  */
+// eslint-disable-next-line no-unused-vars
 function initUploadModalLabels() {
 
     // set the upload modal's title to "import" if offline
@@ -553,6 +613,7 @@ function initUploadModalLabels() {
 /**
  * Reset the upload/import modal window to defaults after use
  */
+// eslint-disable-next-line no-unused-vars
 function resetUploadImportModalDialog() {
     // reset the title of the modal
     $('upload-dialog-title').html(page_text_label['editor_import']);
@@ -564,6 +625,7 @@ function resetUploadImportModalDialog() {
     $('#selectfile-replace').removeClass('btn-primary').addClass('btn-danger').html(page_text_label['editor_button_replace']);
 
     // reset the blockly toolbox sizing to ensure it renders correctly:
+    // eslint-disable-next-line no-undef
     resetToolBoxSizing(100);
 }
 
@@ -608,11 +670,14 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
         // defined in propc.js in the 'profile' object
         // (except 'default', which is where the current project's type is stored)
         for (let boardTypes in profile) {
-            if (boardTypes !== 'default' && boardTypes !== 'propcfile') {
+            if (boardTypes !== 'default') {
+                // Use the experimental tag to show code-only view
+                if (boardTypes !== 'propcfile' || (boardTypes === 'propcfile' && isExperimental.indexOf('propc') > -1)) {
 
-                element.append($('<option />')
-                    .val(boardTypes)
-                    .text(profile[boardTypes].description));
+                    element.append($('<option />')
+                        .val(boardTypes)
+                        .text(profile[boardTypes].description));
+                }
             }
 
             // Optionally set the selected option element
@@ -628,6 +693,7 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
  * Display the Timed Save Project modal dialog
  *
  */
+// eslint-disable-next-line no-unused-vars
 function ShowProjectTimerModalDialog() {
     $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
 }

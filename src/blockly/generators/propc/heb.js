@@ -93,8 +93,7 @@ Blockly.Blocks.heb_pwm_led = {
                 .appendField('LED')
                 .appendField(new Blockly.FieldDropdown([["0 (left)", "0"], ["1 (right)", "1"]]), "LED")
                 .appendField('brightness')
-                .appendField('R,0,15,0', 'RANGEVALS0');
-        this.getField('RANGEVALS0').setVisible(false);
+                .appendRange('R,0,15,0');
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -786,7 +785,7 @@ Blockly.Blocks.heb_touchpad_status = {
         this.setTooltip(Blockly.MSG_HEB_TOUCHPAD_STATUS_TOOLTIP);
         this.setHelpUrl(Blockly.MSG_BADGE_BUTTONS_HELPURL);
         this.setColour(colorPalette.getColor('input'));
-        if (projectData && projectData['board'] !== 'heb-wx') {
+        if (projectData && projectData.board !== 'heb-wx') {
             this.appendDummyInput()
                     .appendField("Touchpad")
                     .appendField(new Blockly.FieldDropdown([
