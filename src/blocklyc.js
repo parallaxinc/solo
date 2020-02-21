@@ -236,10 +236,8 @@ function renderContent(id) {
     const selectedTab = id.replace('tab_', '');
     const isPropcOnlyProject = (projectData.board === 'propcfile');
 
-    let isDebug = window.getURLParameter('debug');
-    if (!isDebug) {
-        isDebug = false;
-    }
+    // Read the URL for experimental parameters to turn on XML editing
+    let allowXmlEditing = isExperimental.indexOf('xml') > -1;
 
     if (isPropcOnlyProject) {
         // Show PropC editing UI elements
@@ -258,12 +256,12 @@ function renderContent(id) {
             $('#btn-view-propc').css('display', 'inline-block');
             $('#btn-view-blocks').css('display', 'none');
 
-            if ((isDebug) && codeXml.getValue().length > 40) {
+            if ((allowXmlEditing) && codeXml.getValue().length > 40) {
                 Blockly.Xml.clearWorkspaceAndLoadFromXml(Blockly.Xml.textToDom(codeXml.getValue()), Blockly.mainWorkspace);
-            } else {
-                Blockly.svgResize(Blockly.mainWorkspace);
-                Blockly.mainWorkspace.render();
-            }
+            } 
+            Blockly.svgResize(Blockly.mainWorkspace);
+            Blockly.mainWorkspace.render();
+
             break;
         case 'propc':
             $('.blocklyToolboxDiv').css('display', 'none')
@@ -272,8 +270,8 @@ function renderContent(id) {
             $('#content_propc').css('display', 'block');
             $('#content_blocks').css('display', 'none');
 
-            $('#btn-view-xml').css('display', 'none');
-            $('#btn-view-blocks').css('display', (isPropcOnlyProject ? 'none' : 'inline-block'));
+            $('#btn-view-xml').css('display', allowXmlEditing ? 'inline-block' : 'none');
+            $('#btn-view-blocks').css('display', ((isPropcOnlyProject || allowXmlEditing) ? 'none' : 'inline-block'));
             $('#btn-view-propc').css('display', 'none');
             if (!isPropcOnlyProject) {
                 let raw_c = prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace));
@@ -314,9 +312,7 @@ function renderContent(id) {
             codeXml.gotoLine(0);
 
             break;
-
     }
-
 }
 
 
