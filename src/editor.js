@@ -272,10 +272,12 @@ $(() => {
                 utils.showMessage(Blockly.Msg.DIALOG_ERROR, objError.message);
             } else {
                 console.error(objError.message);
+                ClearBlocklyWorkspace();
+                projectData = null;
                 utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_LOADING_ERROR);
             }
             // No viable project available, so redirect to index page.
-            window.location.href = 'index.html' + window.getAllURLParameters();
+            // window.location.href = 'index.html' + window.getAllURLParameters();
         }
     } else {
         // No viable project available, so redirect to index page.
