@@ -950,8 +950,16 @@ function graphing_console() {
                 action: 'open'
             };
 
-            $('.connection-string').html(Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED +
-                ' ' + msg_to_send.portPath + ' ' + Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE + ' ' + msg_to_send.baudrate);
+            if (msg_to_send.portPath !== 'none') {
+                displayTerminalConnectionStatus([
+                    Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
+                    msg_to_send.portPath,
+                    Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
+                    msg_to_send.baudrate
+                ].join(' '));
+            } else {
+                displayTerminalConnectionStatus(Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT);
+            }
 
             client_ws_connection.send(JSON.stringify(msg_to_send));
 

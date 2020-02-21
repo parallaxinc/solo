@@ -517,7 +517,7 @@ var set_port_list = function (data) {
         });
         ports_available = true;
     } else {
-        addComPortDeviceOption((data === 'searching') ? 'Searching...' : 'No devices found');
+        addComPortDeviceOption((data === 'searching') ? Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
         ports_available = false;
     }
     select_com_port(selected_port);
