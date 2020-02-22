@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/parallaxinc/solo#readme",
   "dependencies": {
+    "@sentry/browser": "^5.12.1",
     "blockly": "^2.20190722.1",
     "bootstrap": "^3.4.1",
     "jquery": "^3.4.1"
