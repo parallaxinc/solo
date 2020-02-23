@@ -744,7 +744,7 @@ function serial_console() {
                         pTerm.display(e.data);
                     }
                 }
-                $('#serial_console').focus();
+                pTerm.focus();
             };
 
             if (!newTerminal) {
@@ -770,6 +770,7 @@ function serial_console() {
 
             $('#console-dialog').on('hidden.bs.modal', function () {
                 active_connection = null;
+                displayTerminalConnectionStatus(null);
                 pTerm.display(null);
                 term = null;
             });
@@ -937,7 +938,7 @@ function graphing_console() {
                 graphStartStop('stop');
                 connString = '';
                 connStrYet = false;
-                $('.connection-string').html('');
+                displayTerminalConnectionStatus(null);
             });
 
         } else if (client_use_type === 'ws' && ports_available) {
@@ -971,7 +972,7 @@ function graphing_console() {
                 graphStartStop('stop');
                 if (msg_to_send.action !== 'close') { // because this is getting called multiple times.... ?
                     msg_to_send.action = 'close';
-                    $('.connection-string').html('');
+                    displayTerminalConnectionStatus(null);
                     client_ws_connection.send(JSON.stringify(msg_to_send));
                 }
             });
@@ -1043,7 +1044,7 @@ var graphStartStop = function (action) {
 /**
  * Update the list of serial ports available on the host machine
  */
-var check_com_ports = function () {
+var checkForComPorts = function () {
     // TODO: We need to evaluate this when using web sockets ('ws') === true
     if (client_use_type !== 'ws') {
         if (client_domain_name && client_domain_port) {
@@ -1073,17 +1074,22 @@ $(document).ready(function () {
     // Display the app name in the upper-left corner of the page
     showAppName();
 
-    check_com_ports();
+    checkForComPorts();
 });
 
 
 /**
- * Return the select com port name
+ * Return the selected com port name
  *
- * @returns {jQuery}
+ * @returns {string}
  */
 var getComPort = function () {
-    return $('#comPort').find(":selected").text();
+    let commPortSelection = $('#comPort').val();
+    if (commPortSelection === Blockly.Msg.DIALOG_PORT_SEARCHING || commPortSelection === Blockly.Msg.DIALOG_NO_DEVICE) {
+        return 'none';
+    } else {
+        return commPortSelection;
+    }
 };
 
 
