@@ -2435,6 +2435,9 @@ Blockly.Blocks.custom_code_multiple = {
     },
     mutationToDom: function () {
         var container = document.createElement('mutation');
+        if (this.type === 'custom_code_multiple_locked') {
+            delete this.fieldValueTemp_['EDIT'];
+        }
         container.setAttribute('field_values', JSON.stringify(this.fieldValueTemp_));
         return container;
     },
@@ -2457,7 +2460,15 @@ Blockly.Blocks.custom_code_multiple = {
             this.fieldValueTemp_['TYPE'] = container.getAttribute('type');
             this.fieldValueTemp_['LABEL_SET'] = this.getFieldValue('LABEL_SET');
         }
-        this.updateShape_(this.fieldValueTemp_['EDIT'], false);
+        if (this.type === 'custom_code_multiple') {
+            this.updateShape_(this.fieldValueTemp_['EDIT'], false);
+        } else {
+            this.setupInputs();
+            this.destroyFields();
+            if (this.getField('EDIT')) {
+                this.getInput('BLOCK_LABEL').removeField('EDIT');
+            }
+        }
         this.setFieldValue(this.fieldValueTemp_['LABEL_SET'], 'LABEL');
         this.setOutputType(this.fieldValueTemp_['TYPE'] || 'INL');
     },
@@ -2485,7 +2496,7 @@ Blockly.Blocks.custom_code_multiple = {
         }
         for (i = 1; i <= Number(argsCount); i++) {
             if (!this.getInput('ARG' + i.toString(10))) {
-                if (blockEditState) {
+                if (blockEditState && this.type !== 'custom_code_multiple_locked') {
                     this.appendValueInput('ARG' + i.toString(10))
                             .setAlign(Blockly.ALIGN_RIGHT)
                             .appendField('input "@' + i.toString(10) + '" label', 'EDIT_ARG' + i.toString(10))
@@ -2549,6 +2560,8 @@ Blockly.propc.custom_code_multiple = function () {
     }
 };
 
+Blockly.Blocks.custom_code_multiple_locked = Blockly.Blocks.custom_code_multiple;
+Blockly.propc.custom_code_multiple_locked = Blockly.propc.custom_code_multiple;
 
 Blockly.Blocks.propc_file = {
     init: function () {

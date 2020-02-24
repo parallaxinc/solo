@@ -1173,7 +1173,6 @@ xmlToolbox += '        <category key="category_sensor-input_LIS3DH" >';
 xmlToolbox += '            <block type="lis3dh_init"></block>';
 xmlToolbox += '            <block type="lis3dh_read"></block>';
 xmlToolbox += '            <block type="lis3dh_temp"></block>';
-//xmlToolbox += '            <block type="lis3dh_tilt"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '        <category key="category_sensor-input_LSM9DS1" >';
 xmlToolbox += '            <block type="lsm9ds1_init"></block>';
@@ -1737,10 +1736,12 @@ var colorChanges = {
 /**
  * Filter the blocks available in the toolbox.
  *
- * @param {string} profileName
+ * @param {object} project - projectData object
  * @returns {string}
  */
-function filterToolbox(profileName) {
+function filterToolbox(project) {
+    let profileName = project.board;
+    let customCategoryList = null;
 
     // Set the category's label (internationalization)
     xmlToolbox = xmlToolbox.replace(/key="([\S]+)"/g, function (m, p) {
@@ -1758,44 +1759,75 @@ function filterToolbox(profileName) {
     let parser = new DOMParser();
     let xmlDoc = parser.parseFromString(xmlToolbox, "text/xml");
 
+    // Extract custom categories from the project code and insert them into the toolbox
+    // Insert them after the "Functions" category
+    if (project.code) {
+        // If custom categories are in their own key (after a page refresh/reload), reintegrate them
+        if (project.categories && project.categories !== '' && project.code.indexOf('<category') === -1) {
+            let tempProjectCode = project.code.replace(/<\/xml>/g,'');
+            project.code = tempProjectCode + project.categories + '</xml>';
+        }
+        let projectXml = parser.parseFromString(project.code, "text/xml");
+        let customCategories = projectXml.getElementsByTagName('category') || [];
+        // Turn the HTMLcollection into an array
+        customCategoryList = [...projectXml.getElementsByTagName('category')];
+        let toolboxCategories = xmlDoc.getElementsByTagName('category') || [];
+        let k = 0;
+        // Find the "Functions" menu category so the custom menu can be placed after it. 
+        for (let j = 0; j < toolboxCategories.length; j++) {
+            if (toolboxCategories[j].getAttribute('custom') === "PROCEDURE") {
+                k = j + 1;
+                break;
+            }
+        }
+        // Insert the custom categories
+        for (let j = 0; j < customCategories.length; j++) {
+            xmlDoc.getElementById('toolbox').insertBefore(customCategories[j], toolboxCategories[k]);
+            // Remove the category XML from the project code
+            if (customCategories[j] && customCategories[j].parentNode) {
+                customCategories[j].parentNode.removeChild(customCategories[j]);
+            }
+        }
+    }
+
     // Loop through the specified tags and filter based on their attributes
     let tagSearch = ['category', 'sep', 'block'];
 
     // Toolbox entries to be removed from the menu
     let toRemove = [];
 
-    //Scan the toolBox XML document for each search tag
-    for (var j = 0; j < tagSearch.length; j++) {
+    // Scan the toolBox XML document for each search tag
+    for (let j = 0; j < tagSearch.length; j++) {
 
-        var xmlElem = xmlDoc.getElementsByTagName(tagSearch[j]);
+        let xmlElem = xmlDoc.getElementsByTagName(tagSearch[j]);
 
-        for (var t = 0; t < xmlElem.length; t++) {
+        for (let t = 0; t < xmlElem.length; t++) {
 
             // Get the current XML element
-            var toolboxEntry = xmlElem[t];
+            let toolboxEntry = xmlElem[t];
 
             // The include attribute defines specific supported board types
-            var include = toolboxEntry.getAttribute('include');
+            let include = toolboxEntry.getAttribute('include');
 
             // The exclude attribute defines board types that are specifically excluded
             // from the block under consideration
-            var exclude = toolboxEntry.getAttribute('exclude');
+            let exclude = toolboxEntry.getAttribute('exclude');
 
             // The experimental attribute is used to decalre that the current menu item
             // is considered experimental
-            var experimental = toolboxEntry.getAttribute('experimental');
+            let experimental = toolboxEntry.getAttribute('experimental');
 
             // Place this entry on the removal list if the include attribute is
             // defined and is does not match the board type that is currently
             // defined for the project.
-            if (include && include.indexOf(profileName + ',') === -1) {
+            if (include && include.indexOf(profileName) === -1) {
                 toRemove.push(toolboxEntry);
             }
 
             // Place this entry on the removal list if the exclude attribute is
             // defined and does match the board type that is currently defined
             // for the project.
-            else if (exclude && exclude.indexOf(profileName + ',') > -1) {
+            else if (exclude && exclude.indexOf(profileName) > -1) {
                 toRemove.push(toolboxEntry);
             }
 
@@ -1809,14 +1841,22 @@ function filterToolbox(profileName) {
     }
 
     // Remove the XML nodes that were set to be deleted
-    for (j = 0; j < toRemove.length; j++) {
+    for (let j = 0; j < toRemove.length; j++) {
         toRemove[j].parentNode.removeChild(toRemove[j]);
     }
 
     // Turn the XML object back into a string
     let out = new XMLSerializer();
     let outStr = out.serializeToString(xmlDoc);
-    outStr = outStr.replace(/ include="[\S]+"/g, '').replace(/ exclude="[\S]+"/g, '');
 
+    // turn the custom category XML into a string so it can be added back into a save (SVG) file.
+    if (projectData && customCategoryList && customCategoryList.length > 0) {
+        projectData.categories = '';
+        for (let j = 0; j < customCategoryList.length; j++) {
+            if (customCategoryList[j] && customCategoryList[j].outerHTML) {
+                projectData.categories += customCategoryList[j].outerHTML;
+            }
+        }
+    }
     return outStr;
 }

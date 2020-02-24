@@ -341,6 +341,10 @@ function checkLeave() {
     let currentXml = getXml();
     let savedXml = projectData.code;
 
+    if (projectData.categories && projectData.categories !== '') {
+        savedXml += projectData.categories;
+    }
+
     return compareProjectCode(currentXml, savedXml);
 }
 
@@ -774,7 +778,7 @@ function setupWorkspace(data, callback) {
     // Set the help link to the ab-blocks, s3 reference, or propc reference
     // TODO: modify blocklyc.html/jsp and use an id or class selector
     if (projectData.board === 's3') {
-        initToolbox(projectData.board);
+        initToolbox(projectData);
         $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
         // Create UI block content from project details
         renderContent('blocks');
@@ -784,7 +788,7 @@ function setupWorkspace(data, callback) {
         // Create UI block content from project details
         renderContent('propc');
     } else {
-        initToolbox(projectData.board);
+        initToolbox(projectData);
         $('#online-help').attr('href', 'https://learn.parallax.com/ab-blocks');
         // Create UI block content from project details
         renderContent('blocks');
@@ -1086,6 +1090,11 @@ function downloadCode() {
         projectXmlCode = projectXmlCode.substring(42, projectXmlCode.length);
         projectXmlCode = projectXmlCode.substring(0, (projectXmlCode.length - 6));
 
+        // If a custom toolbox menu is present, resave it into the file.
+        if (projectData.categories && projectData.categories !== '') {
+            projectXmlCode += projectData.categories;
+        }
+
         // get the paths of the blocks themselves and the size/position of the blocks
         var projSVG = document.getElementsByClassName('blocklyBlockCanvas');
         var projSVGcode = projSVG[0].outerHTML.replace(/&nbsp;/g, ' ');
@@ -1238,12 +1247,13 @@ function uploadHandler(files) {
 
             // TODO: instead of parsing by text indexOf's, use XML properly.
             let findBPCstart = '<block';
+            let findBPCend = '<ckm>'
 
             if (xmlString.indexOf("<variables>") > -1) {
                 findBPCstart = '<variables>';
             }
 
-            uploadedXML = xmlString.substring(xmlString.indexOf(findBPCstart), (xmlString.length - 29));
+            uploadedXML = xmlString.substring(xmlString.indexOf(findBPCstart), xmlString.indexOf(findBPCend));
             uploadBoardType = getProjectBoardType(xmlString);
 
             if (xmlValid) {
@@ -1585,9 +1595,9 @@ function uploadMergeCode(append) {
  * Initialize the Blockly toolbox with a collection of blocks that are
  * appropriate for the passe in board type.
  *
- * @param {string} profileName - aka Board Type
+ * @param {string} project - projectData
  */
-function initToolbox(profileName) {
+function initToolbox(project) {
 
     // TODO: Verify that custom fonts are required
     if (Blockly.Css.CONTENT) {
@@ -1611,10 +1621,10 @@ function initToolbox(profileName) {
     // Options are described in detail here:
     // https://developers.google.com/blockly/guides/get-started/web#configuration
     const blocklyOptions = {
-        toolbox: filterToolbox(profileName),
+        toolbox: filterToolbox(project),
         trashcan: true,
         media: CDN_URL + 'images/blockly/',
-        readOnly: (profileName === 'propcfile'),
+        readOnly: (project.board === 'propcfile'),
         //path: CDN_URL + 'blockly/',
         comments: false,
 
