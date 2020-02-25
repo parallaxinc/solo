@@ -1070,7 +1070,7 @@ Blockly.Blocks.lis3dh_init = {
             this.getInput('PINS').removeField('VOLTAGE');
 
             this.appendDummyInput('VOLT_CALIBRATE')
-                .appendField('Set the ADC voltage offset (+- 500 millivolts)')
+                .appendField('Set ADC offset (+/- 500 mV)')
                 .appendField(new Blockly.FieldNumber('0', -500, 500, 1), "VOLTAGE");
             this.setFieldValue(voltageField || '0', 'VOLTAGE');
 
