@@ -118,6 +118,61 @@ var check_ws_socket_timeout = null;
 var launcher_result = "";
 var launcher_download = false;
 
+
+/**
+ * Client Service Object
+ */
+var clientService = {
+    /*
+    available: false,
+    portsAvailable: false,
+    path: 'localhost',
+    port: 6009,
+    type: null,
+    rxBase64: true,
+    portListReceiveCountUp: 0,  // This is set to 0 each time the port list is received, and incremented once each 4 second heartbeat
+    activeConnection: null,
+    url: function (protocol) {
+        return protocol + '://' + this.path + ':' + this.port + '/';
+    },
+    */
+    version: {
+        // Constants
+        MINIMUM_ALLOWED: '0.7.0',
+        RECOMMENDED: '0.11.0',
+        CODED_MINIMUM: '0.7.5',  // Minimum client/launcher version supporting coded/verbose responses (remove after MINIMUM_ALLOWED > this)
+
+        // Variables
+        current: '0.0.0',
+        currentAsNumber: 0,
+        isValid: false,
+        isRecommended: false,
+        isCoded: false,
+        getNumeric: function (rawVersion) {
+            var tempVersion = rawVersion.toString().split(".");
+            tempVersion.push('0');
+        
+            if (tempVersion.length < 3) {
+                if (tempVersion.length === 1)
+                    tempVersion = '0.0.0';
+                else
+                    tempVersion.unshift('0');
+            }
+        
+            // Allow for any of the three numbers to be between 0 and 1023.
+            // Equivalent to: (Major * 104856) + (Minor * 1024) + Revision.
+            return (Number(tempVersion[0]) << 20 | Number(tempVersion[1]) << 10 | Number(tempVersion[2]));
+        },
+        set: function (rawVersion) {
+            this.current = rawVersion;
+            this.currentAsNumber = this.getNumeric(rawVersion);
+            this.isValid = (this.getNumeric(rawVersion) >= this.getNumeric(this.MINIMUM_ALLOWED));
+            this.isRecommended = (this.getNumeric(rawVersion) >= this.getNumeric(this.RECOMMENDED));
+            this.isCoded = (this.getNumeric(rawVersion) >= this.getNumeric(this.CODED_MINIMUM));   // remove after MINIMUM_ALLOWED is greater
+        }
+    }
+}
+
 // Status Notice IDs
 //const nsDownloading                = 002;
 //const nsDownloadSuccessful         = 005;
@@ -189,25 +244,33 @@ var setPropToolbarButtons = function (ui_btn_state) {
 };
 
 /**
- * @function checkClientVersionModal Evaluates the client version based on the string it reports its version with.
- * If the version is below the recommended version, the user is warned, and versions below the minimum are alerted. 
- * @param {string} clientVersionString string representing the client version in '0.0.0' format (Semantic versioning)
+ * @function checkClientVersionModal Displays a modal with information 
+ * about the client version if the one being used is outdated.
+ * If the version is below the recommended version, the user is 
+ * warned, and versions below the minimum are alerted. 
+ * @param {string} rawVersion string representing the client version in '0.0.0' format (Semantic versioning)
  */
-function checkClientVersionModal(clientVersionString) {
-    let clientVersion = version_as_number(clientVersionString);
-    if (clientVersion < version_as_number(client_recommended_version)) {
+function checkClientVersionModal(rawVersion) {
+    if (rawVersion) {
+        clientService.version.set(rawVersion);
+    }
+    if (!clientService.version.isRecommended) {
         $('.bpc-version').addClass('hidden');
 
-        if (clientVersion === 0) {
+        if (clientService.version.currentAsNumber === 0) {
             $("#client-unknown-span").removeClass("hidden");
-        } else if (clientVersion >= version_as_number(client_min_version)) {
+        } else if (clientService.version.isValid) {
             $("#client-warning-span").removeClass("hidden");
         } else {
             $("#client-danger-span").removeClass("hidden");     
         }
 
-        $(".client-required-version").html(client_recommended_version);
-        $(".client-your-version").html(clientVersion > 0 ? clientVersionString : '<b>UNKNOWN</b>');
+        $(".client-required-version").html(clientService.version.RECOMMENDED);
+        if (clientService.version.currentAsNumber === 0) {
+            $(".client-your-version").html('<b>UNKNOWN</b>')
+        } else {
+            $(".client-your-version").html(clientService.version.current);
+        }
         $('#client-version-modal').modal('show');
     }
 }
@@ -222,7 +285,6 @@ var check_client = function () {
             if (!data.server || data.server !== 'BlocklyPropHTTP') {
                 client_version_str = '0.0.0';
             }
-
             checkClientVersionModal(client_version_str);
 
             client_use_type = 'http';

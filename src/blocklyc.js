@@ -221,12 +221,6 @@ var graph_data = {
 
 
 /**
- *  Minimum client/launcher version supporting coded/verbose responses
- */
-const minCodedVer = version_as_number('0.7.5');
-
-
-/**
  * Switch the visible pane when a tab is clicked.
  *
  * @param {string} id ID of tab clicked.
@@ -620,7 +614,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
 
             } else {
 
-                if (client_version >= minCodedVer) {
+                if (clientService.version.isCoded) {
                     //Request load with options from BlocklyProp Client
                     $.post("http://" + client_domain_name + ":" + client_domain_port + "/load.action", {
                         option: load_option,
@@ -1047,7 +1041,7 @@ var check_com_ports = function () {
     // TODO: We need to evaluate this when using web sockets ('ws') === true
     if (client_use_type !== 'ws') {
         if (client_domain_name && client_domain_port) {
-            $.get("http://" + client_domain_name + ":" + client_domain_port + "ports.json", function (data) {
+            $.get("http://" + client_domain_name + ":" + client_domain_port + "/ports.json", function (data) {
                 set_port_list(data);
             }).fail(function () {
                 set_port_list();
