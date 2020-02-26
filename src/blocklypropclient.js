@@ -174,14 +174,14 @@ var clientService = {
 }
 
 // Status Notice IDs
-//const nsDownloading                = 002;
-//const nsDownloadSuccessful         = 005;
-const nsDownloading                = 2;
-const nsDownloadSuccessful         = 5;
+//const NS_DOWNLOADING                = 002;
+//const NS_DOWNLOAD_SUCCESSFUL         = 005;
+const NS_DOWNLOADING                = 2;
+const NS_DOWNLOAD_SUCCESSFUL         = 5;
 
 
 // Error Notice IDs
-const neDownloadFailed             = 102;
+const NE_DOWNLOAD_FAILED             = 102;
 
 
 $(document).ready(function () {
@@ -290,9 +290,9 @@ var check_client = function () {
             client_use_type = 'http';
             client_available = true;
             setPropToolbarButtons('available');
-            if (check_com_ports && typeof (check_com_ports) === "function") {
-                check_com_ports();
-                check_com_ports_interval = setInterval(check_com_ports, 5000);
+            if (checkForComPorts && typeof (checkForComPorts) === "function") {
+                checkForComPorts();
+                check_com_ports_interval = setInterval(checkForComPorts, 5000);
             }
         }
         setTimeout(check_client, 20000);
@@ -495,16 +495,16 @@ function establish_socket() {
                     $('#compile-console').val('');
 
                 } else if (ws_msg.action === 'message-compile') {
-                    //Messages are coded; check codes, log all and filter out nsDownloading duplicates
+                    //Messages are coded; check codes, log all and filter out NS_DOWNLOADING duplicates
                     var msg = ws_msg.msg.split("-");
-                    if (msg[0] != nsDownloading || !launcher_download) {
+                    if (msg[0] != NS_DOWNLOADING || !launcher_download) {
                         launcher_result = launcher_result + msg[1] + "\n";
-                        launcher_download |= (msg[0] == nsDownloading);
+                        launcher_download |= (msg[0] == NS_DOWNLOADING);
                     }
-                    if (msg[0] == nsDownloadSuccessful) {
+                    if (msg[0] == NS_DOWNLOAD_SUCCESSFUL) {
                         //Success! Keep it simple
                         $('#compile-console').val($('#compile-console').val() + ' Succeeded.');
-                    } else if (msg[0] == neDownloadFailed) {
+                    } else if (msg[0] == NE_DOWNLOAD_FAILED) {
                         //Failed! Show the details
                         $('#compile-console').val($('#compile-console').val() + ' Failed!\n\n-------- loader messages --------\n' + launcher_result);
                     } else {
