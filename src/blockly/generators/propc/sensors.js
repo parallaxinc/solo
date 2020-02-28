@@ -1176,7 +1176,14 @@ Blockly.propc.lis3dh_init = function () {
             var vddVoltField = this.getFieldValue('VDD_VOLTAGE');
 
             if ((vssVoltField !== undefined) && (vddVoltField !== undefined)) {
-                setupCode += 'lis3dh_adcCal_mV(lis3dh_sensor, 0, 3300, ' + vssVoltField + ', ' + vddVoltField + ');';
+                setupCode += 'lis3dh_adcCal_mV(lis3dh_sensor, ';
+
+                if (vssVoltField === 0 && vddVoltField === 0) {
+                    setupCode += '0, 0, 0, 0 );';
+                }
+                else {
+                    setupCode += '0, 3300, ' + vssVoltField + ', ' + vddVoltField + ');';
+                }
             }
         }
 
