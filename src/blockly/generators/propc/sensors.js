@@ -1082,21 +1082,21 @@ Blockly.Blocks.lis3dh_init = {
                 .appendField(
                     new Blockly.FieldNumber(
                         '0',
-                        -500,
-                        500,
+                        null,
+                        null,
                         1
                     ),"VSS_VOLTAGE")
                 .appendField(' 3.3V ')
                 .appendField(
                     new Blockly.FieldNumber(
                         '0',
-                        2700,
-                        3800,
+                        null,
+                        null,
                         1
                     ), "VDD_VOLTAGE");
 
             this.setFieldValue(vssVoltField || '0', 'VSS_VOLTAGE');
-            this.setFieldValue(vddVoltField || '3300', 'VDD_VOLTAGE');
+            this.setFieldValue(vddVoltField || '0', 'VDD_VOLTAGE');
 
             // Move this input field to the bottom of the init block
             this.moveInputBefore('VOLT_CALIBRATE', null);
@@ -1176,7 +1176,14 @@ Blockly.propc.lis3dh_init = function () {
             var vddVoltField = this.getFieldValue('VDD_VOLTAGE');
 
             if ((vssVoltField !== undefined) && (vddVoltField !== undefined)) {
-                setupCode += 'lis3dh_adcCal_mV(lis3dh_sensor, 0, 3300, ' + vssVoltField + ', ' + vddVoltField + ');';
+                setupCode += 'lis3dh_adcCal_mV(lis3dh_sensor, ';
+
+                if (vssVoltField === 0 && vddVoltField === 0) {
+                    setupCode += '0, 0, 0, 0 );';
+                }
+                else {
+                    setupCode += '0, 3300, ' + vssVoltField + ', ' + vddVoltField + ');';
+                }
             }
         }
 
