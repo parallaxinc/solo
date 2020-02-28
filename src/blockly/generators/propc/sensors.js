@@ -1007,7 +1007,9 @@ Blockly.Blocks.lis3dh_init = {
                 .appendField('', 'TEMP')            // Temperature calibration
                 .appendField('', 'UNIT')            // Temperature calibration
                 .appendField('', 'SMOOTHING')       // Tilt axis smoothing
-                .appendField('', 'VOLTAGE');        // ADC offset initialization
+                .appendField('', 'VSS_VOLTAGE')     // ADC ground offset initialization
+                .appendField('', 'VDD_VOLTAGE');    // ADC 3.3 offset initialization
+
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -1065,22 +1067,45 @@ Blockly.Blocks.lis3dh_init = {
     buildVoltageInput: function(hasVoltageBlocks) {
         // Create a init field for the ADC voltage offset
         if (hasVoltageBlocks && !this.getInput('VOLT_CALIBRATE')) {
-            // Save current value and then destroy the input field
-            var voltageField = this.getFieldValue('VOLTAGE');
-            this.getInput('PINS').removeField('VOLTAGE');
+            // Ground calibration value
+            var vssVoltField = this.getInput('VSS_VOLTAGE');
+
+            // 3.3 volt calibration
+            var vddVoltField = this.getInput('VDD_VOLTAGE')
+
+            this.getInput('PINS').removeField('VSS_VOLTAGE');
+            this.getInput('PINS').removeField('VDD_VOLTAGE');
+
 
             this.appendDummyInput('VOLT_CALIBRATE')
-                .appendField('Set ADC offset (+/- 500 mV)')
-                .appendField(new Blockly.FieldNumber('0', -500, 500, 1), "VOLTAGE");
-            this.setFieldValue(voltageField || '0', 'VOLTAGE');
+                .appendField('calibrate ADC  GND ')
+                .appendField(
+                    new Blockly.FieldNumber(
+                        '0',
+                        -500,
+                        500,
+                        1
+                    ),"VSS_VOLTAGE")
+                .appendField(' 3.3V ')
+                .appendField(
+                    new Blockly.FieldNumber(
+                        '0',
+                        2700,
+                        3800,
+                        1
+                    ), "VDD_VOLTAGE");
 
-            // Move this to the bottom
+            this.setFieldValue(vssVoltField || '0', 'VSS_VOLTAGE');
+            this.setFieldValue(vddVoltField || '3300', 'VDD_VOLTAGE');
+
+            // Move this input field to the bottom of the init block
             this.moveInputBefore('VOLT_CALIBRATE', null);
         } else if (!hasVoltageBlocks && this.getInput('VOLT_CALIBRATE')) {
-            // Destroy the ADC init field
+            // Destroy the ADC init fields
             this.removeInput('VOLT_CALIBRATE');
             if (!this.getField('VOLTAGE')) {
-                this.getInput('PINS').appendField('', 'VOLTAGE');
+                this.getInput('PINS').appendField('', 'VSS_VOLTAGE');
+                this.getInput('PINS').appendField('', 'VDD_VOLTAGE');
             }
         }
     },
@@ -1147,9 +1172,11 @@ Blockly.propc.lis3dh_init = function () {
         }
 
         if (this.getInput('VOLT_CALIBRATE')) {
-            var voltCalibrate = this.getFieldValue("VOLTAGE");
-            if (voltCalibrate !== undefined) {
-                setupCode += 'lis3dh_adcCal_mV(lis3dh_sensor, ' + voltCalibrate + ');';
+            var vssVoltField = this.getFieldValue('VSS_VOLTAGE');
+            var vddVoltField = this.getFieldValue('VDD_VOLTAGE');
+
+            if ((vssVoltField !== undefined) && (vddVoltField !== undefined)) {
+                setupCode += 'lis3dh_adcCal_mV(lis3dh_sensor, 0, 3300, ' + vssVoltField + ', ' + vddVoltField + ');';
             }
         }
 
@@ -1169,8 +1196,8 @@ Blockly.Blocks.lis3dh_read = {
                     .appendField(
                         new Blockly.FieldDropdown([
                                 ['acceleration (1000ths of g\'s)', 'accel_mg'],
-                                ['voltage (mV)', 'adc_mV'],
-                                ['tilt (degrees)', 'tilt']
+                                ['tilt (degrees)', 'tilt'],
+                                ['voltage (mV)', 'adc_mV']
                             ], function (action) {this.getSourceBlock().configureFields(action)}),
                         'SENSOR');
 
