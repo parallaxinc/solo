@@ -1082,21 +1082,21 @@ Blockly.Blocks.lis3dh_init = {
                 .appendField(
                     new Blockly.FieldNumber(
                         '0',
-                        -500,
-                        500,
+                        null,
+                        null,
                         1
                     ),"VSS_VOLTAGE")
                 .appendField(' 3.3V ')
                 .appendField(
                     new Blockly.FieldNumber(
                         '0',
-                        2700,
-                        3800,
+                        null,
+                        null,
                         1
                     ), "VDD_VOLTAGE");
 
             this.setFieldValue(vssVoltField || '0', 'VSS_VOLTAGE');
-            this.setFieldValue(vddVoltField || '3300', 'VDD_VOLTAGE');
+            this.setFieldValue(vddVoltField || '0', 'VDD_VOLTAGE');
 
             // Move this input field to the bottom of the init block
             this.moveInputBefore('VOLT_CALIBRATE', null);
