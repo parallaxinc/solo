@@ -276,8 +276,6 @@ $(() => {
                 projectData = null;
                 utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_LOADING_ERROR);
             }
-            // No viable project available, so redirect to index page.
-            // window.location.href = 'index.html' + window.getAllURLParameters();
         }
     } else {
         // No viable project available, so redirect to index page.
@@ -488,6 +486,8 @@ function initEventHandlers() {
     });
 
     $('#find-replace-close').on('click', () => findReplaceCode());
+
+    // Close upload project dialog event handler
     $('#upload-close').on('click', () => clearUploadInfo(false));
 
 
@@ -617,6 +617,7 @@ function initEventHandlers() {
         $('#save-as-project-name').val()
     ));
 
+    // Clear the select project file dialog event handler
     $('#selectfile-clear').on('click', () => clearUploadInfo(true));
 
     $('#btn-graph-play').on('click', () => graph_play());
@@ -1435,10 +1436,12 @@ function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
 function clearUploadInfo(redirect) {
     // Reset all of the upload fields and containers
     uploadedXML = '';
+
     $('#selectfile').val('');
     $('#selectfile-verify-notvalid').css('display', 'none');
     $('#selectfile-verify-valid').css('display', 'none');
     $('#selectfile-verify-boardtype').css('display', 'none');
+
     document.getElementById("selectfile-replace").disabled = true;
     document.getElementById("selectfile-append").disabled = true;
 
