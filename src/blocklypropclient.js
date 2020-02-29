@@ -95,7 +95,7 @@ var clientService = {
     activeConnection: null,
     */
     url: function (location, protocol) {
-        return (protocol || window.location.protocol) + '://' + this.path + ':' + this.port + '/' + (location || '');
+        return (protocol || window.location.protocol.replace(':', '')) + '://' + this.path + ':' + this.port + '/' + (location || '');
     },
     version: {
         // Constants
