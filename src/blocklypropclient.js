@@ -41,47 +41,6 @@ var client_available = false;
 var ports_available = false;
 
 
-/**
- * The version number the BlocklyProp Client reported
- *
- * @type {number}
- */
-var client_version = 0;
-
-
-// TODO: Verify that this variable is a host name and not a domain name
-/**
- * Client host name
- *
- * @type {string}
- */
-var client_domain_name = "localhost";
-
-
-/**
- * Port number component of the BlocklyProp Client interface
- *
- * @type {number}
- */
-var client_domain_port = 6009;
-
-
-/**
- * The minimum version of the BlocklyProp Client that can be used with this interface
- *
- * @type {string}
- */
-var client_min_version = "0.7.0";
-
-
-/**
- * The most recent version of the BlocklyPro Client that can be used with this interface
- *
- * @type {string}
- */
-var client_recommended_version = "0.8.0";
-
-
 // TODO: Document what the 'client_use_type' variable represents
 /**
  * Not sure what this does
@@ -126,16 +85,18 @@ var clientService = {
     /*
     available: false,
     portsAvailable: false,
+    */
     path: 'localhost',
     port: 6009,
+    /*
     type: null,
     rxBase64: true,
     portListReceiveCountUp: 0,  // This is set to 0 each time the port list is received, and incremented once each 4 second heartbeat
     activeConnection: null,
-    url: function (protocol) {
-        return protocol + '://' + this.path + ':' + this.port + '/';
-    },
     */
+    url: function (location, protocol) {
+        return (protocol || window.location.protocol) + '://' + this.path + ':' + this.port + '/' + (location || '');
+    },
     version: {
         // Constants
         MINIMUM_ALLOWED: '0.7.0',
@@ -279,7 +240,7 @@ function checkClientVersionModal(rawVersion) {
  * This is evaluating the BlocklyProp Client or BlocklyProp Launcher version??
  */
 var check_client = function () {
-    $.get("http://" + client_domain_name + ":" + client_domain_port + "/", function (data) {
+    $.get(clientService.url(), function (data) {
         if (!client_available) {
             let client_version_str = (typeof data.version_str !== "undefined") ? data.version_str : data.version;
             if (!data.server || data.server !== 'BlocklyPropHTTP') {
@@ -347,7 +308,7 @@ var configure_client = function () {
         id: "domain_name",
         type: "text",
         class: "form-control",
-        value: client_domain_name
+        value: clientService.path
     }).appendTo(domain_name_group);
 
     // Hard code the ':' between the domain name and port input fields
@@ -365,14 +326,14 @@ var configure_client = function () {
         id: "port_number",
         type: "number",
         class: "form-control",
-        value: client_domain_port
+        value: clientService.port
     }).appendTo(domain_port_group);
 
     // Show the modal dialog
     utils.confirm(Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER_CONFIGURE_TITLE, url_input, function (action) {
         if (action) {
-            client_domain_name = $("#domain_name").val();
-            client_domain_port = $("#port_number").val();
+            clientService.path = $("#domain_name").val();
+            clientService.port = $("#port_number").val();
         }
     }, Blockly.Msg.DIALOG_SAVE_TITLE);
 };
@@ -386,8 +347,7 @@ function establish_socket() {
         // Clear the port list
         set_port_list();
 
-        var url = "ws://" + client_domain_name + ":" + client_domain_port + "/";
-        var connection = new WebSocket(url);
+        var connection = new WebSocket(clientService.url('', 'ws'));
 
         connection.onopen = function () {
 
