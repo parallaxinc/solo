@@ -594,10 +594,10 @@ function getCompilerUrl(action) {
  */
 function loadInto(modal_message, compile_command, load_option, load_action) {
 
-    if (ports_available) {
+    if (clientService.portsAvailable) {
         cloudCompile(modal_message, compile_command, function (data, terminalNeeded) {
 
-            if (client_use_type === 'ws') {
+            if (clientService.type === 'ws') {
                 // Prep for new download messages
                 launcher_result = "";
                 launcher_download = false;
@@ -683,7 +683,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
                 }
             }
         });
-    } else if (client_available) {
+    } else if (clientService.available) {
         utils.showMessage(Blockly.Msg.DIALOG_NO_DEVICE, Blockly.Msg.DIALOG_NO_DEVICE_TEXT);
     } else {
         utils.showMessage(Blockly.Msg.DIALOG_DEVICE_COMM_ERROR, Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT);
@@ -698,7 +698,7 @@ function serial_console() {
     var newTerminal = false;
 
     // HTTP client
-    if (client_use_type !== 'ws') {
+    if (clientService.type !== 'ws') {
         if (term === null) {
             term = {
                 portPath: getComPort()
@@ -706,7 +706,7 @@ function serial_console() {
             newTerminal = true;
         }
 
-        if (ports_available) {
+        if (clientService.portsAvailable) {
             var connection = new WebSocket(clientService.url("serial.connect", "ws"));
 
             // When the connection is open, open com port
@@ -767,7 +767,7 @@ function serial_console() {
                 term = null;
             });
         }
-    } else if (client_use_type === 'ws') {
+    } else if (clientService.type === 'ws') {
         // using Websocket-only client
 
         term = {
@@ -889,7 +889,7 @@ function graphing_console() {
             graph.update(graph_data, graph_options);
         }
 
-        if (client_use_type !== 'ws' && ports_available) {
+        if (clientService.type !== 'ws' && clientService.portsAvailable) {
             var connection = new WebSocket(clientService.url("serial.connect", "ws"));
 
             // When the connection is open, open com port
@@ -933,7 +933,7 @@ function graphing_console() {
                 displayTerminalConnectionStatus(null);
             });
 
-        } else if (client_use_type === 'ws' && ports_available) {
+        } else if (clientService.type === 'ws' && clientService.portsAvailable) {
             var msg_to_send = {
                 type: 'serial-terminal',
                 outTo: 'graph',
@@ -1038,16 +1038,16 @@ var graphStartStop = function (action) {
  */
 var checkForComPorts = function () {
     // TODO: We need to evaluate this when using web sockets ('ws') === true
-    if (client_use_type !== 'ws') {
+    if (clientService.type !== 'ws') {
         $.get(clientService.url("ports.json"), function (data) {
-            set_port_list(data);
+            setPortListUI(data);
         }).fail(function () {
-            set_port_list();
+            setPortListUI();
         });
     }
 };
 
-var select_com_port = function (com_port) {
+var selectComPort = function (com_port) {
     if (com_port !== null) {
         $("#comPort").val(com_port);
     }
