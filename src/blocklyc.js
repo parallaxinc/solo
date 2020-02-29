@@ -616,7 +616,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
 
                 if (clientService.version.isCoded) {
                     //Request load with options from BlocklyProp Client
-                    $.post("http://" + client_domain_name + ":" + client_domain_port + "/load.action", {
+                    $.post(clientService.url("load.action"), {
                         option: load_option,
                         action: load_action,
                         binary: data.binary,
@@ -662,7 +662,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
                 } else {
                     //TODO: Remove this once client_min_version is >= minCodedVer
                     //Request load without options from old BlocklyProp Client
-                    $.post("http://" + client_domain_name + ":" + client_domain_port + "/load.action", {
+                    $.post(clientService.url("load.action"), {
                         action: load_action,
                         binary: data.binary,
                         extension: data.extension,
@@ -707,9 +707,7 @@ function serial_console() {
         }
 
         if (ports_available) {
-            var url = "http://" + client_domain_name + ":" + client_domain_port + "/serial.connect";
-            url = url.replace('http', 'ws');
-            var connection = new WebSocket(url);
+            var connection = new WebSocket(clientService.url("serial.connect", "ws"));
 
             // When the connection is open, open com port
             connection.onopen = function () {
@@ -892,7 +890,7 @@ function graphing_console() {
         }
 
         if (client_use_type !== 'ws' && ports_available) {
-            var connection = new WebSocket("ws://" + client_domain_name + ":" + client_domain_port + "/serial.connect");
+            var connection = new WebSocket(clientService.url("serial.connect", "ws"));
 
             // When the connection is open, open com port
             connection.onopen = function () {
@@ -1041,13 +1039,11 @@ var graphStartStop = function (action) {
 var checkForComPorts = function () {
     // TODO: We need to evaluate this when using web sockets ('ws') === true
     if (client_use_type !== 'ws') {
-        if (client_domain_name && client_domain_port) {
-            $.get("http://" + client_domain_name + ":" + client_domain_port + "/ports.json", function (data) {
-                set_port_list(data);
-            }).fail(function () {
-                set_port_list();
-            });
-        }
+        $.get(clientService.url("ports.json"), function (data) {
+            set_port_list(data);
+        }).fail(function () {
+            set_port_list();
+        });
     }
 };
 
