@@ -135,11 +135,10 @@ var clientService = {
 }
 
 // Status Notice IDs
-//const NS_DOWNLOADING                = 002;
-//const NS_DOWNLOAD_SUCCESSFUL         = 005;
-const NS_DOWNLOADING                = 2;
+//const NS_DOWNLOADING               = 002;
+//const NS_DOWNLOAD_SUCCESSFUL       = 005;
+const NS_DOWNLOADING                 = 2;
 const NS_DOWNLOAD_SUCCESSFUL         = 5;
-
 
 // Error Notice IDs
 const NE_DOWNLOAD_FAILED             = 102;
@@ -160,22 +159,6 @@ var find_client = function () {
         // WebSocket'd launcher not found?  Try Http'd client
         check_client();
     }
-};
-
-var version_as_number = function (rawVersion) {
-    var tempVersion = rawVersion.toString().split(".");
-    tempVersion.push('0');
-
-    if (tempVersion.length < 3) {
-        if (tempVersion.length === 1)
-            tempVersion = '0.0.0';
-        else
-            tempVersion.unshift('0');
-    }
-
-    // Allow for any of the three numbers to be between 0 and 1023.
-    // Equivalent to: (Major * 104856) + (Minor * 1024) + Revision.
-    return (Number(tempVersion[0]) << 20 | Number(tempVersion[1]) << 10 | Number(tempVersion[2]));
 };
 
 var setPropToolbarButtons = function (ui_btn_state) {
