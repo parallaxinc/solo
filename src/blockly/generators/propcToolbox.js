@@ -1820,14 +1820,14 @@ function filterToolbox(project) {
             // Place this entry on the removal list if the include attribute is
             // defined and is does not match the board type that is currently
             // defined for the project.
-            if (include && include.indexOf(profileName) === -1) {
+            if (include && include.indexOf(profileName + ',') === -1) {
                 toRemove.push(toolboxEntry);
             }
 
             // Place this entry on the removal list if the exclude attribute is
             // defined and does match the board type that is currently defined
             // for the project.
-            else if (exclude && exclude.indexOf(profileName) > -1) {
+            else if (exclude && exclude.indexOf(profileName + ',') > -1) {
                 toRemove.push(toolboxEntry);
             }
 
