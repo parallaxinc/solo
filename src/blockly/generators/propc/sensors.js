@@ -1078,7 +1078,7 @@ Blockly.Blocks.lis3dh_init = {
 
 
             this.appendDummyInput('VOLT_CALIBRATE')
-                .appendField('calibrate ADC  GND ')
+                .appendField('Calibrate ADC  GND ')
                 .appendField(
                     new Blockly.FieldNumber(
                         '0',
