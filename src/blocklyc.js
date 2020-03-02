@@ -651,8 +651,6 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
 
                         // Scoll automatically to the bottom after new data is added
                         document.getElementById("compile-console").scrollTop = document.getElementById("compile-console").scrollHeight;
-
-                        //console.log(loaddata);
                         if (terminalNeeded === 'term' && loaddata.success) {
                             serial_console();
                         } else if (terminalNeeded === 'graph' && loaddata.success) {
@@ -670,10 +668,8 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
                     }, function (loaddata) {
                         $("#compile-console").val($("#compile-console").val() + loaddata.message);
 
-                        // Scoll automatically to the bottom after new data is added
+                        // Scroll automatically to the bottom after new data is added
                         document.getElementById("compile-console").scrollTop = document.getElementById("compile-console").scrollHeight;
-
-                        //console.log(loaddata);
                         if (terminalNeeded === 'term' && loaddata.success) {
                             serial_console();
                         } else if (terminalNeeded === 'graph' && loaddata.success) {
@@ -884,7 +880,9 @@ function graphing_console() {
             graph_reset();
             graph_temp_string = '';
             graph = new Chartist.Line('#serial_graphing', graph_data, graph_options);
-            if (window.getURLParameter('debug')) console.log(graph_options);
+            if (window.getURLParameter('debug')) {
+                console.log(graph_options);
+            }
         } else {
             graph.update(graph_data, graph_options);
         }
