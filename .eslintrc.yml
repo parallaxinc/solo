@@ -21,7 +21,7 @@ globals:
   utils: readonly
 parserOptions:
   ecmaVersion: 6
-  sourceType: script
+  sourceType: module
 rules:
   # This really needs to be an error
   no-prototype-builtins: warn
