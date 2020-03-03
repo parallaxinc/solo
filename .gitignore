@@ -10,6 +10,9 @@ node_modules
 #Compressed files
 *_compressed*.js
 
+# Webpack targets
+build
+dist
 
 # MacOS files
 .DS_Store
