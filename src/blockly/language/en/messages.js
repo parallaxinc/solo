@@ -468,7 +468,7 @@ Blockly.MSG_LSM9DS1_READ_TOOLTIP = "IMU read: get measurements from specified se
 Blockly.MSG_LSM9DS1_MAG_CALIBRATE_TOOLTIP = "IMU Calibrate Magnetometer: Initialize first. Rotate slowly thru all 3 axes until P26/P27 LEDs turn off.";
 Blockly.MSG_LSM9DS1_TILT_TOOLTIP = "IMU tilt: gets tilt along specified axis.";
 Blockly.MSG_LSM9DS1_HEADING_TOOLTIP = "IMU heading: specify axes, get current heading in degrees.";
-Blockly.MSG_LIS3DH_INIT_TOOLTIP = "LIS3DH initialize: match to Propeller I/O pin connections. If LIS3DH tilt blocks are used, specify a smoothing factor (between 0-100). If LIS3DH temperature blocks are used, set an initial temperature.";
+Blockly.MSG_LIS3DH_INIT_TOOLTIP = "LIS3DH initialize: match to Propeller I/O pin connections. If measuring tilt, set a smoothing factor (0-100). If measuring temperature, set an initial value and units. If measuring ADC voltage, set the measured ground and 3.3V values. \nRight click and choose Help for more information.";
 Blockly.MSG_LIS3DH_READ_TOOLTIP = "LIS3DH read: Select the sensors to read, then select the variables to store the readings into.";
 Blockly.MSG_LIS3DH_TEMP_TOOLTIP = "LIS3DH temperature: read the temperature.";
 Blockly.MSG_SENSOR_PING_TOOLTIP = "Ping))) distance: gets distance measured in the specified units, match to Propeller I/O pin.";
@@ -800,8 +800,9 @@ page_text_label['clientdownload_os_menu'] = "Choose a different operating system
 page_text_label['clientdownload_showall'] = "Show clients for all operating systems";
 page_text_label['clientdownload_title'] = "BlocklyProp Launcher";
 
+/* BP Client dialog messages */
 page_text_label['client_unknown'] = "BlocklyProp is unable to determine what version of BlocklyProp Launcher is installed on your computer.<br>You may need to install or reinstall the BlocklyProp Launcher.";
-page_text_label['client_update_warning'] = "BlocklyProp Solo requires BlocklyProp Launcher version <span class=\"client-required-version\"></span>, or later.<br>You are using incompatible software: BlocklyProp Client version <span class=\"client-your-version\"></span>.<br>Download and install the latest software from the link below.";
+page_text_label['client_update_warning'] = "BlocklyProp Solo requires BlocklyProp Launcher version <span class=\"client-required-version\"></span>, or later.<br><br>The version detected on your system, BlocklyProp Client version <span class=\"client-your-version\"></span> may not work<br>correctly with Solo. We recommend downloading and installing the latest software for<br>best results. You can use the link below to get started.";
 page_text_label['client_update_danger'] = "BlocklyProp now requires at least version <span class=\"client-required-version\"></span> of BlocklyProp Launcher.<br>You appear to be using BlocklyProp Launcher version <span class=\"client-your-version\"></span>.<br>You will not be able to load projects to your device until you upgrade your BlocklyProp Launcher.<br>Please use the link below to download the newest version.";
 
 page_text_label['confirm_do_email'] = "Email:";

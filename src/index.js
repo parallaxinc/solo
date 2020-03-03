@@ -21,9 +21,6 @@
  */
 
 
-
-
-
 // Update page elements
 // This construct replaces the document.ready() that was
 // deprecated in jquery 1.9

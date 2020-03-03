@@ -1004,9 +1004,12 @@ Blockly.Blocks.lis3dh_init = {
                 .appendField(new Blockly.FieldDropdown(profile.default.digital), 'SDI_PIN')
                 .appendField("CS")
                 .appendField(new Blockly.FieldDropdown(profile.default.digital), 'CS_PIN')
-                .appendField('', 'TEMP')
-                .appendField('', 'UNIT')
-                .appendField('', 'SMOOTHING');
+                .appendField('', 'TEMP')            // Temperature calibration
+                .appendField('', 'UNIT')            // Temperature calibration
+                .appendField('', 'SMOOTHING')       // Tilt axis smoothing
+                .appendField('', 'VSS_VOLTAGE')     // ADC ground offset initialization
+                .appendField('', 'VDD_VOLTAGE');    // ADC 3.3 offset initialization
+
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -1050,6 +1053,10 @@ Blockly.Blocks.lis3dh_init = {
                     .appendField(new Blockly.FieldNumber('0', 0, 100, 1), "SMOOTHING");
             this.setFieldValue(smoothing || '0', 'SMOOTHING');
 
+            // This has to appear above the voltage block if one is defined.
+            if (this.getInput('VOLT_CALIBRATE') ) {
+                this.moveInputBefore('TILT_CALIBRATE', 'VOLT_CALIBRATE');
+            }
         } else if (!hasTiltBlocks && this.getInput('TILT_CALIBRATE')) {
             this.removeInput('TILT_CALIBRATE');
             if (!this.getField('SMOOTHING')) {
@@ -1057,23 +1064,70 @@ Blockly.Blocks.lis3dh_init = {
             }
         }
     },
+    buildVoltageInput: function(hasVoltageBlocks) {
+        // Create a init field for the ADC voltage offset
+        if (hasVoltageBlocks && !this.getInput('VOLT_CALIBRATE')) {
+            // Ground calibration value
+            var vssVoltField = this.getInput('VSS_VOLTAGE');
+
+            // 3.3 volt calibration
+            var vddVoltField = this.getInput('VDD_VOLTAGE')
+
+            this.getInput('PINS').removeField('VSS_VOLTAGE');
+            this.getInput('PINS').removeField('VDD_VOLTAGE');
+
+
+            this.appendDummyInput('VOLT_CALIBRATE')
+                .appendField('Calibrate ADC  GND ')
+                .appendField(
+                    new Blockly.FieldNumber(
+                        '0',
+                        null,
+                        null,
+                        1
+                    ),"VSS_VOLTAGE")
+                .appendField(' 3.3V ')
+                .appendField(
+                    new Blockly.FieldNumber(
+                        '0',
+                        null,
+                        null,
+                        1
+                    ), "VDD_VOLTAGE");
+
+            this.setFieldValue(vssVoltField || '0', 'VSS_VOLTAGE');
+            this.setFieldValue(vddVoltField || '0', 'VDD_VOLTAGE');
+
+            // Move this input field to the bottom of the init block
+            this.moveInputBefore('VOLT_CALIBRATE', null);
+        } else if (!hasVoltageBlocks && this.getInput('VOLT_CALIBRATE')) {
+            // Destroy the ADC init fields
+            this.removeInput('VOLT_CALIBRATE');
+            if (!this.getField('VOLTAGE')) {
+                this.getInput('PINS').appendField('', 'VSS_VOLTAGE');
+                this.getInput('PINS').appendField('', 'VDD_VOLTAGE');
+            }
+        }
+    },
+
     onchange: function (event) {
+        // Act when the block is dragged from the fly-out to the canvas
         if (event && !this.isInFlyout) {
             var warnText = null;
-            if (Blockly.getMainWorkspace().getBlocksByType(this.type).length > 1) {
+            if (Blockly.getMainWorkspace().getBlocksByType(this.type, false).length > 1) {
                 warnText = 'WARNING! Only one LIS3DH init block can be used!';
             }
             this.setWarningText(warnText);
 
             // Look for read temperature blocks
             var tempBlocksPresent = false;
-            if ((Blockly.getMainWorkspace().getBlocksByType('lis3dh_temp') || []).length > 0) {
+            if ((Blockly.getMainWorkspace().getBlocksByType('lis3dh_temp', false) || []).length > 0) {
                 tempBlocksPresent = true;
             }
             this.buildTempInput(tempBlocksPresent);
 
             // Look for read tilt blocks
-            var tiltBlockList = Blockly.getMainWorkspace().getBlocksByType('lis3dh_read') || [];
+            var tiltBlockList = Blockly.getMainWorkspace().getBlocksByType('lis3dh_read', false) || [];
             var tiltBlocksPresent = false;
             for (var i = 0; i < tiltBlockList.length; i++) {
                 if (tiltBlockList[i].getFieldValue('SENSOR') === 'tilt') {
@@ -1082,6 +1136,17 @@ Blockly.Blocks.lis3dh_init = {
                 }
             }
             this.buildSmoothingInput(tiltBlocksPresent);
+
+            // Look for read voltage blocks
+            var voltBlockList = Blockly.getMainWorkspace().getBlocksByType('lis3dh_read', false) || [];
+            var voltBlocksPresent = false;
+            for (var i = 0; i < tiltBlockList.length; i++) {
+                if (voltBlockList[i].getFieldValue('SENSOR') === 'adc_mV') {
+                    voltBlocksPresent = true;
+                    break;
+                }
+            }
+            this.buildVoltageInput(voltBlocksPresent);
         }
     }
 };
@@ -1090,10 +1155,12 @@ Blockly.propc.lis3dh_init = function () {
     var sck_pin = this.getFieldValue('SCK_PIN');
     var sdi_pin = this.getFieldValue('SDI_PIN');
     var cs_pin = this.getFieldValue('CS_PIN');
+
     if (!this.disabled) {
         Blockly.propc.definitions_["lis3dh"] = '#include "lis3dh.h"';
         Blockly.propc.global_vars_["lis3dh_init"] = 'lis3dh *lis3dh_sensor;';
         var setupCode = 'lis3dh_sensor = lis3dh_init(' + sck_pin + ', ' + sdi_pin + ', ' + cs_pin + ');';
+
         if (this.getInput('TEMP_CALIBRATE')) {
             var temp_val = this.getFieldValue('TEMP');
             var temp_unit = this.getFieldValue('UNIT');
@@ -1103,6 +1170,23 @@ Blockly.propc.lis3dh_init = function () {
         if (this.getInput('TILT_CALIBRATE') && tilt_smoothing !== 0) {
             setupCode += 'lis3dh_tiltConfig(lis3dh_sensor, 100 - ' + tilt_smoothing + ');';
         }
+
+        if (this.getInput('VOLT_CALIBRATE')) {
+            var vssVoltField = this.getFieldValue('VSS_VOLTAGE');
+            var vddVoltField = this.getFieldValue('VDD_VOLTAGE');
+
+            if ((vssVoltField !== undefined) && (vddVoltField !== undefined)) {
+                setupCode += 'lis3dh_adcCal_mV(lis3dh_sensor, ';
+
+                if (vssVoltField === 0 && vddVoltField === 0) {
+                    setupCode += '0, 0, 0, 0 );';
+                }
+                else {
+                    setupCode += '0, 3300, ' + vssVoltField + ', ' + vddVoltField + ');';
+                }
+            }
+        }
+
         Blockly.propc.setups_["lis3dh_init"] = setupCode + '\n';
     }
     return '';
@@ -1113,13 +1197,17 @@ Blockly.Blocks.lis3dh_read = {
     init: function () {
         this.setTooltip(Blockly.MSG_LIS3DH_READ_TOOLTIP);
         this.setColour(colorPalette.getColor('input'));
+
         this.appendDummyInput('ACTION')
                     .appendField("LIS3DH read")
-                    .appendField(new Blockly.FieldDropdown([
-                        ['acceleration (1000ths of g\'s)', 'accel_mg'], 
-                        ['voltage (mV)', 'adc_mV'],
-                        ['tilt (degrees)', 'tilt']
-                    ], function (action) {this.getSourceBlock().configureFields(action)}), 'SENSOR');
+                    .appendField(
+                        new Blockly.FieldDropdown([
+                                ['acceleration (1000ths of g\'s)', 'accel_mg'],
+                                ['tilt (degrees)', 'tilt'],
+                                ['voltage (mV)', 'adc_mV']
+                            ], function (action) {this.getSourceBlock().configureFields(action)}),
+                        'SENSOR');
+
         this.appendDummyInput('VARS')
                 .appendField("store X in", 'LABEL_0')
                 .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_1')
@@ -1131,25 +1219,23 @@ Blockly.Blocks.lis3dh_read = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
+
+        // Field values - this gets populated in the configureFields method
         this.fieldVals = [];
     },
-    configureFields: function (action) { 
+    configureFields: function (action) {
+        // Set default if no action provided.
         if (!action) {
             action = 'accel_mg';
         }
 
         // The value of this field determines how the block will appear
         var blockText = {
-            'accel_mg': {
-                label: ['store X in', 'Y in', 'Z in'],
-            },
-            'adc_mV': {
-                label: ['store AD1 in', 'AD2 in', 'AD3 in'],
-            },
-            'tilt': {
-                label: ['store X in', 'Y in', 'Z in'],
-            }
-        }
+            'accel_mg': {label: ['store X in', 'Y in', 'Z in']},
+            'adc_mV': {label: ['store AD1 in', 'AD2 in', 'AD3 in']},
+            'tilt': {label: ['store X in', 'Y in', 'Z in']}
+        };
+
         for (var i = 0; i < 3; i++) {
             this.setFieldValue(blockText[action].label[i], 'LABEL_' + i.toString(10));
         }
