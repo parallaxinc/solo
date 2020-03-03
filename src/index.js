@@ -20,31 +20,12 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import {
+    product_banner_host_trigger,
+    TestApplicationName,
+    ApplicationName
+} from './globals';
 
-// Update page elements
-// This construct replaces the document.ready() that was
-// deprecated in jquery 1.9
-$(function () {
-    let appName = ApplicationName;
-    if (window.location.hostname === product_banner_host_trigger) {
-        appName = TestApplicationName;
-    }
-
-    showAppName();
-    showAppBannerTitle(appName);
-    setCopyrightDate($('#footer_copyright'));
-    setCopyrightDate($('#license-copyright-date'));
-
-    // The browser localStorage object should be empty
-    window.localStorage.clear();
-
-    // If the experimental URL parameter is used, add it to the open and new project links
-    if (window.getURLParameter('experimental')) {
-        $('.editor-link').attr('href', function () {
-            return this + window.getAllURLParameters().replace('?', '&');
-        });
-    }
-});
 
 // Display the BlocklyProp Solo license in a modal window
 function showLicense() {
@@ -74,3 +55,22 @@ function setCopyrightDate(element) {
     let d = new Date();
     element.html(d.getFullYear().toString());
 }
+
+let appName = ApplicationName;
+if (window.location.hostname === product_banner_host_trigger) {
+    appName = TestApplicationName;
+}
+
+// License link click event handler
+document.getElementById('show-license').onclick = showLicense;
+
+// The browser localStorage object should be empty
+window.localStorage.clear();
+
+// Update some UI elements
+showAppName();
+showAppBannerTitle(appName);
+setCopyrightDate($('#footer_copyright'));
+setCopyrightDate($('#license-copyright-date'));
+
+

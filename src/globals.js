@@ -20,6 +20,8 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import * as Sentry from '@sentry/browser';
+
 /* Error logging */
 Sentry.init({ dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639' });
 
@@ -33,21 +35,21 @@ Sentry.init({ dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639' 
  *
  * @type {object}
  */
-let projectData = null;
+export let projectData = null;
 
 
 /**
  * The application brand name in the production system
  * @type {string}
  */
-const ApplicationName = "Solo";
+export const ApplicationName = "Solo";
 
 
 /**
  * The application brand name as used in the Test system
  * @type {string}
  */
-const TestApplicationName = "Solocup";
+export const TestApplicationName = "Solocup";
 
 
 /**
@@ -57,7 +59,7 @@ const TestApplicationName = "Solocup";
  *
  * @type {string}
  */
-const product_banner_host_trigger = 'solocup.parallax.com';
+export const product_banner_host_trigger = 'solocup.parallax.com';
 
 
 /**
@@ -71,7 +73,7 @@ const product_banner_host_trigger = 'solocup.parallax.com';
  *
  * @type {*|jQuery}
  */
-const BASE_URL = $('meta[name=base]').attr("content");
+export const BASE_URL = $('meta[name=base]').attr("content");
 
 
 /**
@@ -84,7 +86,7 @@ const BASE_URL = $('meta[name=base]').attr("content");
  *
  * @type {*|jQuery}
  */
-const CDN_URL = $('meta[name=cdn]').attr("content");
+export const CDN_URL = $('meta[name=cdn]').attr("content");
 
 
 // TODO: Enumerate the OS version
@@ -101,7 +103,7 @@ const CDN_URL = $('meta[name=cdn]').attr("content");
  * in a number of places. The string is sufficiently complex that it could
  * be misspelled without detection.
  */
-const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
+export const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 
 
 /**
@@ -109,7 +111,7 @@ const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
  *
  * @type {number}
  */
-const PROJECT_NAME_MAX_LENGTH = 100;
+export const PROJECT_NAME_MAX_LENGTH = 100;
 
 
 /**
@@ -118,7 +120,7 @@ const PROJECT_NAME_MAX_LENGTH = 100;
  *
  * @type {number}
  */
-const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
+export const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
 
 /**
  * The name used to store a project that is being loaded from
@@ -133,15 +135,15 @@ const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
  *
  * @type {string}
  */
-const TEMP_PROJECT_STORE_NAME = "tempProject";
-const LOCAL_PROJECT_STORE_NAME = 'localProject';
+export const TEMP_PROJECT_STORE_NAME = "tempProject";
+export const LOCAL_PROJECT_STORE_NAME = 'localProject';
 
 
 /**
  * The broswer-based serial terminal object
  * @type {object}
  */
-var pTerm;
+export var pTerm;
 
 
 
@@ -152,7 +154,7 @@ var pTerm;
  * 
  * @type {object}
  */
-const bpIcons = {
+export const bpIcons = {
     warningCircle: '<svg width="15" height="15"><path d="M7,8 L8,8 8,11 8,11 7,11 Z" style="stroke-width:1px;stroke:#8a6d3b;fill:none;"/><circle cx="7.5" cy="7.5" r="6" style="stroke-width:1.3px;stroke:#8a6d3b;fill:none;"/><circle cx="7.5" cy="5" r="1.25" style="stroke-width:0;fill:#8a6d3b;"/></svg>',
     dangerTriangleBlack: '<svg width="15" height="15"><path d="M1,12 L2,13 13,13 14,12 8,2 7,2 1,12 Z M7.25,6 L7.75,6 7.5,9 Z" style="stroke-width:1.5px;stroke:#000;fill:none;"/><circle cx="7.5" cy="10.75" r="1" style="stroke-width:0;fill:#000;"/><circle cx="7.5" cy="5.5" r="1" style="stroke-width:0;fill:#000;"/></svg>',
     dangerTriangle: '<svg width="15" height="15"><path d="M1,12 L2,13 13,13 14,12 8,2 7,2 1,12 Z M7.25,6 L7.75,6 7.5,9 Z" style="stroke-width:1.5px;stroke:#a94442;fill:none;"/><circle cx="7.5" cy="10.75" r="1" style="stroke-width:0;fill:#a94442;"/><circle cx="7.5" cy="5.5" r="1" style="stroke-width:0;fill:#a94442;"/></svg>',
@@ -173,4 +175,4 @@ const bpIcons = {
     fileWhite: '<svg width="14" height="15"><path d="M2,.5 L2,13.5 12,13.5 12,7.5 5.5,7.5 5.5,.5 Z M 8,1.5 L8,5 11,5 Z" style="stroke:#fff;stroke-width:1;fill:#fff;" fill-rule="evenodd"/></svg>',
     eraserWhite: '<svg width="15" height="15"><path d="M2,12 A1.5,1.5 0 0 1 2,10 L10,2 14.5,6.5 7,14 M10,11 L5.5,6.5 M15,14 L4,14 2,12 M15,13.2 5,13.2" style="stroke:#fff;stroke-width:1;fill:none;"/><path d="M2,12 A1.5,1.5 0 0 1 2,10 L5.5,6.5 10,11 7,14 4,14 Z" style="stroke-width:0;fill:#fff;"/></svg>',
     cameraWhite: '<svg width="14" height="15"><path d="M1.5,13.5 L.5,12.5 .5,5.5 1.5,4.5 2.5,4.5 4,3 7,3 8.5,4.5 12.5,4.5 13.5,5.5 13.5,12.5 12.5,13.5 Z M 2,9 A 4,4,0,0,0,10,9 A 4,4,0,0,0,2,9 Z M 4.5,9 A 1.5,1.5,0,0,0,7.5,9 A 1.5,1.5,0,0,0,4.5,9 Z M 10.5,6.5 A 1,1,0,0,0,13.5,6.5 A 1,1,0,0,0,10.5,6.5 Z" style="stroke:#fff;stroke-width:1;fill:#fff;" fill-rule="evenodd"/></svg>',
-}
+};
