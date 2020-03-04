@@ -19,9 +19,13 @@
  *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *   DEALINGS IN THE SOFTWARE.
  */
+import * as Chartist from 'chartist';
 
 import {EMPTY_PROJECT_CODE_HEADER} from './globals'
-
+import {
+    launcher_result,
+    launcher_download
+} from './blocklypropclient'
 
 /**
  * TODO: Identify the purpose of this variable

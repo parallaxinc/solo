@@ -20,6 +20,8 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import $ from 'jquery';
+
 import {
     EMPTY_PROJECT_CODE_HEADER, projectData, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME
 } from './globals'
