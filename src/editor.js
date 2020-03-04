@@ -597,7 +597,7 @@ function initEventHandlers() {
     // BlocklyProp Client. The BlocklyProp Launcher does not require
     // a configuration dialog
     // TODO: Client configuration is deprecated. No needed for Launcher
-    $('#client-setup').on('click', () => configure_client());
+    $('#client-setup').on('click', () => configureConnectionPaths());
 
     // --------------------------------
     // End of hamburger menu items
