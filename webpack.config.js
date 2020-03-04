@@ -25,6 +25,15 @@ const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
+    watch: true,
+    watchOptions: {
+        aggregateTimeout: 500,
+        ignored: [
+            'node_modules',
+            'build',
+            'dist'
+        ]
+    },
     target: 'web',
     mode: 'development',
     entry: {
@@ -34,6 +43,9 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js'
+    },
+    externals: {
+        jquery: 'jquery'
     },
     plugins: [
         new webpack.optimize.ModuleConcatenationPlugin(),

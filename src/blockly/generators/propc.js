@@ -211,7 +211,7 @@ var profile = {
  *
  * @param profileName is the project board type
  */
-function setProfile(profileName) {
+export function setProfile(profileName) {
 
     // Set the default project profile to match the provided board type
     if (profile[profileName]) {

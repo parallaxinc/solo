@@ -31,7 +31,7 @@
  *
  * @type {WebSocket}
  */
-var client_ws_connection = null;
+export var client_ws_connection = null;
 
 
 // TODO: Uninitialized variable
@@ -249,7 +249,7 @@ var connection_heartbeat = function () {
  * @deprecated - This function will become obsolete when the
  * BlocklyProp Client is deprecated and removed from service.
  */
-var configure_client = function () {
+export var configure_client = function () {
     // All of this code is building the UI for the Configure
     // BlocklyProp Client dialog.
     let url_input = $("<form/>", {

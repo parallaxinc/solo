@@ -20,8 +20,66 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-// var Blockly = require('blockly/core');
-// import Blockly from 'blockly/core';
+import * as Sentry from '@sentry/browser'
+import { saveAs } from 'file-saver'
+
+import $ from 'jquery'
+
+import {
+    BASE_URL,
+    CDN_URL,
+    bpIcons,
+    EMPTY_PROJECT_CODE_HEADER,
+    LOCAL_PROJECT_STORE_NAME,
+    PROJECT_NAME_DISPLAY_MAX_LENGTH,
+    PROJECT_NAME_MAX_LENGTH,
+    projectData,
+    pTerm
+} from './globals'
+
+import {
+    ShowProjectTimerModalDialog,
+    initUploadModalLabels,
+    resetUploadImportModalDialog,
+    OpenProjectModal,
+    NewProjectModal,
+    editProjectDetails
+} from './modals'
+
+import {PropTerm} from "./propterm";
+import {
+    active_connection,
+    baudrate,
+    codePropC,
+    compile,
+    findReplaceCode,
+    formatWizard,
+    getComPort,
+    graphing_console,
+    loadInto,
+    renderContent,
+    serial_console,
+    downloadPropC,
+    graph_play,
+    downloadGraph,
+    downloadCSV,
+    graphStartStop
+} from "./blocklyc"
+
+import {client_ws_connection, configure_client} from './blocklypropclient'
+
+import {
+    isExperimental,
+    findFirstDiffPos
+} from './utils'
+
+import {setProfile} from './blockly/generators/propc'
+
+
+
+/* Error logging */
+Sentry.init({ dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639' });
+
 
 /** GLOBAL VARIABLES **/
 
@@ -41,7 +99,7 @@ const SAVE_PROJECT_TIMER_DELAY = 20;
  *
  * @type {number}
  */
-var last_saved_timestamp = 0;
+let last_saved_timestamp = 0;
 
 
 /**
@@ -50,7 +108,7 @@ var last_saved_timestamp = 0;
  *
  * @type {number}
  */
-var last_saved_time = 0;
+let last_saved_time = 0;
 
 
 /**
@@ -58,11 +116,7 @@ var last_saved_time = 0;
  *
  * @type {string}
  */
-var uploadedXML = '';
-
-
-
-
+let uploadedXML = '';
 
 
 
@@ -156,6 +210,7 @@ const checkLastSavedTime = function () {
  * Execute this code as soon as the DOM becomes ready.
  * Replaces the old document.ready() construct
  */
+
 $(() => {
     RenderPageBrandingElements();
 
@@ -307,7 +362,8 @@ $(() => {
                 };
                 client_ws_connection.send(JSON.stringify(msg_to_send));
             }    
-        }
+        },
+        null
     );
 });
 
@@ -329,7 +385,7 @@ $(() => {
  * This only examines the project data. This code should also check
  * the project name and descriptions for changes.
  */
-function checkLeave() {
+export function checkLeave() {
     // The projectData variable is now officially an object. Consider it empty
     // if it is null or if the name property is undefined.
     if (!projectData || typeof projectData.name === 'undefined') {
@@ -751,7 +807,7 @@ function resetToolBoxSizing(resizeDelay, centerBlocks) {
  * @param {{}} data is the current project object
  * @param {function} callback is called if provided when the function completes
  */
-function setupWorkspace(data, callback) {
+export function setupWorkspace(data, callback) {
     if (data && typeof(data.board) === 'undefined') {
         if (callback) {
             callback({
@@ -838,72 +894,6 @@ function showInfo(data) {
 };
 
 
-/**
- * @deprecated Cannot find any references to this function in code.
- */
-function saveProject() {
-    // TODO: Refactor to remove the concept of project ownership
-    if (projectData.yours) {
-        var code = getXml();
-        projectData.code = code;
-
-        $.post(BASE_URL + 'rest/project/code', projectData, function (data) {
-            var previousOwner = projectData.yours;
-            projectData = data;
-            projectData.code = code; // Save code in projectdata to be able to verify if code has changed upon leave
-
-            // If the current user doesn't own this project, a new one is created and the page is redirected to the new project.
-            if (!previousOwner) {
-                window.location.href = BASE_URL + 'projecteditor?id=' + data['id'];
-            }
-        }).done(function () {
-            // Save was successful, show green with checkmark
-            var elem = document.getElementById('save-project');
-            elem.style.paddingLeft = '10px';
-            elem.style.background = 'rgb(92, 184, 92)';
-            elem.style.borderColor = 'rgb(76, 174, 76)';
-
-            setTimeout(function () {
-                elem.innerHTML = 'Save &#x2713;';
-            }, 600);
-
-            setTimeout(function () {
-                elem.innerHTML = 'Save&nbsp;&nbsp;';
-                elem.style.paddingLeft = '15px';
-                elem.style.background = '#337ab7';
-                elem.style.borderColor = '#2e6da4';
-            }, 1750);
-        }).fail(function () {
-            // Save failed.  Show red with "x"
-            var elem = document.getElementById('save-project');
-            elem.style.paddingLeft = '10px';
-            elem.style.background = 'rgb(214, 44, 44)';
-            elem.style.borderColor = 'rgb(191, 38, 38)';
-
-            setTimeout(function () {
-                elem.innerHTML = 'Save &times;';
-            }, 600);
-
-            setTimeout(function () {
-                elem.innerHTML = 'Save&nbsp;&nbsp;';
-                elem.style.paddingLeft = '15px';
-                elem.style.background = '#337ab7';
-                elem.style.borderColor = '#2e6da4';
-            }, 1750);
-
-            utils.showMessage('Not logged in', 'BlocklyProp was unable to save your project.\n\nYou may still be able to download it as a Blockls file.\n\nYou will need to return to the homepage to log back in.');
-        });
-
-        // Mark the time when saved, add 20 minutes to it.
-        timestampSaveTime(SAVE_PROJECT_TIMER_DELAY, true);
-
-    } else {
-
-        // If user doesn't own the project - prompt for a new project name and route through
-        // an endpoint that will make the project private.
-        saveAsDialog();
-    }
-}
 
 
 // TODO: Is this function relevant in Solo?
@@ -1013,6 +1003,7 @@ function saveProjectAs(boardType, projectName) {
  *
  * @param {string} str
  * @returns {number}
+ * @deprecated Cannot find any usage in the project
  */
 function hashCode(str) {
     let hash = 0, i = 0, len = str.length;
@@ -1131,7 +1122,7 @@ function downloadCode() {
 
         // save the project into localStorage with a timestamp - if the page is simply refreshed,
         // this will allow the project to be reloaded.
-        // make the projecData object reflect the current workspace and save it into localStorage
+        // make the projectData object reflect the current workspace and save it into localStorage
         projectData.timestamp = getTimestamp();
         // projectData.code = Project.prototype.EmptyProjectCodeHeader + projectXmlCode + '</xml>';
         projectData.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
@@ -1665,7 +1656,7 @@ function loadToolbox(xmlText) {
  *
  * @returns {string}
  */
-function getXml() {
+export function getXml() {
     if (projectData && projectData.board === 'propcfile') {
         return propcAsBlocksXml();
     }
