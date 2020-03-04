@@ -23,6 +23,7 @@
 // import * as Sentry from '@sentry/browser';
 
 import $ from 'jquery';
+import Blockly from 'blockly'
 
 // window.jQuery = $; window.$ = $;
 
@@ -40,9 +41,12 @@ import {
     PROJECT_NAME_DISPLAY_MAX_LENGTH,
     PROJECT_NAME_MAX_LENGTH,
     TEMP_PROJECT_STORE_NAME,
-    projectData,
-    pTerm
+    projectData
 } from './globals';
+
+import {pTerm} from "./globals";
+
+import {page_text_label, tooltip_text} from './blockly/language/en/messages'
 
 import {
     ShowProjectTimerModalDialog,
@@ -100,8 +104,6 @@ import {
 import {
     filterToolbox
 } from './blockly/generators/propcToolbox';
-
-
 
 
 /*
@@ -265,6 +267,11 @@ const checkLastSavedTime = function () {
 $(() => {
     RenderPageBrandingElements();
 
+    // License link click event handler
+    document.getElementById('selectfile').onchange = () => {uploadHandler(this.files);};
+    document.getElementById('open-project-select-file').onchange = () => {uploadHandler(this.files);};
+
+
     /* -- Set up amy event handlers once the DOM is ready -- */
 
     // Update the blockly workspace to ensure that it takes
@@ -416,6 +423,9 @@ $(() => {
         },
         null
     );
+
+    // TODO: Quiet compiler error. This is TEMPORARY for Webpack development
+    console.log(pTerm.buffer.chars);
 });
 
 
@@ -812,7 +822,7 @@ function initCdnImageUrls() {
  * reload.
  * @param {boolean} centerBlocks Center the project blocks if true.
  */
-function resetToolBoxSizing(resizeDelay, centerBlocks) {
+export function resetToolBoxSizing(resizeDelay, centerBlocks) {
     // Vanilla Javascript is used here for speed - jQuery
     // could probably be used, but this is faster. Force
     // the toolbox to render correctly
@@ -1694,7 +1704,7 @@ function initToolbox(profileName) {
  * Load the workspace
  * @param xmlText
  */
-function loadToolbox(xmlText) {
+export function loadToolbox(xmlText) {
     if (Blockly.mainWorkspace) {
         let xmlDom = Blockly.Xml.textToDom(xmlText);
         Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
@@ -1762,7 +1772,7 @@ function ClearBlocklyWorkspace() {
  * @param input string representing a potential filename
  * @returns {string}
  */
-function sanitizeFilename(input) {
+export function sanitizeFilename(input) {
     // if the input is not a string, or is an empty string, return a generic filename
     if (typeof input !== 'string' || input.length < 1) {
         return 'my_project';
@@ -1897,7 +1907,6 @@ function RenderPageBrandingElements() {
  * @param fileContent string
  * @return array of block names
  */
-/*
 function validateProjectBlockList(fileContent) {
     // Loop through blocks to verify blocks are supported for the project board type
     const parser = new DOMParser();
@@ -1913,14 +1922,13 @@ function validateProjectBlockList(fileContent) {
         }
     }
 }
-*/
+
 
 /**
  *
  * @param nodes
  * @return {Array}
  */
-/*
 function enumerateProjectBlockNames(nodes) {
     let blockList = [];
 
@@ -1936,15 +1944,14 @@ function enumerateProjectBlockNames(nodes) {
 
     return blockList;
 }
-*/
+
 
 /**
  *
  * @param blockName
  * @return {boolean}
  */
-/*
 function evaluateProjectBlockBoardType(blockName) {
     return blockName !== "comments";
 }
-*/
+

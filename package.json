@@ -24,7 +24,10 @@
     "bootstrap": "^3.4.1",
     "chartist": "^0.11.4",
     "file-saver": "^2.0.2",
-    "jquery": "^3.4.1"
+    "jquery": "^3.4.1",
+    "jquery-validation": "^1.19.1",
+    "js-beautify": "^1.10.3",
+    "jszip": "^3.2.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",

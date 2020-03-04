@@ -25,6 +25,7 @@
  * @author fraser@google.com (Neil Fraser)
  */
 'use strict';
+import Blockly from 'blockly'
 
 /**
  * Due to the frequency of long strings, the 80-column wrap rule need not apply
@@ -769,7 +770,7 @@ toolbox_label['category_s3-hacker-port_servo'] = "Servo";
 /*
  *  Embedded UI messages
  */
-var page_text_label = [];
+export var page_text_label = [];
 
 page_text_label['back'] = "Back";
 page_text_label['browser_detection_ms_warning'] = "WARNING: You appear to be using MS Edge or Internet Explorer as your web browser.  BlocklyProp is not currently compatible with these browsers.  Please use Chrome or Firefox instead.";
@@ -1115,7 +1116,7 @@ page_text_label['register_error_user_email_empty'] = "Please enter your email ad
 // in the editor.js file.
 // ------------------------------------------------------------------
 // eslint-disable-next-line no-unused-vars
-var tooltip_text = [
+export var tooltip_text = [
     ['prop-btn-comp','Verify code (compile)'],
     ['prop-btn-ram','Run once (load code to RAM)'],
     ['prop-btn-eeprom','Load and run (save code to EEPROM)'],

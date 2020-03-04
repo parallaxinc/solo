@@ -21,12 +21,20 @@
  */
 
 import $ from 'jquery';
+import 'jquery-validation'
+import 'bootstrap'
 
 import {
-    EMPTY_PROJECT_CODE_HEADER, projectData, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME
+    EMPTY_PROJECT_CODE_HEADER,
+    projectData,
+    LOCAL_PROJECT_STORE_NAME,
+    TEMP_PROJECT_STORE_NAME
 } from './globals'
 
-import {checkLeave, getXml, setupWorkspace} from "./editor"
+import {page_text_label} from './blockly/language/en/messages'
+import {checkLeave, getXml, setupWorkspace, resetToolBoxSizing} from "./editor"
+import {profile} from "./blockly/generators/propc";
+import {isExperimental} from "./utils";
 
 /**
  * Start the process to open a new project
@@ -205,7 +213,7 @@ function NewProjectModalEscapeClick() {
  *
  * @returns {boolean} True if form contains valid data, otherwise false
  */
-function validateNewProjectForm() {
+export function validateNewProjectForm() {
 
     // Select the 'proj' class
     let project = $(".proj");
@@ -598,11 +606,11 @@ function setEditOfflineProjectDetailsCancelHandler() {
 
 
 /*   Load a Project file    */
+
 /**
- *
+ *  Set up dialog buttons
  */
 export function initUploadModalLabels() {
-
     // set the upload modal's title to "import" if offline
     $('#upload-dialog-title').html(page_text_label['editor_import']);
     $('#upload-project span').html(page_text_label['editor_import']);

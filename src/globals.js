@@ -139,7 +139,7 @@ export const LOCAL_PROJECT_STORE_NAME = 'localProject';
  * The broswer-based serial terminal object
  * @type {object}
  */
-export var pTerm;
+export let pTerm;
 
 
 

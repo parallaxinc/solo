@@ -25,6 +25,7 @@
  * @author Matthew Matz, Michel Lampo
  */
 'use strict';
+import Blockly from 'blockly';
 
 var array_contains = function (haystack, needle) {
     for (var straw = 0; straw < haystack.length; straw++) {
@@ -90,9 +91,8 @@ if (document.referrer.indexOf('?') === -1) {
     }
 }
 
-
-
 Blockly.propc = new Blockly.Generator('propc');
+
 Blockly.HSV_SATURATION = 0.75;
 Blockly.HSV_VALUE = 0.60;
 Blockly.RTL = false;
@@ -132,7 +132,7 @@ Blockly.propc.ORDER_NONE = 99; // (...)
  * propc Board profiles
  *
  */
-var profile = {
+export var profile = {
     "activity-board": {
         description: "Propeller Activity Board",
         digital: [["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"], ["6", "6"], ["7", "7"], ["8", "8"], ["9", "9"], ["10", "10"], ["11", "11"], ["12", "12"], ["13", "13"], ["14", "14"], ["15", "15"], ["16", "16"], ["17", "17"], ["26", "26"], ["27", "27"]],
