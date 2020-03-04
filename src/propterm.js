@@ -26,7 +26,7 @@
  * @author Matthew Matz matt.m.matz@gmail.com
  * @function PropTerm
  */
-class PropTerm {
+export class PropTerm {
     /**
      * @param {HTMLElement} terminalElement HTML element to populate the terminal into.
      * @param {object} outputCallback function to call and send characters typed into the terminal.

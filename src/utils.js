@@ -26,7 +26,7 @@
  *
  * @type {{confirm: utils.confirm, showMessage: utils.showMessage, prompt: utils.prompt}}
  */
-var utils = {
+export var utils = {
     showMessage: function (title, message, callback) {
         bootbox.dialog({
             title: title,
@@ -177,7 +177,7 @@ if (!window.getURLParameter) {
 }
 
 // Does the 'experimental' URL parameter exist?
-var isExperimental = window.getURLParameter('experimental') || 'false';
+export var isExperimental = window.getURLParameter('experimental') || 'false';
 
 
 /**
@@ -296,7 +296,7 @@ navigator.browserSpecs = (function(){
  * https://stackoverflow.com/questions/32858626/detect-position-of-first-difference-in-2-strings
  *
  */
-function findFirstDiffPos(a, b)
+export function findFirstDiffPos(a, b)
 {
     let shorterLength = Math.min(a.length, b.length);
 

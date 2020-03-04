@@ -20,6 +20,11 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import {
+    EMPTY_PROJECT_CODE_HEADER, projectData, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME
+} from './globals'
+
+import {checkLeave, getXml, setupWorkspace} from "./editor"
 
 /**
  * Start the process to open a new project
@@ -28,8 +33,7 @@
  * This is code that was refactored out of the editor.js
  * document.ready() handler.
  */
-// eslint-disable-next-line no-unused-vars
-function NewProjectModal() {
+export function NewProjectModal() {
     // If the current project has been modified, give the user
     // an opportunity to abort the new project process.
     // eslint-disable-next-line no-undef
@@ -305,8 +309,7 @@ function CreateNewProject() {
  *  The form Accept button handler should look there when it is
  *  time to process the new project.
  */
-// eslint-disable-next-line no-unused-vars
-function OpenProjectModal() {
+export function OpenProjectModal() {
     // Save a copy of the original project in case the page gets reloaded
     if (projectData && typeof (projectData.name) !== 'undefined') {
         window.localStorage.setItem(
@@ -478,8 +481,7 @@ function OpenProjectFileDialog() {
  * @description
  * The dialog displays a number of project details.
  */
-// eslint-disable-next-line no-unused-vars
-function editProjectDetails() {
+export function editProjectDetails() {
     EditOfflineProjectDetails();
 }
 
@@ -597,8 +599,7 @@ function setEditOfflineProjectDetailsCancelHandler() {
 /**
  *
  */
-// eslint-disable-next-line no-unused-vars
-function initUploadModalLabels() {
+export function initUploadModalLabels() {
 
     // set the upload modal's title to "import" if offline
     $('#upload-dialog-title').html(page_text_label['editor_import']);
@@ -613,8 +614,7 @@ function initUploadModalLabels() {
 /**
  * Reset the upload/import modal window to defaults after use
  */
-// eslint-disable-next-line no-unused-vars
-function resetUploadImportModalDialog() {
+export function resetUploadImportModalDialog() {
     // reset the title of the modal
     $('upload-dialog-title').html(page_text_label['editor_import']);
 
@@ -693,8 +693,7 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
  * Display the Timed Save Project modal dialog
  *
  */
-// eslint-disable-next-line no-unused-vars
-function ShowProjectTimerModalDialog() {
+export function ShowProjectTimerModalDialog() {
     $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
 }
 

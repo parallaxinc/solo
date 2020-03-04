@@ -20,10 +20,6 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import * as Sentry from '@sentry/browser';
-
-/* Error logging */
-Sentry.init({ dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639' });
 
 
 /**

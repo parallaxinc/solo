@@ -42,7 +42,7 @@ var graph = null;
  *
  * @type {{}}
  */
-var codePropC = null;
+export var codePropC = null;
 
 
 /**
@@ -58,7 +58,7 @@ var codeXml = null;
  *
  * @type {number}
  */
-var baudrate = 115200;
+export var baudrate = 115200;
 
 
 /**
@@ -162,7 +162,7 @@ var graph_csv_data = new Array;
  *
  * @type {null}
  */
-var active_connection = null;
+export let active_connection = null;
 
 
 /**
@@ -225,7 +225,7 @@ var graph_data = {
  *
  * @param {string} id ID of tab clicked.
  */
-function renderContent(id) {
+export function renderContent(id) {
     // Select the active tab.
     const selectedTab = id.replace('tab_', '');
     const isPropcOnlyProject = (projectData.board === 'propcfile');
@@ -320,7 +320,7 @@ function renderContent(id) {
  *
  * @returns {*} raw_code
  */
-var formatWizard = function () {
+export var formatWizard = function () {
     var currentLine = codePropC.getCursorPosition()['row'] + 1;
     codePropC.setValue(prettyCode(codePropC.getValue()));
     codePropC.focus();
@@ -367,7 +367,7 @@ var prettyCode = function (raw_code) {
 /**
  * Toggle the find-replace display style between 'block' and 'none'
  */
-var findReplaceCode = function () {
+export var findReplaceCode = function () {
     if (document.getElementById('find-replace').style.display === 'none') {
         document.getElementById('find-replace').style.display = 'block';
     } else {
@@ -562,7 +562,7 @@ function cloudCompile(text, action, successHandler) {
 /**
  * Stub function to the cloudCompile function
  */
-function compile() {
+export function compile() {
     cloudCompile('Compile', 'compile');
 }
 
@@ -592,7 +592,7 @@ function getCompilerUrl(action) {
  *
  * USED by the COMPILE, LOAD TO RAM, and LOAD TO EEPROM UI buttons directly (blocklyc.jsp/blocklyc.html)
  */
-function loadInto(modal_message, compile_command, load_option, load_action) {
+export function loadInto(modal_message, compile_command, load_option, load_action) {
 
     if (clientService.portsAvailable) {
         cloudCompile(modal_message, compile_command, function (data, terminalNeeded) {
@@ -690,7 +690,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
 /**
  * Serial console support
  */
-function serial_console() {
+export function serial_console() {
     var newTerminal = false;
 
     // HTTP client
@@ -817,7 +817,7 @@ function displayTerminalConnectionStatus(connectionInfo) {
 /**
  * Graphing console
  */
-function graphing_console() {
+export function graphing_console() {
     var propcCode = Blockly.propc.workspaceToCode(Blockly.mainWorkspace);
 
     // If there are graph settings, extract them
@@ -992,7 +992,7 @@ function graphing_console() {
  *     pause
  *     clear
  */
-var graphStartStop = function (action) {
+export var graphStartStop = function (action) {
     if (action === 'start' || action === 'play') {
         graph_new_labels();
         if (graph_interval_id) {
@@ -1071,7 +1071,7 @@ $(document).ready(function () {
  *
  * @returns {string}
  */
-var getComPort = function () {
+export var getComPort = function () {
     let commPortSelection = $('#comPort').val();
     if (commPortSelection === Blockly.Msg.DIALOG_PORT_SEARCHING || commPortSelection === Blockly.Msg.DIALOG_NO_DEVICE) {
         return 'none';
@@ -1084,7 +1084,7 @@ var getComPort = function () {
 /**
  * Save a project to the local file system
  */
-function downloadPropC() {
+export function downloadPropC() {
     var propcCode = Blockly.propc.workspaceToCode(Blockly.mainWorkspace);
     var isEmptyProject = propcCode.indexOf("EMPTY_PROJECT") > -1;
     if (isEmptyProject) {
@@ -1237,7 +1237,7 @@ function graph_reset() {
  *
  * @param setTo
  */
-function graph_play(setTo) {
+export function graph_play(setTo) {
     if (document.getElementById('btn-graph-play')) {
         var play_state = document.getElementById('btn-graph-play').innerHTML;
         if (setTo !== 'play' && (play_state.indexOf('pause') > -1 || play_state.indexOf('<!--p') === -1)) {
@@ -1258,7 +1258,7 @@ function graph_play(setTo) {
 /**
  * Save a graph to the local file system
  */
-function downloadGraph() {
+export function downloadGraph() {
     utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_GRAPH_DIALOG, 'BlocklyProp_Graph', function (value) {
         if (value) {
             // Make sure filename is safe
@@ -1295,7 +1295,7 @@ function downloadGraph() {
 /**
  * Download the graph as a csv file to the local file system
  */
-function downloadCSV() {
+export function downloadCSV() {
     utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG, 'BlocklyProp_Data', function (value) {
         if (value) {
             // Make sure filename is safe
