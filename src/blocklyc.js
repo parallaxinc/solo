@@ -20,6 +20,8 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import {EMPTY_PROJECT_CODE_HEADER} from './globals'
+
 
 /**
  * TODO: Identify the purpose of this variable
@@ -401,7 +403,7 @@ function generateBlockId(nonce) {
  *
  * @returns {string}
  */
-var propcAsBlocksXml = function () {
+export var propcAsBlocksXml = function () {
     let code = EMPTY_PROJECT_CODE_HEADER;
     code += '<block type="propc_file" id="' + 
             generateBlockId(codePropC ? codePropC.getValue() : 'thequickbrownfoxjumpedoverthelazydog') + 
@@ -425,7 +427,7 @@ var propcAsBlocksXml = function () {
  *
  * @param {!Blockly} blockly Instance of Blockly from iframe.
  */
-function init(blockly) {
+export function init(blockly) {
     if (!codePropC) {
         codePropC = ace.edit("code-propc");
         codePropC.setTheme("ace/theme/chrome");

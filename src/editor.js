@@ -20,22 +20,25 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import * as Sentry from '@sentry/browser'
-import { saveAs } from 'file-saver'
-
-import $ from 'jquery'
+// import * as Sentry from '@sentry/browser';
+import saveAs from 'file-saver';
+import $ from 'jquery';
 
 import {
     BASE_URL,
     CDN_URL,
     bpIcons,
+    ApplicationName,
+    TestApplicationName,
+    product_banner_host_trigger,
     EMPTY_PROJECT_CODE_HEADER,
     LOCAL_PROJECT_STORE_NAME,
     PROJECT_NAME_DISPLAY_MAX_LENGTH,
     PROJECT_NAME_MAX_LENGTH,
+    TEMP_PROJECT_STORE_NAME,
     projectData,
     pTerm
-} from './globals'
+} from './globals';
 
 import {
     ShowProjectTimerModalDialog,
@@ -44,9 +47,12 @@ import {
     OpenProjectModal,
     NewProjectModal,
     editProjectDetails
-} from './modals'
+} from './modals';
 
-import {PropTerm} from "./propterm";
+import {
+    PropTerm
+} from "./propterm";
+
 import {
     active_connection,
     baudrate,
@@ -56,6 +62,7 @@ import {
     formatWizard,
     getComPort,
     graphing_console,
+    init,
     loadInto,
     renderContent,
     serial_console,
@@ -63,22 +70,36 @@ import {
     graph_play,
     downloadGraph,
     downloadCSV,
-    graphStartStop
-} from "./blocklyc"
+    graphStartStop, propcAsBlocksXml
+} from './blocklyc';
 
-import {client_ws_connection, configure_client} from './blocklypropclient'
+import {
+    client_ws_connection,
+    configure_client
+} from './blocklypropclient';
 
 import {
     isExperimental,
     findFirstDiffPos
-} from './utils'
+} from './utils';
 
-import {setProfile} from './blockly/generators/propc'
+import {
+    setProfile as profile,
+    setProfile
+} from './blockly/generators/propc';
 
+import {
+    Project,
+    ProjectTypes
+} from './project';
+
+import {
+    filterToolbox
+} from './blockly/generators/propcToolbox';
 
 
 /* Error logging */
-Sentry.init({ dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639' });
+// Sentry.init({ dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639' });
 
 
 /** GLOBAL VARIABLES **/
@@ -914,7 +935,7 @@ function saveAsDialog() {
                 $.post(BASE_URL + 'rest/project/code-as', projectData, function (data) {
                     var previousOwner = projectData.yours;
                     projectData = data;
-                    projectData.code = code; // Save code in projectdata to be able to verify if code has changed upon leave
+                    projectData.code = code; // Save code in projectData to be able to verify if code has changed upon leave
                     utils.showMessage(Blockly.Msg.DIALOG_PROJECT_SAVED, Blockly.Msg.DIALOG_PROJECT_SAVED_TEXT);
                     // Reloading project with new id
                     window.location.href = BASE_URL + 'projecteditor?id=' + data['id'];
@@ -1763,7 +1784,7 @@ function testProjectEquality(projectA, projectB) {
     }
 
     if (projectA.projectType !== projectB.projectType) {
-        console.log("ProjectType mismatch")
+        console.log("ProjectType mismatch");
         return false;
     }
 
@@ -1846,6 +1867,7 @@ function RenderPageBrandingElements() {
  * @param fileContent string
  * @return array of block names
  */
+/*
 function validateProjectBlockList(fileContent) {
     // Loop through blocks to verify blocks are supported for the project board type
     const parser = new DOMParser();
@@ -1861,13 +1883,14 @@ function validateProjectBlockList(fileContent) {
         }
     }
 }
-
+*/
 
 /**
  *
  * @param nodes
- * @return {[]}
+ * @return {Array}
  */
+/*
 function enumerateProjectBlockNames(nodes) {
     let blockList = [];
 
@@ -1883,15 +1906,15 @@ function enumerateProjectBlockNames(nodes) {
 
     return blockList;
 }
+*/
 
 /**
  *
  * @param blockName
  * @return {boolean}
  */
+/*
 function evaluateProjectBlockBoardType(blockName) {
-    if (blockName === "comments") {
-        return false;
-    }
-    return true;
+    return blockName !== "comments";
 }
+*/

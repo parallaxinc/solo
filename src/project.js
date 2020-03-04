@@ -27,7 +27,7 @@
  * Default implementation of a project object
  * @constructor
  */
-class Project {
+export class Project {
 
     /**
      * Project constructor
@@ -139,7 +139,7 @@ Project.prototype.stashProject = function(localStoreName) {
  *
  * @type {{UNKNOWN: string, PROPC: string}}
  */
-const ProjectTypes = {
+export const ProjectTypes = {
     "PROPC": 'PROPC',
     "UNKNOWN": 'UNKNOWN'
 };

@@ -1740,7 +1740,7 @@ var colorChanges = {
  * @param {string} profileName
  * @returns {string}
  */
-function filterToolbox(profileName) {
+export function filterToolbox(profileName) {
 
     // Set the category's label (internationalization)
     xmlToolbox = xmlToolbox.replace(/key="([\S]+)"/g, function (m, p) {
