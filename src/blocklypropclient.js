@@ -25,36 +25,11 @@
 // Annotations to help the closure compiler to be even more efficient.
 // https://github.com/google/closure-compiler/wiki/Annotating-JavaScript-for-the-Closure-Compiler
 
-/**
- * Client_available flags whether BP Client/Launcher is found
- *
- * @type {boolean}
- */
-var client_available = false;
-
-
-/**
- * Ports_available flags whether one or more communication ports are available
- *
- * @type {boolean}
- */
-var ports_available = false;
-
-
-// TODO: Document what the 'client_use_type' variable represents
-/**
- * Not sure what this does
- *
- * @type {string}
- */
-var client_use_type = 'none';
-
-
 // TODO: Document what the 'client_ws_connection' variable represents
 /**
  * Not sure what this does
  *
- * @type {null}
+ * @type {WebSocket}
  */
 var client_ws_connection = null;
 
@@ -62,13 +37,17 @@ var client_ws_connection = null;
 // TODO: Uninitialized variable
 // TODO: Document what the 'client_ws_heatbeat' variable represents
 /**
- *
+ *  @type {number}
  */
 var client_ws_heartbeat;
 
 
-
+/**
+ *
+ * @type {number}
+ */
 var client_ws_heartbeat_interval = null;
+
 
 var check_com_ports_interval = null;
 var check_ws_socket_timeout = null;
@@ -82,14 +61,13 @@ var launcher_download = false;
  * Client Service Object
  */
 var clientService = {
+    available: false,           // Available for ?
+    portsAvailable: false,      // Are any serial ports enumerated?
+    path: 'localhost',          // Is this always localhost?
+    port: 6009,                 // BlocklyProp Client/Launcher port number
+    type: null,                 // {string} Seems to be one of "", "ws", "http"
+
     /*
-    available: false,
-    portsAvailable: false,
-    */
-    path: 'localhost',
-    port: 6009,
-    /*
-    type: null,
     rxBase64: true,
     portListReceiveCountUp: 0,  // This is set to 0 each time the port list is received, and incremented once each 4 second heartbeat
     activeConnection: null,
@@ -104,11 +82,12 @@ var clientService = {
         CODED_MINIMUM: '0.7.5',  // Minimum client/launcher version supporting coded/verbose responses (remove after MINIMUM_ALLOWED > this)
 
         // Variables
-        current: '0.0.0',
+        current: '0.0.0',       // Current version
         currentAsNumber: 0,
-        isValid: false,
-        isRecommended: false,
-        isCoded: false,
+        isValid: false,         // What determines this?
+        isRecommended: false,   // What is this?
+        isCoded: false,         // Also, what is this?
+
         getNumeric: function (rawVersion) {
             var tempVersion = rawVersion.toString().split(".");
             tempVersion.push('0');
@@ -155,7 +134,7 @@ var find_client = function () {
     }
 
     establish_socket();
-    if (client_use_type !== 'ws') {
+    if (clientService.type !== 'ws') {
         // WebSocket'd launcher not found?  Try Http'd client
         check_client();
     }
@@ -223,16 +202,17 @@ function checkClientVersionModal(rawVersion) {
  * This is evaluating the BlocklyProp Client or BlocklyProp Launcher version??
  */
 var check_client = function () {
+    // Load data from the server using a HTTP GET request.
     $.get(clientService.url(), function (data) {
-        if (!client_available) {
+        if (!clientService.available) {
             let client_version_str = (typeof data.version_str !== "undefined") ? data.version_str : data.version;
             if (!data.server || data.server !== 'BlocklyPropHTTP') {
                 client_version_str = '0.0.0';
             }
             checkClientVersionModal(client_version_str);
 
-            client_use_type = 'http';
-            client_available = true;
+            clientService.type = 'http';
+            clientService.available = true;
             setPropToolbarButtons('available');
             if (checkForComPorts && typeof (checkForComPorts) === "function") {
                 checkForComPorts();
@@ -243,9 +223,9 @@ var check_client = function () {
 
     }).fail(function () {
         clearInterval(check_com_ports_interval);
-        client_use_type = 'none';
-        client_available = false;
-        ports_available = false;
+        clientService.type = 'none';
+        clientService.available = false;
+        clientService.portsAvailable = false;
         setPropToolbarButtons('unavailable');
         check_ws_socket_timeout = setTimeout(find_client, 3000);
     });
@@ -254,14 +234,14 @@ var check_client = function () {
 var connection_heartbeat = function () {
     // Check the last time the port list was received.
     // If it's been too long, close the connection.
-    if (client_use_type === 'ws') {
+    if (clientService.type === 'ws') {
         var d = new Date();
         if (client_ws_heartbeat + 12000 < d.getTime()) {
-            console.log("Lost client websocket connection");
             // Client is taking too long to check in - close the connection and clean up
+            console.log("Lost client websocket connection");
             client_ws_connection.close();
             lostWSConnection();
-        }
+``        }
     }
 };
 
@@ -325,10 +305,10 @@ var configure_client = function () {
 function establish_socket() {
 
     // TODO: set/clear and load buttons based on status
-    if (!client_available) {
+    if (!clientService.available) {
 
         // Clear the port list
-        set_port_list();
+        setPortListUI();
 
         var connection = new WebSocket(clientService.url('', 'ws'));
 
@@ -346,7 +326,7 @@ function establish_socket() {
         // Log errors
         connection.onerror = function (error) {
             // Only display a message on the first attempt
-            if (client_use_type !== 'ws' && !check_ws_socket_timeout) {
+            if (clientService.type !== 'ws' && !check_ws_socket_timeout) {
                 console.log('Unable to find websocket client');
             } else {
                 console.log('Websocket Communication Error');
@@ -370,8 +350,8 @@ function establish_socket() {
 
                 // TODO: Add version checking here.
 
-                client_use_type = 'ws';
-                client_available = true;
+                clientService.type = 'ws';
+                clientService.available = true;
 
                 setPropToolbarButtons('available');
 
@@ -393,7 +373,7 @@ function establish_socket() {
                     client_ws_heartbeat_interval = setInterval(connection_heartbeat, 4000);
                 }
 
-                set_port_list(ws_msg.ports);
+                setPortListUI(ws_msg.ports);
             }
 
             // --- serial terminal/graph
@@ -489,16 +469,18 @@ function establish_socket() {
 function lostWSConnection() {
 // Lost websocket connection, clean up and restart find_client processing
     client_ws_connection = null;
-    client_use_type = 'none';
-    client_available = false;
-    ports_available = false;
+
+    clientService.type = 'none';
+    clientService.available = false;
+    clientService.portsAvailable = false;
 
     setPropToolbarButtons('unavailable');
+
     term = null;
     newTerminal = false;
 
     // Clear ports list
-    set_port_list();
+    setPortListUI();
 
     if (client_ws_heartbeat_interval) {
         clearInterval(client_ws_heartbeat_interval);
@@ -512,7 +494,7 @@ function lostWSConnection() {
 
 // set communication port list
 // leave data unspecified when searching
-var set_port_list = function (data) {
+var setPortListUI = function (data) {
     data = (data ? data : 'searching');
     var selected_port = clearComPortUI();
 
@@ -520,12 +502,12 @@ var set_port_list = function (data) {
         data.forEach(function (port) {
             addComPortDeviceOption(port);
         });
-        ports_available = true;
+        clientService.portsAvailable = true;
     } else {
         addComPortDeviceOption((data === 'searching') ? Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
-        ports_available = false;
+        clientService.portsAvailable = false;
     }
-    select_com_port(selected_port);
+    selectComPort(selected_port);
 };
 
 
