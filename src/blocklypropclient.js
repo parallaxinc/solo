@@ -25,32 +25,6 @@
 // Annotations to help the closure compiler to be even more efficient.
 // https://github.com/google/closure-compiler/wiki/Annotating-JavaScript-for-the-Closure-Compiler
 
-// TODO: Document what the 'client_ws_connection' variable represents
-/**
- * Not sure what this does
- *
- * @type {WebSocket}
- */
-var client_ws_connection = null;
-
-
-// TODO: Uninitialized variable
-// TODO: Document what the 'client_ws_heatbeat' variable represents
-/**
- *  @type {number}
- */
-var client_ws_heartbeat;
-
-
-/**
- *
- * @type {number}
- */
-var client_ws_heartbeat_interval = null;
-
-
-var check_com_ports_interval = null;
-var check_ws_socket_timeout = null;
 
 
 /**
@@ -67,10 +41,9 @@ var clientService = {
     loadBinary: false,            // {boolean} BP Launcher download message flag
     resultLog: '',                // {boolean} BP Launcher result log 
 
-    /*
     portListReceiveCountUp: 0,    // This is set to 0 each time the port list is received, and incremented once each 4 second heartbeat
     activeConnection: null,       // Used differently by BPL and BPC - pointer to connection object
-    */
+
     url: function (location, protocol) {
         return (protocol || window.location.protocol.replace(':', '')) + '://' + this.path + ':' + this.port + '/' + (location || '');
     },
@@ -116,10 +89,8 @@ var clientService = {
 }
 
 // Status Notice IDs
-//const NS_DOWNLOADING               = 002;
-//const NS_DOWNLOAD_SUCCESSFUL       = 005;
-const NS_DOWNLOADING                 = 2;
-const NS_DOWNLOAD_SUCCESSFUL         = 5;
+const NS_DOWNLOADING                 = 2;   // 002;
+const NS_DOWNLOAD_SUCCESSFUL         = 5;   // 005;
 
 // Error Notice IDs
 const NE_DOWNLOAD_FAILED             = 102;
@@ -127,18 +98,35 @@ const NE_DOWNLOAD_FAILED             = 102;
 
 $(document).ready(function () {
     findClient();
+    setInterval(findClient, 3500);
 });
 
 var findClient = function () {
-    if (check_ws_socket_timeout) {
-        //Clear timeout if it exists; without this, back-to-back findClient() calls seem to occur
-        clearTimeout(check_ws_socket_timeout);
+    // Try to connect to the BP-Launcher (websocket) first
+    if (!clientService.available && clientService.type !== 'http') {
+        establishBPLauncherConnection();
     }
 
-    establishBPLauncherConnection();
+    // Check how much time has passed since the port list was received from the BP-Launcher
+    if (clientService.type === 'ws') {
+        clientService.portListReceiveCountUp++;
+
+        // Is the BP-Launcher taking to long to respond?  If so, close the connection
+        if (clientService.portListReceiveCountUp > 2) {
+            clientService.activeConnection.close();
+            // TODO: check to see if this is really necesssary - it get's called by the WS onclose handler
+            lostWSConnection();
+        }
+    }
+
+    // BP-Launcher not found? Try connecting to the BP-Client
     if (clientService.type !== 'ws') {
-        // WebSocket'd launcher not found?  Try Http'd client
         establishBPClientConnection();
+    }
+    
+    // If connected to the BP-Client, poll for an updated port list
+    if (clientService.type === 'http') {
+        checkForComPorts();
     }
 };
 
@@ -201,7 +189,10 @@ function checkClientVersionModal(rawVersion) {
 }
 
 /**
- * This is evaluating the BlocklyProp Client or BlocklyProp Launcher version??
+ * Establish a connection to the BlocklyProp-Client (BPC) application
+ * Retrieves the BPC's version
+ * Sets parameters in the clientService object
+ * Calls UI configuration functions
  */
 var establishBPClientConnection = function () {
     // Load data from the server using a HTTP GET request.
@@ -213,44 +204,24 @@ var establishBPClientConnection = function () {
             }
 
             checkClientVersionModal(client_version_str);
-
             clientService.type = 'http';
             clientService.available = true;
             setPropToolbarButtons();
-            if (checkForComPorts && typeof (checkForComPorts) === "function") {
-                checkForComPorts();
-                check_com_ports_interval = setInterval(checkForComPorts, 5000);
-            }
         }
-        setTimeout(establishBPClientConnection, 20000);
-
     }).fail(function () {
-        clearInterval(check_com_ports_interval);
-        clientService.type = 'none';
+        clientService.type = null;
         clientService.available = false;
         clientService.portsAvailable = false;
         setPropToolbarButtons();
-        check_ws_socket_timeout = setTimeout(findClient, 3000);
     });
 };
 
-var connection_heartbeat = function () {
-    // Check the last time the port list was received.
-    // If it's been too long, close the connection.
-    if (clientService.type === 'ws') {
-        var d = new Date();
-        if (client_ws_heartbeat + 12000 < d.getTime()) {
-            // Client is taking too long to check in - close the connection and clean up
-            console.log("Lost client websocket connection");
-            client_ws_connection.close();
-            lostWSConnection();
-``        }
-    }
-};
 
 /**
- * @deprecated - This function will become obsolete when the
- * BlocklyProp Client is deprecated and removed from service.
+ * Create a modal that allows the user to set a different port or path
+ * to the BlocklyProp-Client or -Launcher
+ * 
+ * TODO: Add fields for setting a different path to the compile service (for anyone wanting to host their own)
  */
 var configureConnectionPaths = function () {
     // All of this code is building the UI for the Configure
@@ -317,20 +288,21 @@ function establishBPLauncherConnection() {
 
         connection.onopen = function () {
 
-            if (client_ws_connection !== null) {
-                client_ws_connection.close();
+            if (clientService.activeConnection !== null) {
+                clientService.activeConnection.close();
             }
 
             var wsMessage = {type: 'hello-browser', baud: baudrate};
-            client_ws_connection = connection;
+            clientService.activeConnection = connection;
             connection.send(JSON.stringify(wsMessage));
         };
 
         // Log errors
         connection.onerror = function (error) {
             // Only display a message on the first attempt
-            if (clientService.type !== 'ws' && !check_ws_socket_timeout) {
+            if (!clientService.type) {
                 console.log('Unable to find websocket client');
+                connection.close();
             } else {
                 console.log('Websocket Communication Error');
                 console.log(error);
@@ -340,6 +312,9 @@ function establishBPLauncherConnection() {
         // handle messages from the client
         connection.onmessage = function (e) {
             var wsMessage = JSON.parse(e.data);
+
+            // set this to zero to note that the connection is still alive (heartbeat)
+            clientService.portListReceiveCountUp = 0;
 
             // --- hello handshake - establish new connection
             if (wsMessage.type === 'hello-client') {
@@ -355,32 +330,21 @@ function establishBPLauncherConnection() {
                 clientService.rxBase64 = wsMessage.rxBase64 || false;
                 clientService.type = 'ws';
                 clientService.available = true;
-
-                setPropToolbarButtons('available');
+                setPropToolbarButtons();
 
                 var portRequestMsg = JSON.stringify({type: 'port-list-request', msg: 'port-list-request'});
                 connection.send(portRequestMsg);
-
-            }
+            
 
             // --- com port list/change
-            else if (wsMessage.type === 'port-list') {
+            } else if (wsMessage.type === 'port-list') {
                 // type: 'port-list',
                 // ports: ['port1', 'port2', 'port3'...]
-
-                // mark the time that this was received
-                var d = new Date();
-                client_ws_heartbeat = d.getTime();
-
-                if (!client_ws_heartbeat_interval) {
-                    client_ws_heartbeat_interval = setInterval(connection_heartbeat, 4000);
-                }
-
                 setPortListUI(wsMessage.ports);
-            }
+
 
             // --- serial terminal/graph
-            else if (wsMessage.type === 'serial-terminal' &&
+            } else if (wsMessage.type === 'serial-terminal' &&
                     (typeof wsMessage.msg === 'string' || wsMessage.msg instanceof String)) {
                 // sometimes some weird stuff comes through...
                 // type: 'serial-terminal'
@@ -397,17 +361,16 @@ function establishBPLauncherConnection() {
                     messageText = wsMessage.msg;
                 }
                 
-
                 if (term !== null && messageText !== '' && wsMessage.packetID) { // is the terminal open?
                     pTerm.display(messageText);
                     pTerm.focus();
                 } else if (graph !== null && messageText !== '' && wsMessage.packetID) { // is the graph open?
                     graph_new_data(messageText);
                 }
-            }
+
 
             // --- UI Commands coming from the client
-            else if (wsMessage.type === 'ui-command') {
+            } else if (wsMessage.type === 'ui-command') {
                 // type: 'ui-command',
                 // action: ['open-terminal','open-graph','close-terminal','close-graph','close-compile','clear-compile','message-compile','alert']
                 // msg: [String message]
@@ -460,48 +423,38 @@ function establishBPLauncherConnection() {
                     console.log(wsMessage.msg);
 
                 } else if (wsMessage.action === 'websocket-close') {
-                    client_ws_connection.close();
+                    clientService.activeConnection.close();
 
                 } else if (wsMessage.action === 'alert') {
                     utils.showMessage(Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER, wsMessage.msg);
                 }
-            }
 
             // --- older client - disconnect it?
-            else {
+            } else {
                 console.log('Unknown WS msg: ' + JSON.stringify(wsMessage));
             }
         };
 
-        connection.onClose = function () {
+        connection.onclose = function () {
             lostWSConnection();
         };
     }
 }
 
+/**
+ * Lost websocket connection, clean up and restart findClient processing
+ */ 
 function lostWSConnection() {
-// Lost websocket connection, clean up and restart findClient processing
-    client_ws_connection = null;
+    if (clientService.type !== 'http') {
+        clientService.activeConnection = null;
+        clientService.type = null;
+        clientService.available = false;
+    }
 
-    clientService.type = 'none';
-    clientService.available = false;
-    clientService.portsAvailable = false;
-
-    setPropToolbarButtons('unavailable');
-
-    term = null;
-    newTerminal = false;
+    setPropToolbarButtons();
 
     // Clear ports list
     setPortListUI();
-
-    if (client_ws_heartbeat_interval) {
-        clearInterval(client_ws_heartbeat_interval);
-        client_ws_heartbeat_interval = null;
-    }
-
-    //Create new ws socket timeout (findClient)
-    check_ws_socket_timeout = setTimeout(findClient, 3000);
 };
 
 
@@ -511,13 +464,13 @@ var setPortListUI = function (data) {
     data = (data ? data : 'searching');
     var selected_port = clearComPortUI();
 
-    if (typeof (data) === 'object' && data.length) {
+    if (typeof (data) === 'object' && data.length > 0) {
         data.forEach(function (port) {
             addComPortDeviceOption(port);
         });
         clientService.portsAvailable = true;
     } else {
-        addComPortDeviceOption((data === 'searching') ? Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
+        addComPortDeviceOption(clientService.available ? Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
         clientService.portsAvailable = false;
     }
     selectComPort(selected_port);

@@ -610,7 +610,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
                     portPath: getComPort()
                 };
 
-                client_ws_connection.send(JSON.stringify(prog_to_send));
+                clientService.activeConnection.send(JSON.stringify(prog_to_send));
 
             } else {
 
@@ -786,14 +786,14 @@ function serial_console() {
             Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
             msg_to_send.baudrate
         ].join[' ']);
-        client_ws_connection.send(JSON.stringify(msg_to_send));
+        clientService.activeConnection.send(JSON.stringify(msg_to_send));
 
         $('#console-dialog').on('hidden.bs.modal', function () {
             if (msg_to_send.action !== 'close') { // because this is getting called multiple times...?
                 msg_to_send.action = 'close';
                 displayTerminalConnectionStatus(null);
                 active_connection = null;
-                client_ws_connection.send(JSON.stringify(msg_to_send));
+                clientService.activeConnection.send(JSON.stringify(msg_to_send));
             }
             pTerm.display(null);
         });
@@ -952,7 +952,7 @@ function graphing_console() {
                 displayTerminalConnectionStatus(Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT);
             }
 
-            client_ws_connection.send(JSON.stringify(msg_to_send));
+            clientService.activeConnection.send(JSON.stringify(msg_to_send));
 
             if (!graph_interval_id) {
                 graphStartStop('start');
@@ -963,7 +963,7 @@ function graphing_console() {
                 if (msg_to_send.action !== 'close') { // because this is getting called multiple times.... ?
                     msg_to_send.action = 'close';
                     displayTerminalConnectionStatus(null);
-                    client_ws_connection.send(JSON.stringify(msg_to_send));
+                    clientService.activeConnection.send(JSON.stringify(msg_to_send));
                 }
             });
 
