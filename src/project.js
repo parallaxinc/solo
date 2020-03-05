@@ -56,9 +56,9 @@ class Project {
 
         if (board) {
             // Handle legacy board types.
-            if (board.name === 'activity-board') {
+            if (board === 'activity-board') {
                 this.boardType = ProjectProfiles['activityboard'];
-            } else if (board.name === 'heb-wx') {
+            } else if (board === 'heb-wx') {
                 this.boardType = ProjectProfiles['hebwx'];
             } else {
                 this.boardType = ProjectProfiles[profile];
@@ -93,10 +93,20 @@ class Project {
      */
     getDetails() {
         return {
-            id: this.id, board: this.boardType.name, type: this.projectType, name: this.name,
-            description: this.description, "description-html": this.descriptionHtml,
-            code: this.code, created: this.created, modified: this.modified, private: this.private,
-            shared: this.shared, user: this.user, yours: this.yours, timestamp: this.timestamp
+            id: this.id,
+            board: this.boardType.name,
+            type: this.projectType,
+            name: this.name,
+            description: this.description,
+            "description-html": this.descriptionHtml,
+            code: this.code,
+            created: this.created,
+            modified: this.modified,
+            private: this.private,
+            shared: this.shared,
+            user: this.user,
+            yours: this.yours,
+            timestamp: this.timestamp
         };
     }
 
