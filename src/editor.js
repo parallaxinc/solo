@@ -302,7 +302,7 @@ $(() => {
                     outTo: 'terminal',
                     portPath: getComPort(),
                     baudrate: baudrate.toString(10),
-                    msg: characterToSend,
+                    msg: (clientService.rxBase64 ? btoa(characterToSend) : characterToSend),
                     action: 'msg'
                 };
                 client_ws_connection.send(JSON.stringify(msg_to_send));

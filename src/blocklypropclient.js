@@ -66,9 +66,8 @@ var clientService = {
     path: 'localhost',          // Is this always localhost?
     port: 6009,                 // BlocklyProp Client/Launcher port number
     type: null,                 // {string} Seems to be one of "", "ws", "http"
-
-    /*
     rxBase64: true,
+    /*
     portListReceiveCountUp: 0,  // This is set to 0 each time the port list is received, and incremented once each 4 second heartbeat
     activeConnection: null,
     */
@@ -140,8 +139,8 @@ var find_client = function () {
     }
 };
 
-var setPropToolbarButtons = function (ui_btn_state) {
-    if (ui_btn_state === 'available') {
+var setPropToolbarButtons = function () {
+    if (clientService.available) {
         if (projectData && projectData.board === 's3') {
             // Hide the buttons that are not required for the S3 robot
             $('.no-s3').addClass('hidden');
@@ -209,11 +208,12 @@ var check_client = function () {
             if (!data.server || data.server !== 'BlocklyPropHTTP') {
                 client_version_str = '0.0.0';
             }
+
             checkClientVersionModal(client_version_str);
 
             clientService.type = 'http';
             clientService.available = true;
-            setPropToolbarButtons('available');
+            setPropToolbarButtons();
             if (checkForComPorts && typeof (checkForComPorts) === "function") {
                 checkForComPorts();
                 check_com_ports_interval = setInterval(checkForComPorts, 5000);
@@ -226,7 +226,7 @@ var check_client = function () {
         clientService.type = 'none';
         clientService.available = false;
         clientService.portsAvailable = false;
-        setPropToolbarButtons('unavailable');
+        setPropToolbarButtons();
         check_ws_socket_timeout = setTimeout(find_client, 3000);
     });
 };
@@ -342,14 +342,14 @@ function establish_socket() {
             if (ws_msg.type === 'hello-client') {
                 // type: 'hello-client',
                 // version: [String version (semantic versioning)]
+                // rxBase64: [boolean, accepts base64-encoded serial streams (all versions transmit base64)]
                 checkClientVersionModal(ws_msg.version);
 
                 if (window.getURLParameter('debug')) {
                     console.log("Websocket client/launcher found - version " + ws_msg.version);
                 }
 
-                // TODO: Add version checking here.
-
+                clientService.rxBase64 = ws_msg.rxBase64 || false;
                 clientService.type = 'ws';
                 clientService.available = true;
 
@@ -383,12 +383,22 @@ function establish_socket() {
                 // type: 'serial-terminal'
                 // msg: [String Base64-encoded message]
 
-                var msg_in = atob(ws_msg.msg);
+                var msg_in = '';
+                try {
+                    var msg_in = atob(ws_msg.msg);
+                } catch (error) {
+                    // only show the error if it's something other than base-64 encoding
+                    if (error.toString().indexOf("'atob'") < 0) {
+                        console.error(error);
+                    }
+                    msg_in = ws_msg.msg;
+                }
+                
 
-                if (term !== null) { // is the terminal open?
+                if (term !== null && msg_in !== '' && ws_msg.packetID) { // is the terminal open?
                     pTerm.display(msg_in);
                     pTerm.focus();
-                } else if (graph !== null) { // is the graph open?
+                } else if (graph !== null && msg_in !== '' && ws_msg.packetID) { // is the graph open?
                     graph_new_data(msg_in);
                 }
             }
