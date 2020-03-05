@@ -305,7 +305,7 @@ $(() => {
                     msg: (clientService.rxBase64 ? btoa(characterToSend) : characterToSend),
                     action: 'msg'
                 };
-                client_ws_connection.send(JSON.stringify(msg_to_send));
+                clientService.activeConnection.send(JSON.stringify(msg_to_send));
             }    
         }
     );
