@@ -302,7 +302,7 @@ $(() => {
                     outTo: 'terminal',
                     portPath: getComPort(),
                     baudrate: baudrate.toString(10),
-                    msg: characterToSend,
+                    msg: (clientService.rxBase64 ? btoa(characterToSend) : characterToSend),
                     action: 'msg'
                 };
                 client_ws_connection.send(JSON.stringify(msg_to_send));
@@ -597,7 +597,7 @@ function initEventHandlers() {
     // BlocklyProp Client. The BlocklyProp Launcher does not require
     // a configuration dialog
     // TODO: Client configuration is deprecated. No needed for Launcher
-    $('#client-setup').on('click', () => configure_client());
+    $('#client-setup').on('click', () => configureConnectionPaths());
 
     // --------------------------------
     // End of hamburger menu items

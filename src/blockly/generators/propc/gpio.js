@@ -370,7 +370,8 @@ Blockly.Blocks.base_freqout = {
                 .appendField("frequency (Hz)")
                 .setCheck('Number');
         // Align inputs vertically - solo #313
-        this.setInputsInline(false);
+        // Reverting solo 313 per SL.
+        this.setInputsInline(true);
 
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
