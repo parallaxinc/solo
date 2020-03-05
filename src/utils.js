@@ -21,6 +21,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import * as bootbox from 'bootbox';
 
 /**
  *
@@ -40,7 +41,6 @@ export var utils = {
             }
         });
     },
-
     prompt: function (title, defaultValue, callback) {
         bootbox.prompt({
             title: title,

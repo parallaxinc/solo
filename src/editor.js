@@ -24,9 +24,6 @@
 
 import $ from 'jquery';
 import Blockly from 'blockly'
-
-// window.jQuery = $; window.$ = $;
-
 import saveAs from 'file-saver';
 
 import {
@@ -40,10 +37,10 @@ import {
     LOCAL_PROJECT_STORE_NAME,
     PROJECT_NAME_DISPLAY_MAX_LENGTH,
     PROJECT_NAME_MAX_LENGTH,
-    TEMP_PROJECT_STORE_NAME,
-    projectData
+    TEMP_PROJECT_STORE_NAME
 } from './globals';
 
+import {projectData} from "./globals";
 import {pTerm} from "./globals";
 
 import {page_text_label, tooltip_text} from './blockly/language/en/messages'
@@ -87,6 +84,7 @@ import {
 } from './blocklypropclient';
 
 import {
+    utils,
     isExperimental,
     findFirstDiffPos
 } from './utils';
@@ -104,30 +102,6 @@ import {
 import {
     filterToolbox
 } from './blockly/generators/propcToolbox';
-
-
-/*
- *   TERMS OF USE: MIT License
- *
- *   Permission is hereby granted, free of charge, to any person obtaining a
- *   copy of this software and associated documentation files (the "Software"),
- *   to deal in the Software without restriction, including without limitation
- *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
- *   and/or sell copies of the Software, and to permit persons to whom the
- *   Software is furnished to do so, subject to the following conditions:
- *
- *   The above copyright notice and this permission notice shall be included in
- *   all copies or substantial portions of the Software.
- *
- *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFINGEMENT. IN NO EVENT SHALL
- *   THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- *   DEALINGS IN THE SOFTWARE.
- */
-
 
 
 /* Error logging */
@@ -221,7 +195,7 @@ const timestampSaveTime = (delayMinutes, resetTimer) => {
  *
  * @returns {number} Number of seconds since 1/1/1970
  */
-function getTimestamp() {
+export function getTimestamp() {
     const date = new Date();
     return date.getTime();
 }
@@ -386,13 +360,18 @@ $(() => {
             } else {
                 console.error(objError.message);
                 ClearBlocklyWorkspace();
-                projectData = null;
+                if (projectData) {
+                    projectData = null;
+                }
                 utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_LOADING_ERROR);
             }
         }
     } else {
         // No viable project available, so redirect to index page.
-        window.location.href = 'index.html' + window.getAllURLParameters();
+
+        // TODO: DEBUGGING JDE
+        console.log("No viable project found.");
+        //window.location.href = 'index.html' + window.getAllURLParameters();
     }
 
     // Make sure the toolbox appears correctly, just for good measure.
@@ -1500,7 +1479,9 @@ function clearUploadInfo(redirect) {
     // when opening a file but the user cancels, return to the splash screen
     if (redirect === true) {
         if (window.getURLParameter('openFile') === 'true') {
-            window.location = 'index.html' + window.getAllURLParameters();
+            // TODO: DEBUGGING JDE
+            console.log("Operation cancelled. Phoning Home.");
+            // window.location = 'index.html' + window.getAllURLParameters();
         }
     }
 }

@@ -127,6 +127,11 @@ Project.prototype.getDetails = function() {
  * @param localStoreName
  */
 Project.prototype.stashProject = function(localStoreName) {
+    let details = this.getDetails();
+
+    console.log("Stashing details:");
+    console.log(JSON.stringify(details));
+
     window.localStorage.setItem(localStoreName, JSON.stringify(this.getDetails()));
 };
 

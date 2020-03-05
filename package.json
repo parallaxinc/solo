@@ -19,8 +19,10 @@
   },
   "homepage": "https://github.com/parallaxinc/solo#readme",
   "dependencies": {
+    "@popperjs/core": "^2.0.6",
     "@sentry/browser": "^5.13.0",
     "blockly": "^2.20190722.1",
+    "bootbox": "^5.4.0",
     "bootstrap": "^3.4.1",
     "chartist": "^0.11.4",
     "file-saver": "^2.0.2",
