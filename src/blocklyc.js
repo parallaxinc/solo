@@ -599,8 +599,8 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
 
             if (clientService.type === 'ws') {
                 // Prep for new download messages
-                launcher_result = "";
-                launcher_download = false;
+                clientService.resultLog = "";
+                clientService.loadBinary = false;
                 var prog_to_send = {
                     type: 'load-prop',
                     action: load_action,
