@@ -61,7 +61,7 @@ class Project {
             } else if (board === 'heb-wx') {
                 this.boardType = ProjectProfiles['hebwx'];
             } else {
-                this.boardType = ProjectProfiles[profile];
+                this.boardType = ProjectProfiles[board];
             }
         } else {
             this.boardType = ProjectProfiles.unknown;
