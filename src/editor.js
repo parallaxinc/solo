@@ -1289,30 +1289,35 @@ function uploadHandler(files) {
             };
 
             // Compute a parallel dataset to replace 'pd'
-            let project = new Project(
-                decodeFromValidXml(projectTitle),
-                decodeFromValidXml(projectDesc),
-                Project.convertBoardType(uploadBoardType),
-                ProjectTypes.PROPC,
-                uploadedXML,
-                projectCreated,
-                projectModified,
-                getTimestamp());
+            try {
+                let project = new Project(
+                    decodeFromValidXml(projectTitle),
+                    decodeFromValidXml(projectDesc),
+                    Project.convertBoardType(uploadBoardType),
+                    ProjectTypes.PROPC,
+                    uploadedXML,
+                    projectCreated,
+                    projectModified,
+                    getTimestamp());
 
                 let projectOutput = project.getDetails();
 
                 if (! Project.testProjectEquality(pd, projectOutput)) {
                     console.log("Project output differs.");
                 }
+            }
+            catch (e) {
+                console.log("Error while creating project object. %s", e.message);
+            }
 
-                // Save the output in a temp storage space
-                // TODO: Test this result with the value 'pd'
-                // window.localStorage.setItem(
-                //     "tempProject",
-                //     JSON.stringify(projectOutput));
+            // Save the output in a temp storage space
+            // TODO: Test this result with the value 'pd'
+            // window.localStorage.setItem(
+            //     "tempProject",
+            //     JSON.stringify(projectOutput));
 
-                // Save the project to the browser store
-                window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
+            // Save the project to the browser store
+            window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
         }
 
         if (xmlValid === true) {
