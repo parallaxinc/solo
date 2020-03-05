@@ -1303,8 +1303,6 @@ function uploadHandler(files) {
 
                 if (! Project.testProjectEquality(pd, projectOutput)) {
                     console.log("Project output differs.");
-                    console.log("Old: " + pd);
-                    console.log("New: " + projectOutput);
                 }
 
                 // Save the output in a temp storage space

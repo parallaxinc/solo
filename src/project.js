@@ -32,7 +32,7 @@ class Project {
      * Project constructor
      * @param name {string}
      * @param description {string}
-     * @param profile {ProjectProfiles}
+     * @param board {ProjectProfiles}
      * @param projectType {ProjectTypes}
      * @param code {string}
      * @param created {Date}
@@ -48,17 +48,17 @@ class Project {
      * with a '.' dot notation and eliminates some potential sources
      * of errors due to misspelling or array vs object references.
      */
-    constructor(name, description, profile, projectType,
+    constructor(name, description, board, projectType,
                 code, created, modified, timestamp) {
 
         this.name = (name) ? name : "";
         this.description = (description) ? description : "";
 
-        if (profile) {
+        if (board) {
             // Handle legacy board types.
-            if (profile === 'activity-board') {
+            if (board.name === 'activity-board') {
                 this.boardType = ProjectProfiles['activityboard'];
-            } else if (profile === 'heb-wx') {
+            } else if (board.name === 'heb-wx') {
                 this.boardType = ProjectProfiles['hebwx'];
             } else {
                 this.boardType = ProjectProfiles[profile];
@@ -118,11 +118,30 @@ class Project {
      * @return {object}
      */
     static convertBoardType(board) {
-        const found = ProjectProfiles.find(element => element.name === board);
-        if (found === undefined) {
-            return ProjectProfiles.unknown;
-        } else {
-            return found;
+        switch (board) {
+            case ProjectProfiles.activityboard.name:
+                return ProjectProfiles.activityboard;
+
+            case ProjectProfiles.hebwx.name:
+                return ProjectProfiles.hebwx;
+
+            case ProjectProfiles.heb.name:
+                return ProjectProfiles.heb;
+
+            case ProjectProfiles.s3.name:
+                return ProjectProfiles.s3;
+
+            case ProjectProfiles.flip.name:
+                return ProjectProfiles.flip;
+
+            case ProjectProfiles.propcfile.name:
+                return ProjectProfiles.propcfile;
+
+            case ProjectProfiles.other.name:
+                return ProjectProfiles.other;
+
+            default:
+                return ProjectProfiles.unknown;
         }
     }
 
@@ -146,21 +165,31 @@ class Project {
             return false;
         }
 
-        if ((projectA.name && projectB.name) && (projectA.name !== projectB.name)) {
-            console.log("Project name mismatch");
+        if (!projectA.name || !projectB.name) {
+            console.log("Project name is missing.");
             return false;
         }
 
-        if ((projectA.description && projectB.description) && (projectA.description !== projectB.description)) {
+        if (projectA.name !== projectB.name) {
+           console.log("Project name A: %s Does not match B: %s", projectA.name, projectB.name);
+           return false;
+        }
+
+        if (!projectA.description || !projectB.description) {
+            console.log("Project description is undefined.");
+            return false;
+        }
+
+        if (projectA.description !== projectB.description) {
             console.log("Project description mismatch");
         }
 
-        if (projectA.projectType !== projectB.projectType) {
+        if (projectA.type !== projectB.type) {
             console.log("ProjectType mismatch")
             return false;
         }
 
-        if (projectA.boardType !== projectB.boardType) {
+        if (projectA.board !== projectB.board) {
             console.log("Board type mismatch");
             return false;
         }
