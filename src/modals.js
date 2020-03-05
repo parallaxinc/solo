@@ -20,11 +20,21 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import $ from 'jquery';
+import 'jquery-validation'
+import 'bootstrap'
+
 import {
-    EMPTY_PROJECT_CODE_HEADER, projectData, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME
+    EMPTY_PROJECT_CODE_HEADER,
+    LOCAL_PROJECT_STORE_NAME,
+    TEMP_PROJECT_STORE_NAME
 } from './globals'
 
-import {checkLeave, getXml, setupWorkspace} from "./editor"
+import {page_text_label} from './blockly/language/en/messages'
+import {checkLeave, getXml, setupWorkspace, resetToolBoxSizing, getTimestamp} from "./editor"
+import {profile} from "./blockly/generators/propc";
+import {isExperimental} from "./utils";
+// import {Project} from "./project";
 
 /**
  * Start the process to open a new project
@@ -36,7 +46,6 @@ import {checkLeave, getXml, setupWorkspace} from "./editor"
 export function NewProjectModal() {
     // If the current project has been modified, give the user
     // an opportunity to abort the new project process.
-    // eslint-disable-next-line no-undef
     if (checkLeave()) {
         const message =
             'The current project has been modified. Click OK to\n' +
@@ -203,7 +212,7 @@ function NewProjectModalEscapeClick() {
  *
  * @returns {boolean} True if form contains valid data, otherwise false
  */
-function validateNewProjectForm() {
+export function validateNewProjectForm() {
 
     // Select the 'proj' class
     let project = $(".proj");
@@ -257,46 +266,51 @@ function validateEditProjectForm() {
  * from the browser localStorage
  */
 function CreateNewProject() {
-    let code;
+    try {
+        let code = "";
 
-    // If editing details, preserve the code, otherwise start over
-    if (projectData
-        && typeof(projectData.board) !== 'undefined'
-        && $('#new-project-dialog-title').html() === page_text_label['editor_edit-details']) {
-        // eslint-disable-next-line no-undef
-        code = getXml();
-    } else {
-        // eslint-disable-next-line no-undef
-        code = EMPTY_PROJECT_CODE_HEADER;
+        // If editing details, preserve the code, otherwise start over
+        if (projectData
+            && typeof(projectData.board) !== 'undefined'
+            && $('#new-project-dialog-title').html() === page_text_label['editor_edit-details']) {
+                code = getXml();
+        } else {
+            code = EMPTY_PROJECT_CODE_HEADER;
+            console.log("New, empty project code block");
+        }
+
+        // Save the form fields into the projectData object
+        // The projectData variable is defined in globals.js
+        let projectName = $('#new-project-name').val();
+        let createdDateHtml = $('#edit-project-created-date').html();
+        let description = $("#new-project-description").val();
+        let boardType = $('#new-project-board-type').val();
+        let newProject = new Project(
+            projectName, description, boardType, "PROPC", code,
+            createdDateHtml, createdDateHtml, getTimestamp());
+
+        // Save the project to the browser local store for the page
+        // transition
+        newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
+
+        // ------------------------------------------------------
+        // Clear the projectData global to prevent the onLeave
+        // event handler from storing the old project code into
+        // the browser storage.
+        // ------------------------------------------------------
+        if (projectData) {
+            projectData = null;
+        }
+        else {
+            console.log("ProjectData went poof...");
+        }
+
+        // Redirect to the editor page
+        window.location = 'blocklyc.html' + window.getAllURLParameters();
     }
-
-    // Save the form fields into the projectData object
-    // The projectData variable is defined in globals.js
-    let projectName = $('#new-project-name').val();
-    let createdDateHtml = $('#edit-project-created-date').html();
-    let description = $("#new-project-description").val();
-    let boardType = $('#new-project-board-type').val();
-
-    // eslint-disable-next-line no-undef
-    let newProject = new Project(
-        projectName, description, boardType, "PROPC", code,
-        // eslint-disable-next-line no-undef
-        createdDateHtml, createdDateHtml, getTimestamp());
-
-    // Save the project to the browser local store for the page
-    // transition
-    // eslint-disable-next-line no-undef
-    newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
-
-    // ------------------------------------------------------
-    // Clear the projectData global to prevent the onLeave
-    // event handler from storing the old project code into
-    // the browser storage.
-    // ------------------------------------------------------
-    projectData = null;
-
-    // Redirect to the editor page
-    window.location = 'blocklyc.html' + window.getAllURLParameters();
+    catch (e) {
+        console.log("Create project failed. %s", e.message);
+    }
 }
 
 
@@ -596,11 +610,11 @@ function setEditOfflineProjectDetailsCancelHandler() {
 
 
 /*   Load a Project file    */
+
 /**
- *
+ *  Set up dialog buttons
  */
 export function initUploadModalLabels() {
-
     // set the upload modal's title to "import" if offline
     $('#upload-dialog-title').html(page_text_label['editor_import']);
     $('#upload-project span').html(page_text_label['editor_import']);

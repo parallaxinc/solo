@@ -20,22 +20,27 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import * as Sentry from '@sentry/browser'
-import { saveAs } from 'file-saver'
+// import * as Sentry from '@sentry/browser';
 
-import $ from 'jquery'
+import $ from 'jquery';
+import Blockly from 'blockly'
+import saveAs from 'file-saver';
 
 import {
     BASE_URL,
     CDN_URL,
     bpIcons,
+    ApplicationName,
+    TestApplicationName,
+    product_banner_host_trigger,
     EMPTY_PROJECT_CODE_HEADER,
     LOCAL_PROJECT_STORE_NAME,
     PROJECT_NAME_DISPLAY_MAX_LENGTH,
     PROJECT_NAME_MAX_LENGTH,
-    projectData,
-    pTerm
-} from './globals'
+    TEMP_PROJECT_STORE_NAME
+} from './globals';
+
+import {page_text_label, tooltip_text} from './blockly/language/en/messages'
 
 import {
     ShowProjectTimerModalDialog,
@@ -44,9 +49,12 @@ import {
     OpenProjectModal,
     NewProjectModal,
     editProjectDetails
-} from './modals'
+} from './modals';
 
-import {PropTerm} from "./propterm";
+import {
+    PropTerm
+} from "./propterm";
+
 import {
     active_connection,
     baudrate,
@@ -56,6 +64,7 @@ import {
     formatWizard,
     getComPort,
     graphing_console,
+    init,
     loadInto,
     renderContent,
     serial_console,
@@ -63,22 +72,33 @@ import {
     graph_play,
     downloadGraph,
     downloadCSV,
-    graphStartStop
-} from "./blocklyc"
-
-import {client_ws_connection, configure_client} from './blocklypropclient'
+    graphStartStop, propcAsBlocksXml
+} from './blocklyc';
 
 import {
+    client_ws_connection,
+    configure_client
+} from './blocklypropclient';
+
+import {
+    utils,
     isExperimental,
     findFirstDiffPos
-} from './utils'
+} from './utils';
 
-import {setProfile} from './blockly/generators/propc'
+import {
+    setProfile as profile,
+    setProfile
+} from './blockly/generators/propc';
 
+import Project from './project';
+import {ProjectTypes} from './project';
+
+import {filterToolbox} from './blockly/generators/propcToolbox';
 
 
 /* Error logging */
-Sentry.init({ dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639' });
+// Sentry.init({ dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639' });
 
 
 /** GLOBAL VARIABLES **/
@@ -168,7 +188,7 @@ const timestampSaveTime = (delayMinutes, resetTimer) => {
  *
  * @returns {number} Number of seconds since 1/1/1970
  */
-function getTimestamp() {
+export function getTimestamp() {
     const date = new Date();
     return date.getTime();
 }
@@ -212,7 +232,13 @@ const checkLastSavedTime = function () {
  */
 
 $(() => {
+
     RenderPageBrandingElements();
+
+    // License link click event handler
+    document.getElementById('selectfile').onchange = () => {uploadHandler(this.files);};
+    document.getElementById('open-project-select-file').onchange = () => {uploadHandler(this.files);};
+
 
     /* -- Set up amy event handlers once the DOM is ready -- */
 
@@ -245,6 +271,7 @@ $(() => {
         // If the localStorage is empty, store the current project into the
         // localStore so that if the page is being refreshed, it will
         // automatically be reloaded.
+
         if (projectData &&
             projectData.name !== "undefined" &&
             ! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
@@ -306,10 +333,15 @@ $(() => {
         NewProjectModal();
 
     } else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
+
+        console.log("Loading from %s", LOCAL_PROJECT_STORE_NAME);
+
         // Load a project from localStorage if available
         try {
             // Get a copy of the last know state of the current project
             let localProject = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
+
+            console.log("Local project: %s", localProject);
 
             // TODO: Address clear workspace has unexpected result
             // **************************************************
@@ -328,13 +360,18 @@ $(() => {
             } else {
                 console.error(objError.message);
                 ClearBlocklyWorkspace();
-                projectData = null;
+                if (projectData) {
+                    projectData = null;
+                }
                 utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_LOADING_ERROR);
             }
         }
     } else {
         // No viable project available, so redirect to index page.
-        window.location.href = 'index.html' + window.getAllURLParameters();
+
+        // TODO: DEBUGGING JDE
+        console.log("No viable project found.");
+        //window.location.href = 'index.html' + window.getAllURLParameters();
     }
 
     // Make sure the toolbox appears correctly, just for good measure.
@@ -365,6 +402,9 @@ $(() => {
         },
         null
     );
+
+    // TODO: Quiet compiler error. This is TEMPORARY for Webpack development
+    console.log(pTerm.buffer.chars);
 });
 
 
@@ -761,7 +801,7 @@ function initCdnImageUrls() {
  * reload.
  * @param {boolean} centerBlocks Center the project blocks if true.
  */
-function resetToolBoxSizing(resizeDelay, centerBlocks) {
+export function resetToolBoxSizing(resizeDelay, centerBlocks) {
     // Vanilla Javascript is used here for speed - jQuery
     // could probably be used, but this is faster. Force
     // the toolbox to render correctly
@@ -914,7 +954,7 @@ function saveAsDialog() {
                 $.post(BASE_URL + 'rest/project/code-as', projectData, function (data) {
                     var previousOwner = projectData.yours;
                     projectData = data;
-                    projectData.code = code; // Save code in projectdata to be able to verify if code has changed upon leave
+                    projectData.code = code; // Save code in projectData to be able to verify if code has changed upon leave
                     utils.showMessage(Blockly.Msg.DIALOG_PROJECT_SAVED, Blockly.Msg.DIALOG_PROJECT_SAVED_TEXT);
                     // Reloading project with new id
                     window.location.href = BASE_URL + 'projecteditor?id=' + data['id'];
@@ -1439,7 +1479,9 @@ function clearUploadInfo(redirect) {
     // when opening a file but the user cancels, return to the splash screen
     if (redirect === true) {
         if (window.getURLParameter('openFile') === 'true') {
-            window.location = 'index.html' + window.getAllURLParameters();
+            // TODO: DEBUGGING JDE
+            console.log("Operation cancelled. Phoning Home.");
+            // window.location = 'index.html' + window.getAllURLParameters();
         }
     }
 }
@@ -1643,7 +1685,7 @@ function initToolbox(profileName) {
  * Load the workspace
  * @param xmlText
  */
-function loadToolbox(xmlText) {
+export function loadToolbox(xmlText) {
     if (Blockly.mainWorkspace) {
         let xmlDom = Blockly.Xml.textToDom(xmlText);
         Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
@@ -1711,7 +1753,7 @@ function ClearBlocklyWorkspace() {
  * @param input string representing a potential filename
  * @returns {string}
  */
-function sanitizeFilename(input) {
+export function sanitizeFilename(input) {
     // if the input is not a string, or is an empty string, return a generic filename
     if (typeof input !== 'string' || input.length < 1) {
         return 'my_project';
@@ -1763,7 +1805,7 @@ function testProjectEquality(projectA, projectB) {
     }
 
     if (projectA.projectType !== projectB.projectType) {
-        console.log("ProjectType mismatch")
+        console.log("ProjectType mismatch");
         return false;
     }
 
@@ -1866,7 +1908,7 @@ function validateProjectBlockList(fileContent) {
 /**
  *
  * @param nodes
- * @return {[]}
+ * @return {Array}
  */
 function enumerateProjectBlockNames(nodes) {
     let blockList = [];
@@ -1884,14 +1926,40 @@ function enumerateProjectBlockNames(nodes) {
     return blockList;
 }
 
+
 /**
  *
  * @param blockName
  * @return {boolean}
  */
 function evaluateProjectBlockBoardType(blockName) {
-    if (blockName === "comments") {
-        return false;
-    }
-    return true;
+    return blockName !== "comments";
 }
+
+
+
+export var setPropToolbarButtons = function (ui_btn_state) {
+    if (ui_btn_state === 'available') {
+        if (projectData && projectData.board === 's3') {
+            // Hide the buttons that are not required for the S3 robot
+            $('.no-s3').addClass('hidden');
+            $('#client-available').addClass('hidden');
+            // Reveal the short client available message
+            $('#client-available-short').removeClass('hidden');
+        } else {
+            // Reveal these buttons
+            $('.no-s3').removeClass('hidden');
+            $('#client-available').removeClass('hidden');
+            $('#client-available-short').addClass('hidden');
+        }
+
+        $("#client-unavailable").addClass("hidden");
+        $(".client-action").removeClass("disabled");
+    } else {
+        // Disable the toolbar buttons
+        $("#client-unavailable").removeClass("hidden");
+        $("#client-available").addClass("hidden");
+        $("#client-available-short").addClass("hidden");
+        $(".client-action").addClass("disabled");
+    }
+};

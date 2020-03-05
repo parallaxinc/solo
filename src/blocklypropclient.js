@@ -21,6 +21,33 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+//import * as Blockly from 'blockly';
+import Blockly from 'blockly';
+
+import {setPropToolbarButtons} from './editor'
+
+import {
+    graph,
+    selectComPort,
+    graph_reset,
+    graphing_console,
+    serial_console,
+    graph_new_data,
+    baudrate,
+    checkForComPorts
+} from './blocklyc';
+
+// import {blockAnimations} from "blockly";
+
+
+/* NOTE:
+ * These are temporary declarations to quite the webpack compiler until we get
+ * an answer back from Matt as to the proper disposition of the issue.
+ */
+var term = null;
+var newTerminal = false;
+
+
 
 // Annotations to help the closure compiler to be even more efficient.
 // https://github.com/google/closure-compiler/wiki/Annotating-JavaScript-for-the-Closure-Compiler
@@ -53,14 +80,14 @@ var check_com_ports_interval = null;
 var check_ws_socket_timeout = null;
 
 // BP Launcher result log and download message flag
-var launcher_result = "";
-var launcher_download = false;
+export var launcher_result = "";
+export var launcher_download = false;
 
 
 /**
  * Client Service Object
  */
-var clientService = {
+export var clientService = {
     available: false,           // Available for ?
     portsAvailable: false,      // Are any serial ports enumerated?
     path: 'localhost',          // Is this always localhost?
@@ -140,31 +167,6 @@ var find_client = function () {
     }
 };
 
-var setPropToolbarButtons = function (ui_btn_state) {
-    if (ui_btn_state === 'available') {
-        if (projectData && projectData.board === 's3') {
-            // Hide the buttons that are not required for the S3 robot
-            $('.no-s3').addClass('hidden');
-            $('#client-available').addClass('hidden');
-            // Reveal the short client available message
-            $('#client-available-short').removeClass('hidden');
-        } else {
-            // Reveal these buttons
-            $('.no-s3').removeClass('hidden');
-            $('#client-available').removeClass('hidden');
-            $('#client-available-short').addClass('hidden');
-        }
-
-        $("#client-unavailable").addClass("hidden");
-        $(".client-action").removeClass("disabled");
-    } else {
-        // Disable the toolbar buttons
-        $("#client-unavailable").removeClass("hidden");
-        $("#client-available").addClass("hidden");
-        $("#client-available-short").addClass("hidden");
-        $(".client-action").addClass("disabled");
-    }
-};
 
 /**
  * @function checkClientVersionModal Displays a modal with information 
@@ -489,12 +491,12 @@ function lostWSConnection() {
 
     //Create new ws socket timeout (find_client)
     check_ws_socket_timeout = setTimeout(find_client, 3000);
-};
+}
 
 
 // set communication port list
 // leave data unspecified when searching
-var setPortListUI = function (data) {
+export var setPortListUI = function (data) {
     data = (data ? data : 'searching');
     var selected_port = clearComPortUI();
 

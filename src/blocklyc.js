@@ -19,6 +19,31 @@
  *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *   DEALINGS IN THE SOFTWARE.
  */
+import $ from 'jquery';
+import Blockly from "blockly";
+import * as Chartist from 'chartist';
+import * as js_beautify from 'js-beautify'
+import saveAs from 'file-saver';
+import JSZip from 'jszip';
+
+import {EMPTY_PROJECT_CODE_HEADER} from './globals'
+
+import {
+    launcher_result,
+    launcher_download,
+    clientService,
+    setPortListUI,
+    client_ws_connection
+} from './blocklypropclient'
+
+import {sanitizeFilename, loadToolbox} from './editor'
+
+/**
+ * TODO: Identify the purpose of this variable
+ *
+ * @type {null}
+ */
+export var term = null;
 
 
 /**
@@ -26,15 +51,7 @@
  *
  * @type {null}
  */
-var term = null;
-
-
-/**
- * TODO: Identify the purpose of this variable
- *
- * @type {null}
- */
-var graph = null;
+export var graph = null;
 
 
 /**
@@ -66,7 +83,7 @@ export var baudrate = 115200;
  *
  * @type {any[]}
  */
-var graph_temp_data = new Array;
+var graph_temp_data = [];
 
 
 /**
@@ -114,7 +131,7 @@ var graph_start_playing = false;
  *
  * @type {String}
  */
-var graph_temp_string = new String;
+var graph_temp_string = "";
 
 
 /**
@@ -154,7 +171,7 @@ var graph_labels = null;
  *
  * @type {any[]}
  */
-var graph_csv_data = new Array;
+var graph_csv_data = [];
 
 
 /**
@@ -341,7 +358,6 @@ var prettyCode = function (raw_code) {
             .replace(/&([_a-zA-Z\()])/g, "___DEREFERENCE_OPERATOR___$1")
             .replace(/->/g, '___ARROW_OPERATOR___');
 
-    // run the beatufier
     raw_code = js_beautify(raw_code, {
         'brace_style': 'expand',
         'indent_size': 2
@@ -401,7 +417,7 @@ function generateBlockId(nonce) {
  *
  * @returns {string}
  */
-var propcAsBlocksXml = function () {
+export var propcAsBlocksXml = function () {
     let code = EMPTY_PROJECT_CODE_HEADER;
     code += '<block type="propc_file" id="' + 
             generateBlockId(codePropC ? codePropC.getValue() : 'thequickbrownfoxjumpedoverthelazydog') + 
@@ -425,13 +441,13 @@ var propcAsBlocksXml = function () {
  *
  * @param {!Blockly} blockly Instance of Blockly from iframe.
  */
-function init(blockly) {
+export function init(blockly) {
     if (!codePropC) {
         codePropC = ace.edit("code-propc");
         codePropC.setTheme("ace/theme/chrome");
         codePropC.getSession().setMode("ace/mode/c_cpp");
         codePropC.getSession().setTabSize(2);
-        codePropC.$blockScrolling = Infinity;
+        codePropC.$blockScrolling = Infinity;     // TODO: Property not defined.
         codePropC.setReadOnly(true);
 
         // if the project is a propc code-only project, enable code editing.
@@ -534,11 +550,12 @@ function cloudCompile(text, action, successHandler) {
             // Check for an error response from the compiler
             if (!data || data["compiler-error"] != "") {
                 // Get message as a string, or blank if undefined
-                let message = (typeof data["compiler-error"] === "string") ? data["compiler-error"] : "";
+                let loadWaitMsg = (typeof data["compiler-error"] === "string") ? data["compiler-error"] : "";
+
                 // Display the result in the compile console modal <div>
                 $("#compile-console").val($("#compile-console").val() + data['compiler-output'] + data['compiler-error'] + loadWaitMsg);
             } else {
-                var loadWaitMsg = (action !== 'compile') ? '\nDownload...' : '';
+                let loadWaitMsg = (action !== 'compile') ? '\nDownload...' : '';
 
                 $("#compile-console").val($("#compile-console").val() + data['compiler-output'] + data['compiler-error'] + loadWaitMsg);
                 if (data.success && successHandler) {
@@ -1034,7 +1051,7 @@ export var graphStartStop = function (action) {
 /**
  * Update the list of serial ports available on the host machine
  */
-var checkForComPorts = function () {
+export var checkForComPorts = function () {
     // TODO: We need to evaluate this when using web sockets ('ws') === true
     if (clientService.type !== 'ws') {
         $.get(clientService.url("ports.json"), function (data) {
@@ -1045,11 +1062,12 @@ var checkForComPorts = function () {
     }
 };
 
-var selectComPort = function (com_port) {
+export var selectComPort = function (com_port) {
     if (com_port !== null) {
         $("#comPort").val(com_port);
     }
-    if ($("#comPort").val() === null && $('#comPort option').size() > 0) {
+
+    if ($("#comPort").val() === null && $('#comPort option').size > 0) {
         $("#comPort").val($('#comPort option:first').text());
     }
 };
@@ -1090,10 +1108,9 @@ export function downloadPropC() {
     if (isEmptyProject) {
         // The project is empty, so warn and exit.
         utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT);
-        return;
     } else {
         // Make sure the filename doesn't have any illegal characters
-        value = sanitizeFilename(projectData.name);
+        let value = sanitizeFilename(projectData.name);
 
         var sideFileContent = ".c\n>compiler=C\n>memtype=cmm main ram compact\n";
         sideFileContent += ">optimize=-Os\n>-m32bit-doubles\n>-fno-exceptions\n>defs::-std=c99\n";
@@ -1121,7 +1138,7 @@ export function downloadPropC() {
  *
  * @param stream
  */
-function graph_new_data(stream) {
+export function graph_new_data(stream) {
 
     // Check for a failed connection:
     if (stream.indexOf('ailed') > -1) {
@@ -1215,7 +1232,7 @@ function graph_new_data(stream) {
 /**
  * Reset the graphing system
  */
-function graph_reset() {
+export function graph_reset() {
     graph_temp_data.length = 0;
     graph_csv_data.length = 0;
     for (var k = 0; k < 10; k++) {
@@ -1317,6 +1334,7 @@ export function downloadCSV() {
 function graph_new_labels() {
     var graph_csv_temp = '';
     var labelsvg = '<svg width="60" height="300">';
+
     graph_csv_temp += '"time",';
     var labelClass = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
     var labelPre = ["", "", "", "", "", "", "", "", "", "", "", "", "", ""];

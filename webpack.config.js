@@ -44,10 +44,17 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js'
     },
-    externals: {
-        jquery: 'jquery'
+    resolve: {
+        alias: {
+            jquery: "jquery/src/jquery"
+        }
     },
     plugins: [
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+            'window.jQuery': 'jquery',
+        }),
         new webpack.optimize.ModuleConcatenationPlugin(),
         new CopyPlugin([
             { from: './index.html', to: path.resolve(__dirname, 'build') },
@@ -70,7 +77,20 @@ module.exports = {
         ])
 
     ],
+    devtool: "source-map",
     devServer: {
         port: 3000
+    },
+    module: {
+        rules: [{
+            test:  require.resolve('jquery'),
+            use: [{
+                loader: 'expose-loader',
+                options: 'jQuery'
+            },{
+                loader: 'expose-loader',
+                options: '$'
+            }]
+        }]
     }
 };

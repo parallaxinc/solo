@@ -132,7 +132,7 @@
     <script type="text/javascript" src="src/blockly/generators/propc/s3.js"></script>
     -->
 
-    <script type="module" src="src/editor.js" defer></script>
+    <script type="module" src="./dist/editor.js" defer></script>
 
     <!-- Style sheets -->
     <link href="src/lib/chartist.min.css" rel="stylesheet" type="text/css" />
@@ -381,7 +381,7 @@
                 <div class="modal-body">
                     <!-- Upload a project. Results stored in localStorage -->
                     <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
-                    <input id="selectfile" type="file" accept=".svg,image/svg+xml" onchange="uploadHandler(this.files);">
+                    <input id="selectfile" type="file" accept=".svg,image/svg+xml">
 
                     <div id="selectfile-verify-valid" class="alert alert-success" style="display: none;">
                         <span class="bpIcon" data-icon="checkMarkGreen">&#x2713;</span>&nbsp;
@@ -654,8 +654,7 @@
                 <div class="modal-body">
                     <!-- Upload a project. Results stored in localStorage -->
                     <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
-                    <input id="open-project-select-file" type="file" accept=".svg, .svge"
-                           onchange="uploadHandler(this.files);">
+                    <input id="open-project-select-file" type="file" accept=".svg, .svge">
 
                     <!-- File is valid message -->
                     <div id="open-project-select-file-verify-valid" class="alert alert-success" style="display: none;">
