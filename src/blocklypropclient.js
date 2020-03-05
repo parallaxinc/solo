@@ -44,6 +44,8 @@ var clientService = {
     portListReceiveCountUp: 0,    // This is set to 0 each time the port list is received, and incremented once each 4 second heartbeat
     activeConnection: null,       // Used differently by BPL and BPC - pointer to connection object
 
+    sendCharacterStreamTo: null,  // {string} null, "term", or "graph". Flag to inform connection methods which modal/class to send characters to be displayed to
+
     url: function (location, protocol) {
         return (protocol || window.location.protocol.replace(':', '')) + '://' + this.path + ':' + this.port + '/' + (location || '');
     },
@@ -361,11 +363,13 @@ function establishBPLauncherConnection() {
                     messageText = wsMessage.msg;
                 }
                 
-                if (term !== null && messageText !== '' && wsMessage.packetID) { // is the terminal open?
-                    pTerm.display(messageText);
-                    pTerm.focus();
-                } else if (graph !== null && messageText !== '' && wsMessage.packetID) { // is the graph open?
-                    graph_new_data(messageText);
+                if (clientService.sendCharacterStreamTo && messageText !== '' && wsMessage.packetID) { 
+                    if (clientService.sendCharacterStreamTo === 'term') { // is the terminal open?
+                        pTerm.display(messageText);
+                        pTerm.focus();
+                    } else {    // is the graph open? 
+                        graph_new_data(messageText);
+                    }
                 }
 
 
@@ -383,11 +387,12 @@ function establishBPLauncherConnection() {
 
                 } else if (wsMessage.action === 'close-terminal') {
                     $('#console-dialog').modal('hide');
-                    newTerminal = false;
+                    clientService.sendCharacterStreamTo = null;
                     pTerm.display(null);
 
                 } else if (wsMessage.action === 'close-graph') {
                     $('#graphing-dialog').modal('hide');
+                    clientService.sendCharacterStreamTo = null;
                     graph_reset();
 
                 } else if (wsMessage.action === 'clear-compile') {
