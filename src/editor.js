@@ -291,12 +291,10 @@ $(() => {
     pTerm = new PropTerm(
         document.getElementById('serial_console'),
         function(characterToSend) {
-            if (active_connection !== null && 
-                active_connection !== 'simulated' && 
-                active_connection !== 'websocket') {
-                active_connection.send(btoa(characterToSend));
+            if (clientService.type === 'http' && clientService.activeConnection) {
+                clientService.activeConnection.send(btoa(characterToSend));
         
-            } else if (active_connection === 'websocket' ) {
+            } else if (clientService.type === 'ws') {
                 var msg_to_send = {
                     type: 'serial-terminal',
                     outTo: 'terminal',
