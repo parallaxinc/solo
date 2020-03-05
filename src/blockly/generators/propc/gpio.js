@@ -370,7 +370,8 @@ Blockly.Blocks.base_freqout = {
                 .appendField("frequency (Hz)")
                 .setCheck('Number');
         // Align inputs vertically - solo #313
-        this.setInputsInline(false);
+        // Reverting solo 313 per SL.
+        this.setInputsInline(true);
 
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
@@ -1276,8 +1277,11 @@ Blockly.Blocks.sound_play = {
     setSoundAction: function (action) {
         var valueBlock = null;
         if (action !== this.getFieldValue('ACTION')) {
-            if (this.getInput('VALUE')) {
-                valueBlock = this.getInput('VALUE').connection.targetBlock();
+            var targetInput = this.getInput('VALUE');
+            if (targetInput) {
+                if (targetInput.connection) {
+                    valueBlock = targetInput.connection.targetBlock();
+                }
                 this.removeInput('VALUE');
             }
             if (action === 'wave') {
