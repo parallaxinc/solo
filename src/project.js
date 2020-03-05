@@ -111,6 +111,94 @@ class Project {
             localStoreName,
             JSON.stringify(this.getDetails()));
     }
+
+    /**
+     * Convert a string project board type
+     * @param board {string}
+     * @return {object}
+     */
+    static convertBoardType(board) {
+        const found = ProjectProfiles.find(element => element.name === board);
+        if (found === undefined) {
+            return ProjectProfiles.unknown;
+        } else {
+            return found;
+        }
+    }
+
+
+    /**
+     * Compare two instances of a Project.
+     *
+     * @param {object} projectA
+     * @param {object} projectB
+     *
+     * @returns {boolean} True if the Project objects are equivalent, otherwise returns false.
+     */
+    static testProjectEquality(projectA, projectB) {
+        if (!projectA) {
+            console.log("Project A is empty");
+            return false;
+        }
+
+        if (!projectB) {
+            console.log("Project B is empty");
+            return false;
+        }
+
+        if ((projectA.name && projectB.name) && (projectA.name !== projectB.name)) {
+            console.log("Project name mismatch");
+            return false;
+        }
+
+        if ((projectA.description && projectB.description) && (projectA.description !== projectB.description)) {
+            console.log("Project description mismatch");
+        }
+
+        if (projectA.projectType !== projectB.projectType) {
+            console.log("ProjectType mismatch")
+            return false;
+        }
+
+        if (projectA.boardType !== projectB.boardType) {
+            console.log("Board type mismatch");
+            return false;
+        }
+
+        if (projectA.code !== projectB.code) {
+            console.log("Code segment mismatch");
+            return false;
+        }
+
+        if (projectA.created !== projectB.created) {
+            console.log("Project created timestamp mismatch");
+            return false;
+        }
+
+        if (projectA.modified !== projectB.modified) {
+            console.log("Project last modified timestamp mismatch");
+            return false;
+        }
+
+        if (projectA.descriptionHtml !== projectB.descriptionHtml) {
+            console.log("Project HTML description mismatch");
+            return false;
+        }
+
+        if (projectA.id !== projectB.id) {
+            console.log("Project A is not the same object as project B");
+            return false;
+        }
+
+        // private: true
+        // shared: false
+        // timestamp: 1572365783099
+        // user: "offline"
+        // yours: true
+
+        return true;
+    }
+
 }
 
 
