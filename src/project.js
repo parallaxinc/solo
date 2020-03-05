@@ -22,7 +22,6 @@
 
 'use strict';
 
-
 /**
  * Default implementation of a project object
  * @constructor
@@ -31,14 +30,14 @@ class Project {
 
     /**
      * Project constructor
-     * @param name
-     * @param description
-     * @param profile
-     * @param projectType
-     * @param code
-     * @param created
-     * @param modified
-     * @param timestamp
+     * @param name {string}
+     * @param description {string}
+     * @param board {ProjectProfiles}
+     * @param projectType {ProjectTypes}
+     * @param code {string}
+     * @param created {Date}
+     * @param modified {Date}
+     * @param timestamp {number}
      *
      * @description
      * The board types, also referenced as a specific board profile,
@@ -49,21 +48,26 @@ class Project {
      * with a '.' dot notation and eliminates some potential sources
      * of errors due to misspelling or array vs object references.
      */
-    constructor(name, description, profile, projectType, code, created, modified, timestamp) {
-        this.name = name;
-        this.description = description;
+    constructor(name, description, board, projectType,
+                code, created, modified, timestamp) {
 
-        // Handle legacy board types.
-        if (profile === 'activity-board') {
-            this.boardType = ProjectProfiles['activityboard'];
-        } else if (profile === 'heb-wx') {
-            this.boardType = ProjectProfiles['hebwx'];
+        this.name = (name) ? name : "";
+        this.description = (description) ? description : "";
+
+        if (board) {
+            // Handle legacy board types.
+            if (board.name === 'activity-board') {
+                this.boardType = ProjectProfiles['activityboard'];
+            } else if (board.name === 'heb-wx') {
+                this.boardType = ProjectProfiles['hebwx'];
+            } else {
+                this.boardType = ProjectProfiles[profile];
+            }
         } else {
-            this.boardType = ProjectProfiles[profile];
+            this.boardType = ProjectProfiles.unknown;
         }
 
-        this.projectType = ProjectTypes[projectType];
-
+        this.projectType = (projectType) ? ProjectTypes[projectType] : ProjectTypes.UNKNOWN;
         this.code = (code) ? code : this.EmptyProjectCodeHeader;
 
         // This should be a timestamp but is received as a string
@@ -80,6 +84,150 @@ class Project {
         this.user = 'offline';
         this.yours = true;
     }
+
+    /**
+     * Get all of the project details in one function call. This is
+     * a direct replacement for the code that is converted to JSON
+     * to persist the project to storage.
+     * @returns {{shared: *, private: *, boardType: *, code: *, created: *, description: *, type: *, name: *, modified: *, descriptionHtml: *, id: *, user: *, yours: *, timestamp: *}}
+     */
+    getDetails() {
+        return {
+            id: this.id, board: this.boardType.name, type: this.projectType, name: this.name,
+            description: this.description, "description-html": this.descriptionHtml,
+            code: this.code, created: this.created, modified: this.modified, private: this.private,
+            shared: this.shared, user: this.user, yours: this.yours, timestamp: this.timestamp
+        };
+    }
+
+
+    /**
+     * Save the project details to a specified location in the browser's
+     * localStorage.
+     * @param localStoreName
+     */
+    stashProject(localStoreName) {
+        window.localStorage.setItem(
+            localStoreName,
+            JSON.stringify(this.getDetails()));
+    }
+
+    /**
+     * Convert a string project board type
+     * @param board {string}
+     * @return {object}
+     */
+    static convertBoardType(board) {
+        switch (board) {
+            case ProjectProfiles.activityboard.name:
+                return ProjectProfiles.activityboard;
+
+            case ProjectProfiles.hebwx.name:
+                return ProjectProfiles.hebwx;
+
+            case ProjectProfiles.heb.name:
+                return ProjectProfiles.heb;
+
+            case ProjectProfiles.s3.name:
+                return ProjectProfiles.s3;
+
+            case ProjectProfiles.flip.name:
+                return ProjectProfiles.flip;
+
+            case ProjectProfiles.propcfile.name:
+                return ProjectProfiles.propcfile;
+
+            case ProjectProfiles.other.name:
+                return ProjectProfiles.other;
+
+            default:
+                return ProjectProfiles.unknown;
+        }
+    }
+
+
+    /**
+     * Compare two instances of a Project.
+     *
+     * @param {object} projectA
+     * @param {object} projectB
+     *
+     * @returns {boolean} True if the Project objects are equivalent, otherwise returns false.
+     */
+    static testProjectEquality(projectA, projectB) {
+        if (!projectA) {
+            console.log("Project A is empty");
+            return false;
+        }
+
+        if (!projectB) {
+            console.log("Project B is empty");
+            return false;
+        }
+
+        if (!projectA.name || !projectB.name) {
+            console.log("Project name is missing.");
+            return false;
+        }
+
+        if (projectA.name !== projectB.name) {
+           console.log("Project name A: %s Does not match B: %s", projectA.name, projectB.name);
+           return false;
+        }
+
+        if (!projectA.description || !projectB.description) {
+            console.log("Project description is undefined.");
+            return false;
+        }
+
+        if (projectA.description !== projectB.description) {
+            console.log("Project description mismatch");
+        }
+
+        if (projectA.type !== projectB.type) {
+            console.log("ProjectType mismatch")
+            return false;
+        }
+
+        if (projectA.board !== projectB.board) {
+            console.log("Board type mismatch");
+            return false;
+        }
+
+        if (projectA.code !== projectB.code) {
+            console.log("Code segment mismatch");
+            return false;
+        }
+
+        if (projectA.created !== projectB.created) {
+            console.log("Project created timestamp mismatch");
+            return false;
+        }
+
+        if (projectA.modified !== projectB.modified) {
+            console.log("Project last modified timestamp mismatch");
+            return false;
+        }
+
+        if (projectA.descriptionHtml !== projectB.descriptionHtml) {
+            console.log("Project HTML description mismatch");
+            return false;
+        }
+
+        if (projectA.id !== projectB.id) {
+            console.log("Project A is not the same object as project B");
+            return false;
+        }
+
+        // private: true
+        // shared: false
+        // timestamp: 1572365783099
+        // user: "offline"
+        // yours: true
+
+        return true;
+    }
+
 }
 
 
@@ -93,42 +241,6 @@ class Project {
  * be misspelled without detection.
  */
 Project.prototype.EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
-
-
-/**
- * Get all of the project details in one function call. This is
- * a direct replacement for the code that is converted to JSON
- * to persist the project to storage.
- * @returns {{shared: *, private: *, boardType: *, code: *, created: *, description: *, type: *, name: *, modified: *, descriptionHtml: *, id: *, user: *, yours: *, timestamp: *}}
- */
-Project.prototype.getDetails = function() {
-    return {
-        id: this.id,
-        board: this.boardType.name,
-        type: this.projectType,
-        name: this.name,
-        description: this.description,
-        "description-html": this.descriptionHtml,
-        code: this.code,
-        created: this.created,
-        modified: this.modified,
-        private: this.private,
-        shared: this.shared,
-        user: this.user,
-        yours: this.yours,
-        timestamp: this.timestamp
-    };
-};
-
-
-/**
- * Save the project details to a specified location in the browser's
- * localStorage.
- * @param localStoreName
- */
-Project.prototype.stashProject = function(localStoreName) {
-    window.localStorage.setItem(localStoreName, JSON.stringify(this.getDetails()));
-};
 
 
 /**
