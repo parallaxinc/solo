@@ -22,12 +22,11 @@
 
 'use strict';
 
-
 /**
  * Default implementation of a project object
  * @constructor
  */
-export class Project {
+export default class Project {
 
     /**
      * Project constructor
@@ -50,27 +49,30 @@ export class Project {
      * of errors due to misspelling or array vs object references.
      */
     constructor(name, description, profile, projectType, code, created, modified, timestamp) {
-        this.name = name;
-        this.description = description;
+        this.name = (name) ? name : "";
+        this.description = (description) ? description : "";
 
         // Handle legacy board types.
-        if (profile === 'activity-board') {
-            this.boardType = ProjectProfiles['activityboard'];
-        } else if (profile === 'heb-wx') {
-            this.boardType = ProjectProfiles['hebwx'];
+        if (profile) {
+            if (profile === 'activity-board') {
+                this.boardType = ProjectProfiles['activityboard'];
+            } else if (profile === 'heb-wx') {
+                this.boardType = ProjectProfiles['hebwx'];
+            } else {
+                this.boardType = ProjectProfiles[profile];
+            }
         } else {
-            this.boardType = ProjectProfiles[profile];
+            this.boardType = ProjectProfiles.unknown;
         }
 
-        this.projectType = ProjectTypes[projectType];
-
+        this.projectType = (projectType) ? ProjectTypes[projectType] : ProjectTypes.UNKNOWN;
         this.code = (code) ? code : this.EmptyProjectCodeHeader;
 
         // This should be a timestamp but is received as a string
         // TODO: Convert timestamp string to numeric values
-        this.created = created;
-        this.modified = modified;
-        this.timestamp = timestamp;
+        this.created = (created) ? created : Date.now();
+        this.modified = (modified) ? modified : this.modified;
+        this.timestamp = (timestamp) ? timestamp : Date.timestamp;
 
         // instance properties that are deprecated
         this.id = 0;
@@ -157,7 +159,7 @@ export const ProjectTypes = {
  *
  * @type Object - This returns a board type object
  */
-const ProjectProfiles = {
+export const ProjectProfiles = {
     "activityboard": {
         name: "activity-board",
         description: "Propeller Activity Board",
@@ -301,3 +303,20 @@ const ProjectProfiles = {
         saves_to: []
     }
 };
+
+
+/*
+export class ProjectData {
+    constructor(data) {
+        this.projectData = data;
+    }
+
+    get() {
+        return this.projectData;
+    }
+
+    set(data) {
+        this.projectData = data;
+    }
+}
+*/

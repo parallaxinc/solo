@@ -24,7 +24,8 @@
 //import * as Blockly from 'blockly';
 import Blockly from 'blockly';
 
-import {projectData, pTerm} from './globals';
+import {setPropToolbarButtons} from './editor'
+
 import {
     graph,
     selectComPort,
@@ -166,31 +167,6 @@ var find_client = function () {
     }
 };
 
-var setPropToolbarButtons = function (ui_btn_state) {
-    if (ui_btn_state === 'available') {
-        if (projectData && projectData.board === 's3') {
-            // Hide the buttons that are not required for the S3 robot
-            $('.no-s3').addClass('hidden');
-            $('#client-available').addClass('hidden');
-            // Reveal the short client available message
-            $('#client-available-short').removeClass('hidden');
-        } else {
-            // Reveal these buttons
-            $('.no-s3').removeClass('hidden');
-            $('#client-available').removeClass('hidden');
-            $('#client-available-short').addClass('hidden');
-        }
-
-        $("#client-unavailable").addClass("hidden");
-        $(".client-action").removeClass("disabled");
-    } else {
-        // Disable the toolbar buttons
-        $("#client-unavailable").removeClass("hidden");
-        $("#client-available").addClass("hidden");
-        $("#client-available-short").addClass("hidden");
-        $(".client-action").addClass("disabled");
-    }
-};
 
 /**
  * @function checkClientVersionModal Displays a modal with information 

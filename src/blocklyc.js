@@ -26,7 +26,8 @@ import * as js_beautify from 'js-beautify'
 import saveAs from 'file-saver';
 import JSZip from 'jszip';
 
-import {EMPTY_PROJECT_CODE_HEADER, projectData, pTerm} from './globals'
+import {EMPTY_PROJECT_CODE_HEADER} from './globals'
+
 import {
     launcher_result,
     launcher_download,

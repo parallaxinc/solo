@@ -40,9 +40,6 @@ import {
     TEMP_PROJECT_STORE_NAME
 } from './globals';
 
-import {projectData} from "./globals";
-import {pTerm} from "./globals";
-
 import {page_text_label, tooltip_text} from './blockly/language/en/messages'
 
 import {
@@ -94,14 +91,10 @@ import {
     setProfile
 } from './blockly/generators/propc';
 
-import {
-    Project,
-    ProjectTypes
-} from './project';
+import Project from './project';
+import {ProjectTypes} from './project';
 
-import {
-    filterToolbox
-} from './blockly/generators/propcToolbox';
+import {filterToolbox} from './blockly/generators/propcToolbox';
 
 
 /* Error logging */
@@ -239,6 +232,7 @@ const checkLastSavedTime = function () {
  */
 
 $(() => {
+
     RenderPageBrandingElements();
 
     // License link click event handler
@@ -277,6 +271,7 @@ $(() => {
         // If the localStorage is empty, store the current project into the
         // localStore so that if the page is being refreshed, it will
         // automatically be reloaded.
+
         if (projectData &&
             projectData.name !== "undefined" &&
             ! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
@@ -338,10 +333,15 @@ $(() => {
         NewProjectModal();
 
     } else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
+
+        console.log("Loading from %s", LOCAL_PROJECT_STORE_NAME);
+
         // Load a project from localStorage if available
         try {
             // Get a copy of the last know state of the current project
             let localProject = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
+
+            console.log("Local project: %s", localProject);
 
             // TODO: Address clear workspace has unexpected result
             // **************************************************
@@ -1936,3 +1936,30 @@ function evaluateProjectBlockBoardType(blockName) {
     return blockName !== "comments";
 }
 
+
+
+export var setPropToolbarButtons = function (ui_btn_state) {
+    if (ui_btn_state === 'available') {
+        if (projectData && projectData.board === 's3') {
+            // Hide the buttons that are not required for the S3 robot
+            $('.no-s3').addClass('hidden');
+            $('#client-available').addClass('hidden');
+            // Reveal the short client available message
+            $('#client-available-short').removeClass('hidden');
+        } else {
+            // Reveal these buttons
+            $('.no-s3').removeClass('hidden');
+            $('#client-available').removeClass('hidden');
+            $('#client-available-short').addClass('hidden');
+        }
+
+        $("#client-unavailable").addClass("hidden");
+        $(".client-action").removeClass("disabled");
+    } else {
+        // Disable the toolbar buttons
+        $("#client-unavailable").removeClass("hidden");
+        $("#client-available").addClass("hidden");
+        $("#client-available-short").addClass("hidden");
+        $(".client-action").addClass("disabled");
+    }
+};

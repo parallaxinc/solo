@@ -26,7 +26,6 @@ import 'bootstrap'
 
 import {
     EMPTY_PROJECT_CODE_HEADER,
-    projectData,
     LOCAL_PROJECT_STORE_NAME,
     TEMP_PROJECT_STORE_NAME
 } from './globals'
@@ -35,7 +34,7 @@ import {page_text_label} from './blockly/language/en/messages'
 import {checkLeave, getXml, setupWorkspace, resetToolBoxSizing, getTimestamp} from "./editor"
 import {profile} from "./blockly/generators/propc";
 import {isExperimental} from "./utils";
-import {Project} from "./project";
+// import {Project} from "./project";
 
 /**
  * Start the process to open a new project
