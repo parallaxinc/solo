@@ -26,14 +26,6 @@
  *
  * @type {null}
  */
-var term = null;
-
-
-/**
- * TODO: Identify the purpose of this variable
- *
- * @type {null}
- */
 var graph = null;
 
 
@@ -691,16 +683,9 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
  * Serial console support
  */
 function serial_console() {
-    var newTerminal = false;
-
-    // HTTP client
-    if (clientService.type !== 'ws') {
-        if (term === null) {
-            term = {
-                portPath: getComPort()
-            };
-            newTerminal = true;
-        }
+    clientService.sendCharacterStreamTo = 'term';
+    
+    if (clientService.type !== 'ws') {   // HTTP client
 
         if (clientService.portsAvailable) {
             var connection = new WebSocket(clientService.url("serial.connect", "ws"));
@@ -735,40 +720,29 @@ function serial_console() {
                 pTerm.focus();
             };
 
-            if (!newTerminal) {
-                pTerm.display(null);
-            }
-
             $('#console-dialog').on('hidden.bs.modal', function () {
+                clientService.sendCharacterStreamTo = null;
                 active_connection = null;
                 connString = '';
                 connStrYet = false;
                 connection.close();
                 displayTerminalConnectionStatus(null);
                 pTerm.display(null);
-                term = null;
             });
         } else {
             active_connection = 'simulated';
 
-            if (newTerminal) {
-                displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
-                pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
-            }
+            displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
+            pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
 
             $('#console-dialog').on('hidden.bs.modal', function () {
+                clientService.sendCharacterStreamTo = null;
                 active_connection = null;
                 displayTerminalConnectionStatus(null);
                 pTerm.display(null);
-                term = null;
             });
         }
-    } else if (clientService.type === 'ws') {
-        // using Websocket-only client
-
-        term = {
-            portPath: getComPort()
-        };
+    } else if (clientService.type === 'ws') {   // using Websocket-only client
 
         var msg_to_send = {
             type: 'serial-terminal',
@@ -789,6 +763,7 @@ function serial_console() {
         clientService.activeConnection.send(JSON.stringify(msg_to_send));
 
         $('#console-dialog').on('hidden.bs.modal', function () {
+            clientService.sendCharacterStreamTo = null;
             if (msg_to_send.action !== 'close') { // because this is getting called multiple times...?
                 msg_to_send.action = 'close';
                 displayTerminalConnectionStatus(null);
@@ -818,6 +793,7 @@ function displayTerminalConnectionStatus(connectionInfo) {
  * Graphing console
  */
 function graphing_console() {
+    clientService.sendCharacterStreamTo = 'graph';
     var propcCode = Blockly.propc.workspaceToCode(Blockly.mainWorkspace);
 
     // If there are graph settings, extract them
@@ -924,6 +900,7 @@ function graphing_console() {
             };
 
             $('#graphing-dialog').on('hidden.bs.modal', function () {
+                clientService.sendCharacterStreamTo = null;
                 connection.close();
                 graphStartStop('stop');
                 connString = '';
@@ -959,6 +936,7 @@ function graphing_console() {
             }
 
             $('#graphing-dialog').on('hidden.bs.modal', function () {
+                clientService.sendCharacterStreamTo = null;
                 graphStartStop('stop');
                 if (msg_to_send.action !== 'close') { // because this is getting called multiple times.... ?
                     msg_to_send.action = 'close';
