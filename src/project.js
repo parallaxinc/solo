@@ -22,7 +22,6 @@
 
 'use strict';
 
-
 /**
  * Default implementation of a project object
  * @constructor
@@ -31,14 +30,14 @@ class Project {
 
     /**
      * Project constructor
-     * @param name
-     * @param description
-     * @param profile
-     * @param projectType
-     * @param code
-     * @param created
-     * @param modified
-     * @param timestamp
+     * @param name {string}
+     * @param description {string}
+     * @param profile {ProjectProfiles}
+     * @param projectType {ProjectTypes}
+     * @param code {string}
+     * @param created {Date}
+     * @param modified {Date}
+     * @param timestamp {number}
      *
      * @description
      * The board types, also referenced as a specific board profile,
@@ -49,21 +48,26 @@ class Project {
      * with a '.' dot notation and eliminates some potential sources
      * of errors due to misspelling or array vs object references.
      */
-    constructor(name, description, profile, projectType, code, created, modified, timestamp) {
-        this.name = name;
-        this.description = description;
+    constructor(name, description, profile, projectType,
+                code, created, modified, timestamp) {
 
-        // Handle legacy board types.
-        if (profile === 'activity-board') {
-            this.boardType = ProjectProfiles['activityboard'];
-        } else if (profile === 'heb-wx') {
-            this.boardType = ProjectProfiles['hebwx'];
+        this.name = (name) ? name : "";
+        this.description = (description) ? description : "";
+
+        if (profile) {
+            // Handle legacy board types.
+            if (profile === 'activity-board') {
+                this.boardType = ProjectProfiles['activityboard'];
+            } else if (profile === 'heb-wx') {
+                this.boardType = ProjectProfiles['hebwx'];
+            } else {
+                this.boardType = ProjectProfiles[profile];
+            }
         } else {
-            this.boardType = ProjectProfiles[profile];
+            this.boardType = ProjectProfiles.unknown;
         }
 
-        this.projectType = ProjectTypes[projectType];
-
+        this.projectType = (projectType) ? ProjectTypes[projectType] : ProjectTypes.UNKNOWN;
         this.code = (code) ? code : this.EmptyProjectCodeHeader;
 
         // This should be a timestamp but is received as a string
@@ -80,6 +84,33 @@ class Project {
         this.user = 'offline';
         this.yours = true;
     }
+
+    /**
+     * Get all of the project details in one function call. This is
+     * a direct replacement for the code that is converted to JSON
+     * to persist the project to storage.
+     * @returns {{shared: *, private: *, boardType: *, code: *, created: *, description: *, type: *, name: *, modified: *, descriptionHtml: *, id: *, user: *, yours: *, timestamp: *}}
+     */
+    getDetails() {
+        return {
+            id: this.id, board: this.boardType.name, type: this.projectType, name: this.name,
+            description: this.description, "description-html": this.descriptionHtml,
+            code: this.code, created: this.created, modified: this.modified, private: this.private,
+            shared: this.shared, user: this.user, yours: this.yours, timestamp: this.timestamp
+        };
+    }
+
+
+    /**
+     * Save the project details to a specified location in the browser's
+     * localStorage.
+     * @param localStoreName
+     */
+    stashProject(localStoreName) {
+        window.localStorage.setItem(
+            localStoreName,
+            JSON.stringify(this.getDetails()));
+    }
 }
 
 
@@ -93,42 +124,6 @@ class Project {
  * be misspelled without detection.
  */
 Project.prototype.EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
-
-
-/**
- * Get all of the project details in one function call. This is
- * a direct replacement for the code that is converted to JSON
- * to persist the project to storage.
- * @returns {{shared: *, private: *, boardType: *, code: *, created: *, description: *, type: *, name: *, modified: *, descriptionHtml: *, id: *, user: *, yours: *, timestamp: *}}
- */
-Project.prototype.getDetails = function() {
-    return {
-        id: this.id,
-        board: this.boardType.name,
-        type: this.projectType,
-        name: this.name,
-        description: this.description,
-        "description-html": this.descriptionHtml,
-        code: this.code,
-        created: this.created,
-        modified: this.modified,
-        private: this.private,
-        shared: this.shared,
-        user: this.user,
-        yours: this.yours,
-        timestamp: this.timestamp
-    };
-};
-
-
-/**
- * Save the project details to a specified location in the browser's
- * localStorage.
- * @param localStoreName
- */
-Project.prototype.stashProject = function(localStoreName) {
-    window.localStorage.setItem(localStoreName, JSON.stringify(this.getDetails()));
-};
 
 
 /**
