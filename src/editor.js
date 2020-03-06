@@ -1290,17 +1290,28 @@ function uploadHandler(files) {
 
             // Compute a parallel dataset to replace 'pd'
             try {
+                // Convert the string board type name to a ProjectBoardType object
+
+                let tmpBoardType = Project.convertBoardType(uploadBoardType);
+                if (tmpBoardType === undefined) {
+                    console.log("Unknown board type: %s", uploadBoardType);
+                }
+
                 let project = new Project(
                     decodeFromValidXml(projectTitle),
                     decodeFromValidXml(projectDesc),
-                    Project.convertBoardType(uploadBoardType),
+                    tmpBoardType,
                     ProjectTypes.PROPC,
                     uploadedXML,
                     projectCreated,
                     projectModified,
                     getTimestamp());
 
+                // Convert the Project object details to projectData object
                 let projectOutput = project.getDetails();
+                if (projectOutput === undefined) {
+                    console.log("Unable to convert Project to projectData object.");
+                }
 
                 if (! Project.testProjectEquality(pd, projectOutput)) {
                     console.log("Project output differs.");
