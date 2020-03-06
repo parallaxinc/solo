@@ -1287,30 +1287,46 @@ function uploadHandler(files) {
             };
 
             // Compute a parallel dataset to replace 'pd'
-            let project = new Project(
-                decodeFromValidXml(projectTitle),
-                decodeFromValidXml(projectDesc),
-                Project.convertBoardType(uploadBoardType),
-                ProjectTypes.PROPC,
-                uploadedXML,
-                projectCreated,
-                projectModified,
-                getTimestamp());
+            try {
+                // Convert the string board type name to a ProjectBoardType object
 
+                let tmpBoardType = Project.convertBoardType(uploadBoardType);
+                if (tmpBoardType === undefined) {
+                    console.log("Unknown board type: %s", uploadBoardType);
+                }
+
+                let project = new Project(
+                    decodeFromValidXml(projectTitle),
+                    decodeFromValidXml(projectDesc),
+                    tmpBoardType,
+                    ProjectTypes.PROPC,
+                    uploadedXML,
+                    projectCreated,
+                    projectModified,
+                    getTimestamp());
+
+                // Convert the Project object details to projectData object
                 let projectOutput = project.getDetails();
+                if (projectOutput === undefined) {
+                    console.log("Unable to convert Project to projectData object.");
+                }
 
                 if (! Project.testProjectEquality(pd, projectOutput)) {
                     console.log("Project output differs.");
                 }
+            }
+            catch (e) {
+                console.log("Error while creating project object. %s", e.message);
+            }
 
-                // Save the output in a temp storage space
-                // TODO: Test this result with the value 'pd'
-                // window.localStorage.setItem(
-                //     "tempProject",
-                //     JSON.stringify(projectOutput));
+            // Save the output in a temp storage space
+            // TODO: Test this result with the value 'pd'
+            // window.localStorage.setItem(
+            //     "tempProject",
+            //     JSON.stringify(projectOutput));
 
-                // Save the project to the browser store
-                window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
+            // Save the project to the browser store
+            window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
         }
 
         if (xmlValid === true) {

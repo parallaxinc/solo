@@ -996,12 +996,18 @@ var graphStartStop = function (action) {
  * The BP-Launcher handles this differently inside of blocklypropclient.js
  */
 var checkForComPorts = function () {
-    if (clientService.type === 'http') {
-        $.get(clientService.url("ports.json"), function (data) {
-            setPortListUI(data);
-        }).fail(function () {
-            setPortListUI();
-        });
+    // TODO: We need to evaluate this when using web sockets ('ws') === true
+    try {
+        if (clientService.type !== 'ws') {
+            $.get(clientService.url("ports.json"), function (data) {
+                setPortListUI(data);
+            }).fail(function () {
+                setPortListUI();
+            });
+        }
+    } catch (e) {
+        Console.log("Unable to get port list. %s", e.message);
+        setPortListUI();
     }
 };
 
