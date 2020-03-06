@@ -1014,12 +1014,17 @@ var graphStartStop = function (action) {
  */
 var checkForComPorts = function () {
     // TODO: We need to evaluate this when using web sockets ('ws') === true
-    if (clientService.type !== 'ws') {
-        $.get(clientService.url("ports.json"), function (data) {
-            setPortListUI(data);
-        }).fail(function () {
-            setPortListUI();
-        });
+    try {
+        if (clientService.type !== 'ws') {
+            $.get(clientService.url("ports.json"), function (data) {
+                setPortListUI(data);
+            }).fail(function () {
+                setPortListUI();
+            });
+        }
+    } catch (e) {
+        Console.log("Unable to get port list. %s", e.message);
+        setPortListUI();
     }
 };
 
