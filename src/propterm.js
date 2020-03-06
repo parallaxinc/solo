@@ -26,6 +26,7 @@
  * @author Matthew Matz matt.m.matz@gmail.com
  * @function PropTerm
  */
+// eslint-disable-next-line no-unused-vars
 class PropTerm {
     /**
      * @param {HTMLElement} terminalElement HTML element to populate the terminal into.
@@ -704,6 +705,7 @@ class PropTerm {
 /**
  * Terminal options for the PropTerm class
  */
+// eslint-disable-next-line no-unused-vars
 class TerminalOptions {
     /**
      * @param {boolean} echoKeys optional- if set to true, echo keys typed into the terminal.  Default is true.
