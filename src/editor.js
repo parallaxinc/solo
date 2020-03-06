@@ -1261,8 +1261,8 @@ function uploadHandler(files) {
             // TODO: instead of parsing by text indexOf's, use XML properly.
             let findBPCstart = '<block';
 
-            if (xmlString.indexOf("<variables>") > -1) {
-                findBPCstart = '<variables>';
+            if (xmlString.indexOf("<variables") > -1) {
+                findBPCstart = '<variables';
             }
 
             uploadedXML = xmlString.substring(xmlString.indexOf(findBPCstart), (xmlString.length - 29));
@@ -1532,12 +1532,12 @@ function uploadMergeCode(append) {
         if (newCode.indexOf('<variables>') === -1) {
             newCode = newCode.substring(uploadedXML.indexOf('<block'), newCode.length);
         } else {
-            newCode = newCode.substring(uploadedXML.indexOf('<variables>'), newCode.length);
+            newCode = newCode.substring(uploadedXML.indexOf('<variables'), newCode.length);
         }
         newCode = newCode.substring(0, (newCode.length - 6));
 
         // check for newer blockly XML code (contains a list of variables)
-        if (newCode.indexOf('<variables>') > -1 && projCode.indexOf('<variables>') > -1) {
+        if (newCode.indexOf('<variables') > -1 && projCode.indexOf('<variables') > -1) {
             var findVarRegExp = /type="(\w*)" id="(.{20})">(\w+)</g;
             var newBPCvars = [];
             var oldBPCvars = [];
@@ -1545,7 +1545,7 @@ function uploadMergeCode(append) {
             var varCodeTemp = newCode.split('</variables>');
             newCode = varCodeTemp[1];
             // use a regex to match the id, name, and type of the varaibles in both the old and new code.
-            var tmpv = varCodeTemp[0].split('<variables>')[1].replace(findVarRegExp, function (p, m1, m2, m3) {  // type, id, name
+            var tmpv = varCodeTemp[0].split('<variables')[1].replace(findVarRegExp, function (p, m1, m2, m3) {  // type, id, name
                 newBPCvars.push([m3, m2, m1]);  // name, id, type
                 return p;
             });
@@ -1586,7 +1586,7 @@ function uploadMergeCode(append) {
             tmpv += '</variables>';
             // add everything back together
             projectData.code = EMPTY_PROJECT_CODE_HEADER + tmpv + projCode + newCode + '</xml>';
-        } else if (newCode.indexOf('<variables>') > -1 && projCode.indexOf('<variables>') === -1) {
+        } else if (newCode.indexOf('<variables') > -1 && projCode.indexOf('<variables') === -1) {
             projectData.code = EMPTY_PROJECT_CODE_HEADER + newCode + projCode + '</xml>';
         } else {
             projectData.code = EMPTY_PROJECT_CODE_HEADER + projCode + newCode + '</xml>';
