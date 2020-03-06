@@ -1075,7 +1075,7 @@ function downloadCode() {
 
     if (projectData
         && projectData.board !== 'propcfile'
-        && projectXml.getElementsByTagName('block').length > 0) {
+        && projectXml.getElementsByTagName('block').length < 1) {
 
         // The project is empty, so warn and exit.
         utils.showMessage(
