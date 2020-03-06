@@ -273,26 +273,48 @@ function CreateNewProject() {
     let description = $("#new-project-description").val();
     let boardType = $('#new-project-board-type').val();
 
-    // eslint-disable-next-line no-undef
-    let newProject = new Project(
-        projectName, description, boardType, "PROPC", code,
+    try {
+        let tmpBoardType = Project.convertBoardType(boardType);
+        if (tmpBoardType === undefined) {
+            console.log("Unknown board type: %s", uploadBoardType);
+        }
+
         // eslint-disable-next-line no-undef
-        createdDateHtml, createdDateHtml, getTimestamp());
+        let newProject = new Project(
+            projectName,
+            description,
+            tmpBoardType,
+            "PROPC",
+            code,
+            // eslint-disable-next-line no-undef
+            createdDateHtml, createdDateHtml, getTimestamp());
 
-    // Save the project to the browser local store for the page
-    // transition
-    // eslint-disable-next-line no-undef
-    newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
+        // Save the project to the browser local store for the page
+        // transition
+        // eslint-disable-next-line no-undef
+        newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
 
-    // ------------------------------------------------------
-    // Clear the projectData global to prevent the onLeave
-    // event handler from storing the old project code into
-    // the browser storage.
-    // ------------------------------------------------------
-    projectData = null;
+        // ------------------------------------------------------
+        // Clear the projectData global to prevent the onLeave
+        // event handler from storing the old project code into
+        // the browser storage.
+        // ------------------------------------------------------
+        projectData = null;
+    } catch (e) {
+        console.log("Error while creating project object. %s", e.message);
+    }
 
     // Redirect to the editor page
-    window.location = 'blocklyc.html' + window.getAllURLParameters();
+    try {
+        let parameters = window.getAllURLParameters();
+        if (parameters !== '?') {
+            window.location = 'blocklyc.html' + parameters;
+        }
+    } catch (e) {
+        console.log("Error while creating project object. %s", e.message);
+    }
+
+    window.location = 'blocklyc.html';
 }
 
 
