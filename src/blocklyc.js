@@ -198,10 +198,8 @@ function renderContent(id) {
     const selectedTab = id.replace('tab_', '');
     const isPropcOnlyProject = (projectData.board === 'propcfile');
 
-    let isDebug = window.getURLParameter('debug');
-    if (!isDebug) {
-        isDebug = false;
-    }
+    // Read the URL for experimental parameters to turn on XML editing
+    let allowXmlEditing = isExperimental.indexOf('xedit') > -1;
 
     if (isPropcOnlyProject) {
         // Show PropC editing UI elements
@@ -220,12 +218,12 @@ function renderContent(id) {
             $('#btn-view-propc').css('display', 'inline-block');
             $('#btn-view-blocks').css('display', 'none');
 
-            if ((isDebug) && codeXml.getValue().length > 40) {
+            if ((allowXmlEditing) && Blockly && codeXml && codeXml.getValue().length > 40) {
                 Blockly.Xml.clearWorkspaceAndLoadFromXml(Blockly.Xml.textToDom(codeXml.getValue()), Blockly.mainWorkspace);
-            } else {
-                Blockly.svgResize(Blockly.mainWorkspace);
-                Blockly.mainWorkspace.render();
-            }
+            } 
+            Blockly.svgResize(Blockly.mainWorkspace);
+            Blockly.mainWorkspace.render();
+
             break;
         case 'propc':
             $('.blocklyToolboxDiv').css('display', 'none')
@@ -234,8 +232,8 @@ function renderContent(id) {
             $('#content_propc').css('display', 'block');
             $('#content_blocks').css('display', 'none');
 
-            $('#btn-view-xml').css('display', 'none');
-            $('#btn-view-blocks').css('display', (isPropcOnlyProject ? 'none' : 'inline-block'));
+            $('#btn-view-xml').css('display', allowXmlEditing ? 'inline-block' : 'none');
+            $('#btn-view-blocks').css('display', ((isPropcOnlyProject || allowXmlEditing) ? 'none' : 'inline-block'));
             $('#btn-view-propc').css('display', 'none');
             if (!isPropcOnlyProject) {
                 let raw_c = prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace));
@@ -271,14 +269,12 @@ function renderContent(id) {
             $('#btn-view-blocks').css('display', 'inline-block');
 
             // Load project code
-            codeXml.setValue(Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.mainWorkspace)));
+            codeXml.setValue(Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.mainWorkspace)) || '');
             codeXml.getSession().setUseWrapMode(true);
             codeXml.gotoLine(0);
 
             break;
-
     }
-
 }
 
 
@@ -408,18 +404,15 @@ function init(blockly) {
         }
     }
 
-    if (!codeXml && (window.getURLParameter('debug'))) {
+    if (!codeXml && isExperimental.indexOf('xedit') > -1) {
         codeXml = ace.edit("code-xml");
         codeXml.setTheme("ace/theme/chrome");
         codeXml.getSession().setMode("ace/mode/xml");
-        //codeXml.setReadOnly(true);
     }
 
     window.Blockly = blockly;
 
-    // TODO: Use constant EMPTY_PROJECT_CODE_HEADER instead of string.
-    //  Replace string length check with code that detects the first
-    //  <block> xml element.
+    // TODO: Replace string length check with code that detects the first <block> xml element.
     if (projectData) {
         // Looking for the first <block> XML element
         const searchTerm = '<block';
