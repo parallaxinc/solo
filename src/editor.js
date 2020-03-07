@@ -103,6 +103,7 @@ import {filterToolbox} from './blockly/generators/propcToolbox';
 
 /** GLOBAL VARIABLES **/
 
+let projectData = null;
 
 /**
  * The default number of minutes to wait until the user is prompted
