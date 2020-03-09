@@ -160,7 +160,8 @@ $(() => {
     RenderPageBrandingElements();
 
     // Set the compile toolbar buttons to unavailable
-    setPropToolbarButtons();
+    // setPropToolbarButtons();
+    PropToolbarButtonController(false);
 
     /* -- Set up amy event handlers once the DOM is ready -- */
 
@@ -269,6 +270,11 @@ $(() => {
             setupWorkspace(localProject, function () {
                 window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
             });
+
+            // Set the compile toolbar buttons to unavailable
+            // setPropToolbarButtons();
+            PropToolbarButtonController(false);
+
         } catch (objError) {
             if (objError instanceof SyntaxError) {
                 console.error(objError.name);
