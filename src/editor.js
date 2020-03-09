@@ -159,6 +159,9 @@ const checkLastSavedTime = function () {
 $(() => {
     RenderPageBrandingElements();
 
+    // Set the compile toolbar buttons to unavailable
+    setPropToolbarButtons();
+
     /* -- Set up amy event handlers once the DOM is ready -- */
 
     // Update the blockly workspace to ensure that it takes
@@ -293,7 +296,7 @@ $(() => {
         function(characterToSend) {
             if (clientService.type === 'http' && clientService.activeConnection) {
                 clientService.activeConnection.send(btoa(characterToSend));
-        
+
             } else if (clientService.type === 'ws') {
                 var msg_to_send = {
                     type: 'serial-terminal',
@@ -304,7 +307,7 @@ $(() => {
                     action: 'msg'
                 };
                 clientService.activeConnection.send(JSON.stringify(msg_to_send));
-            }    
+            }
         }
     );
 });
@@ -1192,7 +1195,7 @@ function generateSvgFooter( project ) {
     svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-8)">' +
         'Description: ' + encodeToValidXml(project.description) + '</text>';
 
-    svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' + 
+    svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' +
         project.created + '" data-lastmodified="' + dt + '"></text>';
 
     return svgFooter;
