@@ -39,7 +39,7 @@ var clientService = {
 
     rxBase64: true,               // {boolean} BP Lancher full base64 encoding support flag
     loadBinary: false,            // {boolean} BP Launcher download message flag
-    resultLog: '',                // {boolean} BP Launcher result log 
+    resultLog: '',                // {boolean} BP Launcher result log
 
     portListReceiveCountUp: 0,    // This is set to 0 each time the port list is received, and incremented once each 4 second heartbeat
     activeConnection: null,       // Used differently by BPL and BPC - pointer to connection object
@@ -51,7 +51,7 @@ var clientService = {
     },
     version: {
         // Constants
-        MINIMUM_ALLOWED: '0.7.0', // {string} Semantic versioning, minimum client (BPL/BPC) allowed 
+        MINIMUM_ALLOWED: '0.7.0', // {string} Semantic versioning, minimum client (BPL/BPC) allowed
         RECOMMENDED: '0.11.0',    // {string} Semantic versioning, minimum recommended client/launcher version
         CODED_MINIMUM: '0.7.5',   // {string} Semantic versioning, Minimum client/launcher version supporting coded/verbose responses (remove after MINIMUM_ALLOWED > this)
 
@@ -66,14 +66,14 @@ var clientService = {
         getNumeric: function (rawVersion) {
             var tempVersion = rawVersion.toString().split(".");
             tempVersion.push('0');
-        
+
             if (tempVersion.length < 3) {
                 if (tempVersion.length === 1)
                     tempVersion = '0.0.0';
                 else
                     tempVersion.unshift('0');
             }
-        
+
             // Allow for any of the three numbers to be between 0 and 1023.
             // Equivalent to: (Major * 104856) + (Minor * 1024) + Revision.
             return (Number(tempVersion[0]) << 20 | Number(tempVersion[1]) << 10 | Number(tempVersion[2]));
@@ -125,13 +125,18 @@ var findClient = function () {
     if (clientService.type !== 'ws') {
         establishBPClientConnection();
     }
-    
+
     // If connected to the BP-Client, poll for an updated port list
     if (clientService.type === 'http') {
         checkForComPorts();
     }
 };
 
+
+/**
+ * Set button state for the Compiler toolbar
+ * @deprecated Replaced with PropToolbarButtonController()
+ */
 var setPropToolbarButtons = function () {
     if (clientService.available) {
         if (projectData && projectData.board === 's3') {
@@ -158,11 +163,66 @@ var setPropToolbarButtons = function () {
     }
 };
 
+
 /**
- * @function checkClientVersionModal Displays a modal with information 
+ *  Update the state of the Compiler toolbar buttons
+ *
+ * @param {boolean} connected
+ *
+ * @constructor
+ */
+const PropToolbarButtonController = (connected) => {
+    if (projectData && projectData.board === 's3') {
+        /* ----------------------------------------------------------------
+         * Hide the buttons that are not required for the S3 robot
+         *
+         * Find all of the HTML elements that have a class id of 'no-s3'
+         * and append a hidden attribute to the selected HTML elements.
+         * This currently applies to the elements prop-btn-ram and
+         *  prop-btn-graph.
+         * --------------------------------------------------------------*/
+        $('.no-s3').addClass('hidden');
+
+        // Toggle the client available message to display the short form
+        $('#client-available').addClass('hidden');
+        $('#client-available-short').removeClass('hidden');
+    } else {
+        // Reveal these buttons
+        $('.no-s3').removeClass('hidden');
+
+        // Toggle the client available message to display the long form
+        $('#client-available').removeClass('hidden');
+        $('#client-available-short').addClass('hidden');
+    }
+
+    // Update elements when we are connected
+    if (connected) {
+        // Hide the 'client unavailable' message
+        $("#client-unavailable").addClass("hidden");
+
+        /* Enable these buttons:
+         *   Compile to RAM
+         *   Compile to EEPROM
+         *   Open Terminal
+         *   Open graphing window
+         */
+        $(".client-action").removeClass("disabled");
+    } else {
+        // Disable the toolbar buttons
+        $("#client-unavailable").removeClass("hidden");
+        $("#client-available").addClass("hidden");
+        $("#client-available-short").addClass("hidden");
+        $(".client-action").addClass("disabled");
+    }
+};
+
+
+
+/**
+ * @function checkClientVersionModal Displays a modal with information
  * about the client version if the one being used is outdated.
- * If the version is below the recommended version, the user is 
- * warned, and versions below the minimum are alerted. 
+ * If the version is below the recommended version, the user is
+ * warned, and versions below the minimum are alerted.
  * @param {string} rawVersion string representing the client version in '0.0.0' format (Semantic versioning)
  */
 function checkClientVersionModal(rawVersion) {
@@ -177,7 +237,7 @@ function checkClientVersionModal(rawVersion) {
         } else if (clientService.version.isValid) {
             $("#client-warning-span").removeClass("hidden");
         } else {
-            $("#client-danger-span").removeClass("hidden");     
+            $("#client-danger-span").removeClass("hidden");
         }
 
         $(".client-required-version").html(clientService.version.RECOMMENDED);
@@ -206,15 +266,22 @@ var establishBPClientConnection = function () {
             }
 
             checkClientVersionModal(client_version_str);
+
             clientService.type = 'http';
-            clientService.available = true;
-            setPropToolbarButtons();
+            clientService.available = true;         // Connected to the Launcher/Client
+
+            // Set the compiler toolbar elements
+            // setPropToolbarButtons();
+            PropToolbarButtonController(clientService.available);
         }
     }).fail(function () {
         clientService.type = null;
-        clientService.available = false;
+        clientService.available = false;            // Not connected to the Launcher/Client
         clientService.portsAvailable = false;
-        setPropToolbarButtons();
+
+        // Set the compiler toolbar elements
+        // setPropToolbarButtons();
+        PropToolbarButtonController(clientService.available);
     });
 };
 
@@ -222,7 +289,7 @@ var establishBPClientConnection = function () {
 /**
  * Create a modal that allows the user to set a different port or path
  * to the BlocklyProp-Client or -Launcher
- * 
+ *
  * TODO: Add fields for setting a different path to the compile service (for anyone wanting to host their own)
  */
 var configureConnectionPaths = function () {
@@ -331,12 +398,15 @@ function establishBPLauncherConnection() {
 
                 clientService.rxBase64 = wsMessage.rxBase64 || false;
                 clientService.type = 'ws';
-                clientService.available = true;
-                setPropToolbarButtons();
+                clientService.available = true;     // Connected to the Launcher/Client
+
+                // Set the compiler toolbar elements
+                // setPropToolbarButtons();
+                PropToolbarButtonController(clientService.available);
 
                 var portRequestMsg = JSON.stringify({type: 'port-list-request', msg: 'port-list-request'});
                 connection.send(portRequestMsg);
-            
+
 
             // --- com port list/change
             } else if (wsMessage.type === 'port-list') {
@@ -362,12 +432,12 @@ function establishBPLauncherConnection() {
                     }
                     messageText = wsMessage.msg;
                 }
-                
-                if (clientService.sendCharacterStreamTo && messageText !== '' && wsMessage.packetID) { 
+
+                if (clientService.sendCharacterStreamTo && messageText !== '' && wsMessage.packetID) {
                     if (clientService.sendCharacterStreamTo === 'term') { // is the terminal open?
                         pTerm.display(messageText);
                         pTerm.focus();
-                    } else {    // is the graph open? 
+                    } else {    // is the graph open?
                         graph_new_data(messageText);
                     }
                 }
@@ -448,15 +518,17 @@ function establishBPLauncherConnection() {
 
 /**
  * Lost websocket connection, clean up and restart findClient processing
- */ 
+ */
 function lostWSConnection() {
     if (clientService.type !== 'http') {
         clientService.activeConnection = null;
         clientService.type = null;
-        clientService.available = false;
+        clientService.available = false;        // Not connected to the Launcher/Client
     }
 
-    setPropToolbarButtons();
+    // Set the compiler toolbar elements
+    // setPropToolbarButtons();
+    PropToolbarButtonController(clientService.available);
 
     // Clear ports list
     setPortListUI();
