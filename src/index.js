@@ -21,37 +21,17 @@
  */
 
 
-// Update page elements
-// This construct replaces the document.ready() that was
-// deprecated in jquery 1.9
-$(function () {
-    let appName = ApplicationName;
-    if (window.location.hostname === product_banner_host_trigger) {
-        appName = TestApplicationName;
-    }
-
-    showAppName();
-    showAppBannerTitle(appName);
-    setCopyrightDate($('#footer_copyright'));
-    setCopyrightDate($('#license-copyright-date'));
-
-    // The browser localStorage object should be empty
-    window.localStorage.clear();
-
-    // If the experimental URL parameter is used, add it to the open and new project links
-    if (window.getURLParameter('experimental')) {
-        $('.editor-link').attr('href', function () {
-            return this + window.getAllURLParameters().replace('?', '&');
-        });
-    }
-});
-
-// Display the BlocklyProp Solo license in a modal window
+/**
+ * Display the BlocklyProp Solo license in a modal window
+ */
 function showLicense() {
     $('#licenseModal').modal();
 }
 
-// Display the application name
+
+/**
+ * Display the application name
+ */
 function showAppName() {
     let html = 'BlocklyProp<br><strong>Solo</strong>';
     if (window.location.hostname === product_banner_host_trigger) {
@@ -61,7 +41,10 @@ function showAppName() {
 }
 
 
-// Display the app name in the banner
+/**
+ * Display the app name in the banner
+ * @param {string} appName
+ */
 function showAppBannerTitle(appName) {
     $('#app-banner-title').html('BlocklyProp ' + appName);
     if (window.location.hostname === product_banner_host_trigger) {
@@ -69,8 +52,35 @@ function showAppBannerTitle(appName) {
     }
 }
 
-// Set the ending copyright date
+
+/**
+ * Set the ending copyright date
+ * @param {HTMLElement} element
+ */
 function setCopyrightDate(element) {
     let d = new Date();
-    element.html(d.getFullYear().toString());
+    element.innerHTML = d.getFullYear().toString();
 }
+
+
+let appName = ApplicationName;
+if (window.location.hostname === product_banner_host_trigger) {
+    appName = TestApplicationName;
+}
+
+showAppName();
+showAppBannerTitle(appName);
+setCopyrightDate(document.getElementById('footer_copyright'));
+setCopyrightDate(document.getElementById('license-copyright-date'));
+
+
+// The browser localStorage object should be empty
+window.localStorage.clear();
+
+// If the experimental URL parameter is used, add it to the open and new project links
+if (window.getURLParameter('experimental')) {
+  $('.editor-link').attr('href', function () {
+    return this + window.getAllURLParameters().replace('?', '&');
+  });
+}
+
