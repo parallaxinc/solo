@@ -6,5 +6,6 @@ src/editor.js
 src/globals.js
 src/modals.js
 src/propterm.js
+src/project.js
 src/utils.js
 
