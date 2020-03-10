@@ -1809,7 +1809,7 @@ function RenderPageBrandingElements() {
     let appName = ApplicationName;
     let html = 'BlocklyProp<br><strong>' + ApplicationName + '</strong>';
 
-    if (window.location.hostname === product_banner_host_trigger) {
+    if (window.location.hostname === productBannerHostTrigger) {
         appName = TestApplicationName;
         html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
         document.getElementById('nav-logo').style.backgroundImage = 'url(\'src/images/dev-toolkit.png\')';

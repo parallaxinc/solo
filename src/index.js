@@ -25,7 +25,7 @@
  * Display the BlocklyProp Solo license in a modal window
  */
 function showLicense() {
-    $('#licenseModal').modal();
+  $('#licenseModal').modal();
 }
 
 
@@ -33,11 +33,11 @@ function showLicense() {
  * Display the application name
  */
 function showAppName() {
-    let html = 'BlocklyProp<br><strong>Solo</strong>';
-    if (window.location.hostname === product_banner_host_trigger) {
-        html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
-    }
-    $('#nav-logo').html(html);
+  let html = 'BlocklyProp<br><strong>Solo</strong>';
+  if (window.location.hostname === productBannerHostTrigger) {
+    html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
+  }
+  $('#nav-logo').html(html);
 }
 
 
@@ -46,10 +46,11 @@ function showAppName() {
  * @param {string} appName
  */
 function showAppBannerTitle(appName) {
-    $('#app-banner-title').html('BlocklyProp ' + appName);
-    if (window.location.hostname === product_banner_host_trigger) {
-        document.getElementById('nav-logo').style.backgroundImage = 'url(\'src/images/dev-toolkit.png\')';
-    }
+  $('#app-banner-title').html('BlocklyProp ' + appName);
+  if (window.location.hostname === productBannerHostTrigger) {
+    document.getElementById('nav-logo')
+        .style.backgroundImage = 'url(\'src/images/dev-toolkit.png\')';
+  }
 }
 
 
@@ -58,14 +59,14 @@ function showAppBannerTitle(appName) {
  * @param {HTMLElement} element
  */
 function setCopyrightDate(element) {
-    let d = new Date();
-    element.innerHTML = d.getFullYear().toString();
+  const d = new Date();
+  element.innerHTML = d.getFullYear().toString();
 }
 
 
 let appName = ApplicationName;
-if (window.location.hostname === product_banner_host_trigger) {
-    appName = TestApplicationName;
+if (window.location.hostname === productBannerHostTrigger) {
+  appName = TestApplicationName;
 }
 
 showAppName();
@@ -77,9 +78,9 @@ setCopyrightDate(document.getElementById('license-copyright-date'));
 // The browser localStorage object should be empty
 window.localStorage.clear();
 
-// If the experimental URL parameter is used, add it to the open and new project links
+// Add experimental URL parameter to the open and new project links, if used
 if (window.getURLParameter('experimental')) {
-  $('.editor-link').attr('href', function () {
+  $('.editor-link').attr('href', function() {
     return this + window.getAllURLParameters().replace('?', '&');
   });
 }

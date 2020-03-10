@@ -57,7 +57,7 @@ const TestApplicationName = "Solocup";
  *
  * @type {string}
  */
-const product_banner_host_trigger = 'solocup.parallax.com';
+const productBannerHostTrigger = 'solocup.parallax.com';
 
 
 /**
@@ -145,11 +145,11 @@ var pTerm;
 
 
 
-/**  WIP/TODO: generate svg icons and inject them (search for glyphicon and font-awesome and replace them).  
+/**  WIP/TODO: generate svg icons and inject them (search for glyphicon and font-awesome and replace them).
  *
  * These are string representations of inline SVG elements to be used as icons.
  * using JS to inject these into the HTML keeps the HTML simpler and cleaner.
- * 
+ *
  * @type {object}
  */
 const bpIcons = {
