@@ -21,7 +21,7 @@
  */
 
 /* Error logging */
-Sentry.init({ dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639' });
+Sentry.init({dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639'});
 
 
 /**
@@ -38,22 +38,30 @@ let projectData = null;
 
 /**
  * The application brand name in the production system
+ *
+ * TODO: Constant 'ApplicationName' is moving to ./modules/constants.js
+ *
  * @type {string}
  */
-const ApplicationName = "Solo";
+const ApplicationName = 'Solo';
 
 
 /**
  * The application brand name as used in the Test system
+ *
+ * TODO: Constant 'TestApplicationName' is moving to ./modules/constants.js
+ *
  * @type {string}
  */
-const TestApplicationName = "Solocup";
+const TestApplicationName = 'Solocup';
 
 
 /**
  * This is the name of the test ECS cluster. A matching hostname will
  * trigger a few UI changes to visually confirm that the visitor has reached
  * the test site.
+ *
+ * TODO: Constant 'productBannerHostTrigger' is moving to ./modules/constants.js
  *
  * @type {string}
  */

@@ -35,3 +35,8 @@ rules:
   no-useless-escape: warn
   no-undef: warn
   no-unused-vars: warn
+overrides:
+  - files: ["src/modules/**/*.js"]
+    parserOptions:
+      sourceType: module
+

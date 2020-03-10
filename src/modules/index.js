@@ -20,6 +20,11 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import {
+  ApplicationName,
+  productBannerHostTrigger,
+  TestApplicationName} from './constants.js';
+
 
 /**
  * Display the BlocklyProp Solo license in a modal window
@@ -81,7 +86,8 @@ window.localStorage.clear();
 // Add experimental URL parameter to the open and new project links, if used
 if (window.getURLParameter('experimental')) {
   $('.editor-link').attr('href', function() {
-    return this + window.getAllURLParameters().replace('?', '&');
+    return document.location.href +
+        window.getAllURLParameters().replace('?', '&');
   });
 }
 
