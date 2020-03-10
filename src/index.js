@@ -84,3 +84,5 @@ if (window.getURLParameter('experimental')) {
   });
 }
 
+// Display the license in a modal when the link is clicked
+$('#show_license').on('click', () => showLicense());
