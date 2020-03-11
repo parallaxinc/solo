@@ -1,11 +1,6 @@
-src/lib/*
-src/blockly/*
-src/blockly.js
-src/blocklypropclient.js
-src/editor.js
-src/globals.js
-src/modals.js
-src/propterm.js
-src/project.js
-src/utils.js
+
+
+# Ignore everything
+src/*
+!src/modules/*
 
