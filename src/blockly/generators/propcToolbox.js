@@ -829,7 +829,7 @@ xmlToolbox += '            </block>';
 xmlToolbox += '        </category>';
 
 xmlToolbox += '        <category key="category_communicate_protocols" exclude="heb,heb-wx,">';
-xmlToolbox += '            <block type="serial_open"></block>';
+xmlToolbox += '            <block type="serial_open"><field name="TXPIN">1</field></block>';
 xmlToolbox += '            <block type="serial_send_text"></block>';
 xmlToolbox += '            <block type="serial_status"></block>';
 xmlToolbox += '            <block type="serial_print_multiple"></block>';
