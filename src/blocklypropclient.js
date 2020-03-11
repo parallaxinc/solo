@@ -135,7 +135,8 @@ var findClient = function () {
 
 /**
  * Set button state for the Compiler toolbar
- * @deprecated Replaced with PropToolbarButtonController()
+ * @deprecated Replaced with propToolbarButtonController(), located in the
+ * toolbar_controller module.
  */
 var setPropToolbarButtons = function () {
     if (clientService.available) {
@@ -169,9 +170,11 @@ var setPropToolbarButtons = function () {
  *
  * @param {boolean} connected
  *
- * @constructor
+ * @deprecated
+ * WARNING!
+ * This function is moving to the toolbar_controller.js module.
  */
-const PropToolbarButtonController = (connected) => {
+const propToolbarButtonController = (connected) => {
     if (projectData && projectData.board === 's3') {
         /* ----------------------------------------------------------------
          * Hide the buttons that are not required for the S3 robot
@@ -272,7 +275,7 @@ var establishBPClientConnection = function () {
 
             // Set the compiler toolbar elements
             // setPropToolbarButtons();
-            PropToolbarButtonController(clientService.available);
+            propToolbarButtonController(clientService.available);
         }
     }).fail(function () {
         clientService.type = null;
@@ -281,7 +284,7 @@ var establishBPClientConnection = function () {
 
         // Set the compiler toolbar elements
         // setPropToolbarButtons();
-        PropToolbarButtonController(clientService.available);
+        propToolbarButtonController(clientService.available);
     });
 };
 
@@ -402,7 +405,7 @@ function establishBPLauncherConnection() {
 
                 // Set the compiler toolbar elements
                 // setPropToolbarButtons();
-                PropToolbarButtonController(clientService.available);
+                propToolbarButtonController(clientService.available);
 
                 var portRequestMsg = JSON.stringify({type: 'port-list-request', msg: 'port-list-request'});
                 connection.send(portRequestMsg);
@@ -528,7 +531,7 @@ function lostWSConnection() {
 
     // Set the compiler toolbar elements
     // setPropToolbarButtons();
-    PropToolbarButtonController(clientService.available);
+    propToolbarButtonController(clientService.available);
 
     // Clear ports list
     setPortListUI();

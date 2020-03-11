@@ -77,48 +77,52 @@
             integrity="sha384-y+an4eARFKvjzOivf/Z7JtMJhaN6b+lLQ5oFbBbUwZNNVir39cYtkjW1r6Xjbxg3"
             crossorigin="anonymous">
     </script>
-    <script type="text/javascript" src="src/lib/chartist.min.js"></script>
-    <script type="text/javascript" src="src/lib/jquery-1.11.3.min.js"></script>
-    <script type="text/javascript" src="src/lib/jquery.validate.min.js"></script>
-    <script type="text/javascript" src="src/lib/beautify.js"></script>
-    <script type="text/javascript" src="src/lib/bootstrap/core/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="src/lib/bootstrap/plugins/bootbox.min.js"></script>
-    <script type="text/javascript" src="src/lib/ace/ace.js"></script>
-    <script type="text/javascript" src="src/lib/FileSaver.min.js"></script>
-    <script type="text/javascript" src="src/lib/jszip.min.js"></script>
+    <script type="text/javascript" src="src/lib/chartist.min.js" defer></script>
+    <script type="text/javascript" src="src/lib/jquery-1.11.3.min.js" defer></script>
+    <script type="text/javascript" src="src/lib/jquery.validate.min.js" defer></script>
+    <script type="text/javascript" src="src/lib/beautify.js" defer></script>
+    <script type="text/javascript" src="src/lib/bootstrap/core/js/bootstrap.min.js" defer></script>
+    <script type="text/javascript" src="src/lib/bootstrap/plugins/bootbox.min.js" defer></script>
+    <script type="text/javascript" src="src/lib/ace/ace.js" defer></script>
+    <script type="text/javascript" src="src/lib/FileSaver.min.js" defer></script>
+    <script type="text/javascript" src="src/lib/jszip.min.js" defer></script>
 
     <!-- Javascript helpers -->
-    <script type="text/javascript" src="src/globals.js"></script>
-    <script type="text/javascript" src="src/utils.js"></script>
-    <script type="text/javascript" src="src/project.js"></script>
-    <script type="text/javascript" src="src/propterm.js"></script>
-    <script type="text/javascript" src="src/blocklypropclient.js"></script>
-    <script type="text/javascript" src="src/blocklyc.js"></script>
-    <script type="text/javascript" src="src/editor.js"></script>
-    <script type="text/javascript" src="src/modals.js"></script>
+    <script type="text/javascript" src="src/globals.js" defer></script>
+    <script type="text/javascript" src="src/utils.js" defer></script>
+    <script type="text/javascript" src="src/project.js" defer></script>
+    <script type="text/javascript" src="src/propterm.js" defer></script>
+    <script type="text/javascript" src="src/blocklypropclient.js" defer></script>
+    <script type="text/javascript" src="src/blocklyc.js" defer></script>
+    <script type="text/javascript" src="src/modals.js" defer></script>
+    <script type="text/javascript" src="src/editor_js.js" defer></script>
     <!-- <script type="text/javascript" src="src/localcompile.js"></script> -->
 
     <!-- Blockly core/PropC generator -->
-    <script type="text/javascript" src="src/lib/blockly/blockly_compressed.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/field_ace.js"></script>
+    <script type="text/javascript" src="src/lib/blockly/blockly_compressed.js" defer></script>
+    <script type="text/javascript" src="src/blockly/generators/propc.js" defer></script>
+    <script type="text/javascript" src="src/blockly/generators/field_ace.js" defer></script>
 
     <!-- Internationalization text strings -->
-    <script type="text/javascript" src="src/blockly/language/en/messages.js"></script>
+    <script type="text/javascript" src="src/blockly/language/en/messages.js" defer></script>
 
     <!-- Block Menu/Toolbox -->
-    <script type="text/javascript" src="src/blockly/generators/propcToolbox.js"></script>
+    <script type="text/javascript" src="src/blockly/generators/propcToolbox.js" defer></script>
 
     <!-- Block definitions -->
-    <script type="text/javascript" src="src/blockly/generators/propc/base.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/control.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/variables.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/procedures.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/gpio.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/communicate.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/sensors.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/heb.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/s3.js"></script>
+    <script type="text/javascript" src="src/blockly/generators/propc/base.js" defer></script>
+    <script type="text/javascript" src="src/blockly/generators/propc/control.js" defer></script>
+    <script type="text/javascript" src="src/blockly/generators/propc/variables.js" defer></script>
+    <script type="text/javascript" src="src/blockly/generators/propc/procedures.js" defer></script>
+    <script type="text/javascript" src="src/blockly/generators/propc/gpio.js" defer></script>
+    <script type="text/javascript" src="src/blockly/generators/propc/communicate.js" defer></script>
+    <script type="text/javascript" src="src/blockly/generators/propc/sensors.js" defer></script>
+    <script type="text/javascript" src="src/blockly/generators/propc/heb.js" defer></script>
+    <script type="text/javascript" src="src/blockly/generators/propc/s3.js" defer></script>
+
+<!--    <script type="module" src="src/modules/project_timer.js" defer></script> -->
+<!--    <script type="module" src="src/modules/toolbar_controller.js"></script>  -->
+    <script type="module" src="src/modules/editor.js" defer></script>
 
     <!-- Style sheets -->
     <link href="src/lib/chartist.min.css" rel="stylesheet" type="text/css" />
@@ -367,7 +371,10 @@
                 <div class="modal-body">
                     <!-- Upload a project. Results stored in localStorage -->
                     <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
+                    <!--
                     <input id="selectfile" type="file" accept=".svg,image/svg+xml" onchange="uploadHandler(this.files);">
+                    -->
+                    <input id="selectfile" type="file" accept=".svg,image/svg+xml">
 
                     <div id="selectfile-verify-valid" class="alert alert-success" style="display: none;">
                         <span class="bpIcon" data-icon="checkMarkGreen">&#x2713;</span>&nbsp;
@@ -640,8 +647,12 @@
                 <div class="modal-body">
                     <!-- Upload a project. Results stored in localStorage -->
                     <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
+
+                    <!--
                     <input id="open-project-select-file" type="file" accept=".svg, .svge"
                            onchange="uploadHandler(this.files);">
+                    -->
+                    <input id="open-project-select-file" type="file" accept=".svg, .svge">
 
                     <!-- File is valid message -->
                     <div id="open-project-select-file-verify-valid" class="alert alert-success" style="display: none;">
@@ -754,7 +765,7 @@
                                             <td>
                                                 <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                                                         data-src="images/client-run/mac_os.png"
-                                                        alt="Instructions to launch the client" 
+                                                        alt="Instructions to launch the client"
                                                         style="padding:10px"/>
                                             </td>
                                         </tr>
@@ -828,8 +839,8 @@
                             <!-- <li><a href="#" class="show-os-lnx"><span class="keyed-lang-string" data-key="os_name_lnx"></span></a></li> -->
                         </ul>
                     </div>
-                    <button style="display:inline-block; margin-left:20px;" 
-                            class="btn btn-sm btn-primary" 
+                    <button style="display:inline-block; margin-left:20px;"
+                            class="btn btn-sm btn-primary"
                             onclick="$('.bpc-old').removeClass('hidden'); $(this).addClass('hidden');">
                         Show BlocklyProp-Client (older) downloads</button>
                 </div>
