@@ -1,1 +1,5 @@
+
+# Ignore the library folder, it's not directly ours to deal with
 src/lib/*
+
+
