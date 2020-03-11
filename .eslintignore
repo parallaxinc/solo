@@ -1,6 +1,5 @@
 
+# Ignore the library folder, it's not directly ours to deal with
+src/lib/*
 
-# Ignore everything
-src/*
-!src/modules/*
 
