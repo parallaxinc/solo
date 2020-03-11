@@ -1068,13 +1068,6 @@ Blockly.Blocks.serial_open = {
         this.otherBaud = false;
         this.otherMode = false;
     },
-    onchange: function (event) {
-        if ((this.getFieldValue('RXPIN') === '31' || this.getFieldValue('TXPIN') === '30') && allBlocks.toString().indexOf('Terminal close') === -1) {
-            this.setWarningText('DO NOT use pins 30 or 31 without using the Terminal close block!');
-        } else {
-            this.setWarningText(null);
-        }
-    },
     setToOther: function (br) {
         if (br === 'other' || this.otherBaud === true) {
             if (!br || br === 'other') {
@@ -1142,6 +1135,46 @@ Blockly.Blocks.serial_open = {
         }
         if (otherMode) {
             this.setToMode(ck_bits);
+        }
+    },
+    onchange: function (event) {
+        // only monitor changes to serial init blocks
+        if (event && (
+                event.name === 'RXPIN' || 
+                event.name === 'TXPIN' || 
+                event.type == Blockly.Events.BLOCK_CREATE || 
+                event.blockId === this.id)) {
+            var warnText = [];
+            var rxPin = this.getFieldValue('RXPIN');
+            var txPin = this.getFieldValue('TXPIN');
+
+            // check to see if pin 30 or 31 was used without using the Terminal close block
+            if ((rxPin === '31' || txPin === '30') && Blockly.getMainWorkspace().getBlocksByType('console_close').length > 0) {
+                warnText.push('WARNING: DO NOT use pins 30 or 31 without using the Terminal close block!');
+            }
+
+            // check to see if RX and TX are the same pin
+            if (rxPin === txPin) {
+                warnText.push('WARNING: RX and TX should use different pins!');
+            }
+    
+            // warn if multiple serial protocol instances are sharing  
+            var allSerialInitBlocks = Blockly.getMainWorkspace().getBlocksByType('serial_open');
+            for (var i = 0; i < allSerialInitBlocks.length; i++) {
+                if (this.id !== allSerialInitBlocks[i].id) {
+                    var rxPin2 = allSerialInitBlocks[i].getFieldValue('RXPIN');
+                    var txPin2 = allSerialInitBlocks[i].getFieldValue('TXPIN');
+                    if (rxPin2 !== 'None' &&
+                            (rxPin2 === rxPin || rxPin2 === txPin)) {
+                        warnText.push('WARNING: Serial RX/TX pins should not be shared!')
+                    }
+                    if (txPin2 !== 'None' &&
+                            (txPin2 === rxPin || txPin2 === txPin)) {
+                        warnText.push('WARNING: Serial RX/TX pins should not be shared!')
+                    }
+                }
+            }
+            this.setWarningText(warnText.length === 0 ? null : warnText.sortedUnique().join('\n'));
         }
     }
 };
@@ -1247,7 +1280,7 @@ Blockly.Blocks.serial_send_text = {
     onchange: function (event) {
         // Filter events for only 'serial_open' blocks or deletion events or changes to the serial_print_multiple block
         if (event && (event.type == Blockly.Events.BLOCK_CREATE || event.type == Blockly.Events.BLOCK_DELETE ||
-            event.name === 'SER_PIN' || (event.blockId === this.id && this.type === 'serial_print_multiple') )) {
+            event.name === 'RXPIN' || event.name === 'TXPIN' || (event.blockId === this.id && this.type === 'serial_print_multiple') )) {
 
             var warnText = null;
             var serialPinList = [];
@@ -1263,20 +1296,23 @@ Blockly.Blocks.serial_send_text = {
                 serialPinList = serialPinList.sortedUnique();
 
                 // determine if anything has changed in the list of serial pins
+                // https://stackoverflow.com/questions/1187518/how-to-get-the-difference-between-two-arrays-in-javascript
                 let oldValue = this.ser_pins.filter(x => !serialPinList.includes(x));
                 let newValue = serialPinList.filter(x => !this.ser_pins.includes(x));
                 let currentValue = (this.getField('SER_PIN') ? this.getFieldValue('SER_PIN') : null);
 
-                console.log(oldValue.toString() === currentValue, [currentValue], oldValue, newValue);
-
                 // if there are changes to the list of pins, update the menu
-                if (oldValue.length > 0 || newValue.length > 0 ) {
+                if ((oldValue.length > 0 || newValue.length > 0)) {
                     this.updateSerPin(serialPinList);
                 }
 
                 // if the selected value changed, select the new value
                 if (oldValue.length === 1 && currentValue && 
-                        oldValue[0] === currentValue && newValue.length === 1) {
+                        oldValue[0] === currentValue && 
+                        newValue.length === 1 &&
+                        newValue[0] && 
+                        // make sure this doesn't fire in an invalid state
+                        this.getField('SER_PIN').textContent_) {
                     this.setFieldValue(newValue[0], 'SER_PIN');
                 }
 
@@ -1571,6 +1607,11 @@ Blockly.Blocks.serial_print_multiple = {
     },
     domToMutation: function (container) {
         // Parse XML to restore the menu options.
+        var serpin = container.getAttribute('serpin');
+        if (serpin) {
+            this.ser_pins = JSON.parse(container.getAttribute('pinmenu'));
+            this.updateSerPin();
+        }
         if(this.getInput('PRINT0')) {
             this.removeInput('PRINT0');
         }
@@ -1609,11 +1650,6 @@ Blockly.Blocks.serial_print_multiple = {
                         .setCheck(chk)
                         .appendField(label, 'TYPE' + i);
             }
-        }
-        var serpin = container.getAttribute('serpin');
-        if (serpin) {
-            this.ser_pins = JSON.parse(container.getAttribute('pinmenu'));
-            this.updateSerPin();
         }
     },
     decompose: Blockly.Blocks['console_print_multiple'].decompose,
@@ -1740,34 +1776,17 @@ Blockly.Blocks.serial_scan_multiple = {
     },
     domToMutation: function (container) {
         // Parse XML to restore the menu options.
+        var serpin = container.getAttribute('serpin');
+        if (serpin) {
+            this.ser_pins = JSON.parse(container.getAttribute('pinmenu'));
+            this.updateSerPin();
+        }
         this.scanAfter = container.getAttribute('scanafter') || '';
         this.optionList_ = JSON.parse(container.getAttribute('options'));
         if (this.setPrefix_) {
             this.setPrefix_(container.getAttribute('prefix') || '');
         }
         this.updateShape_();
-        var serpin = container.getAttribute('serpin');
-        if (serpin) {
-            this.ser_pins = JSON.parse(container.getAttribute('pinmenu'));
-            this.updateSerPin();
-        }
-        if (this.getInput('SERPIN')) {
-            this.removeInput('SERPIN');
-        }
-        if (serpin) {
-            this.appendDummyInput('SERPIN')
-                    .setAlign(Blockly.ALIGN_RIGHT)
-                    .appendField('RXTX')
-                    .appendField(
-                        new Blockly.FieldDropdown(this.ser_pins.map(function (value) {
-                            return [value, value]
-                            })),
-                        'SER_PIN');
-            this.setFieldValue(serpin, 'SER_PIN');
-            if (this.getInput('OPTION0')) {
-                this.moveInputBefore('SERPIN', 'OPTION0');
-            }
-        }
     },
     decompose: function (workspace) {
         // Populate the mutator's dialog with this block's components.
