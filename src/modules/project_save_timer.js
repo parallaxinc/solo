@@ -103,7 +103,8 @@ class ProjectSaveTimer {
    * defined in the constant SAVE_PROJECT_TIMER_DELAY.
    */
   static timestampSaveTime(delay, resetTimer) {
-    const timeNow = this.getTimestamp();
+    const date = new Date();
+    const timeNow = date.getTime();
 
     if (delay === 0) delay = SAVE_PROJECT_TIMER_DELAY;
 
@@ -136,17 +137,6 @@ class ProjectSaveTimer {
         messageHandler();
       }
     }
-  }
-
-
-  /**
-   * Get the current time stamp
-   *
-   * @return {number} Number of seconds since 1/1/1970
-   */
-  static getTimestamp() {
-    const date = new Date();
-    return date.getTime();
   }
 }
 
