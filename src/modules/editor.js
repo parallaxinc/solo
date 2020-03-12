@@ -24,7 +24,8 @@
 // import Blockly from 'blockly/core';
 
 import {propToolbarButtonController} from './toolbar_controller.js';
-import {getTimestamp} from './project_timer.js';
+import {ProjectSaveTimer} from './project_save_timer.js';
+
 
 /** GLOBAL VARIABLES **/
 
@@ -91,6 +92,12 @@ $(() => {
   openFileSelectControl.addEventListener('change', (e) => {
     uploadHandler(e.target.files);
   });
+
+  // TODO: Not sure about this project save timer
+  const projectTimer = new ProjectSaveTimer(ShowProjectTimerModalDialog);
+
+  const projectSaveTimer = document.getElementById('save-project-timer');
+  projectSaveTimer.addEventListener('save-timer', ShowProjectTimerModalDialog);
 
   // Set the compile toolbar buttons to unavailable
   // setPropToolbarButtons();
@@ -542,7 +549,7 @@ function initEventHandlers() {
   // fully hidden (after CSS transitions have completed)
   // --------------------------------------------------------------
   $('#save-check-dialog').on('hidden.bs.modal', () => {
-    timestampSaveTime(5, false);
+    ProjectSaveTimer.timestampSaveTime(5,false);
   });
 
 
@@ -648,10 +655,10 @@ function setupWorkspace(data, callback) {
   }
 
   resetToolBoxSizing();
-  timestampSaveTime(SAVE_PROJECT_TIMER_DELAY, true);
+  ProjectSaveTimer.timestampSaveTime(0, true);
 
   // Save project reminder timer. Check every 60 seconds
-  setInterval(checkLastSavedTime, 60000);
+  setInterval(ProjectSaveTimer.checkLastSavedTime, 60000);
 
   // Execute the callback function if one was provided
   if (callback) {
@@ -742,14 +749,18 @@ function saveProject() {
         elem.style.borderColor = '#2e6da4';
       }, 1750);
 
-      utils.showMessage('Not logged in', 'BlocklyProp was unable to save your project.\n\nYou may still be able to download it as a Blockls file.\n\nYou will need to return to the homepage to log back in.');
+      utils.showMessage(
+          'Not logged in',
+          'BlocklyProp was unable to save your project.\n\nYou may ' +
+            'still be able to download it as a Blocks file.\n\nYou will ' +
+            'need to return to the homepage to log back in.');
     });
 
     // Mark the time when saved, add 20 minutes to it.
-    timestampSaveTime(SAVE_PROJECT_TIMER_DELAY, true);
+    ProjectSaveTimer.timestampSaveTime(0, true);
   } else {
-    // If user doesn't own the project - prompt for a new project name and route through
-    // an endpoint that will make the project private.
+    // If user doesn't own the project - prompt for a new project name and route
+    // through an endpoint that will make the project private.
     saveAsDialog();
   }
 }
@@ -967,7 +978,7 @@ function downloadCode() {
     window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
 
     // Mark the time when saved, add 20 minutes to it.
-    timestampSaveTime(SAVE_PROJECT_TIMER_DELAY, true);
+    ProjectSaveTimer.timestampSaveTime(0, true);
   }
 }
 

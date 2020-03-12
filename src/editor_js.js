@@ -73,6 +73,18 @@ function resetToolBoxSizing(resizeDelay, centerBlocks) {
 
 
 /**
+ * Load the workspace
+ * @param xmlText
+ */
+function loadToolbox(xmlText) {
+    if (Blockly.mainWorkspace) {
+        const xmlDom = Blockly.Xml.textToDom(xmlText);
+        Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
+    }
+}
+
+
+/**
  * Check project state to see if it has changed before leaving the page
  *
  * @returns {boolean}
