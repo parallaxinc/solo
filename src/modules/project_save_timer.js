@@ -117,9 +117,6 @@ class ProjectSaveTimer {
     }
   }
 
-
-  // TODO: We have to have a better way to manage the timer than using
-  //  an HTML tag.
   /**
    * Checks a time value embedded within a <span> element to determine
    * if it is time to prompt the user to save their project code.
@@ -131,6 +128,9 @@ class ProjectSaveTimer {
     const timeNow = this.getTimestamp();
     this.setTimeSaved(Math.round((timeNow - this.lastSavedTime) / 60000));
 
+    // TODO: We are really looking to see if the project is modified,
+    //  not that we are leaving the page. checkLeave is not the right
+    //  method to use here.
     if (timeNow > this.lastSavedTimestamp && checkLeave()) {
       if (messageHandler) {
         messageHandler();

@@ -93,11 +93,8 @@ $(() => {
     uploadHandler(e.target.files);
   });
 
-  // TODO: Not sure about this project save timer
-  const projectTimer = new ProjectSaveTimer(ShowProjectTimerModalDialog);
-
-  const projectSaveTimer = document.getElementById('save-project-timer');
-  projectSaveTimer.addEventListener('save-timer', ShowProjectTimerModalDialog);
+  // Open the modal when the timer expires
+  ProjectSaveTimer.setMessageHandler(ShowProjectTimerModalDialog);
 
   // Set the compile toolbar buttons to unavailable
   // setPropToolbarButtons();
@@ -1143,6 +1140,7 @@ function uploadHandler(files) {
       const tt = new Date();
       const projectCreated = getProjectCreatedDateFromXML(xmlString, tt);
       const projectModified = getProjectModifiedDateFromXML(xmlString, tt);
+      const date = new Date();
 
       const pd = {
         'board': uploadBoardType,
@@ -1158,7 +1156,7 @@ function uploadHandler(files) {
         'type': 'PROPC',
         'user': 'offline',
         'yours': true,
-        'timestamp': getTimestamp(),
+        'timestamp': date.getTime(),
       };
 
       // Compute a parallel dataset to replace 'pd'
@@ -1178,7 +1176,7 @@ function uploadHandler(files) {
             uploadedXML,
             projectCreated,
             projectModified,
-            getTimestamp());
+            date.getTime());
 
         // Convert the Project object details to projectData object
         const projectOutput = project.getDetails();
