@@ -6223,6 +6223,24 @@ Blockly.Blocks.graph_settings = {
 };
 
 Blockly.propc.graph_settings = function () {
+    if (!this.disabled) {
+        var x_axis = this.getFieldValue('XAXIS') || '10';
+        // if these don't exist, setting both to zero will cause the graph to autorange.
+        var y_min = this.getFieldValue('YMIN') || '0';
+        var y_max = this.getFieldValue('YMAX') || '0';
+        var mode = this.getFieldValue('YSETTING') || 'AUTO';
+        var modes = {'AUTO': 'S', 'FIXED': 'S', 'AUTOXY': 'X', 'FIXEDXY': 'X', 'AUTOSC': 'O', 'FIXEDSC': 'O'};
+
+        Blockly.propc.definitions_['graphing_settings'] = '// GRAPH_SETTINGS_START:100,' +
+                x_axis + ',' + modes[mode] + ',' + y_min + ',' + y_max;
+        
+        if (modes[mode] === 'X') {
+            var x_min = this.getFieldValue('XMIN') || '0';
+            var x_max = this.getFieldValue('XMAX') || '0';
+            Blockly.propc.definitions_['graphing_settings'] += ',' + x_min + ',' + x_max;
+        }
+        Blockly.propc.definitions_['graphing_settings'] += ':GRAPH_SETTINGS_END //';
+    }
     return '';
 };
 
