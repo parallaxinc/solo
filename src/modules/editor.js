@@ -66,6 +66,7 @@ const BASE_URL = $('meta[name=base]').attr('content');
  * Ping the Rest API every 60 seconds
  *
  * @type {number}
+ * @deprecated
  */
 const pingInterval = setInterval(() => {
   $.get(BASE_URL + 'ping');
