@@ -2495,7 +2495,6 @@ Blockly.propc.activitybot_display_calibration = function () {
     var servo = '';
 
     Blockly.propc.definitions_["activitybot_calibrate"] = servo + '#include ' + bot;
-    Blockly.propc.serial_terminal_ = true;
 
     if (bot === 'abdrive.h') {
         if (this.getFieldValue('TYPE') === 'table') {
