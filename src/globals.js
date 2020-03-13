@@ -21,7 +21,7 @@
  */
 
 /* Error logging */
-Sentry.init({ dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639' });
+Sentry.init({dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639'});
 
 
 /**
@@ -38,16 +38,22 @@ let projectData = null;
 
 /**
  * The application brand name in the production system
+ *
+ * TODO: Constant 'ApplicationName' is moving to ./modules/constants.js
+ *
  * @type {string}
  */
-const ApplicationName = "Solo";
+const ApplicationName = 'Solo';
 
 
 /**
  * The application brand name as used in the Test system
+ *
+ * TODO: Constant 'TestApplicationName' is moving to ./modules/constants.js
+ *
  * @type {string}
  */
-const TestApplicationName = "Solocup";
+const TestApplicationName = 'Solocup';
 
 
 /**
@@ -55,9 +61,11 @@ const TestApplicationName = "Solocup";
  * trigger a few UI changes to visually confirm that the visitor has reached
  * the test site.
  *
+ * TODO: Constant 'productBannerHostTrigger' is moving to ./modules/constants.js
+ *
  * @type {string}
  */
-const product_banner_host_trigger = 'solocup.parallax.com';
+const productBannerHostTrigger = 'solocup.parallax.com';
 
 
 /**
@@ -145,11 +153,11 @@ var pTerm;
 
 
 
-/**  WIP/TODO: generate svg icons and inject them (search for glyphicon and font-awesome and replace them).  
+/**  WIP/TODO: generate svg icons and inject them (search for glyphicon and font-awesome and replace them).
  *
  * These are string representations of inline SVG elements to be used as icons.
  * using JS to inject these into the HTML keeps the HTML simpler and cleaner.
- * 
+ *
  * @type {object}
  */
 const bpIcons = {

@@ -1,7 +1,8 @@
 env:
   browser: true
   es6: true
-extends: 'eslint:recommended'
+extends:
+  - eslint:recommended
 globals:
   $: readonly
   ace: readonly
@@ -34,3 +35,10 @@ rules:
   no-useless-escape: warn
   no-undef: warn
   no-unused-vars: warn
+overrides:
+  - files: ["src/modules/**/*.js"]
+    extends:
+      - google
+    parserOptions:
+      sourceType: module
+
