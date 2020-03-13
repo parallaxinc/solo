@@ -28,12 +28,23 @@ module.exports = {
     target: 'web',
     mode: 'development',
     entry: {
-        index: './src/index.js',
+        index: './src/modules/index.js',
         editor: './src/editor.js'
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js'
+    },
+    module: {
+        rules: [
+            {
+                test: /\.css$/,
+                use: [
+                    'style-loader',
+                    'css-loader'
+                ]
+            }
+        ]
     },
     plugins: [
         new webpack.optimize.ModuleConcatenationPlugin(),
@@ -56,7 +67,6 @@ module.exports = {
                 to: path.resolve(__dirname, 'build/images')
             }
         ])
-
     ],
     devServer: {
         port: 3000

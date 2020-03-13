@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "tests/run_all_tests.sh",
-    "build": "webpack --mode=production"
+    "build": "webpack --mode=development"
   },
   "repository": {
     "type": "git",
@@ -27,9 +27,12 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "copy-webpack-plugin": "^5.1.1",
+    "css-loader": "^3.4.2",
     "eslint": "^6.6.0",
+    "eslint-config-google": "^0.14.0",
     "mocha": "^6.2.2",
     "sinon": "^7.5.0",
+    "style-loader": "^1.1.3",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3"
