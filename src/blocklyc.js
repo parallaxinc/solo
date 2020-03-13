@@ -468,25 +468,28 @@ function cloudCompile(text, action, successHandler) {
 
         let terminalNeeded = null;
 
-        let consoleBlockList = [
-            'console_print', 'console_print_variables', 'console_print_multiple', 
-            'console_scan_text', 'console_scan_number', 'console_newline', 
-            'console_clear', 'console_move_to_position', 'oled_font_loader', 
-            'activitybot_display_calibration', 'scribbler_serial_send_text', 
-            'scribbler_serial_send_char', 'scribbler_serial_send_decimal', 
-            'scribbler_serial_send_decimal', 'scribbler_serial_send_ctrl', 
-            'scribbler_serial_cursor_xy'
-        ]
+            // TODO: propc editor needs UI for settings for terminal and graphing
+        if (projectData.board !== 'propcfile') {
+            let consoleBlockList = [
+                'console_print', 'console_print_variables', 'console_print_multiple', 
+                'console_scan_text', 'console_scan_number', 'console_newline', 
+                'console_clear', 'console_move_to_position', 'oled_font_loader', 
+                'activitybot_display_calibration', 'scribbler_serial_send_text', 
+                'scribbler_serial_send_char', 'scribbler_serial_send_decimal', 
+                'scribbler_serial_send_decimal', 'scribbler_serial_send_ctrl', 
+                'scribbler_serial_cursor_xy'
+            ]
 
-        let consoleBlockCount = 0;
-        for (let i = 0; i < consoleBlockList.length; i++) {
-            consoleBlockCount += Blockly.getMainWorkspace().getBlocksByType(consoleBlockList[i]).length;
+            let consoleBlockCount = 0;
+            for (let i = 0; i < consoleBlockList.length; i++) {
+                consoleBlockCount += Blockly.getMainWorkspace().getBlocksByType(consoleBlockList[i]).length;
+            }
+
+            if (consoleBlockCount > 0)
+                terminalNeeded = 'term';
+            else if (Blockly.getMainWorkspace().getBlocksByType('graph_settings').length > 0)
+                terminalNeeded = 'graph';
         }
-
-        if (consoleBlockCount > 0)
-            terminalNeeded = 'term';
-        else if (Blockly.getMainWorkspace().getBlocksByType('graph_settings').length > 0)
-            terminalNeeded = 'graph';
 
         // Contact the container running cloud compiler. If the browser is
         // connected via https, direct the compile request to the same port and
@@ -905,6 +908,10 @@ function graphing_console() {
  * @returns {boolean} true if the appropriate graphing blocks are present and false if they are not
  */
 function getGraphSettingsFromBlocks() {
+    // TODO: propc editor needs UI for settings for terminal and graphing
+    if (projectData.board === 'propcfile') {
+        return false;
+    }
     var graphSettingsBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_settings');
 
     if (graphSettingsBlocks.length > 0) {
