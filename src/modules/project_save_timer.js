@@ -22,6 +22,14 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+/*
+ * Project Save Timer
+ *
+ * Set and maintain a timer that will alert the user is too much time has
+ * passed since they last saved their project. The timer will execute a
+ * callback if the timer expires. The timer can be reset, disabled, or be
+ * adjusted to add more time through object method calls.
+ */
 
 /**
  * The default number of minutes to wait until the user is prompted
@@ -38,51 +46,34 @@ const SAVE_PROJECT_TIMER_DELAY = 2;
 let messageHandler = null;
 
 /**
- * Still not sure what this is doing.
+ *  Timestamp to indicate the amount of time that must expire before
+ *  the user is advised to save their project.
+ *
  * @type {number}
  */
-let timeSaved = 0;
+let lastSavedTimestamp = 0;
+
+
+/**
+ * Timestamp to record the amount of time that has gone by since the
+ * current project was last saved to storage.
+ *
+ * @type {number}
+ */
+let lastSavedTime = 0;
+
+
 
 /**
  *
  */
 class ProjectSaveTimer {
   /**
-   * Initialize the object
-   */
-  constructor() {
-    /**
-     *  Timestamp to indicate the amount of time that must expire before
-     *  the user is advised to save their project.
-     *
-     * @type {number}
-     */
-    this.lastSavedTimestamp = 0;
-
-    /**
-     * Timestamp to record the amount of time that has gone by since the
-     * current project was last saved to storage.
-     *
-     * @type {number}
-     */
-    this.lastSavedTime = 0;
-  }
-
-  /**
    * The function to call when it is time to notify the user.
    * @param {Function} callback
    */
   static setMessageHandler(callback) {
     messageHandler = callback;
-  }
-
-
-  /**
-   * TimeSaved getter.
-   * @return {number}
-   */
-  static getTimeSaved() {
-    return timeSaved;
   }
 
   /**
@@ -110,10 +101,10 @@ class ProjectSaveTimer {
 
     // If the proposed delay is less than the delay that's already in
     // process, don't update the delay to a new shorter time.
-    if (timeNow + (delay * 60000) > this.lastSavedTimestamp) {
-      this.lastSavedTimestamp = timeNow + (delay * 60000);
+    if (timeNow + (delay * 60000) > lastSavedTimestamp) {
+      lastSavedTimestamp = timeNow + (delay * 60000);
       if (resetTimer) {
-        this.lastSavedTime = timeNow;
+        lastSavedTime = timeNow;
       }
     }
   }
@@ -126,13 +117,16 @@ class ProjectSaveTimer {
    * messages.js file, page_text_label['editor_save-check_warning'].
    */
   static checkLastSavedTime() {
-    const timeNow = this.getTimestamp();
-    this.setTimeSaved(Math.round((timeNow - this.lastSavedTime) / 60000));
+    const date = new Date();
+    const timeNow = date.getTime();
+
+    // Set the time remaining
+    lastSavedTimestamp = Math.round((timeNow - lastSavedTime) / 60000);
 
     // TODO: We are really looking to see if the project is modified,
     //  not that we are leaving the page. checkLeave is not the right
     //  method to use here.
-    if (timeNow > this.lastSavedTimestamp && checkLeave()) {
+    if (timeNow > lastSavedTimestamp) {
       if (messageHandler) {
         messageHandler();
       }

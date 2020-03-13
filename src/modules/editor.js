@@ -601,10 +601,12 @@ function setupWorkspace(data, callback) {
   }
 
   resetToolBoxSizing();
+
   ProjectSaveTimer.timestampSaveTime(0, true);
 
-  // Save project reminder timer. Check every 60 seconds
-  setInterval(ProjectSaveTimer.checkLastSavedTime, 60000);
+  // Save project reminder timer. Check project status every 60 seconds to
+  // determine if the project has been modified
+  setInterval(saveProjectTimerChange, 60000);
 
   // Execute the callback function if one was provided
   if (callback) {
@@ -612,6 +614,12 @@ function setupWorkspace(data, callback) {
   }
 }
 
+/**
+ * Check the project save timer only if the project has changed
+ */
+function saveProjectTimerChange() {
+  if (checkLeave()) ProjectSaveTimer.checkLastSavedTime();
+}
 
 /**
  * Set the UI fields for the project name, project owner and project type icon
@@ -1583,58 +1591,3 @@ function RenderPageBrandingElements() {
 }
 
 
-/**
- * Validates the blocks in the project
- *
- * @param fileContent string
- * @return array of block names
- */
-function validateProjectBlockList(fileContent) {
-  // Loop through blocks to verify blocks are supported for the project board type
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(fileContent, 'image/svg+xml');
-  const blockNodes = xmlDoc.getElementsByTagName('block');
-
-  if (blockNodes.length > 0) {
-    const blockList = enumerateProjectBlockNames(blockNodes);
-    for (const property in blockList) {
-      if (! evaluateProjectBlockBoardType(blockList[property])) {
-        console.log('Block \'' + blockList[property] + '\' is incompatible with this project.');
-      }
-    }
-  }
-}
-
-
-/**
- *
- * @param nodes
- * @return {[]}
- */
-function enumerateProjectBlockNames(nodes) {
-  const blockList = [];
-
-  // blockNodes contains a list of block element objects and a list of block name objects.
-  // The block element objects are enumerated as an array, starting at 0. This loops through
-  // the block element objects to obtain the individual block names.
-  for (const property in nodes) {
-    if (! isNaN(parseInt(property, 10))) {
-      blockList.push(nodes[property].getAttribute('type'));
-      console.log(`${property}: ${nodes[property].getAttribute('type')}`);
-    }
-  }
-
-  return blockList;
-}
-
-/**
- *
- * @param blockName
- * @return {boolean}
- */
-function evaluateProjectBlockBoardType(blockName) {
-  if (blockName === 'comments') {
-    return false;
-  }
-  return true;
-}
