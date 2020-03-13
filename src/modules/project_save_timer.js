@@ -62,8 +62,6 @@ let lastSavedTimestamp = 0;
  */
 let lastSavedTime = 0;
 
-
-
 /**
  *
  */
@@ -76,13 +74,6 @@ class ProjectSaveTimer {
     messageHandler = callback;
   }
 
-  /**
-   *
-   * @param {number} value
-   */
-  static setTimeSaved(value) {
-    timeSaved = value;
-  }
 
   /**
    *
@@ -98,12 +89,14 @@ class ProjectSaveTimer {
     const timeNow = date.getTime();
 
     if (delay === 0) delay = SAVE_PROJECT_TIMER_DELAY;
+    console.log('SAVEPRJ:Setting project save delay to %f', delay);
 
     // If the proposed delay is less than the delay that's already in
     // process, don't update the delay to a new shorter time.
     if (timeNow + (delay * 60000) > lastSavedTimestamp) {
       lastSavedTimestamp = timeNow + (delay * 60000);
       if (resetTimer) {
+        console.log('SAVEPRJ:Resetting timer.');
         lastSavedTime = timeNow;
       }
     }
@@ -117,16 +110,19 @@ class ProjectSaveTimer {
    * messages.js file, page_text_label['editor_save-check_warning'].
    */
   static checkLastSavedTime() {
+    console.log('SAVEPRJ:Checking the last time project was saved.');
     const date = new Date();
     const timeNow = date.getTime();
 
     // Set the time remaining
     lastSavedTimestamp = Math.round((timeNow - lastSavedTime) / 60000);
+    console.log('SAVEPRJ:Last time stamp is: %f', lastSavedTimestamp);
 
     // TODO: We are really looking to see if the project is modified,
     //  not that we are leaving the page. checkLeave is not the right
     //  method to use here.
     if (timeNow > lastSavedTimestamp) {
+      console.log('SAVEPRJ:Invoking Save Project dialog.');
       if (messageHandler) {
         messageHandler();
       }
