@@ -177,8 +177,13 @@ class Project {
             return false;
         }
 
-        if (!projectA.name || !projectB.name) {
-            console.log("Project name is missing.");
+        if (!projectA.name) {
+            console.log("Project-A name is missing.");
+            return false;
+        }
+
+        if (!projectB.name) {
+            console.log("Project-B name is missing.");
             return false;
         }
 
