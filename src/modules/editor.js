@@ -252,57 +252,6 @@ $(() => {
 
 
 /**
- * Compare the project block code of two projects for equality
- *
- * @param {string} projectA is one of the two projects to compare for equality
- * @param {string} projectB is the second of two projects to compare for equalityy.
- *
- * @return {boolean} True if projects are unequal, otherwise return false
- */
-function compareProjectCode(projectA, projectB) {
-  // Sanity checks
-  if (typeof projectA === 'undefined') {
-    console.log('project A is undefined.');
-    return true;
-  }
-
-  if (typeof projectB === 'undefined') {
-    console.log('project B is undefined.');
-    return true;
-  }
-
-  // Looking for the first <block> XML element
-  const searchTerm = '<block';
-
-  // Get the offset to the first <block> xml element
-  const indexA = projectA.indexOf(searchTerm);
-  const indexB = projectB.indexOf(searchTerm);
-
-  // No blocks in either copy of the project
-  // They must be equally devoid of a project
-  if (indexA === -1 && indexB === -1) {
-    return false;
-  }
-
-  // Return false if the first block is not found
-  // in one of the two projects.
-  if (indexA === -1 || indexB === -1) {
-    return true;
-  }
-
-  // Start comparing the projects beginning with the first block
-  // that appears after the namespace declaration
-  const result = findFirstDiffPos(
-      projectA.substring(indexA, projectA.length),
-      projectB.substring(indexB, projectB.length));
-
-  // findFirstDiffPos() will return a -1 if the projects are
-  // identical, that is, the project was not altered.
-  return result !== -1;
-}
-
-
-/**
  * Insert the text strings (internationalization) for all of the UI
  * elements on the editor page once the page has been loaded.
  */
