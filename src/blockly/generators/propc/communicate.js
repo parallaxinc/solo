@@ -68,8 +68,6 @@ Blockly.propc.console_print = function () {
     var text = Blockly.propc.valueToCode(this, 'MESSAGE', Blockly.propc.ORDER_ATOMIC);
     var checkbox = this.getFieldValue('ck_nl');
 
-    Blockly.propc.serial_terminal_ = true;
-
     var code = 'print(' + text.replace(/%/g, "%%") + ');\n';
     if (checkbox === 'TRUE') {
         code += 'print("\\r");\n';
@@ -116,7 +114,6 @@ Blockly.propc.console_print_variables = function () {
     var value = Blockly.propc.valueToCode(this, 'VALUE', Blockly.propc.ORDER_ATOMIC);
     var format = this.getFieldValue('FORMAT');
     var checkbox = this.getFieldValue('ck_nl');
-    Blockly.propc.serial_terminal_ = true;
 
     var code = 'print(';
     if (checkbox !== 'TRUE') {
@@ -671,8 +668,7 @@ Blockly.propc.console_print_multiple = function () {
     switch (this.type) {
         case 'console_print_multiple':
             code += 'print("';
-            Blockly.propc.serial_terminal_ = true;
-            break;
+                    break;
         case 'serial_print_multiple':
             initBlock = 'Serial initialize';
             errorString = '// ERROR: Serial is not initialized!\n';
@@ -817,7 +813,6 @@ Blockly.Blocks.console_scan_text = {
 Blockly.propc.console_scan_text = function () {
     var data = Blockly.propc.variableDB_.getName(this.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
     Blockly.propc.vartype_[data] = 'char *';
-    Blockly.propc.serial_terminal_ = true;
 
     if (data !== '') {
         var code = 'getStr(' + data + ', 128);\n';
@@ -858,7 +853,6 @@ Blockly.propc.console_scan_number = function () {
     var type = this.getFieldValue('TYPE');
     var data = Blockly.propc.variableDB_.getName(this.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
 
-    Blockly.propc.serial_terminal_ = true;
     var code = '';
 
     if (data !== '') {
@@ -897,7 +891,6 @@ Blockly.Blocks.console_newline = {
  * @returns {string}
  */
 Blockly.propc.console_newline = function () {
-    Blockly.propc.serial_terminal_ = true;
     return 'term_cmd(CR);\n';
 };
 
@@ -956,7 +949,6 @@ Blockly.Blocks.console_clear = {
  * @returns {string}
  */
 Blockly.propc.console_clear = function () {
-    Blockly.propc.serial_terminal_ = true;
     return 'term_cmd(CLS);\n';
 };
 
@@ -991,7 +983,6 @@ Blockly.Blocks.console_move_to_position = {
  * @returns {string}
  */
 Blockly.propc.console_move_to_position = function () {
-    Blockly.propc.serial_terminal_ = true;
     var row = Blockly.propc.valueToCode(this, 'ROW', Blockly.propc.ORDER_NONE);
     var column = Blockly.propc.valueToCode(this, 'COLUMN', Blockly.propc.ORDER_NONE);
 
@@ -3145,7 +3136,6 @@ Blockly.Blocks.oled_font_loader = {
 };
 
 Blockly.propc.oled_font_loader = function () {
-    Blockly.propc.serial_terminal_ = true;
     Blockly.propc.definitions_["oledfonts"] = '#include "oledc_fontLoader.h"';
 
     var code = 'oledc_fontLoader();';
@@ -6063,24 +6053,16 @@ Blockly.propc.graph_output = function () {
     {
         var code = 'print("%u';
         var varList = '';
-        var labelList = '';
         var i = 0;
         while (Blockly.propc.valueToCode(this, 'PRINT' + i, Blockly.propc.ORDER_NONE)) {
             code += ',%d';
             varList += ', ' + Blockly.propc.valueToCode(this, 'PRINT' + i, Blockly.propc.ORDER_NONE || '0');
-            labelList += this.getFieldValue("GRAPH_LABEL" + i);
-            if (Blockly.propc.valueToCode(this, 'PRINT' + (i + 1), Blockly.propc.ORDER_NONE) && i < 9)
-                labelList += ',';
             i++;
             if (i > 10)
                 break;
         }
         code += '\\r", (CNT >> 16)' + varList + ');\n';
 
-        if (!this.disabled) {
-            Blockly.propc.serial_graphing_ = true;
-            Blockly.propc.definitions_['graphing_labels'] = '// GRAPH_LABELS_START:' + labelList + ':GRAPH_LABELS_END //';
-        }
         return code;
     } else {
         return '// ERROR: Graphing is not initialized!';
@@ -6161,24 +6143,6 @@ Blockly.Blocks.graph_settings = {
 };
 
 Blockly.propc.graph_settings = function () {
-    if (!this.disabled) {
-        var x_axis = this.getFieldValue('XAXIS') || '10';
-        // if these don't exist, setting both to zero will cause the graph to autorange.
-        var y_min = this.getFieldValue('YMIN') || '0';
-        var y_max = this.getFieldValue('YMAX') || '0';
-        var mode = this.getFieldValue('YSETTING') || 'AUTO';
-        var modes = {'AUTO': 'S', 'FIXED': 'S', 'AUTOXY': 'X', 'FIXEDXY': 'X', 'AUTOSC': 'O', 'FIXEDSC': 'O'};
-
-        Blockly.propc.definitions_['graphing_settings'] = '// GRAPH_SETTINGS_START:100,' +
-                x_axis + ',' + modes[mode] + ',' + y_min + ',' + y_max;
-
-        if (modes[mode] === 'X') {
-            var x_min = this.getFieldValue('XMIN') || '0';
-            var x_max = this.getFieldValue('XMAX') || '0';
-            Blockly.propc.definitions_['graphing_settings'] += ',' + x_min + ',' + x_max;
-        }
-        Blockly.propc.definitions_['graphing_settings'] += ':GRAPH_SETTINGS_END //';
-    }
     return '';
 };
 

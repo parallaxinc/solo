@@ -243,8 +243,6 @@ Blockly.propc.init = function (workspace) {
     Blockly.propc.stacks_ = [];
     Blockly.propc.vartype_ = {};
     Blockly.propc.varlength_ = {};
-    Blockly.propc.serial_graphing_ = false;
-    Blockly.propc.serial_terminal_ = false;
     Blockly.propc.string_var_lengths = [];
 
     // Set up specific libraries for devices like the Scribbler or Badge
@@ -451,11 +449,6 @@ Blockly.propc.finish = function (code) {
 
         code = 'int main()\n{\n' + setups.join('\n') + '\n' + code + '\n}';
         var setup = '';
-        if (Blockly.propc.serial_terminal_) {
-            setup += "/* SERIAL_TERMINAL USED */\n";
-        } else if (Blockly.propc.serial_graphing_) {
-            setup += "/* SERIAL_GRAPHING USED */\n";
-        }
         if (Blockly.mainWorkspace.getAllBlocks().length === 0 &&
                 profile.default.description !== "Propeller C (code-only)") {
             setup += "/* EMPTY_PROJECT */\n";
