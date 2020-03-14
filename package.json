@@ -22,7 +22,8 @@
     "@sentry/browser": "^5.12.1",
     "blockly": "^2.20190722.1",
     "bootstrap": "^3.4.1",
-    "jquery": "^3.4.1"
+    "jquery": "^3.4.1",
+    "node-chartist": "^1.0.5"
   },
   "devDependencies": {
     "chai": "^4.2.0",

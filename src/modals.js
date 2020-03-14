@@ -632,24 +632,6 @@ function initUploadModalLabels() {
     disableUploadDialogButtons();
 }
 
-/**
- * Reset the upload/import modal window to defaults after use
- */
-// eslint-disable-next-line no-unused-vars
-function resetUploadImportModalDialog() {
-    // reset the title of the modal
-    $('upload-dialog-title').html(page_text_label['editor_import']);
-
-    // hide "append" button
-    $('#selectfile-append').removeClass('hidden');
-
-    // change color of the "replace" button to blue and change text to "Open"
-    $('#selectfile-replace').removeClass('btn-primary').addClass('btn-danger').html(page_text_label['editor_button_replace']);
-
-    // reset the blockly toolbox sizing to ensure it renders correctly:
-    // eslint-disable-next-line no-undef
-    resetToolBoxSizing(100);
-}
 
 
 /**
@@ -710,13 +692,4 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
     }
 }
 
-
-/**
- * Display the Timed Save Project modal dialog
- *
- */
-// eslint-disable-next-line no-unused-vars
-function ShowProjectTimerModalDialog() {
-    $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
-}
 

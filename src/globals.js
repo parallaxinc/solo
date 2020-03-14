@@ -144,3 +144,24 @@ const bpIcons = {
     eraserWhite: '<svg width="15" height="15"><path d="M2,12 A1.5,1.5 0 0 1 2,10 L10,2 14.5,6.5 7,14 M10,11 L5.5,6.5 M15,14 L4,14 2,12 M15,13.2 5,13.2" style="stroke:#fff;stroke-width:1;fill:none;"/><path d="M2,12 A1.5,1.5 0 0 1 2,10 L5.5,6.5 10,11 7,14 4,14 Z" style="stroke-width:0;fill:#fff;"/></svg>',
     cameraWhite: '<svg width="14" height="15"><path d="M1.5,13.5 L.5,12.5 .5,5.5 1.5,4.5 2.5,4.5 4,3 7,3 8.5,4.5 12.5,4.5 13.5,5.5 13.5,12.5 12.5,13.5 Z M 2,9 A 4,4,0,0,0,10,9 A 4,4,0,0,0,2,9 Z M 4.5,9 A 1.5,1.5,0,0,0,7.5,9 A 1.5,1.5,0,0,0,4.5,9 Z M 10.5,6.5 A 1,1,0,0,0,13.5,6.5 A 1,1,0,0,0,10.5,6.5 Z" style="stroke:#fff;stroke-width:1;fill:#fff;" fill-rule="evenodd"/></svg>',
 }
+
+
+/**
+ * The name used to store a project that is being loaded from
+ * offline storage.
+ *
+ * temp... is used to persist the imported SVG file. This file is a
+ * candidate until the user selects the 'Open' button to confirm that
+ * this file is the one to be loaded into the app.
+ *
+ * local... is used as the project that will either replace the
+ * current project or be appended to the current project.
+ *
+ * @type {string}
+ *
+ * @description
+ * These constants are also defined in the module subsystem in the constants.js file.
+ *
+ */
+const TEMP_PROJECT_STORE_NAME = 'tempProject';
+const LOCAL_PROJECT_STORE_NAME = 'localProject';
