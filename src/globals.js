@@ -90,18 +90,6 @@ const CDN_URL = $('meta[name=cdn]').attr("content");
 
 
 /**
- * Constant string that represents the base, empty project header
- *
- * @type {string}
- *
- * @description Converting the string to a constant because it is referenced
- * in a number of places. The string is sufficiently complex that it could
- * be misspelled without detection.
- */
-const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
-
-
-/**
  * Constant number that represents the maximum length of a project name
  *
  * @type {number}
@@ -117,21 +105,6 @@ const PROJECT_NAME_MAX_LENGTH = 100;
  */
 const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
 
-/**
- * The name used to store a project that is being loaded from
- * offline storage.
- *
- * temp... is used to persist the imported SVG file. This file is a
- * candidate until the user selects the 'Open' button to confirm that
- * this file is the one to be loaded into the app.
- *
- * local... is used as the project that will either replace the
- * current project or be appended to the current project.
- *
- * @type {string}
- */
-const TEMP_PROJECT_STORE_NAME = "tempProject";
-const LOCAL_PROJECT_STORE_NAME = 'localProject';
 
 
 /**

@@ -27,6 +27,7 @@
  * @param {string} fileContent
  * @return {Array}  An arrray of block names
  */
+// eslint-disable-next-line no-unused-vars,require-jsdoc
 function validateProjectBlockList(fileContent) {
   // Loop through blocks to verify blocks are supported for the
   // project board type

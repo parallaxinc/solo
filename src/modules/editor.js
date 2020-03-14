@@ -26,6 +26,9 @@
 import {propToolbarButtonController} from './toolbar_controller.js';
 import {ProjectSaveTimer} from './project_save_timer.js';
 
+import {
+  EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
+} from './constants';
 
 /** GLOBAL VARIABLES **/
 
@@ -146,7 +149,9 @@ $(() => {
 
         // Save the current project into the browser store where it will
         // get picked up by the page loading code.
-        window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(tempProject));
+        window.localStorage.setItem(
+            LOCAL_PROJECT_STORE_NAME,
+            JSON.stringify(tempProject));
       }
     }
 
@@ -185,15 +190,16 @@ $(() => {
   // Load a project file from local storage
   if (window.getURLParameter('openFile') === 'true') {
     // Show the Open Project modal dialog
-    OpenProjectModal();
+    openProjectModal();
   } else if (window.getURLParameter('newProject') === 'true') {
     // Show the New Project modal dialog
-    NewProjectModal();
+    newProjectModal();
   } else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
     // Load a project from localStorage if available
     try {
       // Get a copy of the last know state of the current project
-      const localProject = JSON.parse(window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
+      const localProject = JSON.parse(
+          window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
 
       // TODO: Address clear workspace has unexpected result
       // **************************************************
@@ -215,9 +221,11 @@ $(() => {
         utils.showMessage(Blockly.Msg.DIALOG_ERROR, objError.message);
       } else {
         console.error(objError.message);
-        ClearBlocklyWorkspace();
+        clearBlocklyWorkspace();
         projectData = null;
-        utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_LOADING_ERROR);
+        utils.showMessage(
+            Blockly.Msg.DIALOG_ERROR,
+            Blockly.Msg.DIALOG_LOADING_ERROR);
       }
     }
   } else {
@@ -237,15 +245,16 @@ $(() => {
         if (clientService.type === 'http' && clientService.activeConnection) {
           clientService.activeConnection.send(btoa(characterToSend));
         } else if (clientService.type === 'ws') {
-          const msg_to_send = {
+          const msgToSend = {
             type: 'serial-terminal',
             outTo: 'terminal',
             portPath: getComPort(),
             baudrate: baudrate.toString(10),
-            msg: (clientService.rxBase64 ? btoa(characterToSend) : characterToSend),
+            msg: (clientService.rxBase64 ?
+                btoa(characterToSend) : characterToSend),
             action: 'msg',
           };
-          clientService.activeConnection.send(JSON.stringify(msg_to_send));
+          clientService.activeConnection.send(JSON.stringify(msgToSend));
         }
       }
   );
@@ -260,25 +269,26 @@ function initInternationalText() {
   // Locate each HTML element of class 'keyed-lang-string'
   $('.keyed-lang-string').each(function() {
     // Set a reference to the current selected element
-    const span_tag = $(this);
+    // eslint-disable-next-line no-invalid-this
+    const spanTag = $(this);
 
     // Get the associated key value that will be used to locate
     // the text string in the page_text_label array. This array
     // is declared in messages.js
-    const pageLabel = span_tag.attr('data-key');
+    const pageLabel = spanTag.attr('data-key');
 
     // If there is a key value
     if (pageLabel) {
-      if (span_tag.is('a')) {
+      if (spanTag.is('a')) {
         // if the html element is an anchor, add a link
-        span_tag.attr('href', page_text_label[pageLabel]);
-      } else if (span_tag.is('input')) {
+        spanTag.attr('href', page_text_label[pageLabel]);
+      } else if (spanTag.is('input')) {
         // if the html element is a form input, set the
         // default value for the element
-        span_tag.attr('value', page_text_label[pageLabel]);
+        spanTag.attr('value', page_text_label[pageLabel]);
       } else {
         // otherwise, assume that we're inserting html
-        span_tag.html(page_text_label[pageLabel]);
+        spanTag.html(page_text_label[pageLabel]);
       }
     }
   });
@@ -302,6 +312,7 @@ function initEditorIcons() {
   // icons into the specified element.
   // ------------------------------------------------------------------------
   $('.bpIcon[data-icon]').each(function() {
+    // eslint-disable-next-line no-invalid-this
     $(this).html(bpIcons[$(this).attr('data-icon')]);
   });
 }
@@ -375,23 +386,28 @@ function initEventHandlers() {
         }
 
         projectName.removeClass('project-name-editable');
-        // if the project name is greater than 25 characters, only display the first 25
+        // if the project name is greater than 25 characters, only display
+        // the first 25
         if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
           projectName.html(
-              projectData.name.substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+              projectData.name.substring(
+                  0,
+                  PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
         }
       })
-  // change the behavior of the enter key
+      // change the behavior of the enter key
       .on('keydown', (e) => {
         if (e.which === 13 || e.keyCode === 13) {
           e.preventDefault();
           $('.project-name').trigger('blur');
         }
       })
-  // validate the input to ensure it's not too long, and save changes as the user types.
+      // validate the input to ensure it's not too long, and save
+      // changes as the user types.
       .on('keyup', () => {
         const tempProjectName = $('.project-name').html();
-        if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH || tempProjectName.length < 1) {
+        if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH ||
+            tempProjectName.length < 1) {
           $('.project-name').html(projectData.name);
         } else {
           projectData.name = tempProjectName;
@@ -406,16 +422,18 @@ function initEventHandlers() {
   // NEW Button
   // New Project toolbar button
   // TODO: New Project should be treated the same way as Open Project.
-  $('#new-project-button').on('click', () => NewProjectModal());
+  $('#new-project-button').on('click', () => newProjectModal());
 
   // OPEN Button
   // Open Project toolbar button. Stash the current project into the
   // browser localStorage and then redirect to the OpenFile URL.
-  $('#open-project-button').on('click', () => OpenProjectModal());
+  $('#open-project-button').on('click', () => openProjectModal());
   // {
   //     // Save the project to localStorage
-  //     window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
-  //     window.location = "blocklyc.html?openFile=true" + window.getAllURLParameters().replace('?', '&');
+  //     window.localStorage.setItem(
+  //        LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
+  //     window.location = "blocklyc.html?openFile=true" +
+  //        window.getAllURLParameters().replace('?', '&');
   // });
 
   // Save button
@@ -496,7 +514,7 @@ function initEventHandlers() {
   // fully hidden (after CSS transitions have completed)
   // --------------------------------------------------------------
   $('#save-check-dialog').on('hidden.bs.modal', () => {
-    ProjectSaveTimer.timestampSaveTime(5,false);
+    ProjectSaveTimer.timestampSaveTime(5, false);
   });
 
 
@@ -519,18 +537,27 @@ function initEventHandlers() {
  */
 function initClientDownloadLinks() {
   // Windows 32-bit
-  $('.client-win32-link').attr('href', $('meta[name=win32client]').attr('content'));
-  $('.client-win32zip-link').attr('href', $('meta[name=win32zipclient]').attr('content'));
+  $('.client-win32-link')
+      .attr('href', $('meta[name=win32client]').attr('content'));
+
+  $('.client-win32zip-link')
+      .attr('href', $('meta[name=win32zipclient]').attr('content'));
 
   // Windows 64-bit
-  $('.client-win64-link').attr('href', $('meta[name=win64client]').attr('content'));
-  $('.client-win64zip-link').attr('href', $('meta[name=win64zipclient]').attr('content'));
-  $('.launcher-win64-link').attr('href', $('meta[name=win64launcher]').attr('content'));
-  $('.launcher-win64zip-link').attr('href', $('meta[name=win64ziplauncher]').attr('content'));
+  $('.client-win64-link')
+      .attr('href', $('meta[name=win64client]').attr('content'));
+  $('.client-win64zip-link')
+      .attr('href', $('meta[name=win64zipclient]').attr('content'));
+  $('.launcher-win64-link')
+      .attr('href', $('meta[name=win64launcher]').attr('content'));
+  $('.launcher-win64zip-link')
+      .attr('href', $('meta[name=win64ziplauncher]').attr('content'));
 
   // MacOS
-  $('.client-mac-link').attr('href', $('meta[name=macOSclient]').attr('content'));
-  $('.launcher-mac-link').attr('href', $('meta[name=macOSlauncher]').attr('content'));
+  $('.client-mac-link')
+      .attr('href', $('meta[name=macOSclient]').attr('content'));
+  $('.launcher-mac-link')
+      .attr('href', $('meta[name=macOSlauncher]').attr('content'));
 }
 
 
@@ -539,12 +566,13 @@ function initClientDownloadLinks() {
  */
 function initCdnImageUrls() {
   $('img').each(function() {
-    const img_tag = $(this);
+    // eslint-disable-next-line no-invalid-this
+    const imgTag = $(this);
 
     // Set the source of the image
-    const img_source = img_tag.attr('data-src');
-    if (img_source) {
-      img_tag.attr('src', CDN_URL + img_source);
+    const imgSource = imgTag.attr('data-src');
+    if (imgSource) {
+      imgTag.attr('src', CDN_URL + imgSource);
     }
   });
 }
@@ -555,6 +583,7 @@ function initCdnImageUrls() {
  *
  * @param {{}} data is the current project object
  * @param {function} callback is called if provided when the function completes
+ * @return {number} Error code
  */
 function setupWorkspace(data, callback) {
   if (data && typeof(data.board) === 'undefined') {
@@ -568,7 +597,7 @@ function setupWorkspace(data, callback) {
   }
 
   // Delete all existing blocks, comments and undo stacks
-  ClearBlocklyWorkspace();
+  clearBlocklyWorkspace();
 
   projectData = data; // Set the master project image
   showInfo(data); // Update the UI with project related details
@@ -630,7 +659,9 @@ function saveProjectTimerChange() {
 function showInfo(data) {
   // Display the project name
   if (data.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-    $('.project-name').html(data['name'].substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+    $('.project-name')
+        .html(data['name']
+            .substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
   } else {
     $('.project-name').html(data.name);
   }
@@ -647,13 +678,15 @@ function showInfo(data) {
   };
 
   // Set the project icon to the correct board type
-  $('.project-icon').html('<img src="' + CDN_URL + projectBoardIcon[data.board] + '"/>');
+  $('.project-icon')
+      .html('<img src="' + CDN_URL + projectBoardIcon[data.board] + '"/>');
 }
 
 
 /**
  * @deprecated Cannot find any references to this function in code.
  */
+// eslint-disable-next-line no-unused-vars,require-jsdoc
 function saveProject() {
   // TODO: Refactor to remove the concept of project ownership
   if (projectData.yours) {
@@ -663,9 +696,12 @@ function saveProject() {
     $.post(BASE_URL + 'rest/project/code', projectData, function(data) {
       const previousOwner = projectData.yours;
       projectData = data;
-      projectData.code = code; // Save code in projectdata to be able to verify if code has changed upon leave
+      // Save code in projectData to be able to verify if code
+      // has changed upon leave
+      projectData.code = code;
 
-      // If the current user doesn't own this project, a new one is created and the page is redirected to the new project.
+      // If the current user doesn't own this project, a new one is created
+      // and the page is redirected to the new project.
       if (!previousOwner) {
         window.location.href = BASE_URL + 'projecteditor?id=' + data['id'];
       }
@@ -728,7 +764,8 @@ function saveProject() {
 function saveAsDialog() {
   // Production still uses the uses the plain 'save-as' endpoint for now.
   if (isExperimental.indexOf('saveas') > -1) { // if (1 === 1) {
-    // Old function - still in use because save-as+board type is not approved for use.
+    // Old function - still in use because save-as+board type is not
+    // approved for use.
     utils.prompt('Save project as', projectData.name, function(value) {
       if (value) {
         const code = getXml();
@@ -736,10 +773,13 @@ function saveAsDialog() {
         projectData.name = value;
 
         $.post(BASE_URL + 'rest/project/code-as', projectData, function(data) {
-          const previousOwner = projectData.yours;
           projectData = data;
-          projectData.code = code; // Save code in projectdata to be able to verify if code has changed upon leave
-          utils.showMessage(Blockly.Msg.DIALOG_PROJECT_SAVED, Blockly.Msg.DIALOG_PROJECT_SAVED_TEXT);
+          // Save code in projectdata to be able to verify if code
+          // has changed upon leave
+          projectData.code = code;
+          utils.showMessage(
+              Blockly.Msg.DIALOG_PROJECT_SAVED,
+              Blockly.Msg.DIALOG_PROJECT_SAVED_TEXT);
           // Reloading project with new id
           window.location.href = BASE_URL + 'projecteditor?id=' + data['id'];
         });
@@ -748,11 +788,14 @@ function saveAsDialog() {
   } else {
     // Prompt user to save current project first if unsaved
     if (checkLeave() && projectData.yours) {
-      utils.confirm(Blockly.Msg.DIALOG_SAVE_TITLE, Blockly.Msg.DIALOG_SAVE_FIRST, function(value) {
-        if (value) {
-          downloadCode();
-        }
-      }, 'Yes', 'No');
+      utils.confirm(
+          Blockly.Msg.DIALOG_SAVE_TITLE,
+          Blockly.Msg.DIALOG_SAVE_FIRST,
+          function(value) {
+            if (value) {
+              downloadCode();
+            }
+          }, 'Yes', 'No');
     }
 
     // Reset the save-as modal's fields
@@ -764,7 +807,10 @@ function saveAsDialog() {
 
     // Until the propc editor is ready, hide the save as propc option
     if (isExperimental.indexOf('saveas') > -1) {
-      $('#save-as-board-type').append($('<option />').val('propcfile').text('Propeller C (code-only)'));
+      $('#save-as-board-type')
+          .append($('<option />')
+              .val('propcfile')
+              .text('Propeller C (code-only)'));
     }
 
     // Open modal
@@ -779,14 +825,16 @@ function saveAsDialog() {
  */
 function checkBoardType(requester) {
   if (requester !== 'offline') {
-    const current_type = projectData.board;
-    const save_as_type = $('#save-as-board-type').val();
+    const currentType = projectData.board;
+    const saveAsType = $('#save-as-board-type').val();
 
     // save-as-verify-boardtype
-    if (current_type === save_as_type || save_as_type === 'propcfile') {
-      document.getElementById('save-as-verify-boardtype').style.display = 'none';
+    if (currentType === saveAsType || saveAsType === 'propcfile') {
+      document.getElementById('save-as-verify-boardtype')
+          .style.display = 'none';
     } else {
-      document.getElementById('save-as-verify-boardtype').style.display = 'block';
+      document.getElementById('save-as-verify-boardtype')
+          .style.display = 'block';
     }
   }
 }
@@ -826,6 +874,7 @@ function saveProjectAs(boardType, projectName) {
  * @param {string} str
  * @return {number}
  */
+// eslint-disable-next-line no-unused-vars,require-jsdoc
 function hashCode(str) {
   let hash = 0; let i = 0; const len = str.length;
   while (i < len) {
@@ -899,38 +948,47 @@ function downloadCode() {
     // get the text of just the project inside of the outer XML tag
     const projectXmlCode = projectXml.children[0].innerHTML;
 
-    // get the paths of the blocks themselves and the size/position of the blocks
+    // get the paths of the blocks themselves and the size/position
+    // of the blocks
     const projSVG = document.getElementsByClassName('blocklyBlockCanvas');
     const projSVGcode = projSVG[0].outerHTML.replace(/&nbsp;/g, ' ');
     const projSize = projSVG[0].getBoundingClientRect();
     const projH = parseInt(projSize.height) + parseInt(projSize.top);
     const projW = parseInt(projSize.width) + parseInt(projSize.left);
 
-    // a blocklyprop project SVG file header to lead the text of the file and hold project metadata.
+    // a blocklyprop project SVG file header to lead the text of the file
+    // and hold project metadata.
     const SVGheader = generateSvgHeader( projW, projH );
 
-    // a footer to generate a watermark with the project's information at the bottom-right corner of the SVG
+    // a footer to generate a watermark with the project's information at
+    // the bottom-right corner of the SVG
     // and hold project metadata.
     const SVGfooter = generateSvgFooter(projectData);
 
-    // Deprecating project checksum. Install a dummy checksum to keep the project loader happy.
+    // Deprecating project checksum. Install a dummy checksum to keep
+    // the project loader happy.
     const xmlChecksum = '000000000000';
 
-    // Assemble both the SVG (image) of the blocks and the blocks' XML definition
-    const blob = new Blob(
-        [SVGheader + projSVGcode + SVGfooter + projectXmlCode + '<ckm>' + xmlChecksum + '</ckm></svg>'],
-        {type: 'image/svg+xml'});
+    // Assemble both the SVG (image) of the blocks and the
+    // blocks' XML definition
+    const blob = new Blob([
+      SVGheader + projSVGcode + SVGfooter + projectXmlCode +
+            '<ckm>' + xmlChecksum + '</ckm></svg>',
+    ], {type: 'image/svg+xml'});
 
     // Persist the svg date to a project file
     saveAs(blob, projectFilename + '.svg');
 
-    // save the project into localStorage with a timestamp - if the page is simply refreshed,
-    // this will allow the project to be reloaded.
-    // make the projecData object reflect the current workspace and save it into localStorage
-    projectData.timestamp = getTimestamp();
-    // projectData.code = Project.prototype.EmptyProjectCodeHeader + projectXmlCode + '</xml>';
+    // save the project into localStorage with a timestamp - if the page is
+    // simply refreshed, this will allow the project to be reloaded. make the
+    // projecData object reflect the current workspace and save it into
+    // localStorage
+    const date = Date();
+    projectData.timestamp = date.getTime();
+
     projectData.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
-    window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
+    window.localStorage.setItem(
+        LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
 
     // Mark the time when saved, add 20 minutes to it.
     ProjectSaveTimer.timestampSaveTime(0, true);
@@ -950,32 +1008,48 @@ function generateSvgHeader( width, height ) {
   const projH = (height + 100).toString();
   const projW = (width + 236).toString();
 
-  // a header with the necessary svg XML header and style information to make the blocks render correctly
+  // a header with the necessary svg XML header and style information to make
+  // the blocks render correctly
   // TODO: make SVG valid.
   let SVGheader = '';
+
   SVGheader += '<svg blocklyprop="blocklypropproject" xmlns="http://www.w3.org/2000/svg" ';
   SVGheader += 'xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink" ';
+  // eslint-disable-next-line max-len
   SVGheader += 'version="1.1" class="blocklySvg"><style>.blocklySvg { background-color: #fff; ';
+  // eslint-disable-next-line max-len
   SVGheader += 'overflow: auto; width:' + projW + 'px; height:' + projH + 'px;} .blocklyWidgetDiv {display: none; position: absolute; ';
+  // eslint-disable-next-line max-len
   SVGheader += 'z-index: 999;} .blocklyPathLight { fill: none; stroke-linecap: round; ';
+  // eslint-disable-next-line max-len
   SVGheader += 'stroke-width: 2;} .blocklyDisabled>.blocklyPath { fill-opacity: .5; ';
+  // eslint-disable-next-line max-len
   SVGheader += 'stroke-opacity: .5;} .blocklyDisabled>.blocklyPathLight, .blocklyDisabled>';
+  // eslint-disable-next-line max-len
   SVGheader += '.blocklyPathDark {display: none;} .blocklyText {cursor: default; fill: ';
+  // eslint-disable-next-line max-len
   SVGheader += '#fff; font-family: sans-serif; font-size: 11pt;} .blocklyNonEditableText>text { ';
+  // eslint-disable-next-line max-len
   SVGheader += 'pointer-events: none;} .blocklyNonEditableText>rect, .blocklyEditableText>rect ';
+  // eslint-disable-next-line max-len
   SVGheader += '{fill: #fff; fill-opacity: .6;} .blocklyNonEditableText>text, .blocklyEditableText>';
+  // eslint-disable-next-line max-len
   SVGheader += 'text {fill: #000;} .blocklyBubbleText {fill: #000;} .blocklySvg text {user';
+  // eslint-disable-next-line max-len
   SVGheader += '-select: none; -moz-user-select: none; -webkit-user-select: none; cursor: ';
+  // eslint-disable-next-line max-len
   SVGheader += 'inherit;} .blocklyHidden {display: none;} .blocklyFieldDropdown:not(.blocklyHidden) ';
+  // eslint-disable-next-line max-len
   SVGheader += '{display: block;} .bkginfo {cursor: default; fill: rgba(0, 0, 0, 0.3); font-family: ';
+  // eslint-disable-next-line max-len
   SVGheader += 'sans-serif; font-size: 10pt;}</style>';
 
   return SVGheader;
 }
 
 /**
- * Generate a watermark with the project's information at the bottom-right corner of the SVG
- * and hold project metadata.
+ * Generate a watermark with the project's information at the bottom-right
+ * corner of the SVG and hold project metadata.
  *
  * @param {{}} project Project details object
  * @return {string}
@@ -984,26 +1058,37 @@ function generateSvgFooter( project ) {
   let svgFooter = '';
   const dt = new Date();
 
-  svgFooter += '<rect x="100%" y="100%" rx="7" ry="7" width="218" height="84" style="fill:rgba(255,255,255,0.4);" transform="translate(-232,-100)" />';
-  svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-83)" style="font-weight:bold;">Parallax BlocklyProp Project</text>';
+  svgFooter += '<rect x="100%" y="100%" rx="7" ry="7" width="218" '+
+            'height="84" style="fill:rgba(255,255,255,0.4);" '+
+            'transform="translate(-232,-100)" />';
 
-  svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-68)">' +
-        'User: ' + encodeToValidXml(project.user) + '</text>';
+  svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
+            'transform="translate(-225,-83)" style="font-weight:bold;">'+
+            'Parallax BlocklyProp Project</text>';
 
-  svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-53)">' +
-        'Title: ' + encodeToValidXml(project.name) + '</text>';
+  svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
+            'transform="translate(-225,-68)">' +
+            'User: ' + encodeToValidXml(project.user) + '</text>';
 
-  svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-38)">' +
-        'Project ID: 0</text>';
+  svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
+            'transform="translate(-225,-53)">' +
+            'Title: ' + encodeToValidXml(project.name) + '</text>';
 
-  svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-23)">' +
-        'Device: ' + project.board + '</text>';
+  svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
+            'transform="translate(-225,-38)">' +
+            'Project ID: 0</text>';
 
-  svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-8)">' +
-        'Description: ' + encodeToValidXml(project.description) + '</text>';
+  svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
+            'transform="translate(-225,-23)">' +
+            'Device: ' + project.board + '</text>';
 
-  svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' +
-        project.created + '" data-lastmodified="' + dt + '"></text>';
+  svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
+            'transform="translate(-225,-8)">' +
+            'Description: ' + encodeToValidXml(project.description) + '</text>';
+
+  svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
+            'transform="translate(-225,13)" data-createdon="' +
+            project.created + '" data-lastmodified="' + dt + '"></text>';
 
   return svgFooter;
 }
@@ -1030,7 +1115,7 @@ function uploadCode() {
  *  and then stores the verified resulting project into the uploadXML
  *  string.
  *
- * @param files []
+ * @param {Array} files
  */
 function uploadHandler(files) {
   const UploadReader = new FileReader();
@@ -1044,7 +1129,8 @@ function uploadHandler(files) {
     let uploadBoardType = '';
 
     // TODO: Solo #261
-    // Loop through blocks to verify blocks are supported for the project board type
+    // Loop through blocks to verify blocks are supported for the project
+    // board type
     // validateProjectBlockList(this.result);
 
     // Flag to indicate that we are importing a file that
@@ -1072,7 +1158,9 @@ function uploadHandler(files) {
         findBPCstart = '<variables';
       }
 
-      uploadedXML = xmlString.substring(xmlString.indexOf(findBPCstart), (xmlString.length - 29));
+      uploadedXML = xmlString.substring(
+          xmlString.indexOf(findBPCstart),
+          (xmlString.length - 29));
       uploadBoardType = getProjectBoardType(xmlString);
 
       if (xmlValid) {
@@ -1088,7 +1176,8 @@ function uploadHandler(files) {
 
       // TODO: check to see if this is used when opened from the editor
       //  (and not the splash screen)
-      // maybe projectData.code.length < 43??? i.e. empty project? instead of the URL parameter...
+      // maybe projectData.code.length < 43??? i.e. empty project? instead
+      // of the URL parameter...
 
       // Loading a .SVG project file. Create a project object and
       // save it into the browser store.
@@ -1184,7 +1273,8 @@ function uploadHandler(files) {
  * @return {string}
  */
 function getProjectBoardType(xmlString) {
-  const boardIndex = xmlString.indexOf('transform="translate(-225,-23)">Device: ');
+  const boardIndex = xmlString.indexOf(
+      'transform="translate(-225,-23)">Device: ');
 
   return xmlString.substring(
       (boardIndex + 40),
@@ -1199,7 +1289,8 @@ function getProjectBoardType(xmlString) {
  * @return {string}
  */
 function getProjectTitleFromXML(xmlString) {
-  const titleIndex = xmlString.indexOf('transform="translate(-225,-53)">Title: ');
+  const titleIndex = xmlString.indexOf(
+      'transform="translate(-225,-53)">Title: ');
 
   if (titleIndex > -1) {
     return xmlString.substring(
@@ -1218,7 +1309,8 @@ function getProjectTitleFromXML(xmlString) {
  * @return {string}
  */
 function getProjectDescriptionFromXML(xmlString) {
-  const titleIndex = xmlString.indexOf('transform="translate(-225,-8)">Description: ');
+  const titleIndex = xmlString.indexOf(
+      'transform="translate(-225,-8)">Description: ');
 
   if (titleIndex > -1) {
     return xmlString.substring(
@@ -1272,7 +1364,7 @@ function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
 
 /**
  *
- * @param redirect boolean flag to permit page redirection
+ * @param {boolean} redirect boolean flag to permit page redirection
  */
 function clearUploadInfo(redirect) {
   // Reset all of the upload fields and containers
@@ -1298,7 +1390,7 @@ function clearUploadInfo(redirect) {
 /**
  * Open and load an svg project file
  *
- * @param append is true if the project being loaded will be appended
+ * @param {boolean} append is true if the project being loaded will be appended
  * to the existing project
  *
  * @description
@@ -1311,6 +1403,7 @@ function clearUploadInfo(redirect) {
  *
  * For offline mode, the project may not have been loaded yet.
  */
+// eslint-disable-next-line no-unused-vars,require-jsdoc
 function uploadMergeCode(append) {
   // Hide the Open Project modal dialog
   $('#upload-dialog').modal('hide');
@@ -1329,7 +1422,8 @@ function uploadMergeCode(append) {
     //
     // Set a timestamp to note when the project was saved into localStorage
 
-    // projectData = JSON.parse(window.localStorage.getItem(tempProjectStoreName));
+    // projectData = JSON.parse(
+    //     window.localStorage.getItem(tempProjectStoreName));
 
     // Store the temp project into the localProject and redirect
     window.localStorage.setItem(
@@ -1351,36 +1445,49 @@ function uploadMergeCode(append) {
 
     let newCode = uploadedXML;
     if (newCode.indexOf('<variables>') === -1) {
-      newCode = newCode.substring(uploadedXML.indexOf('<block'), newCode.length);
+      newCode = newCode.substring(
+          uploadedXML.indexOf('<block'),
+          newCode.length);
     } else {
-      newCode = newCode.substring(uploadedXML.indexOf('<variables'), newCode.length);
+      newCode = newCode.substring(
+          uploadedXML.indexOf('<variables'),
+          newCode.length);
     }
     newCode = newCode.substring(0, (newCode.length - 6));
 
     // check for newer blockly XML code (contains a list of variables)
-    if (newCode.indexOf('<variables') > -1 && projCode.indexOf('<variables') > -1) {
+    if (newCode.indexOf('<variables') > -1 &&
+        projCode.indexOf('<variables') > -1) {
       const findVarRegExp = /type="(\w*)" id="(.{20})">(\w+)</g;
       const newBPCvars = [];
       const oldBPCvars = [];
 
       let varCodeTemp = newCode.split('</variables>');
       newCode = varCodeTemp[1];
-      // use a regex to match the id, name, and type of the varaibles in both the old and new code.
-      let tmpv = varCodeTemp[0].split('<variables')[1].replace(findVarRegExp, function(p, m1, m2, m3) { // type, id, name
-        newBPCvars.push([m3, m2, m1]); // name, id, type
-        return p;
-      });
+      // use a regex to match the id, name, and type of the variables in both
+      // the old and new code.
+      let tmpv = varCodeTemp[0]
+          .split('<variables')[1]
+          .replace(findVarRegExp,
+              // type, id, name
+              function(p, m1, m2, m3) {
+                newBPCvars.push([m3, m2, m1]); // name, id, type
+                return p;
+              });
       varCodeTemp = projCode.split('</variables>');
       projCode = varCodeTemp[1];
-      tmpv = varCodeTemp[0].replace(findVarRegExp, function(p, m1, m2, m3) { // type, id, name
-        oldBPCvars.push([m3, m2, m1]); // name, id, type
-        return p;
-      });
+      // type, id, name
+      tmpv = varCodeTemp[0].replace(
+          findVarRegExp,
+          function(p, m1, m2, m3) {
+            oldBPCvars.push([m3, m2, m1]); // name, id, type
+            return p;
+          });
       // record how many variables are in the original and new code
       tmpv = [oldBPCvars.length, newBPCvars.length];
       // iterate through the captured variables to detemine if any overlap
       for (let j = 0; j < tmpv[0]; j++) {
-        for (var k = 0; k < tmpv[1]; k++) {
+        for (let k = 0; k < tmpv[1]; k++) {
           // see if var is a match
           if (newBPCvars[k][0] === oldBPCvars[j][0]) {
             // replace old variable IDs with new ones
@@ -1392,7 +1499,7 @@ function uploadMergeCode(append) {
           }
         }
       }
-      for (k = 0; k < tmpv[1]; k++) {
+      for (let k = 0; k < tmpv[1]; k++) {
         if (newBPCvars[k][1]) {
           // Add var from uploaded xml to the project code
           oldBPCvars.push(newBPCvars[k]);
@@ -1402,18 +1509,23 @@ function uploadMergeCode(append) {
       // rebuild vars from both new/old
       tmpv = '<variables>';
       oldBPCvars.forEach(function(vi, j) {
-        tmpv += '<variable id="' + vi[1] + '" type="' + vi[2] + '">' + vi[0] + '</variable>';
+        tmpv += '<variable id="' + vi[1] + '" type="' + vi[2] + '">' +
+            vi[0] + '</variable>';
       });
       tmpv += '</variables>';
       // add everything back together
-      projectData.code = EMPTY_PROJECT_CODE_HEADER + tmpv + projCode + newCode + '</xml>';
-    } else if (newCode.indexOf('<variables') > -1 && projCode.indexOf('<variables') === -1) {
-      projectData.code = EMPTY_PROJECT_CODE_HEADER + newCode + projCode + '</xml>';
+      projectData.code =
+          EMPTY_PROJECT_CODE_HEADER + tmpv + projCode + newCode + '</xml>';
+    } else if (newCode.indexOf('<variables') > -1 &&
+        projCode.indexOf('<variables') === -1) {
+      projectData.code =
+          EMPTY_PROJECT_CODE_HEADER + newCode + projCode + '</xml>';
     } else {
-      projectData.code = EMPTY_PROJECT_CODE_HEADER + projCode + newCode + '</xml>';
+      projectData.code =
+          EMPTY_PROJECT_CODE_HEADER + projCode + newCode + '</xml>';
     }
 
-    ClearBlocklyWorkspace();
+    clearBlocklyWorkspace();
 
     // This call fails because there is no Blockly workspace context
     loadToolbox(projectData.code);
@@ -1437,15 +1549,26 @@ function initToolbox(profileName) {
 
     if (ff) {
       // Replace font family in Blockly's inline CSS
-      for (var f = 0; f < Blockly.Css.CONTENT.length; f++) {
-        Blockly.Css.CONTENT[f] = Blockly.Css.CONTENT[f].replace(/Arial, /g, '').replace(/sans-serif;/g, '\'' + ff + '\', sans-serif;');
+      for (let f = 0; f < Blockly.Css.CONTENT.length; f++) {
+        Blockly.Css.CONTENT[f] =
+            Blockly.Css.CONTENT[f]
+                .replace(/Arial, /g, '')
+                .replace(/sans-serif;/g, '\'' + ff + '\', sans-serif;');
       }
 
       $('html, body').css('font-family', '\'' + ff + '\', sans-serif');
-      $('.blocklyWidgetDiv .goog-menuitem-content').css('font', '\'normal 14px \'' + ff + '\', sans-serif !important\''); //    font: normal 14px Arimo, sans-serif !important;
+      //    font: normal 14px Arimo, sans-serif !important;
+      $('.blocklyWidgetDiv .goog-menuitem-content')
+          .css(
+              'font',
+              '\'normal 14px \'' + ff + '\',' +
+              ' sans-serif !important\'');
     } else {
-      for (var f = 0; f < Blockly.Css.CONTENT.length; f++) {
-        Blockly.Css.CONTENT[f] = Blockly.Css.CONTENT[f].replace(/Arial, /g, '').replace(/sans-serif;/g, 'Arimo, sans-serif;');
+      for (let f = 0; f < Blockly.Css.CONTENT.length; f++) {
+        Blockly.Css.CONTENT[f] =
+            Blockly.Css.CONTENT[f]
+                .replace(/Arial, /g, '')
+                .replace(/sans-serif;/g, 'Arimo, sans-serif;');
       }
     }
   }
@@ -1489,7 +1612,7 @@ function initToolbox(profileName) {
 
 /**
  * Load the workspace
- * @param xmlText
+ * @param {string} xmlText
  */
 function loadToolbox(xmlText) {
   if (Blockly.mainWorkspace) {
@@ -1499,25 +1622,24 @@ function loadToolbox(xmlText) {
 }
 
 
-
 /**
  *
- * @param o
+ * @param {string} os
  */
-function showOS(o) {
+function showOS(os) {
   const body = $('body');
   body.removeClass('Windows')
       .removeClass('MacOS')
       .removeClass('Linux')
       .removeClass('ChromeOS');
-  body.addClass(o);
+  body.addClass(os);
 }
 
 
 /**
  * Clear the main workspace in the Blockly object
  */
-function ClearBlocklyWorkspace() {
+function clearBlocklyWorkspace() {
   const workspace = Blockly.getMainWorkspace();
 
   if (workspace) {
@@ -1533,11 +1655,12 @@ function ClearBlocklyWorkspace() {
 /**
  * Sanitize a string into an OS-safe filename
  *
- * @param input string representing a potential filename
+ * @param {string} input string representing a potential filename
  * @return {string}
  */
 function sanitizeFilename(input) {
-  // if the input is not a string, or is an empty string, return a generic filename
+  // if the input is not a string, or is an empty string, return a
+  // generic filename
   if (typeof input !== 'string' || input.length < 1) {
     return 'my_project';
   }
@@ -1577,6 +1700,7 @@ function configureTermGraph() {
 /**
  * Render the branding logo and related text.
  */
+/*
 function RenderPageBrandingElements() {
   let appName = ApplicationName;
   let html = 'BlocklyProp<br><strong>' + ApplicationName + '</strong>';
@@ -1584,11 +1708,12 @@ function RenderPageBrandingElements() {
   if (window.location.hostname === productBannerHostTrigger) {
     appName = TestApplicationName;
     html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
-    document.getElementById('nav-logo').style.backgroundImage = 'url(\'src/images/dev-toolkit.png\')';
+    document.getElementById('nav-logo').style.backgroundImage
+        = 'url(\'src/images/dev-toolkit.png\')';
   }
 
   $('#nav-logo').html(html);
   $('#app-banner-title').html('BlocklyProp ' + appName);
 }
-
+*/
 

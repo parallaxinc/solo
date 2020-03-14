@@ -29,7 +29,7 @@
  * document.ready() handler.
  */
 // eslint-disable-next-line no-unused-vars
-function NewProjectModal() {
+function newProjectModal() {
     // If the current project has been modified, give the user
     // an opportunity to abort the new project process.
     // eslint-disable-next-line no-undef
@@ -328,7 +328,7 @@ function CreateNewProject() {
  *  time to process the new project.
  */
 // eslint-disable-next-line no-unused-vars
-function OpenProjectModal() {
+function openProjectModal() {
     // Save a copy of the original project in case the page gets reloaded
     if (projectData && typeof (projectData.name) !== 'undefined') {
         window.localStorage.setItem(
