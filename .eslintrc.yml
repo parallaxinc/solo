@@ -41,4 +41,7 @@ overrides:
       - google
     parserOptions:
       sourceType: module
-
+  - files: ["src/modules/toolbox_data.js"]
+    rules: {
+      max-len: "off"
+    }

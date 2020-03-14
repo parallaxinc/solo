@@ -30,6 +30,8 @@ import {
 import {propToolbarButtonController} from './toolbar_controller.js';
 import {ProjectSaveTimer} from './project_save_timer.js';
 import {Project} from './project.js';
+import {filterToolbox} from './toolbox_data.js';
+import {isExperimental} from './url_parameters.js';
 
 /**
  * Uploaded project XML code
@@ -1812,3 +1814,4 @@ function checkLeave() {
 
   return Project.testProjectEquality(currentXml, savedXml);
 }
+
