@@ -84,34 +84,5 @@ function loadToolbox(xmlText) {
 }
 
 
-/**
- * Check project state to see if it has changed before leaving the page
- *
- * @returns {boolean}
- * Return true if the project has been changed but has not been
- * persisted to storage.
- *
- * @description
- * The function assumes that the projectData global variable holds
- * the original copy of the project, prior to any user modification.
- * The code then compares the code in the Blockly core against the
- * original version of the project to determine if any changes have
- * occurred.
- *
- * This only examines the project data. This code should also check
- * the project name and descriptions for changes.
- */
-function checkLeave() {
-    // The projectData variable is now officially an object. Consider it empty
-    // if it is null or if the name property is undefined.
-    if (!projectData || typeof projectData.name === 'undefined') {
-        return false;
-    }
-
-    let currentXml = getXml();
-    let savedXml = projectData.code;
-
-    return Project.testProjectEquality(currentXml, savedXml);
-}
 
 

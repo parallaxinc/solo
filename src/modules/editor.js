@@ -27,6 +27,10 @@ import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
 } from './constants.js';
 
+import {
+  editProjectDetails, newProjectModal, openProjectModal, initUploadModalLabels,
+} from './modals.js';
+
 import {propToolbarButtonController} from './toolbar_controller.js';
 import {ProjectSaveTimer} from './project_save_timer.js';
 import {Project} from './project.js';
@@ -1839,3 +1843,6 @@ function getXml() {
   // Return the XML for a blank project if none is found.
   return EMPTY_PROJECT_CODE_HEADER + '</xml>';
 }
+
+
+export {checkLeave, getXml};
