@@ -115,25 +115,3 @@ function checkLeave() {
 }
 
 
-/**
- * Convert the current project workspace into an XML document
- *
- * @return {string}
- */
-function getXml() {
-    if (projectData && projectData.board === 'propcfile') {
-        return propcAsBlocksXml();
-    }
-
-    if (Blockly.Xml && Blockly.mainWorkspace) {
-        const xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
-        return Blockly.Xml.domToText(xml);
-    }
-
-    if (projectData && projectData.code) {
-        return projectData.code;
-    }
-
-    // Return the XML for a blank project if none is found.
-    return EMPTY_PROJECT_CODE_HEADER + '</xml>';
-}
