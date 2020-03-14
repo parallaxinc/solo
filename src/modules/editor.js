@@ -23,15 +23,13 @@
 // var Blockly = require('blockly/core');
 // import Blockly from 'blockly/core';
 
-import {propToolbarButtonController} from './toolbar_controller.js';
-import {ProjectSaveTimer} from './project_save_timer.js';
-
 import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
 } from './constants.js';
 
-/** GLOBAL VARIABLES **/
-
+import {propToolbarButtonController} from './toolbar_controller.js';
+import {ProjectSaveTimer} from './project_save_timer.js';
+import {Project} from './project.js';
 
 /**
  * Uploaded project XML code
@@ -40,6 +38,15 @@ import {
  */
 let uploadedXML = '';
 
+
+/**
+ * The call to Blockly.svgResize() requires a reference to the
+ * Blockly.WorkspaceSvg workspace that was returned from the
+ * Blockly.inject() call.
+ *
+ * @type {null}
+ */
+let injectedBlocklyWorkspace = null;
 
 /**
  * Execute this code as soon as the DOM becomes ready.
@@ -66,8 +73,6 @@ $(() => {
   // Set the compile toolbar buttons to unavailable
   // setPropToolbarButtons();
   propToolbarButtonController(false);
-
-  /* -- Set up amy event handlers once the DOM is ready -- */
 
   // Update the blockly workspace to ensure that it takes
   // the remainder of the window. This is an async call.
@@ -832,7 +837,7 @@ function saveProjectAs(boardType, projectName) {
     'type': 'PROPC',
     'user': 'offline',
     'yours': true,
-    'timestamp': getTimestamp(),
+    'timestamp': tt.getTime(),
   };
 
   window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
@@ -1571,7 +1576,11 @@ function initToolbox(profileName) {
     },
   };
 
-  Blockly.inject('content_blocks', blocklyOptions);
+  // NOTE:
+  // The call to Blockly.svgResize() requires a BlocklySvg workspace, and not
+  // the main workspace. The return value from the call to Blockly.inject()
+  // returns such an object.
+  injectedBlocklyWorkspace = Blockly.inject('content_blocks', blocklyOptions);
 
   init(Blockly);
 
@@ -1696,3 +1705,110 @@ function ShowProjectTimerModalDialog() {
   $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
 }
 
+/**
+ * Reset the upload/import modal window to defaults after use
+ */
+function resetUploadImportModalDialog() {
+  // reset the title of the modal
+  $('upload-dialog-title').html(page_text_label['editor_import']);
+
+  // hide "append" button
+  $('#selectfile-append').removeClass('hidden');
+
+  // change color of the "replace" button to blue and change text to "Open"
+  $('#selectfile-replace')
+      .removeClass('btn-primary')
+      .addClass('btn-danger')
+      .html(page_text_label['editor_button_replace']);
+
+  // reset the blockly toolbox sizing to ensure it renders correctly:
+  // eslint-disable-next-line no-undef
+  resetToolBoxSizing(100);
+}
+
+/**
+ * Reset the sizing of blockly's toolbox and canvas.
+ *
+ * NOTE: This is a workaround to ensure that it renders correctly
+ * TODO: Find a permanent replacement for this workaround.
+ *
+ * @param {number} resizeDelay milliseconds to delay the resizing, especially
+ * if used after a change in the window's location or a during page
+ * reload.
+ * @param {boolean} centerBlocks Center the project blocks if true.
+ *
+ * @description
+ * This function is replicated in the editor_js.js file to support a call from
+ * the modals.js file. That copy will be deprecated when the modals.js file
+ * is conveted to a module.
+ */
+function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
+  // Vanilla Javascript is used here for speed - jQuery
+  // could probably be used, but this is faster. Force
+  // the toolbox to render correctly
+  setTimeout(() => {
+    // find the height of just the blockly workspace by
+    // subtracting the height of the navigation bar
+    const navTop = document.getElementById('editor').offsetHeight;
+    const navHeight = window.innerHeight - navTop;
+    const navWidth = window.innerWidth;
+
+    // Build an array of UI divs that display content
+    const blocklyDiv = [
+      document.getElementById('content_blocks'),
+      document.getElementById('content_propc'),
+      document.getElementById('content_xml'),
+    ];
+
+    // Set the size of the divs
+    for (let i = 0; i < 3; i++) {
+      blocklyDiv[i].style.left = '0px';
+      blocklyDiv[i].style.top = navTop + 'px';
+      blocklyDiv[i].style.width = navWidth + 'px';
+      blocklyDiv[i].style.height = navHeight + 'px';
+    }
+
+    // Update the Blockly editor canvas to use the new space
+    if (Blockly.mainWorkspace && blocklyDiv[0].style.display !== 'none') {
+      // Blockly.svgResize(Blockly.mainWorkspace);
+      Blockly.svgResize(injectedBlocklyWorkspace);
+
+      // center the blocks on the workspace
+      if (centerBlocks) {
+        Blockly.getMainWorkspace().scrollCenter();
+      }
+    }
+    //  10 millisecond delay
+  }, resizeDelay || 10);
+}
+
+
+/**
+ * Check project state to see if it has changed before leaving the page
+ *
+ * @return {boolean}
+ * Return true if the project has been changed but has not been
+ * persisted to storage.
+ *
+ * @description
+ * The function assumes that the projectData global variable holds
+ * the original copy of the project, prior to any user modification.
+ * The code then compares the code in the Blockly core against the
+ * original version of the project to determine if any changes have
+ * occurred.
+ *
+ * This only examines the project data. This code should also check
+ * the project name and descriptions for changes.
+ */
+function checkLeave() {
+  // The projectData variable is now officially an object. Consider it empty
+  // if it is null or if the name property is undefined.
+  if (!projectData || typeof projectData.name === 'undefined') {
+    return false;
+  }
+
+  const currentXml = getXml();
+  const savedXml = projectData.code;
+
+  return Project.testProjectEquality(currentXml, savedXml);
+}
