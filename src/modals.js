@@ -711,12 +711,3 @@ function PopulateProjectBoardTypesUIElement(element, selected = null) {
 }
 
 
-/**
- * Display the Timed Save Project modal dialog
- *
- */
-// eslint-disable-next-line no-unused-vars
-function ShowProjectTimerModalDialog() {
-    $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
-}
-

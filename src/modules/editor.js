@@ -42,46 +42,6 @@ let uploadedXML = '';
 
 
 /**
- *  The relative path for the hosting web site. The default is '/'.
- *
- *  @description
- *  This requires that the hosting page define the <meta> tag that
- *  contains this setting
- *
- *      <meta name="base" content="">
- *
- * @type {*|jQuery}
- * @deprecated
- * The BASE_URL is always an empty string in Solo
- */
-// const BASE_URL = $('meta[name=base]').attr('content');
-
-
-// TODO: set up a markdown editor (removed because it doesn't work in a
-//  Bootstrap modal...)
-
-// ------------------------------------------------------------------
-//
-// Project save timestamp and interval functions
-//
-// ------------------------------------------------------------------
-
-
-/**
- * Ping the Rest API every 60 seconds
- *
- * @type {number}
- * @deprecated
- */
-/*
-const pingInterval = setInterval(() => {
-    $.get(BASE_URL + 'ping');
-},
-60000
-);
-*/
-
-/**
  * Execute this code as soon as the DOM becomes ready.
  * Replaces the old document.ready() construct
  */
@@ -1727,4 +1687,12 @@ function RenderPageBrandingElements() {
   $('#app-banner-title').html('BlocklyProp ' + appName);
 }
 */
+
+/**
+ * Display the Timed Save Project modal dialog
+ *
+ */
+function ShowProjectTimerModalDialog() {
+  $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
+}
 
