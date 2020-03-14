@@ -28,7 +28,7 @@ import {ProjectSaveTimer} from './project_save_timer.js';
 
 import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
-} from './constants';
+} from './constants.js';
 
 /** GLOBAL VARIABLES **/
 
@@ -763,6 +763,10 @@ function saveProject() {
  */
 function saveAsDialog() {
   // Production still uses the uses the plain 'save-as' endpoint for now.
+  /* ------------------------------------------------------------------------
+   * This code is used in the old BlocklyProp server system and is deprecated
+   * here.
+   * ------------------------------------------------------------------------
   if (isExperimental.indexOf('saveas') > -1) { // if (1 === 1) {
     // Old function - still in use because save-as+board type is not
     // approved for use.
@@ -786,36 +790,37 @@ function saveAsDialog() {
       }
     });
   } else {
-    // Prompt user to save current project first if unsaved
-    if (checkLeave() && projectData.yours) {
-      utils.confirm(
-          Blockly.Msg.DIALOG_SAVE_TITLE,
-          Blockly.Msg.DIALOG_SAVE_FIRST,
-          function(value) {
-            if (value) {
-              downloadCode();
-            }
-          }, 'Yes', 'No');
-    }
-
-    // Reset the save-as modal's fields
-    $('#save-as-project-name').val(projectData.name);
-    $('#save-as-board-type').empty();
-    profile.default.saves_to.forEach(function(bt) {
-      $('#save-as-board-type').append($('<option />').val(bt[1]).text(bt[0]));
-    });
-
-    // Until the propc editor is ready, hide the save as propc option
-    if (isExperimental.indexOf('saveas') > -1) {
-      $('#save-as-board-type')
-          .append($('<option />')
-              .val('propcfile')
-              .text('Propeller C (code-only)'));
-    }
-
-    // Open modal
-    $('#save-as-type-dialog').modal({keyboard: false, backdrop: 'static'});
+  */
+  // Prompt user to save current project first if unsaved
+  if (checkLeave() && projectData.yours) {
+    utils.confirm(
+        Blockly.Msg.DIALOG_SAVE_TITLE,
+        Blockly.Msg.DIALOG_SAVE_FIRST,
+        function(value) {
+          if (value) {
+            downloadCode();
+          }
+        }, 'Yes', 'No');
   }
+
+  // Reset the save-as modal's fields
+  $('#save-as-project-name').val(projectData.name);
+  $('#save-as-board-type').empty();
+  profile.default.saves_to.forEach(function(bt) {
+    $('#save-as-board-type').append($('<option />').val(bt[1]).text(bt[0]));
+  });
+
+  // Until the propc editor is ready, hide the save as propc option
+  if (isExperimental.indexOf('saveas') > -1) {
+    $('#save-as-board-type')
+        .append($('<option />')
+            .val('propcfile')
+            .text('Propeller C (code-only)'));
+  }
+
+  // Open modal
+  $('#save-as-type-dialog').modal({keyboard: false, backdrop: 'static'});
+//  }
 }
 
 
