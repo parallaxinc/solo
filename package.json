@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "tests/run_all_tests.sh",
-    "build": "webpack --mode=development"
+    "dev": "webpack --mode=development",
+    "build": "webpack --mode=production"
   },
   "repository": {
     "type": "git",
