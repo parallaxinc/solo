@@ -51,8 +51,10 @@ let uploadedXML = '';
  *      <meta name="base" content="">
  *
  * @type {*|jQuery}
+ * @deprecated
+ * The BASE_URL is always an empty string in Solo
  */
-const BASE_URL = $('meta[name=base]').attr('content');
+// const BASE_URL = $('meta[name=base]').attr('content');
 
 
 // TODO: set up a markdown editor (removed because it doesn't work in a
@@ -71,12 +73,13 @@ const BASE_URL = $('meta[name=base]').attr('content');
  * @type {number}
  * @deprecated
  */
+/*
 const pingInterval = setInterval(() => {
-  $.get(BASE_URL + 'ping');
+    $.get(BASE_URL + 'ping');
 },
 60000
 );
-
+*/
 
 /**
  * Execute this code as soon as the DOM becomes ready.
@@ -174,8 +177,10 @@ $(() => {
   // Reset the upload/import modal to its default state when closed
   $('#upload-dialog').on('hidden.bs.modal', resetUploadImportModalDialog());
 
+  // The BASE_URL is deprecated since it is always the empty string
   $('.url-prefix').attr('href', function(idx, cur) {
-    return BASE_URL + cur;
+    // return BASE_URL + cur;
+    return cur;
   });
 
   initCdnImageUrls();
@@ -185,7 +190,7 @@ $(() => {
   // TODO: Use the ping endpoint to verify that we are offline.
 
   // Stop pinging the Rest API
-  clearInterval(pingInterval);
+  // clearInterval(pingInterval);
 
   // Load a project file from local storage
   if (window.getURLParameter('openFile') === 'true') {
@@ -687,6 +692,7 @@ function showInfo(data) {
  * @deprecated Cannot find any references to this function in code.
  */
 // eslint-disable-next-line no-unused-vars,require-jsdoc
+/*
 function saveProject() {
   // TODO: Refactor to remove the concept of project ownership
   if (projectData.yours) {
@@ -755,7 +761,7 @@ function saveProject() {
     saveAsDialog();
   }
 }
-
+*/
 
 // TODO: Is this function relevant in Solo?
 /**
