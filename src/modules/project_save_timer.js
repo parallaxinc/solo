@@ -71,6 +71,7 @@ class ProjectSaveTimer {
    * @param {Function} callback
    */
   static setMessageHandler(callback) {
+    console.log('SAVEPRJ: Setting timer callback.');
     messageHandler = callback;
   }
 
@@ -122,8 +123,9 @@ class ProjectSaveTimer {
     //  not that we are leaving the page. checkLeave is not the right
     //  method to use here.
     if (timeNow > lastSavedTimestamp) {
-      console.log('SAVEPRJ:Invoking Save Project dialog.');
+      console.log('SAVEPRJ:Time\'s up.');
       if (messageHandler) {
+        console.log('SAVEPRJ:Invoking Save Project dialog.');
         messageHandler();
       }
     }
