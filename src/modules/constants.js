@@ -66,6 +66,36 @@ const ApplicationName = 'Solo';
 const TestApplicationName = 'Solocup';
 
 
+/**
+ * Constant string that represents the base, empty project header
+ *
+ * @type {string}
+ *
+ * @description Converting the string to a constant because it is referenced
+ * in a number of places. The string is sufficiently complex that it could
+ * be misspelled without detection.
+ */
+const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
+
+
+/**
+ * The name used to store a project that is being loaded from
+ * offline storage.
+ *
+ * temp... is used to persist the imported SVG file. This file is a
+ * candidate until the user selects the 'Open' button to confirm that
+ * this file is the one to be loaded into the app.
+ *
+ * local... is used as the project that will either replace the
+ * current project or be appended to the current project.
+ *
+ * @type {string}
+ */
+const TEMP_PROJECT_STORE_NAME = 'tempProject';
+const LOCAL_PROJECT_STORE_NAME = 'localProject';
+
+
 export {
-  APP_VERSION,
+  APP_VERSION, EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME,
+  TEMP_PROJECT_STORE_NAME,
   ApplicationName, productBannerHostTrigger, TestApplicationName};

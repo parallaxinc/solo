@@ -466,12 +466,30 @@ function cloudCompile(text, action, successHandler) {
         $("#compile-console").val('Compile... ');
         $('#compile-dialog').modal('show');
 
-        let terminalNeeded = false;
+        let terminalNeeded = null;
 
-        if (propcCode.indexOf("SERIAL_TERMINAL USED") > -1)
-            terminalNeeded = 'term';
-        else if (propcCode.indexOf("SERIAL_GRAPHING USED") > -1)
-            terminalNeeded = 'graph';
+            // TODO: propc editor needs UI for settings for terminal and graphing
+        if (projectData.board !== 'propcfile') {
+            let consoleBlockList = [
+                'console_print', 'console_print_variables', 'console_print_multiple', 
+                'console_scan_text', 'console_scan_number', 'console_newline', 
+                'console_clear', 'console_move_to_position', 'oled_font_loader', 
+                'activitybot_display_calibration', 'scribbler_serial_send_text', 
+                'scribbler_serial_send_char', 'scribbler_serial_send_decimal', 
+                'scribbler_serial_send_decimal', 'scribbler_serial_send_ctrl', 
+                'scribbler_serial_cursor_xy'
+            ]
+
+            let consoleBlockCount = 0;
+            for (let i = 0; i < consoleBlockList.length; i++) {
+                consoleBlockCount += Blockly.getMainWorkspace().getBlocksByType(consoleBlockList[i]).length;
+            }
+
+            if (consoleBlockCount > 0)
+                terminalNeeded = 'term';
+            else if (Blockly.getMainWorkspace().getBlocksByType('graph_settings').length > 0)
+                terminalNeeded = 'graph';
+        }
 
         // Contact the container running cloud compiler. If the browser is
         // connected via https, direct the compile request to the same port and
@@ -566,7 +584,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
                     type: 'load-prop',
                     action: load_action,
                     payload: data.binary,
-                    debug: (terminalNeeded === 'term' || terminalNeeded === 'graph') ? terminalNeeded : 'none',
+                    debug: (terminalNeeded) ? terminalNeeded : 'none',
                     extension: data.extension,
                     portPath: getComPort()
                 };
@@ -652,16 +670,16 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
  * Serial console support
  */
 function serial_console() {
-    // Container and flag needed to recieve and parse initial connection 
-    // string before serial data begins streaming in.
-    var connString = '';
-    var connStrYet = false;
-
     clientService.sendCharacterStreamTo = 'term';
     
     if (clientService.type !== 'ws') {   // HTTP client
-
         if (clientService.portsAvailable) {
+            // Container and flag needed to recieve and parse initial connection 
+            // string before serial data begins streaming in.
+            var connString = '';
+            var connStrYet = false;
+
+            // open a websocket to the BPC for just the serial comms
             var connection = new WebSocket(clientService.url("serial.connect", "ws"));
 
             // When the connection is open, open com port
@@ -671,12 +689,14 @@ function serial_console() {
                 connection.send('+++ open port ' + getComPort() + (baudrate ? ' ' + baudrate : ''));
                 clientService.activeConnection = connection;
             };
+
             // Log errors
             connection.onerror = function (error) {
                 console.log('WebSocket Error');
                 console.log(error);
             };
 
+            // Receive characters
             connection.onmessage = function (e) {
                 // incoming data is base64 encoded
                 var c_buf = atob(e.data);
@@ -694,6 +714,7 @@ function serial_console() {
                 pTerm.focus();
             };
 
+            // When the user closed the console, close the serial comms connection
             $('#console-dialog').on('hidden.bs.modal', function () {
                 clientService.sendCharacterStreamTo = null;
                 clientService.activeConnection = null;
@@ -704,11 +725,14 @@ function serial_console() {
                 pTerm.display(null);
             });
         } else {
+            // Remove any previous connection
             clientService.activeConnection = null;
 
+            // Display a "No connected devices" message in the terminal
             displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
             pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
 
+            // Clear the terminal if the user closes it.
             $('#console-dialog').on('hidden.bs.modal', function () {
                 clientService.sendCharacterStreamTo = null;
                 displayTerminalConnectionStatus(null);
@@ -767,69 +791,9 @@ function displayTerminalConnectionStatus(connectionInfo) {
  * Graphing console
  */
 function graphing_console() {
-    // Container and flag needed to recieve and parse initial connection 
-    // string before serial data begins streaming in.
-    var connString = '';
-    var connStrYet = false;
-
     clientService.sendCharacterStreamTo = 'graph';
-    var propcCode = Blockly.propc.workspaceToCode(Blockly.mainWorkspace);
 
-    // If there are graph settings, extract them
-    var graph_settings_start = propcCode.indexOf("// GRAPH_SETTINGS_START:");
-    var graph_labels_start = propcCode.indexOf("// GRAPH_LABELS_START:");
-
-    if (graph_settings_start > -1 && graph_labels_start > -1) {
-        var graph_settings_end = propcCode.indexOf(":GRAPH_SETTINGS_END //") + 22;
-        var graph_settings_temp = propcCode.substring(graph_settings_start, graph_settings_end).split(':');
-        var graph_settings_str = graph_settings_temp[1].split(',');
-
-        // GRAPH_SETTINGS_START:rate,x_axis_val,x_axis_type,y_min,y_max:GRAPH_SETTINGS_END //
-
-        var graph_labels_end = propcCode.indexOf(":GRAPH_LABELS_END //") + 20;
-        var graph_labels_temp = propcCode.substring(graph_labels_start, graph_labels_end).split(':');
-        graph_labels = graph_labels_temp[1].split(',');
-
-        graph_options.refreshRate = Number(graph_settings_str[0]);
-
-        graph_options.graph_type = graph_settings_str[2];
-        if (Number(graph_settings_str[3]) !== 0 || Number(graph_settings_str[4]) !== 0) {
-            graph_options.axisY = {
-                type: Chartist.AutoScaleAxis,
-                low: Number(graph_settings_str[3]),
-                high: Number(graph_settings_str[4]),
-                onlyInteger: true
-            };
-        } else {
-            graph_options.axisY = {
-                type: Chartist.AutoScaleAxis,
-                onlyInteger: true
-            };
-        }
-        $('#graph_x-axis_label').css('display', 'block');
-        graph_options.showPoint = false;
-        graph_options.showLine = true;
-        if (graph_settings_str[2] === 'X') {
-            $('#graph_x-axis_label').css('display', 'none');
-            if (Number(graph_settings_str[5]) !== 0 || Number(graph_settings_str[6]) !== 0) {
-                graph_options.axisX = {
-                    type: Chartist.AutoScaleAxis,
-                    low: Number(graph_settings_str[5]),
-                    high: Number(graph_settings_str[6]),
-                    onlyInteger: true
-                };
-            } else {
-                graph_options.axisX = {
-                    type: Chartist.AutoScaleAxis,
-                    onlyInteger: true
-                };
-            }
-            graph_options.showPoint = true;
-            graph_options.showLine = false;
-        }
-
-        if (graph_options.graph_type === 'S' || graph_options.graph_type === 'X')
-            graph_options.sampleTotal = Number(graph_settings_str[1]);
+    if (getGraphSettingsFromBlocks()) {
 
         if (graph === null) {
             graph_reset();
@@ -843,6 +807,11 @@ function graphing_console() {
         }
 
         if (clientService.type === 'http' && clientService.portsAvailable) {
+            // Container and flag needed to recieve and parse initial connection 
+            // string before serial data begins streaming in.
+            var connString = '';
+            var connStrYet = false;
+
             var connection = new WebSocket(clientService.url("serial.connect", "ws"));
 
             // When the connection is open, open com port
@@ -932,6 +901,89 @@ function graphing_console() {
     }
 }
 
+/**
+ * getGraphSettingsFromBlocks
+ * @description sets the graphing engine's settings and graph labels
+ * based on values in the graph setup and output blocks
+ * @returns {boolean} true if the appropriate graphing blocks are present and false if they are not
+ */
+function getGraphSettingsFromBlocks() {
+    // TODO: propc editor needs UI for settings for terminal and graphing
+    if (projectData.board === 'propcfile') {
+        return false;
+    }
+    var graphSettingsBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_settings');
+
+    if (graphSettingsBlocks.length > 0) {
+        console.log('found settings');
+        var graphOutputBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_output');
+        graph_labels = [];
+        if (graphOutputBlocks.length > 0) {
+            console.log('found block');
+            var i = 0;
+            while (graphOutputBlocks[0].getField("GRAPH_LABEL" + i)) {
+                graph_labels.push(graphOutputBlocks[0].getFieldValue("GRAPH_LABEL" + i));
+                i++;
+            }
+        } else {
+            return false;
+        }
+
+        graph_options.refreshRate = 100 // Number(graph_settings_str[0]);
+
+        graph_options.graph_type = {
+            'AUTO': 'S', 
+            'FIXED': 'S', 
+            'AUTOXY': 'X', 
+            'FIXEDXY': 'X', 
+            'AUTOSC': 'O', 
+            'FIXEDSC': 'O'
+        }[graphSettingsBlocks[0].getFieldValue('YSETTING')];
+
+        
+        if (graphSettingsBlocks[0].getFieldValue('YMIN') || graphSettingsBlocks[0].getFieldValue('YMAX')) {
+            graph_options.axisY = {
+                type: Chartist.AutoScaleAxis,
+                low: Number(graphSettingsBlocks[0].getFieldValue('YMIN') || '0'),
+                high: Number(graphSettingsBlocks[0].getFieldValue('YMAX') || '100'),
+                onlyInteger: true
+            };
+        } else {
+            graph_options.axisY = {
+                type: Chartist.AutoScaleAxis,
+                onlyInteger: true
+            };
+        }
+        $('#graph_x-axis_label').css('display', 'block');
+        graph_options.showPoint = false;
+        graph_options.showLine = true;
+        if (graph_options.graph_type === 'X') {
+            $('#graph_x-axis_label').css('display', 'none');
+            if (graphSettingsBlocks[0].getFieldValue('XMIN') || graphSettingsBlocks[0].getFieldValue('XMAX')) {
+                graph_options.axisX = {
+                    type: Chartist.AutoScaleAxis,
+                    low: Number(graphSettingsBlocks[0].getFieldValue('XMIN') || '0'),
+                    high: Number(graphSettingsBlocks[0].getFieldValue('XMAX') || '100'),
+                        onlyInteger: true
+                };
+            } else {
+                graph_options.axisX = {
+                    type: Chartist.AutoScaleAxis,
+                    onlyInteger: true
+                };
+            }
+            graph_options.showPoint = true;
+            graph_options.showLine = false;
+        }
+
+        if (graph_options.graph_type === 'S' || graph_options.graph_type === 'X') {
+            graph_options.sampleTotal = Number(graphSettingsBlocks[0].getFieldValue('XAXIS') || '10');
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
 
 /**
  * Graphing system control
