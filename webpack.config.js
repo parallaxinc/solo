@@ -29,11 +29,11 @@ module.exports = {
     mode: 'development',
     entry: {
         index: './src/modules/index.js',
-        editor: './src/editor.js'
+        editor: './src/modules/editor.js'
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: '[name].js'
+        filename: '[name].bundle.js'
     },
     module: {
         rules: [

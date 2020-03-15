@@ -20,5 +20,34 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-// Everything here has moved to ./src/modules/toolbox_data.js
-// That's all we know.
+
+/**
+ * Get the value of a query parameter key
+ * @param {string} key
+ *
+ * @return {null | string}
+ */
+function getKeyValue(key) {
+  if (!key) return null;
+  return window.getURLParameter(key);
+}
+
+// http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
+if (!window.getURLParameter) {
+  Object.defineProperty(window, 'getURLParameter', {
+    value: function(name) {
+      return decodeURIComponent(
+          (new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)')
+              .exec(window.location.search) ||
+              [null, ''])[1].replace(/\+/g, '%20')) ||
+          null;
+    },
+    enumerable: false,
+  });
+}
+
+// Does the 'experimental' URL parameter exist?
+const isExperimental = window.getURLParameter('experimental') || 'false';
+
+
+export {isExperimental, getKeyValue};

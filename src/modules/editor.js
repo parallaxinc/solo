@@ -27,9 +27,15 @@ import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
 } from './constants.js';
 
+import {
+  editProjectDetails, newProjectModal, openProjectModal, initUploadModalLabels,
+} from './modals.js';
+
 import {propToolbarButtonController} from './toolbar_controller.js';
 import {ProjectSaveTimer} from './project_save_timer.js';
 import {Project} from './project.js';
+import {filterToolbox} from './toolbox_data.js';
+import {isExperimental} from './url_parameters.js';
 
 /**
  * Uploaded project XML code
@@ -113,7 +119,8 @@ $(() => {
 
         // Overwrite the code blocks with the current project state
         tempProject.code = getXml();
-        tempProject.timestamp = getTimestamp();
+        const today = Date();
+        tempProject.timestamp = today.getTime();
 
         // Save the current project into the browser store where it will
         // get picked up by the page loading code.
@@ -600,7 +607,7 @@ function setupWorkspace(data, callback) {
     $('#edit-project-details').html(page_text_label['editor_edit-details']);
   }
 
-  resetToolBoxSizing();
+  resetToolBoxSizing(0);
 
   ProjectSaveTimer.timestampSaveTime(0, true);
 
@@ -1812,3 +1819,30 @@ function checkLeave() {
 
   return Project.testProjectEquality(currentXml, savedXml);
 }
+
+
+/**
+ * Convert the current project workspace into an XML document
+ *
+ * @return {string}
+ */
+function getXml() {
+  if (projectData && projectData.board === 'propcfile') {
+    return propcAsBlocksXml();
+  }
+
+  if (Blockly.Xml && Blockly.mainWorkspace) {
+    const xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
+    return Blockly.Xml.domToText(xml);
+  }
+
+  if (projectData && projectData.code) {
+    return projectData.code;
+  }
+
+  // Return the XML for a blank project if none is found.
+  return EMPTY_PROJECT_CODE_HEADER + '</xml>';
+}
+
+
+export {checkLeave, getXml, resetToolBoxSizing};

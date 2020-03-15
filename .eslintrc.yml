@@ -41,4 +41,10 @@ overrides:
       - google
     parserOptions:
       sourceType: module
-
+  - files: [
+    "src/modules/toolbox_data.js",
+    "src/modules/blocklyc.js"
+  ]
+    rules: {
+      max-len: "off"
+    }
