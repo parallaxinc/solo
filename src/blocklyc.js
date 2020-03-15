@@ -188,6 +188,7 @@ var graph_data = {
 };
 
 
+
 /**
  * Switch the visible pane when a tab is clicked.
  *
