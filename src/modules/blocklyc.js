@@ -21,8 +21,6 @@
  */
 
 
-
-
 /**
  * Initialize Blockly
  *
@@ -30,11 +28,12 @@
  *
  * @param {!Blockly} blockly Instance of Blockly from iframe.
  */
+/*
 function init(blockly) {
   if (!codePropC) {
-    codePropC = ace.edit("code-propc");
-    codePropC.setTheme("ace/theme/chrome");
-    codePropC.getSession().setMode("ace/mode/c_cpp");
+    codePropC = ace.edit('code-propc');
+    codePropC.setTheme('ace/theme/chrome');
+    codePropC.getSession().setMode('ace/mode/c_cpp');
     codePropC.getSession().setTabSize(2);
     codePropC.$blockScrolling = Infinity;
     codePropC.setReadOnly(true);
@@ -66,3 +65,7 @@ function init(blockly) {
     }
   }
 }
+*/
+
+// export {init};
+
