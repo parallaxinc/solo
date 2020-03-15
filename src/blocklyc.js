@@ -203,7 +203,7 @@ function renderContent(id) {
 
     if (isPropcOnlyProject) {
         // Show PropC editing UI elements
-        $('.propc-only').removeClass('hidden');        
+        $('.propc-only').removeClass('hidden');
     }
 
     switch (selectedTab) {
@@ -220,7 +220,7 @@ function renderContent(id) {
 
             if ((allowXmlEditing) && Blockly && codeXml && codeXml.getValue().length > 40) {
                 Blockly.Xml.clearWorkspaceAndLoadFromXml(Blockly.Xml.textToDom(codeXml.getValue()), Blockly.mainWorkspace);
-            } 
+            }
             Blockly.svgResize(Blockly.mainWorkspace);
             Blockly.mainWorkspace.render();
 
@@ -367,8 +367,8 @@ function generateBlockId(nonce) {
  */
 var propcAsBlocksXml = function () {
     let code = EMPTY_PROJECT_CODE_HEADER;
-    code += '<block type="propc_file" id="' + 
-            generateBlockId(codePropC ? codePropC.getValue() : 'thequickbrownfoxjumpedoverthelazydog') + 
+    code += '<block type="propc_file" id="' +
+            generateBlockId(codePropC ? codePropC.getValue() : 'thequickbrownfoxjumpedoverthelazydog') +
             '" x="100" y="100">';
     code += '<field name="FILENAME">single.c</field>';
     code += '<field name="CODE">';
@@ -471,12 +471,12 @@ function cloudCompile(text, action, successHandler) {
             // TODO: propc editor needs UI for settings for terminal and graphing
         if (projectData.board !== 'propcfile') {
             let consoleBlockList = [
-                'console_print', 'console_print_variables', 'console_print_multiple', 
-                'console_scan_text', 'console_scan_number', 'console_newline', 
-                'console_clear', 'console_move_to_position', 'oled_font_loader', 
-                'activitybot_display_calibration', 'scribbler_serial_send_text', 
-                'scribbler_serial_send_char', 'scribbler_serial_send_decimal', 
-                'scribbler_serial_send_decimal', 'scribbler_serial_send_ctrl', 
+                'console_print', 'console_print_variables', 'console_print_multiple',
+                'console_scan_text', 'console_scan_number', 'console_newline',
+                'console_clear', 'console_move_to_position', 'oled_font_loader',
+                'activitybot_display_calibration', 'scribbler_serial_send_text',
+                'scribbler_serial_send_char', 'scribbler_serial_send_decimal',
+                'scribbler_serial_send_decimal', 'scribbler_serial_send_ctrl',
                 'scribbler_serial_cursor_xy'
             ]
 
@@ -671,10 +671,10 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
  */
 function serial_console() {
     clientService.sendCharacterStreamTo = 'term';
-    
+
     if (clientService.type !== 'ws') {   // HTTP client
         if (clientService.portsAvailable) {
-            // Container and flag needed to recieve and parse initial connection 
+            // Container and flag needed to recieve and parse initial connection
             // string before serial data begins streaming in.
             var connString = '';
             var connStrYet = false;
@@ -807,7 +807,7 @@ function graphing_console() {
         }
 
         if (clientService.type === 'http' && clientService.portsAvailable) {
-            // Container and flag needed to recieve and parse initial connection 
+            // Container and flag needed to recieve and parse initial connection
             // string before serial data begins streaming in.
             var connString = '';
             var connStrYet = false;
@@ -932,15 +932,15 @@ function getGraphSettingsFromBlocks() {
         graph_options.refreshRate = 100 // Number(graph_settings_str[0]);
 
         graph_options.graph_type = {
-            'AUTO': 'S', 
-            'FIXED': 'S', 
-            'AUTOXY': 'X', 
-            'FIXEDXY': 'X', 
-            'AUTOSC': 'O', 
+            'AUTO': 'S',
+            'FIXED': 'S',
+            'AUTOXY': 'X',
+            'FIXEDXY': 'X',
+            'AUTOSC': 'O',
             'FIXEDSC': 'O'
         }[graphSettingsBlocks[0].getFieldValue('YSETTING')];
 
-        
+
         if (graphSettingsBlocks[0].getFieldValue('YMIN') || graphSettingsBlocks[0].getFieldValue('YMAX')) {
             graph_options.axisY = {
                 type: Chartist.AutoScaleAxis,
@@ -1037,7 +1037,7 @@ var graphStartStop = function (action) {
 
 /**
  * Update the list of serial ports available on the host machine
- * NOTE: This function is used by the BP-Client only.  
+ * NOTE: This function is used by the BP-Client only.
  * The BP-Launcher handles this differently inside of blocklypropclient.js
  */
 var checkForComPorts = function () {
@@ -1111,7 +1111,7 @@ function downloadPropC() {
 
         var fileCblob = new Blob([propcCode], {type: 'text/plain'});
         var fileSIDEblob = new Blob([value + sideFileContent], {type: 'text/plain'});
-        
+
         var zip = new JSZip();
         var sideFolder = zip.folder(value);
         sideFolder.file(value + ".c", fileCblob);
@@ -1121,7 +1121,7 @@ function downloadPropC() {
             saveAs(blob, value + ".zip");                                 // 2) trigger the download
         }, function (err) {
             utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_SIDE_FILES_ERROR + err);
-        }); 
+        });
     }
 }
 
@@ -1273,7 +1273,7 @@ function downloadGraph() {
         if (value) {
             // Make sure filename is safe
             value = sanitizeFilename(value);
-                
+
             var svgGraph = document.getElementById('serial_graphing');
             var pattern = new RegExp('xmlns="http://www.w3.org/2000/xmlns/"', 'g');
             var findY = 'class="ct-label ct-horizontal ct-end"';
@@ -1371,4 +1371,22 @@ function graph_update_labels() {
 function showAppName() {
     let html = 'BlocklyProp<br><strong>Solo</strong>';
     $('#nav-logo').html(html);
+}
+
+
+/**
+ * Load the workspace
+ * @param xmlText
+ *
+ * @description
+ * NOTE:
+ * This method is duplicated in module editor.js. This method should be
+ * removed and replaced with a reference to the method in editor.js when
+ * this file is converted to a module.
+ */
+function loadToolbox(xmlText) {
+    if (Blockly.mainWorkspace) {
+        const xmlDom = Blockly.Xml.textToDom(xmlText);
+        Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
+    }
 }

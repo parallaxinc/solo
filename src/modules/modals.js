@@ -25,7 +25,7 @@ import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME,
 } from './constants.js';
 
-import {checkLeave, getXml} from './editor.js';
+import {checkLeave, getXml, resetToolBoxSizing} from './editor.js';
 import {isExperimental} from './url_parameters.js';
 
 /**

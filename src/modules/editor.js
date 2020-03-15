@@ -607,7 +607,7 @@ function setupWorkspace(data, callback) {
     $('#edit-project-details').html(page_text_label['editor_edit-details']);
   }
 
-  resetToolBoxSizing();
+  resetToolBoxSizing(0);
 
   ProjectSaveTimer.timestampSaveTime(0, true);
 
@@ -1845,4 +1845,4 @@ function getXml() {
 }
 
 
-export {checkLeave, getXml};
+export {checkLeave, getXml, resetToolBoxSizing};
