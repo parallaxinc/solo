@@ -22,6 +22,17 @@
 
 
 /**
+ * Manage the compiler toolbar in the editor UI
+ */
+class PropToolbarButtonController {
+
+  constructor() {
+    // Initialize the toolbar state here
+  }
+}
+
+
+/**
  *  Update the state of the Compiler toolbar buttons
  *
  * @param {boolean} connected - is the client launcher connected
@@ -31,13 +42,13 @@
 const propToolbarButtonController = (connected) => {
   if (projectData && projectData.board === 's3') {
     /* ----------------------------------------------------------------
-         * Hide the buttons that are not required for the S3 robot
-         *
-         * Find all of the HTML elements that have a class id of 'no-s3'
-         * and append a hidden attribute to the selected HTML elements.
-         * This currently applies to the elements prop-btn-ram and
-         *  prop-btn-graph.
-         * --------------------------------------------------------------*/
+     * Hide the buttons that are not required for the S3 robot
+     *
+     * Find all of the HTML elements that have a class id of 'no-s3'
+     * and append a hidden attribute to the selected HTML elements.
+     * This currently applies to the elements prop-btn-ram and
+     *  prop-btn-graph.
+     * --------------------------------------------------------------*/
     $('.no-s3').addClass('hidden');
 
     // Toggle the client available message to display the short form

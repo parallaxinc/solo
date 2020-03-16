@@ -116,7 +116,7 @@ var findClient = function () {
         // Is the BP-Launcher taking to long to respond?  If so, close the connection
         if (clientService.portListReceiveCountUp > 2) {
             clientService.activeConnection.close();
-            // TODO: check to see if this is really necesssary - it get's called by the WS onclose handler
+            // TODO: check to see if this is really necessary - it get's called by the WS onclose handler
             lostWSConnection();
         }
     }
@@ -294,6 +294,8 @@ var establishBPClientConnection = function () {
  * to the BlocklyProp-Client or -Launcher
  *
  * TODO: Add fields for setting a different path to the compile service (for anyone wanting to host their own)
+ * TODO: Open issue to convert to modal.
+ *
  */
 var configureConnectionPaths = function () {
     // All of this code is building the UI for the Configure

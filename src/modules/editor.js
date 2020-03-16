@@ -281,6 +281,9 @@ $(() => {
       // and reset Blockly core for a new project. That
       // does not appear to be happening.
       // **************************************************
+      // setProfile(projectData.board);
+      // setProfile(localProject.boardType);
+
 
       setupWorkspace(localProject, function() {
         window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
@@ -570,6 +573,8 @@ function initEventHandlers() {
   // Save As new board type
   $('#save-as-board-type').on('change', () => checkBoardType(
       $('#saveAsDialogSender').html()));
+
+  // popup modal
   $('#save-as-board-btn').on('click', () => saveProjectAs(
       $('#save-as-board-type').val(),
       $('#save-as-project-name').val()
@@ -687,6 +692,7 @@ function setupWorkspace(data, callback) {
 
   // Set various project settings based on the project board type
   // NOTE: This function is in propc.js
+  // Set the default profile.
   setProfile(projectData.board);
 
   // Set the help link to the ab-blocks, s3 reference, or propc reference
@@ -1312,6 +1318,7 @@ function uploadHandler(files) {
             uploadedXML,
             projectCreated,
             projectModified,
+
             date.getTime());
 
         // Convert the Project object details to projectData object

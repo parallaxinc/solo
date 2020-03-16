@@ -22,6 +22,14 @@
 
 'use strict';
 
+//
+// default export const currentProject {
+//   projectData: false
+// }
+
+// Project file
+// projectData hold copy of original project
+
 
 /**
  * Default implementation of a project object
@@ -33,7 +41,7 @@ class Project {
      * @param {string} name
      * @param {string} description
      * @param {ProjectProfiles} board
-     * @param {ProjectTypes} projectType
+     * @param {ProjectTypes} projectType // 'PropC'
      * @param {string} code
      * @param {Date} created
      * @param {Date} modified
