@@ -21,11 +21,8 @@
  */
 
 
-import {
-  EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME,
-} from './constants.js';
-
-import {checkLeave, getXml, resetToolBoxSizing} from './editor.js';
+import {LOCAL_PROJECT_STORE_NAME} from './constants.js';
+import {checkLeave, resetToolBoxSizing} from './editor.js';
 import {isExperimental} from './url_parameters.js';
 
 /**
@@ -250,78 +247,6 @@ function validateEditProjectForm() {
   });
 
   return !!project.valid();
-}
-
-
-/**
- * Create a new project object, store it in the browser localStorage
- * and redirect to the editor.html page to force a project reload
- * from the browser localStorage
- */
-function createNewProject() {
-  let code;
-
-  // If editing details, preserve the code, otherwise start over
-  if (projectData &&
-        typeof(projectData.board) !== 'undefined' &&
-        $('#new-project-dialog-title')
-            .html() === page_text_label['editor_edit-details']) {
-    // eslint-disable-next-line no-undef
-    code = getXml();
-  } else {
-    // eslint-disable-next-line no-undef
-    code = EMPTY_PROJECT_CODE_HEADER;
-  }
-
-  // Save the form fields into the projectData object
-  // The projectData variable is defined in globals.js
-  const projectName = $('#new-project-name').val();
-  const createdDateHtml = $('#edit-project-created-date').html();
-  const description = $('#new-project-description').val();
-  const boardType = $('#new-project-board-type').val();
-
-  try {
-    const tmpBoardType = Project.convertBoardType(boardType);
-    if (tmpBoardType === undefined) {
-      console.log('Unknown board type: %s', uploadBoardType);
-    }
-
-    // eslint-disable-next-line no-undef
-    const newProject = new Project(
-        projectName,
-        description,
-        tmpBoardType,
-        'PROPC',
-        code,
-        // eslint-disable-next-line no-undef
-        createdDateHtml, createdDateHtml, getTimestamp());
-
-    // Save the project to the browser local store for the page
-    // transition
-    // eslint-disable-next-line no-undef
-    newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
-
-    // ------------------------------------------------------
-    // Clear the projectData global to prevent the onLeave
-    // event handler from storing the old project code into
-    // the browser storage.
-    // ------------------------------------------------------
-    projectData = null;
-  } catch (e) {
-    console.log('Error while creating project object. %s', e.message);
-  }
-
-  // Redirect to the editor page
-  try {
-    const parameters = window.getAllURLParameters();
-    if (parameters !== '?') {
-      window.location = 'blocklyc.html' + parameters;
-    }
-  } catch (e) {
-    console.log('Error while creating project object. %s', e.message);
-  }
-
-  window.location = 'blocklyc.html';
 }
 
 

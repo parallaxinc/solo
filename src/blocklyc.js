@@ -21,6 +21,8 @@
  */
 
 
+import {CodeEditor} from "./modules/code_editor";
+
 /**
  * TODO: Identify the purpose of this variable
  *
@@ -29,20 +31,6 @@
 var graph = null;
 
 
-/**
- * TODO: Identify the purpose of this variable
- *
- * @type {{}}
- */
-var codePropC = null;
-
-
-/**
- * TODO: Identify the purpose of this variable
- *
- * @type {null}
- */
-var codeXml = null;
 
 
 /**
@@ -148,6 +136,9 @@ var graph_labels = null;
  */
 var graph_csv_data = new Array;
 
+
+var codePropC = null;
+var codeXml = null;
 
 /**
  * Graph system settings
@@ -341,24 +332,6 @@ var findReplaceCode = function () {
 };
 
 
-/**
- * Generate a unique block ID
- *
- * @param nonce
- * @returns {string}
- */
-function generateBlockId(nonce) {
-    let blockId = btoa(nonce).replace(/=/g, '');
-    let l = blockId.length;
-
-    if (l < 20) {
-        blockId = 'zzzzzzzzzzzzzzzzzzzz'.substr(l - 20) + blockId;
-    } else {
-        blockId = blockId.substr(l - 20);
-    }
-
-    return blockId;
-}
 
 
 /**
@@ -392,6 +365,8 @@ var propcAsBlocksXml = function () {
  */
 function init(blockly) {
     if (!codePropC) {
+        codePropC = new CodeEditor('propcfile');
+
         codePropC = ace.edit("code-propc");
         codePropC.setTheme("ace/theme/chrome");
         codePropC.getSession().setMode("ace/mode/c_cpp");

@@ -22,6 +22,7 @@
 
 'use strict';
 
+
 /**
  * Default implementation of a project object
  * @constructor
@@ -86,6 +87,8 @@ class Project {
     this.shared = false;
     this.user = 'offline';
     this.yours = true;
+
+    this.projectData = this.getDetails();
   }
 
   /**
@@ -119,6 +122,20 @@ class Project {
     };
   }
 
+
+  /**
+   * Returns a reference to the project data encapsulated into a single object
+   * @return {
+   *   {
+   *     shared: *, private: *, boardType: *, code: *, created: *,
+   *     description: *, type: *, name: *, modified: *, descriptionHtml: *,
+   *     id: *, user: *, yours: *, timestamp: *
+   *   }
+   * }
+   */
+  getProjectData() {
+    return this.projectData;
+  }
 
   /**
      * Save the project details to a specified location in the browser's

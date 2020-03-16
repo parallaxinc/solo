@@ -94,6 +94,42 @@ const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 const TEMP_PROJECT_STORE_NAME = 'tempProject';
 const LOCAL_PROJECT_STORE_NAME = 'localProject';
 
+//------------------------------------------------
+
+
+
+/* Error logging */
+// Sentry.init({dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639'});
+
+
+
+// TODO: Enumerate the OS version
+// window.navigator.oscpu
+// - Question: is this referring to the navigator.browserspecs in utils.js?
+
+
+/**
+ * Constant number that represents the maximum length of a project name
+ *
+ * @type {number}
+ */
+const PROJECT_NAME_MAX_LENGTH = 100;
+
+
+/**
+ * Constant number that represents the maximum number of
+ * characters of the project name that are displayed in the UI
+ *
+ * @type {number}
+ */
+const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
+
+
+
+
+
+//------------------------------------------------
+
 
 export {
   APP_VERSION, EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME,

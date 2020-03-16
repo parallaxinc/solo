@@ -774,14 +774,21 @@ export class PropTerm {
       this.element.blur();
     }
   }
+
+  /**
+   * Getter for the pTerm object
+   * @return {*}
+   */
+  static getPTerm() {
+    return this;
+  }
 }
 
 
 /**
  * Terminal options for the PropTerm class
  */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-class TerminalOptions {
+export class TerminalOptions {
   /**
    * @param {boolean} echoKeys optional- if set to true, echo keys typed into
    *    the terminal.  Default is true.

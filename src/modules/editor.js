@@ -20,8 +20,8 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-// var Blockly = require('blockly/core');
 // import Blockly from 'blockly/core';
+import {saveAs} from 'file-saver';
 
 import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
@@ -36,13 +36,20 @@ import {ProjectSaveTimer} from './project_save_timer.js';
 import {Project} from './project.js';
 import {filterToolbox} from './toolbox_data.js';
 import {isExperimental} from './url_parameters.js';
+import {PropTerm} from './prop_term.js';
+import {ProjectTypes} from './project.js';
+import {propcAsBlocksXml} from './code_editor.js';
+import {CodeEditor} from './code_editor';
+import {getComPort, loadInto, renderContent} from './blocklyc.js';
+import {clientService} from './blockly_prop_client.js';
+
 
 /**
  * Uploaded project XML code
  *
- * @type {string}
+ * @type {string | null}
  */
-let uploadedXML = '';
+let uploadedXML = null;
 
 
 /**
@@ -50,9 +57,22 @@ let uploadedXML = '';
  * Blockly.WorkspaceSvg workspace that was returned from the
  * Blockly.inject() call.
  *
- * @type {null}
+ * @type {Blockly.WorkspaceSvg | null}
  */
 let injectedBlocklyWorkspace = null;
+
+
+/**
+ * Images need a home
+ * @type {string}
+ */
+const CDN_URL = $('meta[name=cdn]').attr('content');
+
+/**
+ * This is replacing the references to the codePropC variable.
+ * @type {CodeEditor | null}
+ */
+let codeEditor = null;
 
 
 /**
@@ -125,6 +145,15 @@ const bpIcons = {
   // eslint-disable-next-line max-len
   cameraWhite: '<svg width="14" height="15"><path d="M1.5,13.5 L.5,12.5 .5,5.5 1.5,4.5 2.5,4.5 4,3 7,3 8.5,4.5 12.5,4.5 13.5,5.5 13.5,12.5 12.5,13.5 Z M 2,9 A 4,4,0,0,0,10,9 A 4,4,0,0,0,2,9 Z M 4.5,9 A 1.5,1.5,0,0,0,7.5,9 A 1.5,1.5,0,0,0,4.5,9 Z M 10.5,6.5 A 1,1,0,0,0,13.5,6.5 A 1,1,0,0,0,10.5,6.5 Z" style="stroke:#fff;stroke-width:1;fill:#fff;" fill-rule="evenodd"/></svg>',
 };
+
+
+/**
+ * Getter for the current WorkspaceSvg object
+ * @return {Blockly.WorkspaceSvg | null}
+ */
+function getWorkspaceSvg() {
+  return injectedBlocklyWorkspace;
+}
 
 
 /**
@@ -228,14 +257,9 @@ $(() => {
     return cur;
   });
 
+  // This is setting the URIs for images referenced in the html page
   initCdnImageUrls();
   initClientDownloadLinks();
-
-
-  // TODO: Use the ping endpoint to verify that we are offline.
-
-  // Stop pinging the Rest API
-  // clearInterval(pingInterval);
 
   // Load a project file from local storage
   if (window.getURLParameter('openFile') === 'true') {
@@ -261,6 +285,12 @@ $(() => {
       setupWorkspace(localProject, function() {
         window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
       });
+
+      // Create an instance of the CodeEditor class
+      codeEditor = new CodeEditor(localProject.boardType);
+      if (!codeEditor) {
+        console.log('Error allocating CodeEditor object');
+      }
 
       // Set the compile toolbar buttons to unavailable
       // setPropToolbarButtons();
@@ -289,8 +319,9 @@ $(() => {
   resetToolBoxSizing(250, true);
 
   // Initialize the terminal
-  pTerm = new PropTerm(
+  new PropTerm(
       document.getElementById('serial_console'),
+
       function(characterToSend) {
         if (clientService.type === 'http' && clientService.activeConnection) {
           clientService.activeConnection.send(btoa(characterToSend));
@@ -299,6 +330,7 @@ $(() => {
             type: 'serial-terminal',
             outTo: 'terminal',
             portPath: getComPort(),
+            // TODO: Correct baudrate reference
             baudrate: baudrate.toString(10),
             msg: (clientService.rxBase64 ?
                 btoa(characterToSend) : characterToSend),
@@ -306,7 +338,8 @@ $(() => {
           };
           clientService.activeConnection.send(JSON.stringify(msgToSend));
         }
-      }
+      },
+      null
   );
 });
 
@@ -397,10 +430,10 @@ function initEventHandlers() {
   });
 
   $('#propc-replace-btn').on('click', () => {
-    codePropC.replace(document.getElementById(
-        'propc-replace').value,
-    {needle: document.getElementById('propc-find').value},
-    true);
+    codePropC.replace(
+        document.getElementById('propc-replace').value,
+        {needle: document.getElementById('propc-find').value},
+        true);
   });
 
   $('#find-replace-close').on('click', () => findReplaceCode());
@@ -612,7 +645,7 @@ function initClientDownloadLinks() {
 
 
 /**
- * Set the URLs for all of the CDN-sourced images
+ * Set the base path for CDN-sourced images
  */
 function initCdnImageUrls() {
   $('img').each(function() {
@@ -1900,6 +1933,7 @@ function checkLeave() {
  * @return {string}
  */
 function getXml() {
+  // TODO: This feels like propcfile is hijacking this method.
   if (projectData && projectData.board === 'propcfile') {
     return propcAsBlocksXml();
   }
@@ -1907,9 +1941,7 @@ function getXml() {
   if (Blockly.Xml && Blockly.mainWorkspace) {
     const xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
     return Blockly.Xml.domToText(xml);
-  }
-
-  if (projectData && projectData.code) {
+  } else if (projectData && projectData.code) {
     return projectData.code;
   }
 
@@ -1918,4 +1950,80 @@ function getXml() {
 }
 
 
-export {checkLeave, getXml, resetToolBoxSizing};
+/**
+ * Create a new project object, store it in the browser localStorage
+ * and redirect to the editor.html page to force a project reload
+ * from the browser localStorage
+ */
+function createNewProject() {
+  let code;
+
+  // If editing details, preserve the code, otherwise start over
+  if (projectData &&
+      typeof(projectData.board) !== 'undefined' &&
+      $('#new-project-dialog-title')
+          .html() === page_text_label['editor_edit-details']) {
+    // eslint-disable-next-line no-undef
+    code = getXml();
+  } else {
+    // eslint-disable-next-line no-undef
+    code = EMPTY_PROJECT_CODE_HEADER;
+  }
+
+  // Save the form fields into the projectData object
+  // The projectData variable is defined in globals.js
+  const projectName = $('#new-project-name').val();
+  const createdDateHtml = $('#edit-project-created-date').html();
+  const description = $('#new-project-description').val();
+  const boardType = $('#new-project-board-type').val();
+
+  try {
+    const tmpBoardType = Project.convertBoardType(boardType);
+    if (tmpBoardType === undefined) {
+      console.log('Unknown board type: %s', boardType);
+    }
+
+    const timestamp = Date();
+    const newProject = new Project(
+        projectName,
+        description,
+        tmpBoardType,
+        ProjectTypes.PROPC,
+        code,
+        // eslint-disable-next-line no-undef
+        createdDateHtml, createdDateHtml,
+        timestamp.getTime());
+
+    // Save the project to the browser local store for the page
+    // transition
+    // eslint-disable-next-line no-undef
+    newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
+
+    // ------------------------------------------------------
+    // Clear the projectData global to prevent the onLeave
+    // event handler from storing the old project code into
+    // the browser storage.
+    // ------------------------------------------------------
+    projectData = null;
+  } catch (e) {
+    console.log('Error while creating project object. %s', e.message);
+  }
+
+  // Redirect to the editor page
+  try {
+    const parameters = window.getAllURLParameters();
+    if (parameters !== '?') {
+      window.location = 'blocklyc.html' + parameters;
+    }
+  } catch (e) {
+    console.log('Error while creating project object. %s', e.message);
+  }
+
+  window.location = 'blocklyc.html';
+}
+
+
+export {
+  checkLeave, resetToolBoxSizing, loadToolbox,
+  createNewProject, getWorkspaceSvg,
+};
