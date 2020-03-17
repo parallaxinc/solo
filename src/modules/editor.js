@@ -25,23 +25,32 @@ import {saveAs} from 'file-saver';
 
 import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
+  PROJECT_NAME_DISPLAY_MAX_LENGTH,
 } from './constants.js';
+
+
+import {
+  clientService, getComPort, loadInto, renderContent,
+} from './blocklyc.js';
+
+import {CodeEditor, propcAsBlocksXml} from './code_editor.js';
 
 import {
   editProjectDetails, newProjectModal, openProjectModal, initUploadModalLabels,
 } from './modals.js';
 
-import {propToolbarButtonController} from './toolbar_controller.js';
+import {
+  Project, getProjectInitialState, setProjectInitialState,
+  setDefaultProfile,
+  ProjectTypes,
+  clearProjectInitialState, projectJsonFactory,
+} from './project.js';
+
 import {ProjectSaveTimer} from './project_save_timer.js';
-import {Project} from './project.js';
+import {PropTerm} from './prop_term.js';
+import {propToolbarButtonController} from './toolbar_controller.js';
 import {filterToolbox} from './toolbox_data.js';
 import {isExperimental} from './url_parameters.js';
-import {PropTerm} from './prop_term.js';
-import {ProjectTypes} from './project.js';
-import {propcAsBlocksXml} from './code_editor.js';
-import {CodeEditor} from './code_editor';
-import {getComPort, loadInto, renderContent} from './blocklyc.js';
-import {clientService} from './blockly_prop_client.js';
 
 
 /**
@@ -211,25 +220,23 @@ $(() => {
     // If the localStorage is empty, store the current project into the
     // localStore so that if the page is being refreshed, it will
     // automatically be reloaded.
-    if (projectData &&
-            projectData.name !== 'undefined' &&
-            ! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
-      if (! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
-        // Deep copy of the projectData object
-        const tempProject = {};
-        Object.assign(tempProject, projectData);
+    if (getProjectInitialState() &&
+        getProjectInitialState().name !== undefined &&
+        ! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
+      // Deep copy of the project
+      const tempProject = {};
+      Object.assign(tempProject, getProjectInitialState());
 
-        // Overwrite the code blocks with the current project state
-        tempProject.code = getXml();
-        const today = Date();
-        tempProject.timestamp = today.getTime();
+      // Overwrite the code blocks with the current project state
+      tempProject.code = getXml();
+      const today = Date();
+      tempProject.timestamp = today.getTime();
 
-        // Save the current project into the browser store where it will
-        // get picked up by the page loading code.
-        window.localStorage.setItem(
-            LOCAL_PROJECT_STORE_NAME,
-            JSON.stringify(tempProject));
-      }
+      // Save the current project into the browser store where it will
+      // get picked up by the page loading code.
+      window.localStorage.setItem(
+          LOCAL_PROJECT_STORE_NAME,
+          JSON.stringify(tempProject));
     }
 
     if (checkLeave()) {
@@ -272,9 +279,9 @@ $(() => {
     // Load a project from localStorage if available
     try {
       // Get a copy of the last know state of the current project
-      const localProject = JSON.parse(
-          window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME));
-
+      const localProject = projectJsonFactory(
+          JSON.parse(
+              window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)));
       // TODO: Address clear workspace has unexpected result
       // **************************************************
       // This should clear out the existing blockly project
@@ -304,8 +311,10 @@ $(() => {
         utils.showMessage(Blockly.Msg.DIALOG_ERROR, objError.message);
       } else {
         console.error(objError.message);
+        console.error(objError.trace);
         clearBlocklyWorkspace();
-        projectData = null;
+        clearProjectInitialState();
+
         utils.showMessage(
             Blockly.Msg.DIALOG_ERROR,
             Blockly.Msg.DIALOG_LOADING_ERROR);
@@ -455,10 +464,10 @@ function initEventHandlers() {
   // Change the styling to indicate to the user that they are editing this field
       .on('focus', () => {
         const projectName = $('.project-name');
-        projectName.html(projectData.name);
+        projectName.html(getProjectInitialState().name);
         projectName.addClass('project-name-editable');
       })
-  // reset the style and save the new project name to the projectData object
+  // reset the style and save the new project name to the project
       .on('blur', () => {
         const projectName = $('.project-name');
 
@@ -474,9 +483,10 @@ function initEventHandlers() {
         projectName.removeClass('project-name-editable');
         // if the project name is greater than 25 characters, only display
         // the first 25
-        if (projectData.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+        if (getProjectInitialState().name.length >
+              PROJECT_NAME_DISPLAY_MAX_LENGTH) {
           projectName.html(
-              projectData.name.substring(
+              getProjectInitialState().name.substring(
                   0,
                   PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
         }
@@ -494,9 +504,11 @@ function initEventHandlers() {
         const tempProjectName = $('.project-name').html();
         if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH ||
             tempProjectName.length < 1) {
-          $('.project-name').html(projectData.name);
+          // $('.project-name').html(projectData.name);
+          $('.project-name').html(getProjectInitialState().name);
         } else {
-          projectData.name = tempProjectName;
+          // projectData.name = tempProjectName;
+          getProjectInitialState().name = tempProjectName;
         }
       });
 
@@ -669,7 +681,7 @@ function initCdnImageUrls() {
 /**
  * Populate the projectData global
  *
- * @param {{}} data is the current project object
+ * @param {Project} data is the current project object
  * @param {function} callback is called if provided when the function completes
  * @return {number} Error code
  */
@@ -684,21 +696,22 @@ function setupWorkspace(data, callback) {
     return -1;
   }
 
+  // Set the master project image
+  const project = setProjectInitialState(data);
+
   // Delete all existing blocks, comments and undo stacks
   clearBlocklyWorkspace();
-
-  projectData = data; // Set the master project image
-  showInfo(data); // Update the UI with project related details
+  showInfo(project); // Update the UI with project related details
 
   // Set various project settings based on the project board type
   // NOTE: This function is in propc.js
   // Set the default profile.
-  setProfile(projectData.board);
+  setDefaultProfile(project.boardType);
 
   // Set the help link to the ab-blocks, s3 reference, or propc reference
   // TODO: modify blocklyc.html/jsp and use an id or class selector
-  if (projectData.board === 's3') {
-    initToolbox(projectData.board);
+  if (project.boardType.name === 's3') {
+    initToolbox(project.boardType);
     $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
     // Create UI block content from project details
     renderContent('blocks');
@@ -1256,10 +1269,11 @@ function uploadHandler(files) {
       uploadedXML = xmlString.substring(
           xmlString.indexOf(findBPCstart),
           (xmlString.length - 29));
-      uploadBoardType = getProjectBoardType(xmlString);
+      uploadBoardType = getProjectBoardTypeName(xmlString);
 
       if (xmlValid) {
-        if (projectData && uploadBoardType !== projectData.board) {
+        if (getProjectInitialState() &&
+            uploadBoardType !== getProjectInitialState().boardType.name) {
           $('#selectfile-verify-boardtype').css('display', 'block');
         } else {
           $('#selectfile-verify-boardtype').css('display', 'none');
@@ -1368,7 +1382,7 @@ function uploadHandler(files) {
  * @param {string} xmlString
  * @return {string}
  */
-function getProjectBoardType(xmlString) {
+function getProjectBoardTypeName(xmlString) {
   const boardIndex = xmlString.indexOf(
       'transform="translate(-225,-23)">Device: ');
 
@@ -1477,7 +1491,7 @@ function clearUploadInfo(redirect) {
   // when opening a file but the user cancels, return to the splash screen
   if (redirect === true) {
     if (window.getURLParameter('openFile') === 'true') {
-      window.location = 'index.html' + window.getAllURLParameters();
+      window.location = 'index.html' + window.location.search;
     }
   }
 }
@@ -1636,7 +1650,7 @@ function uploadMergeCode(append) {
  * Initialize the Blockly toolbox with a collection of blocks that are
  * appropriate for the passe in board type.
  *
- * @param {string} profileName - aka Board Type
+ * @param {Project.boardType} profileName - aka Board Type
  */
 function initToolbox(profileName) {
   // TODO: Verify that custom fonts are required
@@ -1672,7 +1686,7 @@ function initToolbox(profileName) {
   // Options are described in detail here:
   // https://developers.google.com/blockly/guides/get-started/web#configuration
   const blocklyOptions = {
-    toolbox: filterToolbox(profileName),
+    toolbox: filterToolbox(profileName.name),
     trashcan: true,
     media: CDN_URL + 'images/blockly/',
     readOnly: (profileName === 'propcfile'),

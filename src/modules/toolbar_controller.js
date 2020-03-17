@@ -20,17 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-
-/**
- * Manage the compiler toolbar in the editor UI
- */
-class PropToolbarButtonController {
-
-  constructor() {
-    // Initialize the toolbar state here
-  }
-}
-
+import {getProjectInitialState} from './project.js';
 
 /**
  *  Update the state of the Compiler toolbar buttons
@@ -40,7 +30,9 @@ class PropToolbarButtonController {
  * @constructor
  */
 const propToolbarButtonController = (connected) => {
-  if (projectData && projectData.board === 's3') {
+  // if (projectData && projectData.board === 's3') {
+  if (getProjectInitialState() &&
+      getProjectInitialState().boardType.name === 's3') {
     /* ----------------------------------------------------------------
      * Hide the buttons that are not required for the S3 robot
      *

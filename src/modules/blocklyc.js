@@ -27,7 +27,7 @@ import {EMPTY_PROJECT_CODE_HEADER} from './constants.js';
 import {isExperimental} from './url_parameters.js';
 import {loadToolbox, getWorkspaceSvg} from './editor.js';
 import {CodeEditor} from './code_editor.js';
-import {clientService} from './blockly_prop_client.js';
+import {propToolbarButtonController} from './toolbar_controller.js';
 
 
 /**
@@ -44,14 +44,6 @@ let codePropC = null;
  * @type {string | null}
  */
 let codeXml = null;
-
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
 
 
 /**
@@ -1407,14 +1399,14 @@ function init(blockly) {
 /**
  * Client Service Object
  */
-var clientService = {
+export const clientService = {
   available: false,             // {boolean} Has a client (BPC/BPL) successfully connected
   portsAvailable: false,        // {boolean} Are any serial ports enumerated
   path: 'localhost',            // {string} usually "localhost", but can be configured to point to a client at any reachable IP/DNS address
   port: 6009,                   // {number} BlocklyProp Client/Launcher port number
   type: null,                   // {string} null, "ws", "http"
 
-  rxBase64: true,               // {boolean} BP Lancher full base64 encoding support flag
+  rxBase64: true,               // {boolean} BP Launcher full base64 encoding support flag
   loadBinary: false,            // {boolean} BP Launcher download message flag
   resultLog: '',                // {boolean} BP Launcher result log
 
@@ -1423,7 +1415,7 @@ var clientService = {
 
   sendCharacterStreamTo: null,  // {string} null, "term", or "graph". Flag to inform connection methods which modal/class to send characters to be displayed to
 
-  url: function (location, protocol) {
+  url: function(location, protocol) {
     return (protocol || window.location.protocol.replace(':', '')) + '://' + this.path + ':' + this.port + '/' + (location || '');
   },
   version: {
@@ -1439,16 +1431,17 @@ var clientService = {
     isRecommended: false,     // {boolean} current >= RECOMMENDED
     isCoded: false,           // {boolean} current >= CODED_MINIMUM
 
-    // Returns integer calulated from passed in string representation of version
-    getNumeric: function (rawVersion) {
-      var tempVersion = rawVersion.toString().split(".");
+    // Returns integer calculated from passed in string representation of version
+    getNumeric: function(rawVersion) {
+      let tempVersion = rawVersion.toString().split('.');
       tempVersion.push('0');
 
       if (tempVersion.length < 3) {
-        if (tempVersion.length === 1)
+        if (tempVersion.length === 1) {
           tempVersion = '0.0.0';
-        else
+        } else {
           tempVersion.unshift('0');
+        }
       }
 
       // Allow for any of the three numbers to be between 0 and 1023.
@@ -1457,15 +1450,15 @@ var clientService = {
     },
 
     // Sets self-knowledge of current client/launcher version.
-    set: function (rawVersion) {
+    set: function(rawVersion) {
       this.current = rawVersion;
       this.currentAsNumber = this.getNumeric(rawVersion);
       this.isValid = (this.getNumeric(rawVersion) >= this.getNumeric(this.MINIMUM_ALLOWED));
       this.isRecommended = (this.getNumeric(rawVersion) >= this.getNumeric(this.RECOMMENDED));
       this.isCoded = (this.getNumeric(rawVersion) >= this.getNumeric(this.CODED_MINIMUM));   // remove after MINIMUM_ALLOWED is greater
-    }
-  }
-}
+    },
+  },
+};
 
 // Status Notice IDs
 const NS_DOWNLOADING                 = 2;   // 002;
@@ -1475,13 +1468,14 @@ const NS_DOWNLOAD_SUCCESSFUL         = 5;   // 005;
 const NE_DOWNLOAD_FAILED             = 102;
 
 
-$(document).ready(function () {
+$(document).ready(function() {
   findClient();
   setInterval(findClient, 3500);
 });
 
-var findClient = function () {
+const findClient = function() {
   // Try to connect to the BP-Launcher (websocket) first
+  // TODO: evaluation is always true, probably not what we want here.
   if (!clientService.available && clientService.type !== 'http') {
     establishBPLauncherConnection();
   }
@@ -1493,7 +1487,7 @@ var findClient = function () {
     // Is the BP-Launcher taking to long to respond?  If so, close the connection
     if (clientService.portListReceiveCountUp > 2) {
       clientService.activeConnection.close();
-      // TODO: check to see if this is really necessary - it get's called by the WS onclose handler
+      // TODO: check to see if this is really necesssary - it get's called by the WS onclose handler
       lostWSConnection();
     }
   }
@@ -1515,7 +1509,8 @@ var findClient = function () {
  * @deprecated Replaced with propToolbarButtonController(), located in the
  * toolbar_controller module.
  */
-var setPropToolbarButtons = function () {
+/*
+const setPropToolbarButtons = function() {
   if (clientService.available) {
     if (projectData && projectData.board === 's3') {
       // Hide the buttons that are not required for the S3 robot
@@ -1530,17 +1525,17 @@ var setPropToolbarButtons = function () {
       $('#client-available-short').addClass('hidden');
     }
 
-    $("#client-unavailable").addClass("hidden");
-    $(".client-action").removeClass("disabled");
+    $('#client-unavailable').addClass('hidden');
+    $('.client-action').removeClass('disabled');
   } else {
     // Disable the toolbar buttons
-    $("#client-unavailable").removeClass("hidden");
-    $("#client-available").addClass("hidden");
-    $("#client-available-short").addClass("hidden");
-    $(".client-action").addClass("disabled");
+    $('#client-unavailable').removeClass('hidden');
+    $('#client-available').addClass('hidden');
+    $('#client-available-short').addClass('hidden');
+    $('.client-action').addClass('disabled');
   }
 };
-
+*/
 
 /**
  *  Update the state of the Compiler toolbar buttons
@@ -1551,16 +1546,17 @@ var setPropToolbarButtons = function () {
  * WARNING!
  * This function is moving to the toolbar_controller.js module.
  */
+/*
 const propToolbarButtonController = (connected) => {
   if (projectData && projectData.board === 's3') {
-    /* ----------------------------------------------------------------
-     * Hide the buttons that are not required for the S3 robot
-     *
-     * Find all of the HTML elements that have a class id of 'no-s3'
-     * and append a hidden attribute to the selected HTML elements.
-     * This currently applies to the elements prop-btn-ram and
-     *  prop-btn-graph.
-     * --------------------------------------------------------------*/
+    // ----------------------------------------------------------------
+    // Hide the buttons that are not required for the S3 robot
+    //
+    // Find all of the HTML elements that have a class id of 'no-s3'
+    // and append a hidden attribute to the selected HTML elements.
+    // This currently applies to the elements prop-btn-ram and
+    // prop-btn-graph.
+    // ----------------------------------------------------------------
     $('.no-s3').addClass('hidden');
 
     // Toggle the client available message to display the short form
@@ -1578,32 +1574,32 @@ const propToolbarButtonController = (connected) => {
   // Update elements when we are connected
   if (connected) {
     // Hide the 'client unavailable' message
-    $("#client-unavailable").addClass("hidden");
+    $('#client-unavailable').addClass('hidden');
 
-    /* Enable these buttons:
-     *   Compile to RAM
-     *   Compile to EEPROM
-     *   Open Terminal
-     *   Open graphing window
-     */
-    $(".client-action").removeClass("disabled");
+    // Enable these buttons:
+    //   Compile to RAM
+    //   Compile to EEPROM
+    //   Open Terminal
+    //   Open graphing window
+    // --------------------------------------------------------------
+     $('.client-action').removeClass('disabled');
   } else {
     // Disable the toolbar buttons
-    $("#client-unavailable").removeClass("hidden");
-    $("#client-available").addClass("hidden");
-    $("#client-available-short").addClass("hidden");
-    $(".client-action").addClass("disabled");
+    $('#client-unavailable').removeClass('hidden');
+    $('#client-available').addClass('hidden');
+    $('#client-available-short').addClass('hidden');
+    $('.client-action').addClass('disabled');
   }
 };
-
-
+*/
 
 /**
- * @function checkClientVersionModal Displays a modal with information
- * about the client version if the one being used is outdated.
- * If the version is below the recommended version, the user is
- * warned, and versions below the minimum are alerted.
- * @param {string} rawVersion string representing the client version in '0.0.0' format (Semantic versioning)
+ * checkClientVersionModal
+ * Displays a modal with information about the client version if the one
+ * being used is outdated. If the version is below the recommended version,
+ * the user is warned, and versions below the minimum are alerted.
+ * @param {string} rawVersion A string representing the client version in
+ *  '0.0.0' format (Semantic versioning)
  */
 function checkClientVersionModal(rawVersion) {
   if (rawVersion) {
@@ -1613,18 +1609,18 @@ function checkClientVersionModal(rawVersion) {
     $('.bpc-version').addClass('hidden');
 
     if (clientService.version.currentAsNumber === 0) {
-      $("#client-unknown-span").removeClass("hidden");
+      $('#client-unknown-span').removeClass('hidden');
     } else if (clientService.version.isValid) {
-      $("#client-warning-span").removeClass("hidden");
+      $('#client-warning-span').removeClass('hidden');
     } else {
-      $("#client-danger-span").removeClass("hidden");
+      $('#client-danger-span').removeClass('hidden');
     }
 
-    $(".client-required-version").html(clientService.version.RECOMMENDED);
+    $('.client-required-version').html(clientService.version.RECOMMENDED);
     if (clientService.version.currentAsNumber === 0) {
-      $(".client-your-version").html('<b>UNKNOWN</b>')
+      $('.client-your-version').html('<b>UNKNOWN</b>');
     } else {
-      $(".client-your-version").html(clientService.version.current);
+      $('.client-your-version').html(clientService.version.current);
     }
     $('#client-version-modal').modal('show');
   }
@@ -1636,16 +1632,16 @@ function checkClientVersionModal(rawVersion) {
  * Sets parameters in the clientService object
  * Calls UI configuration functions
  */
-var establishBPClientConnection = function () {
+const establishBPClientConnection = function() {
   // Load data from the server using a HTTP GET request.
-  $.get(clientService.url(), function (data) {
+  $.get(clientService.url(), function(data) {
     if (!clientService.available) {
-      let client_version_str = (typeof data.version_str !== "undefined") ? data.version_str : data.version;
+      let clientVersionString = (typeof data.version_str !== 'undefined') ? data.version_str : data.version;
       if (!data.server || data.server !== 'BlocklyPropHTTP') {
-        client_version_str = '0.0.0';
+        clientVersionString = '0.0.0';
       }
 
-      checkClientVersionModal(client_version_str);
+      checkClientVersionModal(clientVersionString);
 
       clientService.type = 'http';
       clientService.available = true;         // Connected to the Launcher/Client
@@ -1654,7 +1650,7 @@ var establishBPClientConnection = function () {
       // setPropToolbarButtons();
       propToolbarButtonController(clientService.available);
     }
-  }).fail(function () {
+  }).fail(function() {
     clientService.type = null;
     clientService.available = false;            // Not connected to the Launcher/Client
     clientService.portsAvailable = false;
@@ -1671,14 +1667,12 @@ var establishBPClientConnection = function () {
  * to the BlocklyProp-Client or -Launcher
  *
  * TODO: Add fields for setting a different path to the compile service (for anyone wanting to host their own)
- * TODO: Open issue to convert to modal.
- *
  */
 var configureConnectionPaths = function () {
   // All of this code is building the UI for the Configure
   // BlocklyProp Client dialog.
-  let pathPortInput = $("<form/>", {
-    class: "form-inline"
+  let pathPortInput = $('<form/>', {
+    class: 'form-inline',
   });
 
   // This is hard-coding the HTTP protocol for the BlocklyProp Client
@@ -1914,14 +1908,14 @@ function lostWSConnection() {
 
   // Clear ports list
   setPortListUI();
-};
+}
 
 
 // set communication port list
 // leave data unspecified when searching
-var setPortListUI = function (data) {
+const setPortListUI = function(data) {
   data = (data ? data : 'searching');
-  var selected_port = clearComPortUI();
+  const selectedPort = clearComPortUI();
 
   if (typeof (data) === 'object' && data.length > 0) {
     data.forEach(function (port) {
@@ -1929,30 +1923,30 @@ var setPortListUI = function (data) {
     });
     clientService.portsAvailable = true;
   } else {
-    addComPortDeviceOption(clientService.available ? Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
+    addComPortDeviceOption(clientService.available ?
+        Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
     clientService.portsAvailable = false;
   }
-  selectComPort(selected_port);
+  selectComPort(selectedPort);
 };
 
 
 /**
  *  Clear the com port drop-down
  *
- * @returns {string | jQuery} the currently selected value in the drop-down
+ * @return {string | jQuery} the currently selected value in the drop-down
  * before the element is cleared.
  */
 function clearComPortUI() {
-  let portUI = $("#comPort");
+  const portUI = $('#comPort');
   if (portUI) {
     try {
-      let port = portUI.val();
+      const port = portUI.val();
       portUI.empty();
       return port;
-    }
-    catch (e){
+    } catch (e) {
       if (e) {
-        console.log("Error: " + e.message);
+        console.log('Error: %s', e.message);
       }
     }
   }
@@ -1965,14 +1959,13 @@ function clearComPortUI() {
 /**
  *  Add a device port to the Com Port drop-down list
  *
- * @param port
+ * @param {string }port
  */
 function addComPortDeviceOption(port) {
   if (typeof(port) === 'string') {
-    $("#comPort").append($('<option>', { text: port }));
+    $('#comPort').append($('<option>', {text: port}));
   }
 }
-
 
 
 // -------------------------------

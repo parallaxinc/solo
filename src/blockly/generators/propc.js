@@ -206,27 +206,6 @@ var profile = {
     }
 };
 
-/**
- * Set the project profile based on the project board type
- *
- * @param profileName is the project board type
- */
-function setProfile(profileName) {
-
-    // Set the default project profile to match the provided board type
-    if (profile[profileName]) {
-        profile["default"] = profile[profileName];
-    } else {
-        // Unable to match the provided board type. Dummy down the interface
-        profile["default"] = profile["other"];
-    }
-
-    // Setting a default baud rate
-    // The global baudrate has been deprecated and replaced with the baud rate
-    // setting that is supplied in each ProjectProfile.boardType.
-    // ------------------------------------------------------------------------
-    //window.parent.setBaudrate(profile["default"]["baudrate"]);
-}
 
 /**
  * Initialize the database of variable names.

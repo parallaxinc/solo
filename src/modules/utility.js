@@ -21,77 +21,82 @@
  */
 
 
-
 /**
  *
- * @type {{confirm: utils.confirm, showMessage: utils.showMessage, prompt: utils.prompt}}
+ * @type {{
+ *    confirm: utils.confirm,
+ *    showMessage: utils.showMessage,
+ *    prompt: utils.prompt
+ * }}
  */
-var utils = {
-  showMessage: function (title, message, callback) {
+const utils = {
+  showMessage: function(title, message, callback) {
     bootbox.dialog({
       title: title,
       message: message,
       buttons: {
         confirm: {
-          label: "Ok",
-          className: "btn-primary",
-          callback: callback
-        }
-      }
+          label: 'Ok',
+          className: 'btn-primary',
+          callback: callback,
+        },
+      },
     });
   },
 
-  prompt: function (title, defaultValue, callback) {
+  prompt: function(title, defaultValue, callback) {
     bootbox.prompt({
       title: title,
       value: defaultValue,
       callback: callback,
       buttons: {
         cancel: {
-          label: "Cancel",
-          className: "btn-default",
-          callback: callback
+          label: 'Cancel',
+          className: 'btn-default',
+          callback: callback,
         },
         confirm: {
-          label: "Confirm",
-          className: "btn-primary",
-          callback: callback
-        }
-      }
-
+          label: 'Confirm',
+          className: 'btn-primary',
+          callback: callback,
+        },
+      },
     });
   },
 
-  confirm: function (title, message, callback, optionLabelConfirm, optionLabelCancel) {
+  confirm: function(
+      title, message, callback, optionLabelConfirm, optionLabelCancel) {
     bootbox.dialog({
       title: title,
       message: message,
       buttons: {
         cancel: {
-          label: (optionLabelCancel || "Cancel"),
-          className: "btn-default",
-          callback: function () {
+          label: (optionLabelCancel || 'Cancel'),
+          className: 'btn-default',
+          callback: function() {
             callback(false);
-          }
+          },
         },
         confirm: {
-          label: (optionLabelConfirm || "Confirm"),
-          className: "btn-primary",
-          callback: function () {
+          label: (optionLabelConfirm || 'Confirm'),
+          className: 'btn-primary',
+          callback: function() {
             callback(true);
-          }
-        }
-      }
+          },
+        },
+      },
     });
-  }
+  },
 };
 
 
 // POLYFILLS
+/*
 if (!String.prototype.endsWith) {
   String.prototype.endsWith = function (searchString, position) {
     var subjectString = this.toString();
-    if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+    if (typeof position !== 'number' || !isFinite(position) ||
+     Math.floor(position) !== position || position > subjectString.length) {
       position = subjectString.length;
     }
     position -= searchString.length;
@@ -99,21 +104,25 @@ if (!String.prototype.endsWith) {
     return lastIndex !== -1 && lastIndex === position;
   };
 }
-
+*/
+/*
 if (!String.prototype.startsWith) {
   String.prototype.startsWith = function (searchString, position) {
     position = position || 0;
     return this.substr(position, searchString.length) === searchString;
   };
 }
+*/
 
 // http://stackoverflow.com/questions/16312528/check-if-an-array-contains-any-elements-in-another-array-in-javascript
 /**
- * @description determine if an array contains one or more items from another array.
+ * @description determine if an array contains one or more items from
+ * another array.
  * @param {array} haystack the array to search.
  * @param {array} arr the array providing items to check for in the haystack.
  * @return {boolean} true|false if haystack contains at least one item from arr.
  */
+/*
 if (!Array.prototype.sharesElementWith) {
   Object.defineProperty(Array.prototype, 'sharesElementWith', {
     value: function (isInArray) {
@@ -124,31 +133,33 @@ if (!Array.prototype.sharesElementWith) {
     enumerable: false
   });
 }
+*/
 
 // polyfill that removes duplicates from an array and sorts it
 // From: https://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array
 if (!Array.prototype.sortedUnique) {
+  // eslint-disable-next-line no-extend-native
   Object.defineProperty(Array.prototype, 'sortedUnique', {
-    value: function () {
-      var seen = {};
-      var out = [];
-      var len = this.length;
-      var j = 0;
-      for (var i = 0; i < len; i++) {
-        var item = this[i];
+    value: function() {
+      const seen = {};
+      const out = [];
+      let len = this.length;
+      let j = 0;
+
+      for (let i = 0; i < len; i++) {
+        const item = this[i];
         if (seen[item] !== 1) {
           seen[item] = 1;
           out[j++] = item;
         }
       }
-      var tmpOut = out;
       try {
-        var sorted = [];
-        j = 0;
+        const sorted = [];
+        let j = 0;
         while (out.length > 0) {
           len = out.length;
-          var k = 0;
-          for (var i = 0; i < len; i++) {
+          let k = 0;
+          for (let i = 0; i < len; i++) {
             if (parseInt(out[i], 10) < parseInt(out[k], 10)) {
               k = i;
             }
@@ -159,51 +170,59 @@ if (!Array.prototype.sortedUnique) {
         }
         return sorted;
       } catch (err) {
-        return tmpOut;
+        return out;
       }
     },
-    enumerable: false
+    enumerable: false,
   });
 }
 
 // http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
 if (!window.getURLParameter) {
   Object.defineProperty(window, 'getURLParameter', {
-    value: function (name) {
-      return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(window.location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+    value: function(name) {
+      return decodeURIComponent(
+          (new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)')
+              .exec(window.location.search) || [null, ''])[1]
+              .replace(/\+/g, '%20')) || null;
     },
-    enumerable: false
+    enumerable: false,
   });
 }
 
-// Does the 'experimental' URL parameter exist?
-var isExperimental = window.getURLParameter('experimental') || 'false';
-
 
 /**
- * Helper function for passing on URL parameters between page reloads and changes
- * @param keepNewOpen {boolean} if true, keep the newProject and openFile parameters, otherwise filter them out.
+ * Helper function for passing on URL parameters between page
+ * reloads and changes.
+ * @param keepNewOpen {boolean} if true, keep the newProject and openFile
+ * parameters, otherwise filter them out.
  * @returns {string} all or filtered URL parameters
  */
 if (!window.getAllURLParameters) {
   Object.defineProperty(window, 'getAllURLParameters', {
-    value: function (keepNewOpen) {
+    value: function(keepNewOpen) {
       if (keepNewOpen) {
         return window.location.search;
       } else {
-        return window.location.search.replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g,'');
+        return window.location.search
+            .replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g,'');
       }
     },
-    enumerable: false
+    enumerable: false,
   });
 }
+
+function getAllUrlParameters() {
+
+}
+
 
 /**
  * Operating system detection
  *
  * @type {string}
  */
-var osName = 'unknown-client';
+const osName = 'unknown-client';
 
 
 /**
@@ -308,3 +327,9 @@ function findFirstDiffPos(a, b)
 
   return -1;
 }
+
+// Does the 'experimental' URL parameter exist?
+const isExperimental = window.getURLParameter('experimental') || 'false';
+
+
+export {utils};

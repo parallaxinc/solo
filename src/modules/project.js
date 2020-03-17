@@ -22,13 +22,63 @@
 
 'use strict';
 
-//
-// default export const currentProject {
-//   projectData: false
-// }
+/**
+ * Preserve the initial state of the project
+ * @type {Project | null}
+ */
+let projectInitialState = null;
 
-// Project file
-// projectData hold copy of original project
+/**
+ * Current project profile
+ * @type {Project.boardType |null}
+ */
+let defaultProfile = null;
+
+/**
+ * Reset the initial project state to null
+ */
+function clearProjectInitialState() {
+  projectInitialState = null;
+}
+
+/**
+ * Getter that exposes the projectInitialState
+ * @return {Project | null}
+ */
+function getProjectInitialState() {
+  return projectInitialState;
+}
+
+/**
+ * Set the project state from an existing project object
+ * @param {Project} project
+ * @return {Project}
+ */
+function setProjectInitialState(project) {
+  if (project instanceof Project) {
+    projectInitialState = project;
+    return projectInitialState;
+  }
+
+  // We did not receive a valid object
+  return null;
+}
+
+/**
+ * Return the current project profile
+ * @return {Project.boardType}
+ */
+function getDefaultProfile() {
+  return defaultProfile;
+}
+
+/**
+ * Set the current project profile
+ * @param {Project.boardType}  value
+ */
+function setDefaultProfile(value) {
+  defaultProfile = value;
+}
 
 
 /**
@@ -58,6 +108,9 @@ class Project {
      */
   constructor(name, description, board, projectType,
       code, created, modified, timestamp) {
+    // Preserve the instance if one is not set
+    projectInitialState = this;
+
     this.name = (name) ? name : '';
     this.description = (description) ? description : '';
 
@@ -141,9 +194,7 @@ class Project {
    *   }
    * }
    */
-  getProjectData() {
-    return this.projectData;
-  }
+
 
   /**
      * Save the project details to a specified location in the browser's
@@ -281,6 +332,50 @@ class Project {
 
     return result;
   }
+}
+
+
+/**
+ * Create a new Project object from JSON data
+ *
+ * @param {string} json Submit JSON data to create a new project object
+ * @return {Project}
+ */
+function projectJsonFactory(json) {
+  /*
+  const pd = {
+    'board': uploadBoardType,
+    'code': uploadedXML,
+    'created': projectCreated,
+    'description': decodeFromValidXml(projectDesc),
+    'description-html': '',
+    'id': 0,
+    'modified': projectModified,
+    'name': files[0].name.substring(0, files[0].name.lastIndexOf('.')),
+    'private': true,
+    'shared': false,
+    'type': 'PROPC',
+    'user': 'offline',
+    'yours': true,
+    'timestamp': date.getTime(),
+  };
+*/
+  const date = new Date();
+  const tmpBoardType = Project.convertBoardType(json.board);
+  if (tmpBoardType === undefined) {
+    console.log('Unknown board type: %s', json.board);
+  }
+
+  return new Project(
+      json.name,
+      json.description,
+      tmpBoardType,
+      ProjectTypes.PROPC,
+      json.code,
+      json.created,
+      json.modified,
+      date.getTime()
+  );
 }
 
 
@@ -466,4 +561,13 @@ const ProjectProfiles = {
   },
 };
 
-export {Project, ProjectProfiles, ProjectTypes};
+
+export {
+  Project,
+  clearProjectInitialState,
+  getProjectInitialState,
+  setProjectInitialState,
+  getDefaultProfile,
+  setDefaultProfile,
+  projectJsonFactory,
+  ProjectProfiles, ProjectTypes};
