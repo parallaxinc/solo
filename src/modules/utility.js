@@ -252,7 +252,7 @@ function getURLParameter(name) {
  *
  * @param {string} x
  * @param {string} y
- * @param {string} z
+ * @param {string | null} z
  */
 function nav(x, y, z) {
   // set z value to the value of y if there is no initial z value
@@ -268,13 +268,13 @@ function nav(x, y, z) {
 /*   navigator     value     download  */
 nav('appVersion', 'X11', 'UNIX');
 nav('appVersion', 'Mac', 'MacOS');
-nav('appVersion', 'Linux');
-nav('userAgent', 'Linux');
-nav('platform', 'Linux');
+nav('appVersion', 'Linux', null);
+nav('userAgent', 'Linux', null);
+nav('platform', 'Linux', null);
 nav('appVersion', 'Win', 'Windows');
-nav('userAgent', 'Windows');
+nav('userAgent', 'Windows', null);
 nav('platform', 'Win', 'Windows');
-nav('oscpu', 'Windows');
+nav('oscpu', 'Windows', null);
 nav('appVersion', 'CrOS', 'ChromeOS');
 
 
@@ -342,41 +342,8 @@ navigator.browserSpecs = (function() {
   };
 })();
 
-
-/**
- * Find offset to first unequal character in two strings.
- * @param {string} a
- * @param {string} b
- *
- * @return {number}
- * Returns the offset to first character in either string
- * where the characters differ at that location.
- *
- * Returns the length of the shorter string if the strings are of
- * differing lengths but are equal up to the end of the shorter
- * string.
- *
- * Returns -1 if none of the above conditions are met.
- *
- * @description
- * https://stackoverflow.com/questions/32858626/detect-position-of-first-difference-in-2-strings
- *
- */
-function findFirstDiffPos(a, b) {
-  const shorterLength = Math.min(a.length, b.length);
-
-  for (let i = 0; i < shorterLength; i++) {
-    if (a[i] !== b[i]) return i;
-  }
-
-  if (a.length !== b.length) return shorterLength;
-
-  return -1;
-}
-
 // Does the 'experimental' URL parameter exist?
 const isExperimental = getURLParameter('experimental') || 'false';
 
 
-export {utils, isExperimental,
-  getAllUrlParameters, findFirstDiffPos};
+export {utils, isExperimental, getAllUrlParameters};
