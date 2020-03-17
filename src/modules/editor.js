@@ -51,7 +51,7 @@ import {PropTerm} from './prop_term.js';
 import {propToolbarButtonController} from './toolbar_controller.js';
 import {filterToolbox} from './toolbox_data.js';
 import {isExperimental} from './url_parameters.js';
-
+import {getAllUrlParameters} from './utility.js';
 
 /**
  * Uploaded project XML code
@@ -322,7 +322,7 @@ $(() => {
     }
   } else {
     // No viable project available, so redirect to index page.
-    window.location.href = 'index.html' + window.getAllURLParameters();
+    window.location.href = 'index.html' + getAllURLParameters();
   }
 
   // Make sure the toolbox appears correctly, just for good measure.

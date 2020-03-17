@@ -20,6 +20,13 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+/**
+ * Operating system detection
+ *
+ * @type {string}
+ */
+let osName = 'unknown-client';
+
 
 /**
  *
@@ -205,32 +212,47 @@ if (!window.getAllURLParameters) {
         return window.location.search;
       } else {
         return window.location.search
-            .replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g,'');
+            .replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g, '');
       }
     },
     enumerable: false,
   });
 }
 
-function getAllUrlParameters() {
-
-}
-
 
 /**
- * Operating system detection
- *
- * @type {string}
+ * Return URL querystring parameters
+ * @param {boolean} keepNewOpen
+ * @return {string}
  */
-const osName = 'unknown-client';
+function getAllUrlParameters(keepNewOpen= false) {
+  if (keepNewOpen) {
+    return window.location.search;
+  }
+
+  return window.location.search
+      .replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g, '');
+}
+
+/**
+ * Retrun a single element of the URL query string
+ * @param {string} name
+ * @return {string | null}
+ */
+function getURLParameter(name) {
+  return decodeURIComponent(
+      (new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)')
+          .exec(window.location.search) || [null, ''])[1]
+          .replace(/\+/g, '%20')) || null;
+}
 
 
 /**
  *  Identify the operating system reported by the browser
  *
- * @param x
- * @param y
- * @param z
+ * @param {string} x
+ * @param {string} y
+ * @param {string} z
  */
 function nav(x, y, z) {
   // set z value to the value of y if there is no initial z value
@@ -244,64 +266,89 @@ function nav(x, y, z) {
 
 
 /*   navigator     value     download  */
-nav("appVersion", "X11", "UNIX");
-nav("appVersion", "Mac", "MacOS");
-nav("appVersion", "Linux");
-nav("userAgent", "Linux");
-nav("platform", "Linux");
-nav("appVersion", "Win", "Windows");
-nav("userAgent", "Windows");
-nav("platform", "Win", "Windows");
-nav("oscpu", "Windows");
-nav("appVersion", "CrOS", "ChromeOS");
+nav('appVersion', 'X11', 'UNIX');
+nav('appVersion', 'Mac', 'MacOS');
+nav('appVersion', 'Linux');
+nav('userAgent', 'Linux');
+nav('platform', 'Linux');
+nav('appVersion', 'Win', 'Windows');
+nav('userAgent', 'Windows');
+nav('platform', 'Win', 'Windows');
+nav('oscpu', 'Windows');
+nav('appVersion', 'CrOS', 'ChromeOS');
 
 
 /**
  *
  */
-$(function () {
+$(function() {
   // Use the "external_link" class to make links open in new tabs
-  $(".external_link").click(function (e) {
-    window.open($(this).attr("href"), "_blank");
+  $('.external_link').click(function(e) {
+    // eslint-disable-next-line no-invalid-this
+    window.open($(this).attr('href'), '_blank');
     e.preventDefault();
   });
 
   // Set up divs to hide/show OS-specific content
-  $("body").addClass(osName);
+  $('body').addClass(osName);
 
   // Copy the client download and run instructions
   // from the client instruction page to the modal that also shows them
-  $("#client-instructions-copy").html($("#client-instructions-original").html());
+  $('#client-instructions-copy')
+      .html($('#client-instructions-original').html());
 
   if (window.getURLParameter('debug')) console.log(navigator.browserSpecs);
 });
 
 
 // https://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
-navigator.browserSpecs = (function(){
-  var ua = navigator.userAgent, tem,
-      M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
-  if(/trident/i.test(M[1])){
+navigator.browserSpecs = (function() {
+  const ua = navigator.userAgent;
+  let tem;
+  // eslint-disable-next-line max-len
+  let M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+
+  if (/trident/i.test(M[1])) {
     tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
-    return {name:'IE', version:(tem[1] || ''), system:osName};
+    return {
+      name: 'IE',
+      version: (tem[1] || ''),
+      system: osName,
+    };
   }
-  if(M[1]=== 'Chrome'){
+
+  if (M[1]=== 'Chrome') {
     tem = ua.match(/\b(OPR|Edge)\/(\d+)/);
-    if(tem != null) return {name:tem[1].replace('OPR', 'Opera'), version:tem[2], system:osName};
+
+    if (tem != null) {
+      return {
+        name: tem[1].replace('OPR', 'Opera'),
+        version: tem[2],
+        system: osName,
+      };
+    }
   }
+
   M = M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
-  if((tem = ua.match(/version\/(\d+)/i))!= null)
+
+  if ((tem = ua.match(/version\/(\d+)/i))!= null) {
     M.splice(1, 1, tem[1]);
-  return {name:M[0], version:M[1], system:osName};
+  }
+
+  return {
+    name: M[0],
+    version: M[1],
+    system: osName,
+  };
 })();
 
 
 /**
  * Find offset to first unequal character in two strings.
- * @param a
- * @param b
+ * @param {string} a
+ * @param {string} b
  *
- * @returns {number}
+ * @return {number}
  * Returns the offset to first character in either string
  * where the characters differ at that location.
  *
@@ -315,9 +362,8 @@ navigator.browserSpecs = (function(){
  * https://stackoverflow.com/questions/32858626/detect-position-of-first-difference-in-2-strings
  *
  */
-function findFirstDiffPos(a, b)
-{
-  let shorterLength = Math.min(a.length, b.length);
+function findFirstDiffPos(a, b) {
+  const shorterLength = Math.min(a.length, b.length);
 
   for (let i = 0; i < shorterLength; i++) {
     if (a[i] !== b[i]) return i;
@@ -329,7 +375,8 @@ function findFirstDiffPos(a, b)
 }
 
 // Does the 'experimental' URL parameter exist?
-const isExperimental = window.getURLParameter('experimental') || 'false';
+const isExperimental = getURLParameter('experimental') || 'false';
 
 
-export {utils};
+export {utils, isExperimental,
+  getAllUrlParameters, findFirstDiffPos};
