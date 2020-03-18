@@ -30,7 +30,7 @@ import {
 
 
 import {
-  clientService, getComPort, loadInto, renderContent,
+  clientService, compile, getComPort, loadInto, renderContent, downloadCSV,
 } from './blocklyc.js';
 
 import {CodeEditor, propcAsBlocksXml} from './code_editor.js';
@@ -170,26 +170,9 @@ function getWorkspaceSvg() {
  * Replaces the old document.ready() construct
  */
 $(() => {
-  // Attach handler to process a project file when it is selected
-  const selectControl = document.getElementById('selectfile');
-  selectControl.addEventListener('change', (e) => {
-    uploadHandler(e.target.files);
-  });
-
-  // Open a project file
-  //  //= $('open-project-select-file');
-  const openFileSelectControl = document.getElementById(
-      'open-project-select-file' );
-  openFileSelectControl.addEventListener('change', (e) => {
-    uploadHandler(e.target.files);
-  });
-
+  // TODO: The Save Project timer should only fire when a project is loaded.
   // Open the modal when the timer expires
   ProjectSaveTimer.setMessageHandler(ShowProjectTimerModalDialog);
-
-  // Set the compile toolbar buttons to unavailable
-  // setPropToolbarButtons();
-  propToolbarButtonController(false);
 
   // Update the blockly workspace to ensure that it takes
   // the remainder of the window. This is an async call.
@@ -249,6 +232,10 @@ $(() => {
   initInternationalText();
   initEditorIcons();
   initEventHandlers();
+
+  // Set the compile toolbar buttons to unavailable
+  // setPropToolbarButtons();
+  propToolbarButtonController(false);
 
   // This is necessary only because the target modal is being
   // used for multiple but similar purposes.
@@ -322,7 +309,7 @@ $(() => {
     }
   } else {
     // No viable project available, so redirect to index page.
-    window.location.href = 'index.html' + getAllURLParameters();
+    window.location.href = 'index.html' + getAllUrlParameters();
   }
 
   // Make sure the toolbox appears correctly, just for good measure.
@@ -416,7 +403,26 @@ function initEditorIcons() {
  * Set up event handlers - Attach events to nav/action menus/buttons
  */
 function initEventHandlers() {
-  // Toolbar - left side
+  // ----------------------------------------------------------------------- //
+  // Select file event handlers                                              //
+  // ----------------------------------------------------------------------- //
+  // Attach handler to process a project file when it is selected
+  const selectControl = document.getElementById('selectfile');
+  selectControl.addEventListener('change', (e) => {
+    uploadHandler(e.target.files);
+  });
+
+  // Open a project file
+  //  //= $('open-project-select-file');
+  const openFileSelectControl = document.getElementById(
+      'open-project-select-file' );
+  openFileSelectControl.addEventListener('change', (e) => {
+    uploadHandler(e.target.files);
+  });
+
+  // ----------------------------------------------------------------------- //
+  // Left side toolbar event handlers                                        //
+  // ----------------------------------------------------------------------- //
   $('#prop-btn-comp').on('click', () => compile());
   $('#prop-btn-ram').on('click', () => {
     loadInto('Load into RAM', 'bin', 'CODE', 'RAM');
@@ -531,7 +537,7 @@ function initEventHandlers() {
   //     window.localStorage.setItem(
   //        LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
   //     window.location = "blocklyc.html?openFile=true" +
-  //        window.getAllURLParameters().replace('?', '&');
+  //        window.getAllUrlParameters().replace('?', '&');
   // });
 
   // Save button
@@ -973,7 +979,7 @@ function saveProjectAs(boardType, projectName) {
   };
 
   window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
-  window.location = 'blocklyc.html' + window.getAllURLParameters();
+  window.location = 'blocklyc.html' + window.getAllUrlParameters();
 }
 
 
@@ -1542,7 +1548,7 @@ function uploadMergeCode(append) {
 
     window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
 
-    window.location = 'blocklyc.html' + window.getAllURLParameters();
+    window.location = 'blocklyc.html' + window.getAllUrlParameters();
   }
 
   if (uploadedXML !== '') {
@@ -1763,36 +1769,6 @@ function clearBlocklyWorkspace() {
     // Dispose of all blocks and comments in workspace.
     workspace.clear();
   }
-}
-
-
-/**
- * Sanitize a string into an OS-safe filename
- *
- * @param {string} input string representing a potential filename
- * @return {string}
- */
-function sanitizeFilename(input) {
-  // if the input is not a string, or is an empty string, return a
-  // generic filename
-  if (typeof input !== 'string' || input.length < 1) {
-    return 'my_project';
-  }
-
-  // replace OS-illegal characters or phrases
-  input = input.replace(/[\/\?<>\\:\*\|"]/g, '_')
-  // eslint-disable-next-line no-control-regex
-      .replace(/[\x00-\x1f\x80-\x9f]/g, '_')
-      .replace(/^\.+$/, '_')
-      .replace(/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, '_')
-      .replace(/[\. ]+$/, '_');
-
-  // if the filename is too long, truncate it
-  if (input.length > 31) {
-    return input.substring(0, 30);
-  }
-
-  return input;
 }
 
 
@@ -2032,7 +2008,7 @@ function createNewProject() {
 
   // Redirect to the editor page
   try {
-    const parameters = window.getAllURLParameters();
+    const parameters = window.getAllUrlParameters();
     if (parameters !== '?') {
       window.location = 'blocklyc.html' + parameters;
     }

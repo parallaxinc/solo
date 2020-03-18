@@ -21,13 +21,24 @@
  */
 
 
+// Replacement for the global pTerm variable
+let terminal = null;
+
+/**
+ * Getter for the terminal object
+ * @return {null}
+ */
+function getPropTerminal() {
+  return terminal;
+}
+
 /**
  * @description A lightweight, generic in-browser terminal with cursor
  *  positioning, clearing, and text-wrapping support.
  * @author Matthew Matz matt.m.matz@gmail.com
  * @function PropTerm
  */
-export class PropTerm {
+class PropTerm {
   /**
    * @param {HTMLElement} terminalElement HTML element to populate the
    *    terminal into.
@@ -111,8 +122,10 @@ export class PropTerm {
     this._setupWarningBox(options);
     this._addSoundElement();
     this._setupListeners(this);
-
     this.resize();
+
+    // Set the module-level terminal variable
+    terminal = this;
   }
 
   // ---------------------------------------------------------
@@ -837,3 +850,5 @@ export class TerminalOptions {
     this.warningDivClassName = warningDivClassName;
   }
 }
+
+export {PropTerm, getPropTerminal};

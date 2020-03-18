@@ -22,12 +22,14 @@
 
 import * as ace from 'ace-builds/src-noconflict/ace';
 import * as jsBeautify from 'js-beautify';
+import {saveAs} from 'file-saver';
 
 import {EMPTY_PROJECT_CODE_HEADER} from './constants.js';
 import {isExperimental} from './url_parameters.js';
 import {loadToolbox, getWorkspaceSvg} from './editor.js';
 import {CodeEditor} from './code_editor.js';
 import {propToolbarButtonController} from './toolbar_controller.js';
+import {getPropTerminal} from './prop_term.js';
 
 
 /**
@@ -163,7 +165,7 @@ let graph_labels = null;
 /**
  * TODO: Identify the purpose of this variable
  *
- * @type {any[]}
+ * @type {Array}
  */
 // eslint-disable-next-line camelcase
 const graph_csv_data = [];
@@ -466,7 +468,6 @@ function cloudCompile(text, action, successHandler) {
 /**
  * Stub function to the cloudCompile function
  */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
 function compile() {
   cloudCompile('Compile', 'compile', null);
 }
@@ -720,11 +721,11 @@ function displayTerminalConnectionStatus(connectionInfo) {
 /**
  * Graphing console
  */
+// eslint-disable-next-line camelcase,require-jsdoc
 function graphing_console() {
   clientService.sendCharacterStreamTo = 'graph';
 
   if (getGraphSettingsFromBlocks()) {
-
     if (graph === null) {
       graph_reset();
       graphTempString = '';
@@ -751,7 +752,7 @@ function graphing_console() {
       };
 
       // Log errors
-      connection.onerror = function (error) {
+      connection.onerror = function(error) {
         console.log('WebSocket Error');
         console.log(error);
       };
@@ -771,7 +772,7 @@ function graphing_console() {
         }
       };
 
-      $('#graphing-dialog').on('hidden.bs.modal', function () {
+      $('#graphing-dialog').on('hidden.bs.modal', function() {
         clientService.sendCharacterStreamTo = null;
         connection.close();
         graphStartStop('stop');
@@ -779,7 +780,6 @@ function graphing_console() {
         connStrYet = false;
         displayTerminalConnectionStatus(null);
       });
-
     } else if (clientService.type === 'ws' && clientService.portsAvailable) {
       const messageToSend = {
         type: 'serial-terminal',
@@ -803,11 +803,12 @@ function graphing_console() {
 
       clientService.activeConnection.send(JSON.stringify(messageToSend));
 
+      // eslint-disable-next-line camelcase
       if (!graph_interval_id) {
         graphStartStop('start');
       }
 
-      $('#graphing-dialog').on('hidden.bs.modal', function () {
+      $('#graphing-dialog').on('hidden.bs.modal', function() {
         clientService.sendCharacterStreamTo = null;
         graphStartStop('stop');
         if (messageToSend.action !== 'close') { // because this is getting called multiple times.... ?
@@ -816,7 +817,6 @@ function graphing_console() {
           clientService.activeConnection.send(JSON.stringify(messageToSend));
         }
       });
-
     } else {
       // create simulated graph?
       displayTerminalConnectionStatus(Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT);
@@ -835,31 +835,32 @@ function graphing_console() {
  * getGraphSettingsFromBlocks
  * @description sets the graphing engine's settings and graph labels
  * based on values in the graph setup and output blocks
- * @returns {boolean} true if the appropriate graphing blocks are present and false if they are not
+ * @return {boolean} true if the appropriate graphing blocks are present and false if they are not
  */
 function getGraphSettingsFromBlocks() {
   // TODO: propc editor needs UI for settings for terminal and graphing
   if (projectData.board === 'propcfile') {
     return false;
   }
-  var graphSettingsBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_settings');
+  const graphSettingsBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_settings');
 
   if (graphSettingsBlocks.length > 0) {
     console.log('found settings');
-    var graphOutputBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_output');
+    const graphOutputBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_output');
+    // eslint-disable-next-line camelcase
     graph_labels = [];
     if (graphOutputBlocks.length > 0) {
       console.log('found block');
-      var i = 0;
-      while (graphOutputBlocks[0].getField("GRAPH_LABEL" + i)) {
-        graph_labels.push(graphOutputBlocks[0].getFieldValue("GRAPH_LABEL" + i));
+      let i = 0;
+      while (graphOutputBlocks[0].getField('GRAPH_LABEL' + i)) {
+        graph_labels.push(graphOutputBlocks[0].getFieldValue('GRAPH_LABEL' + i));
         i++;
       }
     } else {
       return false;
     }
 
-    graph_options.refreshRate = 100 // Number(graph_settings_str[0]);
+    graph_options.refreshRate = 100; // Number(graph_settings_str[0]);
 
     graph_options.graph_type = {
       'AUTO': 'S',
@@ -867,7 +868,7 @@ function getGraphSettingsFromBlocks() {
       'AUTOXY': 'X',
       'FIXEDXY': 'X',
       'AUTOSC': 'O',
-      'FIXEDSC': 'O'
+      'FIXEDSC': 'O',
     }[graphSettingsBlocks[0].getFieldValue('YSETTING')];
 
 
@@ -876,12 +877,12 @@ function getGraphSettingsFromBlocks() {
         type: Chartist.AutoScaleAxis,
         low: Number(graphSettingsBlocks[0].getFieldValue('YMIN') || '0'),
         high: Number(graphSettingsBlocks[0].getFieldValue('YMAX') || '100'),
-        onlyInteger: true
+        onlyInteger: true,
       };
     } else {
       graph_options.axisY = {
         type: Chartist.AutoScaleAxis,
-        onlyInteger: true
+        onlyInteger: true,
       };
     }
     $('#graph_x-axis_label').css('display', 'block');
@@ -894,12 +895,12 @@ function getGraphSettingsFromBlocks() {
           type: Chartist.AutoScaleAxis,
           low: Number(graphSettingsBlocks[0].getFieldValue('XMIN') || '0'),
           high: Number(graphSettingsBlocks[0].getFieldValue('XMAX') || '100'),
-          onlyInteger: true
+          onlyInteger: true,
         };
       } else {
         graph_options.axisX = {
           type: Chartist.AutoScaleAxis,
-          onlyInteger: true
+          onlyInteger: true,
         };
       }
       graph_options.showPoint = true;
@@ -918,7 +919,7 @@ function getGraphSettingsFromBlocks() {
 /**
  * Graphing system control
  *
- * @param action
+ * @param {string} action
  * Supported actions:
  *     start
  *     play
@@ -926,21 +927,25 @@ function getGraphSettingsFromBlocks() {
  *     pause
  *     clear
  */
-var graphStartStop = function (action) {
+const graphStartStop = function(action) {
   if (action === 'start' || action === 'play') {
     graph_new_labels();
+    // eslint-disable-next-line camelcase
     if (graph_interval_id) {
       clearInterval(graph_interval_id);
     }
-    graph_interval_id = setInterval(function () {
+    // eslint-disable-next-line camelcase
+    graph_interval_id = setInterval(function() {
       graph.update(graph_data);
       graph_update_labels();
     }, graph_options.refreshRate);
   } else if (action === 'stop' || action === 'pause') {
     clearInterval(graph_interval_id);
+    // eslint-disable-next-line camelcase
     graph_interval_id = null;
   }
   if (action === 'stop') {
+    // eslint-disable-next-line camelcase
     graph_paused = false;
     graph_reset();
     graph_play('play');
@@ -952,14 +957,20 @@ var graphStartStop = function (action) {
     if (graph_data.series[0].length === 0) {
       graph_reset();
     }
+    // eslint-disable-next-line camelcase
     graph_paused = false;
+    // eslint-disable-next-line camelcase
     graph_start_playing = true;
   }
   if (action === 'pause' && graph_temp_data.slice(-1)[0]) {
+    // eslint-disable-next-line camelcase
     graph_paused = true;
     graphTempString = '';
+    // eslint-disable-next-line camelcase
     graph_timestamp_start = 0;
+    // eslint-disable-next-line camelcase
     graph_time_multiplier = 0;
+    // eslint-disable-next-line camelcase
     graph_timestamp_restart = graph_temp_data.slice(-1)[0][0];
   }
 };
@@ -1024,32 +1035,32 @@ export const getComPort = function() {
 /**
  * Save a project to the local file system
  */
+// eslint-disable-next-line no-unused-vars,require-jsdoc
 function downloadPropC() {
-  var propcCode = Blockly.propc.workspaceToCode(Blockly.mainWorkspace);
-  var isEmptyProject = propcCode.indexOf("EMPTY_PROJECT") > -1;
+  const propcCode = Blockly.propc.workspaceToCode(Blockly.mainWorkspace);
+  const isEmptyProject = propcCode.indexOf('EMPTY_PROJECT') > -1;
   if (isEmptyProject) {
     // The project is empty, so warn and exit.
     utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT);
-    return;
   } else {
     // Make sure the filename doesn't have any illegal characters
-    value = sanitizeFilename(projectData.name);
+    const value = sanitizeFilename(projectData.name);
 
-    var sideFileContent = ".c\n>compiler=C\n>memtype=cmm main ram compact\n";
-    sideFileContent += ">optimize=-Os\n>-m32bit-doubles\n>-fno-exceptions\n>defs::-std=c99\n";
-    sideFileContent += ">-lm\n>BOARD::ACTIVITYBOARD";
+    let sideFileContent = '.c\n>compiler=C\n>memtype=cmm main ram compact\n';
+    sideFileContent += '>optimize=-Os\n>-m32bit-doubles\n>-fno-exceptions\n>defs::-std=c99\n';
+    sideFileContent += '>-lm\n>BOARD::ACTIVITYBOARD';
 
-    var fileCblob = new Blob([propcCode], {type: 'text/plain'});
-    var fileSIDEblob = new Blob([value + sideFileContent], {type: 'text/plain'});
+    const fileCblob = new Blob([propcCode], {type: 'text/plain'});
+    const fileSIDEblob = new Blob([value + sideFileContent], {type: 'text/plain'});
 
-    var zip = new JSZip();
-    var sideFolder = zip.folder(value);
-    sideFolder.file(value + ".c", fileCblob);
-    sideFolder.file(value + ".side", fileSIDEblob);
+    const zip = new JSZip();
+    const sideFolder = zip.folder(value);
+    sideFolder.file(value + '.c', fileCblob);
+    sideFolder.file(value + '.side', fileSIDEblob);
 
-    sideFolder.generateAsync({type:"blob"}).then(function (blob) { // 1) generate the zip file
-      saveAs(blob, value + ".zip");                                 // 2) trigger the download
-    }, function (err) {
+    sideFolder.generateAsync({type: 'blob'}).then(function(blob) { // 1) generate the zip file
+      saveAs(blob, value + '.zip');                                 // 2) trigger the download
+    }, function(err) {
       utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_SIDE_FILES_ERROR + err);
     });
   }
@@ -1057,25 +1068,59 @@ function downloadPropC() {
 
 
 /**
+ * Sanitize a string into an OS-safe filename
+ *
+ * @param {string} input string representing a potential filename
+ * @return {string}
+ */
+function sanitizeFilename(input) {
+  // if the input is not a string, or is an empty string, return a
+  // generic filename
+  if (typeof input !== 'string' || input.length < 1) {
+    return 'my_project';
+  }
+
+  // replace OS-illegal characters or phrases
+  input = input.replace(/[\/\?<>\\:\*\|"]/g, '_')
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\x00-\x1f\x80-\x9f]/g, '_')
+      .replace(/^\.+$/, '_')
+      .replace(/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, '_')
+      .replace(/[\. ]+$/, '_');
+
+  // if the filename is too long, truncate it
+  if (input.length > 31) {
+    return input.substring(0, 30);
+  }
+
+  return input;
+}
+
+
+/**
  * Graph the data represented in the stream parameter
  *
- * @param stream
+ * @param {string} stream
  */
+// eslint-disable-next-line camelcase,require-jsdoc
 function graph_new_data(stream) {
-
   // Check for a failed connection:
   if (stream.indexOf('ailed') > -1) {
     displayTerminalConnectionStatus(stream);
-
   } else {
-    var ts = 0;
-    for (var k = 0; k < stream.length; k++) {
-      if (stream[k] === '\n')
+    let row;
+    let ts = 0;
+
+    for (let k = 0; k < stream.length; k++) {
+      if (stream[k] === '\n') {
         stream[k] = '\r';
+      }
+      // eslint-disable-next-line camelcase
       if (stream[k] === '\r' && graph_data_ready) {
+        // eslint-disable-next-line camelcase
         if (!graph_paused) {
           graph_temp_data.push(graphTempString.split(','));
-          var row = graph_temp_data.length - 1;
+          row = graph_temp_data.length - 1;
           ts = Number(graph_temp_data[row][0]) || 0;
 
           // convert to seconds:
@@ -1083,46 +1128,62 @@ function graph_new_data(stream) {
           // Assumes 80MHz clock frequency.
           ts = ts / 1220.703125;
         }
+        // eslint-disable-next-line camelcase
         if (!graph_timestamp_start || graph_timestamp_start === 0) {
+          // eslint-disable-next-line camelcase
           graph_timestamp_start = ts;
+          // eslint-disable-next-line camelcase
           if (graph_start_playing) {
+            // eslint-disable-next-line camelcase
             graph_timestamp_start -= graph_timestamp_restart;
+            // eslint-disable-next-line camelcase
             graph_timestamp_restart = 0;
           }
         }
+        // eslint-disable-next-line camelcase
         if (row > 0 && !graph_start_playing) {
           if (parseFloat(graph_temp_data[row][0]) < parseFloat(graph_temp_data[row - 1][1])) {
+            // eslint-disable-next-line camelcase
             graph_time_multiplier += fullCycleTime;
           }
         }
+        // eslint-disable-next-line camelcase
         graph_start_playing = false;
+        // eslint-disable-next-line camelcase
         if (!graph_paused) {
+          // eslint-disable-next-line camelcase
           graph_temp_data[row].unshift(ts + graph_time_multiplier -
+              // eslint-disable-next-line camelcase
               graph_timestamp_start);
-          var graph_csv_temp = (Math.round(graph_temp_data[row][0] * 10000) / 10000) + ',';
+          // eslint-disable-next-line camelcase
+          let graph_csv_temp = (Math.round(graph_temp_data[row][0] * 10000) / 10000) + ',';
 
           if (graph_options.graph_type === 'X') {   // xy scatter plot
-            var jk = 0;
-            for (var j = 2; j < graph_temp_data[row].length; j = j + 2) {
+            let jk = 0;
+            for (let j = 2; j < graph_temp_data[row].length; j = j + 2) {
+              // eslint-disable-next-line camelcase
               graph_csv_temp += graph_temp_data[row][j] + ',' + graph_temp_data[row][j + 1] + ',';
               graph_data.series[jk].push({
                 x: graph_temp_data[row][j] || null,
                 y: graph_temp_data[row][j + 1] || null,
               });
-              if (graph_temp_data[row][0] > graph_options.sampleTotal)
+              if (graph_temp_data[row][0] > graph_options.sampleTotal) {
                 graph_data.series[jk].shift();
+              }
               jk++;
             }
           } else {    // Time series graph
             for (j = 2; j < graph_temp_data[row].length; j++) {
+              // eslint-disable-next-line camelcase
               graph_csv_temp += graph_temp_data[row][j] + ',';
               graph_data.series[j - 2].push({
                 x: graph_temp_data[row][0],
                 y: graph_temp_data[row][j] || null,
               });
               $('.ct_line').css('stroke-width', '2.5px');  // TODO: if this slows performance too much - explore changing the stylesheet (https://stackoverflow.com/questions/50036922/change-a-css-stylesheets-selectors-properties/50036923#50036923)
-              if (graph_temp_data[row][0] > graph_options.sampleTotal)
+              if (graph_temp_data[row][0] > graph_options.sampleTotal) {
                 graph_data.series[j - 2].shift();
+              }
             }
           }
 
@@ -1136,8 +1197,10 @@ function graph_new_data(stream) {
 
         graphTempString = '';
       } else {
+        // eslint-disable-next-line camelcase
         if (!graph_data_ready) {            // wait for a full set of data to
           if (stream[k] === '\r') {       // come in before graphing, ends up
+            // eslint-disable-next-line camelcase
             graph_data_ready = true;    // tossing the first point but prevents
           }                               // garbage from mucking up the graph.
         } else {
@@ -1155,19 +1218,24 @@ function graph_new_data(stream) {
 /**
  * Reset the graphing system
  */
+// eslint-disable-next-line camelcase,require-jsdoc
 function graph_reset() {
   graph_temp_data.length = 0;
   graph_csv_data.length = 0;
-  for (var k = 0; k < 10; k++) {
+  for (let k = 0; k < 10; k++) {
     graph_data.series[k] = [];
   }
   if (graph) {
     graph.update(graph_data, graph_options, true);
   }
   graphTempString = '';
+  // eslint-disable-next-line camelcase
   graph_timestamp_start = 0;
+  // eslint-disable-next-line camelcase
   graph_time_multiplier = 0;
+  // eslint-disable-next-line camelcase
   graph_timestamp_restart = 0;
+  // eslint-disable-next-line camelcase
   graph_data_ready = false;
 }
 
@@ -1175,11 +1243,13 @@ function graph_reset() {
 /**
  * Draw graph
  *
- * @param setTo
+ * @param {string} setTo
  */
+// eslint-disable-next-line camelcase,require-jsdoc
 function graph_play(setTo) {
   if (document.getElementById('btn-graph-play')) {
-    var play_state = document.getElementById('btn-graph-play').innerHTML;
+    // eslint-disable-next-line camelcase
+    const play_state = document.getElementById('btn-graph-play').innerHTML;
     if (setTo !== 'play' && (play_state.indexOf('pause') > -1 || play_state.indexOf('<!--p') === -1)) {
       document.getElementById('btn-graph-play').innerHTML = '<!--play--><svg xmlns="http://www.w3.org/2000/svg" width="14" height="15"><path d="M4,3 L4,11 10,7 Z" style="stroke:#fff;stroke-width:1;fill:#fff;"/></svg>';
       if (!setTo) {
@@ -1187,6 +1257,7 @@ function graph_play(setTo) {
       }
     } else {
       document.getElementById('btn-graph-play').innerHTML = '<!--pause--><svg xmlns="http://www.w3.org/2000/svg" width="14" height="15"><path d="M5.5,2 L4,2 4,11 5.5,11 Z M8.5,2 L10,2 10,11 8.5,11 Z" style="stroke:#fff;stroke-width:1;fill:#fff;"/></svg>';
+      // eslint-disable-next-line camelcase
       if (!graph_interval_id && !setTo) {
         graphStartStop('play');
       }
@@ -1198,17 +1269,18 @@ function graph_play(setTo) {
 /**
  * Save a graph to the local file system
  */
+// eslint-disable-next-line no-unused-vars,require-jsdoc
 function downloadGraph() {
-  utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_GRAPH_DIALOG, 'BlocklyProp_Graph', function (value) {
+  utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_GRAPH_DIALOG, 'BlocklyProp_Graph', function(value) {
     if (value) {
       // Make sure filename is safe
       value = sanitizeFilename(value);
 
-      var svgGraph = document.getElementById('serial_graphing');
-      var pattern = new RegExp('xmlns="http://www.w3.org/2000/xmlns/"', 'g');
-      var findY = 'class="ct-label ct-horizontal ct-end"';
-      var chartStyle = '<style>.ct-grid-background,.ct-line{fill:none}.ct-point{stroke-width:10px;stroke-linecap:round}.ct-grid{stroke:rgba(0,0,0,.2);stroke-width:1px;stroke-dasharray:2px}.ct-area{stroke:none;fill-opacity:.1}.ct-line{stroke-width:1px}.ct-point{stroke-width:5px}.ct-series-a{stroke:#00f}.ct-series-b{stroke:#0bb}.ct-series-c{stroke:#0d0}.ct-series-d{stroke:#dd0}.ct-series-e{stroke:#f90}.ct-series-f{stroke:red}.ct-series-g{stroke:#d09}.ct-series-h{stroke:#90d}.ct-series-i{stroke:#777}.ct-series-j{stroke:#000}text{font-family:sans-serif;fill:rgba(0,0,0,.4);color:rgba(0,0,0,.4);font-size:.75rem;line-height:1;overflow:visible}</style>';
-      var svgxml = new XMLSerializer().serializeToString(svgGraph);
+      const svgGraph = document.getElementById('serial_graphing');
+      const pattern = new RegExp('xmlns="http://www.w3.org/2000/xmlns/"', 'g');
+      const findY = 'class="ct-label ct-horizontal ct-end"';
+      const chartStyle = '<style>.ct-grid-background,.ct-line{fill:none}.ct-point{stroke-width:10px;stroke-linecap:round}.ct-grid{stroke:rgba(0,0,0,.2);stroke-width:1px;stroke-dasharray:2px}.ct-area{stroke:none;fill-opacity:.1}.ct-line{stroke-width:1px}.ct-point{stroke-width:5px}.ct-series-a{stroke:#00f}.ct-series-b{stroke:#0bb}.ct-series-c{stroke:#0d0}.ct-series-d{stroke:#dd0}.ct-series-e{stroke:#f90}.ct-series-f{stroke:red}.ct-series-g{stroke:#d09}.ct-series-h{stroke:#90d}.ct-series-i{stroke:#777}.ct-series-j{stroke:#000}text{font-family:sans-serif;fill:rgba(0,0,0,.4);color:rgba(0,0,0,.4);font-size:.75rem;line-height:1;overflow:visible}</style>';
+      let svgxml = new XMLSerializer().serializeToString(svgGraph);
 
       svgxml = svgxml.replace(pattern, '');
       svgxml = svgxml.replace(/foreignObject/g, 'text');
@@ -1217,15 +1289,15 @@ function downloadGraph() {
       svgxml = svgxml.replace(/x="10" /g, 'x="40" ');
 
       svgxml = svgxml.substring(svgxml.indexOf('<svg'), svgxml.length - 6);
-      var foundY = svgxml.indexOf(findY);
-      var theY = parseFloat(svgxml.substring(svgxml.indexOf(' y="', foundY + 20) + 4, svgxml.indexOf('"', svgxml.indexOf(' y="', foundY + 20) + 4)));
-      var regY = new RegExp('y="' + theY + '"', 'g');
+      const foundY = svgxml.indexOf(findY);
+      const theY = parseFloat(svgxml.substring(svgxml.indexOf(' y="', foundY + 20) + 4, svgxml.indexOf('"', svgxml.indexOf(' y="', foundY + 20) + 4)));
+      const regY = new RegExp('y="' + theY + '"', 'g');
       svgxml = svgxml.replace(regY, 'y="' + (theY + 12) + '"');
-      var breakpoint = svgxml.indexOf('>') + 1;
+      const breakpoint = svgxml.indexOf('>') + 1;
       svgxml = svgxml.substring(0, breakpoint) + chartStyle + svgxml.substring(breakpoint, svgxml.length);
       svgxml = svgxml.replace(/<text style="overflow: visible;" ([xy])="([0-9.-]+)" ([xy])="([0-9.-]+)" [a-z]+="[0-9.]+" [a-z]+="[0-9.]+"><span[0-9a-zA-Z =.":;/-]+>([0-9.-]+)<\/span>/g, '<text $1="$2" $3="$4">$5');
 
-      var blob = new Blob([svgxml], {type: 'image/svg+xml'});
+      const blob = new Blob([svgxml], {type: 'image/svg+xml'});
       saveAs(blob, value + '.svg');
     }
   });
@@ -1236,15 +1308,16 @@ function downloadGraph() {
  * Download the graph as a csv file to the local file system
  */
 function downloadCSV() {
-  utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG, 'BlocklyProp_Data', function (value) {
+  utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG, 'BlocklyProp_Data', function(value) {
     if (value) {
       // Make sure filename is safe
       value = sanitizeFilename(value);
 
-      var graph_csv_temp = graph_csv_data.join('\n');
-      var idx1 = graph_csv_temp.indexOf('\n') + 1;
-      var idx2 = graph_csv_temp.indexOf('\n', idx1 + 1);
-      var blob = new Blob([graph_csv_temp.substring(0, idx1) + graph_csv_temp.substring(idx2 + 1, graph_csv_temp.length - 1)], {type: 'text/csv'});
+      // eslint-disable-next-line camelcase
+      const graph_csv_temp = graph_csv_data.join('\n');
+      const idx1 = graph_csv_temp.indexOf('\n') + 1;
+      const idx2 = graph_csv_temp.indexOf('\n', idx1 + 1);
+      const blob = new Blob([graph_csv_temp.substring(0, idx1) + graph_csv_temp.substring(idx2 + 1, graph_csv_temp.length - 1)], {type: 'text/csv'});
       saveAs(blob, value + '.csv');
     }
   });
@@ -1254,17 +1327,20 @@ function downloadCSV() {
 /**
  *
  */
+// eslint-disable-next-line camelcase,require-jsdoc
 function graph_new_labels() {
-  var graph_csv_temp = '';
-  var labelsvg = '<svg width="60" height="300">';
+  // eslint-disable-next-line camelcase
+  let graph_csv_temp = '';
+  let labelsvg = '<svg width="60" height="300">';
+  // eslint-disable-next-line camelcase
   graph_csv_temp += '"time",';
-  var labelClass = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-  var labelPre = ["", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+  let labelClass = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+  let labelPre = ['', '', '', '', '', '', '', '', '', '', '', '', '', ''];
   if (graph_options.graph_type === 'X') {
     labelClass = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7];
-    labelPre = ["x: ", "y: ", "x: ", "y: ", "x: ", "y: ", "x: ", "y: ", "x: ", "y: ", "x: ", "y: ", "x: ", "y: "];
+    labelPre = ['x: ', 'y: ', 'x: ', 'y: ', 'x: ', 'y: ', 'x: ', 'y: ', 'x: ', 'y: ', 'x: ', 'y: ', 'x: ', 'y: '];
   }
-  for (var t = 0; t < graph_labels.length; t++) {
+  for (let t = 0; t < graph_labels.length; t++) {
     labelsvg += '<g id="labelgroup' + (t + 1) + '" transform="translate(0,' + (t * 30 + 25) + ')">';
     labelsvg += '<rect x="0" y = "0" width="60" height="26" rx="3" ry="3" id="label' + (t + 1) + '" ';
     labelsvg += 'style="stroke:1px;stroke-color:blue;" class="ct-marker-' + labelClass[t] + '"/><rect x="3" y="12"';
@@ -1273,6 +1349,7 @@ function graph_new_labels() {
     labelsvg += 'y="9" style="font-family:Arial;font-size: 9px;fill:#fff;font-weight:bold;">' + labelPre[t];
     labelsvg += graph_labels[t] + '</text><text id="gValue' + (t + 1) + '" x="5" y="21" style="align:right;';
     labelsvg += 'font-family:Arial;font-size: 10px;fill:#000;"></text></g>';
+    // eslint-disable-next-line camelcase
     graph_csv_temp += '"' + graph_labels[t].replace(/"/g, '_') + '",';
   }
   labelsvg += '</svg>';
@@ -1282,14 +1359,15 @@ function graph_new_labels() {
 
 
 /**
- *
+ * Update the labels on the graph
  */
+// eslint-disable-next-line camelcase,require-jsdoc
 function graph_update_labels() {
-  let row = graph_temp_data.length - 1;
+  const row = graph_temp_data.length - 1;
   if (graph_temp_data[row]) {
-    let col = graph_temp_data[row].length;
+    const col = graph_temp_data[row].length;
     for (let w = 2; w < col; w++) {
-      let theLabel = document.getElementById('gValue' + (w - 1).toString(10));
+      const theLabel = document.getElementById('gValue' + (w - 1).toString(10));
       if (theLabel) {
         theLabel.textContent = graph_temp_data[row][w];
       }
@@ -1389,9 +1467,6 @@ function init(blockly) {
     projectData.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
   }
 }
-
-
-
 
 // ---------------------------------------
 
@@ -1668,82 +1743,90 @@ const establishBPClientConnection = function() {
  *
  * TODO: Add fields for setting a different path to the compile service (for anyone wanting to host their own)
  */
-var configureConnectionPaths = function () {
+// eslint-disable-next-line no-unused-vars
+const configureConnectionPaths = function() {
   // All of this code is building the UI for the Configure
   // BlocklyProp Client dialog.
-  let pathPortInput = $('<form/>', {
+  const pathPortInput = $('<form/>', {
     class: 'form-inline',
   });
 
   // This is hard-coding the HTTP protocol for the BlocklyProp Client
-  $("<span/>", {
-    class: "space_right"
-  }).text("http://").appendTo(pathPortInput);
+  $('<span/>', {
+    class: 'space_right',
+  }).text('http://').appendTo(pathPortInput);
 
   // Add the form group to the DOM for the input field defined next
-  let domainNameGroup = $("<div/>", {
-    class: "form-group"
+  const domainNameGroup = $('<div/>', {
+    class: 'form-group',
   }).appendTo(pathPortInput);
 
   // Default the domain input box
-  $("<input/>", {
-    id: "domain_name",
-    type: "text",
-    class: "form-control",
-    value: clientService.path
+  $('<input/>', {
+    id: 'domain_name',
+    type: 'text',
+    class: 'form-control',
+    value: clientService.path,
   }).appendTo(domainNameGroup);
 
   // Hard code the ':' between the domain name and port input fields
-  $("<span/>", {
-    class: "space_left space_right"
-  }).text(":").appendTo(pathPortInput);
+  $('<span/>', {
+    class: 'space_left space_right',
+  }).text(':').appendTo(pathPortInput);
 
   // Add the form group to the DOM for the next input field
-  let domain_port_group = $("<div/>", {
-    class: "form-group"
+  const domainPortGroup = $('<div/>', {
+    class: 'form-group',
   }).appendTo(pathPortInput);
 
   // Get the port number
-  $("<input/>", {
-    id: "port_number",
-    type: "number",
-    class: "form-control",
-    value: clientService.port
-  }).appendTo(domain_port_group);
+  $('<input/>', {
+    id: 'port_number',
+    type: 'number',
+    class: 'form-control',
+    value: clientService.port,
+  }).appendTo(domainPortGroup);
 
   // Show the modal dialog
-  utils.confirm(Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER_CONFIGURE_TITLE, pathPortInput, function (action) {
-    if (action) {
-      clientService.path = $("#domain_name").val();
-      clientService.port = $("#port_number").val();
-    }
-  }, Blockly.Msg.DIALOG_SAVE_TITLE);
+  utils.confirm(
+      Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER_CONFIGURE_TITLE,
+      pathPortInput, function(action) {
+        if (action) {
+          clientService.path = $('#domain_name').val();
+          clientService.port = $('#port_number').val();
+        }
+      }, Blockly.Msg.DIALOG_SAVE_TITLE);
 };
 
-// checks for and, if found, uses a newer WebSockets-only client
-function establishBPLauncherConnection() {
 
+/**
+ * Checks for and, if found, uses a newer WebSockets-only client
+ *
+ * TODO: Refactor this function to use switch statements and sub-functions
+ *  to make clear what this function is really doing.
+ */
+function establishBPLauncherConnection() {
   // TODO: set/clear and load buttons based on status
   if (!clientService.available) {
-
     // Clear the port list
     setPortListUI();
 
-    var connection = new WebSocket(clientService.url('', 'ws'));
-
-    connection.onopen = function () {
-
+    const connection = new WebSocket(clientService.url('', 'ws'));
+    connection.onopen = function() {
       if (clientService.activeConnection !== null) {
         clientService.activeConnection.close();
       }
 
-      var wsMessage = {type: 'hello-browser', baud: baudrate};
+      const wsMessage = {
+        type: 'hello-browser',
+        baud: baudrate,
+      };
       clientService.activeConnection = connection;
       connection.send(JSON.stringify(wsMessage));
     };
 
     // Log errors
-    connection.onerror = function (error) {
+    connection.onerror = function(error) {
       // Only display a message on the first attempt
       if (!clientService.type) {
         console.log('Unable to find websocket client');
@@ -1755,8 +1838,8 @@ function establishBPLauncherConnection() {
     };
 
     // handle messages from the client
-    connection.onmessage = function (e) {
-      var wsMessage = JSON.parse(e.data);
+    connection.onmessage = function(e) {
+      const wsMessage = JSON.parse(e.data);
 
       // set this to zero to note that the connection is still alive (heartbeat)
       clientService.portListReceiveCountUp = 0;
@@ -1769,7 +1852,7 @@ function establishBPLauncherConnection() {
         checkClientVersionModal(wsMessage.version);
 
         if (window.getURLParameter('debug')) {
-          console.log("Websocket client/launcher found - version " + wsMessage.version);
+          console.log('Websocket client/launcher found - version ' + wsMessage.version);
         }
 
         clientService.rxBase64 = wsMessage.rxBase64 || false;
@@ -1780,16 +1863,17 @@ function establishBPLauncherConnection() {
         // setPropToolbarButtons();
         propToolbarButtonController(clientService.available);
 
-        var portRequestMsg = JSON.stringify({type: 'port-list-request', msg: 'port-list-request'});
+        const portRequestMsg = JSON.stringify({
+          type: 'port-list-request',
+          msg: 'port-list-request',
+        });
         connection.send(portRequestMsg);
-
 
         // --- com port list/change
       } else if (wsMessage.type === 'port-list') {
         // type: 'port-list',
         // ports: ['port1', 'port2', 'port3'...]
         setPortListUI(wsMessage.ports);
-
 
         // --- serial terminal/graph
       } else if (wsMessage.type === 'serial-terminal' &&
@@ -1798,19 +1882,21 @@ function establishBPLauncherConnection() {
         // type: 'serial-terminal'
         // msg: [String Base64-encoded message]
 
-        var messageText = '';
+        let messageText;
         try {
-          var messageText = atob(wsMessage.msg);
+          messageText = atob(wsMessage.msg);
         } catch (error) {
           // only show the error if it's something other than base-64 encoding
-          if (error.toString().indexOf("'atob'") < 0) {
+          if (error.toString().indexOf('\'atob\'') < 0) {
             console.error(error);
           }
           messageText = wsMessage.msg;
         }
 
         if (clientService.sendCharacterStreamTo && messageText !== '' && wsMessage.packetID) {
-          if (clientService.sendCharacterStreamTo === 'term') { // is the terminal open?
+          // is the terminal open?
+          if (clientService.sendCharacterStreamTo === 'term') {
+            const pTerm = getPropTerminal();
             pTerm.display(messageText);
             pTerm.focus();
           } else {    // is the graph open?
@@ -1818,64 +1904,63 @@ function establishBPLauncherConnection() {
           }
         }
 
-
         // --- UI Commands coming from the client
       } else if (wsMessage.type === 'ui-command') {
         // type: 'ui-command',
-        // action: ['open-terminal','open-graph','close-terminal','close-graph','close-compile','clear-compile','message-compile','alert']
+        // action: [
+        //  'open-terminal',
+        //  'open-graph',
+        //  'close-terminal',
+        //  'close-graph',
+        //  'close-compile',
+        //  'clear-compile',
+        //  'message-compile',
+        //  'alert'
+        //  ],
         // msg: [String message]
 
         if (wsMessage.action === 'open-terminal') {
           serial_console();
-
         } else if (wsMessage.action === 'open-graph') {
           graphing_console();
-
         } else if (wsMessage.action === 'close-terminal') {
           $('#console-dialog').modal('hide');
           clientService.sendCharacterStreamTo = null;
-          pTerm.display(null);
-
+          getPropTerminal().display(null);
         } else if (wsMessage.action === 'close-graph') {
           $('#graphing-dialog').modal('hide');
           clientService.sendCharacterStreamTo = null;
           graph_reset();
-
         } else if (wsMessage.action === 'clear-compile') {
           $('#compile-console').val('');
-
         } else if (wsMessage.action === 'message-compile') {
-          //Messages are coded; check codes, log all and filter out NS_DOWNLOADING duplicates
-          var msg = wsMessage.msg.split("-");
-          if (msg[0] != NS_DOWNLOADING || !clientService.loadBinary) {
-            clientService.resultLog = clientService.resultLog + msg[1] + "\n";
-            clientService.loadBinary |= (msg[0] == NS_DOWNLOADING);
+          // Messages are coded; check codes, log all and filter out NS_DOWNLOADING duplicates
+          const msg = wsMessage.msg.split('-');
+          if (msg[0] !== NS_DOWNLOADING || !clientService.loadBinary) {
+            clientService.resultLog = clientService.resultLog + msg[1] + '\n';
+            clientService.loadBinary |= (msg[0] === NS_DOWNLOADING);
           }
           if (msg[0] == NS_DOWNLOAD_SUCCESSFUL) {
-            //Success! Keep it simple
+            // Success! Keep it simple
             $('#compile-console').val($('#compile-console').val() + ' Succeeded.');
           } else if (msg[0] == NE_DOWNLOAD_FAILED) {
-            //Failed! Show the details
+            // Failed! Show the details
             $('#compile-console').val($('#compile-console').val() + ' Failed!\n\n-------- loader messages --------\n' + clientService.resultLog);
           } else {
-            //Show progress during downloading
-            $('#compile-console').val($('#compile-console').val() + ".");
+            // Show progress during downloading
+            $('#compile-console').val($('#compile-console').val() + '.');
           }
 
-          // Scoll automatically to the bottom after new data is added
-          var compileConsoleObj = document.getElementById("compile-console");
+          // Scroll automatically to the bottom after new data is added
+          const compileConsoleObj = document.getElementById('compile-console');
           compileConsoleObj.scrollTop = compileConsoleObj.scrollHeight;
-
         } else if (wsMessage.action === 'close-compile') {
           $('#compile-dialog').modal('hide');
           $('#compile-console').val('');
-
         } else if (wsMessage.action === 'console-log') {
           console.log(wsMessage.msg);
-
         } else if (wsMessage.action === 'websocket-close') {
           clientService.activeConnection.close();
-
         } else if (wsMessage.action === 'alert') {
           utils.showMessage(Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER, wsMessage.msg);
         }
@@ -1886,7 +1971,7 @@ function establishBPLauncherConnection() {
       }
     };
 
-    connection.onclose = function () {
+    connection.onclose = function() {
       lostWSConnection();
     };
   }
@@ -1918,7 +2003,7 @@ const setPortListUI = function(data) {
   const selectedPort = clearComPortUI();
 
   if (typeof (data) === 'object' && data.length > 0) {
-    data.forEach(function (port) {
+    data.forEach(function(port) {
       addComPortDeviceOption(port);
     });
     clientService.portsAvailable = true;
@@ -1971,6 +2056,6 @@ function addComPortDeviceOption(port) {
 // -------------------------------
 
 export {
-  init, renderContent,
+  compile,  init, renderContent, downloadCSV,
 };
 
