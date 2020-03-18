@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        #graphing-console {
+            height: 500px;
+            width: 600px;
+            /* border: 1px solid black; */
+        }
+
+        .ct-marker-1 {
+            fill: #00f !important;
+        }
+
+        .ct-marker-2 {
+            fill: #0bb !important;
+        }
+
+        .ct-marker-3 {
+            fill: #0d0 !important;
+        }
+
+        .ct-marker-4 {
+            fill: #dd0 !important;
+        }
+
+        .ct-marker-5 {
+            fill: #f90 !important;
+        }
+
+        .ct-marker-6 {
+            fill: #f00 !important;
+        }
+
+        .ct-marker-7 {
+            fill: #d09 !important;
+        }
+
+        .ct-marker-8 {
+            fill: #90d !important;
+        }
+
+        .ct-marker-9 {
+            fill: #777 !important;
+        }
+
+        .ct-marker-10 {
+            fill: #000 !important;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script src="../src/lib/FileSaver.min.js"></script>
+    <script src="../src/propgraph.js"></script>
+    <script>
+        var output = '';
+
+        var values = [0, 0, 0, 0, 0, 0];
+
+        var dataOut = null;
+        var streamer = null;
+        var clockRun = null;
+        var timeMark = Math.floor(Math.random() * 65535 + 0.5);
+
+        function runDataGenerator() {
+            var intervalMilliseconds = 250;
+            var intervalCNTsimulator = intervalMilliseconds * 65535 / 60000;
+
+            dataOut = setInterval(function () {
+                timeMark += intervalCNTsimulator;
+                if (timeMark > 65535) {
+                    timeMark -= 65535;
+                }
+                for (var i = 0; i < 6; i++) {
+                    values[i] += Math.floor((Math.random() * 4 - 1.5));
+                }
+                output += timeMark + ',' + values.join(',') + '\n';
+                
+            }, intervalMilliseconds);
+
+            streamer = setInterval(function () {
+                var outElement = document.getElementById('output')
+                var chunk = Math.floor(Math.random() * (outElement.value.length / 2) + 1);
+                PropGraph.display(output.slice(0, chunk));
+                output = output.substr(chunk);
+                outElement.value = output;
+            }, 10);
+        }
+
+        function runTheClock() {
+            var intervalMilliseconds = 250;
+            var intervalCNTsimulator = intervalMilliseconds * 65535 / 60000;
+
+            clockRun = setInterval(function () {
+                timeMark += intervalCNTsimulator;
+                if (timeMark > 65535) {
+                    timeMark -= 65535;
+                }
+            }, intervalMilliseconds);
+
+        }
+
+        function startStop() {
+            if (!dataOut) {
+                runDataGenerator();
+                if (clockRun) {
+                    clearInterval(clockRun);
+                    clockRun = null;
+                }
+            } else {
+                clearInterval(dataOut);
+                clearInterval(streamer);
+                runTheClock();
+                dataOut = null;
+                streamer = null;
+            }
+        }
+
+
+
+    </script>
+</head>
+
+<body>
+
+    <textarea id="output"></textarea>
+    <button onclick="startStop();">Stop/Start</button>
+    <div id="graphing-console"></div>
+
+    <button onclick="PropGraph.start();">Start</button>
+    <button onclick="PropGraph.play();">Play</button>
+    <button onclick="PropGraph.pause();">Pause</button>
+    <button onclick="PropGraph.stop();">Stop</button>
+    <button onclick="PropGraph.clear();">Clear</button>
+    <br><br>
+    <button onclick="PropGraph.exportCSV(function(theBlob){saveAs(theBlob, 'br-graph.csv')});">Download CSV</button>
+    <button onclick="PropGraph.exportPNG(function(theBlob){saveAs(theBlob, 'br-graph.png')});">Download PNG</button>
+
+
+    <script>
+        let graphSetups = {
+            type: 'AUTO',
+            yMin: '0',
+            yMax: '0',
+            xMin: '0',
+            xMax: '0',
+            visibleDuration: '40',
+            labels: ['apples', 'oranges', 'grapes', 'strawberries', 'raspberries', 'lemons'],
+        }
+        let graphElement = document.getElementById('graphing-console');
+
+        PropGraph.setup(graphSetups, graphElement);
+
+    </script>
+</body>
+
+</html>
