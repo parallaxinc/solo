@@ -26,16 +26,17 @@
  * state of the project that is currently loaded onto the editor canvas.
  */
 export default class ProjectProfile {
-
-  static instance;
-
-  constructor(){
-    if(instance){
+  /**
+   *  Build something good
+   * @return {*}
+   */
+  constructor() {
+    if (instance) {
       return instance;
     }
 
-    this.state = "duke";
+    this.state = 'duke';
     this.instance = this;
   }
-
 }
+
