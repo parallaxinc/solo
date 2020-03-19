@@ -30,6 +30,7 @@ import {loadToolbox, getWorkspaceSvg} from './editor.js';
 import {CodeEditor} from './code_editor.js';
 import {propToolbarButtonController} from './toolbar_controller.js';
 import {getPropTerminal} from './prop_term.js';
+import {getProjectInitialState} from './project.js';
 
 
 /**
@@ -628,6 +629,7 @@ function serial_console() {
 
       // Receive characters
       connection.onmessage = function(e) {
+        const pTerm = getPropTerminal();
         // incoming data is base64 encoded
         const charBuffer = atob(e.data);
         if (connStrYet) {
@@ -652,7 +654,7 @@ function serial_console() {
         connStrYet = false;
         connection.close();
         displayTerminalConnectionStatus(null);
-        pTerm.display(null);
+        getPropTerminal().display(null);
       });
     } else {
       // Remove any previous connection
@@ -660,13 +662,13 @@ function serial_console() {
 
       // Display a "No connected devices" message in the terminal
       displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
-      pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
+      getPropTerminal().display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
 
       // Clear the terminal if the user closes it.
       $('#console-dialog').on('hidden.bs.modal', function() {
         clientService.sendCharacterStreamTo = null;
         displayTerminalConnectionStatus(null);
-        pTerm.display(null);
+        getPropTerminal().display(null);
       });
     }
   } else if (clientService.type === 'ws') { // TODO: Condition always false warning
@@ -690,7 +692,7 @@ function serial_console() {
       ].join[' ']);
     } else {
       displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
-      pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
+      getPropTerminal().display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
     }
 
     clientService.activeConnection.send(JSON.stringify(messageToSend));
@@ -702,7 +704,7 @@ function serial_console() {
         displayTerminalConnectionStatus(null);
         clientService.activeConnection.send(JSON.stringify(messageToSend));
       }
-      pTerm.display(null);
+      getPropTerminal().display(null);
     });
   }
 
@@ -1173,7 +1175,7 @@ function graph_new_data(stream) {
               jk++;
             }
           } else {    // Time series graph
-            for (j = 2; j < graph_temp_data[row].length; j++) {
+            for (let j = 2; j < graph_temp_data[row].length; j++) {
               // eslint-disable-next-line camelcase
               graph_csv_temp += graph_temp_data[row][j] + ',';
               graph_data.series[j - 2].push({
@@ -1442,6 +1444,14 @@ function initOldVersionCode(blockly) {
 
 
 /**
+ * Replacement function for the Blockly initialization function init().
+ * @param {Blockly} data
+ */
+function initializeBlockly(data) {
+  init(data);
+}
+
+/**
  * Initialize Blockly
  *
  * Called on page load. Loads a Blockly project onto the editor pallet
@@ -1451,20 +1461,21 @@ function initOldVersionCode(blockly) {
 function init(blockly) {
   // TODO: Why is this happening?
   window.Blockly = blockly;
-
-  if (projectData) {
+  const project = getProjectInitialState();
+  if (project) {
     // Looking for the first <block> XML element
     const searchTerm = '<block';
 
-    if (projectData.board !== 'propcfile') {
-      codePropC = new CodeEditor(projectData.board);
-      loadToolbox(projectData.code);
+    if (project.boardType.name !== 'propcfile') {
+      codePropC = new CodeEditor(project.boardType.name);
+      loadToolbox(project.code);
     }
-    if (!projectData.code || projectData.code.indexOf(searchTerm) < 0) {
-      projectData.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
+    // TODO: This is a flawed implemenation of the old projectData
+    if (!project.code || project.code.indexOf(searchTerm) < 0) {
+      project.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
     }
   } else {
-    projectData.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
+    project.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
   }
 }
 
@@ -2056,6 +2067,6 @@ function addComPortDeviceOption(port) {
 // -------------------------------
 
 export {
-  compile,  init, renderContent, downloadCSV,
+  compile,  init, renderContent, downloadCSV, initializeBlockly,
 };
 
