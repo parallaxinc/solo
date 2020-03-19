@@ -31,6 +31,7 @@ import {
 
 import {
   clientService, compile, getComPort, loadInto, renderContent, downloadCSV,
+  initializeBlockly,
 } from './blocklyc.js';
 
 import {CodeEditor, propcAsBlocksXml} from './code_editor.js';
@@ -51,7 +52,10 @@ import {PropTerm} from './prop_term.js';
 import {propToolbarButtonController} from './toolbar_controller.js';
 import {filterToolbox} from './toolbox_data.js';
 import {isExperimental} from './url_parameters.js';
-import {getAllUrlParameters} from './utility.js';
+import {buildDefaultProjectFile} from './project_default.js';
+
+// import {getAllUrlParameters} from './utility.js';
+
 
 /**
  * Uploaded project XML code
@@ -59,7 +63,6 @@ import {getAllUrlParameters} from './utility.js';
  * @type {string | null}
  */
 let uploadedXML = null;
-
 
 /**
  * The call to Blockly.svgResize() requires a reference to the
@@ -69,7 +72,6 @@ let uploadedXML = null;
  * @type {Blockly.WorkspaceSvg | null}
  */
 let injectedBlocklyWorkspace = null;
-
 
 /**
  * Images need a home
@@ -309,7 +311,23 @@ $(() => {
     }
   } else {
     // No viable project available, so redirect to index page.
-    window.location.href = 'index.html' + getAllUrlParameters();
+    // Create a default project and press forward
+    // window.location.href = 'index.html' + getAllUrlParameters();
+    // TODO: New Default Project
+    const defaultProject = buildDefaultProjectFile();
+    setupWorkspace(defaultProject, function() {
+      console.log('Building a default project.');
+    });
+
+    // Create an instance of the CodeEditor class
+    codeEditor = new CodeEditor(defaultProject.boardType);
+    if (!codeEditor) {
+      console.log('Error allocating CodeEditor object');
+    }
+
+    // Set the compile toolbar buttons to unavailable
+    // setPropToolbarButtons();
+    propToolbarButtonController(false);
   }
 
   // Make sure the toolbox appears correctly, just for good measure.
@@ -692,7 +710,7 @@ function initCdnImageUrls() {
  * @return {number} Error code
  */
 function setupWorkspace(data, callback) {
-  if (data && typeof(data.board) === 'undefined') {
+  if (data && typeof(data.boardType.name) === 'undefined') {
     if (callback) {
       callback({
         'error': 1,
@@ -721,13 +739,13 @@ function setupWorkspace(data, callback) {
     $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
     // Create UI block content from project details
     renderContent('blocks');
-  } else if (projectData.board === 'propcfile') {
-    init(Blockly);
+  } else if (project.boardType.name === 'propcfile') {
+    initializeBlockly(Blockly);
     $('#online-help').attr('href', 'https://learn.parallax.com/support/C/propeller-c-reference');
     // Create UI block content from project details
     renderContent('propc');
   } else {
-    initToolbox(projectData.board);
+    initToolbox(project.boardType.name);
     $('#online-help').attr('href', 'https://learn.parallax.com/ab-blocks');
     // Create UI block content from project details
     renderContent('blocks');
@@ -1722,7 +1740,7 @@ function initToolbox(profileName) {
   // returns such an object.
   injectedBlocklyWorkspace = Blockly.inject('content_blocks', blocklyOptions);
 
-  init(Blockly);
+  initializeBlockly(Blockly);
 
   // TODO: find a better way to handle this.
   // https://groups.google.com/forum/#!topic/blockly/SgJoEEXuzsg
@@ -1790,7 +1808,7 @@ function configureTermGraph() {
 /**
  * Render the branding logo and related text.
  */
-/*
+// eslint-disable-next-line no-unused-vars,require-jsdoc
 function RenderPageBrandingElements() {
   let appName = ApplicationName;
   let html = 'BlocklyProp<br><strong>' + ApplicationName + '</strong>';
@@ -1798,14 +1816,13 @@ function RenderPageBrandingElements() {
   if (window.location.hostname === productBannerHostTrigger) {
     appName = TestApplicationName;
     html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
-    document.getElementById('nav-logo').style.backgroundImage
-        = 'url(\'src/images/dev-toolkit.png\')';
+    document.getElementById('nav-logo').style.backgroundImage =
+        'url(\'src/images/dev-toolkit.png\')';
   }
 
   $('#nav-logo').html(html);
   $('#app-banner-title').html('BlocklyProp ' + appName);
 }
-*/
 
 /**
  * Display the Timed Save Project modal dialog
