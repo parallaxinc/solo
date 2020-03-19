@@ -206,24 +206,6 @@ var profile = {
     }
 };
 
-/**
- * Set the project profile based on the project board type
- *
- * @param profileName is the project board type
- */
-function setProfile(profileName) {
-
-    // Set the default project profile to match the provided board type
-    if (profile[profileName]) {
-        profile["default"] = profile[profileName];
-    } else {
-        // Unable to match the provided board type. Dummy down the interface
-        profile["default"] = profile["other"];
-    }
-
-    // Setting a default baud rate
-    window.parent.setBaudrate(profile["default"]["baudrate"]);
-}
 
 /**
  * Initialize the database of variable names.
@@ -232,7 +214,7 @@ function setProfile(profileName) {
 Blockly.propc.init = function (workspace) {
 // Create a dictionary of definitions to be printed before setups.
     Blockly.propc.definitions_ = {};
-    Blockly.propc.definitions_["include simpletools"] = '#include "simpletools.h"';    
+    Blockly.propc.definitions_["include simpletools"] = '#include "simpletools.h"';
     Blockly.propc.methods_ = {};
     Blockly.propc.setups_ = {};
     Blockly.propc.method_declarations_ = {};
@@ -335,8 +317,8 @@ Blockly.propc.finish = function (code) {
             if (Blockly.propc.cog_setups_[cog_setup][0] === method) {
                 var cog_function_code = Blockly.propc.methods_[method];
                 var brace_position = cog_function_code.indexOf('{');
-                Blockly.propc.methods_[method] = cog_function_code.substring(0, brace_position + 1) + 
-                        Blockly.propc.cog_setups_[cog_setup][1] + 
+                Blockly.propc.methods_[method] = cog_function_code.substring(0, brace_position + 1) +
+                        Blockly.propc.cog_setups_[cog_setup][1] +
                         cog_function_code.substring(brace_position + 1, brace_position.length);
             }
         }
@@ -371,7 +353,7 @@ Blockly.propc.finish = function (code) {
             } else if (definitions[def].indexOf("wxBuffer") > -1) {
                 definitions[def] = definitions[def].replace("char *", "char ").replace("wxBuffer;", "wxBuffer[64];");
             }
-            
+
             // TODO: Temporary patch to correct some weirdness with char array pointer declarations:
             definitions[def] = definitions[def].replace(/char \*(\w+)\[/g, 'char $1[');
         }
@@ -406,7 +388,7 @@ Blockly.propc.finish = function (code) {
 
     if (profile.default.description === "Scribbler Robot")
         setups.unshift('  s3_setup();pause(100);');
-    
+
     // Add volatile to variable declarations in cogs
     for (var idx = user_var_start; idx < user_var_end; idx++) {
         for (var idk in function_vars) {
@@ -435,13 +417,13 @@ Blockly.propc.finish = function (code) {
     } else {
         // Indent every line.
         code = '  ' + code.replace(/\n/g, '\n  ');
-        
+
         // Comment out any instance of 'pause(0);' - causes a compiler error
         code = code.replace(/\n\s+$/, '\n').replace(/pause\(0\);\n/g, '// pause(0);\n');
-        
+
         // Remove redundant casts
         code = code.replace(/\(float\)\s*\(int\)/g, '(float)');
-        
+
         // Sweep for doubled-up parentheses
         while (code.match(/\(\(([^()]*)\)\)/g)) {
             code = code.replace(/\(\(([^()]*)\)\)/g, '($1)');
@@ -578,57 +560,57 @@ if (!Object.keys) {
     }());
 };
 
-  
 
-// NOTE: Replaces core function!                   // USE WHEN CORE IS UPDATED	
-/**	
- * Return a sorted list of variable names for variable dropdown menus.	
- * Include a special option at the end for creating a new variable name.	
+
+// NOTE: Replaces core function!                   // USE WHEN CORE IS UPDATED
+/**
+ * Return a sorted list of variable names for variable dropdown menus.
+ * Include a special option at the end for creating a new variable name.
  * @override
- * @return {!Array.<string>} Array of variable names.	
- * @this {Blockly.FieldVariable}	
- */	
-Blockly.FieldVariable.dropdownCreate = function() {	
-    if (!this.variable_) {	
-      throw new Error('Tried to call dropdownCreate on a variable field with no' +	
-          ' variable selected.');	
-    }	
-    var name = this.getText();	
-    var workspace = null;	
-    if (this.sourceBlock_) {	
-      workspace = this.sourceBlock_.workspace;	
-    }	
-    var variableModelList = [];	
-    if (workspace) {	
-      var variableTypes = this.getVariableTypes_();	
-      // Get a copy of the list, so that adding rename and new variable options	
-      // doesn't modify the workspace's list.	
-      for (var i = 0; i < variableTypes.length; i++) {	
-        var variableType = variableTypes[i];	
-        var variables = workspace.getVariablesOfType(variableType);	
-        variableModelList = variableModelList.concat(variables);	
-      }	
-    }	
-    variableModelList.sort(Blockly.VariableModel.compareByName);	
-  	
-    var options = [];	
-    for (var i = 0; i < variableModelList.length; i++) {	
-      // Set the UUID as the internal representation of the variable.	
-      options[i] = [variableModelList[i].name, variableModelList[i].getId()];	
-    }	
-    if (name !== Blockly.LANG_VARIABLES_SET_ITEM) {	
-        options.push([Blockly.Msg['RENAME_VARIABLE'], Blockly.RENAME_VARIABLE_ID]);	
-    }	
-    if (Blockly.Msg['DELETE_VARIABLE'] && name !== Blockly.LANG_VARIABLES_SET_ITEM) {   // Prevents user from deleting the default "item" variable.	
-      options.push(	
-          [	
-            Blockly.Msg['DELETE_VARIABLE'].replace('%1', name),	
-            Blockly.DELETE_VARIABLE_ID	
-          ]	
-      );	
-    }	
-  	
-    return options;	
+ * @return {!Array.<string>} Array of variable names.
+ * @this {Blockly.FieldVariable}
+ */
+Blockly.FieldVariable.dropdownCreate = function() {
+    if (!this.variable_) {
+      throw new Error('Tried to call dropdownCreate on a variable field with no' +
+          ' variable selected.');
+    }
+    var name = this.getText();
+    var workspace = null;
+    if (this.sourceBlock_) {
+      workspace = this.sourceBlock_.workspace;
+    }
+    var variableModelList = [];
+    if (workspace) {
+      var variableTypes = this.getVariableTypes_();
+      // Get a copy of the list, so that adding rename and new variable options
+      // doesn't modify the workspace's list.
+      for (var i = 0; i < variableTypes.length; i++) {
+        var variableType = variableTypes[i];
+        var variables = workspace.getVariablesOfType(variableType);
+        variableModelList = variableModelList.concat(variables);
+      }
+    }
+    variableModelList.sort(Blockly.VariableModel.compareByName);
+
+    var options = [];
+    for (var i = 0; i < variableModelList.length; i++) {
+      // Set the UUID as the internal representation of the variable.
+      options[i] = [variableModelList[i].name, variableModelList[i].getId()];
+    }
+    if (name !== Blockly.LANG_VARIABLES_SET_ITEM) {
+        options.push([Blockly.Msg['RENAME_VARIABLE'], Blockly.RENAME_VARIABLE_ID]);
+    }
+    if (Blockly.Msg['DELETE_VARIABLE'] && name !== Blockly.LANG_VARIABLES_SET_ITEM) {   // Prevents user from deleting the default "item" variable.
+      options.push(
+          [
+            Blockly.Msg['DELETE_VARIABLE'].replace('%1', name),
+            Blockly.DELETE_VARIABLE_ID
+          ]
+      );
+    }
+
+    return options;
 };
 
 
@@ -674,9 +656,9 @@ var findBlocksByType = function(blockType) {
  * Extends Blockly.Input to allow the input to have a specific range or allowed values.
  * Allows blocks to read the input's range and show warnings if the user enters values outside of the range.
  * See base.js->Blockly.Blocks.math_number for more information about formatting the range string.
- * @param rangeInfo String containing information about the range/allowed values:  
+ * @param rangeInfo String containing information about the range/allowed values:
  * @returns the specified input
- */ 
+ */
 Blockly.Input.prototype.appendRange = function(rangeInfo) {
     this.inputRange = rangeInfo;
     return this;
@@ -707,9 +689,9 @@ Blockly.FieldVariable.prototype.initModel = function() {
     var variable = Blockly.Variables.getOrCreateVariablePackage(
         this.sourceBlock_.workspace, null,
         this.defaultVariableName, this.defaultType_);
-  
+
     // Don't call setValue because we don't want to cause a rerender.
-    this.doValueUpdate_(variable.getId());	
+    this.doValueUpdate_(variable.getId());
 };
 
 /**
@@ -725,7 +707,7 @@ Blockly.Mutator.prototype.workspaceChanged_ = function(e) {
         (e.type == Blockly.Events.CHANGE && e.element == 'disabled')) {
       return;
     }
-  
+
     if (!this.workspace_.isDragging()) {
       var blocks = this.workspace_.getTopBlocks(false);
       var MARGIN = 20;
@@ -738,7 +720,7 @@ Blockly.Mutator.prototype.workspaceChanged_ = function(e) {
         }
       }
     }
-  
+
     // When the mutator's workspace changes, update the source block.
     if (this.rootBlock_.workspace == this.workspace_) {
       Blockly.Events.setGroup(true);
@@ -761,7 +743,7 @@ Blockly.Mutator.prototype.workspaceChanged_ = function(e) {
           Blockly.Events.setGroup(false);
         }, Blockly.BUMP_DELAY);
       }
-  
+
       if (oldMutation != newMutation &&
           this.workspace_.keyboardAccessibilityMode) {
         Blockly.navigation.moveCursorOnBlockMutation(block);
@@ -794,21 +776,21 @@ Blockly.BlockSvg.prototype.bumpNeighbours = function() {
     // Loop through every connection on this block.
     var myConnections = this.getConnections_(false);
     for (var i = 0, connection; connection = myConnections[i]; i++) {
-  
+
       // Spider down from this block bumping all sub-blocks.
       if (connection.isConnected() && connection.isSuperior()) {
         connection.targetBlock().bumpNeighbours();
       }
-  
+
       var neighbours = connection.neighbours_(Blockly.SNAP_RADIUS);
       for (var j = 0, otherConnection; otherConnection = neighbours[j]; j++) {
-  
+
         // If both connections are connected, that's probably fine.  But if
         // either one of them is unconnected, then there could be confusion.
         if (!connection.isConnected() || !otherConnection.isConnected()) {
           // Only bump blocks if they are from different tree structures.
           if (otherConnection.getSourceBlock().getRootBlock() != rootBlock) {
-  
+
             // Always bump the inferior block.
             if (connection.isSuperior()) {
               otherConnection.bumpAwayFrom_(connection);

@@ -22,11 +22,13 @@
 
 
 import {
-  EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME,
+  LOCAL_PROJECT_STORE_NAME,
+  TEMP_PROJECT_STORE_NAME,
 } from './constants.js';
 
-import {checkLeave, getXml, resetToolBoxSizing} from './editor.js';
+import {checkLeave, resetToolBoxSizing} from './editor.js';
 import {isExperimental} from './url_parameters.js';
+import {getProjectInitialState} from './project.js';
 
 /**
  * Start the process to open a new project
@@ -79,7 +81,7 @@ function newProjectModal() {
  *
  *  The modal provides options to cancel, escape and accept the new
  *  project details. If accepted, the accept button callback will
- *  update the global projectData object with a new, empty project.
+ *  update the global project object with a new, empty project.
  */
 function showNewProjectModal() {
   // Set up element event handlers
@@ -166,7 +168,8 @@ function newProjectModalCancelClick() {
     // Dismiss the modal in the UX
     $('#new-project-dialog').modal('hide');
 
-    if (!projectData || typeof(projectData.board) === 'undefined' ) {
+    if (! getProjectInitialState() ||
+        typeof(getProjectInitialState().board) === 'undefined' ) {
       // If there is no project, go to home page.
       window.location.href = 'index.html' + window.getAllURLParameters();
     }
@@ -193,7 +196,8 @@ function newProjectModalEscapeClick() {
   // Trap the modal event that fires when the modal window is
   // closed when the user clicks on the 'x' icon.
   $('#new-project-dialog').on('hidden.bs.modal', function() {
-    if (!projectData || typeof(projectData.board) === 'undefined') {
+    if (!getProjectInitialState() ||
+        typeof(getProjectInitialState().board) === 'undefined') {
       // If there is no project, go to home page.
       window.location.href = 'index.html';
     }
@@ -254,78 +258,6 @@ function validateEditProjectForm() {
 
 
 /**
- * Create a new project object, store it in the browser localStorage
- * and redirect to the editor.html page to force a project reload
- * from the browser localStorage
- */
-function createNewProject() {
-  let code;
-
-  // If editing details, preserve the code, otherwise start over
-  if (projectData &&
-        typeof(projectData.board) !== 'undefined' &&
-        $('#new-project-dialog-title')
-            .html() === page_text_label['editor_edit-details']) {
-    // eslint-disable-next-line no-undef
-    code = getXml();
-  } else {
-    // eslint-disable-next-line no-undef
-    code = EMPTY_PROJECT_CODE_HEADER;
-  }
-
-  // Save the form fields into the projectData object
-  // The projectData variable is defined in globals.js
-  const projectName = $('#new-project-name').val();
-  const createdDateHtml = $('#edit-project-created-date').html();
-  const description = $('#new-project-description').val();
-  const boardType = $('#new-project-board-type').val();
-
-  try {
-    const tmpBoardType = Project.convertBoardType(boardType);
-    if (tmpBoardType === undefined) {
-      console.log('Unknown board type: %s', uploadBoardType);
-    }
-
-    // eslint-disable-next-line no-undef
-    const newProject = new Project(
-        projectName,
-        description,
-        tmpBoardType,
-        'PROPC',
-        code,
-        // eslint-disable-next-line no-undef
-        createdDateHtml, createdDateHtml, getTimestamp());
-
-    // Save the project to the browser local store for the page
-    // transition
-    // eslint-disable-next-line no-undef
-    newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
-
-    // ------------------------------------------------------
-    // Clear the projectData global to prevent the onLeave
-    // event handler from storing the old project code into
-    // the browser storage.
-    // ------------------------------------------------------
-    projectData = null;
-  } catch (e) {
-    console.log('Error while creating project object. %s', e.message);
-  }
-
-  // Redirect to the editor page
-  try {
-    const parameters = window.getAllURLParameters();
-    if (parameters !== '?') {
-      window.location = 'blocklyc.html' + parameters;
-    }
-  } catch (e) {
-    console.log('Error while creating project object. %s', e.message);
-  }
-
-  window.location = 'blocklyc.html';
-}
-
-
-/**
  *  Open the modal to select a project file to load
  *
  *  @description
@@ -336,10 +268,11 @@ function createNewProject() {
  */
 function openProjectModal() {
   // Save a copy of the original project in case the page gets reloaded
-  if (projectData && typeof (projectData.name) !== 'undefined') {
+  if (getProjectInitialState() &&
+      getProjectInitialState().name !== 'undefined') {
     window.localStorage.setItem(
         LOCAL_PROJECT_STORE_NAME,
-        JSON.stringify(projectData));
+        JSON.stringify(getProjectInitialState()));
 
     // Has the project been revised. If it has, offer to persist it before
     // opening a new project
@@ -388,38 +321,36 @@ function openProjectModalSetHandlers() {
  * Project modal dialog.
  *
  * @description
- * When a project is selected, the code responsible for retrieving
- * project from disk, uploadHandler(), will store it in the browser's
- * localStorage under the key value TEMP_PROJECT_STORE_NAME. That
- * same code will return control to the Open Project modal, where the
- * user can select Open or Cancel.
+ * When a project is selected, the code responsible for retrieving the project
+ * from disk, uploadHandler(), will store it in the browser's localStorage
+ * under the key value TEMP_PROJECT_STORE_NAME. That same code will return
+ * control to the Open Project modal, where the user can select Open or
+ * Cancel.
  *
- * This event handler is invoked when the user selects the Open
- * button. It looks for a project in the browser's local
- * storage with a key value of TEMP_PROJECT_STORE_NAME. If one is
- * found, it simply copies the project to a new key in the browser's
- * local storage with the key LOCAL_PROJECT_STORE_NAME and removes
- * the temporary copy stored in TEMP_PROJECT_STORE_NAME. It then
- * redirects the browser to the editor page, where other code will
- * look for a project in the browser's local storage under the
- * LOCAL_PROJECT_STORE_NAME key and load it into the editor canvas
+ * This event handler is invoked when the user selects the Open button. It
+ * looks for a project in the browser's local storage with a key value of
+ * TEMP_PROJECT_STORE_NAME. If one is found, it simply copies the project
+ * to a new key in the browser's local storage with the key
+ * LOCAL_PROJECT_STORE_NAME and removes the temporary copy stored in
+ * TEMP_PROJECT_STORE_NAME. It then redirects the browser to the editor page,
+ * where other code will look for a project in the browser's local storage
+ * under the LOCAL_PROJECT_STORE_NAME key and load it into the editor canvas
  * if a project is found there.
  */
 function openProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
-    // eslint-disable-next-line no-undef
-    if (window.localStorage.getItem(TEMP_PROJECT_STORE_NAME)) {
-      window.localStorage.setItem(
-          // eslint-disable-next-line no-undef
-          LOCAL_PROJECT_STORE_NAME,
-          // eslint-disable-next-line no-undef
-          window.localStorage.getItem(TEMP_PROJECT_STORE_NAME));
-
-      // eslint-disable-next-line no-undef
+    // Copy the stored temp project to the stored local project
+    const project = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
+    if (project) {
+      window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, project);
       window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
-      window.location = 'blocklyc.html'+ window.getAllURLParameters();
+
+      // Redirecting to the editor page. The editor initialization
+      // will pick up the project file and present it to the user.
+      window.location = 'blocklyc.html';
     } else {
-      console.log('The opened project cannot be found in storage');
+      console.log('The opened project cannot be found in storage.');
+      alert('The opened project cannot be found in storage.');
     }
   });
 }
@@ -438,7 +369,8 @@ function openProjectModalCancelClick() {
     // Dismiss the modal in the UX
     $('#open-project-dialog').modal('hide');
 
-    if (!projectData || typeof(projectData.board) === 'undefined') {
+    if (!getProjectInitialState() ||
+        typeof(getProjectInitialState().board) === 'undefined') {
       // If there is no project, go to home page.
       window.location.href = 'index.html' + window.getAllURLParameters();
     }
@@ -454,7 +386,8 @@ function openProjectModalEscapeClick() {
      * closed when the user clicks on the 'x' icon.
      */
   $('#open-project-dialog').on('hidden.bs.modal', function() {
-    if (!projectData || typeof projectData.board === 'undefined') {
+    if (!getProjectInitialState() ||
+        typeof getProjectInitialState().boardType.name === 'undefined') {
       // If there is no project, go to home page.
       window.location.href = 'index.html';
     }
@@ -480,21 +413,23 @@ function editProjectDetails() {
  *  will manage the project state as required.
  */
 function editOfflineProjectDetails() {
+  const project = getProjectInitialState();
+
   // Set the dialog buttons click event handlers
   setEditOfflineProjectDetailsContinueHandler();
   setEditOfflineProjectDetailsCancelHandler();
   setEditOfflineProjectDetailsEnterHandler();
 
   // Load the current project details into the html form data
-  $('#edit-project-name').val(projectData.name);
-  $('#edit-project-description').val(projectData.description);
+  $('#edit-project-name').val(project.name);
+  $('#edit-project-description').val(project.description);
 
   // Display additional project details.
   const projectBoardType = $('#edit-project-board-type-ro');
-  projectBoardType.val(projectData.board);
-  projectBoardType.html(profile.default.description);
-  $('#edit-project-created-date-ro').html(projectData.created);
-  $('#edit-project-last-modified-ro').html(projectData.modified);
+  projectBoardType.val(project.boardType.name);
+  projectBoardType.html(project.description);
+  $('#edit-project-created-date-ro').html(project.created);
+  $('#edit-project-last-modified-ro').html(project.modified);
 
   // Show the dialog
   $('#edit-project-dialog').modal({keyboard: false, backdrop: 'static'});
@@ -539,7 +474,7 @@ function setEditOfflineProjectDetailsContinueHandler() {
 
       updateProjectDetails();
       // eslint-disable-next-line no-undef
-      showInfo(projectData);
+      showInfo(getProjectInitialState());
     }
   });
 }
@@ -549,14 +484,15 @@ function setEditOfflineProjectDetailsContinueHandler() {
  * Update the name and description details of the current project
  */
 function updateProjectDetails() {
+  const project = getProjectInitialState();
   const newName = $('#edit-project-name').val();
-  if (!(projectData.name === newName)) {
-    projectData.name = newName;
+  if (!(project.name === newName)) {
+    project.name = newName;
   }
 
   const newDescription = $('#edit-project-description').val();
-  if (!(projectData.description === newDescription)) {
-    projectData.description = newDescription;
+  if (!(project.description === newDescription)) {
+    project.description = newDescription;
   }
 }
 

@@ -49,22 +49,22 @@ module.exports = {
     plugins: [
         new webpack.optimize.ModuleConcatenationPlugin(),
         new CopyPlugin([
-            { from: './index.html', to: path.resolve(__dirname, 'build') },
-            { from: './blocklyc.html', to: path.resolve(__dirname, 'build') }
+            { from: './index.html', to: path.resolve(__dirname, 'dist') },
+            { from: './blocklyc.html', to: path.resolve(__dirname, 'dist') }
         ]),
 
         // Copy over media resources from the Blockly package
         new CopyPlugin([
             {
                 from: path.resolve(__dirname, './node_modules/blockly/media'),
-                to: path.resolve(__dirname, 'build/media')
+                to: path.resolve(__dirname, 'dist/media')
             }
         ]),
         // Copy over media resources from Solo images tree
         new CopyPlugin([
             {
                 from: path.resolve(__dirname, './src/images'),
-                to: path.resolve(__dirname, 'build/images')
+                to: path.resolve(__dirname, 'dist/images')
             }
         ])
     ],

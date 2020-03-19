@@ -20,6 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import {getProjectInitialState} from './project.js';
 
 /**
  *  Update the state of the Compiler toolbar buttons
@@ -29,15 +30,17 @@
  * @constructor
  */
 const propToolbarButtonController = (connected) => {
-  if (projectData && projectData.board === 's3') {
+  // if (projectData && projectData.board === 's3') {
+  if (getProjectInitialState() &&
+      getProjectInitialState().boardType.name === 's3') {
     /* ----------------------------------------------------------------
-         * Hide the buttons that are not required for the S3 robot
-         *
-         * Find all of the HTML elements that have a class id of 'no-s3'
-         * and append a hidden attribute to the selected HTML elements.
-         * This currently applies to the elements prop-btn-ram and
-         *  prop-btn-graph.
-         * --------------------------------------------------------------*/
+     * Hide the buttons that are not required for the S3 robot
+     *
+     * Find all of the HTML elements that have a class id of 'no-s3'
+     * and append a hidden attribute to the selected HTML elements.
+     * This currently applies to the elements prop-btn-ram and
+     *  prop-btn-graph.
+     * --------------------------------------------------------------*/
     $('.no-s3').addClass('hidden');
 
     // Toggle the client available message to display the short form
