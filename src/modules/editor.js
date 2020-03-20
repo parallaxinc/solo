@@ -53,8 +53,7 @@ import {propToolbarButtonController} from './toolbar_controller.js';
 import {filterToolbox} from './toolbox_data.js';
 import {isExperimental} from './url_parameters.js';
 import {buildDefaultProjectFile} from './project_default.js';
-
-// import {getAllUrlParameters} from './utility.js';
+import {utils} from './utility.js';
 
 
 /**
@@ -725,12 +724,13 @@ function setupWorkspace(data, callback) {
 
   // Delete all existing blocks, comments and undo stacks
   clearBlocklyWorkspace();
-  showInfo(project); // Update the UI with project related details
 
   // Set various project settings based on the project board type
   // NOTE: This function is in propc.js
   // Set the default profile.
   setDefaultProfile(project.boardType);
+  displayProjectName(project.name);
+  displayProjectBoardIcon(project.boardType.name);
 
   // Set the help link to the ab-blocks, s3 reference, or propc reference
   // TODO: modify blocklyc.html/jsp and use an id or class selector
@@ -752,7 +752,8 @@ function setupWorkspace(data, callback) {
   }
 
   // Edit project details menu item
-  if (projectData) {
+  // if (projectData) {
+  if (getProjectInitialState()) {
     $('#edit-project-details').html(page_text_label['editor_edit-details']);
   }
 
@@ -777,21 +778,26 @@ function saveProjectTimerChange() {
   if (checkLeave()) ProjectSaveTimer.checkLastSavedTime();
 }
 
-/**
- * Set the UI fields for the project name, project owner and project type icon
- *
- * @param {{}} data is the project data structure
- */
-function showInfo(data) {
-  // Display the project name
-  if (data.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-    $('.project-name')
-        .html(data['name']
-            .substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
-  } else {
-    $('.project-name').html(data.name);
-  }
 
+/**
+ * Display the project name
+ * @param {string} name
+ */
+function displayProjectName(name) {
+  // Display the project name
+  if (name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+    $('.project-name')
+        .html(name.substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+  } else {
+    $('.project-name').html(name);
+  }
+}
+
+/**
+ * Display an icon representing the selected board type.
+ * @param {string} boardType
+ */
+function displayProjectBoardIcon(boardType) {
   // Create an array of board type icons
   const projectBoardIcon = {
     'activity-board': 'images/board-icons/IconActivityBoard.png',
@@ -805,9 +811,9 @@ function showInfo(data) {
 
   // Set the project icon to the correct board type
   $('.project-icon')
-      .html('<img src="' + CDN_URL + projectBoardIcon[data.board] + '"/>');
+      .html('<img src="' +
+          CDN_URL + projectBoardIcon[boardType] + '" alt="Board icon"/>');
 }
-
 
 /**
  * @deprecated Cannot find any references to this function in code.
@@ -919,7 +925,7 @@ function saveAsDialog() {
   } else {
   */
   // Prompt user to save current project first if unsaved
-  if (checkLeave() && projectData.yours) {
+  if (checkLeave()) {
     utils.confirm(
         Blockly.Msg.DIALOG_SAVE_TITLE,
         Blockly.Msg.DIALOG_SAVE_FIRST,
@@ -931,7 +937,7 @@ function saveAsDialog() {
   }
 
   // Reset the save-as modal's fields
-  $('#save-as-project-name').val(projectData.name);
+  $('#save-as-project-name').val(getProjectInitialState().name);
   $('#save-as-board-type').empty();
   profile.default.saves_to.forEach(function(bt) {
     $('#save-as-board-type').append($('<option />').val(bt[1]).text(bt[0]));
@@ -957,7 +963,7 @@ function saveAsDialog() {
  */
 function checkBoardType(requester) {
   if (requester !== 'offline') {
-    const currentType = projectData.board;
+    const currentType = getProjectInitialState().boardType.name;
     const saveAsType = $('#save-as-board-type').val();
 
     // save-as-verify-boardtype
@@ -1065,9 +1071,10 @@ function downloadCode() {
   // Create an XML parser and parse the project XML
   const xmlParser = new DOMParser();
   const projectXml = xmlParser.parseFromString(getXml(), 'text/xml');
+  const project = getProjectInitialState();
 
-  if (projectData &&
-        projectData.board !== 'propcfile' &&
+  if (project &&
+        project.boardType.name !== 'propcfile' &&
         projectXml.getElementsByTagName('block').length < 1) {
     // The project is empty, so warn and exit.
     utils.showMessage(
@@ -1075,7 +1082,7 @@ function downloadCode() {
         Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT);
   } else {
     // Create a filename from the project title
-    const projectFilename = sanitizeFilename(projectData.name);
+    const projectFilename = sanitizeFilename(project.name);
 
     // get the text of just the project inside of the outer XML tag
     const projectXmlCode = projectXml.children[0].innerHTML;
@@ -1095,7 +1102,7 @@ function downloadCode() {
     // a footer to generate a watermark with the project's information at
     // the bottom-right corner of the SVG
     // and hold project metadata.
-    const SVGfooter = generateSvgFooter(projectData);
+    const SVGfooter = generateSvgFooter(project);
 
     // Deprecating project checksum. Install a dummy checksum to keep
     // the project loader happy.
@@ -1116,11 +1123,10 @@ function downloadCode() {
     // projecData object reflect the current workspace and save it into
     // localStorage
     const date = Date();
-    projectData.timestamp = date.getTime();
-
-    projectData.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
+    project.timestamp = date.getTime();
+    project.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
     window.localStorage.setItem(
-        LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
+        LOCAL_PROJECT_STORE_NAME, JSON.stringify(project));
 
     // Mark the time when saved, add 20 minutes to it.
     ProjectSaveTimer.timestampSaveTime(0, true);
@@ -1754,11 +1760,28 @@ function initToolbox(profileName) {
  */
 function loadToolbox(xmlText) {
   if (Blockly.mainWorkspace) {
-    const xmlDom = Blockly.Xml.textToDom(xmlText);
-    Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
+    // The xmlText variable is assumed to be legitimate xml.
+    try {
+      const xmlDom = Blockly.Xml.textToDom(xmlText);
+      Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
+    } catch (e) {
+      dumpErrorStack(e, 'Error while loading the toolbox.' );
+    }
   }
 }
 
+
+/**
+ *
+ * @param {object} error
+ * @param {string} message
+ */
+function dumpErrorStack(error, message) {
+  if (message) console.log('%s', message);
+
+  console.log('%s', error.message);
+  console.log(error.stack);
+}
 
 /**
  *
@@ -1930,12 +1953,13 @@ function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
 function checkLeave() {
   // The projectData variable is now officially an object. Consider it empty
   // if it is null or if the name property is undefined.
-  if (!projectData || typeof projectData.name === 'undefined') {
+  const project = getProjectInitialState();
+  if (!project || typeof project.name === 'undefined') {
     return false;
   }
 
   const currentXml = getXml();
-  const savedXml = projectData.code;
+  const savedXml = project.code;
 
   return Project.testProjectEquality(currentXml, savedXml);
 }
@@ -1948,15 +1972,16 @@ function checkLeave() {
  */
 function getXml() {
   // TODO: This feels like propcfile is hijacking this method.
-  if (projectData && projectData.board === 'propcfile') {
+  const project = getProjectInitialState();
+  if (project && project.boardType.name === 'propcfile') {
     return propcAsBlocksXml();
   }
 
   if (Blockly.Xml && Blockly.mainWorkspace) {
     const xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
     return Blockly.Xml.domToText(xml);
-  } else if (projectData && projectData.code) {
-    return projectData.code;
+  } else if (project && project.code) {
+    return project.code;
   }
 
   // Return the XML for a blank project if none is found.
@@ -1971,10 +1996,11 @@ function getXml() {
  */
 function createNewProject() {
   let code;
+  const project = getProjectInitialState();
 
   // If editing details, preserve the code, otherwise start over
-  if (projectData &&
-      typeof(projectData.board) !== 'undefined' &&
+  if (project &&
+      typeof(project.boardType.name) !== 'undefined' &&
       $('#new-project-dialog-title')
           .html() === page_text_label['editor_edit-details']) {
     // eslint-disable-next-line no-undef
@@ -2018,7 +2044,7 @@ function createNewProject() {
     // event handler from storing the old project code into
     // the browser storage.
     // ------------------------------------------------------
-    projectData = null;
+    clearProjectInitialState();
   } catch (e) {
     console.log('Error while creating project object. %s', e.message);
   }
@@ -2038,6 +2064,6 @@ function createNewProject() {
 
 
 export {
-  checkLeave, resetToolBoxSizing, loadToolbox,
-  createNewProject, getWorkspaceSvg,
+  checkLeave, displayProjectName, resetToolBoxSizing,
+  loadToolbox, createNewProject, getWorkspaceSvg,
 };

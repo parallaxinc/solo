@@ -26,7 +26,9 @@ import {
   TEMP_PROJECT_STORE_NAME,
 } from './constants.js';
 
-import {checkLeave, resetToolBoxSizing} from './editor.js';
+import {
+  checkLeave, resetToolBoxSizing, displayProjectName,
+} from './editor.js';
 import {isExperimental} from './url_parameters.js';
 import {getProjectInitialState} from './project.js';
 
@@ -473,8 +475,6 @@ function setEditOfflineProjectDetailsContinueHandler() {
       $('#edit-project-dialog').modal('hide');
 
       updateProjectDetails();
-      // eslint-disable-next-line no-undef
-      showInfo(getProjectInitialState());
     }
   });
 }
@@ -488,6 +488,7 @@ function updateProjectDetails() {
   const newName = $('#edit-project-name').val();
   if (!(project.name === newName)) {
     project.name = newName;
+    displayProjectName(project.name);
   }
 
   const newDescription = $('#edit-project-description').val();

@@ -27,13 +27,16 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = {
     target: 'web',
     mode: 'development',
+    devtool: 'source-map',
     entry: {
         index: './src/modules/index.js',
         editor: './src/modules/editor.js'
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: '[name].bundle.js'
+        filename: '[name].bundle.js',
+        pathinfo: true,
+        sourceMapFilename: '[name].bundle.js.map',
     },
     module: {
         rules: [

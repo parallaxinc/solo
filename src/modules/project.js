@@ -56,7 +56,9 @@ function getProjectInitialState() {
  */
 function setProjectInitialState(project) {
   if (project instanceof Project) {
-    projectInitialState = project;
+    if (project !== projectInitialState) {
+      projectInitialState = project;
+    }
     return projectInitialState;
   }
 
