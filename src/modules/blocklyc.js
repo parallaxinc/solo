@@ -211,9 +211,10 @@ const graph_data = {
  * @param {string} id ID of tab clicked.
  */
 function renderContent(id) {
+  const project = getProjectInitialState();
   // Select the active tab.
   const selectedTab = id.replace('tab_', '');
-  const isPropcOnlyProject = (projectData.board === 'propcfile');
+  const isPropcOnlyProject = (project.boardType.name === 'propcfile');
 
   // Read the URL for experimental parameters to turn on XML editing
   const allowXmlEditing = isExperimental.indexOf('xedit') > -1;
@@ -266,7 +267,7 @@ function renderContent(id) {
         codePropC.gotoLine(0);
       } else {
         if (!codePropC || codePropC.getValue() === '') {
-          codePropC.setValue(atob((projectData.code.match(/<field name="CODE">(.*)<\/field>/) || ['', ''])[1] || ''));
+          codePropC.setValue(atob((project.code.match(/<field name="CODE">(.*)<\/field>/) || ['', ''])[1] || ''));
           codePropC.gotoLine(0);
         }
         if (codePropC.getValue() === '') {

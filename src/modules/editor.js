@@ -53,8 +53,7 @@ import {propToolbarButtonController} from './toolbar_controller.js';
 import {filterToolbox} from './toolbox_data.js';
 import {isExperimental} from './url_parameters.js';
 import {buildDefaultProjectFile} from './project_default.js';
-
-// import {getAllUrlParameters} from './utility.js';
+import {utils} from './utility.js';
 
 
 /**
@@ -725,12 +724,13 @@ function setupWorkspace(data, callback) {
 
   // Delete all existing blocks, comments and undo stacks
   clearBlocklyWorkspace();
-  showInfo(project); // Update the UI with project related details
 
   // Set various project settings based on the project board type
   // NOTE: This function is in propc.js
   // Set the default profile.
   setDefaultProfile(project.boardType);
+  displayProjectName(project.name);
+  displayProjectBoardIcon(project.boardType.name);
 
   // Set the help link to the ab-blocks, s3 reference, or propc reference
   // TODO: modify blocklyc.html/jsp and use an id or class selector
@@ -778,21 +778,26 @@ function saveProjectTimerChange() {
   if (checkLeave()) ProjectSaveTimer.checkLastSavedTime();
 }
 
-/**
- * Set the UI fields for the project name, project owner and project type icon
- *
- * @param {{}} data is the project data structure
- */
-function showInfo(data) {
-  // Display the project name
-  if (data.name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
-    $('.project-name')
-        .html(data['name']
-            .substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
-  } else {
-    $('.project-name').html(data.name);
-  }
 
+/**
+ * Display the project name
+ * @param {string} name
+ */
+function displayProjectName(name) {
+  // Display the project name
+  if (name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
+    $('.project-name')
+        .html(name.substring(0, PROJECT_NAME_DISPLAY_MAX_LENGTH - 1) + '...');
+  } else {
+    $('.project-name').html(name);
+  }
+}
+
+/**
+ * Display an icon representing the selected board type.
+ * @param {string} boardType
+ */
+function displayProjectBoardIcon(boardType) {
   // Create an array of board type icons
   const projectBoardIcon = {
     'activity-board': 'images/board-icons/IconActivityBoard.png',
@@ -806,9 +811,9 @@ function showInfo(data) {
 
   // Set the project icon to the correct board type
   $('.project-icon')
-      .html('<img src="' + CDN_URL + projectBoardIcon[data.board] + '"/>');
+      .html('<img src="' +
+          CDN_URL + projectBoardIcon[boardType] + '" alt="Board icon"/>');
 }
-
 
 /**
  * @deprecated Cannot find any references to this function in code.
@@ -2059,6 +2064,6 @@ function createNewProject() {
 
 
 export {
-  checkLeave, resetToolBoxSizing, loadToolbox,
-  createNewProject, getWorkspaceSvg,
+  checkLeave, displayProjectName, resetToolBoxSizing,
+  loadToolbox, createNewProject, getWorkspaceSvg,
 };
