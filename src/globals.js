@@ -114,9 +114,6 @@ const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
 var pTerm;
 
 
-
-
-
 /**
  * The name used to store a project that is being loaded from
  * offline storage.
@@ -136,3 +133,4 @@ var pTerm;
  */
 const TEMP_PROJECT_STORE_NAME = 'tempProject';
 const LOCAL_PROJECT_STORE_NAME = 'localProject';
+

@@ -35,21 +35,33 @@
 if (!Blockly.Blocks)
     Blockly.Blocks = {};
 
-// Number block that can mutate to show a range or if a value
-// is out bounds or not available.  Gets values from the block its connected
-// to by looking for a range property string.  The string must start with
-// S, R, or A, and hold a comma-separated
-// set of values.  'S' and 'R' are for a range, with 'S' invoking
-// a UI slider.  The first number is the minimum allowed value, the second is
-// the maximum allowed value, and the third is a dummy start value.  If the
-// range is within +/- 1000, the block will display it.  A warning is thrown
-// if a value entered is out of range. The 'A' argument takes a
-// comma-separated list of allowed values (think PINS), and throws a
-// warning if an illegal value is entered.
-
+// ----------------------------------------------------------------------------
+// Number block that can mutate to show a range or if a value is out bounds or
+// not available.  Gets values from the block its connected to by looking for
+// a range property string.  The string must start with S, R, or A, and hold a
+// comma-separated set of values.  'S' and 'R' are for a range, with 'S'
+// invoking a UI slider.  The first number is the minimum allowed value, the
+// second is the maximum allowed value, and the third is a dummy start value.
+// If the range is within +/- 1000, the block will display it.  A warning is
+// thrown if a value entered is out of range. The 'A' argument takes a
+// comma-separated list of allowed values (think PINS), and throws a warning
+// if an illegal value is entered.
+// ----------------------------------------------------------------------------
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.math_number.init,
+ *  mutationToDom: (function(): HTMLElement),
+ *  onchange: Blockly.Blocks.math_number.onchange,
+ *  domToMutation: Blockly.Blocks.math_number.domToMutation,
+ *  getRangeArray: (function(): [string, number, number, number]),
+ *  updateShape: Blockly.Blocks.math_number.updateShape
+ *  }}
+ */
 Blockly.Blocks.math_number = {
     init: function () {
-        if (profile.default.description === 'Scribbler Robot') {
+        const profile = window.projectProfile;
+        if (profile.description === 'Scribbler Robot') {
             this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
             this.setColour(colorPalette.getColor('math'));
         } else {
@@ -58,7 +70,8 @@ Blockly.Blocks.math_number = {
         }
         this.setTooltip(Blockly.MSG_MATH_NUMBER_TOOLTIP);
         this.appendDummyInput('MAIN')
-                .appendField(new Blockly.FieldNumber('0', null, null, 1), 'NUM');
+                .appendField(new Blockly.FieldNumber(
+                    '0', null, null, 1), 'NUM');
         this.setOutput(true, 'Number');
         this.lastBlockText = ' ';
         this.lastFieldType = 'number';
@@ -66,9 +79,9 @@ Blockly.Blocks.math_number = {
         this.connectedBlockId = null;
     },
     onchange: function (event) {
-        if (event && (event.type === Blockly.Events.CHANGE || 
-                    event.type === Blockly.Events.MOVE) && 
-                    (event.blockId === this.id || 
+        if (event && (event.type === Blockly.Events.CHANGE ||
+                    event.type === Blockly.Events.MOVE) &&
+                    (event.blockId === this.id ||
                     event.blockId === this.connectedBlockId)) {
             this.updateShape();
         }
@@ -90,10 +103,12 @@ Blockly.Blocks.math_number = {
         }
         if (this.lastBlockText === '') {
             this.appendDummyInput('MAIN')
-                    .appendField(new Blockly.FieldNumber(value, null, null, 1), 'NUM');
+                    .appendField(new Blockly.FieldNumber
+                    (value, null, null, 1), 'NUM');
         } else {
             this.appendDummyInput('MAIN')
-                    .appendField(new Blockly.FieldNumber(value, null, null, 1), 'NUM')
+                    .appendField(new Blockly.FieldNumber(
+                        value, null, null, 1), 'NUM')
                     .appendField(this.lastBlockText, 'TITLE');
         }
         this.setWarningText(this.warnTxt);
@@ -167,7 +182,10 @@ Blockly.Blocks.math_number = {
             if (range[3] < range[1]) {
                 range[3] = range[1];
             }
-            fieldToAdd = new Blockly.FieldRange(range[3].toString(10), range[1].toString(10), range[2].toString(10));
+            fieldToAdd = new Blockly.FieldRange(
+                range[3].toString(10),
+                range[1].toString(10),
+                range[2].toString(10));
         }
         if (this.lastBlockText !== blockText || this.lastFieldType !== fieldType) {
             this.lastBlockText = blockText;
@@ -891,7 +909,7 @@ Blockly.Blocks.string_var_length = {
             i++;
             optionBlock = optionBlock.nextConnection &&
                     optionBlock.nextConnection.targetBlock();
-        }  
+        }
     },
     updateConstMenu: function (oldValue, newValue) {
         this.userDefinedConstantsList_ = [];
@@ -952,7 +970,7 @@ Blockly.Blocks.string_var_length = {
                         .appendField(new Blockly.FieldDropdown(this.userDefinedConstantsList_.map(function (value) {
                             return [value, value];  // returns an array of arrays built from the original array.
                         })), "VAR_LEN" + i)
-                        .appendField('characters');                
+                        .appendField('characters');
             } else {
                 this.getInput('VAR' + i)
                         .appendField(new Blockly.FieldNumber('64', null, null, 1), "VAR_LEN" + i)
@@ -1032,8 +1050,8 @@ Blockly.propc.string_var_length = function () {
             varPref = 'MY_';
         }
         Blockly.propc.string_var_lengths.push([
-                Blockly.propc.variableDB_.getName(this.getFieldValue('VAR_NAME' + i.toString(10)), 
-                        Blockly.Variables.NAME_TYPE), 
+                Blockly.propc.variableDB_.getName(this.getFieldValue('VAR_NAME' + i.toString(10)),
+                        Blockly.Variables.NAME_TYPE),
                 varPref + varLenValue
         ]);
         i++;
@@ -2360,10 +2378,10 @@ Blockly.Blocks.custom_code_multiple = {
                     ]).setColumns(3), 'COLOR');
         var currentCustomBlock = this;
         ([
-            ['INCL', 'includes'], 
-            ['GLOB', 'globals'], 
-            ['SETS', 'setups'], 
-            ['MAIN', 'main'], 
+            ['INCL', 'includes'],
+            ['GLOB', 'globals'],
+            ['SETS', 'setups'],
+            ['MAIN', 'main'],
             ['FUNC', 'functions']
         ]).forEach(function (value) {
             currentCustomBlock.appendDummyInput(value[0])
@@ -2474,8 +2492,8 @@ Blockly.Blocks.custom_code_multiple = {
     },
     setupInputs: function () {
         var argsCount = this.fieldValueTemp_['ARG_COUNT'];
-        var blockEditState = (this.fieldValueTemp_['EDIT'] === true || 
-                this.fieldValueTemp_['EDIT'] === 'true' || 
+        var blockEditState = (this.fieldValueTemp_['EDIT'] === true ||
+                this.fieldValueTemp_['EDIT'] === 'true' ||
                 this.fieldValueTemp_['EDIT'] === 'TRUE');
         this.getConnectedBlocks();
         for (var i = 1; i < 10; i++) {
@@ -2510,7 +2528,7 @@ Blockly.propc.custom_code_multiple = function () {
     for (var tk = 1; tk < 10; tk++) {
         in_arg.push(Blockly.propc.valueToCode(this, 'ARG' + tk.toString(10), Blockly.propc.ORDER_ATOMIC) || '');
     }
-    // Create a key for this blocks includes/defs/globals/funcs so when multiple blocks are used, it only generates one copy in the propc code 
+    // Create a key for this blocks includes/defs/globals/funcs so when multiple blocks are used, it only generates one copy in the propc code
     var ccCode = this.getFieldValue("LABEL");
     ccCode = encodeURI(ccCode.replace(/ /g, '_')).replace(/[^\w]/g, '_');
     if ('0123456789'.indexOf(ccCode[0]) !== -1 || (ccCode[0] === '_' && ccCode[1] === '_')) {  // addition here: prevents collision with names with a leading double undescore.
