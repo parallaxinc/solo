@@ -32,6 +32,8 @@
 'use strict';
 
 //define blocks
+// import {getDefaultProfile} from "../../../modules/project";
+
 if (!Blockly.Blocks)
     Blockly.Blocks = {};
 
@@ -991,19 +993,33 @@ Blockly.propc.HMC5883L_read = function () {
 };
 
 
-// ---------------- LIS3DH Accelerometer Sensor Blocks -------------------------------
+// ---------------- LIS3DH Accelerometer Sensor Blocks ------------------------
+// Replaced default profile with windows.projectProfile;
+// ----------------------------------------------------------------------------
+/**
+ *
+ * @type {{
+ *  buildVoltageInput: Blockly.Blocks.lis3dh_init.buildVoltageInput,
+ *  init: Blockly.Blocks.lis3dh_init.init,
+ *  buildTempInput: Blockly.Blocks.lis3dh_init.buildTempInput,
+ *  buildSmoothingInput: Blockly.Blocks.lis3dh_init.buildSmoothingInput,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.lis3dh_init.onchange
+ *  }}
+ */
 Blockly.Blocks.lis3dh_init = {
     helpUrl: Blockly.MSG_LIS3DH_HELPURL,
     init: function () {
+        const profile = window.projectProfile;
         this.setTooltip(Blockly.MSG_LIS3DH_INIT_TOOLTIP);
         this.setColour(colorPalette.getColor('input'));
         this.appendDummyInput('PINS')
                 .appendField('LIS3DH initialize SCK')
-                .appendField(new Blockly.FieldDropdown(profile.default.digital), 'SCK_PIN')
+                .appendField(new Blockly.FieldDropdown(profile.digital), 'SCK_PIN')
                 .appendField('SDI')
-                .appendField(new Blockly.FieldDropdown(profile.default.digital), 'SDI_PIN')
+                .appendField(new Blockly.FieldDropdown(profile.digital), 'SDI_PIN')
                 .appendField("CS")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital), 'CS_PIN')
+                .appendField(new Blockly.FieldDropdown(profile.digital), 'CS_PIN')
                 .appendField('', 'TEMP')            // Temperature calibration
                 .appendField('', 'UNIT')            // Temperature calibration
                 .appendField('', 'SMOOTHING')       // Tilt axis smoothing
@@ -1024,9 +1040,10 @@ Blockly.Blocks.lis3dh_init = {
 
             this.appendDummyInput('TEMP_CALIBRATE')
                     .appendField('Set ambient temperature to')
-                    .appendField(new Blockly.FieldNumber('72', null, null, 1), "TEMP")
+                    .appendField(new Blockly.FieldNumber(
+                        '72', null, null, 1), "TEMP")
                     .appendField(new Blockly.FieldDropdown([
-                            ["\u00b0F", "F"], 
+                            ["\u00b0F", "F"],
                             ["\u00b0C", "C"]
                         ]), "UNIT");
 
@@ -1050,7 +1067,8 @@ Blockly.Blocks.lis3dh_init = {
 
             this.appendDummyInput('TILT_CALIBRATE')
                     .appendField('Set tilt smoothing')
-                    .appendField(new Blockly.FieldNumber('0', 0, 100, 1), "SMOOTHING");
+                    .appendField(new Blockly.FieldNumber(
+                        '0', 0, 100, 1), "SMOOTHING");
             this.setFieldValue(smoothing || '0', 'SMOOTHING');
 
             // This has to appear above the voltage block if one is defined.
@@ -1165,7 +1183,7 @@ Blockly.propc.lis3dh_init = function () {
             var temp_val = this.getFieldValue('TEMP');
             var temp_unit = this.getFieldValue('UNIT');
             setupCode += 'lis3dh_tempCal_' + temp_unit + '(lis3dh_sensor, ' + temp_val + ');';
-        } 
+        }
         var tilt_smoothing = this.getFieldValue('SMOOTHING') || 0;
         if (this.getInput('TILT_CALIBRATE') && tilt_smoothing !== 0) {
             setupCode += 'lis3dh_tiltConfig(lis3dh_sensor, 100 - ' + tilt_smoothing + ');';
@@ -1259,7 +1277,7 @@ Blockly.Blocks.lis3dh_read = {
             this.getInput('VARS').removeField('STORE_4');
         }
 
-        // Only add a fourth field if 
+        // Only add a fourth field if
         if (action === 'tilt' && !this.getInput('VARS_2') && !this.isInFlyout) {
             this.appendDummyInput('VARS_2').appendField("store combined motion in")
                     .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_4');
@@ -1276,7 +1294,7 @@ Blockly.Blocks.lis3dh_read = {
                 this.setFieldValue(this.fieldVals[i], 'STORE_' + i.toString(10));
             }
         }
-        
+
         // Restore the variable field - this is a bit of a workaround, because the name (not the ID) is
         // somehow being stored, so it needs to be converted to an ID before repopulating the field.
         if (action === 'tilt' && this.fieldVals[3] && this.fieldVals[4] && this.fieldVals[4] !== '') {
@@ -1302,8 +1320,8 @@ Blockly.Blocks.lis3dh_read = {
     },
     onchange: function(event) {
         // Only initiate this if there is a change that affects the field values in the block
-        if (event && (event.type === Blockly.Events.BLOCK_CREATE || 
-                event.type === Blockly.Events.BLOCK_DELETE || 
+        if (event && (event.type === Blockly.Events.BLOCK_CREATE ||
+                event.type === Blockly.Events.BLOCK_DELETE ||
                 event.type === Blockly.Events.BLOCK_CHANGE)) {
 
             var warnText = null;
@@ -1344,7 +1362,7 @@ Blockly.Blocks.lis3dh_temp = {
         this.appendDummyInput('MAIN')
                 .appendField("LIS3DH temperature in")
                 .appendField(new Blockly.FieldDropdown([
-                    ["\u00b0F", "F"], 
+                    ["\u00b0F", "F"],
                     ["\u00b0C", "C"]
                 ]), "UNIT");
         this.setInputsInline(false);
@@ -1702,9 +1720,9 @@ Blockly.Blocks.GPS_init = {
                 }))), "TXPIN")
                 .appendField("baud")
                 .appendField(new Blockly.FieldDropdown([
-                    ["9600", "9600"], 
-                    ["2400", "2400"], 
-                    ["4800", "4800"], 
+                    ["9600", "9600"],
+                    ["2400", "2400"],
+                    ["4800", "4800"],
                     ["19200", "19200"]
                 ]), "BAUD");
         this.setFieldValue(b ,'BAUD')
@@ -2213,7 +2231,7 @@ Blockly.propc.rfid_enable = function () {
         if (profile.default.digital.toString().indexOf(pin_out + ',' + pin_out) === -1) {
             pin_out = 'MY_' + pin_out;
         }
-    
+
         Blockly.propc.definitions_["rfidser"] = '#include "rfidser.h"';
         Blockly.propc.global_vars_["rfidser"] = 'rfidser *rfid;';
         Blockly.propc.setups_["rfidser_setup"] = 'rfid = rfid_open(' + pin_out + ',' + pin_in + ');';
@@ -2429,9 +2447,9 @@ Blockly.Blocks.dht22_value = {
         this.appendDummyInput()
             .appendField("Temp & Humidity")
             .appendField(new Blockly.FieldDropdown([
-                ["temperature (\u00b0F)","Temp,FAHRENHEIT"], 
-                ["temperature (\u00b0C)","Temp,CELSIUS"], 
-                ["temperature (Kelvin)","Temp,KELVIN"], 
+                ["temperature (\u00b0F)","Temp,FAHRENHEIT"],
+                ["temperature (\u00b0C)","Temp,CELSIUS"],
+                ["temperature (Kelvin)","Temp,KELVIN"],
                 ["relative humidity (%)","Humidity,"]
             ]), "ACTION")
             .appendField("\u2715 10");
@@ -2580,8 +2598,8 @@ Blockly.Blocks.bme680_get_value = {
     init: function () {
         this.measUnits = {
             'temperature': [
-                ['in \u00b0C', 'CELSIUS'], 
-                ['in \u00b0F', 'FAHRENHEIT'], 
+                ['in \u00b0C', 'CELSIUS'],
+                ['in \u00b0F', 'FAHRENHEIT'],
                 ['in Kelvin', 'KELVIN']
             ],
             'pressure': [
@@ -2602,20 +2620,20 @@ Blockly.Blocks.bme680_get_value = {
         this.appendDummyInput()
                 .appendField("Air Quality")
                 .appendField(new Blockly.FieldDropdown([
-                    ["Temperature", "temperature"], 
-                    ["Pressure", "pressure"], 
-                    ["Altitude Estimate", "altitude"], 
-                    ["Gas Sensor Resistance", "gasResistance"], 
+                    ["Temperature", "temperature"],
+                    ["Pressure", "pressure"],
+                    ["Altitude Estimate", "altitude"],
+                    ["Gas Sensor Resistance", "gasResistance"],
                     ["Relative Humidity", "humidity"]
                 ], function(val) {this.sourceBlock_.setMeasUnit(val);}), "SENSOR");
         this.appendDummyInput('UNITS')
                 .appendField(new Blockly.FieldDropdown(this.measUnits['temperature']), "UNIT");
         this.appendDummyInput('MULTIPLIER')
                 .appendField(new Blockly.FieldDropdown([
-                    ["\u2715 1", " "], 
-                    ["\u2715 10", "*10.0"], 
-                    ["\u2715 100", "*100.0"], 
-                    ["\u2715 1000", "*1000.0"], 
+                    ["\u2715 1", " "],
+                    ["\u2715 10", "*10.0"],
+                    ["\u2715 100", "*100.0"],
+                    ["\u2715 1000", "*1000.0"],
                     ["\u2715 10000", "*10000.0"]
                 ]), "MULT")
         this.setInputsInline(true);

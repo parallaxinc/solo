@@ -356,6 +356,19 @@ Blockly.propc.set_pins_binary = function () {
     return code;
 };
 
+
+/**
+ * Frequency Out
+ *
+ * @type {{
+ *  init: Blockly.Blocks.base_freqout.init,
+ *  addPinMenu: Blockly.Blocks.base_freqout.addPinMenu,
+ *  mutationToDom: (function(): HTMLElement),
+ *  helpUrl: string,
+ *  setToOther: Blockly.Blocks.base_freqout.setToOther,
+ *  domToMutation: Blockly.Blocks.base_freqout.domToMutation
+ *  }}
+ */
 Blockly.Blocks.base_freqout = {
     helpUrl: Blockly.MSG_AUDIO_HELPURL,
     init: function () {
@@ -377,15 +390,17 @@ Blockly.Blocks.base_freqout = {
         this.setNextStatement(true, null);
     },
     addPinMenu: function (label, moveBefore) {
+        const profile = window.projectProfile;
         this.appendDummyInput('SET_PIN')
                 .appendField(label, 'LABEL')
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat([['other', 'other']]), function (op) {
+                .appendField(new Blockly.FieldDropdown(profile.digital.concat([['other', 'other']]), function (op) {
                     this.sourceBlock_.setToOther(op, moveBefore);
                 }), "PIN");
         this.moveBefore = moveBefore;
         this.otherPin = false;
     },
     setToOther: function (op, moveBefore) {
+        const profile = window.projectProfile;
         if (op === 'other') {
             this.otherPin = true;
             var label = this.getFieldValue('LABEL');
@@ -395,14 +410,14 @@ Blockly.Blocks.base_freqout = {
             this.appendValueInput('PIN')
                     .appendField(label)
                     .setCheck('Number')
-                    .appendRange('A,' + profile.default.digital.toString());
+                    .appendRange('A,' + profile.digital.toString());
             if (moveBefore) {
                 this.moveInputBefore('PIN', moveBefore);
             } else {
                 var currBlockTimeout = this;
                 setTimeout(function() {
                     currBlockTimeout.render();
-                }, 200);    
+                }, 200);
             }
         }
     },
@@ -917,7 +932,7 @@ Blockly.Blocks.fb360_setup = {
                 myPin = Blockly.propc.valueToCode(this, 'PIN', Blockly.propc.ORDER_ATOMIC);
                 if (!isNaN(parseFloat(myPin)) && isFinite(myPin)) {
                     if (blocks[x].getFieldValue('PIN') === myPin || blocks[x].getFieldValue('FB') === myPin) {
-                        pinWarn = null; 
+                        pinWarn = null;
                     }
                 } else {
                     pinWarn = null;
@@ -1208,8 +1223,8 @@ Blockly.Blocks.pwm_stop = {
         this.setNextStatement(true, null);
     },
     onchange: function (event) {
-        if (event.type == Blockly.Events.BLOCK_CREATE || 
-                event.type == Blockly.Events.BLOCK_DELETE || 
+        if (event.type == Blockly.Events.BLOCK_CREATE ||
+                event.type == Blockly.Events.BLOCK_DELETE ||
                 event.type == Blockly.Events.BLOCK_CHANGE) {
             var warnTxt = null;
             var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
@@ -1256,7 +1271,7 @@ Blockly.Blocks.sound_play = {
     helpUrl: Blockly.MSG_AUDIO_HELPURL,
     init: function () {
         this.setTooltip(Blockly.MSG_SOUND_PLAY_TOOLTIP);
-        this.setColour(colorPalette.getColor('io'));            
+        this.setColour(colorPalette.getColor('io'));
         this.appendDummyInput('SET_CHANNEL')
                 .appendField('sound channel')
                 .appendField(new Blockly.FieldDropdown([
@@ -1348,7 +1363,7 @@ Blockly.Blocks.sound_play = {
                             }), "ACTION");
                 this.waveInput = false;
             }
-            if (valueBlock) {  
+            if (valueBlock) {
                 valueBlock.outputConnection.connect(this.getInput('VALUE').connection);
             }
         }
@@ -1414,19 +1429,19 @@ Blockly.propc.sound_play = function () {
         value = '0';
     }
     var code = 'sound_' + action + '(audio0, ' + channel + ', ' + value + ');';
-    
+
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('sound initialize') === -1 && !(projectData.board &&
             (projectData.board === "heb") || (projectData.board === "heb-wx"))) {
         code = '// WARNING: You must use a sound initialize block at the beginning of your program!\n';
     }
-    
+
     if (projectData['board'] && !this.disabled) {
         if (projectData['board'] === "heb" || projectData['board'] === "heb-wx") {
             Blockly.propc.setups_["sound_start"] = 'audio0 = sound_run(' + profile.default.earphone_jack_inverted + ');';
         }
         Blockly.propc.definitions_["include_soundplayer"] = '#include "sound.h"';
-        Blockly.propc.definitions_["sound_define_0"] = 'sound* audio0;';       
+        Blockly.propc.definitions_["sound_define_0"] = 'sound* audio0;';
     }
 
     return code;
@@ -1701,7 +1716,7 @@ Blockly.propc.sd_open = function () {
     }
 
     var code = head + 'fp = fopen("' + fp + '","' + mode + '");';
-    if (projectData["board"] !== "activity-board" && projectData["board"] !== "heb-wx" && 
+    if (projectData["board"] !== "activity-board" && projectData["board"] !== "heb-wx" &&
             allBlocks.toString().indexOf('SD initialize') === -1) {
         code = '// WARNING: You must use a SD initialize block at the beginning of your program!';
     }
@@ -1827,7 +1842,7 @@ Blockly.propc.sd_read = function () {
             && projectData["board"] !== "activity-board") {
         code = '// WARNING: You must use a SD initialize block at the beginning of your program!';
     }
-    
+
     var initFound = false;
     for (var x = 0; x < allBlocks.length; x++) {
         if (allBlocks[x].type === 'sd_init') {

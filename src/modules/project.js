@@ -80,6 +80,7 @@ function getDefaultProfile() {
  */
 function setDefaultProfile(value) {
   defaultProfile = value;
+  window.projectProfile = value;
 }
 
 
@@ -89,27 +90,28 @@ function setDefaultProfile(value) {
  */
 class Project {
   /**
-     * Project constructor
-     * @param {string} name
-     * @param {string} description
-     * @param {ProjectProfiles} board
-     * @param {ProjectTypes} projectType // 'PropC'
-     * @param {string} code
-     * @param {Date} created
-     * @param {Date} modified
-     * @param {number} timestamp
-     *
-     * @description
-     * The board types, also referenced as a specific board profile, are
-     * identified by a text string, such as 'heb' or 'activity-board'. The
-     * project class stores a reference to the specific profile in the
-     * boardType field instead of the text reference. This allows one to
-     * reference the various elements in the specific profile with a '.'
-     * dot notation and eliminates some potential sources of errors due to
-     * misspelling or array vs object references.
-     */
+    * Project constructor
+    * @param {string} name
+    * @param {string} description
+    * @param {ProjectProfiles} board
+    * @param {ProjectTypes} projectType // 'PropC'
+    * @param {string} code
+    * @param {Date} created
+    * @param {Date} modified
+    * @param {number} timestamp
+    * @param {boolean} [isDefault] - is this project the default project
+    *
+    * @description
+    * The board types, also referenced as a specific board profile, are
+    * identified by a text string, such as 'heb' or 'activity-board'. The
+    * project class stores a reference to the specific profile in the
+    * boardType field instead of the text reference. This allows one to
+    * reference the various elements in the specific profile with a '.'
+    * dot notation and eliminates some potential sources of errors due to
+    * misspelling or array vs object references.
+    */
   constructor(name, description, board, projectType,
-      code, created, modified, timestamp) {
+      code, created, modified, timestamp, isDefault = false) {
     // Preserve the instance if one is not set
     projectInitialState = this;
 
@@ -118,11 +120,11 @@ class Project {
 
     // board is an element of the ProjectProfiles object.
     // It should never be a string
-    if (board && typeof board === 'object' && board.name) {
+    if (board && typeof board === 'object' && board['name']) {
       // Handle legacy board types.
-      if (board.name === 'activity-board') {
+      if (board['name'] === 'activity-board') {
         this.boardType = ProjectProfiles['activityboard'];
-      } else if (board.name === 'heb-wx') {
+      } else if (board['name'] === 'heb-wx') {
         this.boardType = ProjectProfiles['hebwx'];
       } else {
         this.boardType = board;
@@ -135,7 +137,7 @@ class Project {
     this.projectType = (projectType) ?
         ProjectTypes[projectType] : ProjectTypes.UNKNOWN;
 
-    this.code = (code) ? code : this.EmptyProjectCodeHeader;
+    this.code = (code) ? code : this.EmptyProjectCodeHeader + '</xml>';
 
     // This should be a timestamp but is received as a string
     // TODO: Convert timestamp string to numeric values
@@ -151,7 +153,10 @@ class Project {
     this.user = 'offline';
     this.yours = true;
 
-    this.projectData = this.getDetails();
+    // Set the project initial state
+    if (isDefault) {
+      this.projectData = this.getDetails();
+    }
   }
 
   /**

@@ -21,6 +21,7 @@
  */
 
 
+let activeProfile = null;
 /**
  * This is a singleton class that holds the representation of the original
  * state of the project that is currently loaded onto the editor canvas.
@@ -28,11 +29,13 @@
 export default class ProjectProfile {
   /**
    *  Build something good
-   * @return {*}
+   *  @param {ProjectProfile} profile
    */
-  constructor() {
-    if (instance) {
-      return instance;
+  constructor(profile) {
+    if (!activeProfile) {
+      if (profile !== activeProfile) {
+        activeProfile = profile;
+      }
     }
 
     this.state = 'duke';

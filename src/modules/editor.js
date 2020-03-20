@@ -68,7 +68,7 @@ let uploadedXML = null;
  * Blockly.WorkspaceSvg workspace that was returned from the
  * Blockly.inject() call.
  *
- * @type {Blockly.WorkspaceSvg | null}
+ * @type {Blockly.Workspace | null}
  */
 let injectedBlocklyWorkspace = null;
 
@@ -719,6 +719,10 @@ function setupWorkspace(data, callback) {
     return -1;
   }
 
+  // Complete the XML document if we only have a header
+  if (data.code === EMPTY_PROJECT_CODE_HEADER) {
+    data.code += '</xml>';
+  }
   // Set the master project image
   const project = setProjectInitialState(data);
 
@@ -735,7 +739,7 @@ function setupWorkspace(data, callback) {
   // Set the help link to the ab-blocks, s3 reference, or propc reference
   // TODO: modify blocklyc.html/jsp and use an id or class selector
   if (project.boardType.name === 's3') {
-    initToolbox(project.boardType);
+    initToolbox(project.boardType.name);
     $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
     // Create UI block content from project details
     renderContent('blocks');
@@ -1256,6 +1260,12 @@ function uploadCode() {
  * @param {Array} files
  */
 function uploadHandler(files) {
+  // This is he number of bytes from the end of the project file where the
+  // <ckm>000...000</cmk> checksum block is located. The project code XML
+  // representation ends with a </block> immediately preceeding the
+  // checksum block.
+  const CHECKSUM_BLOCK_OFFSET = 30;
+
   const UploadReader = new FileReader();
 
   // Event handler that fires when the file that the user selected is loaded
@@ -1298,7 +1308,8 @@ function uploadHandler(files) {
 
       uploadedXML = xmlString.substring(
           xmlString.indexOf(findBPCstart),
-          (xmlString.length - 29));
+          (xmlString.length - CHECKSUM_BLOCK_OFFSET));
+
       uploadBoardType = getProjectBoardTypeName(xmlString);
 
       if (xmlValid) {
@@ -1363,7 +1374,8 @@ function uploadHandler(files) {
             projectCreated,
             projectModified,
 
-            date.getTime());
+            date.getTime(),
+            true);
 
         // Convert the Project object details to projectData object
         const projectOutput = project.getDetails();
@@ -1677,31 +1689,28 @@ function uploadMergeCode(append) {
 
 
 /**
- * Initialize the Blockly toolbox with a collection of blocks that are
- * appropriate for the passe in board type.
- *
- * @param {Project.boardType} profileName - aka Board Type
+ * Replace the default Blockly fonts
  */
-function initToolbox(profileName) {
+function initializeToolboxFonts() {
   // TODO: Verify that custom fonts are required
   if (Blockly.Css.CONTENT) {
-    const ff = window.getURLParameter('font');
+    const font = window.getURLParameter('font');
 
-    if (ff) {
+    if (font) {
       // Replace font family in Blockly's inline CSS
       for (let f = 0; f < Blockly.Css.CONTENT.length; f++) {
         Blockly.Css.CONTENT[f] =
             Blockly.Css.CONTENT[f]
                 .replace(/Arial, /g, '')
-                .replace(/sans-serif;/g, '\'' + ff + '\', sans-serif;');
+                .replace(/sans-serif;/g, '\'' + font + '\', sans-serif;');
       }
 
-      $('html, body').css('font-family', '\'' + ff + '\', sans-serif');
+      $('html, body').css('font-family', '\'' + font + '\', sans-serif');
       //    font: normal 14px Arimo, sans-serif !important;
       $('.blocklyWidgetDiv .goog-menuitem-content')
           .css(
               'font',
-              '\'normal 14px \'' + ff + '\',' +
+              '\'normal 14px \'' + font + '\',' +
               ' sans-serif !important\'');
     } else {
       for (let f = 0; f < Blockly.Css.CONTENT.length; f++) {
@@ -1712,15 +1721,24 @@ function initToolbox(profileName) {
       }
     }
   }
+}
+
+/**
+ * Initialize the Blockly toolbox with a collection of blocks that are
+ * appropriate for the supplied board type.
+ *
+ * @param {string} profileName - aka Board Type
+ */
+function initToolbox(profileName) {
+  initializeToolboxFonts();
 
   // Options are described in detail here:
   // https://developers.google.com/blockly/guides/get-started/web#configuration
   const blocklyOptions = {
-    toolbox: filterToolbox(profileName.name),
+    toolbox: filterToolbox(profileName),
     trashcan: true,
     media: CDN_URL + 'images/blockly/',
     readOnly: (profileName === 'propcfile'),
-    // path: CDN_URL + 'blockly/',
     comments: false,
 
     // zoom defaults used here
@@ -1740,11 +1758,10 @@ function initToolbox(profileName) {
     },
   };
 
-  // NOTE:
-  // The call to Blockly.svgResize() requires a BlocklySvg workspace, and not
-  // the main workspace. The return value from the call to Blockly.inject()
-  // returns such an object.
-  injectedBlocklyWorkspace = Blockly.inject('content_blocks', blocklyOptions);
+  // Provide configuration options and inject this into the content_blocks div
+  injectedBlocklyWorkspace = Blockly.inject(
+      'content_blocks',
+      blocklyOptions);
 
   initializeBlockly(Blockly);
 
@@ -2032,7 +2049,8 @@ function createNewProject() {
         code,
         // eslint-disable-next-line no-undef
         createdDateHtml, createdDateHtml,
-        timestamp.getTime());
+        timestamp.getTime(),
+        true);
 
     // Save the project to the browser local store for the page
     // transition
