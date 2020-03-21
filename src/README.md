@@ -42,3 +42,6 @@
 * Blockly.Blocks.controls_select
 * Blockly.Blocks.controls_repeat
 
+### procedures.js
+* Blockly.Blocks['procedures_callnoreturn']
+* Blockly.Blocks['procedures_defnoreturn']

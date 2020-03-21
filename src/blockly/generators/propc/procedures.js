@@ -26,13 +26,35 @@
  */
 'use strict';
 
+
+/**
+ * Procedures DefNoReturn
+ * @type {{
+ *  init: Blockly.Blocks.procedures_defnoreturn.init,
+ *  getVars: (function(): []|*[]),
+ *  displayRenamedVar_: Blockly.Blocks.procedures_defnoreturn.displayRenamedVar_,
+ *  decompose: (function(!Blockly.Workspace): Blockly.Block),
+ *  callType_: string,
+ *  domToMutation: Blockly.Blocks.procedures_defnoreturn.domToMutation,
+ *  updateVarName: Blockly.Blocks.procedures_defnoreturn.updateVarName,
+ *  compose: Blockly.Blocks.procedures_defnoreturn.compose,
+ *  mutationToDom: (function(boolean=): HTMLElement),
+ *  setStatements_: Blockly.Blocks.procedures_defnoreturn.setStatements_,
+ *  updateParams_: Blockly.Blocks.procedures_defnoreturn.updateParams_,
+ *  getVarModels: (function(): []|*[]),
+ *  getProcedureDef: (function(): ([]|*[]|boolean)[]),
+ *  renameVarById: Blockly.Blocks.procedures_defnoreturn.renameVarById,
+ *  customContextMenu: Blockly.Blocks.procedures_defnoreturn.customContextMenu
+ *  }}
+ */
 Blockly.Blocks['procedures_defnoreturn'] = {
   /**
    * Block for defining a procedure with no return value.
    * @this Blockly.Block
    */
   init: function() {
-    if (profile.default.description === "Scribbler Robot") {
+    const profile = window.projectProfile;
+    if (profile.description === "Scribbler Robot") {
         this.setHelpUrl(Blockly.MSG_S3_FUNCTIONS_HELPURL);
     } else {
         this.setHelpUrl(Blockly.MSG_FUNCTIONS_HELPURL);
@@ -342,7 +364,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     if (this.mutator.isVisible()) {
       var blocks = this.mutator.workspace_.getAllBlocks();
       for (var i = 0, block; block = blocks[i]; i++) {
-        if (block.type == 'procedures_mutatorarg' &&
+        if (block.type === 'procedures_mutatorarg' &&
             Blockly.Names.equals(oldName, block.getFieldValue('NAME'))) {
           block.setFieldValue(newName, 'NAME');
         }
@@ -359,6 +381,8 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       return;
     }
     // Add option to create caller.
+    // TODO: Correct duplicate variables names where scope is colliding
+    //    becuase the declarations are using var instead of let or const.
     var option = {enabled: true};
     var name = this.getFieldValue('NAME');
     option.text = Blockly.Msg['PROCEDURES_CREATE_DO'].replace('%1', name);
@@ -395,13 +419,30 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   callType_: 'procedures_callnoreturn'
 };
 
+/**
+ * Procedure Call No Return
+ * @type {{
+ *  init: Blockly.Blocks.procedures_callnoreturn.init,
+ *  defType_: string,
+ *  setProcedureParameters_: Blockly.Blocks.procedures_callnoreturn.setProcedureParameters_,
+ *  renameProcedure: Blockly.Blocks.procedures_callnoreturn.renameProcedure,
+ *  updateShape_: Blockly.Blocks.procedures_callnoreturn.updateShape_,
+ *  mutationToDom: (function(): HTMLElement),
+ *  onchange: Blockly.Blocks.procedures_callnoreturn.onchange,
+ *  getVarModels: (function(): []|*[]),
+ *  domToMutation: Blockly.Blocks.procedures_callnoreturn.domToMutation,
+ *  customContextMenu: Blockly.Blocks.procedures_callnoreturn.customContextMenu,
+ *  getProcedureCall: (function(): string)
+ *  }}
+ */
 Blockly.Blocks['procedures_callnoreturn'] = {
   /**
    * Block for calling a procedure with no return value.
    * @this Blockly.Block
    */
   init: function() {
-    if (profile.default.description === "Scribbler Robot") {
+    const profile = window.projectProfile;
+    if (profile.description === "Scribbler Robot") {
         this.setHelpUrl(Blockly.MSG_S3_FUNCTIONS_HELPURL);
     } else {
         this.setHelpUrl(Blockly.MSG_FUNCTIONS_HELPURL);
