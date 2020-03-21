@@ -36,3 +36,9 @@
 * Blockly.Blocks.xbee_setup
 * Blockly.propc.xbee_setup
 
+### control.js
+* Blockly.Blocks.control_repeat_for_loop
+* Blockly.Blocks.controls_if
+* Blockly.Blocks.controls_select
+* Blockly.Blocks.controls_repeat
+
