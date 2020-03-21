@@ -6634,7 +6634,7 @@ Blockly.propc.i2c_send = function () {
     }
 
     if (!this.disabled) {
-        profile = window.projectProfile;
+        const profile = window.projectProfile;
         var s1 = '';
         var s2 = '';
         if (profile.digital.toString().indexOf(sda + ',' + sda) === -1) {
