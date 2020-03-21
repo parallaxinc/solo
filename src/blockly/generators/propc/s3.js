@@ -100,12 +100,12 @@ Blockly.Blocks.scribbler_simple_wait = {
             this.appendValueInput("WAITTIME", 'Number')
                     .appendRange('R,1,2147483647,1')
                     .appendField("wait")
-                    .setCheck('Number');        
+                    .setCheck('Number');
         }
         this.appendDummyInput()
                 .appendField(new Blockly.FieldDropdown([
-                        ['seconds', '1000'], 
-                        ['tenths of a second', '100'], 
+                        ['seconds', '1000'],
+                        ['tenths of a second', '100'],
                         ['milliseconds', '1']
                     ], function (time_scale) {
                         if (this.type !== 'scribbler_simple_wait') {
@@ -1123,16 +1123,28 @@ Blockly.propc.reset_button_presses = function () {
     return ['s3_resetButtonCount()', Blockly.propc.ORDER_ATOMIC];
 };
 
+
+/**
+ * Scribbler Stop Servo
+ * @type {{
+ *  init: Blockly.Blocks.scribbler_stop_servo.init,
+ *  addPinMenu: Blockly.Blocks.scribbler_stop_servo.addPinMenu,
+ *  mutationToDom: (function(): HTMLElement),
+ *  setToOther: Blockly.Blocks.scribbler_stop_servo.setToOther,
+ *  domToMutation: Blockly.Blocks.scribbler_stop_servo.domToMutation
+ *  }}
+ */
 Blockly.Blocks.scribbler_stop_servo = {
     init: function () {
-        if (profile.default.description === "Scribbler Robot") {
+        const profile = window.projectProfile;
+        if (profile.description === "Scribbler Robot") {
             this.setHelpUrl(Blockly.MSG_S3_SERVO_HELPURL);
             this.setColour(colorPalette.getColor('robot'));
-            this.pinSet = profile.default.digital;
+            this.pinSet = profile.digital;
         } else {
             this.setHelpUrl(Blockly.MSG_SERVO_HELPURL);
             this.setColour(colorPalette.getColor('output'));
-            this.pinSet = profile.default.digital.concat([['other', 'other']]);
+            this.pinSet = profile.digital.concat([['other', 'other']]);
         }
         this.setTooltip(Blockly.MSG_S3_SCRIBBLER_STOP_SERVO_TOOLTIP);
         this.addPinMenu("servo PIN", 'VALUE');
@@ -1152,6 +1164,7 @@ Blockly.Blocks.scribbler_stop_servo = {
         this.otherPin = false;
     },
     setToOther: function (op, moveBefore) {
+        const profile = window.projectProfile;
         if (op === 'other') {
             this.otherPin = true;
             var label = this.getFieldValue('LABEL');
@@ -1161,7 +1174,7 @@ Blockly.Blocks.scribbler_stop_servo = {
             this.appendValueInput('SERVO_PIN')
                     .appendField(label)
                     .setCheck('Number')
-                    .appendRange('A,' + profile.default.digital.toString());
+                    .appendRange('A,' + profile.digital.toString());
             if (moveBefore) {
                 this.moveInputBefore('SERVO_PIN', moveBefore);
             }
@@ -1177,7 +1190,7 @@ Blockly.Blocks.scribbler_stop_servo = {
         if (op === 'true') {
             this.setToOther('other', this.moveBefore);
         }
-    }    
+    }
 };
 
 Blockly.propc.scribbler_stop_servo = function () {
@@ -1197,7 +1210,7 @@ Blockly.propc.scribbler_stop_servo = function () {
             addType = '360';
         }
     }
-    
+
     if (addType === '') {
         Blockly.propc.definitions_["include servo"] = '#include "servo.h"';
         return 'servo_disable(' + pin + ');\n';
@@ -1206,12 +1219,22 @@ Blockly.propc.scribbler_stop_servo = function () {
     }
 };
 
-// Unused?  Possibly delete?
+
+/**
+ * Scribbler Ping
+ * @type {{
+ *  init: Blockly.Blocks.scribbler_ping.init
+ *  }}
+ *  @description
+ *  // TODO: Determine if this block can be deprecated.
+ */
 Blockly.Blocks.scribbler_ping = {
     init: function () {
+        const profile = window.projectProfile;
         this.appendDummyInput("")
                 .appendField("Ping))) sensor on")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital), "PIN")
+                .appendField(new Blockly.FieldDropdown(
+                    profile.digital), "PIN")
                 .appendField("distance in")
                 .appendField(new Blockly.FieldDropdown([['inches', '_inches'], ['centimeters', '_cm']]), "SCALE");
 
@@ -1232,11 +1255,20 @@ Blockly.propc.scribbler_ping = function () {
     return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
+
+/**
+ * Analog Input
+ * @type {{
+ *  init: Blockly.Blocks.analog_input.init
+ *  }}
+ */
 Blockly.Blocks.analog_input = {
     init: function () {
+        const profile = window.projectProfile;
         this.appendDummyInput("")
                 .appendField("check analog PIN")
-                .appendField(new Blockly.FieldDropdown(profile.default.analog), "ANALOG_PIN");
+                .appendField(new Blockly.FieldDropdown(
+                    profile.analog), "ANALOG_PIN");
         this.setOutput(true, "Number");
         this.setColour(colorPalette.getColor('io'));
         this.setHelpUrl(Blockly.MSG_S3_IO_HELPURL);
@@ -1468,12 +1500,21 @@ Blockly.propc.scribbler_serial_cursor_xy = function () {
     return 'term_cmd(CRSRXY, ' + column + ', ' + row + ');\n';
 };
 
+
+/**
+ * SIRC S3 Get
+ * @type {{
+ *  init: Blockly.Blocks.sirc_s3_get.init,
+ *  helpUrl: string
+ *  }}
+ */
 Blockly.Blocks.sirc_s3_get = {
     helpUrl: Blockly.MSG_S3_SIRC_HELPURL,
     init: function () {
+        const profile = window.projectProfile;
         this.setTooltip(Blockly.MSG_S3_SCRIBBLER_SIRC_TOOLTIP);
         var addPin = [["Onboard IR sensor", "SCRIBBLER_OBS_RX"]];
-        var thePins = addPin.concat(profile.default.digital);
+        var thePins = addPin.concat(profile.digital);
         this.setColour(colorPalette.getColor('input'));
         this.appendDummyInput()
                 .appendField("Sony Remote value")
@@ -1519,7 +1560,7 @@ Blockly.propc.mic_s3_get = function () {
 
 Blockly.Blocks.s3_eeprom_read = {
     helpUrl: Blockly.MSG_S3_MEMORY_HELPURL,
-    init: function() {      
+    init: function() {
         this.setTooltip(Blockly.MSG_S3_SCRIBBLER_MEMORY_READ_TOOLTIP);
         this.appendValueInput("ADDR")
             .setCheck('Number')

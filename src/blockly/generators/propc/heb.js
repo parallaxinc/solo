@@ -38,7 +38,7 @@ Blockly.Blocks.heb_wx_lock = {
         this.appendDummyInput()
                 .appendField('Badge WX programming')
                 .appendField(new Blockly.FieldDropdown([
-                        ["unlock", "Allow the Badge WX to be programmed over WiFi,high"], 
+                        ["unlock", "Allow the Badge WX to be programmed over WiFi,high"],
                         ["lock", "Prevent the Badge WX from being programmed over WiFi,input"]
                         //["reset and lock WX module", "Resets the WX module and then prevents the Badge WX from being programmed over WiFi,reset"]
                     ]), "STATE")
@@ -57,7 +57,7 @@ Blockly.propc.heb_wx_lock = function () {
     }
     code += lock_state_value[1] + '(17);\n';
     return code;
-};  
+};
 
 Blockly.Blocks.heb_toggle_led = {
     init: function () {
@@ -864,11 +864,17 @@ Blockly.Blocks.heb_text_to_speech_say = {
     }
 };
 
+
+/**
+ * Hackable Electronic Badge Test to Speech Say C code generator
+ * @return {string}
+ */
 Blockly.propc.heb_text_to_speech_say = function () {
     var str = Blockly.propc.valueToCode(this, "STRING", Blockly.propc.ORDER_NONE);
 
     if (!this.disabled) {
-        var pins = profile.default.earphone_jack_inverted;
+        const profile = window.projectProfile;
+        var pins = profile.earphone_jack_inverted;
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         for (var x = 0; x < allBlocks.length; x++) {
             if (allBlocks[x].type === 'heb_text_to_speech_pins') {
@@ -881,8 +887,7 @@ Blockly.propc.heb_text_to_speech_say = function () {
         Blockly.propc.setups_["TTS"] = 'tts_talk = talk_run(' + pins + ');\ntalk_set_speaker(tts_talk, 1, 100);';
     }
 
-    var code = 'talk_say(tts_talk, ' + str + ');\n';
-    return code;
+    return 'talk_say(tts_talk, ' + str + ');\n';
 };
 
 Blockly.Blocks.heb_text_to_speech_spell = {
@@ -898,11 +903,17 @@ Blockly.Blocks.heb_text_to_speech_spell = {
     }
 };
 
+
+/**
+ * Hackable Electronic Badge Text to Speech Spell C code generator
+ * @return {string}
+ */
 Blockly.propc.heb_text_to_speech_spell = function () {
     var str = Blockly.propc.valueToCode(this, "STRING", Blockly.propc.ORDER_NONE);
 
     if (!this.disabled) {
-        var pins = profile.default.earphone_jack_inverted;
+        const profile = window.projectProfile;
+        var pins = profile.earphone_jack_inverted;
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         for (var x = 0; x < allBlocks.length; x++) {
             if (allBlocks[x].type === 'heb_text_to_speech_pins') {
@@ -915,23 +926,33 @@ Blockly.propc.heb_text_to_speech_spell = function () {
         Blockly.propc.setups_["TTS"] = 'tts_talk = talk_run(' + pins + ');\ntalk_set_speaker(tts_talk, 1, 100);';
     }
 
-    var code = 'talk_spell(tts_talk, ' + str + ');\n';
-    return code;
+    return 'talk_spell(tts_talk, ' + str + ');\n';
 };
 
+
+/**
+ * Hackable Electronic Badge Text to Speech Pins
+ * @type {{
+ *  init: Blockly.Blocks.heb_text_to_speech_pins.init,
+ *  helpUrl: string
+ *  }}
+ */
 Blockly.Blocks.heb_text_to_speech_pins = {
     helpUrl: Blockly.MSG_AUDIO_HELPURL,
     init: function () {
-        var pins = (profile.default.earphone_jack_inverted || '0,1').split(',')
+        const profile = window.projectProfile;
+        var pins = (profile.earphone_jack_inverted || '0,1').split(',')
         pins[0] = pins[0].trim();
         pins[1] = pins[1].trim();
         this.setTooltip(Blockly.MSG_HEB_TEXT_TO_SPEECH_PINS_TOOLTIP);
         this.setColour(colorPalette.getColor('io'));
         this.appendDummyInput('PINS')
                 .appendField("TTS set output left PIN")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat([['None','-1']])), "PINL")
+                .appendField(new Blockly.FieldDropdown(
+                    profile.digital.concat([['None','-1']])), "PINL")
                 .appendField("right PIN")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat([['None','-1']])), "PINR");
+                .appendField(new Blockly.FieldDropdown(
+                    profile.digital.concat([['None','-1']])), "PINR");
         this.setFieldValue(pins[0], 'PINL');
         this.setFieldValue(pins[1], 'PINR');
         this.setInputsInline(true);
@@ -951,7 +972,17 @@ Blockly.Blocks.heb_text_to_speech_volume = {
         this.setColour(colorPalette.getColor('io'));
         this.appendDummyInput('PINS')
                 .appendField("TTS set volume")
-                .appendField(new Blockly.FieldDropdown([['0','0'],['1','1'],['2','2'],['3','3'],['4','4'],['5','5'],['6','6'],['7','7']]), "VOL");
+                .appendField(new Blockly.FieldDropdown([
+                    ['0','0'],
+                    ['1','1'],
+                    ['2','2'],
+                    ['3','3'],
+                    ['4','4'],
+                    ['5','5'],
+                    ['6','6'],
+                    ['7','7']
+                ]),
+                "VOL");
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
