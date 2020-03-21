@@ -13,3 +13,20 @@
 * Blockly.Blocks.parens
 * Blockly.Blocks.system_counter
 
+### communicate.js
+* Blockly.Blocks.debug_lcd_init
+* Blockly.propc.debug_lcd_init
+* Blockly.Blocks.i2c_send
+* Blockly.propc.oled_bitmap
+* Blockly.Blocks.oled_initialize
+* Blockly.propc.oled_initialize
+* Blockly.Blocks.parallel_lcd_init
+* Blockly.Blocks.serial_open
+* Blockly.Blocks.shift_in
+* Blockly.propc.shift_in
+* Blockly.propc.shift_out
+* Blockly.Blocks.ws2812b_init
+* Blockly.Blocks.wx_init
+* Blockly.Blocks.wx_init_adv
+* Blockly.Blocks.xbee_setup
+* Blockly.propc.xbee_setup
