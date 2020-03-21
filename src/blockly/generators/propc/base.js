@@ -48,7 +48,7 @@ if (!Blockly.Blocks)
 // if an illegal value is entered.
 // ----------------------------------------------------------------------------
 /**
- *
+ * Math Number
  * @type {{
  *  init: Blockly.Blocks.math_number.init,
  *  mutationToDom: (function(): HTMLElement),
