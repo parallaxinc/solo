@@ -1298,7 +1298,6 @@ function uploadHandler(files) {
             xmlString.indexOf('<!ENTITY') === -1 &&
             xmlString.indexOf('CDATA') === -1 &&
             xmlString.indexOf('<!--') === -1) {
-
       // Search the project file for the first variable or block
       const findBPCstart =
           (xmlString.indexOf('<variables') > -1) ? '<variables' : '<block';
