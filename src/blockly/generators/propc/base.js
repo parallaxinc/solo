@@ -217,9 +217,21 @@ Blockly.propc.math_number = function () {
     return [code, order];
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.math_arithmetic.init,
+ *  saveConnections: Blockly.Blocks.math_arithmetic.saveConnections,
+ *  compose: Blockly.Blocks.math_arithmetic.compose,
+ *  mutationToDom: (function(): HTMLElement),
+ *  decompose: (function(*): Blockly.Block),
+ *  domToMutation: Blockly.Blocks.math_arithmetic.domToMutation
+ *  }}
+ */
 Blockly.Blocks.math_arithmetic = {
     init: function () {
-        if (profile.default.description === "Scribbler Robot") {
+        const profile = window.projectProfile;
+        if (profile.description === "Scribbler Robot") {
             this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
         } else {
             this.setHelpUrl(Blockly.MSG_NUMBERS_HELPURL);
@@ -425,10 +437,18 @@ Blockly.propc.math_limit = function () {
     return [code, Blockly.propc.ORDER_ASSIGNMENT];
 };
 
+
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.math_crement.init
+ *  }}
+ */
 Blockly.Blocks.math_crement = {
     // Increment/decrement
     init: function () {
-        if (profile.default.description === "Scribbler Robot") {
+        const profile = window.projectProfile;
+        if (profile.description === "Scribbler Robot") {
             this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
         } else {
             this.setHelpUrl(Blockly.MSG_NUMBERS_HELPURL);
@@ -437,7 +457,8 @@ Blockly.Blocks.math_crement = {
         this.setColour(colorPalette.getColor('math'));
         this.appendValueInput('VAR')
                 .setCheck('Number')
-                .appendField(new Blockly.FieldDropdown([["decrement", "--"], ["increment", "++"]]), "OP");
+                .appendField(new Blockly.FieldDropdown(
+                    [["decrement", "--"], ["increment", "++"]]), "OP");
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true);
     }
@@ -452,9 +473,16 @@ Blockly.propc.math_crement = function () {
     return code;
 };
 
+
+/**
+ * Math - Random number generator
+ *
+ * @type {{init: Blockly.Blocks.math_random.init}}
+ */
 Blockly.Blocks.math_random = {
     init: function () {
-        if (profile.default.description === "Scribbler Robot") {
+        const profile = window.projectProfile;
+        if (profile.description === "Scribbler Robot") {
             this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
         } else {
             this.setHelpUrl(Blockly.MSG_NUMBERS_HELPURL);
@@ -602,7 +630,6 @@ Blockly.propc.char_type_block = function () {
     return [code, Blockly.propc.ORDER_NONE];
 };
 
-
 Blockly.Blocks.music_note = {
     helpUrl: Blockly.MSG_VALUES_HELPURL,
     init: function () {
@@ -648,10 +675,15 @@ Blockly.propc.music_note = function () {
 };
 
 
+/**
+ * System Counter
+ * @type {{init: Blockly.Blocks.system_counter.init}}
+ */
 Blockly.Blocks.system_counter = {
     init: function () {
+        const profile = window.projectProfile;
         this.setTooltip(Blockly.MSG_SYSTEM_COUNTER_TOOLTIP);
-        if (profile.default.description === "Other Propeller Boards") {
+        if (profile.description === "Other Propeller Boards") {
             this.setHelpUrl(Blockly.MSG_SYSTEM_HELPURL);
             this.setColour(colorPalette.getColor('system'));
         } else {
@@ -1307,11 +1339,20 @@ Blockly.propc.compare_colors = function () {
     return [code, Blockly.propc.ORDER_NONE];
 };
 
+
+/**
+ * Logical Comparison
+ * @type {{
+ *  init: Blockly.Blocks.logic_compare.init,
+ *  category: string
+ *  }}
+ */
 Blockly.Blocks.logic_compare = {
     // Comparison operator.
     category: Blockly.LANG_CATEGORY_LOGIC,
     init: function () {
-        if (profile.default.description === "Scribbler Robot") {
+        const profile = window.projectProfile;
+        if (profile.description === "Scribbler Robot") {
             this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
         } else {
             this.setHelpUrl(Blockly.MSG_NUMBERS_HELPURL);
@@ -1323,7 +1364,17 @@ Blockly.Blocks.logic_compare = {
                 .setCheck("Number");
         this.appendValueInput('B')
                 .setCheck("Number")
-                .appendField(new Blockly.FieldDropdown([['=', '=='], ['\u2260', '!='], ['<', '<'], ['\u2264', '<='], ['>', '>'], ['\u2265', '>=']]), 'OP');
+                .appendField(new Blockly.FieldDropdown(
+                    [
+                        // TODO: Convert '\u2260' to a named constant
+                        ['=', '=='],
+                        ['\u2260', '!='],
+                        ['<', '<'],
+                        ['\u2264', '<='],
+                        ['>', '>'],
+                        ['\u2265', '>=']
+                    ]),
+                    'OP');
         this.setInputsInline(true);
     }
 };
@@ -1340,11 +1391,20 @@ Blockly.propc.logic_compare = function () {
     return [code, order];
 };
 
+
+/**
+ * Logic Operations
+ * @type {{
+ *  init: Blockly.Blocks.logic_operation.init,
+ *  category: string
+ *  }}
+ */
 Blockly.Blocks.logic_operation = {
     // Logical operations: 'and', 'or'.
     category: Blockly.LANG_CATEGORY_LOGIC,
     init: function () {
-        if (profile.default.description === "Scribbler Robot") {
+        const profile = window.projectProfile;
+        if (profile.description === "Scribbler Robot") {
             this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
         } else {
             this.setHelpUrl(Blockly.MSG_NUMBERS_HELPURL);
@@ -1356,7 +1416,13 @@ Blockly.Blocks.logic_operation = {
                 .setCheck('Number');
         this.appendValueInput('B')
                 .setCheck('Number')
-                .appendField(new Blockly.FieldDropdown([['and', ' && '], ['or', ' || '], ['and not', ' && !'], ['or not', ' || !']]), 'OP');
+                .appendField(new Blockly.FieldDropdown([
+                    ['and', ' && '],
+                    ['or', ' || '],
+                    ['and not', ' && !'],
+                    ['or not', ' || !']
+                ]),
+                'OP');
         this.setInputsInline(true);
     }
 };
@@ -1375,9 +1441,15 @@ Blockly.propc.logic_operation = function () {
     return [code, order];
 };
 
+
+/**
+ * Parenthesis
+ * @type {{init: Blockly.Blocks.parens.init}}
+ */
 Blockly.Blocks.parens = {
     init: function () {
-        if (profile.default.description === "Scribbler Robot") {
+        const profile = window.projectProfile;
+        if (profile.description === 'Scribbler Robot') {
             this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
         } else {
             this.setHelpUrl(Blockly.MSG_NUMBERS_HELPURL);
@@ -1396,17 +1468,28 @@ Blockly.Blocks.parens = {
 };
 
 Blockly.propc.parens = function () {
-    var argument0 = Blockly.propc.valueToCode(this, 'BOOL', Blockly.propc.ORDER_ATOMIC) || '0';
+    var argument0 = Blockly.propc.valueToCode(
+        this,
+        'BOOL',
+        Blockly.propc.ORDER_ATOMIC) || '0';
     var code = '(' + argument0 + ')';
 
     return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
+
+/**
+ * Logical Negation
+ * @type {{
+ *  init: Blockly.Blocks.logic_negate.init
+ *  }}
+ */
 Blockly.Blocks.logic_negate = {
     // Negation.
     //category: Blockly.LANG_CATEGORY_LOGIC,
     init: function () {
-        if (profile.default.description === "Scribbler Robot") {
+        const profile = window.projectProfile;
+        if (profile.description === "Scribbler Robot") {
             this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
         } else {
             this.setHelpUrl(Blockly.MSG_NUMBERS_HELPURL);
@@ -2609,143 +2692,3 @@ Blockly.propc.run_as_setup = function() {
     }
     return '';
 };
-
-
-/*
- * ==================================================================
- *
- *                           SPIFFY CODE VAULT
- *
- * ================================================================*/
-
-/*
- // Created as an initial attempt at an expanding arithmatic block.  Keep because there is some
- // really spiffy code in here:
-
- Blockly.Blocks.math_arithmetic_multiple = {
- init: function () {
- if (profile.default.description === "Scribbler Robot") {
- this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
- } else {
- this.setHelpUrl(Blockly.MSG_NUMBERS_HELPURL);
- }
- this.setTooltip(Blockly.MSG_MATH_ARITHMETIC_TOOLTIP);
- this.setColour(colorPalette.getColor('math'));
- this.setOutput(true, 'Number');
- this.appendValueInput('A')
- .setCheck('Number');
- this.appendValueInput('B')
- .setCheck('Number')
- .appendField(new Blockly.FieldDropdown([
- ["+", ' + '],
- ["-", ' - '],
- ["×", ' * '],
- ["÷", ' / '],
- ["% (remainder after division)", ' % '],
- ["^ (raise to the power of)", ' p ']]), 'OP');
- this.setInputsInline(true);
- this.myChildren_ = 'B';
- this.myConnection_ = null;
- for (var h = 0; h < 26; h++) {
- this.appendValueInput('H' + h.toString(10));
- this.getInput('H' + h.toString(10)).setVisible(false);
- }
- },
- onchange: function () {
- var nextInput = null;
- for (var inCount = 'A'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++) {
- if (!this.getInput(String.fromCharCode(inCount))) {
- nextInput = inCount;
- this.myChildren_ = String.fromCharCode(nextInput - 1);
- break;
- }
- }
- if (this.getInput(this.myChildren_).connection.targetBlock() !== null
- && !this.getInput(String.fromCharCode(nextInput))
- && this.outputConnection.targetBlock() === null) {
- //alert(String.fromCharCode(inCount));
- //this.myChildren_ === String.fromCharCode(nextInput);
- this.appendValueInput(String.fromCharCode(nextInput))
- .setCheck('Number')
- .appendField(new Blockly.FieldDropdown([
- ["+", ' + '],
- ["-", ' - '],
- ["×", ' * '],
- ["÷", ' / '],
- ["% (remainder after division)", ' % '],
- ["^ (raise to the power of)", ' p ']]), 'OP' + String.fromCharCode(nextInput));
- }
-
- if (this.outputConnection.targetBlock() !== null && this.myConnection_ === null) {
- this.myConnection_ = this.outputConnection.targetBlock();
-
- // Collect all of the blocks and operators
- var curOp = 'B'.charCodeAt(0);
- var firstOp = 0;
- var curBlock = 'A'.charCodeAt(0);
- for (var inCount = 'A'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++) {
- if (this.getInput(String.fromCharCode(inCount))) {
- var currentBlock = this.getInput(String.fromCharCode(inCount)).connection.targetBlock();
- if (currentBlock !== null) {
- currentBlock.outputConnection.disconnect();
- this.getInput(String.fromCharCode(curBlock)).connection.connect(currentBlock.outputConnection);
- curBlock++;
- if (inCount > 'A'.charCodeAt(0) && firstOp !== 0) {
- var currentOp;
- if (inCount > 'B'.charCodeAt(0))
- currentOp = this.getFieldValue('OP' + String.fromCharCode(inCount));
- else
- currentOp = this.getFieldValue('OP');
-
- if (curOp > 'B'.charCodeAt(0))
- this.setFieldValue(currentOp, 'OP' + String.fromCharCode(curOp));
- else
- this.setFieldValue(currentOp, 'OP');
- curOp++;
- }
- firstOp++;
- }
- }
- }
- for (var inCount = 'C'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++)
- if (this.getInput(String.fromCharCode(inCount)))
- if (this.getInput(String.fromCharCode(inCount)).connection.targetBlock() === null)
- this.removeInput(String.fromCharCode(inCount));
- } else if (this.outputConnection.targetBlock() === null)
- this.myConnection_ = null;
-
- // check for blank terms before the end of the block.
- var hasBlanks = 0;
- for (var inCount = 'A'.charCodeAt(0); inCount <= 'Z'.charCodeAt(0); inCount++) {
- if (this.getInput(String.fromCharCode(inCount))) {
- var currentBlock = this.getInput(String.fromCharCode(inCount)).connection.targetBlock();
- if (currentBlock !== null) {
- if (hasBlanks > 0)
- hasBlanks++;
- } else {
- if (hasBlanks === 0)
- hasBlanks++;
- }
- }
- }
-
- if (hasBlanks > 1)
- this.setWarningText('WARNING!  You have blank terms before the end of your statement.'
- + '\n\nThis may lead to unpredictable results.');
- else
- this.setWarningText(null);
-
- for (var inCount = 'Y'.charCodeAt(0); inCount >= 'C'.charCodeAt(0); inCount--) {
- if (this.getInput(String.fromCharCode(inCount)) && this.getInput(String.fromCharCode(inCount + 1))) {
- var currentBlock = this.getInput(String.fromCharCode(inCount)).connection.targetBlock();
- var previousBlock = this.getInput(String.fromCharCode(inCount + 1)).connection.targetBlock();
- if (currentBlock === null && previousBlock === null) {
- this.getInput(String.fromCharCode(inCount + 1)).connection.unhighlight();
- this.removeInput(String.fromCharCode(inCount + 1));
- } else if (currentBlock !== null)
- break;
- }
- }
- }
- };
- */

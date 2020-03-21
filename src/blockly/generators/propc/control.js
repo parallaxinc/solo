@@ -35,10 +35,20 @@ if (!Blockly.Blocks)
     Blockly.Blocks = {};
 
 
+/**
+ * Controls Repeat
+ * @type {{
+ *  init: Blockly.Blocks.controls_repeat.init,
+ *  updateShape_: Blockly.Blocks.controls_repeat.updateShape_,
+ *  mutationToDom: (function(): HTMLElement),
+ *  domToMutation: Blockly.Blocks.controls_repeat.domToMutation
+ *  }}
+ */
 Blockly.Blocks.controls_repeat = {
     init: function () {
+        const profile = window.projectProfile;
         var block_label = 'repeat';
-        if (profile.default.description === "Scribbler Robot") {
+        if (profile.description === "Scribbler Robot") {
             this.setHelpUrl(Blockly.MSG_S3_CONTROL_HELPURL);
             this.setTooltip(Blockly.MSG_S3_SCRIBBLER_LOOP_TOOLTIP);
             block_label = 'loop';
@@ -134,11 +144,25 @@ Blockly.propc.controls_repeat = function () {
     return code;
 };
 
+
+/**
+ * Controls If
+ * @type {{
+ *  init: Blockly.Blocks.controls_if.init,
+ *  saveConnections: Blockly.Blocks.controls_if.saveConnections,
+ *  compose: Blockly.Blocks.controls_if.compose,
+ *  mutationToDom: Blockly.Blocks.controls_if.mutationToDom,
+ *  decompose: (function(*): Blockly.Block),
+ *  domToMutation: Blockly.Blocks.controls_if.domToMutation,
+ *  category: string
+ *  }}
+ */
 Blockly.Blocks.controls_if = {
     // If/elseif/else condition.
     category: Blockly.LANG_CATEGORY_CONTROLS,
     init: function () {
-        if (profile.default.description === "Scribbler Robot") {
+        const profile = window.projectProfile;
+        if (profile.description === "Scribbler Robot") {
             this.setHelpUrl(Blockly.MSG_S3_CONTROL_HELPURL);
         } else {
             this.setHelpUrl(Blockly.MSG_CONTROL_HELPURL);
@@ -336,10 +360,19 @@ Blockly.propc.controls_if = function () {
     return code + '\n';
 };
 
+
+/**
+ * Control Repeat For Loop
+ * @type {{
+ *  init: Blockly.Blocks.control_repeat_for_loop.init,
+ *  onchange: Blockly.Blocks.control_repeat_for_loop.onchange
+ *  }}
+ */
 Blockly.Blocks.control_repeat_for_loop = {
     init: function () {
+        const profile = window.projectProfile;
         var block_label = 'repeat';
-        if (profile.default.description === "Scribbler Robot") {
+        if (profile.description === "Scribbler Robot") {
             this.setHelpUrl(Blockly.MSG_S3_CONTROL_HELPURL);
             this.setTooltip(Blockly.MSG_S3_SCRIBBLER_LIMITED_LOOP_TOOLTIP);
             block_label = 'loop';
@@ -356,7 +389,9 @@ Blockly.Blocks.control_repeat_for_loop = {
                 .appendField("from");
         this.appendValueInput('END')
                 .setCheck('Number')
-                .appendField(new Blockly.FieldDropdown([["thru", "= "], ["to", " "]]), "EQ");
+                .appendField(new Blockly.FieldDropdown(
+                    [["thru", "= "], ["to", " "]]),
+                    "EQ");
         this.appendValueInput('STEP')
                 .setCheck('Number')
                 .appendField("by");
@@ -377,15 +412,15 @@ Blockly.Blocks.control_repeat_for_loop = {
                     blockStart.type === 'math_number' &&
                     blockEnd.type === 'math_number' &&
                     blockStep.type === 'math_number') {
-                if (parseInt(blockStart.getFieldValue('NUM')) < parseInt(blockEnd.getFieldValue('NUM')) && 
+                if (parseInt(blockStart.getFieldValue('NUM')) < parseInt(blockEnd.getFieldValue('NUM')) &&
                         parseInt(blockStep.getFieldValue('NUM')) < 0) {
                     warnText = 'WARNING: If the "step" value is negative, the "start" value should be greater than the "end" value!';
-                } else if (parseInt(blockStart.getFieldValue('NUM')) > parseInt(blockEnd.getFieldValue('NUM')) && 
+                } else if (parseInt(blockStart.getFieldValue('NUM')) > parseInt(blockEnd.getFieldValue('NUM')) &&
                         parseInt(blockStep.getFieldValue('NUM')) > 0) {
                     warnText = 'WARNING: If the "step" value is positive, the "start" value should be less than the "end" value!';
                 } else if (parseInt(blockStep.getFieldValue('NUM')) === 0) {
                     warnText = 'WARNING: The "step" value cannot be zero!';
-                } 
+                }
             }
             this.setWarningText(warnText);
         }
@@ -467,11 +502,25 @@ Blockly.propc.controls_break = function () {
     return 'break;';
 };
 
+
+/**
+ * Controls Select
+ * @type {{
+ *  init: Blockly.Blocks.controls_select.init,
+ *  saveConnections: Blockly.Blocks.controls_select.saveConnections,
+ *  compose: Blockly.Blocks.controls_select.compose,
+ *  mutationToDom: Blockly.Blocks.controls_select.mutationToDom,
+ *  decompose: (function(*): Blockly.Block),
+ *  domToMutation: Blockly.Blocks.controls_select.domToMutation,
+ *  category: string
+ *  }}
+ */
 Blockly.Blocks.controls_select = {
     // If/elseif/else condition.
     category: Blockly.LANG_CATEGORY_CONTROLS,
     init: function () {
-        if (profile.default.description === "Scribbler Robot") {
+        const profile = window.projectProfile;
+        if (profile.description === "Scribbler Robot") {
             this.setHelpUrl(Blockly.MSG_S3_CONTROL_HELPURL);
         } else {
             this.setHelpUrl(Blockly.MSG_CONTROL_HELPURL);

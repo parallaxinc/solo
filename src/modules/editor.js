@@ -1262,9 +1262,8 @@ function uploadCode() {
 function uploadHandler(files) {
   // This is he number of bytes from the end of the project file where the
   // <ckm>000...000</cmk> checksum block is located. The project code XML
-  // representation ends with a </block> immediately preceeding the
+  // representation ends with a </block> immediately preceding the
   // checksum block.
-  const CHECKSUM_BLOCK_OFFSET = 30;
 
   const UploadReader = new FileReader();
 
@@ -1299,16 +1298,15 @@ function uploadHandler(files) {
             xmlString.indexOf('<!ENTITY') === -1 &&
             xmlString.indexOf('CDATA') === -1 &&
             xmlString.indexOf('<!--') === -1) {
-      // TODO: instead of parsing by text indexOf's, use XML properly.
-      let findBPCstart = '<block';
+      // Search the project file for the first variable or block
+      const findBPCstart =
+          (xmlString.indexOf('<variables') > -1) ? '<variables' : '<block';
 
-      if (xmlString.indexOf('<variables') > -1) {
-        findBPCstart = '<variables';
-      }
-
+      // Extract everything from the first block to the beginning
+      // on the checksum
       uploadedXML = xmlString.substring(
           xmlString.indexOf(findBPCstart),
-          (xmlString.length - CHECKSUM_BLOCK_OFFSET));
+          xmlString.indexOf('<ckm>'));
 
       uploadBoardType = getProjectBoardTypeName(xmlString);
 
