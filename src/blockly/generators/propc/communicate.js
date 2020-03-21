@@ -6604,8 +6604,15 @@ Blockly.Blocks.i2c_send = {
     }
 };
 
+
+/**
+ * I2C Send C code generator
+ * @return {string}
+ */
 Blockly.propc.i2c_send = function () {
+    // TODO: Please document the following line of code.
     var code = (this.pinWarn ? '// ' + this.pinWarn.replace(/\n/g, '') : '');
+
     var sda = this.getFieldValue('SDA');
     var mode = '0';
     var scl = this.getFieldValue('SCL');
@@ -6627,12 +6634,13 @@ Blockly.propc.i2c_send = function () {
     }
 
     if (!this.disabled) {
+        profile = window.projectProfile;
         var s1 = '';
         var s2 = '';
-        if (profile.default.digital.toString().indexOf(sda + ',' + sda) === -1) {
+        if (profile.digital.toString().indexOf(sda + ',' + sda) === -1) {
             s1 = 'MY_';
         }
-        if (profile.default.digital.toString().indexOf(scl + ',' + scl) === -1) {
+        if (profile.digital.toString().indexOf(scl + ',' + scl) === -1) {
             s2 = 'MY_';
         }
         Blockly.propc.definitions_['i2c_init' + sda] = 'i2c *i2c' + sda + ';';
@@ -6686,6 +6694,19 @@ Blockly.propc.i2c_send = function () {
     return code;
 };
 
+
+/**
+ * I2C Receive
+ * @type {{
+ *  init: Blockly.Blocks.i2c_receive.init,
+ *  mutationToDom: *,
+ *  setPinMenus: Blockly.Blocks.i2c_receive.setPinMenus,
+ *  helpUrl: string,
+ *  domToMutation: *,
+ *  checkI2cPins: (Blockly.Blocks.i2c_send.checkI2cPins|Blockly.Blocks.i2c_send.checkI2cPins),
+ *  updateConstMenu: *
+ *  }}
+ */
 Blockly.Blocks.i2c_receive = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
     init: function () {
@@ -6729,6 +6750,7 @@ Blockly.Blocks.i2c_receive = {
     },
     updateConstMenu: Blockly.Blocks['shift_in'].updateConstMenu,
     setPinMenus: function (oldValue, newValue) {
+        const profile = window.projectProfile;
         var m1 = this.getFieldValue('SDA');
         var m2 = this.getFieldValue('SCL');
         var ct = this.getFieldValue('COUNT');
@@ -6738,13 +6760,15 @@ Blockly.Blocks.i2c_receive = {
         this.appendDummyInput('PINS')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .appendField("bus SDA")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
+                .appendField(new Blockly.FieldDropdown(
+                    profile.digital.concat(this.userDefinedConstantsList_.map(function (value) {
                     return [value, value]  // returns an array of arrays built from the original array.
                 })), function (pin) {
                         this.sourceBlock_.checkI2cPins(null, pin, null);
                 }), "SDA")
                 .appendField("SCL")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
+                .appendField(new Blockly.FieldDropdown(
+                    profile.digital.concat(this.userDefinedConstantsList_.map(function (value) {
                     return [value, value]  // returns an array of arrays built from the original array.
                 })), function (pin) {
                         this.sourceBlock_.checkI2cPins(null, null, pin);
@@ -6766,6 +6790,11 @@ Blockly.Blocks.i2c_receive = {
     checkI2cPins: Blockly.Blocks['i2c_send'].checkI2cPins
 };
 
+
+/**
+ * I2C Receive C code generator
+ * @return {string}
+ */
 Blockly.propc.i2c_receive = function () {
     var code = (this.pinWarn ? '// ' + this.pinWarn.replace(/\n/g, '') : '');
     var sda = this.getFieldValue('SDA');
@@ -6790,12 +6819,13 @@ Blockly.propc.i2c_receive = function () {
     }
 
     if (!this.disabled) {
+        const profile = window.projectProfile;
         var s1 = '';
         var s2 = '';
-        if (profile.default.digital.toString().indexOf(sda + ',' + sda) === -1) {
+        if (profile.digital.toString().indexOf(sda + ',' + sda) === -1) {
             s1 = 'MY_';
         }
-        if (profile.default.digital.toString().indexOf(scl + ',' + scl) === -1) {
+        if (profile.digital.toString().indexOf(scl + ',' + scl) === -1) {
             s2 = 'MY_';
         }
         Blockly.propc.definitions_['i2c_init' + sda] = 'i2c *i2c' + sda + ';';
@@ -6835,6 +6865,17 @@ Blockly.propc.i2c_receive = function () {
     return code;
 };
 
+
+/**
+ * I2C Mode
+ * @type {{
+ *  init: Blockly.Blocks.i2c_mode.init,
+ *  setPinMenus: Blockly.Blocks.i2c_mode.setPinMenus,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.i2c_mode.onchange,
+ *  updateConstMenu: *
+ *  }}
+ */
 Blockly.Blocks.i2c_mode = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
     init: function () {
@@ -6849,6 +6890,7 @@ Blockly.Blocks.i2c_mode = {
     },
     updateConstMenu: Blockly.Blocks['shift_in'].updateConstMenu,
     setPinMenus: function (oldValue, newValue) {
+        const profile = window.projectProfile;
         var m2 = this.getFieldValue('SCL');
         var ct = this.getFieldValue('MODE');
         if(this.getInput('PINS')) {
@@ -6861,7 +6903,8 @@ Blockly.Blocks.i2c_mode = {
                     ["push-pull", "1"]
                 ]), "MODE")
                 .appendField("SCL")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
+                .appendField(new Blockly.FieldDropdown(
+                    profile.digital.concat(this.userDefinedConstantsList_.map(function (value) {
                     return [value, value]  // returns an array of arrays built from the original array.
                 }))), "SCL");
         this.setFieldValue(ct, 'MODE');
@@ -6879,13 +6922,13 @@ Blockly.Blocks.i2c_mode = {
             var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
             this.warnFlag--;
             var sda = null;
-            this.pinWarn = 'WARNING: SCL on this block must match SCL on at least one i\u00B2c receieve or i\u00B2c send block!';
+            this.pinWarn = 'WARNING: SCL on this block must match SCL on at least one i\u00B2c receive or i\u00B2c send block!';
             for (var i = 0; i < allBlocks.length; i++) {
                 if (allBlocks[i].type === 'i2c_send' || allBlocks[i].type === 'i2c_receive') {
                     if (allBlocks[i].getFieldValue('SCL') === this.getFieldValue('SCL')) {
                         if (sda && sda !== allBlocks[i].getFieldValue('SDA')) {
                             this.pinWarn = 'WARNING: Both SDA and SCL must match SDA and SCL on other i\u00B2c blocks if sharing ';
-                            this.pinWarn += 'an i\u00B2c bus, or both must be different if on seperate i\u00B2c busses!';
+                            this.pinWarn += 'an i\u00B2c bus, or both must be different if on separate i\u00B2c busses!';
                             sda = '-1';
                         } else {
                             sda = allBlocks[i].getFieldValue('SDA');
@@ -6907,6 +6950,19 @@ Blockly.propc.i2c_mode = function () {
     return '';
 };
 
+
+/**
+ * I2C Busy
+ * @type {{
+ *  init: Blockly.Blocks.i2c_busy.init,
+ *  mutationToDom: *,
+ *  setPinMenus: Blockly.Blocks.i2c_busy.setPinMenus,
+ *  helpUrl: string,
+ *  onchange: *,
+ *  domToMutation: *,
+ *  updateConstMenu: *
+ *  }}
+ */
 Blockly.Blocks.i2c_busy = {
     helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
     init: function () {
@@ -6923,13 +6979,15 @@ Blockly.Blocks.i2c_busy = {
     },
     updateConstMenu: Blockly.Blocks['shift_in'].updateConstMenu,
     setPinMenus: function (oldValue, newValue) {
+        const profile = window.projectProfile;
         var m2 = this.getFieldValue('SCL');
         if(this.getInput('PINS')) {
             this.removeInput('PINS');
         }
         this.appendDummyInput('PINS')
                 .appendField("busy  SCL")
-                .appendField(new Blockly.FieldDropdown(profile.default.digital.concat(this.userDefinedConstantsList_.map(function (value) {
+                .appendField(new Blockly.FieldDropdown(
+                    profile.digital.concat(this.userDefinedConstantsList_.map(function (value) {
                     return [value, value]  // returns an array of arrays built from the original array.
                 }))), "SCL");
         if (m2 && m2 === oldValue && newValue) {

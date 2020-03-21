@@ -16,7 +16,12 @@
 ### communicate.js
 * Blockly.Blocks.debug_lcd_init
 * Blockly.propc.debug_lcd_init
+* Blockly.Blocks.i2c_busy
+* Blockly.Blocks.i2c_mode
+* Blockly.Blocks.i2c_receive
+* Blockly.propc.i2c_receive
 * Blockly.Blocks.i2c_send
+* Blockly.propc.i2c_send
 * Blockly.propc.oled_bitmap
 * Blockly.Blocks.oled_initialize
 * Blockly.propc.oled_initialize
@@ -30,3 +35,4 @@
 * Blockly.Blocks.wx_init_adv
 * Blockly.Blocks.xbee_setup
 * Blockly.propc.xbee_setup
+
