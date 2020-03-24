@@ -30,9 +30,10 @@ let projectInitialState = null;
 
 /**
  * Current project profile
- * @type {Project.boardType |null}
+ * @type {Project.boardType | null}
  */
 let defaultProfile = null;
+
 
 /**
  * Reset the initial project state to null
@@ -58,6 +59,10 @@ function setProjectInitialState(project) {
   if (project instanceof Project) {
     if (project !== projectInitialState) {
       projectInitialState = project;
+
+      // Add the the project to the ES5 global space for the
+      // custom block definitions
+      window.project = project;
     }
     return projectInitialState;
   }
@@ -80,6 +85,9 @@ function getDefaultProfile() {
  */
 function setDefaultProfile(value) {
   defaultProfile = value;
+
+  // Add the the project profile (aka board type) to the ES5 global
+  // space for the custom block definitions
   window.projectProfile = value;
 }
 
@@ -404,20 +412,134 @@ Project.prototype.EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/x
  * implementation in case we want to introduce another language, such
  * as Python or GoLang.
  *
- * @type {{UNKNOWN: string, PROPC: string}}
+ * @type {{
+ *  UNKNOWN: string,
+ *  PROPC: string
+ *  }}
  */
 const ProjectTypes = {
   'PROPC': 'PROPC',
   'UNKNOWN': 'UNKNOWN',
 };
 
-
-// noinspection DuplicatedCode
 /**
  * Board types describe the various types of hardware the project
  * will support. This includes robots, project boards and the S3
  *
- * @type Object - This returns a board type object
+ * // This returns a board type object
+ * @type {{
+ *  propcfile: {
+ *    digital: string[][],
+ *    saves_to: [],
+ *    analog: [],
+ *    baudrate: number,
+ *    name: string,
+ *    description: string,
+ *    contiguous_pins_end: number,
+ *    contiguous_pins_start: number
+ *    },
+ *  s3: {
+ *    digital: string[][],
+ *    saves_to: [
+ *      [string, string]
+ *    ],
+ *    analog: [
+ *      [string, string],
+ *      [string, string]
+ *    ],
+ *    baudrate: number,
+ *    name: string,
+ *    description: string,
+ *    contiguous_pins_end: number,
+ *    contiguous_pins_start: number
+ *    },
+ *  activityboard: {
+ *    digital: string[][],
+ *    saves_to: [
+ *      [string, string],
+ *      [string, string],
+ *      [string, string]
+ *      ],
+ *    analog: [
+ *      [string, string],
+ *      [string, string],
+ *      [string, string],
+ *      [string, string]
+ *      ],
+ *    earphone_jack_inverted: string,
+ *    baudrate: number,
+ *    sd_card: string,
+ *    name: string,
+ *    description: string,
+ *    earphone_jack: string,
+ *    contiguous_pins_end: number,
+ *    contiguous_pins_start: number
+ *    },
+ *  other: {
+ *    digital: string[][],
+ *    saves_to: [
+ *      [string, string],
+ *      [string, string],
+ *      [string, string]
+ *      ],
+ *    analog: [],
+ *    baudrate: number,
+ *    name: string,
+ *    description: string,
+ *    contiguous_pins_end: number,
+ *    contiguous_pins_start: number
+ *    },
+ *  heb: {
+ *    digital: string[][],
+ *    saves_to: [
+ *      [string, string],
+ *      [string, string]
+ *    ],
+ *    analog: [],
+ *    earphone_jack_inverted: string,
+ *    baudrate: number,
+ *    name: string,
+ *    description: string,
+ *    earphone_jack: string,
+ *    contiguous_pins_end: number,
+ *    contiguous_pins_start: number
+ *    },
+ *  flip: {
+ *    digital: string[][],
+ *    saves_to: [
+ *      [string, string],
+ *      [string, string],
+ *      [string, string]
+ *      ],
+ *    analog: [],
+ *    baudrate: number,
+ *    name: string,
+ *    description: string,
+ *    contiguous_pins_end: number,
+ *    contiguous_pins_start: number
+ *    },
+ *  hebwx: {
+ *    digital: string[][],
+ *    saves_to: [
+ *      [string, string],
+ *      [string, string]
+ *      ],
+ *    analog: [],
+ *    earphone_jack_inverted: string,
+ *    baudrate: number,
+ *    sd_card: string,
+ *    name: string,
+ *    description: string,
+ *    earphone_jack: string,
+ *    contiguous_pins_end: number,
+ *    contiguous_pins_start: number
+ *    },
+ *  unknown: {
+ *    saves_to: [],
+ *    name: string,
+ *    description: string
+ *    }
+ *  }}
  */
 const ProjectProfiles = {
   'activityboard': {

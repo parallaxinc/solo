@@ -25,6 +25,7 @@ let activeProfile = null;
 /**
  * This is a singleton class that holds the representation of the original
  * state of the project that is currently loaded onto the editor canvas.
+ * @class
  */
 export default class ProjectProfile {
   /**
@@ -40,6 +41,66 @@ export default class ProjectProfile {
 
     this.state = 'duke';
     this.instance = this;
+    this.digital = [[]];
+
+    /*
+     *  activityboard: {
+    *    digital: string[][],
+    *    saves_to: [
+      *      [string, string],
+    *      [string, string],
+    *      [string, string]
+      *      ],
+    *    analog: [
+      *      [string, string],
+    *      [string, string],
+    *      [string, string],
+    *      [string, string]
+      *      ],
+    *    earphone_jack_inverted: string,
+    *    baudrate: number,
+    *    sd_card: string,
+    *    name: string,
+    *    description: string,
+    *    earphone_jack: string,
+    *    contiguous_pins_end: number,
+    *    contiguous_pins_start: number
+      *    },
+      */
   }
 }
 
+
+/**
+ * @type {{
+ *  digital: string[][],
+ *  saves_to: [
+ *    [string, string],
+ *    [string, string],
+ *    [string, string]
+ *    ],
+ *  analog: [
+ *    [string, string],
+ *    [string, string],
+ *    [string, string],
+ *    [string, string]
+ *    ],
+ *    earphone_jack_inverted: string,
+ *    baudrate: number,
+ *    sd_card: string,
+ *    name: string,
+ *    description: string,
+ *    earphone_jack: string,
+ *    contiguous_pins_end: number,
+ *    contiguous_pins_start: number
+}}
+ */
+const testBoardType = {
+  name: '',
+  description: '',
+  earphone_jack: '',
+  earphone_jack_inverted: '',
+  baudrate: 9600,
+};
+
+console.log('BoardType is: %s', testBoardType);
