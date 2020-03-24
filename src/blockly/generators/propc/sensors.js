@@ -2441,7 +2441,7 @@ Blockly.Blocks.sirc_get = {
         this.setColour(colorPalette.getColor('input'));
         this.pinChoices = ['PIN'];
         this.otherPin = [false];
-        if (projectData.board && projectData.board === "heb-wx") {
+        if (window.project.boardType.name === "heb-wx") {
             this.appendDummyInput()
                 .appendField("Sony Remote value received");
         } else {
@@ -2460,7 +2460,7 @@ Blockly.Blocks.sirc_get = {
 
 Blockly.propc.sirc_get = function () {
     var pin = '0';
-    if (projectData.board && projectData.board === "heb-wx") {
+    if (window.project.boardType.name === "heb-wx") {
         pin = '23';
     } else if (this.otherPin[0]) {
         pin = Blockly.propc.valueToCode(this, 'PIN', Blockly.propc.ORDER_ATOMIC) || '0';

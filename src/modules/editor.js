@@ -25,13 +25,14 @@ import {saveAs} from 'file-saver';
 
 import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
-  PROJECT_NAME_DISPLAY_MAX_LENGTH,
+  PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName, TestApplicationName,
+  productBannerHostTrigger,
 } from './constants.js';
 
 
 import {
   clientService, compile, getComPort, loadInto, renderContent, downloadCSV,
-  initializeBlockly,
+  initializeBlockly, sanitizeFilename,
 } from './blocklyc.js';
 
 import {CodeEditor, propcAsBlocksXml} from './code_editor.js';
@@ -61,7 +62,7 @@ import {utils} from './utility.js';
  *
  * @type {string | null}
  */
-let uploadedXML = null;
+// let uploadedXML = null;
 
 /**
  * The call to Blockly.svgResize() requires a reference to the
@@ -314,12 +315,13 @@ $(() => {
     // window.location.href = 'index.html' + getAllUrlParameters();
     // TODO: New Default Project
     const defaultProject = buildDefaultProjectFile();
+    setProjectInitialState(defaultProject);
     setupWorkspace(defaultProject, function() {
       console.log('Building a default project.');
     });
 
     // Create an instance of the CodeEditor class
-    codeEditor = new CodeEditor(defaultProject.boardType);
+    codeEditor = new CodeEditor(defaultProject.boardType.name);
     if (!codeEditor) {
       console.log('Error allocating CodeEditor object');
     }
@@ -943,6 +945,7 @@ function saveAsDialog() {
   // Reset the save-as modal's fields
   $('#save-as-project-name').val(getProjectInitialState().name);
   $('#save-as-board-type').empty();
+
   profile.default.saves_to.forEach(function(bt) {
     $('#save-as-board-type').append($('<option />').val(bt[1]).text(bt[0]));
   });
@@ -1016,7 +1019,7 @@ function saveProjectAs(boardType, projectName) {
  * @param {string} str
  * @return {number}
  */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
+/*
 function hashCode(str) {
   let hash = 0; let i = 0; const len = str.length;
   while (i < len) {
@@ -1024,7 +1027,7 @@ function hashCode(str) {
   }
   return (hash + 2147483647) + 1;
 }
-
+*/
 
 /**
  * Encode a string to an XML-safe string by replacing unsafe
@@ -1270,10 +1273,20 @@ function uploadHandler(files) {
   // Event handler that fires when the file that the user selected is loaded
   // from local storage
   UploadReader.onload = function() {
+    // The project board type string
+    let uploadBoardType = '';
+
+    // Raw XML from the .svg file
+    let projectRawXmlCode = '';
+
+    // Project code with the correct xml namespace xml tag
+    let projectXmlCode = '';
+
+    // Flag to indicate that the project contains a valid code block
+    let xmlValid = false;
+
     // Save the file contents in xmlString
     const xmlString = this.result;
-    const xmlValid = true;
-    let uploadBoardType = '';
 
     // TODO: Solo #261
     // Loop through blocks to verify blocks are supported for the project
@@ -1302,24 +1315,30 @@ function uploadHandler(files) {
       const findBPCstart =
           (xmlString.indexOf('<variables') > -1) ? '<variables' : '<block';
 
-      // Extract everything from the first block to the beginning
-      // on the checksum
-      uploadedXML = xmlString.substring(
+      // Extract everything from the first variable or block tag to the
+      // beginning of the checksum block. This is the project code
+      projectRawXmlCode = xmlString.substring(
           xmlString.indexOf(findBPCstart),
           xmlString.indexOf('<ckm>'));
 
+      // Add the xml namespace tag to the project code
+      if (projectRawXmlCode.length > 0) {
+        projectXmlCode =
+            EMPTY_PROJECT_CODE_HEADER + projectRawXmlCode + '</xml>';
+        xmlValid = true;
+      }
+
       uploadBoardType = getProjectBoardTypeName(xmlString);
 
-      if (xmlValid) {
-        if (getProjectInitialState() &&
-            uploadBoardType !== getProjectInitialState().boardType.name) {
-          $('#selectfile-verify-boardtype').css('display', 'block');
-        } else {
-          $('#selectfile-verify-boardtype').css('display', 'none');
-        }
-      }
-      if (uploadedXML !== '') {
-        uploadedXML = EMPTY_PROJECT_CODE_HEADER + uploadedXML + '</xml>';
+      // Check to see if there is a project already loaded. If there is, check
+      // the existing project's board type to verify that the new project is
+      // of the same type
+      if (getProjectInitialState() &&
+          uploadBoardType !== getProjectInitialState().boardType.name) {
+        // Display a modal?
+        $('#selectfile-verify-boardtype').css('display', 'block');
+      } else {
+        $('#selectfile-verify-boardtype').css('display', 'none');
       }
 
       // TODO: check to see if this is used when opened from the editor
@@ -1339,7 +1358,7 @@ function uploadHandler(files) {
 
       const pd = {
         'board': uploadBoardType,
-        'code': uploadedXML,
+        'code': projectXmlCode,
         'created': projectCreated,
         'description': decodeFromValidXml(projectDesc),
         'description-html': '',
@@ -1368,7 +1387,7 @@ function uploadHandler(files) {
             decodeFromValidXml(projectDesc),
             tmpBoardType,
             ProjectTypes.PROPC,
-            uploadedXML,
+            projectXmlCode,
             projectCreated,
             projectModified,
 
@@ -1396,18 +1415,20 @@ function uploadHandler(files) {
 
       // Save the project to the browser store
       window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
+
+      // TODO: Reload the UI
     }
 
     if (xmlValid === true) {
       $('#selectfile-verify-valid').css('display', 'block');
       document.getElementById('selectfile-replace').disabled = false;
       document.getElementById('selectfile-append').disabled = false;
-      uploadedXML = xmlString;
+      // uploadedXML = xmlString;
     } else {
       $('#selectfile-verify-notvalid').css('display', 'block');
       document.getElementById('selectfile-replace').disabled = true;
       document.getElementById('selectfile-append').disabled = true;
-      uploadedXML = '';
+      // uploadedXML = '';
     }
   };
 
@@ -1421,6 +1442,11 @@ function uploadHandler(files) {
  *
  * @param {string} xmlString
  * @return {string}
+ *
+ * @description
+ *  The xmlString parameter contains the raw text from the project .svg file.
+ *  This function looks for the Device preamble and the computes an offset
+ *  to reach the actual board type string.
  */
 function getProjectBoardTypeName(xmlString) {
   const boardIndex = xmlString.indexOf(
@@ -1518,7 +1544,7 @@ function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
  */
 function clearUploadInfo(redirect) {
   // Reset all of the upload fields and containers
-  uploadedXML = '';
+  // uploadedXML = '';
 
   $('#selectfile').val('');
   $('#selectfile-verify-notvalid').css('display', 'none');
@@ -1658,7 +1684,7 @@ function uploadMergeCode(append) {
 
       // rebuild vars from both new/old
       tmpv = '<variables>';
-      oldBPCvars.forEach(function(vi, j) {
+      oldBPCvars.forEach(function(vi) {
         tmpv += '<variable id="' + vi[1] + '" type="' + vi[2] + '">' +
             vi[0] + '</variable>';
       });

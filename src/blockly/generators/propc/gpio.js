@@ -1618,7 +1618,7 @@ Blockly.Blocks.sound_play = {
         this.setSoundAction(action);
     },
     onchange: function (event) {
-        if (!(projectData.board && (projectData.board === "heb" || projectData.board === "heb-wx"))) {
+        if (!(window.project.boardType.name === "heb" || window.project.boardType.name === "heb-wx")) {
             if (event.type == Blockly.Events.BLOCK_CREATE || event.type == Blockly.Events.BLOCK_DELETE) {
                 var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
                 if (allBlocks.indexOf('sound initialize') === -1) {
@@ -1658,14 +1658,16 @@ Blockly.propc.sound_play = function () {
     var code = 'sound_' + action + '(audio0, ' + channel + ', ' + value + ');';
 
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-    if (allBlocks.indexOf('sound initialize') === -1 && !(projectData.board &&
-            (projectData.board === "heb") || (projectData.board === "heb-wx"))) {
+    if (allBlocks.indexOf('sound initialize') === -1 &&
+        !(window.project && (window.project.boardType.name === "heb") ||
+        window.project.boardType.name === "heb-wx")) {
         code = '// WARNING: You must use a sound initialize block at the beginning of your program!\n';
     }
 
-    if (projectData['board'] && !this.disabled) {
+    if (window.project && !this.disabled) {
         const profile = window.projectProfile;
-        if (projectData['board'] === "heb" || projectData['board'] === "heb-wx") {
+        if (window.project.boardType.name === "heb" ||
+            window.project.boardType.name === "heb-wx") {
             Blockly.propc.setups_["sound_start"] = 'audio0 = sound_run(' + profile.earphone_jack_inverted + ');';
         }
         Blockly.propc.definitions_["include_soundplayer"] = '#include "sound.h"';
@@ -1732,7 +1734,7 @@ Blockly.propc.wav_play = function () {
         if (!initFound) {
             Blockly.propc.setups_["sd_card"] = 'sd_mount(' + profile.sd_card + ');';
         }
-        if (projectData["board"] === "heb-wx" && !wPinFound) {
+        if (window.project.boardType.name === "heb-wx" && !wPinFound) {
             Blockly.propc.setups_["wavplayer_pin"] = 'wav_set_pins(' + profile.earphone_jack + ');';
         }
     }
@@ -1937,7 +1939,8 @@ Blockly.Blocks.sd_open = {
         this.setNextStatement(true, null);
     },
     onchange: function () {
-        if (projectData["board"] !== "activity-board" && projectData["board"] !== "heb-wx") {
+        if (window.project.boardType.name !== "activity-board" &&
+            window.project.boardType.name !== "heb-wx") {
             var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
             if (allBlocks.indexOf('SD initialize') === -1) {
                 this.setWarningText('WARNING: You must use a SD initialize\nblock at the beginning of your program!');
@@ -1979,7 +1982,8 @@ Blockly.propc.sd_open = function () {
     }
 
     var code = head + 'fp = fopen("' + fp + '","' + mode + '");';
-    if (projectData["board"] !== "activity-board" && projectData["board"] !== "heb-wx" &&
+    if (window.project.boardType.name !== "activity-board" &&
+        window.project.boardType.name !== "heb-wx" &&
             allBlocks.toString().indexOf('SD initialize') === -1) {
         code = '// WARNING: You must use a SD initialize block at the beginning of your program!';
     }
@@ -2068,8 +2072,9 @@ Blockly.Blocks.sd_read = {
             var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
             if (allBlocks.indexOf('SD file open') === -1) {
                 warnTxt = 'WARNING: You must use a SD file open block\nbefore reading, writing, or closing an SD file!';
-            } else if (allBlocks.indexOf('SD initialize') === -1 && projectData["board"] !== "heb-wx"
-                    && projectData["board"] !== "activity-board") {
+            } else if (allBlocks.indexOf('SD initialize') === -1 &&
+                window.project.boardType.name !== "heb-wx" &&
+                window.project.boardType.name !== "activity-board") {
                 warnTxt = 'WARNING: You must use a SD initialize\nblock at the beginning of your program!';
             }
             this.setWarningText(warnTxt);
@@ -2107,8 +2112,9 @@ Blockly.propc.sd_read = function () {
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('SD file open') === -1) {
         code = '// WARNING: You must use a SD file open block before reading, writing, or closing an SD file!';
-    } else if (allBlocks.indexOf('SD initialize') === -1 && projectData["board"] !== "heb-wx"
-            && projectData["board"] !== "activity-board") {
+    } else if (allBlocks.indexOf('SD initialize') === -1 &&
+        window.project.boardType.name !== "heb-wx" &&
+        window.project.boardType.name !== "activity-board") {
         code = '// WARNING: You must use a SD initialize block at the beginning of your program!';
     }
 
@@ -2197,8 +2203,9 @@ Blockly.propc.sd_file_pointer = function () {
 
     if (allBlocks.indexOf('SD file open') === -1) {
         code = '// WARNING: You must use a SD file open block before using the file pointer!';
-    } else if (allBlocks.indexOf('SD initialize') === -1 && projectData["board"] !== "heb-wx"
-            && projectData["board"] !== "activity-board") {
+    } else if (allBlocks.indexOf('SD initialize') === -1 &&
+        window.project.boardType.name !== "heb-wx" &&
+        window.project.boardType.name !== "activity-board") {
         code = '// WARNING: You must use a SD initialize block at the beginning of your program!';
     } else if (this.getFieldValue('MODE') === 'set') {
         var fp = Blockly.propc.valueToCode(this, 'FP', Blockly.propc.ORDER_NONE) || '0';
@@ -2228,7 +2235,7 @@ Blockly.Blocks.ab_drive_init = {
                     ["ActivityBot", "abdrive.h"],
                     ["Arlo", "arlodrive.h"],
                     ["Servo Differential Drive", "servodiffdrive.h"]];
-        if (projectData["board"] !== "activity-board") {
+        if (window.project.boardType.name !== "activity-board") {
             botTypeMenu = [["Servo Differential Drive", "servodiffdrive.h"]];
         }
         this.setTooltip(Blockly.MSG_ROBOT_DRIVE_INIT_TOOLTIP);
@@ -2245,7 +2252,7 @@ Blockly.Blocks.ab_drive_init = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
-        if (projectData["board"] !== "activity-board") {
+        if (window.project.boardType.name !== "activity-board") {
             this.updateShape_({"BOT": "servodiffdrive.h", "LEFT": '12', "RIGHT": '13'});
         }
     },
@@ -2342,7 +2349,7 @@ Blockly.Blocks.ab_drive_ramping = {
         this.setPreviousStatement(true, "Block");
         this.setNextStatement(true, null);
         this.isBot = '';
-        if (projectData["board"] !== "activity-board") {
+        if (window.project.boardType.name !== "activity-board") {
             this.newRobot('servodiffdrive.h');
         }
     },

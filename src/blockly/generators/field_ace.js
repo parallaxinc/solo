@@ -23,7 +23,7 @@
 /**
  * @fileoverview Code input field.
  * @author matt.m.matz@gmail.com (Matthew Matz)
- * 
+ *
  * Based on custom field examples written by Beka Westberg
  * https://github.com/BeksOmega/BlocklySummit2019-Fields
  */
@@ -37,6 +37,7 @@ goog.require('Blockly.utils.dom');
 
 /**
  * Class for a field used to edit custom code.
+ * @param {string} displayText
  * @param {string=} opt_value text or code to initially start with in the editor.
  * @param {Function=} opt_validator A function that is called to validate
  *    changes to the field's value.
@@ -50,6 +51,7 @@ Blockly.FieldAceEditor = function(displayText, opt_value, opt_validator) {
   }
   Blockly.FieldAceEditor.superClass_.constructor.call(this, opt_value, opt_validator);
 };
+
 goog.inherits(Blockly.FieldAceEditor, Blockly.Field);
 
 /**
@@ -84,10 +86,10 @@ Blockly.FieldAceEditor.prototype.doClassValidation_ = function(newValue) {
  * Render the on-block display. And rerender the editor if it is open.
  * @protected
  */
-Blockly.FieldAceEditor.prototype.render_ = function() {  
+Blockly.FieldAceEditor.prototype.render_ = function() {
   if (!this.arrowRendered_) {
     this.arrowRendered_ = true;
-    var span = Blockly.utils.dom.createSvgElement('tspan', {}, null);
+    const span = Blockly.utils.dom.createSvgElement('tspan', {}, null);
     this.arrow_ = document.createTextNode(' \u25BE');
     span.appendChild(this.arrow_);
     span.style['fill'] = this.sourceBlock_.getColour();
@@ -119,7 +121,7 @@ Blockly.FieldAceEditor.prototype.getDisplayText_ = function() {
  */
 Blockly.FieldAceEditor.prototype.showEditor_ = function() {
   this.editor_ = this.dropdownCreate_();
-  var currentField = this;
+  const currentField = this;
   this.codeField_ = ace.edit(this.editor_);
   this.codeField_.setTheme("ace/theme/chrome");
   this.codeField_.getSession().setMode("ace/mode/c_cpp");
@@ -143,10 +145,11 @@ Blockly.FieldAceEditor.prototype.showEditor_ = function() {
  * @private
  */
 Blockly.FieldAceEditor.prototype.dropdownCreate_ = function() {
-  var editorDiv = document.createElement('div');
+  const editorDiv = document.createElement('div');
   editorDiv.style.width = '400px';
   editorDiv.style.height = '250px';
 
+  // TODO: Returning an HTMLDivElement but a HTMLObjectElement was specified.
   return editorDiv;
 };
 

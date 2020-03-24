@@ -74,10 +74,13 @@
 * Blockly.propc.heb_text_to_speech_say
 * Blockly.propc.heb_text_to_speech_spell
 
-
 ### procedures.js
 * Blockly.Blocks['procedures_callnoreturn']
 * Blockly.Blocks['procedures_defnoreturn']
+
+### propc.js
+* Blockly.propc.finish
+* Blockly.propc.init
 
 ### s3.js
 * Blockly.Blocks.analog_input

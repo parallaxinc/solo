@@ -26,8 +26,17 @@
  */
 'use strict';
 
-var array_contains = function (haystack, needle) {
-    for (var straw = 0; straw < haystack.length; straw++) {
+
+/**
+ * Looks for a needle in a haystack. That's all we know.
+ * @param {Array} haystack
+ * @param {string} needle
+ * @return {null|number}
+ *
+ * @deprecated This appears to be an abandoned function
+ */
+const array_contains = function (haystack, needle) {
+    for (let straw = 0; straw < haystack.length; straw++) {
         if (haystack[straw] === needle) {
             return straw;
         }
@@ -39,7 +48,7 @@ var array_contains = function (haystack, needle) {
  * Color Palette - Created by Michel on 30-4-2016.
  */
 
-var colorPalette = {
+const colorPalette = {
     defaultColors: {
         'input': 140,
         'output': 165,
@@ -77,8 +86,8 @@ var colorPalette = {
         }
         return '#000000';
     }
-
 };
+
 
 if (document.referrer.indexOf('?') === -1) {
     colorPalette.activePalette = colorPalette.defaultColors;
@@ -132,6 +141,7 @@ Blockly.propc.ORDER_NONE = 99; // (...)
  * propc Board profiles
  *
  */
+/*
 var profile = {
     "activity-board": {
         description: "Propeller Activity Board",
@@ -205,14 +215,15 @@ var profile = {
         saves_to: []
     }
 };
-
+*/
 
 /**
  * Initialize the database of variable names.
  * @param {workspace} workspace The active workspace.
  */
 Blockly.propc.init = function (workspace) {
-// Create a dictionary of definitions to be printed before setups.
+    const profile = window.projectProfile;
+    // Create a dictionary of definitions to be printed before setups.
     Blockly.propc.definitions_ = {};
     Blockly.propc.definitions_["include simpletools"] = '#include "simpletools.h"';
     Blockly.propc.methods_ = {};
@@ -228,12 +239,12 @@ Blockly.propc.init = function (workspace) {
     Blockly.propc.string_var_lengths = [];
 
     // Set up specific libraries for devices like the Scribbler or Badge
-    if (profile.default.description === "Scribbler Robot") {
+    if (profile.description === "Scribbler Robot") {
         Blockly.propc.definitions_[ "include_scribbler" ] = '#include "s3.h"';
-    } else if (profile.default.description === "Hackable Electronic Badge") {
+    } else if (profile.description === "Hackable Electronic Badge") {
         Blockly.propc.definitions_["badgetools"] = '#include "badgetools.h"';
         Blockly.propc.setups_["badgetools"] = 'badge_setup();';
-    } else if (profile.default.description === "Badge WX") {
+    } else if (profile.description === "Badge WX") {
         Blockly.propc.definitions_["badgetools"] = '#include "badgewxtools.h"';
         Blockly.propc.setups_["badgetools"] = 'badge_setup();';
     }
@@ -267,6 +278,7 @@ Blockly.propc.init = function (workspace) {
  * @return {string} Completed code.
  */
 Blockly.propc.finish = function (code) {
+    const profile = window.projectProfile;
     // Convert the definitions dictionary into a list.
     var imports = [];
     var methods = [];
@@ -372,9 +384,7 @@ Blockly.propc.finish = function (code) {
                 function_vars.push(definitions[def]);
             }
         }
-
     }
-
 
     for (var stack in Blockly.propc.stacks_) {
         definitions.push(Blockly.propc.stacks_[stack]);
@@ -386,7 +396,7 @@ Blockly.propc.finish = function (code) {
     for (var name in Blockly.propc.setups_)
         setups.push('  ' + Blockly.propc.setups_[name]);
 
-    if (profile.default.description === "Scribbler Robot")
+    if (profile.description === "Scribbler Robot")
         setups.unshift('  s3_setup();pause(100);');
 
     // Add volatile to variable declarations in cogs
@@ -432,7 +442,7 @@ Blockly.propc.finish = function (code) {
         code = 'int main()\n{\n' + setups.join('\n') + '\n' + code + '\n}';
         var setup = '';
         if (Blockly.mainWorkspace.getAllBlocks().length === 0 &&
-                profile.default.description !== "Propeller C (code-only)") {
+                profile.description !== "Propeller C (code-only)") {
             setup += "/* EMPTY_PROJECT */\n";
         }
         setup += ui_system_settings.join('\n') + '\n\n';

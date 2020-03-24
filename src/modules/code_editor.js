@@ -23,21 +23,6 @@
 import {isExperimental} from './url_parameters';
 import {EMPTY_PROJECT_CODE_HEADER} from './constants';
 
-/**
- * TODO: Identify the purpose of this variable
- *
- * @type {{}}
- */
-let codePropC = null;
-
-
-/**
- * TODO: Identify the purpose of this variable
- *
- * @type {null}
- */
-let codeXml = null;
-
 
 /**
  * Prop c code editor implementing the Ace package
@@ -48,24 +33,26 @@ class CodeEditor {
    * @param {string} boardType
    */
   constructor(boardType) {
-    if (!codePropC) {
-      codePropC = ace.edit('code-propc');
-      codePropC.setTheme('ace/theme/chrome');
-      codePropC.getSession().setMode('ace/mode/c_cpp');
-      codePropC.getSession().setTabSize(2);
-      codePropC.$blockScrolling = Infinity;
-      codePropC.setReadOnly(true);
+    if (!window.codePropC) {
+      const code = ace.edit('code-propc');
+      code.setTheme('ace/theme/chrome');
+      code.getSession().setMode('ace/mode/c_cpp');
+      code.getSession().setTabSize(2);
+      code.$blockScrolling = Infinity;
+      code.setReadOnly(true);
 
       // if the project is a propc code-only project, enable code editing.
       if (boardType === 'propcfile') {
-        codePropC.setReadOnly(false);
+        code.setReadOnly(false);
       }
+      setPropCCode(code);
     }
 
-    if (!codeXml && isExperimental.indexOf('xedit') > -1) {
-      codeXml = ace.edit('code-xml');
-      codeXml.setTheme('ace/theme/chrome');
-      codeXml.getSession().setMode('ace/mode/xml');
+    if (!window.codeXml && isExperimental.indexOf('xedit') > -1) {
+      const xmlCode = ace.edit('code-xml');
+      xmlCode.setTheme('ace/theme/chrome');
+      xmlCode.getSession().setMode('ace/mode/xml');
+      setPropCodeXml(xmlCode);
     }
   }
 
@@ -73,7 +60,7 @@ class CodeEditor {
    * Ace editor Undo command
    */
   undo() {
-    codePropC.undo();
+    window.codePropC.undo();
   }
 
 
@@ -81,7 +68,7 @@ class CodeEditor {
    * Ace editor Redo command
    */
   redo() {
-    codePropC.redo();
+    window.codePropC.redo();
   }
 }
 
@@ -93,6 +80,7 @@ class CodeEditor {
  */
 function propcAsBlocksXml() {
   let code = EMPTY_PROJECT_CODE_HEADER;
+  const codePropC = window.codePropC;
   code += '<block type="propc_file" id="' +
       generateBlockId(codePropC ?
           codePropC.getValue() : 'thequickbrownfoxjumpedoverthelazydog') +
@@ -129,5 +117,22 @@ function generateBlockId(nonce) {
   return blockId;
 }
 
+
+/**
+ * Set the global codePropC variable
+ * @param {Object} value
+ */
+function setPropCCode(value) {
+  window.codePropC = value;
+}
+
+
+/**
+ *
+ * @param {object} value
+ */
+function setPropCodeXml(value) {
+  window.codeXml = value;
+}
 
 export {CodeEditor, propcAsBlocksXml};
