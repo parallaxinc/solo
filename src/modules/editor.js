@@ -255,6 +255,8 @@ $(() => {
 
   // This is setting the URIs for images referenced in the html page
   initCdnImageUrls();
+
+  // Set up the URLs to download new Launchers and BP Clients
   initClientDownloadLinks();
 
   // Load a project file from local storage
