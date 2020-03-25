@@ -1495,8 +1495,18 @@ export const clientService = {
   available: false,             // {boolean} Has a client (BPC/BPL) successfully connected
   portsAvailable: false,        // {boolean} Are any serial ports enumerated
   path: 'localhost',            // {string} usually "localhost", but can be configured to point to a client at any reachable IP/DNS address
-  port: 6009,                   // {number} BlocklyProp Client/Launcher port number
-  type: null,                   // {string} null, "ws", "http"
+
+  /**
+   *  BlocklyProp Client/Launcher port number
+   * @type {number}
+   */
+  port: 6009,
+
+  /**
+   * Connection type: null, "ws", "http"
+   * @type {string | null}
+   */
+  type: null,
 
   rxBase64: true,               // {boolean} BP Launcher full base64 encoding support flag
   loadBinary: false,            // {boolean} BP Launcher download message flag
@@ -1565,6 +1575,11 @@ $(document).ready(function() {
   setInterval(findClient, 3500);
 });
 
+
+/**
+ *  Try to connect to the BP-Launcher or BlocklyProp Client
+
+ */
 const findClient = function() {
   // Try to connect to the BP-Launcher (websocket) first
   // TODO: evaluation is always true, probably not what we want here.
@@ -1579,7 +1594,7 @@ const findClient = function() {
     // Is the BP-Launcher taking to long to respond?  If so, close the connection
     if (clientService.portListReceiveCountUp > 2) {
       clientService.activeConnection.close();
-      // TODO: check to see if this is really necesssary - it get's called by the WS onclose handler
+      // TODO: check to see if this is really necessary - it get's called by the WS onclose handler
       lostWSConnection();
     }
   }
@@ -1694,6 +1709,7 @@ const propToolbarButtonController = (connected) => {
  *  '0.0.0' format (Semantic versioning)
  */
 function checkClientVersionModal(rawVersion) {
+  // Record the version reported by the client
   if (rawVersion) {
     clientService.version.set(rawVersion);
   }

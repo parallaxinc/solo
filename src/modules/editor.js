@@ -214,7 +214,7 @@ $(() => {
 
       // Overwrite the code blocks with the current project state
       tempProject.code = getXml();
-      const today = Date();
+      const today = new Date();
       tempProject.timestamp = today.getTime();
 
       // Save the current project into the browser store where it will
@@ -661,28 +661,30 @@ function initEventHandlers() {
  * HTML meta tag.
  */
 function initClientDownloadLinks() {
+  const uriRoot = 'http://downloads.parallax.com/blockly';
+
   // Windows 32-bit
   $('.client-win32-link')
-      .attr('href', $('meta[name=win32client]').attr('content'));
+      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-32.exe');
 
   $('.client-win32zip-link')
-      .attr('href', $('meta[name=win32zipclient]').attr('content'));
+      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-32.zip');
 
   // Windows 64-bit
   $('.client-win64-link')
-      .attr('href', $('meta[name=win64client]').attr('content'));
+      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-64.exe');
   $('.client-win64zip-link')
-      .attr('href', $('meta[name=win64zipclient]').attr('content'));
+      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-64.zip');
   $('.launcher-win64-link')
-      .attr('href', $('meta[name=win64launcher]').attr('content'));
+      .attr('href', uriRoot + '/launcher/Setup-BPLauncher-Win.exe');
   $('.launcher-win64zip-link')
-      .attr('href', $('meta[name=win64ziplauncher]').attr('content'));
+      .attr('href', uriRoot + '/launcher/Setup-BPLauncher-Win.exe.zip');
 
   // MacOS
   $('.client-mac-link')
-      .attr('href', $('meta[name=macOSclient]').attr('content'));
+      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-MacOS.pkg');
   $('.launcher-mac-link')
-      .attr('href', $('meta[name=macOSlauncher]').attr('content'));
+      .attr('href', uriRoot + '/launcher/Setup-BPLauncher-MacOS.zip');
 }
 
 
@@ -1129,7 +1131,7 @@ function downloadCode() {
     // simply refreshed, this will allow the project to be reloaded. make the
     // projecData object reflect the current workspace and save it into
     // localStorage
-    const date = Date();
+    const date = new Date();
     project.timestamp = date.getTime();
     project.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
     window.localStorage.setItem(
@@ -2064,7 +2066,7 @@ function createNewProject() {
       console.log('Unknown board type: %s', boardType);
     }
 
-    const timestamp = Date();
+    const timestamp = new Date();
     const newProject = new Project(
         projectName,
         description,
