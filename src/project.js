@@ -55,13 +55,17 @@ class Project {
         this.description = (description) ? description : "";
 
         if (board) {
+            // Capture and translate string board type
+            if (typeof board === "string") {
+                board = Project.convertBoardType(board);
+            }
             // Handle legacy board types.
-            if (board === 'activity-board') {
+            if (board.name === 'activity-board') {
                 this.boardType = ProjectProfiles['activityboard'];
-            } else if (board === 'heb-wx') {
+            } else if (board.name === 'heb-wx') {
                 this.boardType = ProjectProfiles['hebwx'];
             } else {
-                this.boardType = ProjectProfiles[board];
+                this.boardType = ProjectProfiles[board.name];
             }
         } else {
             this.boardType = ProjectProfiles.unknown;

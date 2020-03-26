@@ -665,7 +665,7 @@ Blockly.MSG_S3_SERIAL_SEND_CHAR_TOOLTIP = "send character: send a character out 
 Blockly.MSG_S3_SERIAL_SEND_CTRL_TOOLTIP = "send control character: send a special character out from the serial port";
 Blockly.MSG_S3_SERIAL_CURSOR_XY_TOOLTIP = "set cursor position: set the cursor position in the terminal";
 Blockly.MSG_S3_SERIAL_RX_BYTE_TOOLTIP = "receive character: receive a character from the serial port";
-Blockly.MSG_S3_FACTORY_RESET_TOOLTIP = "factory reset: use to reload the factory default demo program back onto the Scribbler"; 
+Blockly.MSG_S3_FACTORY_RESET_TOOLTIP = "factory reset: use to reload the factory default demo program back onto the Scribbler";
 
 var toolbox_label = [];
 toolbox_label['category_control'] = "Control";
@@ -774,13 +774,15 @@ var page_text_label = [];
 page_text_label['back'] = "Back";
 page_text_label['browser_detection_ms_warning'] = "WARNING: You appear to be using MS Edge or Internet Explorer as your web browser.  BlocklyProp is not currently compatible with these browsers.  Please use Chrome or Firefox instead.";
 page_text_label['cancel'] = "Cancel";
-page_text_label['client_chrome_run_instructions1'] = "Click the App icon (circle) in the bottom-left corner of the screen.  Find the BlocklyProp Launcher app and double-click it:";
+page_text_label['client_chrome_run_instructions1'] = "Click the App icon (circle) in the bottom-left corner of the screen.  Find the BlocklyProp Launcher app and double-click it.";
 page_text_label['client_chrome_run_title'] = "Running the BlocklyProp Launcher on your Chromebook";
-page_text_label['client_macOS_run_instructions1'] = "Find the BlocklyProp Launcher application by opening a Finder window and clicking &quot;Applications&quot; on the left. Then look for the BlocklyProp Launcher application and double-click it:";
+page_text_label['client_macOS_run_instructions1'] = "Find the BlocklyProp Launcher application by opening a Finder window and clicking &quot;Applications&quot; on the left. Then look for the BlocklyProp Launcher application and double-click it.";
 page_text_label['client_macOS_run_title'] = "Running the BlocklyProp Launcher on your Mac";
 page_text_label['client_run_instructions2'] = "Once the BlocklyProp Launcher is running and connected, you may return to your browser and load programs to your device.";
 page_text_label['client_windows_run_instructions1'] = "Click the Windows (start) icon in the lower-left corner of your screen. Then look for the BlocklyProp Launcher application inside of the &quot;Parallax Inc&quot; folder:";
 page_text_label['client_windows_run_title'] = "Running the BlocklyProp Launcher on your Windows PC";
+
+// BlocklyProp Client and Launcher download messages
 page_text_label['clientdownload_client_chromeos_alreadyinstalled'] = "BlocklyProp Launcher is already installed.  Make sure it is open and running.";
 page_text_label['clientdownload_client_chromeos_installer'] = "Add to Chrome";
 page_text_label['clientdownload_client_macos_installer'] = "MacOS client installer";
@@ -788,7 +790,14 @@ page_text_label['clientdownload_client_windows32_installer'] = "Windows 7/8/8.1/
 page_text_label['clientdownload_client_windows32zip_installer'] = "Windows 7/8/8.1/10 (32-bit) client installer (zip)";
 page_text_label['clientdownload_client_windows64_installer'] = "Windows 7/8/8.1/10 (64-bit) client installer";
 page_text_label['clientdownload_client_windows64zip_installer'] = "Windows 7/8/8.1/10 (64-bit) client installer (zip)";
-page_text_label['clientdownload_launcher_macos_installer'] = "MacOS BP-Launcher installer";
+
+// This is the current release of the Launcher for MacOS 10.15.x
+page_text_label['clientdownload_launcher_macos_installer'] = "MacOS Catalina (10.15.x) BP-Launcher installer";
+// This is the current release of the Launcher targeted for MacOS 10.14.x
+page_text_label['clientdownload_launcher_macos_installer_10_14'] = "MacOS Mojave (10.14.x) BP-Launcher installer";
+// This is the current release of the Launcher targeted for MacOS 10.13.x
+page_text_label['clientdownload_launcher_macos_installer_10_13'] = "MacOS High Sierra (10.13.x) BP-Launcher installer";
+
 page_text_label['clientdownload_launcher_windows32_installer'] = "Windows 7/8/8.1/10 (32-bit) BP-Launcher installer";
 page_text_label['clientdownload_launcher_windows32zip_installer'] = "Windows 7/8/8.1/10 (32-bit) BP-Launcher installer (zip)";
 page_text_label['clientdownload_launcher_windows64_installer'] = "Windows 7/8/8.1/10 (64-bit) BP-Launcher installer";
