@@ -39,7 +39,7 @@ var clientService = {
 
     rxBase64: true,               // {boolean} BP Lancher full base64 encoding support flag
     loadBinary: false,            // {boolean} BP Launcher download message flag
-    resultLog: '',                // {boolean} BP Launcher result log 
+    resultLog: '',                // {boolean} BP Launcher result log
 
     portListReceiveCountUp: 0,    // This is set to 0 each time the port list is received, and incremented once each 4 second heartbeat
     activeConnection: null,       // Used differently by BPL and BPC - pointer to connection object
@@ -51,7 +51,7 @@ var clientService = {
     },
     version: {
         // Constants
-        MINIMUM_ALLOWED: '0.7.0', // {string} Semantic versioning, minimum client (BPL/BPC) allowed 
+        MINIMUM_ALLOWED: '0.7.0', // {string} Semantic versioning, minimum client (BPL/BPC) allowed
         RECOMMENDED: '0.11.0',    // {string} Semantic versioning, minimum recommended client/launcher version
         CODED_MINIMUM: '0.7.5',   // {string} Semantic versioning, Minimum client/launcher version supporting coded/verbose responses (remove after MINIMUM_ALLOWED > this)
 
@@ -66,14 +66,14 @@ var clientService = {
         getNumeric: function (rawVersion) {
             var tempVersion = rawVersion.toString().split(".");
             tempVersion.push('0');
-        
+
             if (tempVersion.length < 3) {
                 if (tempVersion.length === 1)
                     tempVersion = '0.0.0';
                 else
                     tempVersion.unshift('0');
             }
-        
+
             // Allow for any of the three numbers to be between 0 and 1023.
             // Equivalent to: (Major * 104856) + (Minor * 1024) + Revision.
             return (Number(tempVersion[0]) << 20 | Number(tempVersion[1]) << 10 | Number(tempVersion[2]));
@@ -97,6 +97,9 @@ const NS_DOWNLOAD_SUCCESSFUL         = 5;   // 005;
 // Error Notice IDs
 const NE_DOWNLOAD_FAILED             = 102;
 
+// Number of times we are willing to forgo getting a client list before
+// the connection is considered abandoned.
+const PORT_LIST_TIMEOUT_COUNT_MAX = 3;
 
 $(document).ready(function () {
     findClient();
@@ -106,6 +109,7 @@ $(document).ready(function () {
 var findClient = function () {
     // Try to connect to the BP-Launcher (websocket) first
     if (!clientService.available && clientService.type !== 'http') {
+        console.log('Establishing launcher connection.');
         establishBPLauncherConnection();
     }
 
@@ -114,18 +118,31 @@ var findClient = function () {
         clientService.portListReceiveCountUp++;
 
         // Is the BP-Launcher taking to long to respond?  If so, close the connection
-        if (clientService.portListReceiveCountUp > 2) {
+        if (clientService.portListReceiveCountUp > PORT_LIST_TIMEOUT_COUNT_MAX) {
+            console.log('Port list timeout! Resetting connection.');
             clientService.activeConnection.close();
+
             // TODO: check to see if this is really necesssary - it get's called by the WS onclose handler
             lostWSConnection();
         }
     }
 
     // BP-Launcher not found? Try connecting to the BP-Client
-    if (clientService.type !== 'ws') {
-        establishBPClientConnection();
-    }
-    
+    setTimeout(function(){
+            if (clientService.type !== 'ws') {
+                console.log('Trying to connect to the BP Client.');
+                establishBPClientConnection();
+            }
+        },
+        1000
+    );
+
+    // if (clientService.type !== 'ws') {
+    //     console.log('Trying to connect to the BP Client.');
+    //     establishBPClientConnection();
+    // }
+
+
     // If connected to the BP-Client, poll for an updated port list
     if (clientService.type === 'http') {
         checkForComPorts();
@@ -159,10 +176,10 @@ var setPropToolbarButtons = function () {
 };
 
 /**
- * @function checkClientVersionModal Displays a modal with information 
+ * @function checkClientVersionModal Displays a modal with information
  * about the client version if the one being used is outdated.
- * If the version is below the recommended version, the user is 
- * warned, and versions below the minimum are alerted. 
+ * If the version is below the recommended version, the user is
+ * warned, and versions below the minimum are alerted.
  * @param {string} rawVersion string representing the client version in '0.0.0' format (Semantic versioning)
  */
 function checkClientVersionModal(rawVersion) {
@@ -177,7 +194,7 @@ function checkClientVersionModal(rawVersion) {
         } else if (clientService.version.isValid) {
             $("#client-warning-span").removeClass("hidden");
         } else {
-            $("#client-danger-span").removeClass("hidden");     
+            $("#client-danger-span").removeClass("hidden");
         }
 
         $(".client-required-version").html(clientService.version.RECOMMENDED);
@@ -211,6 +228,7 @@ var establishBPClientConnection = function () {
             setPropToolbarButtons();
         }
     }).fail(function () {
+        console.log('Failed to establish connection. Resetting connection details.');
         clientService.type = null;
         clientService.available = false;
         clientService.portsAvailable = false;
@@ -222,7 +240,7 @@ var establishBPClientConnection = function () {
 /**
  * Create a modal that allows the user to set a different port or path
  * to the BlocklyProp-Client or -Launcher
- * 
+ *
  * TODO: Add fields for setting a different path to the compile service (for anyone wanting to host their own)
  */
 var configureConnectionPaths = function () {
@@ -336,7 +354,7 @@ function establishBPLauncherConnection() {
 
                 var portRequestMsg = JSON.stringify({type: 'port-list-request', msg: 'port-list-request'});
                 connection.send(portRequestMsg);
-            
+
 
             // --- com port list/change
             } else if (wsMessage.type === 'port-list') {
@@ -362,12 +380,12 @@ function establishBPLauncherConnection() {
                     }
                     messageText = wsMessage.msg;
                 }
-                
-                if (clientService.sendCharacterStreamTo && messageText !== '' && wsMessage.packetID) { 
+
+                if (clientService.sendCharacterStreamTo && messageText !== '' && wsMessage.packetID) {
                     if (clientService.sendCharacterStreamTo === 'term') { // is the terminal open?
                         pTerm.display(messageText);
                         pTerm.focus();
-                    } else {    // is the graph open? 
+                    } else {    // is the graph open?
                         graph_new_data(messageText);
                     }
                 }
@@ -448,9 +466,11 @@ function establishBPLauncherConnection() {
 
 /**
  * Lost websocket connection, clean up and restart findClient processing
- */ 
+ */
 function lostWSConnection() {
+    console.log('Lost connection');
     if (clientService.type !== 'http') {
+        console.log('Resetting from lost connection');
         clientService.activeConnection = null;
         clientService.type = null;
         clientService.available = false;
@@ -460,7 +480,7 @@ function lostWSConnection() {
 
     // Clear ports list
     setPortListUI();
-};
+}
 
 
 // set communication port list

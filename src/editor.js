@@ -291,11 +291,11 @@ $(() => {
     pTerm = new PropTerm(
         document.getElementById('serial_console'),
         function(characterToSend) {
-            if (active_connection !== null && 
-                active_connection !== 'simulated' && 
+            if (active_connection !== null &&
+                active_connection !== 'simulated' &&
                 active_connection !== 'websocket') {
                 active_connection.send(btoa(characterToSend));
-        
+
             } else if (active_connection === 'websocket' ) {
                 var msg_to_send = {
                     type: 'serial-terminal',
@@ -306,7 +306,7 @@ $(() => {
                     action: 'msg'
                 };
                 clientService.activeConnection.send(JSON.stringify(msg_to_send));
-            }    
+            }
         }
     );
 });
@@ -662,19 +662,30 @@ function initEventHandlers() {
  */
 function initClientDownloadLinks() {
     // Windows 32-bit
-    $('.client-win32-link').attr('href', $("meta[name=win32client]").attr("content"));
-    $('.client-win32zip-link').attr('href', $("meta[name=win32zipclient]").attr("content"));
+    $('.client-win32-link')
+        .attr('href', $("meta[name=win32client]").attr("content"));
+    $('.client-win32zip-link')
+        .attr('href', $("meta[name=win32zipclient]").attr("content"));
 
     // Windows 64-bit
-    $('.client-win64-link').attr('href', $("meta[name=win64client]").attr("content"));
-    $('.client-win64zip-link').attr('href', $("meta[name=win64zipclient]").attr("content"));
-    $('.launcher-win64-link').attr('href', $("meta[name=win64launcher]").attr("content"));
-    $('.launcher-win64zip-link').attr('href', $("meta[name=win64ziplauncher]").attr("content"));
+    $('.client-win64-link')
+        .attr('href', $("meta[name=win64client]").attr("content"));
+    $('.client-win64zip-link')
+        .attr('href', $("meta[name=win64zipclient]").attr("content"));
+    $('.launcher-win64-link')
+        .attr('href', $("meta[name=win64launcher]").attr("content"));
+    $('.launcher-win64zip-link')
+        .attr('href', $("meta[name=win64ziplauncher]").attr("content"));
 
     // MacOS
-    $('.client-mac-link').attr('href', $("meta[name=macOSclient]").attr("content"));
-    $('.launcher-mac-link').attr('href', $("meta[name=macOSlauncher]").attr("content"));
-
+    $('.client-mac-link')
+        .attr('href', $("meta[name=macOSclient]").attr("content"));
+    $('.launcher-mac-link')
+        .attr('href', $("meta[name=macOSlauncher]").attr("content"));
+    $('.launcher-mac-link-10-14')
+        .attr('href', $("meta[name=macOSlauncher-10-14]").attr("content"));
+    $('.launcher-mac-link-10-13')
+        .attr('href', $("meta[name=macOSlauncher-10-13]").attr("content"));
 }
 
 
