@@ -128,10 +128,20 @@ var findClient = function () {
     }
 
     // BP-Launcher not found? Try connecting to the BP-Client
-    if (clientService.type !== 'ws') {
-        console.log('Trying to connect to the BP Client.');
-        establishBPClientConnection();
-    }
+    setTimeout(function(){
+            if (clientService.type !== 'ws') {
+                console.log('Trying to connect to the BP Client.');
+                establishBPClientConnection();
+            }
+        },
+        1000
+    );
+
+    // if (clientService.type !== 'ws') {
+    //     console.log('Trying to connect to the BP Client.');
+    //     establishBPClientConnection();
+    // }
+
 
     // If connected to the BP-Client, poll for an updated port list
     if (clientService.type === 'http') {
@@ -218,6 +228,7 @@ var establishBPClientConnection = function () {
             setPropToolbarButtons();
         }
     }).fail(function () {
+        console.log('Failed to establish connection. Resetting connection details.');
         clientService.type = null;
         clientService.available = false;
         clientService.portsAvailable = false;
@@ -457,7 +468,9 @@ function establishBPLauncherConnection() {
  * Lost websocket connection, clean up and restart findClient processing
  */
 function lostWSConnection() {
+    console.log('Lost connection');
     if (clientService.type !== 'http') {
+        console.log('Resetting from lost connection');
         clientService.activeConnection = null;
         clientService.type = null;
         clientService.available = false;
