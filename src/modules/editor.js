@@ -146,7 +146,8 @@ $(() => {
 
         // Save the current project into the browser store where it will
         // get picked up by the page loading code.
-        window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(tempProject));
+        window.localStorage.setItem(
+            LOCAL_PROJECT_STORE_NAME, JSON.stringify(tempProject));
       }
     }
 
