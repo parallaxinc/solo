@@ -56,7 +56,14 @@ Blockly.Blocks.make_pin = {
                 .appendField("make PIN")
                 .appendField(new Blockly.FieldDropdown(
                     profile.digital), "PIN")
-                .appendField(new Blockly.FieldDropdown([["high", "HIGH"], ["low", "LOW"], ["toggle", "TOGGLE"], ["input", "INPUT"], ["reverse", "REVERSE"]]), "ACTION");
+                .appendField(new Blockly.FieldDropdown([
+                    ["high", "HIGH"],
+                    ["low", "LOW"],
+                    ["toggle", "TOGGLE"],
+                    ["input", "INPUT"],
+                    ["reverse", "REVERSE"]
+                ]),
+                "ACTION");
     }
 };
 
@@ -183,7 +190,10 @@ Blockly.Blocks.check_pin_input = {
 };
 
 Blockly.propc.check_pin_input = function () {
-    var dropdown_pin = Blockly.propc.valueToCode(this, 'PIN', Blockly.propc.ORDER_UNARY_PREFIX) || '0';
+    var dropdown_pin = Blockly.propc.valueToCode(
+        this,
+        'PIN',
+        Blockly.propc.ORDER_UNARY_PREFIX) || '0';
 
     var code = 'input(' + dropdown_pin + ')';
     return [code, Blockly.propc.ORDER_ATOMIC];
@@ -240,7 +250,11 @@ Blockly.Blocks.set_pins = {
         this.appendDummyInput("PINS")
                 .appendField("values:")
                 .appendField("P0:")
-                .appendField(new Blockly.FieldDropdown([["HIGH", "1"], ["LOW", "0"]]), "P0");
+                .appendField(new Blockly.FieldDropdown([
+                    ["HIGH", "1"],
+                    ["LOW", "0"]
+                ]),
+                "P0");
     },
     mutationToDom: function () {
         var container = document.createElement('mutation');
@@ -357,7 +371,11 @@ Blockly.Blocks.get_pins = {
         }
         this.appendDummyInput("")
                 .appendField("get the")
-                .appendField(new Blockly.FieldDropdown([["states", "STATE"], ["directions", "DIRECTION"]]), "ACTION")
+                .appendField(new Blockly.FieldDropdown([
+                    ["states", "STATE"],
+                    ["directions", "DIRECTION"]
+                ]),
+                 "ACTION")
                 .appendField("from lowest PIN")
                 .appendField(new Blockly.FieldDropdown(pin_count), "START_PIN")
                 .appendField("to highest PIN")
@@ -529,12 +547,16 @@ Blockly.propc.base_freqout = function () {
     } else {
         pin = this.getFieldValue("PIN");
     }
-    var duration = Blockly.propc.valueToCode(this, 'DURATION', Blockly.propc.ORDER_ATOMIC) || 1000;
-    var frequency = Blockly.propc.valueToCode(this, 'FREQUENCY', Blockly.propc.ORDER_ATOMIC) || 3000;
+    var duration = Blockly.propc.valueToCode(
+        this,
+        'DURATION',
+        Blockly.propc.ORDER_ATOMIC) || 1000;
+    var frequency = Blockly.propc.valueToCode(
+        this,
+        'FREQUENCY',
+        Blockly.propc.ORDER_ATOMIC) || 3000;
 
-    var code = 'freqout(' + pin + ', ' + duration + ', ' + frequency + ');\n';
-
-    return code;
+    return 'freqout(' + pin + ', ' + duration + ', ' + frequency + ');\n';
 };
 
 Blockly.Blocks.base_count = {
@@ -780,9 +802,8 @@ Blockly.Blocks.eeprom_read = {
 Blockly.propc.eeprom_read = function () {
     var type = this.getFieldValue('TYPE');
     var address = Blockly.propc.valueToCode(this, 'ADDRESS', Blockly.propc.ORDER_ATOMIC) || '0';
-    // TODO: Replace deprecated Blockly.Variables.NAME_TYPE
     var data = Blockly.propc.variableDB_.getName(
-        this.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
+        this.getFieldValue('VALUE'), Blockly.VARIABLE_CATEGORY_NAME);
     var code = '';
 
     if (data !== '') {
@@ -1436,8 +1457,9 @@ Blockly.Blocks.pwm_stop = {
     },
     onchange: function (event) {
         if (event.type == Blockly.Events.BLOCK_CREATE ||
-                event.type == Blockly.Events.BLOCK_DELETE ||
-                event.type == Blockly.Events.BLOCK_CHANGE) {
+            event.type == Blockly.Events.BLOCK_DELETE ||
+            event.type == Blockly.Events.BLOCK_CHANGE) {
+
             var warnTxt = null;
             var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
             if (allBlocks.indexOf('PWM Stop') === -1 && this.getFieldValue('ACTION') === 'start(100)') {
@@ -1618,8 +1640,12 @@ Blockly.Blocks.sound_play = {
         this.setSoundAction(action);
     },
     onchange: function (event) {
-        if (!(window.project.boardType.name === "heb" || window.project.boardType.name === "heb-wx")) {
-            if (event.type == Blockly.Events.BLOCK_CREATE || event.type == Blockly.Events.BLOCK_DELETE) {
+        if (!(window.project.boardType.name === "heb" ||
+            window.project.boardType.name === "heb-wx")) {
+
+            if (event.type == Blockly.Events.BLOCK_CREATE ||
+                event.type == Blockly.Events.BLOCK_DELETE) {
+
                 var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
                 if (allBlocks.indexOf('sound initialize') === -1) {
                     this.setWarningText('WARNING: You must use a sound initialize\nblock at the beginning of your program!');
@@ -1697,7 +1723,9 @@ Blockly.Blocks.wav_play = {
         this.setNextStatement(true, null);
     },
     onchange: function (event) {
-        if (event.type == Blockly.Events.BLOCK_CREATE || event.type == Blockly.Events.BLOCK_DELETE) {
+        if (event.type == Blockly.Events.BLOCK_CREATE ||
+            event.type == Blockly.Events.BLOCK_DELETE) {
+
             var warnTxt = null;
             var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
             if (allBlocks.indexOf('repeat') === -1 && allBlocks.indexOf('pause') === -1) {
@@ -1777,7 +1805,10 @@ Blockly.Blocks.wav_volume = {
 };
 
 Blockly.propc.wav_volume = function () {
-    var volume = Blockly.propc.valueToCode(this, 'VOLUME', Blockly.propc.ORDER_NONE) || '0';
+    var volume = Blockly.propc.valueToCode(
+        this,
+        'VOLUME',
+        Blockly.propc.ORDER_NONE) || '0';
 
     if (!this.disabled) {
         Blockly.propc.definitions_["include wavplayer"] = '#include "wavplayer.h"';
@@ -2089,13 +2120,19 @@ Blockly.Blocks.sd_read = {
  */
 Blockly.propc.sd_read = function () {
     const profile = window.projectProfile;
-    var size = Blockly.propc.valueToCode(this, 'SIZE', Blockly.propc.ORDER_NONE) || '1';
+    var size = Blockly.propc.valueToCode(
+        this,
+        'SIZE',
+        Blockly.propc.ORDER_NONE) || '1';
+
     var mode = this.getFieldValue('MODE');
     var value = '';
     var code = '';
 
     if (mode === 'fread') {
-        value = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+        value = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('VAR'),
+            Blockly.VARIABLE_CATEGORY_NAME);
         value = '&' + value;
         Blockly.propc.vartype_[value] = 'char *';
     } else if (mode === 'fwrite') {
@@ -2487,8 +2524,12 @@ Blockly.Blocks.ab_drive_get_ticks = {
 };
 
 Blockly.propc.ab_drive_get_ticks = function () {
-    var left = Blockly.propc.variableDB_.getName(this.getFieldValue('LEFT'), Blockly.Variables.NAME_TYPE);
-    var right = Blockly.propc.variableDB_.getName(this.getFieldValue('RIGHT'), Blockly.Variables.NAME_TYPE);
+    var left = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('LEFT'),
+        Blockly.VARIABLE_CATEGORY_NAME);
+    var right = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('RIGHT'),
+        Blockly.VARIABLE_CATEGORY_NAME);
 
     var allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Robot ActivityBot initialize') > -1 ||

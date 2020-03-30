@@ -90,7 +90,7 @@ Blockly.Blocks.variables_set = {
 Blockly.propc.variables_get = function () {
     var code = Blockly.propc.variableDB_.getName(
             this.getFieldValue('VAR'),
-            Blockly.Variables.NAME_TYPE);
+            Blockly.VARIABLE_CATEGORY_NAME);
     return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
@@ -105,7 +105,7 @@ Blockly.propc.variables_set = function () {
             Blockly.propc.ORDER_ASSIGNMENT) || '0';
     var varName = Blockly.propc.variableDB_.getName(
             this.getFieldValue('VAR'),
-            Blockly.Variables.NAME_TYPE);
+            Blockly.VARIABLE_CATEGORY_NAME);
     if (Blockly.propc.vartype_[varName] === undefined) {
         if (argument0.indexOf("int") > -1) {
             Blockly.propc.vartype_[varName] = 'int';
@@ -139,7 +139,7 @@ Blockly.propc.variables_set = function () {
     } else if (argument0.indexOf("char\[\]") > -1) {
         Blockly.propc.vartype_[varName] = 'char *';
     }
- 
+
     return varName + ' = ' + argument0 + ';\n';
 };
 
@@ -244,12 +244,12 @@ Blockly.Blocks.array_get = {
         var oldValue = null;
         var newValue = null;
         if (event.type === Blockly.Events.BLOCK_DELETE) {
-            // The block's fields can't be accessed after it's deleted, so we 
-            // have to dive into it's XML, since that's all that's preserved 
+            // The block's fields can't be accessed after it's deleted, so we
+            // have to dive into it's XML, since that's all that's preserved
             if (event.oldXml.attributes.type.nodeValue === 'array_init') {
                 blockType = 'array_init';
                 oldValue = event.oldXml.firstChild.innerHTML; // Block field previous value
-            }        
+            }
         } else if (event.type === Blockly.Events.BLOCK_CREATE) {
             var eventBlock = Blockly.getMainWorkspace().getBlockById(event.blockId);
             if (eventBlock && eventBlock.type === 'array_init') {
@@ -276,11 +276,11 @@ Blockly.Blocks.array_get = {
         if (this.type === 'array_get' || this.type === 'array_set' ) {
             var connectedBlock = this.getInput('NUM').connection.targetBlock();
             if (connectedBlock && connectedBlock.type === 'math_number') {
-                // Only run this check if the field is populated with a numeric value.  
+                // Only run this check if the field is populated with a numeric value.
                 // If it contains any other block, this will be skipped.
                 var elementValue = connectedBlock.getFieldValue('NUM');
-                if (typeof(elementValue) === 'number' || 
-                        (typeof(elementValue) === 'string' && 
+                if (typeof(elementValue) === 'number' ||
+                        (typeof(elementValue) === 'string' &&
                         elementValue.replace(/[^0-9]+/g, "") === elementValue)) {
                     elementCount = parseInt(elementValue);
                 }

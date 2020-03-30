@@ -428,11 +428,23 @@ Blockly.Blocks.control_repeat_for_loop = {
 };
 
 Blockly.propc.control_repeat_for_loop = function () {
-    var start = Blockly.propc.valueToCode(this, 'START', Blockly.propc.ORDER_NONE) || '1';
-    var end = this.getFieldValue('EQ') + Blockly.propc.valueToCode(this, 'END', Blockly.propc.ORDER_NONE) || '10';
-    var step = Blockly.propc.valueToCode(this, 'STEP', Blockly.propc.ORDER_NONE) || '1';
+    var start = Blockly.propc.valueToCode(
+        this,
+        'START',
+        Blockly.propc.ORDER_NONE) || '1';
+    var end = this.getFieldValue('EQ') +
+        Blockly.propc.valueToCode(
+            this,
+            'END',
+            Blockly.propc.ORDER_NONE) || '10';
+    var step = Blockly.propc.valueToCode(
+        this,
+        'STEP',
+        Blockly.propc.ORDER_NONE) || '1';
     var repeat_code = Blockly.propc.statementToCode(this, 'DO');
-    var loop_counter = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+    var loop_counter = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('VAR'),
+        Blockly.VARIABLE_CATEGORY_NAME);
 
     repeat_code = step + ')) {\n' + repeat_code + '\n}';
     end += '; ' + loop_counter;

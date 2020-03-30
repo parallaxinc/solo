@@ -542,9 +542,15 @@ Blockly.propc.colorpal_get_colors_raw = function () {
     {
         return '// ERROR: Missing colorPal initialize block!';
     } else {
-        var r = Blockly.propc.variableDB_.getName(this.getFieldValue('R_STORAGE'), Blockly.Variables.NAME_TYPE);
-        var g = Blockly.propc.variableDB_.getName(this.getFieldValue('G_STORAGE'), Blockly.Variables.NAME_TYPE);
-        var b = Blockly.propc.variableDB_.getName(this.getFieldValue('B_STORAGE'), Blockly.Variables.NAME_TYPE);
+        var r = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('R_STORAGE'),
+            Blockly.VARIABLE_CATEGORY_NAME);
+        var g = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('G_STORAGE'),
+            Blockly.VARIABLE_CATEGORY_NAME);
+        var b = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('B_STORAGE'),
+            Blockly.VARIABLE_CATEGORY_NAME);
         var p = '0';
         if (this.cp_pins.length > 0) {
             p = this.cp_pins[0];
@@ -585,7 +591,9 @@ Blockly.propc.colorpal_get_colors = function () {
     {
         return '// ERROR: Missing colorPal initialize block!';
     } else {
-        var color_var = Blockly.propc.variableDB_.getName(this.getFieldValue('COLOR'), Blockly.Variables.NAME_TYPE);
+        var color_var = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('COLOR'),
+            Blockly.VARIABLE_CATEGORY_NAME);
 
         if (!this.disabled) {
             Blockly.propc.global_vars_["colorpal_rr"] = 'int cpRR = 0;';
@@ -1001,9 +1009,15 @@ Blockly.propc.MMA7455_acceleration = function () {
     if (allBlocks.indexOf('Accelerometer initialize') === -1) {
         code += '// ERROR: Missing Accelerometer initialize block!';
     } else {
-        var xstorage = Blockly.propc.variableDB_.getName(this.getFieldValue('X_VAR'), Blockly.Variables.NAME_TYPE);
-        var ystorage = Blockly.propc.variableDB_.getName(this.getFieldValue('Y_VAR'), Blockly.Variables.NAME_TYPE);
-        var zstorage = Blockly.propc.variableDB_.getName(this.getFieldValue('Z_VAR'), Blockly.Variables.NAME_TYPE);
+        var xstorage = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('X_VAR'),
+            Blockly.VARIABLE_CATEGORY_NAME);
+        var ystorage = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('Y_VAR'),
+            Blockly.VARIABLE_CATEGORY_NAME);
+        var zstorage = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('Z_VAR'),
+            Blockly.VARIABLE_CATEGORY_NAME);
 
         code += 'MMA7455_getxyz10(&__tmpX, &__tmpY, &__tmpZ);\n';
         code += xstorage + ' = (int) __tmpX;\n' + ystorage + ' = (int) __tmpY;\n' + zstorage + ' = (int) __tmpZ;\n';
@@ -1079,7 +1093,9 @@ Blockly.propc.HMC5883L_read = function () {
     if (allBlocks.indexOf('Compass initialize') === -1) {
         code += '// ERROR: Missing Compass initialize block!';
     } else {
-        var storage = Blockly.propc.variableDB_.getName(this.getFieldValue('HEADING'), Blockly.Variables.NAME_TYPE);
+        var storage = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('HEADING'),
+            Blockly.VARIABLE_CATEGORY_NAME);
         if (!this.disabled) {
             Blockly.propc.global_vars_["compass_vars"] = 'int __compX, __compY, __compZ;\nfloat __compH;\n';
         }
@@ -1436,13 +1452,21 @@ Blockly.propc.lis3dh_read = function () {
     // retrieve the sensor type selected
     var action = this.getFieldValue('SENSOR');
     // retrieve the field values
-    var s1 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_1'), Blockly.Variables.NAME_TYPE);
-    var s2 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_2'), Blockly.Variables.NAME_TYPE);
-    var s3 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_3'), Blockly.Variables.NAME_TYPE);
+    var s1 = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('STORE_1'),
+        Blockly.VARIABLE_CATEGORY_NAME);
+    var s2 = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('STORE_2'),
+        Blockly.VARIABLE_CATEGORY_NAME);
+    var s3 = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('STORE_3'),
+        Blockly.VARIABLE_CATEGORY_NAME);
     var s4 = null;
     // if 'tilt' is selected, grab the fourth variable
     if (action === 'tilt') {
-        s4 = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE_4'), Blockly.Variables.NAME_TYPE);
+        s4 = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('STORE_4'),
+            Blockly.VARIABLE_CATEGORY_NAME);
     }
 
     // generate the c code for this block.
@@ -1629,9 +1653,15 @@ Blockly.propc.lsm9ds1_read = function () {
         code += '// ERROR: Missing IMU initialize block!';
     } else {
         var sensor = this.getFieldValue('SENSOR');
-        var xstorage = Blockly.propc.variableDB_.getName(this.getFieldValue('X_VAR'), Blockly.Variables.NAME_TYPE);
-        var ystorage = Blockly.propc.variableDB_.getName(this.getFieldValue('Y_VAR'), Blockly.Variables.NAME_TYPE);
-        var zstorage = Blockly.propc.variableDB_.getName(this.getFieldValue('Z_VAR'), Blockly.Variables.NAME_TYPE);
+        var xstorage = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('X_VAR'),
+            Blockly.VARIABLE_CATEGORY_NAME);
+        var ystorage = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('Y_VAR'),
+            Blockly.VARIABLE_CATEGORY_NAME);
+        var zstorage = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('Z_VAR'),
+            Blockly.VARIABLE_CATEGORY_NAME);
 
         code += 'imu_read' + sensor + 'Calculated(&__imuX, &__imuY, &__imuZ);\n';
         code += xstorage + ' = (int) (100.0 * __imuX);\n';
@@ -1704,8 +1734,12 @@ Blockly.propc.lsm9ds1_tilt = function () {
         var t1_axis = '__imu' + this.getFieldValue('A1')[6].toUpperCase();
         var t2_axis = '__imu' + this.getFieldValue('A2')[0].toUpperCase();
         var g_axis = '__imu' + this.getFieldValue('G_AXIS');
-        var storage1 = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR1'), Blockly.Variables.NAME_TYPE);
-        var storage2 = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR2'), Blockly.Variables.NAME_TYPE);
+        var storage1 = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('VAR1'),
+            Blockly.VARIABLE_CATEGORY_NAME);
+        var storage2 = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('VAR2'),
+            Blockly.VARIABLE_CATEGORY_NAME);
 
         code += 'imu_readAccelCalculated(&__imuX, &__imuY, &__imuZ);\n';
         code += storage1 + ' = (int) (atan2(' + t1_axis + ', ' + g_axis + ') * 180.0/PI);\n';
@@ -1809,7 +1843,9 @@ Blockly.propc.lsm9ds1_heading = function () {
     } else {
         var fb_axis = this.getFieldValue('FB_AXIS');
         var lr_axis = this.getFieldValue('LR_AXIS');
-        var storage = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+        var storage = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('VAR'),
+            Blockly.VARIABLE_CATEGORY_NAME);
 
         code += 'imu_readMagCalculated(&__imuX, &__imuY, &__imuZ);\n';
         code += '__compI = atan2(' + lr_axis + ', ' + fb_axis + ') * 180.0/PI;\n';
@@ -2265,7 +2301,9 @@ Blockly.propc.rfid_get = function () {
     {
         return '// ERROR: Missing RFID initalize block!';
     } else {
-        var saveVariable = Blockly.propc.variableDB_.getName(this.getFieldValue('BUFFER'), Blockly.Variables.NAME_TYPE);
+        var saveVariable = Blockly.propc.variableDB_.getName(
+            this.getFieldValue('BUFFER'),
+            Blockly.VARIABLE_CATEGORY_NAME);
 
         if (!this.disabled) {
             Blockly.propc.global_vars_["rfid_buffer"] = "char *rfidBfr;";
@@ -2717,7 +2755,12 @@ Blockly.Blocks.bme680_init = {
  */
 Blockly.propc.bme680_init = function () {
     const profile = window.projectProfile;
-    var pin = [this.getFieldValue('PIN_CLK'), this.getFieldValue('PIN_SDI'), this.getFieldValue('PIN_SDO'), this.getFieldValue('PIN_CS')];
+    var pin = [
+        this.getFieldValue('PIN_CLK'),
+        this.getFieldValue('PIN_SDI'),
+        this.getFieldValue('PIN_SDO'),
+        this.getFieldValue('PIN_CS')
+    ];
     for (var i = 0; i < 3; i++) {
         if (profile.digital.toString().indexOf(pin[i] + ',' + pin[i]) === -1) {
             pin[i] = 'MY_' + pin[i];
@@ -2833,9 +2876,14 @@ Blockly.Blocks.bme680_get_value = {
                     ["Altitude Estimate", "altitude"],
                     ["Gas Sensor Resistance", "gasResistance"],
                     ["Relative Humidity", "humidity"]
-                ], function(val) {this.sourceBlock_.setMeasUnit(val);}), "SENSOR");
+                ],
+                function(val) {
+                    this.sourceBlock_.setMeasUnit(val);
+                }),
+                "SENSOR");
         this.appendDummyInput('UNITS')
-                .appendField(new Blockly.FieldDropdown(this.measUnits['temperature']), "UNIT");
+                .appendField(new Blockly.FieldDropdown(
+                    this.measUnits['temperature']), "UNIT");
         this.appendDummyInput('MULTIPLIER')
                 .appendField(new Blockly.FieldDropdown([
                     ["\u2715 1", " "],
