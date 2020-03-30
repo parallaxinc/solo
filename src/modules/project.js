@@ -357,7 +357,7 @@ class Project {
  * @return {Project}
  */
 function projectJsonFactory(json) {
-  /*
+  /* Version 0 file format
   const pd = {
     'board': uploadBoardType,
     'code': uploadedXML,
@@ -376,9 +376,16 @@ function projectJsonFactory(json) {
   };
 */
   const date = new Date();
-  const tmpBoardType = Project.convertBoardType(json.board);
+  let tmpBoardType;
+
+  // Check for a version 0 project file.
+  if (json && json.board) {
+    tmpBoardType = Project.convertBoardType(json.board);
+  } else {
+    tmpBoardType = Project.convertBoardType(json.boardType.name);
+  }
   if (tmpBoardType === undefined) {
-    console.log('Unknown board type: %s', json.board);
+    console.log('Unknown board type: %s', json.boardType.name);
   }
 
   return new Project(
