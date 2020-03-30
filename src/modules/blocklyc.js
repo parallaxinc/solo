@@ -230,6 +230,7 @@ function renderContent(id) {
 
   switch (selectedTab) {
     case 'blocks':
+      console.log('Displaying project blocks');
       $('.blocklyToolboxDiv').css('display', 'block');
 
       $('#content_xml').css('display', 'none');
