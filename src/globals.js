@@ -20,9 +20,8 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-
 /* Error logging */
-// Sentry.init({dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639'});
+Sentry.init({dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639'});
 
 
 /**
@@ -69,6 +68,18 @@ const TestApplicationName = 'Solocup';
 const productBannerHostTrigger = 'solocup.parallax.com';
 
 
+/**
+ *  The relative path for the hosting web site. The default is '/'.
+ *
+ *  @description
+ *  This requires that the hosting page define the <meta> tag that
+ *  contains this setting
+ *
+ *      <meta name="base" content="">
+ *
+ * @type {*|jQuery}
+ */
+const BASE_URL = $('meta[name=base]').attr("content");
 
 
 /**

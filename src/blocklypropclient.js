@@ -122,14 +122,9 @@ var findClient = function () {
     }
 
     // BP-Launcher not found? Try connecting to the BP-Client
-    setTimeout(function(){
-            if (clientService.type !== 'ws') {
-                console.log('Trying to connect to the BP Client.');
-                establishBPClientConnection();
-            }
-        },
-        1000
-    );
+    if (clientService.type !== 'ws') {
+        establishBPClientConnection();
+    }
 
     // If connected to the BP-Client, poll for an updated port list
     if (clientService.type === 'http') {
@@ -140,8 +135,7 @@ var findClient = function () {
 
 /**
  * Set button state for the Compiler toolbar
- * @deprecated Replaced with propToolbarButtonController(), located in the
- * toolbar_controller module.
+ * @deprecated Replaced with PropToolbarButtonController()
  */
 var setPropToolbarButtons = function () {
     if (clientService.available) {
@@ -175,11 +169,9 @@ var setPropToolbarButtons = function () {
  *
  * @param {boolean} connected
  *
- * @deprecated
- * WARNING!
- * This function is moving to the toolbar_controller.js module.
+ * @constructor
  */
-const propToolbarButtonController = (connected) => {
+const PropToolbarButtonController = (connected) => {
     if (projectData && projectData.board === 's3') {
         /* ----------------------------------------------------------------
          * Hide the buttons that are not required for the S3 robot
@@ -280,7 +272,7 @@ var establishBPClientConnection = function () {
 
             // Set the compiler toolbar elements
             // setPropToolbarButtons();
-            propToolbarButtonController(clientService.available);
+            PropToolbarButtonController(clientService.available);
         }
     }).fail(function () {
         clientService.type = null;
@@ -289,7 +281,7 @@ var establishBPClientConnection = function () {
 
         // Set the compiler toolbar elements
         // setPropToolbarButtons();
-        propToolbarButtonController(clientService.available);
+        PropToolbarButtonController(clientService.available);
     });
 };
 
@@ -410,7 +402,7 @@ function establishBPLauncherConnection() {
 
                 // Set the compiler toolbar elements
                 // setPropToolbarButtons();
-                propToolbarButtonController(clientService.available);
+                PropToolbarButtonController(clientService.available);
 
                 var portRequestMsg = JSON.stringify({type: 'port-list-request', msg: 'port-list-request'});
                 connection.send(portRequestMsg);
@@ -536,7 +528,7 @@ function lostWSConnection() {
 
     // Set the compiler toolbar elements
     // setPropToolbarButtons();
-    propToolbarButtonController(clientService.available);
+    PropToolbarButtonController(clientService.available);
 
     // Clear ports list
     setPortListUI();
