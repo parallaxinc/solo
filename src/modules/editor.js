@@ -192,7 +192,7 @@ $(() => {
   // and page processing continues.
   // ------------------------------------------------------------------------
   window.addEventListener('beforeunload', function(e) {
-    // Call checkLeave only if we are NOT loading a new project
+    // Call isProjectChanged only if we are NOT loading a new project
     if (window.getURLParameter('openFile') === 'true') {
       return;
     }
@@ -224,7 +224,7 @@ $(() => {
           JSON.stringify(tempProject));
     }
 
-    if (checkLeave()) {
+    if (isProjectChanged()) {
       e.preventDefault(); // Cancel the event
       e.returnValue = Blockly.Msg.DIALOG_CHANGED_SINCE;
       return Blockly.Msg.DIALOG_CHANGED_SINCE;
@@ -785,7 +785,7 @@ function setupWorkspace(data, callback) {
  * Check the project save timer only if the project has changed
  */
 function saveProjectTimerChange() {
-  if (checkLeave()) ProjectSaveTimer.checkLastSavedTime();
+  if (isProjectChanged()) ProjectSaveTimer.checkLastSavedTime();
 }
 
 
@@ -935,7 +935,7 @@ function saveAsDialog() {
   } else {
   */
   // Prompt user to save current project first if unsaved
-  if (checkLeave()) {
+  if (isProjectChanged()) {
     utils.confirm(
         Blockly.Msg.DIALOG_SAVE_TITLE,
         Blockly.Msg.DIALOG_SAVE_FIRST,
@@ -1246,7 +1246,7 @@ function generateSvgFooter( project ) {
  * Import project file from disk
  */
 function uploadCode() {
-  if (checkLeave()) {
+  if (isProjectChanged()) {
     utils.showMessage(
         Blockly.Msg.DIALOG_UNSAVED_PROJECT,
         Blockly.Msg.DIALOG_SAVE_BEFORE_ADD_BLOCKS);
@@ -1404,6 +1404,7 @@ function uploadHandler(files) {
           console.log('Unable to convert Project to projectData object.');
         }
 
+        console.log('Compare projects state');
         if (! Project.testProjectEquality(pd, projectOutput)) {
           console.log('Project output differs.');
         }
@@ -1986,27 +1987,21 @@ function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
  * persisted to storage.
  *
  * @description
- * The function assumes that the projectData global variable holds
- * the original copy of the project, prior to any user modification.
- * The code then compares the code in the Blockly core against the
- * original version of the project to determine if any changes have
- * occurred.
+ * This function retrieves the initial state of the project that is
+ * displayed on the editor canvas and compares the initial state of
+ * the code with the code contained in the Blockly core to determine
+ * if any changes have occurred.
  *
- * This only examines the project data. This code should also check
- * the project name and descriptions for changes.
+ * This only examines the project code block. It does not evaluate
+ * changes in the project name or description.
  */
-function checkLeave() {
-  // The projectData variable is now officially an object. Consider it empty
-  // if it is null or if the name property is undefined.
+function isProjectChanged() {
   const project = getProjectInitialState();
   if (!project || typeof project.name === 'undefined') {
     return false;
   }
 
-  const currentXml = getXml();
-  const savedXml = project.code;
-
-  return Project.testProjectEquality(currentXml, savedXml);
+  return project.code.localeCompare(getXml()) !== 0;
 }
 
 
@@ -2110,6 +2105,6 @@ function createNewProject() {
 
 
 export {
-  checkLeave, displayProjectName, resetToolBoxSizing,
+  isProjectChanged, displayProjectName, resetToolBoxSizing,
   loadToolbox, createNewProject, getWorkspaceSvg,
 };

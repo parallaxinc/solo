@@ -257,6 +257,24 @@ class Project {
 
 
   /**
+   * Compare the user-editable project fields for equality.
+   * @param {Project} projectA
+   * @param {Project }projectB
+   * @return {boolean}
+   */
+  static compare(projectA, projectB) {
+    if (!projectA) return false;
+    if (!projectB) return false;
+
+    if (projectA.name !== projectB.name) return false;
+    if (projectA.description !== projectB.description) return false;
+    if (projectA.code !== projectB.code) return false;
+
+    return true;
+  }
+
+
+  /**
      * Compare two instances of a Project.
      *
      * @param {object} projectA
