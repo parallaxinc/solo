@@ -21,6 +21,7 @@
  */
 
 import {
+  APP_VERSION,
   ApplicationName,
   productBannerHostTrigger,
   TestApplicationName} from './constants.js';
@@ -65,7 +66,8 @@ function showAppBannerTitle(appName) {
  */
 function setCopyrightDate(element) {
   const d = new Date();
-  element.innerHTML = d.getFullYear().toString();
+  element.innerHTML = 'v' + APP_VERSION + ' &copy; 2015 - ' +
+      d.getFullYear().toString() + ', Parallax Inc.';
 }
 
 

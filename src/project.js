@@ -167,68 +167,76 @@ class Project {
      * @returns {boolean} True if the Project objects are equivalent, otherwise returns false.
      */
     static testProjectEquality(projectA, projectB) {
+        let result = true;
+
         if (!projectA) {
             console.log("Project A is empty");
-            return false;
+            result =  false;
         }
 
         if (!projectB) {
             console.log("Project B is empty");
-            return false;
+            result = false;
         }
 
-        if (!projectA.name || !projectB.name) {
-            console.log("Project name is missing.");
-            return false;
+        if (!projectA.name) {
+            console.log("Project-A name is missing.");
+            result = false;
+        }
+
+        if (!projectB.name) {
+            console.log("Project-B name is missing.");
+            result = false;
         }
 
         if (projectA.name !== projectB.name) {
            console.log("Project name A: %s Does not match B: %s", projectA.name, projectB.name);
-           return false;
+            result = false;
         }
 
         if (!projectA.description || !projectB.description) {
             console.log("Project description is undefined.");
-            return false;
+            result = false;
         }
 
         if (projectA.description !== projectB.description) {
             console.log("Project description mismatch");
+            result = false;
         }
 
         if (projectA.type !== projectB.type) {
             console.log("ProjectType mismatch")
-            return false;
+            result = false;
         }
 
         if (projectA.board !== projectB.board) {
             console.log("Board type mismatch");
-            return false;
+            result = false;
         }
 
         if (projectA.code !== projectB.code) {
             console.log("Code segment mismatch");
-            return false;
+            result = false;
         }
 
         if (projectA.created !== projectB.created) {
             console.log("Project created timestamp mismatch");
-            return false;
+            result = false;
         }
 
         if (projectA.modified !== projectB.modified) {
             console.log("Project last modified timestamp mismatch");
-            return false;
+            result = false;
         }
 
         if (projectA.descriptionHtml !== projectB.descriptionHtml) {
             console.log("Project HTML description mismatch");
-            return false;
+            result = false;
         }
 
         if (projectA.id !== projectB.id) {
             console.log("Project A is not the same object as project B");
-            return false;
+            result = false;
         }
 
         // private: true
@@ -237,9 +245,8 @@ class Project {
         // user: "offline"
         // yours: true
 
-        return true;
+        return result;
     }
-
 }
 
 
