@@ -1082,8 +1082,9 @@ Blockly.propc.string_var_length = function () {
             varPref = 'MY_';
         }
         Blockly.propc.string_var_lengths.push([
-                Blockly.propc.variableDB_.getName(this.getFieldValue('VAR_NAME' + i.toString(10)),
-                        Blockly.Variables.NAME_TYPE),
+                Blockly.propc.variableDB_.getName(
+                    this.getFieldValue('VAR_NAME' + i.toString(10)),
+                    Blockly.VARIABLE_CATEGORY_NAME),
                 varPref + varLenValue
         ]);
         i++;
@@ -1117,7 +1118,11 @@ Blockly.Blocks.high_low_value = {
         this.setTooltip(Blockly.MSG_HIGH_LOW_VALUE_TOOLTIP);
         this.setColour(colorPalette.getColor('programming'));
         this.appendDummyInput()
-                .appendField(new Blockly.FieldDropdown([["high", "1"], ["low", "0"]]), 'VALUE');
+                .appendField(new Blockly.FieldDropdown([
+                    ["high", "1"],
+                    ["low", "0"]
+                ]),
+                'VALUE');
         this.setOutput(true, 'Number');
         this.setPreviousStatement(false, null);
         this.setNextStatement(false, null);
@@ -1602,9 +1607,17 @@ Blockly.Blocks.combine_strings = {
 };
 
 Blockly.propc.combine_strings = function () {
-    var strA = Blockly.propc.valueToCode(this, 'STRA', Blockly.propc.ORDER_ATOMIC) || '';
-    var strB = Blockly.propc.valueToCode(this, 'STRB', Blockly.propc.ORDER_ATOMIC) || '';
-    var data = Blockly.propc.variableDB_.getName(this.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
+    var strA = Blockly.propc.valueToCode(
+        this,
+        'STRA',
+        Blockly.propc.ORDER_ATOMIC) || '';
+    var strB = Blockly.propc.valueToCode(
+        this,
+        'STRB',
+        Blockly.propc.ORDER_ATOMIC) || '';
+    var data = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('VALUE'),
+        Blockly.VARIABLE_CATEGORY_NAME);
     var code = '';
 
     Blockly.propc.vartype_[data] = 'char *';
@@ -1714,7 +1727,9 @@ Blockly.Blocks.get_char_at_position_zero = Blockly.Blocks.get_char_at_position;
 
 Blockly.propc.get_char_at_position = function () {
     var pos = Blockly.propc.valueToCode(this, 'POSITION', Blockly.propc.ORDER_ATOMIC) || '1';
-    var data = Blockly.propc.variableDB_.getName(this.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
+    var data = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('VALUE'),
+        Blockly.VARIABLE_CATEGORY_NAME);
 
     var code = '0';
 
@@ -1766,7 +1781,9 @@ Blockly.propc.set_char_at_position = function () {
             chr = '(' + chr + ' & 0xFF)'
         }
     }
-    var data = Blockly.propc.variableDB_.getName(this.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
+    var data = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('VALUE'),
+        Blockly.VARIABLE_CATEGORY_NAME);
     Blockly.propc.vartype_[data] = 'char *';
 
     if (this.type === 'set_char_at_position') {
@@ -1813,8 +1830,12 @@ Blockly.propc.get_substring = function () {
     var sst = Blockly.propc.valueToCode(this, 'START', Blockly.propc.ORDER_ATOMIC) || '1';
     var snd = Blockly.propc.valueToCode(this, 'END', Blockly.propc.ORDER_ATOMIC) || '2';
     var pt = this.getFieldValue('PART');
-    var frStr = Blockly.propc.variableDB_.getName(this.getFieldValue('FROM_STR'), Blockly.Variables.NAME_TYPE);
-    var toStr = Blockly.propc.variableDB_.getName(this.getFieldValue('TO_STR'), Blockly.Variables.NAME_TYPE);
+    var frStr = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('FROM_STR'),
+        Blockly.VARIABLE_CATEGORY_NAME);
+    var toStr = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('TO_STR'),
+        Blockly.VARIABLE_CATEGORY_NAME);
 
     Blockly.propc.vartype_[toStr] = 'char *';
 
@@ -1903,7 +1924,9 @@ Blockly.Blocks.string_to_number = {
 
 Blockly.propc.string_to_number = function () {
     var str = Blockly.propc.valueToCode(this, 'STRING', Blockly.propc.ORDER_ATOMIC) || '0';
-    var store = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+    var store = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('VAR'),
+        Blockly.VARIABLE_CATEGORY_NAME);
 
     return 'sscan(' + str + ', "' + this.getFieldValue('TYPE') + '", &' + store + ');\n';
 };
@@ -1930,7 +1953,9 @@ Blockly.Blocks.number_to_string = {
 
 Blockly.propc.number_to_string = function () {
     var str = Blockly.propc.valueToCode(this, 'NUMBER', Blockly.propc.ORDER_ATOMIC) || '0';
-    var store = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+    var store = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('VAR'),
+        Blockly.VARIABLE_CATEGORY_NAME);
 
     Blockly.propc.vartype_[store] = 'char *';
 
@@ -1988,7 +2013,9 @@ Blockly.propc.string_split = function () {
     var delim = Blockly.propc.valueToCode(this, 'CHAR', Blockly.propc.ORDER_ATOMIC) || "32";
     var fromStr = Blockly.propc.valueToCode(this, 'FROM_STR', Blockly.propc.ORDER_ATOMIC) || '"Hello World!"';
     var part = this.getFieldValue('PART');
-    var toStr = Blockly.propc.variableDB_.getName(this.getFieldValue('TO_STR'), Blockly.Variables.NAME_TYPE);
+    var toStr = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('TO_STR'),
+        Blockly.VARIABLE_CATEGORY_NAME);
 
     Blockly.propc.vartype_[toStr] = 'char *';
 
@@ -2049,7 +2076,9 @@ Blockly.Blocks.string_trim = {
 
 Blockly.propc.string_trim = function () {
     var frStr = Blockly.propc.valueToCode(this, 'FROM_STR', Blockly.propc.ORDER_ATOMIC) || '" Hello World! "';
-    var toStr = Blockly.propc.variableDB_.getName(this.getFieldValue('TO_STR'), Blockly.Variables.NAME_TYPE);
+    var toStr = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('TO_STR'),
+        Blockly.VARIABLE_CATEGORY_NAME);
 
     Blockly.propc.vartype_[toStr] = 'char *';
     Blockly.propc.vartype_[frStr] = 'char *';
@@ -2212,7 +2241,9 @@ Blockly.Blocks.math_advanced = {
 };
 
 Blockly.propc.math_advanced = function () {
-    var store = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE'), Blockly.Variables.NAME_TYPE);
+    var store = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('STORE'),
+        Blockly.VARIABLE_CATEGORY_NAME);
     var arg1 = Blockly.propc.valueToCode(this, 'ARG1', Blockly.propc.ORDER_ATOMIC) || '1';
     var arg2 = Blockly.propc.valueToCode(this, 'ARG2', Blockly.propc.ORDER_ATOMIC) || '1';
     arg1 = arg1.replace(/[(\-+ ](\d+)/g, "$1.0").replace(/\(int\)/g, "");
@@ -2254,7 +2285,9 @@ Blockly.Blocks.math_inv_trig = {
 };
 
 Blockly.propc.math_inv_trig = function () {
-    var store = Blockly.propc.variableDB_.getName(this.getFieldValue('STORE'), Blockly.Variables.NAME_TYPE);
+    var store = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('STORE'),
+        Blockly.VARIABLE_CATEGORY_NAME);
     var arg1 = Blockly.propc.valueToCode(this, 'ARG1', Blockly.propc.ORDER_ATOMIC) || '1';
     var arg2 = Blockly.propc.valueToCode(this, 'ARG2', Blockly.propc.ORDER_ATOMIC) || '1';
     var arg3 = Blockly.propc.valueToCode(this, 'ARG3', Blockly.propc.ORDER_ATOMIC) || '1';

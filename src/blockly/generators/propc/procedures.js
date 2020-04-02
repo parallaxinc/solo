@@ -797,8 +797,9 @@ Blockly.Blocks['procedures_callnoreturn'] = {
 
 Blockly.propc.procedures_defreturn = function () {
     // Define a procedure with a return value.
-    var funcName = Blockly.propc.variableDB_.getName(this.getFieldValue('NAME'),
-            Blockly.Procedures.NAME_TYPE);
+    var funcName = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('NAME'),
+        Blockly.Procedures.NAME_TYPE);
     var branch = Blockly.propc.statementToCode(this, 'STACK');
     if (Blockly.propc.INFINITE_LOOP_TRAP) {
         branch = Blockly.propc.INFINITE_LOOP_TRAP.replace(/%1/g,
@@ -814,8 +815,9 @@ Blockly.propc.procedures_defreturn = function () {
     for (var x = 0; x < this.arguments_.length; x++) {
 //        args[x] = this.arguments_[x];
 //        console.log("argument", this.arguments_[x]);
-        var varName = Blockly.propc.variableDB_.getName(this.arguments_[x],
-                Blockly.Variables.NAME_TYPE);
+        var varName = Blockly.propc.variableDB_.getName(
+            this.arguments_[x],
+            Blockly.VARIABLE_CATEGORY_NAME);
         args.push('int ' + varName);
         if (Blockly.propc.vartype_[varName] === undefined) {
             Blockly.propc.vartype_[varName] = 'LOCAL';

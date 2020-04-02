@@ -616,8 +616,12 @@ Blockly.Blocks.heb_ir_read_signal = {
 };
 
 Blockly.propc.heb_ir_read_signal = function () {
-    var buffer = Blockly.propc.variableDB_.getName(this.getFieldValue('BUFFER'), Blockly.Variables.NAME_TYPE);
-    var len = Blockly.propc.variableDB_.getName(this.getFieldValue('LENGTH'), Blockly.Variables.NAME_TYPE);
+    var buffer = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('BUFFER'),
+        Blockly.VARIABLE_CATEGORY_NAME);
+    var len = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('LENGTH'),
+        Blockly.VARIABLE_CATEGORY_NAME);
 
     Blockly.propc.vartype_[buffer] = 'char';
     Blockly.propc.varlength_[buffer] = 128;
@@ -704,7 +708,9 @@ Blockly.Blocks.heb_badge_eeprom_retrieve = {
 
 Blockly.propc.heb_badge_eeprom_retrieve = function () {
     var index = Blockly.propc.valueToCode(this, "INDEX", Blockly.propc.ORDER_NONE);
-    var buffer = Blockly.propc.variableDB_.getName(this.getFieldValue('BUFFER'), Blockly.Variables.NAME_TYPE);
+    var buffer = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('BUFFER'),
+        Blockly.VARIABLE_CATEGORY_NAME);
 
     Blockly.propc.vartype_[buffer] = 'char';
     Blockly.propc.varlength_[buffer] = 128;

@@ -1,4 +1,5 @@
 ##Custom Blocks
+This is a list of the blocks that were modified during the conversion to modules.
 
 ### base.js
 * Blockly.Blocks.base_freqout
@@ -112,3 +113,37 @@ Blockly.propc.bme680_init
 ### variables.js
 No matches.
 
+
+## BlocklyProp Launcher
+
+### Checking for Updates
+The application looks for and attempts to open a connection to the BlocklyProp
+Launcher each time the blocklyc.html DOM becomes ready by calling findClient().
+It also sets up a timer to check for a client connection every 3.5 seconds.
+```javascript 1.5
+$(document).ready(function() {
+  findClient();
+  setInterval(findClient, 3500);
+});
+```
+The findClient() function tries to establish a connection to the underlying
+client, first attempting to contact the BlocklyProp Launcher via a
+websocket using establishBPLauncherConnection(). If that attempt fails,
+findClient then attempts to contact the older BlocklyProp Client stack via
+HTTP using establishBPClientConnection(). If that also fails, the application
+updates the UI to inform the user that the client cannot be contacted.
+
+Once the connection to the client has been established, the application
+compares the version information reported by the client with the it's copy of
+the current version information. If they differ, the checkClientVersionModal()
+function is called. The checkClientVersionModal() function displays a modal
+dialog with information about the client version if the one being used is
+outdated. If the version is below the recommended version the user is warned,
+and versions below the minimum are alerted.
+
+The modal references the 'client-version-modal' DIV tag in the blocklyc.html
+page.
+
+The initClientDownloadLinks() function sets the href for each of the client
+links to point to the correct files available on the downloads.parallax.com
+S3 site. The URLs are defined in the initClientDownloadLinks() function.

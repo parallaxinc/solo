@@ -38,7 +38,7 @@ import {getProjectInitialState} from './project.js';
  *
  * @type {object | null}
  */
-let codePropC = null;
+// let codePropC = null;
 
 
 /**
@@ -230,6 +230,7 @@ function renderContent(id) {
 
   switch (selectedTab) {
     case 'blocks':
+      console.log('Displaying project blocks');
       $('.blocklyToolboxDiv').css('display', 'block');
 
       $('#content_xml').css('display', 'none');
@@ -314,6 +315,7 @@ function renderContent(id) {
  */
 // eslint-disable-next-line no-unused-vars
 const formatWizard = function() {
+  const codePropC = window.codePropC;
   const currentLine = codePropC.getCursorPosition()['row'] + 1;
   codePropC.setValue(prettyCode(codePropC.getValue()));
   codePropC.focus();
@@ -380,6 +382,7 @@ const findReplaceCode = function() {
  *  sucessful compilation
  */
 function cloudCompile(text, action, successHandler) {
+  const codePropC = window.codePropC;
   // if PropC is in edit mode, get it from the editor, otherwise render it from the blocks.
   let propcCode = '';
 
@@ -1410,6 +1413,8 @@ function showAppName() {
  */
 // eslint-disable-next-line no-unused-vars,require-jsdoc
 function initOldVersionCode(blockly) {
+  const codePropC = window.codePropC;
+
   if (!codePropC) {
     // codePropC = new CodeEditor('propcfile');
     // codePropC = ace.edit('code-propc');
@@ -1495,8 +1500,18 @@ export const clientService = {
   available: false,             // {boolean} Has a client (BPC/BPL) successfully connected
   portsAvailable: false,        // {boolean} Are any serial ports enumerated
   path: 'localhost',            // {string} usually "localhost", but can be configured to point to a client at any reachable IP/DNS address
-  port: 6009,                   // {number} BlocklyProp Client/Launcher port number
-  type: null,                   // {string} null, "ws", "http"
+
+  /**
+   *  BlocklyProp Client/Launcher port number
+   * @type {number}
+   */
+  port: 6009,
+
+  /**
+   * Connection type: null, "ws", "http"
+   * @type {string | null}
+   */
+  type: null,
 
   rxBase64: true,               // {boolean} BP Launcher full base64 encoding support flag
   loadBinary: false,            // {boolean} BP Launcher download message flag
@@ -1565,6 +1580,11 @@ $(document).ready(function() {
   setInterval(findClient, 3500);
 });
 
+
+/**
+ *  Try to connect to the BP-Launcher or BlocklyProp Client
+
+ */
 const findClient = function() {
   // Try to connect to the BP-Launcher (websocket) first
   // TODO: evaluation is always true, probably not what we want here.
@@ -1579,15 +1599,20 @@ const findClient = function() {
     // Is the BP-Launcher taking to long to respond?  If so, close the connection
     if (clientService.portListReceiveCountUp > 2) {
       clientService.activeConnection.close();
-      // TODO: check to see if this is really necesssary - it get's called by the WS onclose handler
+      // TODO: check to see if this is really necessary - it get's called by the WS onclose handler
       lostWSConnection();
     }
   }
 
   // BP-Launcher not found? Try connecting to the BP-Client
-  if (clientService.type !== 'ws') {
-    establishBPClientConnection();
-  }
+  setTimeout(function() {
+    if (clientService.type !== 'ws') {
+      console.log('Trying to connect to the BP Client.');
+      establishBPClientConnection();
+    }
+  },
+  1000
+  );
 
   // If connected to the BP-Client, poll for an updated port list
   if (clientService.type === 'http') {
@@ -1694,6 +1719,7 @@ const propToolbarButtonController = (connected) => {
  *  '0.0.0' format (Semantic versioning)
  */
 function checkClientVersionModal(rawVersion) {
+  // Record the version reported by the client
   if (rawVersion) {
     clientService.version.set(rawVersion);
   }

@@ -265,7 +265,7 @@ Blockly.propc.init = function (workspace) {
         for (var x = 0; x < variables.length; x++) {
             //var varName = Blockly.propc.variableDB_.getName(variables[x],
             var varName = Blockly.propc.variableDB_.getName(variables[x].getId(),    // USE WHEN CORE IS UPDATED
-                    Blockly.Variables.NAME_TYPE);
+                    Blockly.VARIABLE_CATEGORY_NAME);
             defvars[x] = '{{$var_type_' + varName + '}} ' + varName + '{{$var_length_' + varName + '}};';
             Blockly.propc.definitions_['variable' + x.toString(10)] = defvars[x];
         }

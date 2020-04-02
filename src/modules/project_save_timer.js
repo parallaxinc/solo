@@ -120,7 +120,7 @@ class ProjectSaveTimer {
     console.log('SAVEPRJ:Last time stamp is: %f', lastSavedTimestamp);
 
     // TODO: We are really looking to see if the project is modified,
-    //  not that we are leaving the page. checkLeave is not the right
+    //  not that we are leaving the page. isProjectChanged is not the right
     //  method to use here.
     if (timeNow > lastSavedTimestamp) {
       console.log('SAVEPRJ:Time\'s up.');

@@ -39,15 +39,6 @@
     <meta name="isOffline" content="true">
     <meta name="docker" content="true">
 
-    <!-- BlockyProp Client download links -->
-    <meta name="win32client" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-32.exe">
-    <meta name="win32zipclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-32.zip">
-    <meta name="win64client" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-64.exe">
-    <meta name="win64zipclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-64.zip">
-    <meta name="macOSclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-MacOS.pkg">
-    <meta name="win64launcher" content="http://downloads.parallax.com/blockly/launcher/Setup-BPLauncher-Win.exe">
-    <meta name="win64ziplauncher" content="http://downloads.parallax.com/blockly/launcher/Setup-BPLauncher-Win.exe.zip">
-    <meta name="macOSlauncher" content="http://downloads.parallax.com/blockly/launcher/Setup-BPLauncher-MacOS.zip">
 
     <meta name="application-name" content="BlocklyProp Solo" />
     <meta name="msapplication-TileColor" content="#FFFFFF" />
@@ -682,8 +673,6 @@
         </div>
     </div>
 
-
-
     <!-- Edit project details modal -->
     <div class="modal fade" id="edit-project-dialog">
         <div class="modal-dialog">
@@ -717,13 +706,13 @@
                         <div class="form-group">
                             <label for="new-project-description" class="keyed-lang-string"
                                    data-key="project_create_description"></label>
-                            <textarea id="edit-project-description" class="form-control"  rows="7"
+<!--
+                            <label for="edit-project-description"  class="keyed-lang-string"
+                                   data-key="project_edit_description"></label>
+-->
+                            <textarea id="edit-project-description" class="form-control" rows="7"
                                       name="new-project-description"></textarea>
                         </div>
-                        <!-- Hidden field to store a mode. possible values are 'open' and '' -->
-<!--
-                        <div id="open-modal-sender" class="hidden"></div>
--->
                     </form>
                 </div>
 
@@ -848,7 +837,10 @@
         </div>
     </div>
 
-    <!-- Modal window that enumerates the versions of the client installer available -->
+    <!--
+        Modal window that enumerates the versions of the client installer
+        available with links to the package for each os and os version.
+    -->
     <div class="modal fade" id="client-version-modal">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -875,13 +867,12 @@
                     <hr />
 
                     <div class="clients" id="client-instructions-original">
-
-                        <!-- MacOS client -->
+                        <!-- MacOS client download links list header -->
                         <div class="client-instructions MacOS">
                             <h4 class="keyed-lang-string" data-key="clientdownload_download_installer">&nbsp;</h4>
                         </div>
 
-                        <!-- MacOS Launcher -->
+                        <!-- MacOS Launcher download link -->
                         <div class="client MacOS">
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                                 data-src="images/os-icons/mac_os.png" alt="Mac OS icon" />
@@ -890,7 +881,7 @@
                                     data-key="clientdownload_launcher_macos_installer"></span></a>
                         </div>
 
-                        <!-- MacOS Client -->
+                        <!-- MacOS Client download link -->
                         <div class="client MacOS bpc-old hidden">
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                                 data-src="images/os-icons/mac_os.png" alt="Mac OS icon" />

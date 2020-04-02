@@ -27,7 +27,7 @@ import {
 } from './constants.js';
 
 import {
-  checkLeave, resetToolBoxSizing, displayProjectName,
+  isProjectChanged, resetToolBoxSizing, displayProjectName,
 } from './editor.js';
 import {isExperimental} from './url_parameters.js';
 import {getProjectInitialState} from './project.js';
@@ -43,7 +43,7 @@ function newProjectModal() {
   // If the current project has been modified, give the user
   // an opportunity to abort the new project process.
   // eslint-disable-next-line no-undef
-  if (checkLeave()) {
+  if (isProjectChanged()) {
     const message =
             'The current project has been modified. Click OK to\n' +
             'discard the current changes and create a new project.';
@@ -278,7 +278,7 @@ function openProjectModal() {
 
     // Has the project been revised. If it has, offer to persist it before
     // opening a new project
-    if (checkLeave()) {
+    if (isProjectChanged()) {
       const message =
                 'The current project has been modified. Click OK to\n' +
                 'discard the current changes and open an existing project.';
