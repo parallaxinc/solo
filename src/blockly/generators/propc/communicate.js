@@ -1131,9 +1131,9 @@ Blockly.Blocks.serial_open = {
     onchange: function (event) {
         // only monitor changes to serial init blocks
         if (event && (
-                event.name === 'RXPIN' ||
-                event.name === 'TXPIN' ||
-                event.type == Blockly.Events.BLOCK_CREATE ||
+                event.name === 'RXPIN' || 
+                event.name === 'TXPIN' || 
+                event.type == Blockly.Events.BLOCK_CREATE || 
                 event.blockId === this.id)) {
             var warnText = [];
             var rxPin = this.getFieldValue('RXPIN');
@@ -1148,8 +1148,8 @@ Blockly.Blocks.serial_open = {
             if (rxPin === txPin) {
                 warnText.push('WARNING: RX and TX should use different pins!');
             }
-
-            // warn if multiple serial protocol instances are sharing
+    
+            // warn if multiple serial protocol instances are sharing  
             var allSerialInitBlocks = Blockly.getMainWorkspace().getBlocksByType('serial_open');
             for (var i = 0; i < allSerialInitBlocks.length; i++) {
                 if (this.id !== allSerialInitBlocks[i].id) {
@@ -1281,7 +1281,7 @@ Blockly.Blocks.serial_send_text = {
             } else {
                 // scan the 'serial_open' blocks and build a pin list
                 for (var i = 0; i < serialInitBlocks.length; i++) {
-                    serialPinList.push(serialInitBlocks[i].getFieldValue('RXPIN') + ',' +
+                    serialPinList.push(serialInitBlocks[i].getFieldValue('RXPIN') + ',' + 
                         serialInitBlocks[i].getFieldValue('TXPIN'));
                 }
                 serialPinList = serialPinList.sortedUnique();
@@ -1298,10 +1298,10 @@ Blockly.Blocks.serial_send_text = {
                 }
 
                 // if the selected value changed, select the new value
-                if (oldValue.length === 1 && currentValue &&
-                        oldValue[0] === currentValue &&
+                if (oldValue.length === 1 && currentValue && 
+                        oldValue[0] === currentValue && 
                         newValue.length === 1 &&
-                        newValue[0] &&
+                        newValue[0] && 
                         // make sure this doesn't fire in an invalid state
                         this.getField('SER_PIN').textContent_) {
                     this.setFieldValue(newValue[0], 'SER_PIN');
@@ -1310,7 +1310,7 @@ Blockly.Blocks.serial_send_text = {
                 // update the variable that stores the list of pins
                 this.ser_pins = serialPinList;
 
-                if (this.type === 'serial_print_multiple' && this.workspace &&
+                if (this.type === 'serial_print_multiple' && this.workspace && 
                         this.optionList_.length < 1) {
                     warnText = 'Serial transmit multiple must have at least one term.';
                 }
@@ -3067,7 +3067,7 @@ Blockly.Blocks.oled_initialize = {
 };
 
 Blockly.propc.oled_initialize = function () {
-    if (!this.disabled) {
+    if (!this.disbled) {
         var pin = [
                 this.getFieldValue('DIN'),
                 this.getFieldValue('CLK'),
@@ -4529,7 +4529,7 @@ Blockly.Blocks.wx_init = {
 };
 
 Blockly.propc.wx_init = function () {
-    if (!this.disabled) {
+    if (!this.diabled) {
         var pin_di = this.getFieldValue('DI') || '30';
         var pin_do = this.getFieldValue('DO') || '31';
         if (pin_di === '30')
