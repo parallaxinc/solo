@@ -38,7 +38,7 @@ import {getProjectInitialState} from './project.js';
  *
  * @type {object | null}
  */
-let codePropC = null;
+// let codePropC = null;
 
 
 /**
@@ -315,6 +315,7 @@ function renderContent(id) {
  */
 // eslint-disable-next-line no-unused-vars
 const formatWizard = function() {
+  const codePropC = window.codePropC;
   const currentLine = codePropC.getCursorPosition()['row'] + 1;
   codePropC.setValue(prettyCode(codePropC.getValue()));
   codePropC.focus();
@@ -381,6 +382,7 @@ const findReplaceCode = function() {
  *  sucessful compilation
  */
 function cloudCompile(text, action, successHandler) {
+  const codePropC = window.codePropC;
   // if PropC is in edit mode, get it from the editor, otherwise render it from the blocks.
   let propcCode = '';
 
@@ -1411,6 +1413,8 @@ function showAppName() {
  */
 // eslint-disable-next-line no-unused-vars,require-jsdoc
 function initOldVersionCode(blockly) {
+  const codePropC = window.codePropC;
+
   if (!codePropC) {
     // codePropC = new CodeEditor('propcfile');
     // codePropC = ace.edit('code-propc');
