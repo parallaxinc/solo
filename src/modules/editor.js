@@ -20,7 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-// import Blockly from 'blockly/core';
+import Blockly from 'blockly/core';
 import {saveAs} from 'file-saver';
 
 import {
@@ -55,6 +55,8 @@ import {filterToolbox} from './toolbox_data.js';
 import {isExperimental} from './url_parameters.js';
 import {buildDefaultProjectFile} from './project_default.js';
 import {utils} from './utility.js';
+// eslint-disable-next-line camelcase
+import {page_text_label, tooltip_text} from './blockly/language/en/messages.js';
 
 
 /**

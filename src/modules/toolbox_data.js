@@ -21,6 +21,8 @@
  */
 
 import {getKeyValue, isExperimental} from './url_parameters.js';
+// eslint-disable-next-line camelcase
+import {toolbox_label} from './blockly/language/en/messages.js';
 
 /**
  * Create a string representation of an XML array that defines the menu
