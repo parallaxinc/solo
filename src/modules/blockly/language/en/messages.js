@@ -26,7 +26,15 @@
  */
 'use strict';
 
-import Blockly from 'blockly/core';
+// import Blockly from 'blockly/core';
+
+
+import * as Blockly from 'blockly/core';
+import 'blockly/blocks';
+import 'blockly/javascript';
+
+import * as En from 'blockly/msg/en.js';
+Blockly.setlocale(En);
 
 /**
  * Due to the frequency of long strings, the 80-column wrap rule need not apply
@@ -213,19 +221,33 @@ Blockly.Msg.VARIABLES_GET_CREATE_SET = 'Create \'set %1\'';
 Blockly.Msg.VARIABLES_SET = 'set %1 to %2';
 Blockly.Msg.VARIABLES_SET_CREATE_GET = 'Create \'get %1\'';
 Blockly.Msg.PROCEDURES_DEFRETURN_TITLE = Blockly.Msg.PROCEDURES_DEFNORETURN_TITLE;
-Blockly.Msg.CONTROLS_IF_IF_TITLE_IF = Blockly.Msg.CONTROLS_IF_MSG_IF;
-Blockly.Msg.CONTROLS_WHILEUNTIL_INPUT_DO = Blockly.Msg.CONTROLS_REPEAT_INPUT_DO;
-Blockly.Msg.CONTROLS_IF_MSG_THEN = Blockly.Msg.CONTROLS_REPEAT_INPUT_DO;
-Blockly.Msg.CONTROLS_IF_ELSE_TITLE_ELSE = Blockly.Msg.CONTROLS_IF_MSG_ELSE;
+
+// Blockly.Msg.CONTROLS_IF_MSG_IF
+Blockly.Msg.CONTROLS_IF_IF_TITLE_IF = Blockly.LANG_CONTROLS_IF_MSG_IF;
+
+// Blockly.Msg.CONTROLS_REPEAT_INPUT_DO
+Blockly.Msg.CONTROLS_WHILEUNTIL_INPUT_DO = Blockly.LANG_CONTROLS_REPEAT_INPUT_DO;
+
+// Blockly.Msg.CONTROLS_REPEAT_INPUT_DO
+Blockly.Msg.CONTROLS_IF_MSG_THEN = Blockly.LANG_CONTROLS_REPEAT_INPUT_DO;
+
+// Blockly.Msg.CONTROLS_IF_MSG_ELSE
+Blockly.Msg.CONTROLS_IF_ELSE_TITLE_ELSE = Blockly.LANG_CONTROLS_IF_MSG_ELSE;
 Blockly.Msg.PROCEDURES_DEFRETURN_PROCEDURE = Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE;
 Blockly.Msg.MATH_CHANGE_TITLE_ITEM = Blockly.Msg.VARIABLES_DEFAULT_NAME;
 Blockly.Msg.MATH_NUMBER_RANGE_TOO_LARGE_WARNING = 'WARNING: Your value is too small!  It must be greater than or equal to ';
 Blockly.Msg.MATH_NUMBER_RANGE_TOO_SMALL_WARNING = 'WARNING: Your value is too large!  It must be less than or equal to ';
 Blockly.Msg.MATH_NUMBER_RANGE_VALUE_INVALID_WARNING = 'WARNING: The value you entered is not available or not allowed!';
 Blockly.Msg.PROCEDURES_DEFRETURN_DO = Blockly.Msg.PROCEDURES_DEFNORETURN_DO;
-Blockly.Msg.CONTROLS_IF_ELSEIF_TITLE_ELSEIF = Blockly.Msg.CONTROLS_IF_MSG_ELSEIF;
-Blockly.Msg.CONTROLS_FOREACH_INPUT_DO = Blockly.Msg.CONTROLS_REPEAT_INPUT_DO;
-Blockly.Msg.CONTROLS_FOR_INPUT_DO = Blockly.Msg.CONTROLS_REPEAT_INPUT_DO;
+
+// Blockly.Msg.CONTROLS_IF_MSG_ELSEIF
+Blockly.Msg.CONTROLS_IF_ELSEIF_TITLE_ELSEIF = Blockly.LANG_CONTROLS_IF_MSG_ELSEIF;
+
+//  Blockly.Msg.CONTROLS_REPEAT_INPUT_DO
+Blockly.Msg.CONTROLS_FOREACH_INPUT_DO = Blockly.LANG_CONTROLS_REPEAT_INPUT_DO;
+
+// Blockly.Msg.CONTROLS_REPEAT_INPUT_DO
+Blockly.Msg.CONTROLS_FOR_INPUT_DO = Blockly.LANG_CONTROLS_REPEAT_INPUT_DO;
 Blockly.Msg.TEXT_APPEND_VARIABLE = Blockly.Msg.VARIABLES_DEFAULT_NAME;
 Blockly.Msg.TEXT_CREATE_JOIN_ITEM_TITLE_ITEM = Blockly.Msg.VARIABLES_DEFAULT_NAME;
 Blockly.Msg.PROCEDURES_DEFRETURN_COMMENT = Blockly.Msg.PROCEDURES_DEFNORETURN_COMMENT;
