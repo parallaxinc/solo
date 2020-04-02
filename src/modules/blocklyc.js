@@ -23,6 +23,7 @@
 import * as ace from 'ace-builds/src-noconflict/ace';
 import * as jsBeautify from 'js-beautify';
 import {saveAs} from 'file-saver';
+import JSZip from 'jszip';
 
 import {EMPTY_PROJECT_CODE_HEADER} from './constants.js';
 import {isExperimental} from './url_parameters.js';
@@ -31,6 +32,7 @@ import {CodeEditor} from './code_editor.js';
 import {propToolbarButtonController} from './toolbar_controller.js';
 import {getPropTerminal} from './prop_term.js';
 import {getProjectInitialState} from './project.js';
+import {setPropCCode} from './code_editor.js';
 
 
 /**
@@ -213,6 +215,7 @@ const graph_data = {
 function renderContent(id) {
   // Get the initial project state
   const project = getProjectInitialState();
+  const codePropC = window.codePropC;
 
   // Select the active tab.
   const selectedTab = id.replace('tab_', '');
@@ -1479,7 +1482,7 @@ function init(blockly) {
     const searchTerm = '<block';
 
     if (project.boardType.name !== 'propcfile') {
-      codePropC = new CodeEditor(project.boardType.name);
+      setPropCCode(new CodeEditor(project.boardType.name));
       loadToolbox(project.code);
     }
     if (!project.code || project.code.indexOf(searchTerm) < 0) {

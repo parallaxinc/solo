@@ -135,4 +135,4 @@ function setPropCodeXml(value) {
   window.codeXml = value;
 }
 
-export {CodeEditor, propcAsBlocksXml};
+export {CodeEditor, propcAsBlocksXml, setPropCCode};
