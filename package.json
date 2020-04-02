@@ -4,6 +4,7 @@
   "description": "A simplified implementation of Google's Blockly project configured to support Parallax robots and sensors.",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint \"src/modules/**/*.js\"",
     "test": "tests/run_all_tests.sh",
     "dev": "webpack --mode=development --watch",
     "build": "webpack --mode=production"
@@ -27,6 +28,7 @@
     "file-saver": "^2.0.2",
     "jquery": "^3.4.1",
     "js-beautify": "^1.10.3",
+    "jszip": "^3.3.0",
     "node-chartist": "^1.0.5"
   },
   "devDependencies": {

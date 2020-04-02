@@ -31,6 +31,7 @@
  * to message files.
  */
 
+/*
 // Context menus.
 Blockly.MSG_DUPLICATE_BLOCK = 'Duplicate';
 Blockly.MSG_REMOVE_COMMENT = 'Remove Comment';
@@ -665,7 +666,7 @@ Blockly.MSG_S3_SERIAL_SEND_CHAR_TOOLTIP = "send character: send a character out 
 Blockly.MSG_S3_SERIAL_SEND_CTRL_TOOLTIP = "send control character: send a special character out from the serial port";
 Blockly.MSG_S3_SERIAL_CURSOR_XY_TOOLTIP = "set cursor position: set the cursor position in the terminal";
 Blockly.MSG_S3_SERIAL_RX_BYTE_TOOLTIP = "receive character: receive a character from the serial port";
-Blockly.MSG_S3_FACTORY_RESET_TOOLTIP = "factory reset: use to reload the factory default demo program back onto the Scribbler"; 
+Blockly.MSG_S3_FACTORY_RESET_TOOLTIP = "factory reset: use to reload the factory default demo program back onto the Scribbler";
 
 var toolbox_label = [];
 toolbox_label['category_control'] = "Control";
@@ -766,9 +767,9 @@ toolbox_label['category_s3-hacker-port_sensors'] = "Sensors";
 toolbox_label['category_s3-hacker-port_pins'] = "Pins";
 toolbox_label['category_s3-hacker-port_servo'] = "Servo";
 
-/*
- *  Embedded UI messages
- */
+//
+// Embedded UI messages
+//
 var page_text_label = [];
 
 page_text_label['back'] = "Back";
@@ -800,7 +801,7 @@ page_text_label['clientdownload_os_menu'] = "Choose a different operating system
 page_text_label['clientdownload_showall'] = "Show clients for all operating systems";
 page_text_label['clientdownload_title'] = "BlocklyProp Launcher";
 
-/* BP Client dialog messages */
+// BP Client dialog messages
 page_text_label['client_unknown'] = "BlocklyProp is unable to determine what version of BlocklyProp Launcher is installed on your computer.<br>You may need to install or reinstall the BlocklyProp Launcher.";
 page_text_label['client_update_warning'] = "BlocklyProp Solo requires BlocklyProp Launcher version <span class=\"client-required-version\"></span>, or later.<br><br>The version detected on your system, BlocklyProp Client version <span class=\"client-your-version\"></span> may not work<br>correctly with Solo. We recommend downloading and installing the latest software for<br>best results. You can use the link below to get started.";
 page_text_label['client_update_danger'] = "BlocklyProp now requires at least version <span class=\"client-required-version\"></span> of BlocklyProp Launcher.<br>You appear to be using BlocklyProp Launcher version <span class=\"client-your-version\"></span>.<br>You will not be able to load projects to your device until you upgrade your BlocklyProp Launcher.<br>Please use the link below to download the newest version.";
@@ -817,9 +818,9 @@ page_text_label['confirm_request_submit'] = "Request";
 page_text_label['confirm_request_title'] = "Email confirm request";
 page_text_label['confirm_requested'] = "Please check your email";
 
-/*
- * Editor canvas messages
- */
+//
+// Editor canvas messages
+//
 page_text_label['editor_button_append'] = "Append";
 page_text_label['editor_button_cancel'] = "Cancel";
 page_text_label['editor_button_open'] = "Open";
@@ -891,9 +892,9 @@ page_text_label['footer_librarieslink'] = "External libraries";
 page_text_label['footer_licenselink'] = "License";
 page_text_label['footer_releases'] = "Releases";
 
-/*
- * Help system links
- */
+//
+// Help system links
+//
 page_text_label['help_invalid-path'] = "Invalid help file";
 page_text_label['help_link_contest-ideas'] = "http://learn.parallax.com/educators/contest/home";
 page_text_label['help_link_educator-resources_activity-board'] = "http://learn.parallax.com";
@@ -1135,7 +1136,7 @@ var tooltip_text = [
     ['project-form-edit-private', 'Hide project from other users']
 ];
 
-
+*/
 
 // If online, return the full help URL, if offline, open a modal
 
@@ -1145,6 +1146,7 @@ var tooltip_text = [
  * Load the block's help page in a new window.
  * @private
  */
+/*
 Blockly.BlockSvg.prototype.showHelp_ = function () {
     let url = goog.isFunction(this.helpUrl) ? this.helpUrl() : this.helpUrl;
 
@@ -1169,3 +1171,4 @@ Blockly.BlockSvg.prototype.showHelp_ = function () {
         // $('#help-dialog').modal('show');
     }
 };
+*/

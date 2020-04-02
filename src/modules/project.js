@@ -365,6 +365,15 @@ class Project {
 
     return result;
   }
+
+
+  /**
+   * Get the state of the project when it was first loaded.
+   * @return {Project}
+   */
+  static getProjectState() {
+    return projectInitialState;
+  }
 }
 
 

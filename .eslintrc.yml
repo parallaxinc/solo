@@ -50,3 +50,10 @@ overrides:
       max-len: "off",
       no-multi-spaces: "off"
     }
+  - files: [
+      "src/modules/blockly/language/**/*.js"
+    ]
+    rules: {
+      max-len: "off"
+
+    }

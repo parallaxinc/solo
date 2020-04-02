@@ -20,7 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import {getProjectInitialState} from './project.js';
+import {Project} from './project.js';
 
 /**
  *  Update the state of the Compiler toolbar buttons
@@ -31,8 +31,8 @@ import {getProjectInitialState} from './project.js';
  */
 const propToolbarButtonController = (connected) => {
   // if (projectData && projectData.board === 's3') {
-  if (getProjectInitialState() &&
-      getProjectInitialState().boardType.name === 's3') {
+  if (Project.getProjectState() &&
+      Project.getProjectState().boardType.name === 's3') {
     /* ----------------------------------------------------------------
      * Hide the buttons that are not required for the S3 robot
      *

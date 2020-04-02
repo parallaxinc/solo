@@ -20,7 +20,6 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-
 import {
   LOCAL_PROJECT_STORE_NAME,
   TEMP_PROJECT_STORE_NAME,
@@ -29,8 +28,13 @@ import {
 import {
   isProjectChanged, resetToolBoxSizing, displayProjectName,
 } from './editor.js';
+
 import {isExperimental} from './url_parameters.js';
 import {getProjectInitialState} from './project.js';
+
+// eslint-disable-next-line camelcase
+import {page_text_label} from './blockly/language/en/messages.js';
+import {utils} from './utility.js';
 
 /**
  * Start the process to open a new project
