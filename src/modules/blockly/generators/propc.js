@@ -496,11 +496,11 @@ Blockly.propc.init = function(workspace) {
  * @return {string} Completed code.
  */
 Blockly.propc.finish = function(code) {
-  const profile = window.projectProfile;
+  const profile = getDefaultProfile();
   // Convert the definitions dictionary into a list.
   const imports = [];
   const methods = [];
-  const ui_system_settings = [];
+  const uiSystemSettings = [];
   const declarations = [];
   const definitions = [];
   const def_names = [];
@@ -510,96 +510,139 @@ Blockly.propc.finish = function(code) {
   let user_var_end;
 
   // Gives BlocklyProp developers the ability to add global variables
-  for (var name in Blockly.propc.global_vars_) {
-    var def = Blockly.propc.global_vars_[name];
-
-    definitions.push(def);
-    def_names.push(name);
-  }
-  user_var_start = definitions.length;
-
-  for (var name in Blockly.propc.definitions_) {
-    var def = Blockly.propc.definitions_[name];
-    if (def.match(/^#include/) || def.match(/^#define/) || def.match(/^#if/) ||
-            def.match(/^#end/) || def.match(/^#else/) || def.match(/^#pragma/)) {
-      imports.push(def);
-    } else if (def.match(/\/\/ GRAPH_[A-Z]*_START:/)) {
-      ui_system_settings.push(def);
-    } else {
+  for (const name in Blockly.propc.global_vars_) {
+    if (Object.prototype.hasOwnProperty.call(
+        Blockly.propc.global_vars_, name)) {
+      const def = Blockly.propc.global_vars_[name];
       definitions.push(def);
       def_names.push(name);
     }
   }
-  user_var_end = definitions.length;
 
-  for (const declaration in Blockly.propc.method_declarations_) {
-    declarations.push(Blockly.propc.method_declarations_[declaration]);
-    for (const func_index in Blockly.propc.cog_methods_) {
-      if (Blockly.propc.cog_methods_[func_index].replace(/[^\w]+/g, '') === Blockly.propc.method_declarations_[declaration].replace(/void/g, '').replace(/[^\w]+/g, '')) {
-        cog_function.push(declaration);
+  // Set the beginning of the variable definitions
+  user_var_start = definitions.length;
+
+  for (const name in Blockly.propc.definitions_) {
+    if (Object.prototype.hasOwnProperty.call(
+        Blockly.propc.definitions_, name)) {
+      const def = Blockly.propc.definitions_[name];
+      if (def.match(/^#include/) || def.match(/^#define/) ||
+          def.match(/^#if/) || def.match(/^#end/) ||
+          def.match(/^#else/) || def.match(/^#pragma/)) {
+        imports.push(def);
+      } else if (def.match(/\/\/ GRAPH_[A-Z]*_START:/)) {
+        uiSystemSettings.push(def);
+      } else {
+        definitions.push(def);
+        def_names.push(name);
       }
     }
   }
 
-  // console.log(Blockly.propc.methods_);
-  // console.log(Blockly.propc.cog_setups_);
-  for (var method in Blockly.propc.methods_) {
+  // Set the end of the variable definitions
+  user_var_end = definitions.length;
+
+  for (const declaration in Blockly.propc.method_declarations_) {
+    if (Object.prototype.hasOwnProperty.call(
+        Blockly.propc.method_declarations_, declaration)) {
+      declarations.push(Blockly.propc.method_declarations_[declaration]);
+      for (const functionIndex in Blockly.propc.cog_methods_) {
+        if (Blockly.propc.cog_methods_[functionIndex].replace(/[^\w]+/g, '') ===
+          // eslint-disable-next-line max-len
+          Blockly.propc.method_declarations_[declaration].replace(/void/g, '').replace(/[^\w]+/g, '')) {
+          cog_function.push(declaration);
+        }
+      }
+    }
+  }
+
+  for (const method in Blockly.propc.methods_) {
     for (const cog_setup in Blockly.propc.cog_setups_) {
       if (Blockly.propc.cog_setups_[cog_setup][0] === method) {
         const cog_function_code = Blockly.propc.methods_[method];
         const brace_position = cog_function_code.indexOf('{');
-        Blockly.propc.methods_[method] = cog_function_code.substring(0, brace_position + 1) +
-                        Blockly.propc.cog_setups_[cog_setup][1] +
-                        cog_function_code.substring(brace_position + 1, brace_position.length);
+        Blockly.propc.methods_[method] =
+            cog_function_code.substring(0, brace_position + 1) +
+            Blockly.propc.cog_setups_[cog_setup][1] +
+            cog_function_code.substring(
+                brace_position + 1, brace_position.length);
       }
     }
+
     methods.push(Blockly.propc.methods_[method]);
   }
 
-  for (var def in definitions) {
+  for (const def in definitions) {
     for (const variable in Blockly.propc.vartype_) {
       if (definitions[def].indexOf('{{$var_type_' + variable + '}}') > -1) {
         if (Blockly.propc.vartype_[variable] !== 'LOCAL') {
-          definitions[def] = definitions[def].replace('{{$var_type_' + variable + '}}', Blockly.propc.vartype_[variable]);
+          definitions[def] = definitions[def].replace(
+              '{{$var_type_' + variable + '}}',
+              Blockly.propc.vartype_[variable]);
         } else {
-          definitions[def] = definitions[def].replace('{{$var_type_' + variable + '}} ' + variable + '{{$var_length_' + variable + '}}', '');
+          definitions[def] = definitions[def].replace(
+              '{{$var_type_' + variable + '}} ' + variable +
+              '{{$var_length_' + variable + '}}', '');
         }
         if (Blockly.propc.varlength_[variable]) {
-          definitions[def] = definitions[def].replace('{{$var_length_' + variable + '}}', '[' + Blockly.propc.varlength_[variable] + ']');
+          definitions[def] = definitions[def].replace(
+              '{{$var_length_' + variable + '}}',
+              '[' + Blockly.propc.varlength_[variable] + ']');
         } else {
-          definitions[def] = definitions[def].replace('{{$var_length_' + variable + '}}', '');
+          definitions[def] = definitions[def].replace(
+              '{{$var_length_' + variable + '}}', '');
         }
       }
     }
 
     if (definitions[def].indexOf('{{$var_type_') > -1) {
-      definitions[def] = definitions[def].replace(/\{\{\$var_type_.*?\}\}/ig, 'int').replace(/\{\{\$var_length_.*?\}\}/ig, '');
+      definitions[def] = definitions[def]
+          .replace(/\{\{\$var_type_.*?\}\}/ig, 'int')
+          .replace(/\{\{\$var_length_.*?\}\}/ig, '');
     }
 
-    // console.log(def_names[def]);
-    if (def_names[def].indexOf('cCode') === -1) { // exclude custom code blocks from these modifiers
-      // Exclude variables with "__" in the name for now because those are buffers for private functions
-      if (definitions[def].indexOf('char *') > -1 && definitions[def].indexOf('__') === -1 && definitions[def].indexOf('rfidBfr') === -1 && definitions[def].indexOf('wxBuffer') === -1) {
-        definitions[def] = definitions[def].replace('char *', 'char ').replace(';', '[64];');
+    // exclude custom code blocks from these modifiers
+    if (def_names[def].indexOf('cCode') === -1) {
+      // Exclude variables with "__" in the name for now because those
+      // are buffers for private functions
+      if (definitions[def].indexOf('char *') > -1 &&
+          definitions[def].indexOf('__') === -1 &&
+          definitions[def].indexOf('rfidBfr') === -1 &&
+          definitions[def].indexOf('wxBuffer') === -1) {
+        definitions[def] = definitions[def]
+            .replace('char *', 'char ')
+            .replace(';', '[64];');
       } else if (definitions[def].indexOf('wxBuffer') > -1) {
-        definitions[def] = definitions[def].replace('char *', 'char ').replace('wxBuffer;', 'wxBuffer[64];');
+        definitions[def] = definitions[def]
+            .replace('char *', 'char ')
+            .replace('wxBuffer;', 'wxBuffer[64];');
       }
 
-      // TODO: Temporary patch to correct some weirdness with char array pointer declarations:
-      definitions[def] = definitions[def].replace(/char \*(\w+)\[/g, 'char $1[');
+      // TODO: Temporary patch to correct some weirdness with char array
+      //  pointer declarations
+      definitions[def] = definitions[def]
+          .replace(/char \*(\w+)\[/g, 'char $1[');
     }
 
-    // Sets the length of string arrays based on the lengths specified in the string set length block.
+    // Sets the length of string arrays based on the lengths specified
+    // in the string set length block.
     const vl = Blockly.propc.string_var_lengths.length;
     for (let vt = 0; vt < vl; vt++) {
-      const varMatch = new RegExp('char\\s+' + Blockly.propc.string_var_lengths[vt][0] + '\\[');
+      const varMatch = new RegExp(
+          'char\\s+' + Blockly.propc.string_var_lengths[vt][0] + '\\[');
       if (definitions[def].match(varMatch)) {
-        definitions[def] = 'char ' + Blockly.propc.string_var_lengths[vt][0] + '[' + Blockly.propc.string_var_lengths[vt][1] + ' + 1];';
+        definitions[def] = 'char ' +
+            Blockly.propc.string_var_lengths[vt][0] +
+            '[' +
+            Blockly.propc.string_var_lengths[vt][1] +
+            ' + 1];';
       }
     }
 
-    for (var method in Blockly.propc.cog_methods_) {
-      if (Blockly.propc.methods_[method].indexOf(definitions[def].replace(/[charint]* (\w+)[\[\]0-9]*;/g, '$1')) > -1) {
+    for (const method in Blockly.propc.cog_methods_) {
+      if (Blockly.propc.methods_[method]
+          .indexOf(definitions[def]
+              .replace(/[charint]* (\w+)[\[\]0-9]*;/g, '$1')) > -1) {
         function_vars.push(definitions[def]);
       }
     }
@@ -612,7 +655,7 @@ Blockly.propc.finish = function(code) {
 
   // Convert the setups dictionary into a list.
   const setups = [];
-  for (var name in Blockly.propc.setups_) {
+  for (const name in Blockly.propc.setups_) {
     setups.push('  ' + Blockly.propc.setups_[name]);
   }
 
@@ -623,7 +666,9 @@ Blockly.propc.finish = function(code) {
   // Add volatile to variable declarations in cogs
   for (let idx = user_var_start; idx < user_var_end; idx++) {
     for (const idk in function_vars) {
-      if (definitions[idx] === function_vars[idk] && definitions[idx].indexOf('volatile') === -1) {
+      if (definitions[idx] === function_vars[idk] &&
+          definitions[idx].indexOf('volatile') === -1) {
+
         // TODO: uncomment this when optimization is utilized!
         if (isExperimental.indexOf('volatile' > -1)) {
           definitions[idx] = 'volatile ' + definitions[idx];
@@ -639,8 +684,10 @@ Blockly.propc.finish = function(code) {
     spacer_defs += '// ------ Global Variables and Objects ------\n';
   }
 
-  const allDefs = '// ------ Libraries and Definitions ------\n' + imports.join('\n') +
-            spacer_defs + definitions.join('\n') + '\n\n'; // int main() {\n  ' +
+  const allDefs = '// ------ Libraries and Definitions ------\n' +
+      imports.join('\n') +
+      spacer_defs +
+      definitions.join('\n') + '\n\n';
 
   if (code.indexOf('// RAW PROPC CODE\n//{{||}}\n') > -1) {
     const pcc = code.split('//{{||}}\n');
@@ -650,7 +697,9 @@ Blockly.propc.finish = function(code) {
     code = '  ' + code.replace(/\n/g, '\n  ');
 
     // Comment out any instance of 'pause(0);' - causes a compiler error
-    code = code.replace(/\n\s+$/, '\n').replace(/pause\(0\);\n/g, '// pause(0);\n');
+    code = code
+        .replace(/\n\s+$/, '\n')
+        .replace(/pause\(0\);\n/g, '// pause(0);\n');
 
     // Remove redundant casts
     code = code.replace(/\(float\)\s*\(int\)/g, '(float)');
@@ -666,7 +715,7 @@ Blockly.propc.finish = function(code) {
                 profile.description !== 'Propeller C (code-only)') {
       setup += '/* EMPTY_PROJECT */\n';
     }
-    setup += ui_system_settings.join('\n') + '\n\n';
+    setup += uiSystemSettings.join('\n') + '\n\n';
 
     let spacer_decs = '';
     if (declarations.length > 0) {
@@ -681,23 +730,33 @@ Blockly.propc.finish = function(code) {
     if (Blockly.propc.definitions_['pure_code'] === '/* PURE CODE ONLY */\n') {
       code = Blockly.propc.methods_['pure_code'];
     } else {
-      code = setup + allDefs.replace(/\n\n+/g, '\n\n').replace(/\n*$/, '\n\n') +
-                    spacer_decs + declarations.join('\n\n').replace(/\n\n+/g, '\n').replace(/\n*$/, '\n') +
-                    '\n// ------ Main Program ------\n' + code + spacer_funcs + methods.join('\n');
+      code = setup + allDefs
+          .replace(/\n\n+/g, '\n\n')
+          .replace(/\n*$/, '\n\n') +
+          spacer_decs +
+          declarations.join('\n\n')
+              .replace(/\n\n+/g, '\n')
+              .replace(/\n*$/, '\n') +
+         '\n// ------ Main Program ------\n' + code + spacer_funcs +
+          methods.join('\n');
     }
 
     // Change strings assigned to variables to strcpy functions
-    code = code.replace(/(\w+)\s*=\s*\({0,1}"(.*)"\){0,1};/g, function(m, p1, p2) {
-      if (p2.indexOf(',') === 0 && p2.indexOf(', "') > -1) {
-        return m;
-      } else {
-        return 'strcpy(' + p1 + ', "' + p2 + '");\t\t\t// Save string into variable ' + p1 + '.';
-      }
-    });
+    code = code.replace(/(\w+)\s*=\s*\({0,1}"(.*)"\){0,1};/g,
+        function(m, p1, p2) {
+          if (p2.indexOf(',') === 0 && p2.indexOf(', "') > -1) {
+            return m;
+          } else {
+            return 'strcpy(' + p1 + ', "' + p2 +
+                '");\t\t\t// Save string into variable ' + p1 + '.';
+          }
+        });
 
     return code;
   }
 };
+
+
 /**
  * Naked values are top-level blocks with outputs that aren't plugged into
  * anything.  A trailing semicolon is needed to make this legal.
@@ -707,6 +766,8 @@ Blockly.propc.finish = function(code) {
 Blockly.propc.scrubNakedValue = function(line) {
   return line + ';\n';
 };
+
+
 /**
  * Common tasks for generating Prop-c from blocks.
  * Handles comments for the specified block and any connected value blocks.
@@ -733,10 +794,11 @@ Blockly.propc.scrub_ = function(block, code) {
     // Collect comments for all value arguments.
     // Don't collect comments for nested statements.
     for (let x = 0; x < block.inputList.length; x++) {
+      // TODO: Possible type coercion issue
       if (block.inputList[x].type == Blockly.INPUT_VALUE) {
         const childBlock = block.inputList[x].connection.targetBlock();
         if (childBlock) {
-          var comment = Blockly.propc.allNestedComments(childBlock);
+          const comment = Blockly.propc.allNestedComments(childBlock);
           if (comment) {
             commentCode += Blockly.propc.prefixLines(comment, '// ');
           }
@@ -751,7 +813,8 @@ Blockly.propc.scrub_ = function(block, code) {
 
 // Provides backward compatibility for some older browsers:
 // From: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
-
+// TODO: Remove this statement once we decide what browser
+//  revisions we are going to support
 if (!Object.keys) {
   Object.keys = (function() {
     'use strict';
@@ -769,7 +832,8 @@ if (!Object.keys) {
     const dontEnumsLength = dontEnums.length;
 
     return function(obj) {
-      if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
+      if (typeof obj !== 'function' &&
+          (typeof obj !== 'object' || obj === null)) {
         throw new TypeError('Object.keys called on non-object');
       }
 
@@ -833,7 +897,9 @@ Blockly.FieldVariable.dropdownCreate = function() {
   if (name !== Blockly.LANG_VARIABLES_SET_ITEM) {
     options.push([Blockly.Msg['RENAME_VARIABLE'], Blockly.RENAME_VARIABLE_ID]);
   }
-  if (Blockly.Msg['DELETE_VARIABLE'] && name !== Blockly.LANG_VARIABLES_SET_ITEM) { // Prevents user from deleting the default "item" variable.
+  // Prevents user from deleting the default "item" variable
+  if (Blockly.Msg['DELETE_VARIABLE'] &&
+      name !== Blockly.LANG_VARIABLES_SET_ITEM) {
     options.push(
         [
           Blockly.Msg['DELETE_VARIABLE'].replace('%1', name),
@@ -862,13 +928,17 @@ Blockly.Names.prototype.safeName_ = function(name) {
     // Unfortunately names in non-latin characters will look like
     // _E9_9F_B3_E4_B9_90 which is pretty meaningless.
     name = encodeURI(name.replace(/ /g, '_')).replace(/[^\w]/g, '_');
-    // Most languages don't allow names with leading numbers.
-    if ('0123456789'.indexOf(name[0]) !== -1 || (name[0] === '_' && name[1] === '_')) { // addition here: prevents collision with names with a leading double undescore.
+    // Most languages don't allow names with leading numbers. Addition here:
+    // prevents collision with names with a leading double underscore.
+    if ('0123456789'.indexOf(name[0]) !== -1 ||
+        (name[0] === '_' && name[1] === '_')) {
       name = 'my_' + name;
     }
   }
   return name;
 };
+
+
 
 const findBlocksByType = function(blockType) {
   const blockList = Blockly.getMainWorkspace().getAllBlocks();
@@ -885,16 +955,21 @@ const findBlocksByType = function(blockType) {
 };
 
 /**
- * Extends Blockly.Input to allow the input to have a specific range or allowed values.
- * Allows blocks to read the input's range and show warnings if the user enters values outside of the range.
- * See base.js->Blockly.Blocks.math_number for more information about formatting the range string.
- * @param rangeInfo String containing information about the range/allowed values:
- * @return the specified input
+ * Extends Blockly.Input to allow the input to have a specific range of
+ * allowed values. Allows blocks to read the input's range and show warnings
+ * if the user enters values outside of the range.
+ * See base.js->Blockly.Blocks.math_number for more information about
+ * formatting the range string.
+ *
+ * @param {string} rangeInfo
+ *  String containing information about the range/allowed values:
+ * @return {Object} this the specified input
  */
 Blockly.Input.prototype.appendRange = function(rangeInfo) {
   this.inputRange = rangeInfo;
   return this;
 };
+
 
 /**
  * Extends Blockly.Input to allow the input to have a specific range or allowed values.
