@@ -69,7 +69,11 @@ module.exports = {
                 from: path.resolve(__dirname, './src/images'),
                 to: path.resolve(__dirname, 'dist/images')
             }
-        ])
+        ]),
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery'
+        })
     ],
     devServer: {
         port: 3000
