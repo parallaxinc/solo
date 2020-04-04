@@ -494,6 +494,9 @@ Blockly.propc.init = function(workspace) {
  * Prepend the generated code with the variable definitions.
  * @param {string} code Generated code.
  * @return {string} Completed code.
+ *
+ * @description
+ * Question: cogFunction is populated but never used. Why does it exist?
  */
 Blockly.propc.finish = function(code) {
   const profile = getDefaultProfile();
@@ -503,11 +506,9 @@ Blockly.propc.finish = function(code) {
   const uiSystemSettings = [];
   const declarations = [];
   const definitions = [];
-  const def_names = [];
-  const function_vars = [];
-  const cog_function = [];
-  let user_var_start;
-  let user_var_end;
+  const definitionNames = [];
+  const functionVariables = [];
+  const cogFunctions = [];
 
   // Gives BlocklyProp developers the ability to add global variables
   for (const name in Blockly.propc.global_vars_) {
@@ -515,12 +516,12 @@ Blockly.propc.finish = function(code) {
         Blockly.propc.global_vars_, name)) {
       const def = Blockly.propc.global_vars_[name];
       definitions.push(def);
-      def_names.push(name);
+      definitionNames.push(name);
     }
   }
 
   // Set the beginning of the variable definitions
-  user_var_start = definitions.length;
+  const userVariableStart = definitions.length;
 
   for (const name in Blockly.propc.definitions_) {
     if (Object.prototype.hasOwnProperty.call(
@@ -534,13 +535,13 @@ Blockly.propc.finish = function(code) {
         uiSystemSettings.push(def);
       } else {
         definitions.push(def);
-        def_names.push(name);
+        definitionNames.push(name);
       }
     }
   }
 
   // Set the end of the variable definitions
-  user_var_end = definitions.length;
+  const userVariableEnd = definitions.length;
 
   for (const declaration in Blockly.propc.method_declarations_) {
     if (Object.prototype.hasOwnProperty.call(
@@ -550,113 +551,120 @@ Blockly.propc.finish = function(code) {
         if (Blockly.propc.cog_methods_[functionIndex].replace(/[^\w]+/g, '') ===
           // eslint-disable-next-line max-len
           Blockly.propc.method_declarations_[declaration].replace(/void/g, '').replace(/[^\w]+/g, '')) {
-          cog_function.push(declaration);
+          cogFunctions.push(declaration);
         }
       }
     }
   }
 
   for (const method in Blockly.propc.methods_) {
-    for (const cog_setup in Blockly.propc.cog_setups_) {
-      if (Blockly.propc.cog_setups_[cog_setup][0] === method) {
-        const cog_function_code = Blockly.propc.methods_[method];
-        const brace_position = cog_function_code.indexOf('{');
-        Blockly.propc.methods_[method] =
-            cog_function_code.substring(0, brace_position + 1) +
-            Blockly.propc.cog_setups_[cog_setup][1] +
-            cog_function_code.substring(
-                brace_position + 1, brace_position.length);
+    if (Object.prototype.hasOwnProperty.call(Blockly.propc.methods_, method)) {
+      for (const cogSetup in Blockly.propc.cog_setups_) {
+        if (Blockly.propc.cog_setups_[cogSetup][0] === method) {
+          const cogFunctionCode = Blockly.propc.methods_[method];
+          const bracePosition = cogFunctionCode.indexOf('{');
+          Blockly.propc.methods_[method] =
+            cogFunctionCode.substring(0, bracePosition + 1) +
+            Blockly.propc.cog_setups_[cogSetup][1] +
+            cogFunctionCode.substring(
+                bracePosition + 1, bracePosition.length);
+        }
       }
+      methods.push(Blockly.propc.methods_[method]);
     }
-
-    methods.push(Blockly.propc.methods_[method]);
   }
 
   for (const def in definitions) {
-    for (const variable in Blockly.propc.vartype_) {
-      if (definitions[def].indexOf('{{$var_type_' + variable + '}}') > -1) {
-        if (Blockly.propc.vartype_[variable] !== 'LOCAL') {
-          definitions[def] = definitions[def].replace(
-              '{{$var_type_' + variable + '}}',
-              Blockly.propc.vartype_[variable]);
-        } else {
-          definitions[def] = definitions[def].replace(
-              '{{$var_type_' + variable + '}} ' + variable +
+    if (Object.prototype.hasOwnProperty.call(definitions, def)) {
+      for (const variable in Blockly.propc.vartype_) {
+        if (definitions[def].indexOf('{{$var_type_' + variable + '}}') > -1) {
+          if (Blockly.propc.vartype_[variable] !== 'LOCAL') {
+            definitions[def] = definitions[def].replace(
+                '{{$var_type_' + variable + '}}',
+                Blockly.propc.vartype_[variable]);
+          } else {
+            definitions[def] = definitions[def].replace(
+                '{{$var_type_' + variable + '}} ' + variable +
               '{{$var_length_' + variable + '}}', '');
-        }
-        if (Blockly.propc.varlength_[variable]) {
-          definitions[def] = definitions[def].replace(
-              '{{$var_length_' + variable + '}}',
-              '[' + Blockly.propc.varlength_[variable] + ']');
-        } else {
-          definitions[def] = definitions[def].replace(
-              '{{$var_length_' + variable + '}}', '');
+          }
+          if (Blockly.propc.varlength_[variable]) {
+            definitions[def] = definitions[def].replace(
+                '{{$var_length_' + variable + '}}',
+                '[' + Blockly.propc.varlength_[variable] + ']');
+          } else {
+            definitions[def] = definitions[def].replace(
+                '{{$var_length_' + variable + '}}', '');
+          }
         }
       }
-    }
 
-    if (definitions[def].indexOf('{{$var_type_') > -1) {
-      definitions[def] = definitions[def]
-          .replace(/\{\{\$var_type_.*?\}\}/ig, 'int')
-          .replace(/\{\{\$var_length_.*?\}\}/ig, '');
-    }
+      if (definitions[def].indexOf('{{$var_type_') > -1) {
+        definitions[def] = definitions[def]
+            .replace(/\{\{\$var_type_.*?\}\}/ig, 'int')
+            .replace(/\{\{\$var_length_.*?\}\}/ig, '');
+      }
 
-    // exclude custom code blocks from these modifiers
-    if (def_names[def].indexOf('cCode') === -1) {
-      // Exclude variables with "__" in the name for now because those
-      // are buffers for private functions
-      if (definitions[def].indexOf('char *') > -1 &&
+      // exclude custom code blocks from these modifiers
+      if (definitionNames[def].indexOf('cCode') === -1) {
+        // Exclude variables with "__" in the name for now because those
+        // are buffers for private functions
+        if (definitions[def].indexOf('char *') > -1 &&
           definitions[def].indexOf('__') === -1 &&
           definitions[def].indexOf('rfidBfr') === -1 &&
           definitions[def].indexOf('wxBuffer') === -1) {
+          definitions[def] = definitions[def]
+              .replace('char *', 'char ')
+              .replace(';', '[64];');
+        } else if (definitions[def].indexOf('wxBuffer') > -1) {
+          definitions[def] = definitions[def]
+              .replace('char *', 'char ')
+              .replace('wxBuffer;', 'wxBuffer[64];');
+        }
+
+        // TODO: Temporary patch to correct some weirdness with char array
+        //  pointer declarations
         definitions[def] = definitions[def]
-            .replace('char *', 'char ')
-            .replace(';', '[64];');
-      } else if (definitions[def].indexOf('wxBuffer') > -1) {
-        definitions[def] = definitions[def]
-            .replace('char *', 'char ')
-            .replace('wxBuffer;', 'wxBuffer[64];');
+            .replace(/char \*(\w+)\[/g, 'char $1[');
       }
 
-      // TODO: Temporary patch to correct some weirdness with char array
-      //  pointer declarations
-      definitions[def] = definitions[def]
-          .replace(/char \*(\w+)\[/g, 'char $1[');
-    }
-
-    // Sets the length of string arrays based on the lengths specified
-    // in the string set length block.
-    const vl = Blockly.propc.string_var_lengths.length;
-    for (let vt = 0; vt < vl; vt++) {
-      const varMatch = new RegExp(
-          'char\\s+' + Blockly.propc.string_var_lengths[vt][0] + '\\[');
-      if (definitions[def].match(varMatch)) {
-        definitions[def] = 'char ' +
-            Blockly.propc.string_var_lengths[vt][0] +
-            '[' +
-            Blockly.propc.string_var_lengths[vt][1] +
-            ' + 1];';
+      // Sets the length of string arrays based on the lengths specified
+      // in the string set length block.
+      const vl = Blockly.propc.string_var_lengths.length;
+      for (let vt = 0; vt < vl; vt++) {
+        const varMatch = new RegExp(
+            'char\\s+' + Blockly.propc.string_var_lengths[vt][0] + '\\[');
+        if (definitions[def].match(varMatch)) {
+          definitions[def] = 'char ' +
+          Blockly.propc.string_var_lengths[vt][0] +
+          '[' +
+          Blockly.propc.string_var_lengths[vt][1] +
+          ' + 1];';
+        }
       }
-    }
 
-    for (const method in Blockly.propc.cog_methods_) {
-      if (Blockly.propc.methods_[method]
-          .indexOf(definitions[def]
-              .replace(/[charint]* (\w+)[\[\]0-9]*;/g, '$1')) > -1) {
-        function_vars.push(definitions[def]);
+      for (const method in Blockly.propc.cog_methods_) {
+        if (Blockly.propc.methods_[method]
+            .indexOf(definitions[def]
+                .replace(/[charint]* (\w+)[\[\]0-9]*;/g, '$1')) > -1) {
+          functionVariables.push(definitions[def]);
+        }
       }
     }
   }
 
   for (const stack in Blockly.propc.stacks_) {
-    definitions.push(Blockly.propc.stacks_[stack]);
-    def_names.push(stack);
+    if (Object.prototype.hasOwnProperty.call(Blockly.propc.stacks_, stack)) {
+      definitions.push(Blockly.propc.stacks_[stack]);
+      definitionNames.push(stack);
+    }
   }
 
   // Convert the setups dictionary into a list.
   const setups = [];
   for (const name in Blockly.propc.setups_) {
-    setups.push('  ' + Blockly.propc.setups_[name]);
+    if (Object.prototype.hasOwnProperty.call(Blockly.propc.setups_, name)) {
+      setups.push('  ' + Blockly.propc.setups_[name]);
+    }
   }
 
   if (profile.description === 'Scribbler Robot') {
@@ -664,11 +672,10 @@ Blockly.propc.finish = function(code) {
   }
 
   // Add volatile to variable declarations in cogs
-  for (let idx = user_var_start; idx < user_var_end; idx++) {
-    for (const idk in function_vars) {
-      if (definitions[idx] === function_vars[idk] &&
+  for (let idx = userVariableStart; idx < userVariableEnd; idx++) {
+    for (const idk in functionVariables) {
+      if (definitions[idx] === functionVariables[idk] &&
           definitions[idx].indexOf('volatile') === -1) {
-
         // TODO: uncomment this when optimization is utilized!
         if (isExperimental.indexOf('volatile' > -1)) {
           definitions[idx] = 'volatile ' + definitions[idx];
@@ -679,14 +686,14 @@ Blockly.propc.finish = function(code) {
     }
   }
 
-  let spacer_defs = '\n\n';
+  let spacerDefinitions = '\n\n';
   if (definitions.toString().trim().length > 0) {
-    spacer_defs += '// ------ Global Variables and Objects ------\n';
+    spacerDefinitions += '// ------ Global Variables and Objects ------\n';
   }
 
   const allDefs = '// ------ Libraries and Definitions ------\n' +
       imports.join('\n') +
-      spacer_defs +
+      spacerDefinitions +
       definitions.join('\n') + '\n\n';
 
   if (code.indexOf('// RAW PROPC CODE\n//{{||}}\n') > -1) {
@@ -717,14 +724,14 @@ Blockly.propc.finish = function(code) {
     }
     setup += uiSystemSettings.join('\n') + '\n\n';
 
-    let spacer_decs = '';
+    let spacerDeclarations = '';
     if (declarations.length > 0) {
-      spacer_decs += '// ------ Function Declarations ------\n';
+      spacerDeclarations += '// ------ Function Declarations ------\n';
     }
 
-    let spacer_funcs = '\n\n';
+    let spacerFunctions = '\n\n';
     if (methods.length > 0) {
-      spacer_funcs += '// ------ Functions ------\n';
+      spacerFunctions += '// ------ Functions ------\n';
     }
 
     if (Blockly.propc.definitions_['pure_code'] === '/* PURE CODE ONLY */\n') {
@@ -733,11 +740,11 @@ Blockly.propc.finish = function(code) {
       code = setup + allDefs
           .replace(/\n\n+/g, '\n\n')
           .replace(/\n*$/, '\n\n') +
-          spacer_decs +
+          spacerDeclarations +
           declarations.join('\n\n')
               .replace(/\n\n+/g, '\n')
               .replace(/\n*$/, '\n') +
-         '\n// ------ Main Program ------\n' + code + spacer_funcs +
+         '\n// ------ Main Program ------\n' + code + spacerFunctions +
           methods.join('\n');
     }
 
@@ -787,7 +794,7 @@ Blockly.propc.scrub_ = function(block, code) {
   // Only collect comments for blocks that aren't inline.
   if (!block.outputConnection || !block.outputConnection.targetConnection) {
     // Collect comment for this block.
-    var comment = block.getCommentText();
+    const comment = block.getCommentText();
     if (comment) {
       commentCode += Blockly.propc.prefixLines(comment, '// ') + '\n';
     }
@@ -881,16 +888,17 @@ Blockly.FieldVariable.dropdownCreate = function() {
     const variableTypes = this.getVariableTypes_();
     // Get a copy of the list, so that adding rename and new variable options
     // doesn't modify the workspace's list.
-    for (var i = 0; i < variableTypes.length; i++) {
+    for (let i = 0; i < variableTypes.length; i++) {
       const variableType = variableTypes[i];
       const variables = workspace.getVariablesOfType(variableType);
       variableModelList = variableModelList.concat(variables);
     }
   }
+
   variableModelList.sort(Blockly.VariableModel.compareByName);
 
   const options = [];
-  for (var i = 0; i < variableModelList.length; i++) {
+  for (let i = 0; i < variableModelList.length; i++) {
     // Set the UUID as the internal representation of the variable.
     options[i] = [variableModelList[i].name, variableModelList[i].getId()];
   }
@@ -938,8 +946,7 @@ Blockly.Names.prototype.safeName_ = function(name) {
   return name;
 };
 
-
-
+/*
 const findBlocksByType = function(blockType) {
   const blockList = Blockly.getMainWorkspace().getAllBlocks();
   const blockMatchList = [];
@@ -953,6 +960,7 @@ const findBlocksByType = function(blockType) {
   }
   return null;
 };
+*/
 
 /**
  * Extends Blockly.Input to allow the input to have a specific range of
@@ -972,21 +980,24 @@ Blockly.Input.prototype.appendRange = function(rangeInfo) {
 
 
 /**
- * Extends Blockly.Input to allow the input to have a specific range or allowed values.
- * See base.js->Blockly.Blocks.math_number for more information about formatting the range string.
- * @return the String populated by Blockly.Input.appendRange()
+ * Extends Blockly.Input to allow the input to have a specific range or
+ * allowed values. See base.js->Blockly.Blocks.math_number for more
+ * information about formatting the range string.
+ * @return {string} the String populated by Blockly.Input.appendRange()
  */
 Blockly.Input.prototype.getRange = function() {
   return this.inputRange;
 };
 
 
-// TODO: Remove the following overrides after updating to a blockly core with these patches (targeted for 2019Q4).
+// TODO: Remove the following overrides after updating to a blockly core
+//  with these patches (targeted for 2019Q4).
 /**
  * Initialize the model for this field if it has not already been initialized.
  * If the value has not been set to a variable by the first render, we make up a
  * variable rather than let the value be invalid.
- * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
+ * @override - Due to error in blockly core targeted to be fixed in release
+ * 2019 Q4 - delete after replacing with a core containing these fixes
  * @package
  */
 Blockly.FieldVariable.prototype.initModel = function() {
@@ -1005,7 +1016,8 @@ Blockly.FieldVariable.prototype.initModel = function() {
  * Update the source block when the mutator's blocks are changed.
  * Bump down any block that's too high.
  * Fired whenever a change is made to the mutator's workspace.
- * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
+ * @override - Due to error in blockly core targeted to be fixed in
+ * release 2019 Q4 - delete after replacing with a core containing these fixes
  * @param {!Blockly.Events.Abstract} e Custom data for event.
  * @private
  */
@@ -1018,7 +1030,7 @@ Blockly.Mutator.prototype.workspaceChanged_ = function(e) {
   if (!this.workspace_.isDragging()) {
     const blocks = this.workspace_.getTopBlocks(false);
     const MARGIN = 20;
-    for (var b = 0, block; (block = blocks[b]); b++) {
+    for (let b = 0, block; (block = blocks[b]); b++) {
       const blockXY = block.getRelativeToSurfaceXY();
       const blockHW = block.getHeightWidth();
       if (blockXY.y + blockHW.height < MARGIN) {
@@ -1031,7 +1043,7 @@ Blockly.Mutator.prototype.workspaceChanged_ = function(e) {
   // When the mutator's workspace changes, update the source block.
   if (this.rootBlock_.workspace == this.workspace_) {
     Blockly.Events.setGroup(true);
-    var block = this.block_;
+    const block = this.block_;
     const oldMutationDom = block.mutationToDom();
     const oldMutation = oldMutationDom && Blockly.Xml.domToText(oldMutationDom);
     // Allow the source block to rebuild itself.
@@ -1067,7 +1079,8 @@ Blockly.Mutator.prototype.workspaceChanged_ = function(e) {
 /**
  * Bump unconnected blocks out of alignment.  Two blocks which aren't actually
  * connected should not coincidentally line up on screen.
- * @override - Due to error in blockly core targeted to be fixed in release 2019 Q4 - delete after replacing with a core containing these fixes
+ * @override - Due to error in blockly core targeted to be fixed in
+ * release 2019 Q4 - delete after replacing with a core containing these fixes
  */
 Blockly.BlockSvg.prototype.bumpNeighbours = function() {
   if (!this.workspace) {
@@ -1082,14 +1095,14 @@ Blockly.BlockSvg.prototype.bumpNeighbours = function() {
   }
   // Loop through every connection on this block.
   const myConnections = this.getConnections_(false);
-  for (var i = 0, connection; connection = myConnections[i]; i++) {
+  for (let i = 0, connection; connection = myConnections[i]; i++) {
     // Spider down from this block bumping all sub-blocks.
     if (connection.isConnected() && connection.isSuperior()) {
       connection.targetBlock().bumpNeighbours();
     }
 
     const neighbours = connection.neighbours_(Blockly.SNAP_RADIUS);
-    for (var j = 0, otherConnection; otherConnection = neighbours[j]; j++) {
+    for (let j = 0, otherConnection; otherConnection = neighbours[j]; j++) {
       // If both connections are connected, that's probably fine.  But if
       // either one of them is unconnected, then there could be confusion.
       if (!connection.isConnected() || !otherConnection.isConnected()) {
