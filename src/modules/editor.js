@@ -20,8 +20,18 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import Blockly from 'blockly/core';
+
+import * as Blockly from 'blockly/core';
+import 'blockly/blocks';
+import * as En from 'blockly/msg/en.js';
+
+import './blockly/generators/propc.js';
+import './blockly/generators/propc/gpio.js';
+
 import {saveAs} from 'file-saver';
+// import $ from 'jquery';
+// window.jQuery = $;
+// window.$ = $;
 
 import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
@@ -55,8 +65,10 @@ import {filterToolbox} from './toolbox_data.js';
 import {isExperimental} from './url_parameters.js';
 import {buildDefaultProjectFile} from './project_default.js';
 import {utils} from './utility.js';
+import {
 // eslint-disable-next-line camelcase
-import {page_text_label, tooltip_text} from './blockly/language/en/messages.js';
+  initLanguage, page_text_label, tooltip_text,
+} from './blockly/language/en/messages.js';
 
 
 /**
@@ -168,16 +180,14 @@ function getWorkspaceSvg() {
   return injectedBlocklyWorkspace;
 }
 
+// Set the Blockly core language file
+Blockly.setLocale(En);
 
 /**
  * Execute this code as soon as the DOM becomes ready.
  * Replaces the old document.ready() construct
  */
 $(() => {
-  // TODO: The Save Project timer should only fire when a project is loaded.
-  // Open the modal when the timer expires
-  ProjectSaveTimer.setMessageHandler(ShowProjectTimerModalDialog);
-
   // Update the blockly workspace to ensure that it takes
   // the remainder of the window. This is an async call.
   $(window).on('resize', function() {
@@ -233,6 +243,7 @@ $(() => {
     }
   });
 
+  initLanguage('en');
   initInternationalText();
   initEditorIcons();
   initEventHandlers();
@@ -284,7 +295,6 @@ $(() => {
       // setProfile(projectData.board);
       // setProfile(localProject.boardType);
 
-
       setupWorkspace(localProject, function() {
         window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
       });
@@ -294,6 +304,9 @@ $(() => {
       if (!codeEditor) {
         console.log('Error allocating CodeEditor object');
       }
+
+      // Open the modal when the timer expires
+      ProjectSaveTimer.setMessageHandler(ShowProjectTimerModalDialog);
 
       // Set the compile toolbar buttons to unavailable
       // setPropToolbarButtons();

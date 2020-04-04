@@ -21,9 +21,11 @@
  */
 
 import * as ace from 'ace-builds/src-noconflict/ace';
+import * as Blockly from 'blockly/core';
+import * as Chartist from 'chartist';
 import * as jsBeautify from 'js-beautify';
+import * as JSZip from 'jszip';
 import {saveAs} from 'file-saver';
-import JSZip from 'jszip';
 
 import {EMPTY_PROJECT_CODE_HEADER} from './constants.js';
 import {isExperimental} from './url_parameters.js';
@@ -1008,15 +1010,6 @@ const checkForComPorts = function() {
   } catch (e) {
     console.log('Unable to get port list. %s', e.message);
     setPortListUI();
-  }
-};
-
-export const selectComPort = function(comPort) {
-  if (comPort !== null) {
-    $('#comPort').val(comPort);
-  }
-  if ($('#comPort').val() === null && $('#comPort option').size() > 0) {
-    $('#comPort').val($('#comPort option:first').text());
   }
 };
 
@@ -2084,6 +2077,29 @@ function clearComPortUI() {
 
   portUI.empty();
   return null;
+}
+
+
+/**
+ * Set the selected element in the com port dropdown list
+ * @param {string | null} comPort
+ */
+export function selectComPort(comPort) {
+  // A valid com port has been selected
+  if (comPort !== null) {
+    $('#comPort').val(comPort);
+    return;
+  }
+
+  // Com port is null. Select first com port as a default
+  if ($('#comPort').val() === null) {
+    // Get the list of options
+    const options = $('#comPort option');
+    if (options.length > 0) {
+      // Default to the first option
+      $('#comPort').val($('#comPort option:first').text());
+    }
+  }
 }
 
 

@@ -20,6 +20,9 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+
+import 'bootstrap';
+
 import {
   LOCAL_PROJECT_STORE_NAME,
   TEMP_PROJECT_STORE_NAME,
@@ -527,9 +530,10 @@ function setEditOfflineProjectDetailsCancelHandler() {
  *
  */
 function initUploadModalLabels() {
-  // set the upload modal's title to "import" if offline
-  $('#upload-dialog-title').html(page_text_label['editor_import']);
-  $('#upload-project span').html(page_text_label['editor_import']);
+  // set the upload modal's title to "import"
+  const label = page_text_label['editor_import'];
+  $('#upload-dialog-title').html(label);
+  $('#upload-project span').html(label);
 
   // Hide the save-as button.
   $('#save-project-as, save-as-btn').addClass('hidden');
