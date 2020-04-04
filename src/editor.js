@@ -361,12 +361,12 @@ function checkLeave() {
 function compareProjectCode(projectA, projectB) {
     // Sanity checks
     if (typeof projectA === 'undefined') {
-        console.log("project A is undefined.");
+        console.log("Project Compare: project A is undefined.");
         return true;
     }
 
     if (typeof projectB === 'undefined') {
-        console.log("project B is undefined.");
+        console.log("Project Compare: project B is undefined.");
         return true;
     }
 
@@ -380,12 +380,14 @@ function compareProjectCode(projectA, projectB) {
     // No blocks in either copy of the project
     // They must be equally devoid of a project
     if (indexA === -1 && indexB === -1) {
+        console.log("Project Compare: both projects are empty.");
         return false;
     }
 
     // Return false if the first block is not found
     // in one of the two projects.
     if (indexA === -1 || indexB === -1) {
+        console.log("Project Compare: one project is empty.");
         return true;
     }
 
@@ -397,6 +399,9 @@ function compareProjectCode(projectA, projectB) {
 
     // findFirstDiffPos() will return a -1 if the projects are
     // identical, that is, the project was not altered.
+    console.log("Project Compare: projects are %s.",
+        result === -1 ? 'identical' : 'different');
+
     return result !== -1;
 }
 
