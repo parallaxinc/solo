@@ -31,8 +31,14 @@
  */
 'use strict';
 
-if (!Blockly.Blocks)
-    Blockly.Blocks = {};
+import Blockly from 'blockly/core.js';
+import {getDefaultProfile} from '../../../project.js';
+
+
+if (!Blockly.Blocks) {
+  console.log('Initializing Blockly.Blocks object in control.js');
+  Blockly.Blocks = {};
+}
 
 
 /**
@@ -45,72 +51,76 @@ if (!Blockly.Blocks)
  *  }}
  */
 Blockly.Blocks.controls_repeat = {
-    init: function () {
-        const profile = window.projectProfile;
-        var block_label = 'repeat';
-        if (profile.description === "Scribbler Robot") {
-            this.setHelpUrl(Blockly.MSG_S3_CONTROL_HELPURL);
-            this.setTooltip(Blockly.MSG_S3_SCRIBBLER_LOOP_TOOLTIP);
-            block_label = 'loop';
-        } else {
-            this.setHelpUrl(Blockly.MSG_CONTROL_HELPURL);
-            this.setTooltip(Blockly.MSG_CONTROLS_REPEAT_TOOLTIP);
-        }
-        this.setColour(colorPalette.getColor('programming'));
-        // ["with", "WITH"]
-        var PROPERTIES = [["forever", "FOREVER"], ["x times", "TIMES"], ["until", "UNTIL"], ["while", "WHILE"]];
-        var fieldDropdown = new Blockly.FieldDropdown(PROPERTIES, function (type) {
-            this.sourceBlock_.updateShape_(type);
-        });
-        this.appendDummyInput()
-                .appendField(block_label);
-        this.appendDummyInput("REPEAT")
-                .appendField(fieldDropdown, "TYPE");
-        this.appendStatementInput("DO")
-                .appendField(Blockly.LANG_CONTROLS_REPEAT_INPUT_DO);
-        this.setPreviousStatement(true, "Block");
-        this.setNextStatement(true);
-        this.setInputsInline(true);
-    },
-    mutationToDom: function () {
-        var container = document.createElement('mutation');
-        var type = this.getFieldValue('TYPE');
-        container.setAttribute('type', type);
-        return container;
-    },
-    domToMutation: function (xmlElement) {
-        var type = xmlElement.getAttribute('type');
-        //var type = this.getFieldValue('TYPE');
-        this.updateShape_(type);
-    },
-    updateShape_: function (type) {
-        // Add or remove a Value Input.
-        var inputTimes = this.getInput('TIMES');
-        if (type === 'TIMES') {
-            if (!inputTimes) {
-                this.appendValueInput('TIMES')
-                        .setCheck('Number');
-                this.moveInputBefore('TIMES', 'REPEAT');
-            }
-        } else {
-            if (inputTimes) {
-                this.removeInput('TIMES');
-            }
-        }
-        var inputCondition = this.getInput('REPEAT_CONDITION');
-        if (type === 'WHILE' || type === 'UNTIL') {
-            if (!inputCondition) {
-                this.appendValueInput('REPEAT_CONDITION')
-                        .setCheck('Number');
-                this.moveInputBefore('REPEAT_CONDITION', 'DO');
-            }
-        } else {
-            if (inputCondition) {
-                this.removeInput('REPEAT_CONDITION');
-            }
-        }
+  init: function() {
+    const profile = getDefaultProfile();
+    let blockLabel = 'repeat';
+    if (profile.description === 'Scribbler Robot') {
+      this.setHelpUrl(Blockly.MSG_S3_CONTROL_HELPURL);
+      this.setTooltip(Blockly.MSG_S3_SCRIBBLER_LOOP_TOOLTIP);
+      blockLabel = 'loop';
+    } else {
+      this.setHelpUrl(Blockly.MSG_CONTROL_HELPURL);
+      this.setTooltip(Blockly.MSG_CONTROLS_REPEAT_TOOLTIP);
     }
+    this.setColour(colorPalette.getColor('programming'));
+    // ["with", "WITH"]
+    const PROPERTIES = [
+      ['forever', 'FOREVER'],
+      ['x times', 'TIMES'],
+      ['until', 'UNTIL'],
+      ['while', 'WHILE'],
+    ];
+    const fieldDropdown = new Blockly.FieldDropdown(
+        PROPERTIES,
+        function(type) {
+          Blockly.Blocks.controls_repeat.sourceBlock_.updateShape_(type);
+          // this.sourceBlock_.updateShape_(type);
+        });
+    this.appendDummyInput().appendField(blockLabel);
+    this.appendDummyInput('REPEAT').appendField(
+        fieldDropdown,
+        'TYPE');
+    this.appendStatementInput('DO').appendField(
+        Blockly.LANG_CONTROLS_REPEAT_INPUT_DO);
+    this.setPreviousStatement(true, 'Block');
+    this.setNextStatement(true);
+    this.setInputsInline(true);
+  },
+  mutationToDom: function() {
+    const container = document.createElement('mutation');
+    container.setAttribute('type', this.getFieldValue('TYPE'));
+    return container;
+  },
+  domToMutation: function(xmlElement) {
+    this.updateShape_(xmlElement.getAttribute('type'));
+  },
+  updateShape_: function(type) {
+    // Add or remove a Value Input.
+    const inputTimes = this.getInput('TIMES');
+    if (type === 'TIMES') {
+      if (!inputTimes) {
+        this.appendValueInput('TIMES').setCheck('Number');
+        this.moveInputBefore('TIMES', 'REPEAT');
+      }
+    } else {
+      if (inputTimes) {
+        this.removeInput('TIMES');
+      }
+    }
+    const inputCondition = this.getInput('REPEAT_CONDITION');
+    if (type === 'WHILE' || type === 'UNTIL') {
+      if (!inputCondition) {
+        this.appendValueInput('REPEAT_CONDITION').setCheck('Number');
+        this.moveInputBefore('REPEAT_CONDITION', 'DO');
+      }
+    } else {
+      if (inputCondition) {
+        this.removeInput('REPEAT_CONDITION');
+      }
+    }
+  },
 };
+
 
 Blockly.propc.controls_repeat = function () {
     var type = this.getFieldValue('TYPE');
