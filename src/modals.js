@@ -627,7 +627,7 @@ function initUploadModalLabels() {
     $('#upload-project span').html(page_text_label['editor_import']);
 
     // Hide the save-as button.
-    $('#save-project-as, save-as-btn').addClass('hidden');
+    $('#save-project-as, #save-as-btn').addClass('hidden');
 
     disableUploadDialogButtons();
 }
