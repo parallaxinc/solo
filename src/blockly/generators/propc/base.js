@@ -102,7 +102,7 @@ Blockly.Blocks.math_number = {
         var range = ['N', -100, 100, Number(this.getFieldValue('NUM'))];
 
         if (this.outputConnection && this.outputConnection.targetBlock()) {
-            var connectingBlock = this.outputConnection.targetBlock()
+            var connectingBlock = this.outputConnection.targetBlock();
             var fieldListing = connectingBlock.getInputWithBlock(this).getRange();
             if (fieldListing) {
                 var rangeVals = fieldListing.split(',');
@@ -126,7 +126,7 @@ Blockly.Blocks.math_number = {
         var range = rangeArray || this.getRangeArray();
         var fieldToAdd = new Blockly.FieldNumber(range[3].toString(10), null, null, 1);
         this.connectedBlockId = null;
-        var connectedBlock = this.outputConnection.targetBlock()
+        var connectedBlock = this.outputConnection.targetBlock();
         if (connectedBlock) {
             this.connectedBlockId = connectedBlock.id;
         }
@@ -896,7 +896,7 @@ Blockly.Blocks.string_var_length = {
     updateConstMenu: function (oldValue, newValue) {
         this.userDefinedConstantsList_ = [];
         var allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-        for (var i = 0; i < allBlocks.length; i++) {
+        for (let i = 0; i < allBlocks.length; i++) {
             if (allBlocks[i].type === 'constant_define') {
                 var const_name = allBlocks[i].getFieldValue('CONSTANT_NAME');
                 if (const_name === oldValue && newValue) {
@@ -910,7 +910,7 @@ Blockly.Blocks.string_var_length = {
         this.userDefinedConstantsList_.push('MYVALUE');
         this.userDefinedConstantsList_ = this.userDefinedConstantsList_.sortedUnique();
 
-        for (i = 0; i < this.optionList_.length; i++) {
+        for (let i = 0; i < this.optionList_.length; i++) {
             var currentValue = this.getFieldValue("VAR_LEN" + i);
             var tempVariable = this.getFieldValue('VAR_NAME' + i);
             if (currentValue && currentValue === oldValue && newValue && this.getInput('VAR' + i)) {
