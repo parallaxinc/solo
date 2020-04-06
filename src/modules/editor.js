@@ -21,12 +21,17 @@
  */
 
 
-import * as Blockly from 'blockly/core';
+// import * as Blockly from 'blockly/core';
+import Blockly from 'blockly/core.js';
+
 import 'blockly/blocks';
 import * as En from 'blockly/msg/en.js';
 
 import './blockly/generators/propc.js';
+import './blockly/generators/propc/base.js';
+import './blockly/generators/propc/communicate.js';
 import './blockly/generators/propc/gpio.js';
+import './blockly/generators/propc/sensors.js';
 
 import {saveAs} from 'file-saver';
 // import $ from 'jquery';
