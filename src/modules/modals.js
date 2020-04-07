@@ -21,7 +21,8 @@
  */
 
 
-import 'bootstrap';
+import 'bootstrap/js/modal';
+import 'jquery-validation';
 
 import {
   LOCAL_PROJECT_STORE_NAME,
