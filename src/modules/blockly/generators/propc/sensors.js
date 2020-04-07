@@ -32,17 +32,11 @@
 'use strict';
 
 import Blockly from 'blockly/core.js';
-
 import {getDefaultProfile} from '../../../project.js';
 import {colorPalette} from '../propc.js';
 
+// ---------------- Ping))) Sensor Blocks -------------------------------------
 
-if (!Blockly.Blocks) {
-  console.log('Initializing Blockly.Blocks object in sensors.js');
-  Blockly.Blocks = {};
-}
-
-// ---------------- Ping))) Sensor Blocks --------------------------------------
 /**
  * Ping Sensor
  * @type {{
@@ -89,7 +83,7 @@ Blockly.Blocks.sensor_ping = {
   },
   setToOther: function(op, moveBefore, pinOpt) {
     if (op === 'other') {
-      const profile = window.projectProfile;
+      const profile = getDefaultProfile();
       this.otherPin[pinOpt] = true;
       const label = this.getFieldValue('LABEL');
       if (this.getInput('SET_PIN')) {
@@ -154,7 +148,7 @@ Blockly.propc.sensor_ping = function() {
 Blockly.Blocks.joystick_input_yaxis = {
   helpUrl: Blockly.MSG_JOYSTICK_HELPURL,
   init: function() {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     this.chan = ['x', 'X'];
     if (this.type === 'joystick_input_yaxis') {
       this.chan = ['y', 'Y'];
@@ -255,7 +249,7 @@ Blockly.Blocks.sound_impact_run = {
     this.setPinMenus(oldValue, newValue);
   },
   setPinMenus: function(oldValue, newValue) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     const m1 = this.getFieldValue('PIN');
     if (this.getInput('PINS')) {
       this.removeInput('PINS');
@@ -281,7 +275,7 @@ Blockly.Blocks.sound_impact_run = {
  */
 Blockly.propc.sound_impact_run = function() {
   if (!this.disabled) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     let pin = this.getFieldValue('PIN');
     if (profile.digital.toString().indexOf(pin + ',' + pin) === -1) {
       pin = 'MY_' + pin;
@@ -365,7 +359,7 @@ Blockly.propc.sound_impact_end = function() {
 Blockly.Blocks.colorpal_enable = {
   helpUrl: Blockly.MSG_COLORPAL_HELPURL,
   init: function() {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     this.setTooltip(Blockly.MSG_COLORPAL_ENABLE_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
@@ -641,7 +635,7 @@ Blockly.Blocks.fp_scanner_init = {
   },
   updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
   setPinMenus: function(oldValue, newValue) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     const m1 = this.getFieldValue('RXPIN');
     const m2 = this.getFieldValue('TXPIN');
     if (this.getInput('PINS')) {
@@ -678,7 +672,7 @@ Blockly.Blocks.fp_scanner_init = {
  */
 Blockly.propc.fp_scanner_init = function() {
   if (!this.disabled) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     let rxpin = this.getFieldValue('RXPIN');
     let txpin = this.getFieldValue('TXPIN');
     if (profile.digital.toString().indexOf(rxpin + ',' + rxpin) === -1) {
@@ -952,7 +946,7 @@ Blockly.propc.MX2125_rotation = function() {
 Blockly.Blocks.MMA7455_init = {
   helpUrl: Blockly.MSG_ACCELEROMETER_HELPURL,
   init: function() {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     this.setTooltip(Blockly.MSG_MMA7455_INIT_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
@@ -1045,7 +1039,7 @@ Blockly.propc.MMA7455_acceleration = function() {
 Blockly.Blocks.HMC5883L_init = {
   helpUrl: Blockly.MSG_COMPASS_HELPURL,
   init: function() {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     this.setTooltip(Blockly.MSG_HMC5883L_INIT_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
@@ -1133,7 +1127,7 @@ Blockly.propc.HMC5883L_read = function() {
 Blockly.Blocks.lis3dh_init = {
   helpUrl: Blockly.MSG_LIS3DH_HELPURL,
   init: function() {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     this.setTooltip(Blockly.MSG_LIS3DH_INIT_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput('PINS')
@@ -1534,7 +1528,7 @@ Blockly.Blocks.lsm9ds1_init = {
   },
   updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
   setPinMenus: function(oldValue, newValue) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     const mv = ['PIN_SCL', 'PIN_SDIO', 'PIN_CSAG', 'PIN_CSM'];
     const m = [this.getFieldValue('PIN_SCL'), this.getFieldValue('PIN_SDIO'), this.getFieldValue('PIN_CSAG'), this.getFieldValue('PIN_CSM')];
     if (this.getInput('PINS')) {
@@ -1572,7 +1566,7 @@ Blockly.Blocks.lsm9ds1_init = {
  * @return {string}
  */
 Blockly.propc.lsm9ds1_init = function() {
-  const profile = window.projectProfile;
+  const profile = getDefaultProfile();
   const pin = [
     this.getFieldValue('PIN_SCL'),
     this.getFieldValue('PIN_SDIO'),
@@ -1883,7 +1877,7 @@ Blockly.Blocks.GPS_init = {
   },
   updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
   setPinMenus: function(oldValue, newValue) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     const m = this.getFieldValue('TXPIN');
     const b = this.getFieldValue('BAUD');
     if (this.getInput('PINS')) {
@@ -1917,7 +1911,7 @@ Blockly.Blocks.GPS_init = {
  * @return {string}
  */
 Blockly.propc.GPS_init = function() {
-  const profile = window.projectProfile;
+  const profile = getDefaultProfile();
   let tx_pin = this.getFieldValue('TXPIN');
   if (profile.digital.toString().indexOf(tx_pin + ',' + tx_pin) === -1) {
     tx_pin = 'MY_' + tx_pin;
@@ -2367,7 +2361,7 @@ Blockly.Blocks.rfid_enable = {
   },
   updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
   setPinMenus: function(oldValue, newValue) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     const m1 = this.getFieldValue('PIN_IN');
     const m2 = this.getFieldValue('PIN_OUT');
     if (this.getInput('PINS')) {
@@ -2405,7 +2399,7 @@ Blockly.Blocks.rfid_enable = {
  */
 Blockly.propc.rfid_enable = function() {
   if (!this.disabled) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     let pin_in = this.getFieldValue('PIN_IN');
     let pin_out = this.getFieldValue('PIN_OUT');
 
@@ -2521,7 +2515,7 @@ Blockly.Blocks.keypad_initialize = {
   },
   updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
   setPinMenus: function(oldValue, newValue) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     const m = [];
     for (var i = 0; i < 8; i++) {
       m[i] = this.getFieldValue('P' + i.toString(10));
@@ -2569,7 +2563,7 @@ Blockly.Blocks.keypad_initialize = {
  */
 Blockly.propc.keypad_initialize = function() {
   if (!this.disabled) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     const kp = [];
     for (let k = 0; k < 8; k++) {
       kp[k] = this.getFieldValue('P' + k);
@@ -2694,7 +2688,7 @@ Blockly.Blocks.bme680_init = {
   },
   updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
   setPinMenus: function(oldValue, newValue) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     const mv = ['PIN_CLK', 'PIN_SDI', 'PIN_SDO', 'PIN_CS'];
     const m = [
       this.getFieldValue('PIN_CLK'),
@@ -2737,7 +2731,7 @@ Blockly.Blocks.bme680_init = {
  * @return {string}
  */
 Blockly.propc.bme680_init = function() {
-  const profile = window.projectProfile;
+  const profile = getDefaultProfile();
   const pin = [
     this.getFieldValue('PIN_CLK'),
     this.getFieldValue('PIN_SDI'),

@@ -2336,7 +2336,7 @@ Blockly.Blocks.sd_open = {
  * @return {string}
  */
 Blockly.propc.sd_open = function() {
-  const profile = window.projectProfile;
+  const profile = getDefaultProfile();
   const fp = this.getFieldValue('FILENAME');
   const mode = this.getFieldValue('MODE');
   let head = '';
@@ -2604,7 +2604,7 @@ Blockly.Blocks.sd_file_pointer = {
  * @return {(string|number)[]|string}
  */
 Blockly.propc.sd_file_pointer = function() {
-  const profile = window.projectProfile;
+  const profile = getDefaultProfile();
   // TODO: Refactor getAllBlocks to getAllBlocksByType
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   let code = null;

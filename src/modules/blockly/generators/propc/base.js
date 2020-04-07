@@ -1797,7 +1797,7 @@ Blockly.Blocks.logic_operation = {
   // Logical operations: 'and', 'or'.
   category: Blockly.LANG_CATEGORY_LOGIC,
   init: function() {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     if (profile.description === 'Scribbler Robot') {
       this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
     } else {
@@ -1892,7 +1892,7 @@ Blockly.Blocks.logic_negate = {
   // Negation.
   // category: Blockly.LANG_CATEGORY_LOGIC,
   init: function() {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     if (profile.description === 'Scribbler Robot') {
       this.setHelpUrl(Blockly.MSG_S3_MATH_HELPURL);
     } else {

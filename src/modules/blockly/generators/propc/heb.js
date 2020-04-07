@@ -1193,7 +1193,7 @@ Blockly.propc.heb_text_to_speech_say = function() {
       this, 'STRING', Blockly.propc.ORDER_NONE);
 
   if (!this.disabled) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     let pins = profile.earphone_jack_inverted;
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     for (let x = 0; x < allBlocks.length; x++) {
@@ -1239,7 +1239,7 @@ Blockly.propc.heb_text_to_speech_spell = function() {
       this, 'STRING', Blockly.propc.ORDER_NONE);
 
   if (!this.disabled) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     let pins = profile.earphone_jack_inverted;
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     for (let x = 0; x < allBlocks.length; x++) {

@@ -4791,7 +4791,7 @@ Blockly.Blocks.oled_bitmap = {
  */
 Blockly.propc.oled_bitmap = function() {
   if (!this.disabled) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     let initFound = false;
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     if (allBlocks.toString().indexOf(this.displayKind + ' initialize') === -1) {
@@ -7678,7 +7678,7 @@ Blockly.propc.i2c_send = function() {
   }
 
   if (!this.disabled) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     let s1 = '';
     let s2 = '';
     if (profile.digital.toString().indexOf(sda + ',' + sda) === -1) {
@@ -7883,7 +7883,7 @@ Blockly.propc.i2c_receive = function() {
   }
 
   if (!this.disabled) {
-    const profile = window.projectProfile;
+    const profile = getDefaultProfile();
     let s1 = '';
     let s2 = '';
     if (profile.digital.toString().indexOf(sda + ',' + sda) === -1) {
