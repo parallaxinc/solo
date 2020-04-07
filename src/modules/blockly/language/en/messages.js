@@ -752,6 +752,7 @@ function initRemainingMessages(language = 'en') {
   Blockly.MSG_S3_SERIAL_CURSOR_XY_TOOLTIP = 'set cursor position: set the cursor position in the terminal';
   Blockly.MSG_S3_SERIAL_RX_BYTE_TOOLTIP = 'receive character: receive a character from the serial port';
   Blockly.MSG_S3_FACTORY_RESET_TOOLTIP = 'factory reset: use to reload the factory default demo program back onto the Scribbler';
+  Blockly.MSG_S3_ERROR_NO_WAS_CONDITION = 'WARNING: "was" ans "was not" conditions have been deprecated.\nPlease choose "is" or "is not".\nUse a variable block to keep track of the state of this sensor instead.';
 }
 
 
