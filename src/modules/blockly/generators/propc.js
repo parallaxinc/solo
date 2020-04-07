@@ -881,7 +881,7 @@ Blockly.FieldVariable.dropdownCreate = function() {
   const name = this.getText();
   let workspace = null;
   if (this.sourceBlock_) {
-    workspace = this.sourceBlock_.workspace;
+    workspace = this.getSourceBlock().workspace;
   }
   let variableModelList = [];
   if (workspace) {
@@ -1005,7 +1005,7 @@ Blockly.FieldVariable.prototype.initModel = function() {
     return; // Initialization already happened.
   }
   const variable = Blockly.Variables.getOrCreateVariablePackage(
-      this.sourceBlock_.workspace, null,
+      this.getSourceBlock().workspace, null,
       this.defaultVariableName, this.defaultType_);
 
   // Don't call setValue because we don't want to cause a rerender.

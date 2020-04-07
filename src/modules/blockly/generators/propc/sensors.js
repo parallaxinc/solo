@@ -81,9 +81,8 @@ Blockly.Blocks.sensor_ping = {
         .appendField(label, 'LABEL')
         .appendField(new Blockly.FieldDropdown(
             profile.digital.concat([['other', 'other']]), function(op) {
-              // this.sourceBlock_.setToOther(op, moveBefore, pinOpt);
-              Blockly.Blocks.sensor_ping.sourceBlock_.setToOther(
-                  op, moveBefore, pinOpt);
+              // eslint-disable-next-line no-invalid-this
+              this.getSourceBlock().setToOther(op, moveBefore, pinOpt);
             }), this.pinChoices[pinOpt]);
     this.moveBefore = moveBefore;
     this.otherPin[pinOpt] = false;
@@ -373,7 +372,8 @@ Blockly.Blocks.colorpal_enable = {
         .appendField('ColorPal initialize PIN')
         .appendField(new Blockly.FieldDropdown(
             profile.digital, function(myPin) {
-              this.sourceBlock_.onPinSet(myPin);
+              // eslint-disable-next-line no-invalid-this
+              this.getSourceBlock().onPinSet(myPin);
             }), 'IO_PIN');
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
@@ -702,7 +702,8 @@ Blockly.Blocks.fp_scanner_add = {
     this.appendDummyInput()
         .appendField('Fingerprint Scanner')
         .appendField(new Blockly.FieldDropdown([['capture and save to', 'ADD'], ['delete capture for', 'DEL'], ['delete all captures', 'ALL']], function(action) {
-          this.sourceBlock_.setAction_({'ACTION': action});
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setAction_({'ACTION': action});
         }), 'ACTION');
     this.appendValueInput('USER')
         .setCheck('Number')
@@ -780,7 +781,8 @@ Blockly.Blocks.fp_scanner_scan = {
     this.appendDummyInput()
         .appendField('Fingerprint Scanner')
         .appendField(new Blockly.FieldDropdown([['scan and identify', 'SCAN'], ['scan and compare', 'COMP'], ['count number of IDs', 'COUNT']], function(action) {
-          this.sourceBlock_.setAction_({'ACTION': action});
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setAction_({'ACTION': action});
         }), 'ACTION');
     this.setInputsInline(true);
     this.setOutput(true, 'Number');
@@ -1683,7 +1685,8 @@ Blockly.Blocks.lsm9ds1_tilt = {
     this.appendDummyInput()
         .appendField('IMU tilt')
         .appendField(new Blockly.FieldDropdown([['x-axis', 'X'], ['y-axis', 'Y'], ['z-axis', 'Z']], function(action) {
-          this.sourceBlock_.setAxes_({'ACTION': action});
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setAxes_({'ACTION': action});
         }), 'G_AXIS')
         .appendField('points up/down');
     this.appendDummyInput('TILT1')
@@ -1766,7 +1769,8 @@ Blockly.Blocks.lsm9ds1_heading = {
           ['x-axis points forward', '(-1.0*__imuX)'],
           ['x-axis points backward', '__imuX']],
         function(action) {
-          this.sourceBlock_.setAxes_({'ACTION': action});
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setAxes_({'ACTION': action});
         }), 'FB_AXIS')
         .appendField(' ');
     this.appendDummyInput('MENU2')
@@ -2158,7 +2162,8 @@ Blockly.Blocks.GPS_date_time = {
           ['minute', 'GPS_UNIT_MINUTE'],
           ['second', 'GPS_UNIT_SECOND'],
         ], function(action) {
-          this.sourceBlock_.updateShape_(action);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().updateShape_(action);
         }), 'TIME_UNIT');
     this.setOutput(true, 'Number');
     this.setNextStatement(false, null);
@@ -2854,7 +2859,8 @@ Blockly.Blocks.bme680_get_value = {
           ['Relative Humidity', 'humidity'],
         ],
         function(val) {
-          this.sourceBlock_.setMeasUnit(val);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setMeasUnit(val);
         }),
         'SENSOR');
     this.appendDummyInput('UNITS')

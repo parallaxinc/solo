@@ -1078,21 +1078,22 @@ Blockly.Blocks.serial_open = {
           ['other', 'other'],
         ], function(br) {
           if (br === 'other') {
-            Blockly.Blocks.serial_open.otherBaud = true;
-            // this.otherBaud = true;
+            // eslint-disable-next-line no-invalid-this
+            this.otherBaud = true;
           }
-          Blockly.Blocks.serial_open.sourceBlock_.sourceBlock_.setToOther(br);
-          // this.sourceBlock_.setToOther(br);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setToOther(br);
         }), 'BAUD');
     this.appendDummyInput('MODE')
         .appendField('mode')
-        .appendField(new Blockly.FieldDropdown([
-          ['standard', 'standard'],
-          ['other', 'other'],
-        ], function(value) {
-          Blockly.Blocks.serial_open.sourceBlock_.setToMode(value);
-          // this.sourceBlock_.setToMode(value);
-        }), 'TYPE');
+        .appendField(
+            new Blockly.FieldDropdown([
+              ['standard', 'standard'],
+              ['other', 'other'],
+            ], function(value) {
+              // eslint-disable-next-line no-invalid-this
+              this.getSourceBlock().setToMode(value);
+            }), 'TYPE');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
@@ -4855,8 +4856,8 @@ Blockly.Blocks.ws2812b_init = {
           .appendField('RGB-LED initialize PIN')
           .appendField(new Blockly.FieldDropdown(
               profile.digital, function(myPin) {
-                Blockly.Blocks.ws2812b_init.sourceBlock_.onPinSet(myPin);
-                // this.sourceBlock_.onPinSet(myPin);
+                // eslint-disable-next-line no-invalid-this
+                this.getSourceBlock().onPinSet(myPin);
               }), 'PIN')
           .appendField('number of LEDs')
           .appendField(new Blockly.FieldNumber(
@@ -5306,16 +5307,16 @@ Blockly.Blocks.wx_init = {
           ['Term & Programming on WX', 'WX_ALL_COM'],
         ], function(mode) {
           if (mode === 'WX_ALL_COM') {
-            Blockly.Blocks.wx_init.sourceBlock_.setFieldValue('30', 'DI');
-            // this.sourceBlock_.setFieldValue('30', 'DI');
+            // eslint-disable-next-line no-invalid-this
+            this.getSourceBlock().setFieldValue('30', 'DI');
           }
         }), 'MODE')
         .appendField(' DI')
         .appendField(new Blockly.FieldDropdown([
           ['WX Socket', '30']].concat(profile.digital),
         function(pin) {
-          Blockly.Blocks.wx_init.sourceBlock_.updateShape_(pin);
-          // this.sourceBlock_.updateShape_(pin);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().updateShape_(pin);
         }), 'DI');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'Block');
@@ -5479,9 +5480,8 @@ Blockly.Blocks.wx_set_widget = {
           ['\u2794 Show Color', '8'],
           ['\u2794 Light Bulb', '9'],
           ['Clear Widget', '10']], function(type) {
-          Blockly.Blocks.wx_set_widget.sourceBlock_.updateShape_(
-              {'TYPE': type});
-          // this.sourceBlock_.updateShape_({'TYPE': type});
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().updateShape_({'TYPE': type});
         }), 'TYPE')
         .appendField(' label')
         .appendField(new Blockly.FieldTextInput('label'), 'LABEL');
@@ -5925,17 +5925,16 @@ Blockly.Blocks.wx_init_adv = {
           ['Term & Programming on WX', 'WX_ALL_COM'],
         ], function(mode) {
           if (mode === 'WX_ALL_COM') {
-            Blockly.Blocks.wx_init_adv.sourceBlock_.setFieldValue(
-                '30', 'DI');
-            // this.sourceBlock_.setFieldValue('30', 'DI');
+            // eslint-disable-next-line no-invalid-this
+            this.getSourceBlock().setFieldValue('30', 'DI');
           }
         }), 'MODE')
         .appendField(' DI')
         .appendField(new Blockly.FieldDropdown([
           ['WX Socket', '30']].concat(profile.digital),
         function(pin) {
-          Blockly.Blocks.wx_init_adv.sourceBlock_.updateShape_(pin);
-          // this.sourceBlock_.updateShape_(pin);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().updateShape_(pin);
         }), 'DI');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'Block');
@@ -6024,8 +6023,8 @@ Blockly.Blocks.wx_scan_multiple = {
           ['Websocket', 'WS'],
           ['Command', 'CMD'],
         ], function(action) {
-          Blockly.Blocks.wx_scan_multiple.sourceBlock_.setPrefix_(action);
-          // this.sourceBlock_.setPrefix_(action);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setPrefix_(action);
         }), 'CONNECTION')
         .appendField('from handle')
         .appendField(new Blockly.FieldVariable(
@@ -6254,8 +6253,8 @@ Blockly.Blocks.wx_scan_string = {
           ['TCP', 'TCP'],
           ['Command', 'CMD'],
         ], function(action) {
-          Blockly.Blocks.wx_scan_string.sourceBlock_.setPrefix_(action);
-          // this.sourceBlock_.setPrefix_(action);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setPrefix_(action);
         }), 'CONNECTION')
         .appendField('from handle')
         .appendField(new Blockly.FieldVariable(
@@ -6556,8 +6555,8 @@ Blockly.Blocks.wx_listen = {
           ['Websocket', 'WS'],
           ['TCP', 'TCP'],
         ], function(action) {
-          Blockly.Blocks.wx_listen.sourceBlock_.setPrefix_(action);
-          // this.sourceBlock_.setPrefix_(action);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setPrefix_(action);
         }), 'PROTOCOL')
         .appendField('store ID in', 'TEXT')
         .appendField(new Blockly.FieldVariable(
@@ -6832,8 +6831,8 @@ Blockly.Blocks.wx_mode = {
           ['Leave and set', 'LEAVE'],
           ['Check', 'CHECK'],
         ], function(action) {
-          Blockly.Blocks.wx_mode.sourceBlock_.setPrefix_(action);
-          // this.sourceBlock_.setPrefix_(action);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setPrefix_(action);
         }), 'ACTION')
         .appendField('mode', 'BLOCKTEXT');
     this.setPreviousStatement(true, 'Block');
@@ -6995,9 +6994,8 @@ Blockly.Blocks.wx_disconnect = {
           ['Websocket', 'WS'],
           ['TCP', 'TCP'],
         ], function(action) {
-          Blockly.Blocks.wx_disconnect.sourceBlock_.setPrefix_(
-              {'ACTION': action});
-          // this.sourceBlock_.setPrefix_({'ACTION': action});
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setPrefix_({'ACTION': action});
         }), 'PROTOCOL')
         .appendField('ID', 'TEXT')
         .appendField(new Blockly.FieldVariable(
@@ -7431,8 +7429,8 @@ Blockly.Blocks.graph_settings = {
           ['x/y series- autoscale', 'AUTOXY'],
           ['x/y series- ranged', 'FIXEDXY'],
         ], function(action) {
-          Blockly.Blocks.graph_settings.sourceBlock_.setGraphMode(action);
-          // this.sourceBlock_.setGraphMode(action);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().setGraphMode(action);
         }), 'YSETTING');
     this.setInputsInline(false);
     this.setPreviousStatement(true, 'Block');
@@ -7563,9 +7561,8 @@ Blockly.Blocks.i2c_send = {
                 function(value) {
                   return [value, value];
                 })), function(pin) {
-              Blockly.Blocks.i2c_send.sourceBlock_.checkI2cPins(
-                  null, pin, null);
-              // this.sourceBlock_.checkI2cPins(null, pin, null);
+              // eslint-disable-next-line no-invalid-this
+              this.getSourceBlock().checkI2cPins(null, pin, null);
             }), 'SDA')
         .appendField('SCL')
         .appendField(new Blockly.FieldDropdown(
@@ -7573,9 +7570,8 @@ Blockly.Blocks.i2c_send = {
                 function(value) {
                   return [value, value];
                 })), function(pin) {
-              Blockly.Blocks.i2c_send.sourceBlock_.checkI2cPins(
-                  null, null, pin);
-              // this.sourceBlock_.checkI2cPins(null, null, pin);
+              // eslint-disable-next-line no-invalid-this
+              this.getSourceBlock().checkI2cPins(null, null, pin);
             }), 'SCL');
     if (m1 && m1 === oldValue && newValue) {
       this.setFieldValue(newValue, 'SDA');
@@ -7826,9 +7822,8 @@ Blockly.Blocks.i2c_receive = {
                 function(value) {
                   return [value, value];
                 })), function(pin) {
-              Blockly.Blocks.i2c_receive.sourceBlock_.checkI2cPins(
-                  null, pin, null);
-              // this.sourceBlock_.checkI2cPins(null, pin, null);
+              // eslint-disable-next-line no-invalid-this
+              this.getSourceBlock().checkI2cPins(null, pin, null);
             }), 'SDA')
         .appendField('SCL')
         .appendField(new Blockly.FieldDropdown(
@@ -7836,9 +7831,8 @@ Blockly.Blocks.i2c_receive = {
                 function(value) {
                   return [value, value];
                 })), function(pin) {
-              Blockly.Blocks.i2c_receive.sourceBlock_.checkI2cPins(
-                  null, null, pin);
-              // this.sourceBlock_.checkI2cPins(null, null, pin);
+              // eslint-disable-next-line no-invalid-this
+              this.getSourceBlock().checkI2cPins(null, null, pin);
             }), 'SCL');
     this.setFieldValue(ct, 'COUNT');
     if (m1 && m1 === oldValue && newValue) {

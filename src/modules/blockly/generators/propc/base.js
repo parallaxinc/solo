@@ -1465,10 +1465,8 @@ Blockly.Blocks.comment = {
           ['comment', 'COMMENT'],
           ['blank separator', 'SPACER'],
         ], function(action) {
-          // 'this' has no context here. Replacing the reference with
-          // the hard-coded object name.
-          Blockly.Blocks.comment.updateShape_(action);
-          // this.sourceBlock_.updateShape_(action);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().updateShape_(action);
         }), 'ACTION')
         .appendField(new Blockly.FieldTextInput(''), 'COMMENT_TEXT');
     this.setPreviousStatement(true, 'Block');
@@ -1497,10 +1495,8 @@ Blockly.Blocks.comment = {
             ['comment', 'COMMENT'],
             ['blank separator', 'SPACER'],
           ], function(action) {
-            // 'this' has no context here. Replacing the reference with
-            // the hard-coded object name.
-            Blockly.Blocks.comment.updateShape_(action);
-            // this.sourceBlock_.updateShape_(action);
+            // eslint-disable-next-line no-invalid-this
+            this.getSourceBlock().updateShape_(action);
           }), 'ACTION')
           .appendField(new Blockly.FieldTextInput(
               this.commentText || ''), 'COMMENT_TEXT');
@@ -1512,10 +1508,8 @@ Blockly.Blocks.comment = {
             ['       \u25BD       ', 'SPACER'],
             ['comment', 'COMMENT'],
           ], function(action) {
-            // 'this' has no context here. Replacing the reference with
-            // the hard-coded object name.
-            Blockly.Blocks.comment.updateShape_(action);
-            // this.sourceBlock_.updateShape_(action);
+            // eslint-disable-next-line no-invalid-this
+            this.getSourceBlock().updateShape_(action);
           }), 'ACTION');
     }
   },
@@ -2608,8 +2602,8 @@ Blockly.Blocks.string_split = {
           ['first part in', 'STR'],
           ['next part in', 'NULL'],
         ], function(action) {
-          Blockly.Blocks.string_split.updateShape_(action);
-          // this.sourceBlock_.updateShape_(action);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().updateShape_(action);
         }), 'PART')
         .appendField(new Blockly.FieldVariable(
             Blockly.LANG_VARIABLES_GET_ITEM), 'TO_STR');
@@ -3072,9 +3066,9 @@ Blockly.Blocks.constant_define = {
           a = a.replace(/ /g, '_').replace(/[^A-Z0-9_]/g, '');
           // TODO STAT: Replace unresolved this references
           // eslint-disable-next-line no-invalid-this
-          this.sourceBlock_.sendConstantVal(
+          this.getSourceBlock().sendConstantVal(
               // eslint-disable-next-line no-invalid-this
-              this.sourceBlock_.getFieldValue('CONSTANT_NAME'), a);
+              this.getSourceBlock().getFieldValue('CONSTANT_NAME'), a);
           return a;
         }), 'CONSTANT_NAME')
         .appendField(' = ')
@@ -3255,10 +3249,11 @@ Blockly.Blocks.custom_code_multiple = {
     this.setTooltip(Blockly.MSG_CUSTOM_CODE_MULTIPLE_TOOLTIP);
     this.setColour(colorPalette.getColor('system'));
     this.appendDummyInput('BLOCK_LABEL')
-        .appendField(new Blockly.FieldCheckbox('FALSE', function(showFields) {
-          Blockly.Blocks.custom_code_multiple.updateShape_(showFields, true);
-          // this.sourceBlock_.updateShape_(showFields, true);
-        }), 'EDIT')
+        .appendField(new Blockly.FieldCheckbox(
+            'FALSE', function(showFields) {
+              // eslint-disable-next-line no-invalid-this
+              this.getSourceBlock().updateShape_(showFields, true);
+            }), 'EDIT')
         .appendField('  User defined code', 'LABEL');
     this.setInputsInline(false);
     this.setPreviousStatement(true, 'Block');
@@ -3292,16 +3287,16 @@ Blockly.Blocks.custom_code_multiple = {
             'User defined code', function(blockLabel) {
               // TODO: STAT Incorrect use of 'this'
               // eslint-disable-next-line no-invalid-this
-              this.sourceBlock_.fieldValueTemp_['LABEL_SET'] = blockLabel;
+              this.getSourceBlock().fieldValueTemp_['LABEL_SET'] = blockLabel;
               // eslint-disable-next-line no-invalid-this
-              this.sourceBlock_.setFieldValue('  ' + blockLabel, 'LABEL');
+              this.getSourceBlock().setFieldValue('  ' + blockLabel, 'LABEL');
             }), 'LABEL_SET');
     this.appendDummyInput('SET_COLOR')
         .appendField('block color')
         .appendField(new Blockly.FieldColour('#992673', function(blockColor) {
           // TODO STAT: Replace incorrect use of 'this'.
           // eslint-disable-next-line no-invalid-this
-          this.sourceBlock_.fieldValueTemp_['COLOR'] = blockColor;
+          this.getSourceBlock().fieldValueTemp_['COLOR'] = blockColor;
         }).setColours([
           '#26994D', '#268F99', '#266999',
           '#264399', '#392699', '#692699',
@@ -3320,7 +3315,7 @@ Blockly.Blocks.custom_code_multiple = {
               value[1] + ' code', '', function(userinput) {
                 // TODO STAT: Replace incorrect use of 'this'.
                 // eslint-disable-next-line no-invalid-this
-                this.sourceBlock_.fieldValueTemp_[value[1].toUpperCase()] =
+                this.getSourceBlock().fieldValueTemp_[value[1].toUpperCase()] =
                     userinput;
               }), value[1].toUpperCase());
     });
@@ -3333,10 +3328,10 @@ Blockly.Blocks.custom_code_multiple = {
         ], function(outType) {
           // TODO STAT: Replace incorrect use of 'this'.
           // eslint-disable-next-line no-invalid-this
-          this.sourceBlock_.fieldValueTemp_['TYPE'] = outType;
+          this.getSourceBlock().fieldValueTemp_['TYPE'] = outType;
           // TODO STAT: Replace incorrect use of 'this'.
           // eslint-disable-next-line no-invalid-this
-          this.sourceBlock_.setOutputType(outType);
+          this.getSourceBlock().setOutputType(outType);
         }), 'TYPE');
     this.moveInputBefore('OUTS', 'FUNC');
     this.appendDummyInput('ARGS')
@@ -3352,10 +3347,10 @@ Blockly.Blocks.custom_code_multiple = {
         }, function(value) {
           // TODO STAT: Replace incorrect use of 'this'.
           // eslint-disable-next-line no-invalid-this
-          this.sourceBlock_.fieldValueTemp_['ARG_COUNT'] = value;
+          this.getSourceBlock().fieldValueTemp_['ARG_COUNT'] = value;
           // TODO STAT: Replace incorrect use of 'this'.
           // eslint-disable-next-line no-invalid-this
-          this.sourceBlock_.setupInputs();
+          this.getSourceBlock().setupInputs();
         }), 'ARG_COUNT');
     this.setColour('#909090');
   },
@@ -3474,7 +3469,7 @@ Blockly.Blocks.custom_code_multiple = {
                   function(value) {
                     // TODO: STAT Incorrect use of 'this'
                     // eslint-disable-next-line no-invalid-this
-                    this.sourceBlock_.fieldValueTemp_[this.name] = value;
+                    this.getSourceBlock().fieldValueTemp_[this.name] = value;
                   }), 'LABEL_ARG' + i.toString(10));
         } else {
           this.appendValueInput('ARG' + i.toString(10))

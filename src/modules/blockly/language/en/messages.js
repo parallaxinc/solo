@@ -70,7 +70,6 @@ const tooltip_text = [
 ];
 
 
-
 /**
  * Set the application language strings
  * @param {string} language is a two character language symbol

@@ -73,8 +73,8 @@ Blockly.Blocks.controls_repeat = {
     const fieldDropdown = new Blockly.FieldDropdown(
         PROPERTIES,
         function(type) {
-          Blockly.Blocks.controls_repeat.sourceBlock_.updateShape_(type);
-          // this.sourceBlock_.updateShape_(type);
+          // eslint-disable-next-line no-invalid-this
+          this.getSourceBlock().updateShape_(type);
         });
     this.appendDummyInput().appendField(blockLabel);
     this.appendDummyInput('REPEAT').appendField(
@@ -122,7 +122,7 @@ Blockly.Blocks.controls_repeat = {
 };
 
 
-Blockly.propc.controls_repeat = function () {
+Blockly.propc.controls_repeat = function() {
     var type = this.getFieldValue('TYPE');
     var branch = Blockly.propc.statementToCode(this, 'DO');
     if (Blockly.propc.INFINITE_LOOP_TRAP) {

@@ -48,6 +48,8 @@ class CodeEditor {
 
       // Now we tell ace to use the CDN locations to look for files
       ace.config.set('basePath', CDN);
+
+      // Link to the div in blocklyc.html
       const code = ace.edit('code-propc');
       code.setTheme('ace/theme/chrome');
       code.getSession().setMode('ace/mode/c_cpp');

@@ -272,6 +272,7 @@ function renderContent(id) {
       $('#btn-view-propc').css('display', 'none');
 
       if (!isPropcOnlyProject) {
+        // Load C code for Ace editor
         const rawC = prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace));
         const codePropC = window.codePropC;
         codePropC.setValue(rawC);

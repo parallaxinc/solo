@@ -155,7 +155,7 @@ Blockly.Blocks.scribbler_if_line = {
                     ['is', 'IS'],
                     ['is not', 'IS_NOT']
                 ], function (state) {
-                    this.sourceBlock_.checkForWas(state);
+                    this.getSourceBlock().checkForWas(state);
                 }), 'LINE_CONDITION')
                 .appendField("over")
                 .appendField(new Blockly.FieldDropdown([['the center', 'CENTER'], ['the left edge', 'LEFT'], ['the right edge', 'RIGHT'], ['any part', 'DETECTED']]), 'LINE_POSITION')
@@ -207,7 +207,7 @@ Blockly.Blocks.scribbler_simple_line = {
                     ['is', 'IS'],
                     ['is not', 'IS_NOT']
                 ], function (state) {
-                    this.sourceBlock_.checkForWas(state);
+                    this.getSourceBlock().checkForWas(state);
                 }), 'LINE_CONDITION')
                 .appendField("over")
                 .appendField(new Blockly.FieldDropdown([['the center', 'CENTER'], ['the left edge', 'LEFT'], ['the right edge', 'RIGHT'], ['any part', 'DETECTED']]), 'LINE_POSITION')
@@ -252,7 +252,7 @@ Blockly.Blocks.scribbler_if_obstacle = {
         this.appendDummyInput()
                 .appendField("if an obstacle")
                 .appendField(new Blockly.FieldDropdown([['is', 'IS'], ['is not', 'IS_NOT']], function (state) {
-                    this.sourceBlock_.checkForWas(state);
+                    this.getSourceBlock().checkForWas(state);
                 }), 'OBSTACLE_CONDITION')
                 .appendField(new Blockly.FieldDropdown([['in front of', 'CENTER'], ['to the left of', 'LEFT'], ['to the right of', 'RIGHT'], ['detected by', 'DETECTED']]), 'OBSTACLE_POSITION')
                 .appendField("the Scribbler");
@@ -298,7 +298,7 @@ Blockly.Blocks.scribbler_simple_obstacle = {
         this.appendDummyInput()
                 .appendField("obstacle")
                 .appendField(new Blockly.FieldDropdown([['is', 'IS'], ['is not', 'IS_NOT']], function (state) {
-                    this.sourceBlock_.checkForWas(state);
+                    this.getSourceBlock().checkForWas(state);
                 }), 'OBSTACLE_CONDITION')
                 .appendField("detected")
                 .appendField(new Blockly.FieldDropdown([
@@ -344,7 +344,7 @@ Blockly.Blocks.scribbler_if_light = {
         this.appendDummyInput()
                 .appendField("if the most light")
                 .appendField(new Blockly.FieldDropdown([['is', 'IS'], ['is not', 'IS_NOT']], function (state) {
-                    this.sourceBlock_.checkForWas(state);
+                    this.getSourceBlock().checkForWas(state);
                 }), 'LIGHT_CONDITION')
                 .appendField(new Blockly.FieldDropdown([['in front', 'CENTER'], ['to the left', 'LEFT'], ['to the right', 'RIGHT'], ['on all sides', 'DETECTED']]), 'LIGHT_POSITION')
                 .appendField("of the Scribbler");
@@ -392,7 +392,7 @@ Blockly.Blocks.scribbler_simple_light = {
                     ['brightest', 'IS'],
                     ['darkest', 'IS_NOT']
                 ], function (state) {
-                    this.sourceBlock_.checkForWas(state);
+                    this.getSourceBlock().checkForWas(state);
                 }), 'LIGHT_CONDITION')
                 .appendField(' ')
                 .appendField(new Blockly.FieldDropdown([
@@ -437,7 +437,7 @@ Blockly.Blocks.scribbler_if_stalled = {
         this.appendDummyInput()
                 .appendField("if the Scribbler")
                 .appendField(new Blockly.FieldDropdown([['is', 'IS'], ['is not', 'IS_NOT']], function (state) {
-                    this.sourceBlock_.checkForWas(state);
+                    this.getSourceBlock().checkForWas(state);
                 }), 'STALLED_CONDITION')
                 .appendField("stuck");
         this.appendStatementInput("IF_STALLED")
@@ -477,13 +477,13 @@ Blockly.propc.scribbler_if_stalled = function () {
 Blockly.Blocks.scribbler_if_button = {
     init: function () {
         this.appendDummyInput()
-                .appendField("if the red button")
+                .appendField('if the red button')
                 .appendField(new Blockly.FieldDropdown([['is', 'IS'], ['is not', 'IS_NOT']], function (state) {
-                    this.sourceBlock_.checkForWas(state);
+          this.getSourceBlock().checkForWas(state);
                 }), 'BUTTON_CONDITION')
-                .appendField("pressed");
-        this.appendStatementInput("IF_BUTTON");
-        this.setPreviousStatement(true, "Block");
+                .appendField('pressed');
+        this.appendStatementInput('IF_BUTTON');
+        this.setPreviousStatement(true, 'Block');
         this.setNextStatement(true);
         this.setInputsInline(true);
         this.setColour(colorPalette.getColor('input'));
@@ -733,9 +733,9 @@ Blockly.Blocks.move_motors_distance = {
                     ['millimeters', ' * 1000 / 491'],
                     ['encoder counts', ' ']
                 ], function (unit) {
-                    this.sourceBlock_.newUnit(unit);
+                    this.getSourceBlock().newUnit(unit);
                 }), 'MULTIPLIER');
-        this.appendValueInput("LEFT_MOTOR_DISTANCE")
+        this.appendValueInput('LEFT_MOTOR_DISTANCE')
                 .appendRange('R,-633,633,0')
                 .setAlign(Blockly.ALIGN_RIGHT)
                 .setCheck("Number")
@@ -827,10 +827,10 @@ Blockly.Blocks.move_motors_xy = {
                     ['millimeters', ' * 1000 / 491'],
                     ['encoder counts', ' ']
                 ], function (unit) {
-                    this.sourceBlock_.newUnit(unit);
+                    this.getSourceBlock().newUnit(unit);
                 }), 'MULTIPLIER');
         this.setInputsInline(false);
-        this.setPreviousStatement(true, "Block");
+        this.setPreviousStatement(true, 'Block');
         this.setNextStatement(true, null);
         this.setColour(colorPalette.getColor('io'));
         this.setHelpUrl(Blockly.MSG_S3_MOTORS_HELPURL);
@@ -898,7 +898,7 @@ Blockly.Blocks.move_motors_angle = {
                     ['millimeters of', ' * 1000 / 491'],
                     ['encoder counts of', ' ']
                 ], function (unit) {
-                    this.sourceBlock_.newUnit(unit);
+                    this.getSourceBlock().newUnit(unit);
                 }), 'RADIUS_MULTIPLIER');
         this.appendValueInput("ROTATE_SPEED")
                 .appendRange('R,-100,100,0')
@@ -1158,7 +1158,7 @@ Blockly.Blocks.scribbler_stop_servo = {
         this.appendDummyInput('SET_PIN')
                 .appendField(label, 'LABEL')
                 .appendField(new Blockly.FieldDropdown(this.pinSet, function (op) {
-                    this.sourceBlock_.setToOther(op, moveBefore);
+                    this.getSourceBlock().setToOther(op, moveBefore);
                 }), "SERVO_PIN");
         this.moveBefore = moveBefore;
         this.otherPin = false;

@@ -92,7 +92,7 @@ Blockly.FieldAceEditor.prototype.render_ = function() {
     const span = Blockly.utils.dom.createSvgElement('tspan', {}, null);
     this.arrow_ = document.createTextNode(' \u25BE');
     span.appendChild(this.arrow_);
-    span.style['fill'] = this.sourceBlock_.getColour();
+    span.style['fill'] = this.getSourceBlock().getColour();
     this.textElement_.insertBefore(span, this.textContent_.nextSibling);
   }
   Blockly.FieldAceEditor.superClass_.render_.call(this);

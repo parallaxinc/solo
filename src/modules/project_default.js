@@ -29,7 +29,6 @@ import {EMPTY_PROJECT_CODE_HEADER} from './constants.js';
 
 import {Project, ProjectProfiles, ProjectTypes} from './project.js';
 
-
 /**
  * Generate an empty default project
  * @return {Project}

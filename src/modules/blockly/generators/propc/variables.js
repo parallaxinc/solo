@@ -192,8 +192,10 @@ Blockly.Blocks.array_get = {
                         (this.arrayList.length > 0 ? this.arrayList : ['list']).map(function (value) {
                             return [value, value]  // returns an array of arrays built from the original array.
                         }), function () {
-                            if (this.sourceBlock_.arrayInitWarnFlag) {
-                                this.sourceBlock_.setWarningText(null);
+                        // eslint-disable-next-line no-invalid-this
+                            if (this.getSourceBlock().arrayInitWarnFlag) {
+                                // eslint-disable-next-line no-invalid-this
+                                this.getSourceBlock().setWarningText(null);
                             }
                         }), 'VAR')
                 .appendField('element');

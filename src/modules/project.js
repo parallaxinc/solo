@@ -50,6 +50,7 @@ function getProjectInitialState() {
   return projectInitialState;
 }
 
+
 /**
  * Set the project state from an existing project object
  * @param {Project} project

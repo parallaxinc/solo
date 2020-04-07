@@ -24,9 +24,10 @@
 // import * as Blockly from 'blockly/core';
 import Blockly from 'blockly/core.js';
 
-import 'blockly/blocks';
+// import 'blockly/blocks';
 import * as En from 'blockly/msg/en.js';
 
+import './blockly/language/en/messages.js';
 import './blockly/generators/propc.js';
 import './blockly/generators/propc/base.js';
 import './blockly/generators/propc/communicate.js';
@@ -475,7 +476,8 @@ function initEventHandlers() {
 
   $('#prop-btn-term').on('click', () => serial_console());
   $('#prop-btn-graph').on('click', () => graphing_console());
-  $('#prop-btn-find-replace').on('click', () => findReplaceCode());
+  // Deprecated.
+  //  $('#prop-btn-find-replace').on('click', () => findReplaceCode());
   $('#prop-btn-pretty').on('click', () => formatWizard());
 
   $('#prop-btn-undo').on('click', () => codePropC.undo());
