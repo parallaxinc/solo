@@ -123,8 +123,8 @@ Blockly.FieldAceEditor.prototype.showEditor_ = function() {
   this.editor_ = this.dropdownCreate_();
   const currentField = this;
   this.codeField_ = ace.edit(this.editor_);
-  this.codeField_.setTheme("ace/theme/chrome");
-  this.codeField_.getSession().setMode("ace/mode/c_cpp");
+  this.codeField_.setTheme('ace/theme/chrome');
+  this.codeField_.getSession().setMode('ace/mode/c_cpp');
   this.codeField_.getSession().setTabSize(2);
   this.codeField_.$blockScrolling = Infinity;
   this.codeField_.setValue(this.getValue());
