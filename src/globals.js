@@ -34,7 +34,7 @@
  *
  * @type {object}
  */
-let projectData = null;
+// let projectData = null;
 
 
 /**
@@ -44,7 +44,7 @@ let projectData = null;
  *
  * @type {string}
  */
-const ApplicationName = 'Solo';
+// const ApplicationName = 'Solo';
 
 
 /**
@@ -54,7 +54,7 @@ const ApplicationName = 'Solo';
  *
  * @type {string}
  */
-const TestApplicationName = 'Solocup';
+// const TestApplicationName = 'Solocup';
 
 
 /**
@@ -66,7 +66,7 @@ const TestApplicationName = 'Solocup';
  *
  * @type {string}
  */
-const productBannerHostTrigger = 'solocup.parallax.com';
+// const productBannerHostTrigger = 'solocup.parallax.com';
 
 
 
@@ -81,7 +81,7 @@ const productBannerHostTrigger = 'solocup.parallax.com';
  *
  * @type {*|jQuery}
  */
-const CDN_URL = $('meta[name=cdn]').attr("content");
+// const CDN_URL = $('meta[name=cdn]').attr("content");
 
 
 // TODO: Enumerate the OS version
@@ -94,7 +94,7 @@ const CDN_URL = $('meta[name=cdn]').attr("content");
  *
  * @type {number}
  */
-const PROJECT_NAME_MAX_LENGTH = 100;
+// const PROJECT_NAME_MAX_LENGTH = 100;
 
 
 /**
@@ -103,7 +103,7 @@ const PROJECT_NAME_MAX_LENGTH = 100;
  *
  * @type {number}
  */
-const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
+// const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
 
 
 
@@ -111,7 +111,7 @@ const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
  * The broswer-based serial terminal object
  * @type {object}
  */
-var pTerm;
+// var pTerm;
 
 
 /**
@@ -131,6 +131,6 @@ var pTerm;
  * These constants are also defined in the module subsystem in the constants.js file.
  *
  */
-const TEMP_PROJECT_STORE_NAME = 'tempProject';
-const LOCAL_PROJECT_STORE_NAME = 'localProject';
+// const TEMP_PROJECT_STORE_NAME = 'tempProject';
+// const LOCAL_PROJECT_STORE_NAME = 'localProject';
 
