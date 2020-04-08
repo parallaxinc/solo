@@ -1295,10 +1295,7 @@ Blockly.Blocks.serial_send_text = {
     if (this.getInput('SERPIN')) {
       this.removeInput('SERPIN'); // WHY??
     }
-    let pinList = this.ser_pins;
-    if (newPinList) {
-      pinList = newPinList;
-    }
+    const pinList = (newPinList) ? newPinList : this.ser_pins;
     if (pinList.length > 1 && !this.isInFlyout) {
       this.appendDummyInput('SERPIN')
           .setAlign(Blockly.ALIGN_RIGHT)
