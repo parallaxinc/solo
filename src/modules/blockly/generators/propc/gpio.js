@@ -31,10 +31,10 @@
  */
 'use strict';
 
-import Blockly from 'blockly/core.js';
+import Blockly from 'blockly/core';
 
-import {getDefaultProfile} from '../../../project.js';
-import {colorPalette} from '../propc.js';
+import {getDefaultProfile, getProjectInitialState} from '../../../project';
+import {colorPalette} from '../propc';
 
 /**
  * Make a Pin
@@ -1921,8 +1921,9 @@ Blockly.Blocks.sound_play = {
     this.setSoundAction(action);
   },
   onchange: function(event) {
-    if (!(window.project.boardType.name === 'heb' ||
-            window.project.boardType.name === 'heb-wx')) {
+    const project = getProjectInitialState();
+    if (!(project.boardType.name === 'heb' ||
+            project.boardType.name === 'heb-wx')) {
       if (event.type == Blockly.Events.BLOCK_CREATE ||
                 event.type == Blockly.Events.BLOCK_DELETE) {
         const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
@@ -1969,17 +1970,18 @@ Blockly.propc.sound_play = function() {
 
   // TODO: Refactor call to getAllBlocks to getAllBlocksByType
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const profile = getDefaultProfile();
+  const project = getProjectInitialState();
   if (allBlocks.indexOf('sound initialize') === -1 &&
-        !(window.project && (window.project.boardType.name === 'heb') ||
-        window.project.boardType.name === 'heb-wx')) {
+      (!(project.boardType.name === 'heb') ||
+        project.boardType.name === 'heb-wx')) {
     code = '// WARNING: You must use a sound initialize block at the' +
         ' beginning of your program!\n';
   }
 
-  if (window.project && !this.disabled) {
-    const profile = getDefaultProfile();
-    if (window.project.boardType.name === 'heb' ||
-            window.project.boardType.name === 'heb-wx') {
+  if (!this.disabled) {
+    if (project.boardType.name === 'heb' ||
+            project.boardType.name === 'heb-wx') {
       Blockly.propc.setups_['sound_start'] = 'audio0 = sound_run(' +
           profile.earphone_jack_inverted + ');';
     }
@@ -2040,6 +2042,7 @@ Blockly.Blocks.wav_play = {
  * @return {string}
  */
 Blockly.propc.wav_play = function() {
+  const project = getProjectInitialState();
   const filename = this.getFieldValue('FILENAME');
   if (!this.disabled) {
     const profile = getDefaultProfile();
@@ -2060,7 +2063,7 @@ Blockly.propc.wav_play = function() {
     if (!initFound) {
       Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');';
     }
-    if (window.project.boardType.name === 'heb-wx' && !wPinFound) {
+    if (project.boardType.name === 'heb-wx' && !wPinFound) {
       Blockly.propc.setups_['wavplayer_pin'] = 'wav_set_pins(' +
           profile.earphone_jack + ');';
     }
@@ -2318,8 +2321,9 @@ Blockly.Blocks.sd_open = {
     this.setNextStatement(true, null);
   },
   onchange: function() {
-    if (window.project.boardType.name !== 'activity-board' &&
-            window.project.boardType.name !== 'heb-wx') {
+    const project = getProjectInitialState();
+    if (project.boardType.name !== 'activity-board' &&
+            project.boardType.name !== 'heb-wx') {
       const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
       if (allBlocks.indexOf('SD initialize') === -1) {
         this.setWarningText('WARNING: You must use a SD' +
@@ -2337,6 +2341,7 @@ Blockly.Blocks.sd_open = {
  */
 Blockly.propc.sd_open = function() {
   const profile = getDefaultProfile();
+  const project = getProjectInitialState();
   const fp = this.getFieldValue('FILENAME');
   const mode = this.getFieldValue('MODE');
   let head = '';
@@ -2361,8 +2366,8 @@ Blockly.propc.sd_open = function() {
   }
 
   let code = head + 'fp = fopen("' + fp + '","' + mode + '");';
-  if (window.project.boardType.name !== 'activity-board' &&
-        window.project.boardType.name !== 'heb-wx' &&
+  if (project.boardType.name !== 'activity-board' &&
+        project.boardType.name !== 'heb-wx' &&
             allBlocks.toString().indexOf('SD initialize') === -1) {
     code = '// WARNING: You must use a SD initialize block at the' +
         ' beginning of your program!';
@@ -2464,6 +2469,7 @@ Blockly.Blocks.sd_read = {
     }
   },
   onchange: function(event) {
+    const project = getProjectInitialState();
     if (event.type === Blockly.Events.BLOCK_DELETE ||
         event.type === Blockly.Events.BLOCK_CREATE) {
       let warnTxt = null;
@@ -2472,8 +2478,8 @@ Blockly.Blocks.sd_read = {
         warnTxt = 'WARNING: You must use a SD file open block\nbefore' +
             ' reading, writing, or closing an SD file!';
       } else if (allBlocks.indexOf('SD initialize') === -1 &&
-                window.project.boardType.name !== 'heb-wx' &&
-                window.project.boardType.name !== 'activity-board') {
+                project.boardType.name !== 'heb-wx' &&
+                project.boardType.name !== 'activity-board') {
         warnTxt = 'WARNING: You must use a SD initialize\nblock at the' +
             ' beginning of your program!';
       }
@@ -2487,6 +2493,7 @@ Blockly.Blocks.sd_read = {
  * @return {string}
  */
 Blockly.propc.sd_read = function() {
+  const project = getProjectInitialState();
   const profile = getDefaultProfile();
   const size = Blockly.propc.valueToCode(
       this, 'SIZE', Blockly.propc.ORDER_NONE) || '1';
@@ -2517,8 +2524,8 @@ Blockly.propc.sd_read = function() {
     code = '// WARNING: You must use a SD file open block before reading,' +
         ' writing, or closing an SD file!';
   } else if (allBlocks.indexOf('SD initialize') === -1 &&
-        window.project.boardType.name !== 'heb-wx' &&
-        window.project.boardType.name !== 'activity-board') {
+        project.boardType.name !== 'heb-wx' &&
+        project.boardType.name !== 'activity-board') {
     code = '// WARNING: You must use a SD initialize block at the' +
         ' beginning of your program!';
   }
@@ -2605,6 +2612,7 @@ Blockly.Blocks.sd_file_pointer = {
  */
 Blockly.propc.sd_file_pointer = function() {
   const profile = getDefaultProfile();
+  const project = getProjectInitialState();
   // TODO: Refactor getAllBlocks to getAllBlocksByType
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   let code = null;
@@ -2623,8 +2631,8 @@ Blockly.propc.sd_file_pointer = function() {
     code = '// WARNING: You must use a SD file open block before' +
         ' using the file pointer!';
   } else if (allBlocks.indexOf('SD initialize') === -1 &&
-        window.project.boardType.name !== 'heb-wx' &&
-        window.project.boardType.name !== 'activity-board') {
+        project.boardType.name !== 'heb-wx' &&
+        project.boardType.name !== 'activity-board') {
     code = '// WARNING: You must use a SD initialize block at the' +
         ' beginning of your program!';
   } else if (this.getFieldValue('MODE') === 'set') {
@@ -2652,7 +2660,7 @@ Blockly.propc.sd_file_pointer = function() {
 Blockly.Blocks.ab_drive_init = {
   helpUrl: Blockly.MSG_ROBOT_HELPURL,
   init: function() {
-    const project = getDefaultProfile();
+    const project = getProjectInitialState();
     let botTypeMenu = [
       ['ActivityBot 360\u00b0', 'abdrive360.h'],
       ['ActivityBot', 'abdrive.h'],
@@ -2771,6 +2779,7 @@ Blockly.propc.ab_drive_init = function() {
 Blockly.Blocks.ab_drive_ramping = {
   helpUrl: Blockly.MSG_ROBOT_HELPURL,
   init: function() {
+    const project = getProjectInitialState();
     this.setTooltip(Blockly.MSG_ROBOT_RAMPING_TOOLTIP);
     this.setColour(colorPalette.getColor('robot'));
     this.appendDummyInput('ACCEL')
@@ -2793,7 +2802,7 @@ Blockly.Blocks.ab_drive_ramping = {
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
     this.isBot = '';
-    if (window.project.boardType.name !== 'activity-board') {
+    if (project.boardType.name !== 'activity-board') {
       this.newRobot('servodiffdrive.h');
     }
   },

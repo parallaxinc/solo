@@ -31,18 +31,17 @@
  */
 'use strict';
 
-import Blockly from 'blockly/core.js';
+import Blockly from 'blockly/core';
 
-import {getDefaultProfile} from '../../../project.js';
-import {colorPalette} from '../propc.js';
+import {getDefaultProfile} from '../../../project';
+import {colorPalette} from '../propc';
 
 /**
- * Use this to create a globally incrementing variable, which makes
+ * Use this to create a module-level incrementing variable, which makes
  * each instance of custom code unique.
  * @type {number}
  */
 Blockly.propc.cCode = 0;
-
 
 /**
  * Math Number
@@ -227,7 +226,6 @@ Blockly.Blocks.math_number = {
   },
 };
 
-
 /**
  * C code generator for the Math Number block
  * @return {[number, *]}
@@ -241,7 +239,6 @@ Blockly.propc.math_number = function() {
       Blockly.propc.ORDER_UNARY_PREFIX : Blockly.propc.ORDER_ATOMIC;
   return [code, order];
 };
-
 
 /**
  * Basic math functions
@@ -373,7 +370,6 @@ Blockly.Blocks.math_arithmetic = {
   },
 };
 
-
 /**
  * A block to hold arithmetic blocks
  * @type {{
@@ -394,7 +390,6 @@ Blockly.Blocks.math_arithmatic_container = {
   },
 };
 
-
 /**
  * Arithmetic term block
  * @type {{init: Blockly.Blocks.math_arithmatic_term.init}}
@@ -409,7 +404,6 @@ Blockly.Blocks.math_arithmatic_term = {
     this.contextMenu = false;
   },
 };
-
 
 /**
  * Arithmetic
@@ -470,7 +464,6 @@ Blockly.propc.math_arithmetic = function() {
   return [code, Blockly.propc.ORDER_NONE];
 };
 
-
 /**
  * Mathematical limit block
  * @type {{init: Blockly.Blocks.math_limit.init, helpUrl: string}}
@@ -496,7 +489,6 @@ Blockly.Blocks.math_limit = {
   },
 };
 
-
 /**
  * C code generator block
  * @return {[string, number]}
@@ -516,7 +508,6 @@ Blockly.propc.math_limit = function() {
       argument0 + ' : ' + argument1 + ')';
   return [code, Blockly.propc.ORDER_ASSIGNMENT];
 };
-
 
 /**
  *
@@ -546,7 +537,6 @@ Blockly.Blocks.math_crement = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -560,7 +550,6 @@ Blockly.propc.math_crement = function() {
 
   return variable + operator + ';\n';
 };
-
 
 /**
  * Math - Random number generator
@@ -590,7 +579,6 @@ Blockly.Blocks.math_random = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -607,7 +595,6 @@ Blockly.propc.math_random = function() {
 
   return ['random(' + arg1 + ', ' + arg2 + ')', Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  * Bitwise operators
@@ -638,7 +625,6 @@ Blockly.Blocks.math_bitwise = {
   },
 };
 
-
 /**
  * C code generator for Math Bitwise operators
  * @return {[string, number]}
@@ -657,7 +643,6 @@ Blockly.propc.math_bitwise = function() {
 
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
-
 
 /**
  * Basic delay block
@@ -679,7 +664,6 @@ Blockly.Blocks.base_delay = {
   },
 };
 
-
 /**
  * C code generator for the Basic Delay block
  * @return {string}
@@ -692,7 +676,6 @@ Blockly.propc.base_delay = function() {
   const unit = 'pause'; // this.getFieldValue("UNIT") || "pause";
   return unit + '(' + delayTime + ');\n';
 };
-
 
 /**
  *
@@ -713,7 +696,6 @@ Blockly.Blocks.string_type_block = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -724,7 +706,6 @@ Blockly.propc.string_type_block = function() {
 
   return [code, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  *
@@ -761,7 +742,6 @@ Blockly.Blocks.char_type_block = {
   },
 };
 
-
 // eslint-disable-next-line valid-jsdoc
 /**
  * C code generator
@@ -771,7 +751,6 @@ Blockly.propc.char_type_block = function() {
   const code = this.getFieldValue('CHAR');
   return [code, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  * Music Note block
@@ -817,7 +796,6 @@ Blockly.Blocks.music_note = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -829,7 +807,6 @@ Blockly.propc.music_note = function() {
   )).toString(10);
   return [note, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  * System Counter
@@ -856,7 +833,6 @@ Blockly.Blocks.system_counter = {
   },
 };
 
-
 // eslint-disable-next-line valid-jsdoc
 /**
  *
@@ -866,7 +842,6 @@ Blockly.propc.system_counter = function() {
   const code = this.getFieldValue('CMD');
   return [code, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  *
@@ -886,7 +861,6 @@ Blockly.Blocks.waitcnt = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -900,7 +874,6 @@ Blockly.propc.waitcnt = function() {
   // Return code fragment
   return 'waitcnt(' + target + ');\n';
 };
-
 
 /**
  *
@@ -931,7 +904,6 @@ Blockly.Blocks.register_set = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -944,7 +916,6 @@ Blockly.propc.register_set = function() {
   const register = this.getFieldValue('CMD');
   return register + ' = ' + target + ';\n';
 };
-
 
 /**
  *
@@ -973,7 +944,6 @@ Blockly.Blocks.register_get = {
   },
 };
 
-
 // eslint-disable-next-line valid-jsdoc
 /**
  *
@@ -983,7 +953,6 @@ Blockly.propc.register_get = function() {
   const code = this.getFieldValue('CMD');
   return [code, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  *
@@ -1013,7 +982,6 @@ Blockly.Blocks.wait_pin = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -1035,7 +1003,6 @@ Blockly.propc.wait_pin = function() {
       .replace('x', pinValue) + ', ' +
       pinType.replace('x', pinValue) + ');\n';
 };
-
 
 /**
  *
@@ -1065,7 +1032,6 @@ Blockly.Blocks.custom_code = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -1087,7 +1053,6 @@ Blockly.propc.custom_code = function() {
   Blockly.propc.cCode++;
   return code;
 };
-
 
 /**
  *
@@ -1302,7 +1267,6 @@ Blockly.Blocks.string_var_length = {
   },
 };
 
-
 /**
  *
  * @type {{init: Blockly.Blocks.string_var_length_container.init}}
@@ -1317,7 +1281,6 @@ Blockly.Blocks.string_var_length_container = {
     this.contextMenu = false;
   },
 };
-
 
 /**
  *
@@ -1334,7 +1297,6 @@ Blockly.Blocks.string_var_length_var = {
   },
 };
 
-
 /**
  *
  * @type {{init: Blockly.Blocks.string_var_length_con.init}}
@@ -1349,7 +1311,6 @@ Blockly.Blocks.string_var_length_con = {
     this.contextMenu = false;
   },
 };
-
 
 /**
  *
@@ -1379,7 +1340,6 @@ Blockly.propc.string_var_length = function() {
   return '';
 };
 
-
 /**
  *
  * @type {{init: Blockly.Blocks.string_length.init, helpUrl: string}}
@@ -1399,7 +1359,6 @@ Blockly.Blocks.string_length = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -1409,7 +1368,6 @@ Blockly.propc.string_length = function() {
       this, 'VALUE', Blockly.propc.ORDER_NONE);
   return ['((int) strlen(' + text + '))', Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  *
@@ -1432,7 +1390,6 @@ Blockly.Blocks.high_low_value = {
   },
 };
 
-
 // eslint-disable-next-line valid-jsdoc
 /**
  *
@@ -1442,7 +1399,6 @@ Blockly.propc.high_low_value = function() {
   const code = this.getFieldValue('VALUE');
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
-
 
 /**
  *
@@ -1515,7 +1471,6 @@ Blockly.Blocks.comment = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -1528,7 +1483,6 @@ Blockly.propc.comment = function() {
   }
   return code;
 };
-
 
 /**
  * Color Picker block
@@ -1580,7 +1534,6 @@ Blockly.Blocks.color_picker = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -1591,7 +1544,6 @@ Blockly.propc.color_picker = function() {
 
   return [color, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  *
@@ -1623,7 +1575,6 @@ Blockly.Blocks.color_value_from = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -1641,7 +1592,6 @@ Blockly.propc.color_value_from = function() {
 
   return [output, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  *
@@ -1669,7 +1619,6 @@ Blockly.Blocks.get_channel_from = {
   },
 };
 
-
 /**
  * Generate C code for the get_channel_from block definition
  * @return {[string, number]}
@@ -1687,7 +1636,6 @@ Blockly.propc.get_channel_from = function() {
     Blockly.propc.ORDER_NONE,
   ];
 };
-
 
 /**
  *
@@ -1713,7 +1661,6 @@ Blockly.Blocks.compare_colors = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -1728,7 +1675,6 @@ Blockly.propc.compare_colors = function() {
 
   return [code, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  * Logical Comparison
@@ -1768,7 +1714,6 @@ Blockly.Blocks.logic_compare = {
   },
 };
 
-
 /**
  *
  * @return {[string, *]}
@@ -1784,7 +1729,6 @@ Blockly.propc.logic_compare = function() {
 
   return [code, order];
 };
-
 
 /**
  * Logic Operations
@@ -1821,7 +1765,6 @@ Blockly.Blocks.logic_operation = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -1839,7 +1782,6 @@ Blockly.propc.logic_operation = function() {
 
   return [code, order];
 };
-
 
 /**
  * Parenthesis
@@ -1866,7 +1808,6 @@ Blockly.Blocks.parens = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -1880,7 +1821,6 @@ Blockly.propc.parens = function() {
 
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
-
 
 /**
  * Logical Negation
@@ -1912,7 +1852,6 @@ Blockly.Blocks.logic_negate = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -1929,7 +1868,6 @@ Blockly.propc.logic_negate = function() {
   }
   return [code, order];
 };
-
 
 /**
  *
@@ -1951,7 +1889,6 @@ Blockly.Blocks.logic_boolean = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -1962,7 +1899,6 @@ Blockly.propc.logic_boolean = function() {
 
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
-
 
 /**
  *
@@ -2003,7 +1939,6 @@ Blockly.Blocks.cog_new = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -2024,7 +1959,6 @@ Blockly.propc.cog_new = function() {
   }
   return code;
 };
-
 
 /**
  *
@@ -2050,7 +1984,6 @@ Blockly.Blocks.combine_strings = {
     this.setNextStatement(true, null);
   },
 };
-
 
 /**
  *
@@ -2083,7 +2016,6 @@ Blockly.propc.combine_strings = function() {
   }
   return code;
 };
-
 
 /**
  *
@@ -2119,7 +2051,6 @@ Blockly.Blocks.find_substring = {
 
 // Map the deprecated block to the new block
 Blockly.Blocks.find_substring_zero = Blockly.Blocks.find_substring;
-
 
 /**
  *
@@ -2176,7 +2107,6 @@ Blockly.propc.find_substring = function() {
 // Map find_substring block to find_substring_zero block
 Blockly.propc.find_substring_zero = Blockly.propc.find_substring;
 
-
 /**
  *
  * @type {{init: Blockly.Blocks.get_char_at_position.init, helpUrl: string}}
@@ -2209,7 +2139,6 @@ Blockly.Blocks.get_char_at_position = {
 // Map deprecated block to its replacement
 Blockly.Blocks.get_char_at_position_zero = Blockly.Blocks.get_char_at_position;
 
-
 /**
  *
  * @return {[string, number]}
@@ -2236,7 +2165,6 @@ Blockly.propc.get_char_at_position = function() {
 
 // Map deprecated block to the its replacement
 Blockly.propc.get_char_at_position_zero = Blockly.propc.get_char_at_position;
-
 
 /**
  *
@@ -2274,7 +2202,6 @@ Blockly.Blocks.set_char_at_position = {
 // Map deprecated block to its replacement
 Blockly.Blocks.set_char_at_position_zero = Blockly.Blocks.set_char_at_position;
 
-
 /**
  *
  * @return {string}
@@ -2308,9 +2235,8 @@ Blockly.propc.set_char_at_position = function() {
   }
 };
 
-// Map depricated code to its replacement
+// Map deprecated code to its replacement
 Blockly.propc.set_char_at_position_zero = Blockly.propc.set_char_at_position;
-
 
 /**
  *
@@ -2355,7 +2281,6 @@ Blockly.Blocks.get_substring = {
 
 // Map deprecated code to its replacement
 Blockly.Blocks.get_substring_zero = Blockly.Blocks.get_substring;
-
 
 /**
  *
@@ -2423,7 +2348,6 @@ Blockly.propc.get_substring = function() {
 // Map deprecated code to its replacement
 Blockly.propc.get_substring_zero = Blockly.propc.get_substring;
 
-
 /**
  *
  * @type {{init: Blockly.Blocks.string_compare.init, helpUrl: string}}
@@ -2449,7 +2373,6 @@ Blockly.Blocks.string_compare = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]|[string, number]}
@@ -2473,7 +2396,6 @@ Blockly.propc.string_compare = function() {
     ];
   }
 };
-
 
 /**
  *
@@ -2505,7 +2427,6 @@ Blockly.Blocks.string_to_number = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -2521,7 +2442,6 @@ Blockly.propc.string_to_number = function() {
   return 'sscan(' + str + ', "' + this.getFieldValue('TYPE') +
       '", &' + store + ');\n';
 };
-
 
 /**
  *
@@ -2554,7 +2474,6 @@ Blockly.Blocks.number_to_string = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -2572,7 +2491,6 @@ Blockly.propc.number_to_string = function() {
   return 'sprint(' + store + ', "' + this.getFieldValue('TYPE') +
       '", ' + str + ');\n';
 };
-
 
 /**
  *
@@ -2633,7 +2551,6 @@ Blockly.Blocks.string_split = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -2669,7 +2586,6 @@ Blockly.propc.string_split = function() {
   return 'str_split(' + fromStr + ', ' + toStr + ', ' + delim + ');\n';
 };
 
-
 /**
  *
  * @type {{init: Blockly.Blocks.string_null.init, helpUrl: string}}
@@ -2691,7 +2607,6 @@ Blockly.Blocks.string_null = {
   },
 };
 
-
 /**
  *
  * @return {(*|number)[]}
@@ -2702,7 +2617,6 @@ Blockly.propc.string_null = function() {
   const op = this.getFieldValue('OP') || '';
   return [str + op, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  *
@@ -2724,7 +2638,6 @@ Blockly.Blocks.string_trim = {
     this.setNextStatement(true, null);
   },
 };
-
 
 /**
  *
@@ -2760,7 +2673,6 @@ Blockly.propc.string_trim = function() {
   return 'str_trim(' + toStr + ', ' + frStr + ');\n';
 };
 
-
 /**
  *
  * @type {{init: Blockly.Blocks.number_binary.init, helpUrl: string}}
@@ -2786,7 +2698,6 @@ Blockly.Blocks.number_binary = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -2796,7 +2707,6 @@ Blockly.propc.number_binary = function() {
 
   return [code, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  *
@@ -2823,7 +2733,6 @@ Blockly.Blocks.number_hex = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -2833,7 +2742,6 @@ Blockly.propc.number_hex = function() {
 
   return [code, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  *
@@ -2858,7 +2766,6 @@ Blockly.Blocks.constrain_value = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -2872,7 +2779,6 @@ Blockly.propc.constrain_value = function() {
   const code = 'constrainInt(' + num + ', ' + min + ', ' + max + ')';
   return [code, Blockly.propc.ORDER_NONE];
 };
-
 
 /**
  *
@@ -2901,7 +2807,6 @@ Blockly.Blocks.map_value = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -2919,7 +2824,6 @@ Blockly.propc.map_value = function() {
     Blockly.propc.ORDER_NONE,
   ];
 };
-
 
 /**
  *
@@ -2953,7 +2857,6 @@ Blockly.Blocks.math_advanced = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -2977,7 +2880,6 @@ Blockly.propc.math_advanced = function() {
   return store + ' = (int) (((float)' + arg1 + ') * ' + operator +
       '(((float) ' + arg2 + ')' + opTrig + '));\n';
 };
-
 
 /**
  *
@@ -3009,7 +2911,6 @@ Blockly.Blocks.math_inv_trig = {
     this.setNextStatement(true, null);
   },
 };
-
 
 /**
  *
@@ -3043,7 +2944,6 @@ Blockly.propc.math_inv_trig = function() {
   return store + ' = (int) (180.0 * ' + operator + '(((float) ' + arg1 + ')' +
       opTrig + '((float) ' + arg2 + ')) * ' + arg3 + ' / PI);\n';
 };
-
 
 /**
  *
@@ -3128,7 +3028,6 @@ Blockly.Blocks.constant_define = {
   },
 };
 
-
 /**
  *
  * @return {string}
@@ -3141,7 +3040,6 @@ Blockly.propc.constant_define = function() {
   }
   return '';
 };
-
 
 /**
  *
@@ -3214,7 +3112,6 @@ Blockly.Blocks.constant_value = {
   },
 };
 
-
 /**
  *
  * @return {[string, number]}
@@ -3223,7 +3120,6 @@ Blockly.propc.constant_value = function() {
   const code = this.getFieldValue('VALUE');
   return ['MY_' + code, Blockly.propc.ORDER_ATOMIC];
 };
-
 
 /**
  *
@@ -3485,7 +3381,6 @@ Blockly.Blocks.custom_code_multiple = {
   },
 };
 
-
 /**
  *
  * @return {string|(string|number)[]}
@@ -3567,7 +3462,6 @@ Blockly.propc.custom_code_multiple = function() {
   }
 };
 
-
 /**
  *
  * @type {{init: Blockly.Blocks.propc_file.init}}
@@ -3583,7 +3477,6 @@ Blockly.Blocks.propc_file = {
   },
 };
 
-
 /**
  * TODO: Need a description of what this method does.
  * @return {string}
@@ -3596,7 +3489,6 @@ Blockly.propc.propc_file = function() {
   }
   return '// RAW PROPC CODE\n//{{||}}\n' + filename + '//{{||}}\n' + code;
 };
-
 
 /**
  * TODO: Need a description of what this method does.
@@ -3613,7 +3505,6 @@ Blockly.Blocks.run_as_setup = {
     this.setNextStatement(true);
   },
 };
-
 
 /**
  * TODO: Need a description for what this method does.

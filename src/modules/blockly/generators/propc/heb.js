@@ -26,10 +26,10 @@
  */
 'use strict';
 
-import Blockly from 'blockly/core.js';
+import Blockly from 'blockly/core';
 
-import {getDefaultProfile} from '../../../project.js';
-import {colorPalette} from '../propc.js';
+import {getDefaultProfile, getProjectInitialState} from '../../../project';
+import {colorPalette} from '../propc';
 
 /**
  *
@@ -1083,10 +1083,11 @@ Blockly.propc.heb_badge_was_shaken = function() {
  */
 Blockly.Blocks.heb_touchpad_status = {
   init: function() {
+    const project = getProjectInitialState();
     this.setTooltip(Blockly.MSG_HEB_TOUCHPAD_STATUS_TOOLTIP);
     this.setHelpUrl(Blockly.MSG_BADGE_BUTTONS_HELPURL);
     this.setColour(colorPalette.getColor('input'));
-    if (window.project.boardType.name !== 'heb-wx') {
+    if (project.boardType.name !== 'heb-wx') {
       this.appendDummyInput()
           .appendField('Touchpad')
           .appendField(new Blockly.FieldDropdown([

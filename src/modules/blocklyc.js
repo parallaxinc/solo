@@ -27,14 +27,13 @@ import * as jsBeautify from 'js-beautify';
 import * as JSZip from 'jszip';
 import {saveAs} from 'file-saver';
 
-import {EMPTY_PROJECT_CODE_HEADER} from './constants.js';
-import {isExperimental} from './url_parameters.js';
-import {loadToolbox, getWorkspaceSvg} from './editor.js';
-import {CodeEditor} from './code_editor.js';
-import {propToolbarButtonController} from './toolbar_controller.js';
-import {getPropTerminal} from './prop_term.js';
-import {getProjectInitialState} from './project.js';
-import {setPropCCode} from './code_editor.js';
+import {EMPTY_PROJECT_CODE_HEADER} from './constants';
+import {loadToolbox, getWorkspaceSvg} from './editor';
+import {CodeEditor, setPropCCode} from './code_editor';
+import {propToolbarButtonController} from './toolbar_controller';
+import {getPropTerminal} from './prop_term';
+import {getProjectInitialState} from './project';
+import {isExperimental} from './url_parameters';
 
 
 /**

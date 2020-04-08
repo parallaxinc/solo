@@ -29,6 +29,7 @@
 'use strict';
 
 import Blockly from 'blockly/core.js';
+
 import {getDefaultProfile} from '../../project.js';
 
 

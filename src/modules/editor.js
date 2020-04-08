@@ -24,7 +24,6 @@
 // import * as Blockly from 'blockly/core';
 // import Blockly from 'blockly/core.js';
 import Blockly from 'blockly/core';
-
 // eslint-disable-next-line camelcase
 import {page_text_label, tooltip_text} from './blockly/language/en/messages';
 import './blockly/generators/propc';
@@ -38,34 +37,26 @@ import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
-
 import {saveAs} from 'file-saver';
-
 import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
   PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName, TestApplicationName,
   productBannerHostTrigger,
 } from './constants';
-
-
 import {
   clientService, compile, getComPort, loadInto, renderContent, downloadCSV,
   initializeBlockly, sanitizeFilename,
 } from './blocklyc';
-
 import {CodeEditor, propcAsBlocksXml} from './code_editor.js';
-
 import {
   editProjectDetails, newProjectModal, openProjectModal, initUploadModalLabels,
 } from './modals';
-
 import {
   Project, getProjectInitialState, setProjectInitialState,
   setDefaultProfile,
   ProjectTypes,
   clearProjectInitialState, projectJsonFactory,
 } from './project';
-
 import {ProjectSaveTimer} from './project_save_timer';
 import {PropTerm} from './prop_term';
 import {propToolbarButtonController} from './toolbar_controller';

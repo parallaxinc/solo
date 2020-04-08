@@ -32,10 +32,10 @@
 
 'use strict';
 
-import Blockly from 'blockly/core.js';
+import Blockly from 'blockly/core';
 
-import {colorPalette} from '../propc.js';
-import {getDefaultProfile, getProjectInitialState} from '../../../project.js';
+import {colorPalette} from '../propc';
+import {getDefaultProfile, getProjectInitialState} from '../../../project';
 
 
 // ------------------ Terminal Console Blocks ----------------------------------
@@ -739,7 +739,6 @@ Blockly.propc.console_print_multiple = function() {
       initBlock = 'WX initialize';
       errorString = '// ERROR: WX is not initialized!\n';
 
-      // if (window.project.boardType.name === 'heb-wx') {
       if (getProjectInitialState().boardType.name === 'heb-wx') {
         initBlock = null;
       }
@@ -813,7 +812,6 @@ Blockly.propc.console_print_multiple = function() {
     code = '// ERROR: You cannot use Advanced WX blocks with Simple WX blocks!';
   }
 
-  // if (window.project.boardType.name === 'heb-wx' &&
   if (getProjectInitialState().boardType.name === 'heb-wx' &&
       this.type === 'wx_print_multiple') {
     Blockly.propc.definitions_['wx_def'] = '#include "wifi.h"';

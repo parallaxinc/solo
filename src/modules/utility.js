@@ -20,6 +20,11 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+'use strict';
+
+// import bootstrap from 'bootstrap';
+import bootbox from 'bootbox';
+
 /**
  * Operating system detection
  *

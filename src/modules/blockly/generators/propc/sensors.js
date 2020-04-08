@@ -31,8 +31,9 @@
  */
 'use strict';
 
-import Blockly from 'blockly/core.js';
-import {getDefaultProfile} from '../../../project.js';
+import Blockly from 'blockly/core';
+
+import {getDefaultProfile, getProjectInitialState} from '../../../project';
 import {colorPalette} from '../propc.js';
 
 // ---------------- Ping))) Sensor Blocks -------------------------------------
@@ -2485,11 +2486,12 @@ Blockly.propc.rfid_close = function() {
 Blockly.Blocks.sirc_get = {
   helpUrl: Blockly.MSG_SONY_REMOTE_HELPURL,
   init: function() {
+    const project = getProjectInitialState();
     this.setTooltip(Blockly.MSG_SIRC_GET_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
     this.pinChoices = ['PIN'];
     this.otherPin = [false];
-    if (window.project.boardType.name === 'heb-wx') {
+    if (project.boardType.name === 'heb-wx') {
       this.appendDummyInput()
           .appendField('Sony Remote value received');
     } else {
@@ -2507,8 +2509,9 @@ Blockly.Blocks.sirc_get = {
 };
 
 Blockly.propc.sirc_get = function() {
+  const project = getProjectInitialState();
   let pin = '0';
-  if (window.project.boardType.name === 'heb-wx') {
+  if (project.boardType.name === 'heb-wx') {
     pin = '23';
   } else if (this.otherPin[0]) {
     pin = Blockly.propc.valueToCode(this, 'PIN', Blockly.propc.ORDER_ATOMIC) || '0';

@@ -26,9 +26,10 @@
  */
 'use strict';
 
-import Blockly from 'blockly/core.js';
-import {getDefaultProfile} from '../../../project.js';
-import {colorPalette} from '../propc.js';
+import Blockly from 'blockly/core';
+
+import {getDefaultProfile} from '../../../project';
+import {colorPalette} from '../propc';
 
 /**
  * Procedures DefNoReturn

@@ -32,7 +32,7 @@
 'use strict';
 
 import Blockly from 'blockly/core.js';
-// import {getDefaultProfile} from '../../../project.js';
+
 import {colorPalette} from '../propc.js';
 
 /**
