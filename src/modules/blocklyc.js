@@ -34,6 +34,7 @@ import {propToolbarButtonController} from './toolbar_controller';
 import {getPropTerminal} from './prop_term';
 import {getProjectInitialState} from './project';
 import {isExperimental} from './url_parameters';
+import {getSourceEditor} from './code_editor';
 
 
 /**
@@ -216,7 +217,7 @@ const graph_data = {
 function renderContent(id) {
   // Get the initial project state
   const project = getProjectInitialState();
-  const codePropC = window.codePropC;
+  const codePropC = getSourceEditor();
 
   // Select the active tab.
   const selectedTab = id.replace('tab_', '');
@@ -273,7 +274,7 @@ function renderContent(id) {
       if (!isPropcOnlyProject) {
         // Load C code for Ace editor
         const rawC = prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace));
-        const codePropC = window.codePropC;
+        const codePropC = getSourceEditor();
         codePropC.setValue(rawC);
         codePropC.gotoLine(0);
       } else {
@@ -320,7 +321,7 @@ function renderContent(id) {
  */
 // eslint-disable-next-line no-unused-vars
 const formatWizard = function() {
-  const codePropC = window.codePropC;
+  const codePropC = getSourceEditor();
   const currentLine = codePropC.getCursorPosition()['row'] + 1;
   codePropC.setValue(prettyCode(codePropC.getValue()));
   codePropC.focus();
@@ -387,7 +388,8 @@ const findReplaceCode = function() {
  *  sucessful compilation
  */
 function cloudCompile(text, action, successHandler) {
-  const codePropC = window.codePropC;
+  const codePropC = getSourceEditor();
+  const project = getProjectInitialState();
   // if PropC is in edit mode, get it from the editor, otherwise render it from the blocks.
   let propcCode = '';
 
@@ -407,7 +409,7 @@ function cloudCompile(text, action, successHandler) {
     let terminalNeeded = null;
 
     // TODO: propc editor needs UI for settings for terminal and graphing
-    if (window.project.boardType.name !== 'propcfile') {
+    if (project.boardType.name !== 'propcfile') {
       const consoleBlockList = [
         'console_print', 'console_print_variables', 'console_print_multiple',
         'console_scan_text', 'console_scan_number', 'console_newline',
@@ -854,8 +856,9 @@ function graphing_console() {
  * @return {boolean} true if the appropriate graphing blocks are present and false if they are not
  */
 function getGraphSettingsFromBlocks() {
+  const project = getProjectInitialState();
   // TODO: propc editor needs UI for settings for terminal and graphing
-  if (window.project.boardType.name === 'propcfile') {
+  if (project.boardType.name === 'propcfile') {
     return false;
   }
   const graphSettingsBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_settings');
@@ -1044,6 +1047,7 @@ export const getComPort = function() {
  */
 // eslint-disable-next-line no-unused-vars,require-jsdoc
 function downloadPropC() {
+  const project = getProjectInitialState();
   const propcCode = Blockly.propc.workspaceToCode(Blockly.mainWorkspace);
   const isEmptyProject = propcCode.indexOf('EMPTY_PROJECT') > -1;
   if (isEmptyProject) {
@@ -1051,7 +1055,7 @@ function downloadPropC() {
     utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT);
   } else {
     // Make sure the filename doesn't have any illegal characters
-    const value = sanitizeFilename(window.project.boardType.name);
+    const value = sanitizeFilename(project.boardType.name);
 
     let sideFileContent = '.c\n>compiler=C\n>memtype=cmm main ram compact\n';
     sideFileContent += '>optimize=-Os\n>-m32bit-doubles\n>-fno-exceptions\n>defs::-std=c99\n';
@@ -1406,11 +1410,12 @@ function showAppName() {
  * Called on page load. Loads a Blockly project onto the editor pallet
  *
  * @param {!Blockly} blockly Instance of Blockly from iframe.
+ * @deprecated use the CodeEditor class
  */
 // eslint-disable-next-line no-unused-vars,require-jsdoc
 function initOldVersionCode(blockly) {
-  const codePropC = window.codePropC;
-
+  const codePropC = getSourceEditor();
+  const project = getProjectInitialState();
   if (!codePropC) {
     // codePropC = new CodeEditor('propcfile');
     // codePropC = ace.edit('code-propc');
@@ -1424,7 +1429,7 @@ function initOldVersionCode(blockly) {
     codePropC.setReadOnly(true);
 
     // if the project is a propc code-only project, enable code editing.
-    if (window.project.boardType.name === 'propcfile') {
+    if (project.boardType.name === 'propcfile') {
       codePropC.setReadOnly(false);
     }
   }
@@ -1438,15 +1443,15 @@ function initOldVersionCode(blockly) {
   window.Blockly = blockly;
 
   // TODO: Replace string length check with code that detects the first <block> xml element.
-  if (window.project) {
+  if (project) {
     // Looking for the first <block> XML element
     const searchTerm = '<block';
 
-    if (!window.project.code || window.project.code.indexOf(searchTerm) < 0) {
-      window.project.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
+    if (!project.code || project.code.indexOf(searchTerm) < 0) {
+      project.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
     }
-    if (window.project.boardType.name !== 'propcfile') {
-      loadToolbox(window.project.code);
+    if (project.boardType.name !== 'propcfile') {
+      loadToolbox(project.code);
     }
   }
 }

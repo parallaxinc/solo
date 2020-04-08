@@ -32,6 +32,12 @@ import 'ace-builds/src-min-noconflict/mode-javascript';
 import {isExperimental} from './url_parameters';
 import {EMPTY_PROJECT_CODE_HEADER} from './constants';
 
+/**
+ *
+ * @type {AceAjax.Editor | null}
+ */
+let cSourceCode = null;
+
 
 /**
  * Prop c code editor implementing the Ace package
@@ -61,7 +67,7 @@ class CodeEditor {
       if (boardType === 'propcfile') {
         code.setReadOnly(false);
       }
-      setPropCCode(code);
+      cSourceCode = code;
     }
 
     if (!window.codeXml && isExperimental.indexOf('xedit') > -1) {
@@ -137,6 +143,7 @@ function generateBlockId(nonce) {
 /**
  * Set the global codePropC variable
  * @param {Object} value
+ * @deprecated - do not use!
  */
 function setPropCCode(value) {
   window.codePropC = value;
@@ -146,9 +153,19 @@ function setPropCCode(value) {
 /**
  *
  * @param {object} value
+ * @deprecated Do Not Use!
  */
 function setPropCodeXml(value) {
   window.codeXml = value;
 }
 
-export {CodeEditor, propcAsBlocksXml, setPropCCode};
+
+/**
+ * Return the active Ace code editor instance
+ * @return {AceAjax.Editor}
+ */
+function getSourceEditor() {
+  return cSourceCode;
+}
+
+export {CodeEditor, propcAsBlocksXml, setPropCCode, getSourceEditor};

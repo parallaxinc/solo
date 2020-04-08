@@ -281,7 +281,7 @@ $(() => {
       });
 
       // Create an instance of the CodeEditor class
-      codeEditor = new CodeEditor(localProject.boardType);
+      codeEditor = new CodeEditor(localProject.boardType.name);
       if (!codeEditor) {
         console.log('Error allocating CodeEditor object');
       }
