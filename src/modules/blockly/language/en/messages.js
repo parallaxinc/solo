@@ -22,16 +22,52 @@
 
 /**
  * @fileoverview English strings.
- * @author fraser@google.com (Neil Fraser)
+ * @description Due to the frequency of long strings, the 80-column wrap
+ * rule need not apply to message files.
  */
+
 'use strict';
 
 import Blockly from 'blockly/core';
+// import 'blockly/blocks';
+// import 'blockly/javascript';
 
-/**
- * Due to the frequency of long strings, the 80-column wrap rule need not apply
- * to message files.
+
+// eslint-disable-next-line camelcase
+const toolbox_label = [];
+
+/*
+ *  Embedded UI messages
  */
+// eslint-disable-next-line camelcase
+const page_text_label = [];
+
+
+// ------------------------------------------------------------------
+// Text for the balloon help that appears when the cursor hovers
+// over a button in the editor toolbar. The buttons are initialized
+// in the editor.js file.
+// ------------------------------------------------------------------
+// eslint-disable-next-line camelcase
+const tooltip_text = [
+  ['prop-btn-comp', 'Verify code (compile)'],
+  ['prop-btn-ram', 'Run once (load code to RAM)'],
+  ['prop-btn-eeprom', 'Load and run (save code to EEPROM)'],
+  ['prop-btn-term', 'Open Serial Terminal'],
+  ['prop-btn-graph', 'Open Graphing Output'],
+  ['prop-btn-find-replace', 'Find/Replace'],
+  ['prop-btn-pretty', 'Beautify Code'],
+  ['prop-btn-undo', 'Undo'],
+  ['prop-btn-redo', 'Redo'],
+  ['btn-graph-play', 'Pause/Resume the graph'],
+  ['btn-graph-snapshot', 'Download a snapshot of the graph'],
+  ['btn-graph-csv', 'Download graph data as CSV'],
+  ['btn-graph-clear', 'Clear the graph'],
+  ['project-form-shared', 'Make project visible to other users'],
+  ['project-form-private', 'Hide project from other users'],
+  ['project-form-edit-shared', 'Make project visible to other users'],
+  ['project-form-edit-private', 'Hide project from other users'],
+];
 
 // Context menus.
 Blockly.MSG_DUPLICATE_BLOCK = 'Duplicate';
@@ -49,7 +85,6 @@ Blockly.MSG_HELP = 'Help';
 
 // Editor dialogs.
 Blockly.Msg.DIALOG_CLEAR_WORKSPACE = 'Clear Workspace';
-// eslint-disable-next-line max-len
 Blockly.Msg.DIALOG_CLEAR_WORKSPACE_WARNING = 'Are you sure you want to clear your workspace?  This action cannot be undone!';
 Blockly.Msg.DIALOG_CHANGED_SINCE = 'The project has been changed since the last save.';
 Blockly.Msg.DIALOG_PROJECT_SAVED = 'Project saved';
@@ -83,6 +118,7 @@ Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT = 'Simulated graph because there 
 Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES = 'No connection established.';
 Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED = 'Connection established with';
 Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE = 'at baudrate';
+
 
 // Variable renaming.
 Blockly.MSG_CHANGE_VALUE_TITLE = 'Change value:';
@@ -213,24 +249,39 @@ Blockly.Msg.VARIABLES_GET_CREATE_SET = 'Create \'set %1\'';
 Blockly.Msg.VARIABLES_SET = 'set %1 to %2';
 Blockly.Msg.VARIABLES_SET_CREATE_GET = 'Create \'get %1\'';
 Blockly.Msg.PROCEDURES_DEFRETURN_TITLE = Blockly.Msg.PROCEDURES_DEFNORETURN_TITLE;
-Blockly.Msg.CONTROLS_IF_IF_TITLE_IF = Blockly.Msg.CONTROLS_IF_MSG_IF;
-Blockly.Msg.CONTROLS_WHILEUNTIL_INPUT_DO = Blockly.Msg.CONTROLS_REPEAT_INPUT_DO;
-Blockly.Msg.CONTROLS_IF_MSG_THEN = Blockly.Msg.CONTROLS_REPEAT_INPUT_DO;
-Blockly.Msg.CONTROLS_IF_ELSE_TITLE_ELSE = Blockly.Msg.CONTROLS_IF_MSG_ELSE;
+
+// Blockly.Msg.CONTROLS_IF_MSG_IF
+Blockly.Msg.CONTROLS_IF_IF_TITLE_IF = Blockly.LANG_CONTROLS_IF_MSG_IF;
+
+// Blockly.Msg.CONTROLS_REPEAT_INPUT_DO
+Blockly.Msg.CONTROLS_WHILEUNTIL_INPUT_DO = Blockly.LANG_CONTROLS_REPEAT_INPUT_DO;
+
+// Blockly.Msg.CONTROLS_REPEAT_INPUT_DO
+Blockly.Msg.CONTROLS_IF_MSG_THEN = Blockly.LANG_CONTROLS_REPEAT_INPUT_DO;
+
+// Blockly.Msg.CONTROLS_IF_MSG_ELSE
+Blockly.Msg.CONTROLS_IF_ELSE_TITLE_ELSE = Blockly.LANG_CONTROLS_IF_MSG_ELSE;
 Blockly.Msg.PROCEDURES_DEFRETURN_PROCEDURE = Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE;
 Blockly.Msg.MATH_CHANGE_TITLE_ITEM = Blockly.Msg.VARIABLES_DEFAULT_NAME;
 Blockly.Msg.MATH_NUMBER_RANGE_TOO_LARGE_WARNING = 'WARNING: Your value is too small!  It must be greater than or equal to ';
 Blockly.Msg.MATH_NUMBER_RANGE_TOO_SMALL_WARNING = 'WARNING: Your value is too large!  It must be less than or equal to ';
 Blockly.Msg.MATH_NUMBER_RANGE_VALUE_INVALID_WARNING = 'WARNING: The value you entered is not available or not allowed!';
 Blockly.Msg.PROCEDURES_DEFRETURN_DO = Blockly.Msg.PROCEDURES_DEFNORETURN_DO;
-Blockly.Msg.CONTROLS_IF_ELSEIF_TITLE_ELSEIF = Blockly.Msg.CONTROLS_IF_MSG_ELSEIF;
-Blockly.Msg.CONTROLS_FOREACH_INPUT_DO = Blockly.Msg.CONTROLS_REPEAT_INPUT_DO;
-Blockly.Msg.CONTROLS_FOR_INPUT_DO = Blockly.Msg.CONTROLS_REPEAT_INPUT_DO;
+
+// Blockly.Msg.CONTROLS_IF_MSG_ELSEIF
+Blockly.Msg.CONTROLS_IF_ELSEIF_TITLE_ELSEIF = Blockly.LANG_CONTROLS_IF_MSG_ELSEIF;
+
+// Blockly.Msg.CONTROLS_REPEAT_INPUT_DO
+Blockly.Msg.CONTROLS_FOREACH_INPUT_DO = Blockly.LANG_CONTROLS_REPEAT_INPUT_DO;
+
+// Blockly.Msg.CONTROLS_REPEAT_INPUT_DO
+Blockly.Msg.CONTROLS_FOR_INPUT_DO = Blockly.LANG_CONTROLS_REPEAT_INPUT_DO;
 Blockly.Msg.TEXT_APPEND_VARIABLE = Blockly.Msg.VARIABLES_DEFAULT_NAME;
 Blockly.Msg.TEXT_CREATE_JOIN_ITEM_TITLE_ITEM = Blockly.Msg.VARIABLES_DEFAULT_NAME;
 Blockly.Msg.PROCEDURES_DEFRETURN_COMMENT = Blockly.Msg.PROCEDURES_DEFNORETURN_COMMENT;
 
-Blockly.DROPDOWN_MULTIPLIER = [['1', '1'],
+Blockly.DROPDOWN_MULTIPLIER = [
+  ['1', '1'],
   ['10', '10'],
   ['100', '100'],
   ['1000', '1000'],
@@ -669,9 +720,8 @@ Blockly.MSG_S3_SERIAL_SEND_CTRL_TOOLTIP = 'send control character: send a specia
 Blockly.MSG_S3_SERIAL_CURSOR_XY_TOOLTIP = 'set cursor position: set the cursor position in the terminal';
 Blockly.MSG_S3_SERIAL_RX_BYTE_TOOLTIP = 'receive character: receive a character from the serial port';
 Blockly.MSG_S3_FACTORY_RESET_TOOLTIP = 'factory reset: use to reload the factory default demo program back onto the Scribbler';
+Blockly.MSG_S3_ERROR_NO_WAS_CONDITION = 'WARNING: "was" ans "was not" conditions have been deprecated.\nPlease choose "is" or "is not".\nUse a variable block to keep track of the state of this sensor instead.';
 
-// eslint-disable-next-line camelcase
-const toolbox_label = [];
 toolbox_label['category_control'] = 'Control';
 toolbox_label['category_operators'] = 'Operators';
 toolbox_label['category_system'] = 'System';
@@ -770,14 +820,8 @@ toolbox_label['category_s3-hacker-port_sensors'] = 'Sensors';
 toolbox_label['category_s3-hacker-port_pins'] = 'Pins';
 toolbox_label['category_s3-hacker-port_servo'] = 'Servo';
 
-/*
- *  Embedded UI messages
- */
-// eslint-disable-next-line camelcase
-const page_text_label = [];
-
 page_text_label['back'] = 'Back';
-page_text_label['browser_detection_ms_warning'] = 'WARNING: You appear to be using MS Edge or Internet Explorer as your web browser.  BlocklyProp is not currently compatible with these browsers.  Please use Chrome or Firefox instead.';
+page_text_label['browser_detection_ms_warning'] = 'WARNING: You appear to be using MS Edge or Internet Explorer as your web browser.BlocklyProp is not currently compatible with these browsers.  Please use Chrome or Firefox instead.';
 page_text_label['cancel'] = 'Cancel';
 page_text_label['client_chrome_run_instructions1'] = 'Click the App icon (circle) in the bottom-left corner of the screen.  Find the BlocklyProp Launcher app and double-click it:';
 page_text_label['client_chrome_run_title'] = 'Running the BlocklyProp Launcher on your Chromebook';
@@ -805,7 +849,7 @@ page_text_label['clientdownload_os_menu'] = 'Choose a different operating system
 page_text_label['clientdownload_showall'] = 'Show clients for all operating systems';
 page_text_label['clientdownload_title'] = 'BlocklyProp Launcher';
 
-/* BP Client dialog messages */
+// BP Client dialog messages
 page_text_label['client_unknown'] = 'BlocklyProp is unable to determine what version of BlocklyProp Launcher is installed on your computer.<br>You may need to install or reinstall the BlocklyProp Launcher.';
 page_text_label['client_update_warning'] = 'BlocklyProp Solo requires BlocklyProp Launcher version <span class="client-required-version"></span>, or later.<br><br>The version detected on your system, BlocklyProp Client version <span class="client-your-version"></span> may not work<br>correctly with Solo. We recommend downloading and installing the latest software for<br>best results. You can use the link below to get started.';
 page_text_label['client_update_danger'] = 'BlocklyProp now requires at least version <span class="client-required-version"></span> of BlocklyProp Launcher.<br>You appear to be using BlocklyProp Launcher version <span class="client-your-version"></span>.<br>You will not be able to load projects to your device until you upgrade your BlocklyProp Launcher.<br>Please use the link below to download the newest version.';
@@ -822,9 +866,7 @@ page_text_label['confirm_request_submit'] = 'Request';
 page_text_label['confirm_request_title'] = 'Email confirm request';
 page_text_label['confirm_requested'] = 'Please check your email';
 
-/*
- * Editor canvas messages
- */
+// Editor canvas messages
 page_text_label['editor_button_append'] = 'Append';
 page_text_label['editor_button_cancel'] = 'Cancel';
 page_text_label['editor_button_open'] = 'Open';
@@ -896,9 +938,7 @@ page_text_label['footer_librarieslink'] = 'External libraries';
 page_text_label['footer_licenselink'] = 'License';
 page_text_label['footer_releases'] = 'Releases';
 
-/*
- * Help system links
- */
+// Help system links
 page_text_label['help_invalid-path'] = 'Invalid help file';
 page_text_label['help_link_contest-ideas'] = 'http://learn.parallax.com/educators/contest/home';
 page_text_label['help_link_educator-resources_activity-board'] = 'http://learn.parallax.com';
@@ -1113,32 +1153,6 @@ page_text_label['register_error_screenname_used'] = 'Screen name already in use'
 page_text_label['register_error_sponsor_email_empty'] = 'Please enter a sponsor email address. Ask a parent or teacher if you can use their email address';
 page_text_label['register_error_sponsor_email_format_error'] = 'The sponsor email address is not formatted correctly';
 page_text_label['register_error_user_email_empty'] = 'Please enter your email address';
-
-// ------------------------------------------------------------------
-// Text for the balloon help that appears when the cursor hovers
-// over a button in the editor toolbar. The buttons are initialized
-// in the editor.js file.
-// ------------------------------------------------------------------
-// eslint-disable-next-line camelcase
-const tooltip_text = [
-  ['prop-btn-comp', 'Verify code (compile)'],
-  ['prop-btn-ram', 'Run once (load code to RAM)'],
-  ['prop-btn-eeprom', 'Load and run (save code to EEPROM)'],
-  ['prop-btn-term', 'Open Serial Terminal'],
-  ['prop-btn-graph', 'Open Graphing Output'],
-  ['prop-btn-find-replace', 'Find/Replace'],
-  ['prop-btn-pretty', 'Beautify Code'],
-  ['prop-btn-undo', 'Undo'],
-  ['prop-btn-redo', 'Redo'],
-  ['btn-graph-play', 'Pause/Resume the graph'],
-  ['btn-graph-snapshot', 'Download a snapshot of the graph'],
-  ['btn-graph-csv', 'Download graph data as CSV'],
-  ['btn-graph-clear', 'Clear the graph'],
-  ['project-form-shared', 'Make project visible to other users'],
-  ['project-form-private', 'Hide project from other users'],
-  ['project-form-edit-shared', 'Make project visible to other users'],
-  ['project-form-edit-private', 'Hide project from other users'],
-];
 
 
 // If online, return the full help URL, if offline, open a modal

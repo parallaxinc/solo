@@ -30,6 +30,11 @@ import {Project} from './project.js';
  * @constructor
  */
 const propToolbarButtonController = (connected) => {
+  if (!Project.getProjectState()) {
+    disableButtons();
+    return;
+  }
+
   // if (projectData && projectData.board === 's3') {
   if (Project.getProjectState() &&
       Project.getProjectState().boardType.name === 's3') {
@@ -68,12 +73,19 @@ const propToolbarButtonController = (connected) => {
          */
     $('.client-action').removeClass('disabled');
   } else {
-    // Disable the toolbar buttons
-    $('#client-unavailable').removeClass('hidden');
-    $('#client-available').addClass('hidden');
-    $('#client-available-short').addClass('hidden');
-    $('.client-action').addClass('disabled');
+    disableButtons();
   }
 };
+
+/**
+ * Disable the toolbar buttons
+ */
+function disableButtons() {
+  // Disable the toolbar buttons
+  $('#client-unavailable').removeClass('hidden');
+  $('#client-available').addClass('hidden');
+  $('#client-available-short').addClass('hidden');
+  $('.client-action').addClass('disabled');
+}
 
 export {propToolbarButtonController};

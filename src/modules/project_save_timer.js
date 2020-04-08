@@ -37,7 +37,7 @@
  *
  * @type {number}
  */
-const SAVE_PROJECT_TIMER_DELAY = 2;
+const SAVE_PROJECT_TIMER_DELAY = 10;
 
 /**
  * Call this message handler when the timer expires

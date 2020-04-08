@@ -20,17 +20,21 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+
+import 'bootstrap/js/modal';
+import 'jquery-validation';
+
 import {
   LOCAL_PROJECT_STORE_NAME,
   TEMP_PROJECT_STORE_NAME,
 } from './constants.js';
 
 import {
-  isProjectChanged, resetToolBoxSizing, displayProjectName,
+  createNewProject, isProjectChanged, resetToolBoxSizing, displayProjectName,
 } from './editor.js';
 
 import {isExperimental} from './url_parameters.js';
-import {getProjectInitialState} from './project.js';
+import {getProjectInitialState, ProjectProfiles} from './project.js';
 
 // eslint-disable-next-line camelcase
 import {page_text_label} from './blockly/language/en/messages.js';
@@ -527,12 +531,13 @@ function setEditOfflineProjectDetailsCancelHandler() {
  *
  */
 function initUploadModalLabels() {
-  // set the upload modal's title to "import" if offline
-  $('#upload-dialog-title').html(page_text_label['editor_import']);
-  $('#upload-project span').html(page_text_label['editor_import']);
+  // set the upload modal's title to "import"
+  const label = page_text_label['editor_import'];
+  $('#upload-dialog-title').html(label);
+  $('#upload-project span').html(label);
 
   // Hide the save-as button.
-  $('#save-project-as, save-as-btn').addClass('hidden');
+  $('#save-project-as, #save-as-btn').addClass('hidden');
 
   disableUploadDialogButtons();
 }
@@ -576,8 +581,8 @@ function populateProjectBoardTypesUIElement(element, selected = null) {
     // then populate the dropdown with the board types
     // defined in propc.js in the 'profile' object
     // (except 'default', which is where the current project's type is stored)
-    for (const boardTypes in profile) {
-      if (Object.prototype.hasOwnProperty.call(profile, boardTypes)) {
+    for (const boardTypes in ProjectProfiles) {
+      if (Object.prototype.hasOwnProperty.call(ProjectProfiles, boardTypes)) {
         if (boardTypes !== 'default') {
           // Use the experimental tag to show code-only view
           if (boardTypes !== 'propcfile' ||
@@ -585,7 +590,7 @@ function populateProjectBoardTypesUIElement(element, selected = null) {
                   isExperimental.indexOf('propc') > -1)) {
             element.append($('<option />')
                 .val(boardTypes)
-                .text(profile[boardTypes].description));
+                .text(ProjectProfiles[boardTypes].description));
           }
         }
 

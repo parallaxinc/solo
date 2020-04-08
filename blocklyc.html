@@ -68,19 +68,20 @@
             crossorigin="anonymous">
     </script>
 
+    <!--
     <script type="text/javascript" src="src/lib/chartist.min.js" defer></script>
+
     <script type="text/javascript" src="src/lib/jquery-1.11.3.min.js" defer></script>
     <script type="text/javascript" src="src/lib/jquery.validate.min.js" defer></script>
 
-    <!--
     <script type="text/javascript" src="src/lib/beautify.js" defer></script>
-    -->
 
     <script type="text/javascript" src="src/lib/bootstrap/core/js/bootstrap.min.js" defer></script>
     <script type="text/javascript" src="src/lib/bootstrap/plugins/bootbox.min.js" defer></script>
     <script type="text/javascript" src="src/lib/ace/ace.js" defer></script>
     <script type="text/javascript" src="src/lib/FileSaver.min.js" defer></script>
     <script type="text/javascript" src="src/lib/jszip.min.js" defer></script>
+    -->
 
     <!-- Javascript helpers -->
     <!--
@@ -94,9 +95,11 @@
     -->
 
     <!-- Blockly core/PropC generator -->
+    <!--
     <script type="text/javascript" src="src/lib/blockly/blockly_compressed.js" defer></script>
     <script type="text/javascript" src="src/blockly/generators/propc.js" defer></script>
     <script type="text/javascript" src="src/blockly/generators/field_ace.js" defer></script>
+    -->
 
     <!-- Internationalization text strings -->
     <!--
@@ -104,9 +107,12 @@
     -->
 
     <!-- Block Menu/Toolbox -->
+    <!--
     <script type="text/javascript" src="src/blockly/generators/propcToolbox.js" defer></script>
+    -->
 
     <!-- Block definitions -->
+    <!--
     <script type="text/javascript" src="src/blockly/generators/propc/base.js" defer></script>
     <script type="text/javascript" src="src/blockly/generators/propc/control.js" defer></script>
     <script type="text/javascript" src="src/blockly/generators/propc/variables.js" defer></script>
@@ -116,7 +122,7 @@
     <script type="text/javascript" src="src/blockly/generators/propc/sensors.js" defer></script>
     <script type="text/javascript" src="src/blockly/generators/propc/heb.js" defer></script>
     <script type="text/javascript" src="src/blockly/generators/propc/s3.js" defer></script>
-
+    -->
     <!-- Module Conversion -->
     <script type="module" src="dist/editor.bundle.js" defer></script>
 
@@ -205,10 +211,12 @@
                     </a>
 
                     <!-- Find and replace - propc project type -->
+                    <!-- deprecated
                     <a id="prop-btn-find-replace" class="btn btn-info btn-circle propc-only hidden" title=""
                     data-toggle="tooltip" data-placement="bottom">
                         <span class="bpIcon" data-icon="searchWhite">&#x1F50E;</span>
                     </a>
+                    -->
 
                     <!-- Clean up source code -->
                     <a id="prop-btn-pretty" class="btn btn-info btn-circle propc-only hidden" title=""
@@ -323,6 +331,7 @@
     </div>
 
     <!-- PropC native coding toolbar -->
+    <!-- Deprecated
     <div id="find-replace" style="background-color: #ddd; display: none; padding: 5px;">
         <span class="keyed-lang-string indent-left-double" data-key="editor_find_label"></span>
         <input type="text" class="input-find-replace" id="propc-find" name="propc-find" />&nbsp;
@@ -334,6 +343,7 @@
             data-key="editor_replace"></button>
         <button id="find-replace-close" class="close margin-left-double">&times;</button>
     </div>
+    -->
 
     <!-- Blockly canvas -->
     <div id="content">

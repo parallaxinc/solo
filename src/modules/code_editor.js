@@ -20,8 +20,23 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+// import * as ace from 'ace-builds/src-noconflict/ace.js';
+// Load Ace Editor
+import 'ace-builds/src-min-noconflict/ace';
+
+// Import initial theme and mode so we don't have to wait
+// for 2 extra HTTP requests
+import 'ace-builds/src-min-noconflict/theme-chrome';
+import 'ace-builds/src-min-noconflict/mode-javascript';
+
 import {isExperimental} from './url_parameters';
 import {EMPTY_PROJECT_CODE_HEADER} from './constants';
+
+/**
+ *
+ * @type {AceAjax.Editor | null}
+ */
+let cSourceCode = null;
 
 
 /**
@@ -34,6 +49,13 @@ class CodeEditor {
    */
   constructor(boardType) {
     if (!window.codePropC) {
+      // cdnjs didn't have a "no-conflict" version, so we'll use jsdelivr
+      const CDN = 'https://cdn.jsdelivr.net/npm/ace-builds@1.3.3/src-min-noconflict';
+
+      // Now we tell ace to use the CDN locations to look for files
+      ace.config.set('basePath', CDN);
+
+      // Link to the div in blocklyc.html
       const code = ace.edit('code-propc');
       code.setTheme('ace/theme/chrome');
       code.getSession().setMode('ace/mode/c_cpp');
@@ -45,7 +67,7 @@ class CodeEditor {
       if (boardType === 'propcfile') {
         code.setReadOnly(false);
       }
-      setPropCCode(code);
+      cSourceCode = code;
     }
 
     if (!window.codeXml && isExperimental.indexOf('xedit') > -1) {
@@ -121,6 +143,7 @@ function generateBlockId(nonce) {
 /**
  * Set the global codePropC variable
  * @param {Object} value
+ * @deprecated - do not use!
  */
 function setPropCCode(value) {
   window.codePropC = value;
@@ -130,9 +153,19 @@ function setPropCCode(value) {
 /**
  *
  * @param {object} value
+ * @deprecated Do Not Use!
  */
 function setPropCodeXml(value) {
   window.codeXml = value;
 }
 
-export {CodeEditor, propcAsBlocksXml, setPropCCode};
+
+/**
+ * Return the active Ace code editor instance
+ * @return {AceAjax.Editor}
+ */
+function getSourceEditor() {
+  return cSourceCode;
+}
+
+export {CodeEditor, propcAsBlocksXml, setPropCCode, getSourceEditor};
