@@ -21,7 +21,7 @@
  */
 
 import * as ace from 'ace-builds/src-noconflict/ace';
-import * as Blockly from 'blockly/core';
+import Blockly from 'blockly/core';
 import * as Chartist from 'chartist';
 import * as jsBeautify from 'js-beautify';
 import * as JSZip from 'jszip';

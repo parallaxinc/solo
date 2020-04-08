@@ -31,10 +31,9 @@
  */
 'use strict';
 
-// Init a new Blocks object if one does not already exist
-if (!Blockly.Blocks) {
-  Blockly.Blocks = {};
-}
+import Blockly from 'blockly/core.js';
+// import {getDefaultProfile} from '../../../project.js';
+import {colorPalette} from '../propc.js';
 
 /**
  *

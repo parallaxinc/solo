@@ -22,67 +22,57 @@
 
 
 // import * as Blockly from 'blockly/core';
-import Blockly from 'blockly/core.js';
+// import Blockly from 'blockly/core.js';
+import Blockly from 'blockly/core';
 
-// import 'blockly/blocks';
-import * as En from 'blockly/msg/en.js';
-
-import './blockly/language/en/messages.js';
-import './blockly/generators/propc.js';
-import './blockly/generators/propc/base.js';
-import './blockly/generators/propc/communicate.js';
-import './blockly/generators/propc/gpio.js';
-import './blockly/generators/propc/sensors.js';
+// eslint-disable-next-line camelcase
+import {page_text_label, tooltip_text} from './blockly/language/en/messages';
+import './blockly/generators/propc';
+import './blockly/generators/propc/base';
+import './blockly/generators/propc/base';
+import './blockly/generators/propc/communicate';
+import './blockly/generators/propc/control';
+import './blockly/generators/propc/gpio';
+import './blockly/generators/propc/heb';
+import './blockly/generators/propc/procedures';
+import './blockly/generators/propc/s3';
+import './blockly/generators/propc/sensors';
+import './blockly/generators/propc/variables';
 
 import {saveAs} from 'file-saver';
-// import $ from 'jquery';
-// window.jQuery = $;
-// window.$ = $;
 
 import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
   PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName, TestApplicationName,
   productBannerHostTrigger,
-} from './constants.js';
+} from './constants';
 
 
 import {
   clientService, compile, getComPort, loadInto, renderContent, downloadCSV,
   initializeBlockly, sanitizeFilename,
-} from './blocklyc.js';
+} from './blocklyc';
 
 import {CodeEditor, propcAsBlocksXml} from './code_editor.js';
 
 import {
   editProjectDetails, newProjectModal, openProjectModal, initUploadModalLabels,
-} from './modals.js';
+} from './modals';
 
 import {
   Project, getProjectInitialState, setProjectInitialState,
   setDefaultProfile,
   ProjectTypes,
   clearProjectInitialState, projectJsonFactory,
-} from './project.js';
+} from './project';
 
-import {ProjectSaveTimer} from './project_save_timer.js';
-import {PropTerm} from './prop_term.js';
-import {propToolbarButtonController} from './toolbar_controller.js';
-import {filterToolbox} from './toolbox_data.js';
-import {isExperimental} from './url_parameters.js';
-import {buildDefaultProjectFile} from './project_default.js';
-import {utils} from './utility.js';
-import {
-// eslint-disable-next-line camelcase
-  initLanguage, page_text_label, tooltip_text,
-} from './blockly/language/en/messages.js';
-
-
-/**
- * Uploaded project XML code
- *
- * @type {string | null}
- */
-// let uploadedXML = null;
+import {ProjectSaveTimer} from './project_save_timer';
+import {PropTerm} from './prop_term';
+import {propToolbarButtonController} from './toolbar_controller';
+import {filterToolbox} from './toolbox_data';
+import {isExperimental} from './url_parameters';
+import {buildDefaultProjectFile} from './project_default';
+import {utils} from './utility';
 
 /**
  * The call to Blockly.svgResize() requires a reference to the
@@ -104,7 +94,6 @@ const CDN_URL = $('meta[name=cdn]').attr('content');
  * @type {CodeEditor | null}
  */
 let codeEditor = null;
-
 
 /**
  * WIP - TODO: generate svg icons and inject them (search for glyphicon
@@ -177,7 +166,6 @@ const bpIcons = {
   cameraWhite: '<svg width="14" height="15"><path d="M1.5,13.5 L.5,12.5 .5,5.5 1.5,4.5 2.5,4.5 4,3 7,3 8.5,4.5 12.5,4.5 13.5,5.5 13.5,12.5 12.5,13.5 Z M 2,9 A 4,4,0,0,0,10,9 A 4,4,0,0,0,2,9 Z M 4.5,9 A 1.5,1.5,0,0,0,7.5,9 A 1.5,1.5,0,0,0,4.5,9 Z M 10.5,6.5 A 1,1,0,0,0,13.5,6.5 A 1,1,0,0,0,10.5,6.5 Z" style="stroke:#fff;stroke-width:1;fill:#fff;" fill-rule="evenodd"/></svg>',
 };
 
-
 /**
  * Getter for the current WorkspaceSvg object
  * @return {Blockly.WorkspaceSvg | null}
@@ -185,9 +173,6 @@ const bpIcons = {
 function getWorkspaceSvg() {
   return injectedBlocklyWorkspace;
 }
-
-// Set the Blockly core language file
-Blockly.setLocale(En);
 
 /**
  * Execute this code as soon as the DOM becomes ready.
@@ -249,7 +234,6 @@ $(() => {
     }
   });
 
-  initLanguage('en');
   initInternationalText();
   initEditorIcons();
   initEventHandlers();

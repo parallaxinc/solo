@@ -61,6 +61,7 @@ Blockly.Blocks.sensor_ping = {
           ['\u00B5s', ''],
         ]),
         'UNIT');
+    // Mutation. Use a variable to identify the pir
     this.pinChoices = ['PIN'];
     this.otherPin = [false];
     this.addPinMenu('PIN', null, 0);
@@ -106,7 +107,9 @@ Blockly.Blocks.sensor_ping = {
   mutationToDom: function() {
     const container = document.createElement('mutation');
     for (let pinOpt = 0; pinOpt < this.pinChoices.length; pinOpt++) {
-      container.setAttribute('otherpin' + pinOpt, this.otherPin[pinOpt]);
+      // TODO: verify that otherPin is in fact a boolean
+      container.setAttribute('otherpin' +
+          pinOpt, this.otherPin[pinOpt].toString());
     }
     return container;
   },
@@ -120,10 +123,15 @@ Blockly.Blocks.sensor_ping = {
   },
 };
 
+/**
+ *
+ * @return {[string, number]}
+ */
 Blockly.propc.sensor_ping = function() {
   let pin = '0';
   if (this.otherPin[0]) {
-    pin = Blockly.propc.valueToCode(this, this.pinChoices[0], Blockly.propc.ORDER_ATOMIC) || '0';
+    pin = Blockly.propc.valueToCode(
+        this, this.pinChoices[0], Blockly.propc.ORDER_ATOMIC) || '0';
   } else {
     pin = this.getFieldValue(this.pinChoices[0]);
   }
@@ -137,7 +145,8 @@ Blockly.propc.sensor_ping = function() {
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
-// ---------------- 2-axis Joystick Blocks -------------------------------------
+// ---------------- 2-axis Joystick Blocks -----------------------------------
+
 /**
  * Joystick Y Axis Input
  * @type {{
@@ -165,21 +174,37 @@ Blockly.Blocks.joystick_input_yaxis = {
   },
 };
 
+/**
+ *
+ * @return {[string, number]}
+ */
 Blockly.propc.joystick_input_yaxis = function() {
-  const pin_number = this.getFieldValue('PIN' + this.chan[1]);
+  const pinNumber = this.getFieldValue('PIN' + this.chan[1]);
 
   if (!this.disabled) {
     Blockly.propc.definitions_['include abvolts'] = '#include "abvolts.h"';
   }
 
-  const code = 'ad_in(' + pin_number + ') * 100 / 4096';
+  const code = 'ad_in(' + pinNumber + ') * 100 / 4096';
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
 Blockly.Blocks.joystick_input_xaxis = Blockly.Blocks.joystick_input_yaxis;
 Blockly.propc.joystick_input_xaxis = Blockly.propc.joystick_input_yaxis;
 
-// ---------------- PIR Sensor Blocks ------------------------------------------
+// ---------------- PIR Sensor Blocks ----------------------------------------
+
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.PIR_Sensor.init,
+ *  addPinMenu: *,
+ *  mutationToDom: *,
+ *  helpUrl: string,
+ *  setToOther: *,
+ *  domToMutation: *
+ * }}
+ */
 Blockly.Blocks.PIR_Sensor = {
   helpUrl: Blockly.MSG_PIR_HELPURL,
   init: function() {
@@ -199,8 +224,14 @@ Blockly.Blocks.PIR_Sensor = {
   setToOther: Blockly.Blocks['sensor_ping'].setToOther,
 };
 
+/**
+ *
+ * @return {[string, number]}
+ * @constructor
+ */
 Blockly.propc.PIR_Sensor = function() {
   let pin = '0';
+
   if (this.otherPin[0]) {
     pin = Blockly.propc.valueToCode(this, this.pinChoices[0], Blockly.propc.ORDER_ATOMIC) || '0';
   } else {
