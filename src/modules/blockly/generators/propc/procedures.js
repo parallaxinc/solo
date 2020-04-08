@@ -526,7 +526,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
       return;
     }
     if (paramIds.length != paramNames.length) {
-      throw RangeError('paramNames and paramIds must be the same length.');
+      throw new RangeError('paramNames and paramIds must be the same length.');
     }
     this.setCollapsed(false);
     if (!this.quarkIds_) {
@@ -538,13 +538,13 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     const savedRendered = this.rendered;
     this.rendered = false;
     // Update the quarkConnections_ with existing connections.
-    for (var i = 0; i < this.arguments_.length; i++) {
+    for (let i = 0; i < this.arguments_.length; i++) {
       const input = this.getInput('ARG' + i);
       if (input) {
-        var connection = input.connection.targetConnection;
+        const connection = input.connection.targetConnection;
         this.quarkConnections_[this.quarkIds_[i]] = connection;
         if (mutatorOpen && connection &&
-            paramIds.indexOf(this.quarkIds_[i]) == -1) {
+            paramIds.indexOf(this.quarkIds_[i]) === -1) {
           // This connection should no longer be attached to this block.
           connection.disconnect();
           connection.getSourceBlock().bumpNeighbours_();
@@ -555,7 +555,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     this.arguments_ = [].concat(paramNames);
     // And rebuild the argument model list.
     this.argumentVarModels_ = [];
-    for (var i = 0; i < this.arguments_.length; i++) {
+    for (let i = 0; i < this.arguments_.length; i++) {
       const variable = Blockly.Variables.getOrCreateVariablePackage(
           this.workspace, null, this.arguments_[i], '');
       this.argumentVarModels_.push(variable);
@@ -565,10 +565,10 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     this.quarkIds_ = paramIds;
     // Reconnect any child blocks.
     if (this.quarkIds_) {
-      for (var i = 0; i < this.arguments_.length; i++) {
+      for (let i = 0; i < this.arguments_.length; i++) {
         const quarkId = this.quarkIds_[i];
         if (quarkId in this.quarkConnections_) {
-          var connection = this.quarkConnections_[quarkId];
+          const connection = this.quarkConnections_[quarkId];
           if (!Blockly.Mutator.reconnect(connection, this, 'ARG' + i)) {
             // Block no longer exists or has been attached elsewhere.
             delete this.quarkConnections_[quarkId];
@@ -588,7 +588,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
    * @this Blockly.Block
    */
   updateShape_: function() {
-    for (var i = 0; i < this.arguments_.length; i++) {
+    for (let i = 0; i < this.arguments_.length; i++) {
       let field = this.getField('ARGNAME' + i);
       if (field) {
         // Ensure argument name is up to date.
@@ -619,7 +619,8 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     if (topRow) {
       if (this.arguments_.length) {
         if (!this.getField('WITH')) {
-          topRow.appendField(Blockly.Msg['PROCEDURES_CALL_BEFORE_PARAMS'], 'WITH');
+          topRow.appendField(
+              Blockly.Msg['PROCEDURES_CALL_BEFORE_PARAMS'], 'WITH');
           topRow.init();
         }
       } else {
@@ -654,8 +655,8 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     this.renameProcedure(this.getProcedureCall(), name);
     const args = [];
     const paramIds = [];
-    for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
-      if (childNode.nodeName.toLowerCase() == 'arg') {
+    for (let i = 0, childNode; (childNode = xmlElement.childNodes[i]); i++) {
+      if (childNode.nodeName.toLowerCase() === 'arg') {
         args.push(childNode.getAttribute('name'));
         paramIds.push(childNode.getAttribute('paramId'));
       }
@@ -700,8 +701,8 @@ Blockly.Blocks['procedures_callnoreturn'] = {
       // Look for the case where a procedure call was created (usually through
       // paste) and there is no matching definition.  In this case, create
       // an empty definition block with the correct signature.
-      var name = this.getProcedureCall();
-      var def = Blockly.Procedures.getDefinition(name, this.workspace);
+      const name = this.getProcedureCall();
+      let def = Blockly.Procedures.getDefinition(name, this.workspace);
       if (def && (def.type != this.defType_ ||
           JSON.stringify(def.arguments_) != JSON.stringify(this.arguments_))) {
         // The signatures don't match.
@@ -742,24 +743,27 @@ Blockly.Blocks['procedures_callnoreturn'] = {
       // Look for the case where a procedure definition has been deleted,
       // leaving this block (a procedure call) orphaned.  In this case, delete
       // the orphan.
-      var name = this.getProcedureCall();
-      var def = Blockly.Procedures.getDefinition(name, this.workspace);
+      const name = this.getProcedureCall();
+      const def = Blockly.Procedures.getDefinition(name, this.workspace);
       if (!def) {
         Blockly.Events.setGroup(event.group);
         this.dispose(true, false);
         Blockly.Events.setGroup(false);
       }
-    } else if (event.type == Blockly.Events.CHANGE && event.element == 'disabled') {
-      var name = this.getProcedureCall();
-      var def = Blockly.Procedures.getDefinition(name, this.workspace);
+    } else if (event.type == Blockly.Events.CHANGE &&
+               event.element == 'disabled') {
+      const name = this.getProcedureCall();
+      const def = Blockly.Procedures.getDefinition(name, this.workspace);
       if (def && def.id == event.blockId) {
         // in most cases the old group should be ''
         const oldGroup = Blockly.Events.getGroup();
         if (oldGroup) {
-          // This should only be possible programatically and may indicate a problem
-          // with event grouping. If you see this message please investigate. If the
-          // use ends up being valid we may need to reorder events in the undo stack.
-          console.log('Saw an existing group while responding to a definition change');
+          // This should only be possible programmatically and may indicate a
+          // problem with event grouping. If you see this message please
+          // investigate. If the use ends up being valid we may need to
+          // reorder events in the undo stack.
+          console.log('Saw an existing group while responding' +
+              ' to a definition change');
         }
         Blockly.Events.setGroup(event.group);
         if (event.newValue) {
@@ -840,7 +844,8 @@ Blockly.propc.procedures_defnoreturn = Blockly.propc.procedures_defreturn;
 
 Blockly.propc.procedures_callreturn = function() {
   // Call a procedure with a return value.
-  const funcName = Blockly.propc.variableDB_.getName(((this.getFieldValue('NAME')).split('\u201C'))[1].slice(0, -1),
+  const funcName = Blockly.propc.variableDB_.getName(
+      ((this.getFieldValue('NAME')).split('\u201C'))[1].slice(0, -1),
       Blockly.Procedures.NAME_TYPE);
   const args = [];
   for (let x = 0; x < this.arguments_.length; x++) {
