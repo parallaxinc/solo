@@ -38,18 +38,20 @@ goog.require('Blockly.utils.dom');
 /**
  * Class for a field used to edit custom code.
  * @param {string} displayText
- * @param {string=} opt_value text or code to initially start with in the editor.
- * @param {Function=} opt_validator A function that is called to validate
+ * @param {string=} optionalValue
+ *  text or code to initially start with in the editor.
+ * @param {Function=} optValidator A function that is called to validate
  *    changes to the field's value.
  * @constructor
  */
-Blockly.FieldAceEditor = function(displayText, opt_value, opt_validator) {
+Blockly.FieldAceEditor = function(displayText, optionalValue, optValidator) {
   this.displayText_ = displayText;
   this.arrowRendered_ = false;
-  if (!opt_value) {
-    opt_value = '';
+  if (!optionalValue) {
+    optionalValue = '';
   }
-  Blockly.FieldAceEditor.superClass_.constructor.call(this, opt_value, opt_validator);
+  Blockly.FieldAceEditor.superClass_.constructor.call(
+      this, optionalValue, optValidator);
 };
 
 goog.inherits(Blockly.FieldAceEditor, Blockly.Field);
