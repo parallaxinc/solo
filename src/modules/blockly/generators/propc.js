@@ -31,6 +31,7 @@
 import Blockly from 'blockly/core.js';
 
 import {getDefaultProfile} from '../../project.js';
+import {isExperimental} from '../../utility';
 
 
 Blockly.propc = new Blockly.Generator('propc');
@@ -825,7 +826,6 @@ Blockly.propc.scrub_ = function(block, code) {
 //  revisions we are going to support
 if (!Object.keys) {
   Object.keys = (function() {
-    'use strict';
     const hasOwnProperty = Object.prototype.hasOwnProperty;
     const hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString');
     const dontEnums = [

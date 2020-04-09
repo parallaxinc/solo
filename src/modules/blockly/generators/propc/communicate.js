@@ -36,6 +36,7 @@ import Blockly from 'blockly/core';
 
 import {colorPalette} from '../propc';
 import {getDefaultProfile, getProjectInitialState} from '../../../project';
+import {isExperimental} from '../../../utility';
 
 
 // ------------------ Terminal Console Blocks ----------------------------------
@@ -2890,7 +2891,7 @@ Blockly.Blocks.parallel_lcd_init = {
         'DATA3');
     this.setFieldValue(m[0], mv[0]);
     this.setFieldValue(m[1], mv[1]);
-    for (i = 2; i < 8; i++) {
+    for (let i = 2; i < 8; i++) {
       if (m[i] && m[i] === oldValue && newValue) {
         this.setFieldValue(newValue, mv[i]);
       } else if (m[i]) {

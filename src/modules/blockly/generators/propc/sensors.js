@@ -1670,7 +1670,7 @@ Blockly.Blocks.lis3dh_read = {
 
     // Repopulate all of the field values (make sure there is a
     // field before trying to populate it)
-    for (i = 1; i < 4; i++) {
+    for (let i = 1; i < 4; i++) {
       if (this.fieldVals[i] && this.fieldVals[i] !== '' &&
           this.getField('STORE_' + i.toString(10))) {
         this.setFieldValue(this.fieldVals[i], 'STORE_' + i.toString(10));
@@ -3115,7 +3115,7 @@ Blockly.Blocks.keypad_initialize = {
         .appendField(new Blockly.FieldDropdown(
             profile.digital.concat(pinConstantList)), 'P7')
         .appendField('right');
-    for (i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
       if (m[i] && m[i] === oldValue && newValue) {
         this.setFieldValue(newValue, 'P' + i.toString(10));
       } else if (m[i]) {

@@ -40,8 +40,8 @@ import './blockly/generators/propc/variables';
 import {saveAs} from 'file-saver';
 import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
-  PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName, TestApplicationName,
-  productBannerHostTrigger,
+  PROJECT_NAME_MAX_LENGTH, PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName,
+  TestApplicationName, productBannerHostTrigger,
 } from './constants';
 import {
   clientService, compile, getComPort, loadInto, renderContent, downloadCSV,
@@ -728,14 +728,17 @@ function setupWorkspace(data, callback) {
   }
   // Set the master project image
   const project = setProjectInitialState(data);
+  if (project) {
+    setDefaultProfile(project.boardType);
+  } else {
+    throw new Error('Unable to load the project.');
+  }
 
   // Delete all existing blocks, comments and undo stacks
   clearBlocklyWorkspace();
 
   // Set various project settings based on the project board type
   // NOTE: This function is in propc.js
-  // Set the default profile.
-  setDefaultProfile(project.boardType);
   displayProjectName(project.name);
   displayProjectBoardIcon(project.boardType.name);
 
