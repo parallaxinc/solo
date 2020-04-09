@@ -193,7 +193,7 @@ Blockly.propc.joystick_input_yaxis = function() {
 Blockly.Blocks.joystick_input_xaxis = Blockly.Blocks.joystick_input_yaxis;
 Blockly.propc.joystick_input_xaxis = Blockly.propc.joystick_input_yaxis;
 
-// ---------------- PIR Sensor Blocks ----------------------------------------
+// ---------------- PIR Sensor Blocks --------------------------------
 
 /**
  *
@@ -234,7 +234,8 @@ Blockly.propc.PIR_Sensor = function() {
   let pin = '0';
 
   if (this.otherPin[0]) {
-    pin = Blockly.propc.valueToCode(this, this.pinChoices[0], Blockly.propc.ORDER_ATOMIC) || '0';
+    pin = Blockly.propc.valueToCode(
+        this, this.pinChoices[0], Blockly.propc.ORDER_ATOMIC) || '0';
   } else {
     pin = this.getFieldValue(this.pinChoices[0]);
   }
@@ -242,7 +243,8 @@ Blockly.propc.PIR_Sensor = function() {
 };
 
 
-// ---------------- Sound Impact Sensor Blocks ---------------------------------
+// ---------------- Sound Impact Sensor Blocks -----------------------
+
 /**
  * Sound Impact Run
  * @type {{
@@ -268,16 +270,17 @@ Blockly.Blocks.sound_impact_run = {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
     for (let x = 0; x < allBlocks.length; x++) {
       if (allBlocks[x].type === 'constant_define') {
-        let v_name = allBlocks[x].getFieldValue('CONSTANT_NAME');
-        if (v_name === oldValue && newValue) {
-          v_name = newValue;
+        let vName = allBlocks[x].getFieldValue('CONSTANT_NAME');
+        if (vName === oldValue && newValue) {
+          vName = newValue;
         }
-        if (v_name) {
-          this.userDefinedConstantsList_.push(v_name);
+        if (vName) {
+          this.userDefinedConstantsList_.push(vName);
         }
       }
     }
-    this.userDefinedConstantsList_ = this.userDefinedConstantsList_.sortedUnique();
+    this.userDefinedConstantsList_ =
+        this.userDefinedConstantsList_.sortedUnique();
     this.setPinMenus(oldValue, newValue);
   },
   setPinMenus: function(oldValue, newValue) {
@@ -289,9 +292,10 @@ Blockly.Blocks.sound_impact_run = {
     this.appendDummyInput('PINS')
         .appendField('Sound Impact initialize PIN')
         .appendField(new Blockly.FieldDropdown(
-            profile.digital.concat(this.userDefinedConstantsList_.map(function(value) {
-              return [value, value]; // returns an array of arrays built from the original array.
-            }))), 'PIN');
+            profile.digital.concat(
+                this.userDefinedConstantsList_.map(function(value) {
+                  return [value, value];
+                }))), 'PIN');
     if (m1 && m1 === oldValue && newValue) {
       this.setFieldValue(newValue, 'PIN');
     } else if (m1) {
@@ -299,7 +303,6 @@ Blockly.Blocks.sound_impact_run = {
     }
   },
 };
-
 
 /**
  * Sound Impact Run C code generator
@@ -313,12 +316,21 @@ Blockly.propc.sound_impact_run = function() {
       pin = 'MY_' + pin;
     }
     Blockly.propc.definitions_['sound_impact'] = '#include "soundimpact.h"';
-    Blockly.propc.setups_['sound_impact'] = 'int *__soundimpactcog = soundImpact_run(' + pin + ');';
+    Blockly.propc.setups_['sound_impact'] =
+        'int *__soundimpactcog = soundImpact_run(' + pin + ');';
   }
 
   return '';
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.sound_impact_get.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.sound_impact_get.onchange
+ * }}
+ */
 Blockly.Blocks.sound_impact_get = {
   helpUrl: Blockly.MSG_SOUND_IMPACT_HELPURL,
   init: function() {
@@ -333,13 +345,18 @@ Blockly.Blocks.sound_impact_get = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Sound Impact initialize') === -1) {
-      this.setWarningText('WARNING: You must use a sound impact sensor\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a sound impact' +
+          ' sensor\ninitialize block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string|[string, number]}
+ */
 Blockly.propc.sound_impact_get = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('Sound Impact initialize') === -1) {
@@ -349,6 +366,14 @@ Blockly.propc.sound_impact_get = function() {
   }
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.sound_impact_end.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.sound_impact_end.onchange
+ * }}
+ */
 Blockly.Blocks.sound_impact_end = {
   helpUrl: Blockly.MSG_SOUND_IMPACT_HELPURL,
   init: function() {
@@ -362,13 +387,18 @@ Blockly.Blocks.sound_impact_end = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Sound Impact initialize') === -1) {
-      this.setWarningText('WARNING: You must use a sound impact sensor\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a sound impact' +
+          ' sensor\ninitialize block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.sound_impact_end = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('Sound Impact initialize') === -1) {
@@ -378,7 +408,7 @@ Blockly.propc.sound_impact_end = function() {
   }
 };
 
-// ---------------- ColorPal Color Sensor Blocks -------------------------------
+// ---------------- ColorPal Color Sensor Blocks -----------------------
 /**
  * ColorPAL Enable
  * @type {{
@@ -386,7 +416,7 @@ Blockly.propc.sound_impact_end = function() {
  *  onPinSet: Blockly.Blocks.colorpal_enable.onPinSet,
  *  helpUrl: string,
  *  onchange: Blockly.Blocks.colorpal_enable.onchange
- *  }}
+ * }}
  */
 Blockly.Blocks.colorpal_enable = {
   helpUrl: Blockly.MSG_COLORPAL_HELPURL,
@@ -433,16 +463,33 @@ Blockly.Blocks.colorpal_enable = {
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.colorpal_enable = function() {
   const pin = this.getFieldValue('IO_PIN');
   if (!this.disabled) {
     Blockly.propc.definitions_['colorpal'] = '#include "colorpal.h"';
     Blockly.propc.global_vars_['colorpal' + pin] = 'colorPal *cpal' + pin + ';';
-    Blockly.propc.setups_['colorpal' + pin] = 'cpal' + pin + ' = colorPal_open(' + pin + ');';
+    Blockly.propc.setups_['colorpal' + pin] = 'cpal' + pin +
+        ' = colorPal_open(' + pin + ');';
   }
   return '';
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.colorpal_get_colors_raw.init,
+ *  colorpalPins: Blockly.Blocks.colorpal_get_colors_raw.colorpalPins,
+ *  mutationToDom: (function(): HTMLElement),
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.colorpal_get_colors_raw.onchange,
+ *  domToMutation: Blockly.Blocks.colorpal_get_colors_raw.domToMutation,
+ *  updateCpin: Blockly.Blocks.colorpal_get_colors_raw.updateCpin
+ *  }}
+ */
 Blockly.Blocks.colorpal_get_colors_raw = {
   helpUrl: Blockly.MSG_COLORPAL_HELPURL,
   init: function() {
@@ -492,9 +539,10 @@ Blockly.Blocks.colorpal_get_colors_raw = {
     if (cpin) {
       this.appendDummyInput('CPIN')
           .appendField('PIN')
-          .appendField(new Blockly.FieldDropdown(this.cp_pins.map(function(value) {
-            return [value, value]; // returns an array of arrays built from the original array.
-          })), 'CP_PIN');
+          .appendField(new Blockly.FieldDropdown(
+              this.cp_pins.map(function(value) {
+                return [value, value];
+              })), 'CP_PIN');
       this.setFieldValue(cpin, 'CP_PIN');
     }
   },
@@ -514,9 +562,10 @@ Blockly.Blocks.colorpal_get_colors_raw = {
     if (this.cp_pins.length > 1) {
       this.appendDummyInput('CPIN')
           .appendField('PIN')
-          .appendField(new Blockly.FieldDropdown(this.cp_pins.map(function(value) {
-            return [value, value]; // returns an array of arrays built from the original array.
-          })), 'CP_PIN');
+          .appendField(new Blockly.FieldDropdown(this.cp_pins
+              .map(function(value) {
+                return [value, value];
+              })), 'CP_PIN');
       if (currentPin === oldPin || oldPin === null) {
         this.setFieldValue(newPin, 'CP_PIN');
       } else {
@@ -531,7 +580,8 @@ Blockly.Blocks.colorpal_get_colors_raw = {
     this.cp_pins.length = 0;
     for (let x = 0; x < allBlocks.length; x++) {
       if (allBlocks[x].type === 'colorpal_enable') {
-        const cp = allBlocks[x].colorPalPin || allBlocks[x].getFieldValue('IO_PIN');
+        const cp = allBlocks[x].colorPalPin ||
+            allBlocks[x].getFieldValue('IO_PIN');
         if (cp) {
           this.cp_pins.push(cp);
         }
@@ -541,11 +591,16 @@ Blockly.Blocks.colorpal_get_colors_raw = {
   },
   onchange: function(event) {
     if (event) {
-      // only fire when a block got deleted or created, the CP_PIN field was changed
-      if (event.type == Blockly.Events.BLOCK_CREATE || event.type == Blockly.Events.BLOCK_DELETE || (event.name === 'CP_PIN' && event.blockId === this.id) || this.warnFlag > 0) {
+      // only fire when a block got deleted or created,
+      // the CP_PIN field was changed
+      if (event.type == Blockly.Events.BLOCK_CREATE ||
+          event.type == Blockly.Events.BLOCK_DELETE ||
+          (event.name === 'CP_PIN' && event.blockId === this.id) ||
+          this.warnFlag > 0) {
         const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
         if (allBlocks.toString().indexOf('ColorPal initialize') === -1) {
-          this.setWarningText('WARNING: You must use a ColorPal\ninitialize block at the beginning of your program!');
+          this.setWarningText('WARNING: You must use a ColorPal\ninitialize' +
+              ' block at the beginning of your program!');
         } else {
           this.setWarningText(null);
           this.warnFlag--;
@@ -553,12 +608,15 @@ Blockly.Blocks.colorpal_get_colors_raw = {
             let allCpPins = '';
             for (let x = 0; x < allBlocks.length; x++) {
               if (allBlocks[x].type === 'colorpal_enable') {
-                allCpPins += (allBlocks[x].colorPalPin || allBlocks[x].getFieldValue('IO_PIN')) + ',';
+                allCpPins += (allBlocks[x].colorPalPin ||
+                    allBlocks[x].getFieldValue('IO_PIN')) + ',';
               }
             }
             if (allCpPins.indexOf(this.getFieldValue('CP_PIN')) === -1) {
-              this.setWarningText('WARNING: You must use choose a new PIN for this block!');
-              // let all changes through long enough to ensure this is set properly.
+              this.setWarningText(
+                  'WARNING: You must use choose a new PIN for this block!');
+              // let all changes through long enough to ensure
+              // this is set properly.
               this.warnFlag = allBlocks.length * 3;
             }
           }
@@ -568,6 +626,10 @@ Blockly.Blocks.colorpal_get_colors_raw = {
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.colorpal_get_colors_raw = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('ColorPal initialize') === -1) {
@@ -589,10 +651,29 @@ Blockly.propc.colorpal_get_colors_raw = function() {
     if (this.getInput('CPIN')) {
       p = this.getFieldValue('CP_PIN');
     }
-    return 'colorPal_getRGB(cpal' + p + ', &' + r + ', &' + g + ', &' + b + ');';
+    return 'colorPal_getRGB(cpal' + p + ', &' + r + ', &' + g +
+        ', &' + b + ');';
   }
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.colorpal_get_colors.init,
+ *  colorpalPins: (
+ *    Blockly.Blocks.colorpal_get_colors_raw.colorpalPins |
+ *    Blockly.Blocks.colorpal_get_colors_raw.colorpalPins
+ *    ),
+ *  mutationToDom: *,
+ *  helpUrl: string,
+ *  onchange: *,
+ *  domToMutation: *,
+ *  updateCpin: (
+ *    Blockly.Blocks.colorpal_get_colors_raw.updateCpin |
+ *    Blockly.Blocks.colorpal_get_colors_raw.updateCpin
+ *    )
+ *  }}
+ */
 Blockly.Blocks.colorpal_get_colors = {
   helpUrl: Blockly.MSG_COLORPAL_HELPURL,
   init: function() {
@@ -600,7 +681,8 @@ Blockly.Blocks.colorpal_get_colors = {
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
         .appendField('ColorPal store color in')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'COLOR');
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'COLOR');
 
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'Block');
@@ -616,12 +698,16 @@ Blockly.Blocks.colorpal_get_colors = {
   onchange: Blockly.Blocks['colorpal_get_colors_raw'].onchange,
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.colorpal_get_colors = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('ColorPal initialize') === -1) {
     return '// ERROR: Missing colorPal initialize block!';
   } else {
-    const color_var = Blockly.propc.variableDB_.getName(
+    const colorVar = Blockly.propc.variableDB_.getName(
         this.getFieldValue('COLOR'),
         Blockly.VARIABLE_CATEGORY_NAME);
 
@@ -639,12 +725,13 @@ Blockly.propc.colorpal_get_colors = function() {
       p = this.getFieldValue('CP_PIN');
     }
 
-    const code = 'colorPal_getRGB(cpal' + p + ', &cpRR, &cpGG, &cpBB);\n\t' + color_var + ' = colorPalRRGGBB(cpRR, cpGG, cpBB);';
-    return code;
+    return 'colorPal_getRGB(cpal' + p + ', &cpRR, &cpGG, &cpBB);\n\t' +
+        colorVar + ' = colorPalRRGGBB(cpRR, cpGG, cpBB);';
   }
 };
 
-// -------------- Fingerprint Scanner Blocks -----------------------------------
+// -------------- Fingerprint Scanner Blocks ------------------------
+
 /**
  * FP Scanner Initialization
  * @type {{
@@ -676,14 +763,16 @@ Blockly.Blocks.fp_scanner_init = {
     this.appendDummyInput()
         .appendField('Fingerprint Scanner initialize RX')
         .appendField(new Blockly.FieldDropdown(
-            profile.digital.concat(this.userDefinedConstantsList_.map(function(value) {
-              return [value, value]; // returns an array of arrays built from the original array.
-            }))), 'RXPIN')
+            profile.digital.concat(this.userDefinedConstantsList_
+                .map(function(value) {
+                  return [value, value];
+                }))), 'RXPIN')
         .appendField('TX')
         .appendField(new Blockly.FieldDropdown(
-            profile.digital.concat(this.userDefinedConstantsList_.map(function(value) {
-              return [value, value]; // returns an array of arrays built from the original array.
-            }))), 'TXPIN');
+            profile.digital.concat(this.userDefinedConstantsList_
+                .map(function(value) {
+                  return [value, value];
+                }))), 'TXPIN');
     if (m1 && m1 === oldValue && newValue) {
       this.setFieldValue(newValue, 'RXPIN');
     } else if (m1) {
@@ -705,21 +794,33 @@ Blockly.Blocks.fp_scanner_init = {
 Blockly.propc.fp_scanner_init = function() {
   if (!this.disabled) {
     const profile = getDefaultProfile();
-    let rxpin = this.getFieldValue('RXPIN');
-    let txpin = this.getFieldValue('TXPIN');
-    if (profile.digital.toString().indexOf(rxpin + ',' + rxpin) === -1) {
-      rxpin = 'MY_' + rxpin;
+    let rxPin = this.getFieldValue('RXPIN');
+    let txPin = this.getFieldValue('TXPIN');
+    if (profile.digital.toString().indexOf(rxPin + ',' + rxPin) === -1) {
+      rxPin = 'MY_' + rxPin;
     }
-    if (profile.digital.toString().indexOf(pin_out + ',' + pin_out) === -1) {
-      txpin = 'MY_' + txpin;
+    if (profile.digital.toString().indexOf(txPin + ',' + txPin) === -1) {
+      txPin = 'MY_' + txPin;
     }
     Blockly.propc.global_vars_['fpScannerObj'] = 'fpScanner *fpScan;';
     Blockly.propc.definitions_['fpScannerDef'] = '#include "fingerprint.h"';
-    Blockly.propc.setups_['fpScanner'] = 'fpScan = fingerprint_open(' + txpin + ', ' + rxpin + ');';
+    Blockly.propc.setups_['fpScanner'] = 'fpScan = fingerprint_open(' +
+        txPin + ', ' + rxPin + ');';
   }
   return '';
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.fp_scanner_add.init,
+ *  mutationToDom: (function(): HTMLElement),
+ *  helpUrl: string,
+ *  setAction_: Blockly.Blocks.fp_scanner_add.setAction_,
+ *  onchange: Blockly.Blocks.fp_scanner_add.onchange,
+ *  domToMutation: Blockly.Blocks.fp_scanner_add.domToMutation
+ *  }}
+ */
 Blockly.Blocks.fp_scanner_add = {
   helpUrl: Blockly.MSG_FPS_HELPURL,
   init: function() {
@@ -727,7 +828,11 @@ Blockly.Blocks.fp_scanner_add = {
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
         .appendField('Fingerprint Scanner')
-        .appendField(new Blockly.FieldDropdown([['capture and save to', 'ADD'], ['delete capture for', 'DEL'], ['delete all captures', 'ALL']], function(action) {
+        .appendField(new Blockly.FieldDropdown([
+          ['capture and save to', 'ADD'],
+          ['delete capture for', 'DEL'],
+          ['delete all captures', 'ALL'],
+        ], function(action) {
           // eslint-disable-next-line no-invalid-this
           this.getSourceBlock().setAction_({'ACTION': action});
         }), 'ACTION');
@@ -765,18 +870,24 @@ Blockly.Blocks.fp_scanner_add = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Fingerprint Scanner initialize') === -1) {
-      this.setWarningText('WARNING: You must use a Fingerprint Scanner\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a Fingerprint' +
+          ' Scanner\ninitialize block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.fp_scanner_add = function() {
   const act = this.getFieldValue('ACTION');
   let usr = '1';
   if (act !== 'ALL') {
-    usr = Blockly.propc.valueToCode(this, 'USER', Blockly.propc.ORDER_NONE) || '1';
+    usr = Blockly.propc.valueToCode(
+        this, 'USER', Blockly.propc.ORDER_NONE) || '1';
   }
 
   let code = '';
@@ -799,6 +910,17 @@ Blockly.propc.fp_scanner_add = function() {
   return code;
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.fp_scanner_scan.init,
+ *  mutationToDom: (function(): HTMLElement),
+ *  helpUrl: string,
+ *  setAction_: Blockly.Blocks.fp_scanner_scan.setAction_,
+ *  onchange: Blockly.Blocks.fp_scanner_scan.onchange,
+ *  domToMutation: Blockly.Blocks.fp_scanner_scan.domToMutation
+ *  }}
+ */
 Blockly.Blocks.fp_scanner_scan = {
   helpUrl: Blockly.MSG_FPS_HELPURL,
   init: function() {
@@ -806,7 +928,11 @@ Blockly.Blocks.fp_scanner_scan = {
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
         .appendField('Fingerprint Scanner')
-        .appendField(new Blockly.FieldDropdown([['scan and identify', 'SCAN'], ['scan and compare', 'COMP'], ['count number of IDs', 'COUNT']], function(action) {
+        .appendField(new Blockly.FieldDropdown([
+          ['scan and identify', 'SCAN'],
+          ['scan and compare', 'COMP'],
+          ['count number of IDs', 'COUNT'],
+        ], function(action) {
           // eslint-disable-next-line no-invalid-this
           this.getSourceBlock().setAction_({'ACTION': action});
         }), 'ACTION');
@@ -840,13 +966,18 @@ Blockly.Blocks.fp_scanner_scan = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Fingerprint Scanner initialize') === -1) {
-      this.setWarningText('WARNING: You must use a Fingerprint Scanner\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a Fingerprint' +
+          ' Scanner\ninitialize block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string|[string, number]}
+ */
 Blockly.propc.fp_scanner_scan = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('Fingerprint Scanner initialize') === -1) {
@@ -855,7 +986,8 @@ Blockly.propc.fp_scanner_scan = function() {
     const act = this.getFieldValue('ACTION');
     let usr = '1';
     if (act === 'COMP') {
-      usr = Blockly.propc.valueToCode(this, 'USER', Blockly.propc.ORDER_NONE) || '1';
+      usr = Blockly.propc.valueToCode(
+          this, 'USER', Blockly.propc.ORDER_NONE) || '1';
     }
 
     let func = 'int fingerScanner(int __u) {';
@@ -882,7 +1014,18 @@ Blockly.propc.fp_scanner_scan = function() {
 };
 
 
-// -------------Memsic Tilt/Accel (MX2125 Module) ------------------------------
+// -------------Memsic Tilt/Accel (MX2125 Module) -------------------
+
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.MX2125_acceleration_xaxis.init,
+ *  addPinMenu: *,
+ *  mutationToDom: *,
+ *  helpUrl: string, setToOther: *,
+ *  domToMutation: *
+ *  }}
+ */
 Blockly.Blocks.MX2125_acceleration_xaxis = {
   helpUrl: Blockly.MSG_MEMSIC_HELPURL,
   init: function() {
@@ -899,7 +1042,8 @@ Blockly.Blocks.MX2125_acceleration_xaxis = {
     if (this.type.indexOf('tilt') > -1) {
       this.res = ['tilt', 'tilt'];
     }
-    this.addPinMenu('Memsic ' + this.res[0] + ' ' + this.chan[0] + '-axis PIN', null, 0);
+    this.addPinMenu('Memsic ' + this.res[0] + ' ' + this.chan[0] +
+        '-axis PIN', null, 0);
     this.setInputsInline(true);
     this.setNextStatement(false, null);
     this.setPreviousStatement(false, null);
@@ -911,21 +1055,30 @@ Blockly.Blocks.MX2125_acceleration_xaxis = {
   setToOther: Blockly.Blocks['sensor_ping'].setToOther,
 };
 
+/**
+ *
+ * @return {[string, number]}
+ * @constructor
+ */
 Blockly.propc.MX2125_acceleration_xaxis = function() {
   if (!this.disabled) {
     Blockly.propc.definitions_['include_mx2125'] = '#include "mx2125.h"';
   }
   let pin = '0';
   if (this.otherPin[0]) {
-    pin = Blockly.propc.valueToCode(this, 'PIN' + this.chan[1], Blockly.propc.ORDER_ATOMIC) || '0';
+    pin = Blockly.propc.valueToCode(
+        this, 'PIN' + this.chan[1], Blockly.propc.ORDER_ATOMIC) || '0';
   } else {
     pin = this.getFieldValue('PIN' + this.chan[1]);
   }
   return ['mx_' + this.res[1] + '(' + pin + ')', Blockly.propc.ORDER_NONE];
 };
 
-Blockly.Blocks.MX2125_acceleration_yaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
-Blockly.propc.MX2125_acceleration_yaxis = Blockly.propc.MX2125_acceleration_xaxis;
+Blockly.Blocks.MX2125_acceleration_yaxis =
+    Blockly.Blocks.MX2125_acceleration_xaxis;
+Blockly.propc.MX2125_acceleration_yaxis =
+    Blockly.propc.MX2125_acceleration_xaxis;
+
 Blockly.Blocks.MX2125_tilt_xaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
 Blockly.propc.MX2125_tilt_xaxis = Blockly.propc.MX2125_acceleration_xaxis;
 Blockly.Blocks.MX2125_tilt_yaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
@@ -951,6 +1104,11 @@ Blockly.Blocks.MX2125_rotation = {
   setToOther: Blockly.Blocks['sensor_ping'].setToOther,
 };
 
+/**
+ *
+ * @return {[string, number]}
+ * @constructor
+ */
 Blockly.propc.MX2125_rotation = function() {
   if (!this.disabled) {
     Blockly.propc.definitions_['include_mx2125'] = '#include "mx2125.h"';
@@ -958,7 +1116,8 @@ Blockly.propc.MX2125_rotation = function() {
   const pinVal = ['0', '0'];
   for (let i = 0; i < this.pinChoices.length; i++) {
     if (this.otherPin[i]) {
-      pinVal[i] = Blockly.propc.valueToCode(this, this.pinChoices[i], Blockly.propc.ORDER_ATOMIC) || '0';
+      pinVal[i] = Blockly.propc.valueToCode(
+          this, this.pinChoices[i], Blockly.propc.ORDER_ATOMIC) || '0';
     } else {
       pinVal[i] = this.getFieldValue(this.pinChoices[i]);
     }
@@ -967,7 +1126,8 @@ Blockly.propc.MX2125_rotation = function() {
   return [code, Blockly.propc.ORDER_NONE];
 };
 
-// --------------Accelerometer (MMA7455 Module) Blocks--------------------------
+// --------------Accelerometer (MMA7455 Module) Blocks--------------------
+
 /**
  * MMA7455 Initialization
  * @type {{
@@ -998,6 +1158,11 @@ Blockly.Blocks.MMA7455_init = {
   },
 };
 
+/**
+ *
+ * @return {string}
+ * @constructor
+ */
 Blockly.propc.MMA7455_init = function() {
   const pinx = this.getFieldValue('PINX');
   const piny = this.getFieldValue('PINY');
@@ -1005,12 +1170,22 @@ Blockly.propc.MMA7455_init = function() {
 
   if (!this.disabled) {
     Blockly.propc.definitions_['include_mma7455'] = '#include "mma7455.h"';
-    Blockly.propc.global_vars_['mma_7455_tempVars'] = 'short int __tmpX, __tmpY, __tmpZ;';
-    Blockly.propc.setups_['mma_7455'] = 'MMA7455_init(' + pinx + ', ' + piny + ', ' + pinz + ');';
+    Blockly.propc.global_vars_['mma_7455_tempVars'] = 'short int __tmpX,' +
+        ' __tmpY, __tmpZ;';
+    Blockly.propc.setups_['mma_7455'] = 'MMA7455_init(' +
+        pinx + ', ' + piny + ', ' + pinz + ');';
   }
   return '';
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.MMA7455_acceleration.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.MMA7455_acceleration.onchange
+ *  }}
+ */
 Blockly.Blocks.MMA7455_acceleration = {
   helpUrl: Blockly.MSG_ACCELEROMETER_HELPURL,
   init: function() {
@@ -1018,11 +1193,14 @@ Blockly.Blocks.MMA7455_acceleration = {
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
         .appendField('Accelerometer store x-axis in')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'X_VAR')
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'X_VAR')
         .appendField(' y-axis in')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'Y_VAR')
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'Y_VAR')
         .appendField(' z-axis in')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'Z_VAR');
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'Z_VAR');
 
     this.setInputsInline(false);
     this.setNextStatement(true, null);
@@ -1031,36 +1209,41 @@ Blockly.Blocks.MMA7455_acceleration = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Accelerometer initialize') === -1) {
-      this.setWarningText('WARNING: You must use an Accelerometer\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use an Accelerometer\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ * @constructor
+ */
 Blockly.propc.MMA7455_acceleration = function() {
   let code = '';
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('Accelerometer initialize') === -1) {
     code += '// ERROR: Missing Accelerometer initialize block!';
   } else {
-    const xstorage = Blockly.propc.variableDB_.getName(
-        this.getFieldValue('X_VAR'),
-        Blockly.VARIABLE_CATEGORY_NAME);
-    const ystorage = Blockly.propc.variableDB_.getName(
-        this.getFieldValue('Y_VAR'),
-        Blockly.VARIABLE_CATEGORY_NAME);
-    const zstorage = Blockly.propc.variableDB_.getName(
-        this.getFieldValue('Z_VAR'),
-        Blockly.VARIABLE_CATEGORY_NAME);
+    const xStorage = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('X_VAR'), Blockly.VARIABLE_CATEGORY_NAME);
+    const yStorage = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('Y_VAR'), Blockly.VARIABLE_CATEGORY_NAME);
+    const zStorage = Blockly.propc.variableDB_.getName(
+        this.getFieldValue('Z_VAR'), Blockly.VARIABLE_CATEGORY_NAME);
 
     code += 'MMA7455_getxyz10(&__tmpX, &__tmpY, &__tmpZ);\n';
-    code += xstorage + ' = (int) __tmpX;\n' + ystorage + ' = (int) __tmpY;\n' + zstorage + ' = (int) __tmpZ;\n';
+    code += xStorage + ' = (int) __tmpX;\n' + yStorage + ' = (int) __tmpY;\n' +
+        zStorage + ' = (int) __tmpZ;\n';
   }
   return code;
 };
 
-// -----------------------Compass (HMC5883L Module) Blocks ----------------------
+// -----------------------Compass (HMC5883L Module) Blocks -------------------
+
 /**
  * HMC5883L Initialization
  * @type {{
@@ -1088,17 +1271,31 @@ Blockly.Blocks.HMC5883L_init = {
   },
 };
 
+/**
+ *
+ * @return {string}
+ * @constructor
+ */
 Blockly.propc.HMC5883L_init = function() {
   const scl = this.getFieldValue('SCL');
   const sda = this.getFieldValue('SDA');
 
   if (!this.disabled) {
     Blockly.propc.definitions_['HMC5883L'] = '#include "compass3d.h"';
-    Blockly.propc.setups_['HMC5883L'] = 'i2c *compass_bus = i2c_newbus(' + scl + ', ' + sda + ', 0);\n\tcompass_init(compass_bus);';
+    Blockly.propc.setups_['HMC5883L'] = 'i2c *compass_bus = i2c_newbus(' +
+        scl + ', ' + sda + ', 0);\n\tcompass_init(compass_bus);';
   }
   return '';
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.HMC5883L_read.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.HMC5883L_read.onchange
+ *  }}
+ */
 Blockly.Blocks.HMC5883L_read = {
   helpUrl: Blockly.MSG_COMPASS_HELPURL,
   init: function() {
@@ -1106,7 +1303,8 @@ Blockly.Blocks.HMC5883L_read = {
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
         .appendField('Compass heading store in')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'HEADING');
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'HEADING');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
@@ -1114,16 +1312,24 @@ Blockly.Blocks.HMC5883L_read = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Compass initialize') === -1) {
-      this.setWarningText('WARNING: You must use a Compass\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a Compass\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ * @constructor
+ */
 Blockly.propc.HMC5883L_read = function() {
   let code = '';
+  // TODO: Refactor getAllBlocks reference to GetBlocksByType
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+
   if (allBlocks.indexOf('Compass initialize') === -1) {
     code += '// ERROR: Missing Compass initialize block!';
   } else {
@@ -1131,20 +1337,20 @@ Blockly.propc.HMC5883L_read = function() {
         this.getFieldValue('HEADING'),
         Blockly.VARIABLE_CATEGORY_NAME);
     if (!this.disabled) {
-      Blockly.propc.global_vars_['compass_vars'] = 'int __compX, __compY, __compZ;\nfloat __compH;\n';
+      Blockly.propc.global_vars_['compass_vars'] =
+          'int __compX, __compY, __compZ;\nfloat __compH;\n';
     }
     code += 'compass_read(bus, &__compX, &__compY, &__compZ);\n';
-    code += '\t__compH = atan2(((float) __compY), (((float) __compX)) * 180.0/PI;\n';
+    code += '\t__compH = atan2(((float) __compY),' +
+        ' (((float) __compX)) * 180.0/PI;\n';
     code += '\tif(__compH < 0.0) __compH = (360.0 + __compH);\n';
     code += '\t' + storage + ' = (int) __compH;\n';
   }
   return code;
 };
 
+// ---------------- LIS3DH Accelerometer Sensor Blocks ------------------
 
-// ---------------- LIS3DH Accelerometer Sensor Blocks ------------------------
-// Replaced default profile with windows.projectProfile;
-// ----------------------------------------------------------------------------
 /**
  *
  * @type {{
@@ -1276,27 +1482,29 @@ Blockly.Blocks.lis3dh_init = {
       }
     }
   },
-
   onchange: function(event) {
     // Act when the block is dragged from the fly-out to the canvas
     if (event && !this.isInFlyout) {
       let warnText = null;
-      if (Blockly.getMainWorkspace().getBlocksByType(this.type, false).length > 1) {
+      if (Blockly.getMainWorkspace()
+          .getBlocksByType(this.type, false).length > 1) {
         warnText = 'WARNING! Only one LIS3DH init block can be used!';
       }
       this.setWarningText(warnText);
 
       // Look for read temperature blocks
       let tempBlocksPresent = false;
-      if ((Blockly.getMainWorkspace().getBlocksByType('lis3dh_temp', false) || []).length > 0) {
+      if ((Blockly.getMainWorkspace()
+          .getBlocksByType('lis3dh_temp', false) || []).length > 0) {
         tempBlocksPresent = true;
       }
       this.buildTempInput(tempBlocksPresent);
 
       // Look for read tilt blocks
-      const tiltBlockList = Blockly.getMainWorkspace().getBlocksByType('lis3dh_read', false) || [];
+      const tiltBlockList = Blockly.getMainWorkspace()
+          .getBlocksByType('lis3dh_read', false) || [];
       let tiltBlocksPresent = false;
-      for (var i = 0; i < tiltBlockList.length; i++) {
+      for (let i = 0; i < tiltBlockList.length; i++) {
         if (tiltBlockList[i].getFieldValue('SENSOR') === 'tilt') {
           tiltBlocksPresent = true;
           break;
@@ -1305,9 +1513,10 @@ Blockly.Blocks.lis3dh_init = {
       this.buildSmoothingInput(tiltBlocksPresent);
 
       // Look for read voltage blocks
-      const voltBlockList = Blockly.getMainWorkspace().getBlocksByType('lis3dh_read', false) || [];
+      const voltBlockList = Blockly.getMainWorkspace()
+          .getBlocksByType('lis3dh_read', false) || [];
       let voltBlocksPresent = false;
-      for (var i = 0; i < tiltBlockList.length; i++) {
+      for (let i = 0; i < tiltBlockList.length; i++) {
         if (voltBlockList[i].getFieldValue('SENSOR') === 'adc_mV') {
           voltBlocksPresent = true;
           break;
@@ -1318,24 +1527,28 @@ Blockly.Blocks.lis3dh_init = {
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.lis3dh_init = function() {
-  const sck_pin = this.getFieldValue('SCK_PIN');
-  const sdi_pin = this.getFieldValue('SDI_PIN');
-  const cs_pin = this.getFieldValue('CS_PIN');
-
   if (!this.disabled) {
     Blockly.propc.definitions_['lis3dh'] = '#include "lis3dh.h"';
     Blockly.propc.global_vars_['lis3dh_init'] = 'lis3dh *lis3dh_sensor;';
-    let setupCode = 'lis3dh_sensor = lis3dh_init(' + sck_pin + ', ' + sdi_pin + ', ' + cs_pin + ');';
+    let setupCode = 'lis3dh_sensor = lis3dh_init(' +
+        this.getFieldValue('SCK_PIN') + ', ' +
+        this.getFieldValue('SDI_PIN') + ', ' +
+        this.getFieldValue('CS_PIN') + ');';
 
     if (this.getInput('TEMP_CALIBRATE')) {
-      const temp_val = this.getFieldValue('TEMP');
-      const temp_unit = this.getFieldValue('UNIT');
-      setupCode += 'lis3dh_tempCal_' + temp_unit + '(lis3dh_sensor, ' + temp_val + ');';
+      setupCode += 'lis3dh_tempCal_' +
+          this.getFieldValue('UNIT') + '(lis3dh_sensor, ' +
+          this.getFieldValue('TEMP') + ');';
     }
-    const tilt_smoothing = this.getFieldValue('SMOOTHING') || 0;
-    if (this.getInput('TILT_CALIBRATE') && tilt_smoothing !== 0) {
-      setupCode += 'lis3dh_tiltConfig(lis3dh_sensor, 100 - ' + tilt_smoothing + ');';
+    const tiltSmoothing = this.getFieldValue('SMOOTHING') || 0;
+    if (this.getInput('TILT_CALIBRATE') && tiltSmoothing !== 0) {
+      setupCode += 'lis3dh_tiltConfig(lis3dh_sensor, 100 - ' +
+          tiltSmoothing + ');';
     }
 
     if (this.getInput('VOLT_CALIBRATE')) {
@@ -1358,6 +1571,17 @@ Blockly.propc.lis3dh_init = function() {
   return '';
 };
 
+/**
+ *
+ * @type {{
+ *  configureFields: Blockly.Blocks.lis3dh_read.configureFields,
+ *  init: Blockly.Blocks.lis3dh_read.init,
+ *  mutationToDom: (function(): HTMLElement),
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.lis3dh_read.onchange,
+ *  domToMutation: Blockly.Blocks.lis3dh_read.domToMutation
+ *  }}
+ */
 Blockly.Blocks.lis3dh_read = {
   helpUrl: Blockly.MSG_LIS3DH_HELPURL,
   init: function() {
@@ -1372,17 +1596,21 @@ Blockly.Blocks.lis3dh_read = {
               ['tilt (degrees)', 'tilt'],
               ['voltage (mV)', 'adc_mV'],
             ], function(action) {
+              // eslint-disable-next-line no-invalid-this
               this.getSourceBlock().configureFields(action);
             }),
             'SENSOR');
 
     this.appendDummyInput('VARS')
         .appendField('store X in', 'LABEL_0')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_1')
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_1')
         .appendField('Y in', 'LABEL_1')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_2')
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_2')
         .appendField('Z in', 'LABEL_2')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_3')
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_3')
         .appendField('', 'STORE_4');
     this.setInputsInline(false);
     this.setPreviousStatement(true, 'Block');
@@ -1404,13 +1632,14 @@ Blockly.Blocks.lis3dh_read = {
       'tilt': {label: ['store X in', 'Y in', 'Z in']},
     };
 
-    for (var i = 0; i < 3; i++) {
+    for (let i = 0; i < 3; i++) {
       this.setFieldValue(blockText[action].label[i], 'LABEL_' + i.toString(10));
     }
 
-    // Read the values of all of the fields before rebuilding all of the block's inputs
+    // Read the values of all of the fields before rebuilding
+    // all of the block's inputs
     if (!this.isInFlyout) {
-      for (i = 1; i < 5; i++) {
+      for (let i = 1; i < 5; i++) {
         if (action === 'tilt' || i !== 4) {
           this.fieldVals[i] = this.getFieldValue('STORE_' + i.toString(10));
         }
@@ -1430,24 +1659,29 @@ Blockly.Blocks.lis3dh_read = {
     // Only add a fourth field if
     if (action === 'tilt' && !this.getInput('VARS_2') && !this.isInFlyout) {
       this.appendDummyInput('VARS_2').appendField('store combined motion in')
-          .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_4');
+          .appendField(new Blockly.FieldVariable(
+              Blockly.LANG_VARIABLES_GET_ITEM), 'STORE_4');
     } else if (!this.getField('STORE_4')) {
-      // Attach a blank field just to make sure it exists when the block fields are populated.
-      // Blockly will throw a warning if this isn't here.
+      // Attach a blank field just to make sure it exists when the block
+      // fields are populated. Blockly will throw a warning if this isn't here.
       this.getInput('VARS').appendField('', 'STORE_4');
       this.fieldVals[4] = '';
     }
 
-    // Repopulate all of the field values (make sure there is a field before trying to populate it)
+    // Repopulate all of the field values (make sure there is a
+    // field before trying to populate it)
     for (i = 1; i < 4; i++) {
-      if (this.fieldVals[i] && this.fieldVals[i] !== '' && this.getField('STORE_' + i.toString(10))) {
+      if (this.fieldVals[i] && this.fieldVals[i] !== '' &&
+          this.getField('STORE_' + i.toString(10))) {
         this.setFieldValue(this.fieldVals[i], 'STORE_' + i.toString(10));
       }
     }
 
-    // Restore the variable field - this is a bit of a workaround, because the name (not the ID) is
-    // somehow being stored, so it needs to be converted to an ID before repopulating the field.
-    if (action === 'tilt' && this.fieldVals[3] && this.fieldVals[4] && this.fieldVals[4] !== '') {
+    // Restore the variable field - this is a bit of a workaround, because
+    // the name (not the ID) is somehow being stored, so it needs to be
+    // converted to an ID before repopulating the field.
+    if (action === 'tilt' && this.fieldVals[3] &&
+        this.fieldVals[4] && this.fieldVals[4] !== '') {
       const tempVar = Blockly.getMainWorkspace().getVariable(this.fieldVals[4]);
       if (tempVar) {
         this.setFieldValue(tempVar.getId(), 'STORE_4');
@@ -1469,12 +1703,14 @@ Blockly.Blocks.lis3dh_read = {
     this.configureFields(action);
   },
   onchange: function(event) {
-    // Only initiate this if there is a change that affects the field values in the block
+    // Only initiate this if there is a change that affects the
+    // field values in the block
     if (event && (event.type === Blockly.Events.BLOCK_CREATE ||
                 event.type === Blockly.Events.BLOCK_DELETE ||
                 event.type === Blockly.Events.BLOCK_CHANGE)) {
       let warnText = null;
-      if ((Blockly.getMainWorkspace().getBlocksByType('lis3dh_init') || []).length < 1) {
+      if ((Blockly.getMainWorkspace()
+          .getBlocksByType('lis3dh_init') || []).length < 1) {
         warnText = 'WARNING! The block requires an LIS3DH init block!';
       }
       this.setWarningText(warnText);
@@ -1482,6 +1718,10 @@ Blockly.Blocks.lis3dh_read = {
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.lis3dh_read = function() {
   // retrieve the sensor type selected
   const action = this.getFieldValue('SENSOR');
@@ -1504,13 +1744,23 @@ Blockly.propc.lis3dh_read = function() {
   }
 
   // generate the c code for this block.
-  if ((Blockly.getMainWorkspace().getBlocksByType('lis3dh_init') || []).length > 0) {
-    return 'lis3dh_' + action + '(lis3dh_sensor, &' + s1 + ', &' + s2 + ', &' + s3 + (s4 ? ', &' + s4 : '') + ');\n';
+  if ((Blockly.getMainWorkspace()
+      .getBlocksByType('lis3dh_init') || []).length > 0) {
+    return 'lis3dh_' + action + '(lis3dh_sensor, &' + s1 + ', &' + s2 +
+        ', &' + s3 + (s4 ? ', &' + s4 : '') + ');\n';
   } else {
     return '// WARNING: Missing init block!';
   }
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.lis3dh_temp.init,
+ *  helpUrl: string,
+ *  onchange: *
+ *  }}
+ */
 Blockly.Blocks.lis3dh_temp = {
   helpUrl: Blockly.MSG_LIS3DH_HELPURL,
   init: function() {
@@ -1528,16 +1778,22 @@ Blockly.Blocks.lis3dh_temp = {
   onchange: Blockly.Blocks['lis3dh_read'].onchange,
 };
 
+/**
+ *
+ * @return {[string, number]|[string, number]}
+ */
 Blockly.propc.lis3dh_temp = function() {
-  if ((Blockly.getMainWorkspace().getBlocksByType('lis3dh_init') || []).length > 0) {
-    return ['lis3dh_temp_' + this.getFieldValue('UNIT') + '(lis3dh_sensor)', Blockly.propc.ORDER_NONE];
+  if ((Blockly.getMainWorkspace()
+      .getBlocksByType('lis3dh_init') || []).length > 0) {
+    return ['lis3dh_temp_' + this.getFieldValue('UNIT') +
+    '(lis3dh_sensor)', Blockly.propc.ORDER_NONE];
   } else {
     return ['0 // WARNING: Missing init block!', Blockly.propc.ORDER_NONE];
   }
 };
 
 
-// ------------------ IMU (LSM9DS1 module) Blocks ------------------------------
+// ------------------ IMU (LSM9DS1 module) Blocks -----------------
 /**
  * lsm9ds1 Initialization
  * @type {{
@@ -1562,12 +1818,17 @@ Blockly.Blocks.lsm9ds1_init = {
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const mv = ['PIN_SCL', 'PIN_SDIO', 'PIN_CSAG', 'PIN_CSM'];
-    const m = [this.getFieldValue('PIN_SCL'), this.getFieldValue('PIN_SDIO'), this.getFieldValue('PIN_CSAG'), this.getFieldValue('PIN_CSM')];
+    const m = [
+      this.getFieldValue('PIN_SCL'),
+      this.getFieldValue('PIN_SDIO'),
+      this.getFieldValue('PIN_CSAG'),
+      this.getFieldValue('PIN_CSM'),
+    ];
     if (this.getInput('PINS')) {
       this.removeInput('PINS');
     }
     const pinConstantList = this.userDefinedConstantsList_.map(function(value) {
-      return [value, value]; // returns an array of arrays built from the original array.
+      return [value, value];
     });
     this.appendDummyInput('PINS')
         .appendField('IMU initialize SCL')
@@ -1592,7 +1853,6 @@ Blockly.Blocks.lsm9ds1_init = {
   },
 };
 
-
 /**
  * lsm9ds1 Initialization C code generator
  * @return {string}
@@ -1612,12 +1872,22 @@ Blockly.propc.lsm9ds1_init = function() {
   }
   if (!this.disabled) {
     Blockly.propc.definitions_['include_lsm9ds1'] = '#include "lsm9ds1.h"';
-    Blockly.propc.setups_['lsm9ds1_init'] = 'imu_init(' + pin[0] + ', ' + pin[1] + ', ' + pin[2] + ', ' + pin[3] + ');';
-    Blockly.propc.global_vars_['lsm9ds1_vars'] = 'float __imuX, __imuY, __imuZ, __compI;\n';
+    Blockly.propc.setups_['lsm9ds1_init'] = 'imu_init(' + pin[0] + ', ' +
+        pin[1] + ', ' + pin[2] + ', ' + pin[3] + ');';
+    Blockly.propc.global_vars_['lsm9ds1_vars'] =
+        'float __imuX, __imuY, __imuZ, __compI;\n';
   }
   return '';
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.lsm9ds1_mag_calibrate.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.lsm9ds1_mag_calibrate.onchange
+ *  }}
+ */
 Blockly.Blocks.lsm9ds1_mag_calibrate = {
   helpUrl: Blockly.MSG_IMU_HELPURL,
   init: function() {
@@ -1633,15 +1903,20 @@ Blockly.Blocks.lsm9ds1_mag_calibrate = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('IMU initialize') === -1) {
-      this.setWarningText('WARNING: You must use an IMU\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use an IMU\ninitialize block' +
+          ' at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.lsm9ds1_mag_calibrate = function() {
-  const code = '';
+  // TODO: Refactor getAllBlocks to getBlocksByType
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('IMU initialize') === -1) {
     return '// ERROR: Missing IMU initialize block!';
@@ -1650,6 +1925,14 @@ Blockly.propc.lsm9ds1_mag_calibrate = function() {
   }
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.lsm9ds1_read.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.lsm9ds1_read.onchange
+ *  }}
+ */
 Blockly.Blocks.lsm9ds1_read = {
   helpUrl: Blockly.MSG_IMU_HELPURL,
   init: function() {
@@ -1657,13 +1940,20 @@ Blockly.Blocks.lsm9ds1_read = {
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
         .appendField('IMU read')
-        .appendField(new Blockly.FieldDropdown([['accelerometer (100ths of g\'s)', 'Accel'], ['gyroscope (100ths of deg/s)', 'Gyro'], ['magnetometer (100ths of gauss)', 'Mag']]), 'SENSOR')
+        .appendField(new Blockly.FieldDropdown([
+          ['accelerometer (100ths of g\'s)', 'Accel'],
+          ['gyroscope (100ths of deg/s)', 'Gyro'],
+          ['magnetometer (100ths of gauss)', 'Mag'],
+        ]), 'SENSOR')
         .appendField('store X-axis in')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'X_VAR')
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'X_VAR')
         .appendField(' y-axis in')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'Y_VAR')
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'Y_VAR')
         .appendField(' z-axis in')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'Z_VAR');
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'Z_VAR');
     this.setInputsInline(false);
     this.setNextStatement(true, null);
     this.setPreviousStatement(true, 'Block');
@@ -1671,13 +1961,18 @@ Blockly.Blocks.lsm9ds1_read = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('IMU initialize') === -1) {
-      this.setWarningText('WARNING: You must use an IMU\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use an IMU\ninitialize block at' +
+          ' the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.lsm9ds1_read = function() {
   let code = '';
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
@@ -1685,42 +1980,60 @@ Blockly.propc.lsm9ds1_read = function() {
     code += '// ERROR: Missing IMU initialize block!';
   } else {
     const sensor = this.getFieldValue('SENSOR');
-    const xstorage = Blockly.propc.variableDB_.getName(
+    const xStorage = Blockly.propc.variableDB_.getName(
         this.getFieldValue('X_VAR'),
         Blockly.VARIABLE_CATEGORY_NAME);
-    const ystorage = Blockly.propc.variableDB_.getName(
+    const yStorage = Blockly.propc.variableDB_.getName(
         this.getFieldValue('Y_VAR'),
         Blockly.VARIABLE_CATEGORY_NAME);
-    const zstorage = Blockly.propc.variableDB_.getName(
+    const zStorage = Blockly.propc.variableDB_.getName(
         this.getFieldValue('Z_VAR'),
         Blockly.VARIABLE_CATEGORY_NAME);
 
     code += 'imu_read' + sensor + 'Calculated(&__imuX, &__imuY, &__imuZ);\n';
-    code += xstorage + ' = (int) (100.0 * __imuX);\n';
-    code += ystorage + ' = (int) (100.0 * __imuY);\n';
-    code += zstorage + ' = (int) (100.0 * __imuZ);\n';
+    code += xStorage + ' = (int) (100.0 * __imuX);\n';
+    code += yStorage + ' = (int) (100.0 * __imuY);\n';
+    code += zStorage + ' = (int) (100.0 * __imuZ);\n';
   }
   return code;
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.lsm9ds1_tilt.init,
+ *  setAxes_: Blockly.Blocks.lsm9ds1_tilt.setAxes_,
+ *  mutationToDom: (function(): HTMLElement),
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.lsm9ds1_tilt.onchange,
+ *  domToMutation: Blockly.Blocks.lsm9ds1_tilt.domToMutation
+ *  }}
+ */
 Blockly.Blocks.lsm9ds1_tilt = {
+  // TODO: Refactor instances of 'axes' to 'axis'
   helpUrl: Blockly.MSG_IMU_HELPURL,
   init: function() {
     this.setTooltip(Blockly.MSG_LSM9DS1_TILT_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
         .appendField('IMU tilt')
-        .appendField(new Blockly.FieldDropdown([['x-axis', 'X'], ['y-axis', 'Y'], ['z-axis', 'Z']], function(action) {
+        .appendField(new Blockly.FieldDropdown([
+          ['x-axis', 'X'],
+          ['y-axis', 'Y'],
+          ['z-axis', 'Z'],
+        ], function(action) {
           // eslint-disable-next-line no-invalid-this
           this.getSourceBlock().setAxes_({'ACTION': action});
         }), 'G_AXIS')
         .appendField('points up/down');
     this.appendDummyInput('TILT1')
         .appendField('store y-tilt in', 'A1')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'VAR1');
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'VAR1');
     this.appendDummyInput('TILT2')
         .appendField('z-tilt in', 'A2')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'VAR2');
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'VAR2');
     this.setInputsInline(true);
     this.setNextStatement(true, null);
     this.setPreviousStatement(true, 'Block');
@@ -1750,22 +2063,27 @@ Blockly.Blocks.lsm9ds1_tilt = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('IMU initialize') === -1) {
-      this.setWarningText('WARNING: You must use an IMU\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use an IMU\ninitialize block' +
+          ' at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.lsm9ds1_tilt = function() {
   let code = '';
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('IMU initialize') === -1) {
     code += '// ERROR: Missing IMU initialize block!';
   } else {
-    const t1_axis = '__imu' + this.getFieldValue('A1')[6].toUpperCase();
-    const t2_axis = '__imu' + this.getFieldValue('A2')[0].toUpperCase();
-    const g_axis = '__imu' + this.getFieldValue('G_AXIS');
+    const t1Axis = '__imu' + this.getFieldValue('A1')[6].toUpperCase();
+    const t2Axis = '__imu' + this.getFieldValue('A2')[0].toUpperCase();
+    const gAxis = '__imu' + this.getFieldValue('G_AXIS');
     const storage1 = Blockly.propc.variableDB_.getName(
         this.getFieldValue('VAR1'),
         Blockly.VARIABLE_CATEGORY_NAME);
@@ -1774,12 +2092,25 @@ Blockly.propc.lsm9ds1_tilt = function() {
         Blockly.VARIABLE_CATEGORY_NAME);
 
     code += 'imu_readAccelCalculated(&__imuX, &__imuY, &__imuZ);\n';
-    code += storage1 + ' = (int) (atan2(' + t1_axis + ', ' + g_axis + ') * 180.0/PI);\n';
-    code += storage2 + ' = (int) (atan2(' + t2_axis + ', ' + g_axis + ') * 180.0/PI);\n';
+    code += storage1 + ' = (int) (atan2(' + t1Axis + ', ' +
+        gAxis + ') * 180.0/PI);\n';
+    code += storage2 + ' = (int) (atan2(' + t2Axis + ', ' +
+        gAxis + ') * 180.0/PI);\n';
   }
   return code;
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.lsm9ds1_heading.init,
+ *  setAxes_: Blockly.Blocks.lsm9ds1_heading.setAxes_,
+ *  mutationToDom: (function(): HTMLElement),
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.lsm9ds1_heading.onchange,
+ *  domToMutation: Blockly.Blocks.lsm9ds1_heading.domToMutation
+ *  }}
+ */
 Blockly.Blocks.lsm9ds1_heading = {
   helpUrl: Blockly.MSG_IMU_HELPURL,
   init: function() {
@@ -1808,7 +2139,8 @@ Blockly.Blocks.lsm9ds1_heading = {
         ]), 'LR_AXIS');
     this.appendDummyInput('IMUVAR')
         .appendField('store in')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'VAR');
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'VAR');
     this.setInputsInline(true);
     this.setNextStatement(true, null);
     this.setPreviousStatement(true, 'Block');
@@ -1861,34 +2193,40 @@ Blockly.Blocks.lsm9ds1_heading = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('IMU initialize') === -1) {
-      this.setWarningText('WARNING: You must use an IMU\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use an IMU\ninitialize block' +
+          ' at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.lsm9ds1_heading = function() {
   let code = '';
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('IMU initialize') === -1) {
     code += '// ERROR: Missing IMU initialize block!';
   } else {
-    const fb_axis = this.getFieldValue('FB_AXIS');
-    const lr_axis = this.getFieldValue('LR_AXIS');
+    const fbAxis = this.getFieldValue('FB_AXIS');
+    const lrAxis = this.getFieldValue('LR_AXIS');
     const storage = Blockly.propc.variableDB_.getName(
         this.getFieldValue('VAR'),
         Blockly.VARIABLE_CATEGORY_NAME);
 
     code += 'imu_readMagCalculated(&__imuX, &__imuY, &__imuZ);\n';
-    code += '__compI = atan2(' + lr_axis + ', ' + fb_axis + ') * 180.0/PI;\n';
+    code += '__compI = atan2(' + lrAxis + ', ' + fbAxis + ') * 180.0/PI;\n';
     code += 'if(__compI < 0.0) __compI = (360.0 + __compI);\n';
     code += storage + ' = (int) __compI;\n';
   }
   return code;
 };
 
-// ------------------ GPS module Blocks ----------------------------------------
+// ------------------ GPS module Blocks -----------------------
+
 /**
  * GPS Initialization
  * @type {{
@@ -1918,9 +2256,10 @@ Blockly.Blocks.GPS_init = {
     this.appendDummyInput('PINS')
         .appendField('GPS module initialize TX')
         .appendField(new Blockly.FieldDropdown(
-            profile.digital.concat(this.userDefinedConstantsList_.map(function(value) {
-              return [value, value]; // returns an array of arrays built from the original array.
-            }))), 'TXPIN')
+            profile.digital.concat(
+                this.userDefinedConstantsList_.map(function(value) {
+                  return [value, value];
+                }))), 'TXPIN')
         .appendField('baud')
         .appendField(new Blockly.FieldDropdown([
           ['9600', '9600'],
@@ -1937,25 +2276,32 @@ Blockly.Blocks.GPS_init = {
   },
 };
 
-
 /**
  * GPS Initialization C code generator
  * @return {string}
  */
 Blockly.propc.GPS_init = function() {
   const profile = getDefaultProfile();
-  let tx_pin = this.getFieldValue('TXPIN');
-  if (profile.digital.toString().indexOf(tx_pin + ',' + tx_pin) === -1) {
-    tx_pin = 'MY_' + tx_pin;
+  let txPin = this.getFieldValue('TXPIN');
+  if (profile.digital.toString().indexOf(txPin + ',' + txPin) === -1) {
+    txPin = 'MY_' + txPin;
   }
   const baud = this.getFieldValue('BAUD');
 
   if (!this.disabled) {
     Blockly.propc.definitions_['include GPS'] = '#include "gps.h"';
   }
-  return 'gps_open(' + tx_pin + ', 32, ' + baud + ');\npause(100);';
+  return 'gps_open(' + txPin + ', 32, ' + baud + ');\npause(100);';
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.GPS_hasFix.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.GPS_hasFix.onchange
+ *  }}
+ */
 Blockly.Blocks.GPS_hasFix = {
   helpUrl: Blockly.MSG_GPS_HELPURL,
   init: function() {
@@ -1971,22 +2317,36 @@ Blockly.Blocks.GPS_hasFix = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('GPS module initialize') === -1) {
-      this.setWarningText('WARNING: You must use a GPS module\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a GPS module\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string|[string, number]}
+ * @constructor
+ */
 Blockly.propc.GPS_hasFix = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('GPS module initialize') === -1) {
-    return '// ERROR: Missing GPS initalize block!';
+    return '// ERROR: Missing GPS initialize block!';
   } else {
     return ['gps_fixValid()', Blockly.propc.ORDER_ATOMIC];
   }
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.GPS_latitude.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.GPS_latitude.onchange
+ *  }}
+ */
 Blockly.Blocks.GPS_latitude = {
   helpUrl: Blockly.MSG_GPS_HELPURL,
   init: function() {
@@ -2002,22 +2362,36 @@ Blockly.Blocks.GPS_latitude = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('GPS module initialize') === -1) {
-      this.setWarningText('WARNING: You must use a GPS module\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a GPS module\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string|[string, number]}
+ * @constructor
+ */
 Blockly.propc.GPS_latitude = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('GPS module initialize') === -1) {
-    return '// ERROR: Missing GPS initalize block!';
+    return '// ERROR: Missing GPS initialize block!';
   } else {
     return ['(int) (gps_latitude() * 1000000)', Blockly.propc.ORDER_ATOMIC];
   }
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.GPS_longitude.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.GPS_longitude.onchange
+ *  }}
+ */
 Blockly.Blocks.GPS_longitude = {
   helpUrl: Blockly.MSG_GPS_HELPURL,
   init: function() {
@@ -2033,20 +2407,34 @@ Blockly.Blocks.GPS_longitude = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('GPS module initialize') === -1) {
-      this.setWarningText('WARNING: You must use a GPS module\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a GPS module\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {[string, number]}
+ * @constructor
+ */
 Blockly.propc.GPS_longitude = function() {
   Blockly.propc.definitions_['include GPS'] = '#include "gps.h"';
-
   const code = '(int) (gps_longitude() * 1000000)';
+
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.GPS_heading.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.GPS_heading.onchange
+ *  }}
+ */
 Blockly.Blocks.GPS_heading = {
   helpUrl: Blockly.MSG_GPS_HELPURL,
   init: function() {
@@ -2062,22 +2450,36 @@ Blockly.Blocks.GPS_heading = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('GPS module initialize') === -1) {
-      this.setWarningText('WARNING: You must use a GPS module\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a GPS module\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string|[string, number]}
+ * @constructor
+ */
 Blockly.propc.GPS_heading = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('GPS module initialize') === -1) {
-    return '// ERROR: Missing GPS initalize block!';
+    return '// ERROR: Missing GPS initialize block!';
   } else {
     return ['(int) gps_heading()', Blockly.propc.ORDER_ATOMIC];
   }
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.GPS_altitude.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.GPS_altitude.onchange
+ *  }}
+ */
 Blockly.Blocks.GPS_altitude = {
   helpUrl: Blockly.MSG_GPS_HELPURL,
   init: function() {
@@ -2093,22 +2495,36 @@ Blockly.Blocks.GPS_altitude = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('GPS module initialize') === -1) {
-      this.setWarningText('WARNING: You must use a GPS module\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a GPS module\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string|[string, number]}
+ * @constructor
+ */
 Blockly.propc.GPS_altitude = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('GPS module initialize') === -1) {
-    return '// ERROR: Missing GPS initalize block!';
+    return '// ERROR: Missing GPS initialize block!';
   } else {
     return ['(int) (gps_altitude() * 100)', Blockly.propc.ORDER_ATOMIC];
   }
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.GPS_satsTracked.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.GPS_satsTracked.onchange
+ *  }}
+ */
 Blockly.Blocks.GPS_satsTracked = {
   helpUrl: Blockly.MSG_GPS_HELPURL,
   init: function() {
@@ -2124,13 +2540,19 @@ Blockly.Blocks.GPS_satsTracked = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('GPS module initialize') === -1) {
-      this.setWarningText('WARNING: You must use a GPS module\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a GPS module\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string|[string, number]}
+ * @constructor
+ */
 Blockly.propc.GPS_satsTracked = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('GPS module initialize') === -1) {
@@ -2140,6 +2562,14 @@ Blockly.propc.GPS_satsTracked = function() {
   }
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.GPS_velocity.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.GPS_velocity.onchange
+ *  }}
+ */
 Blockly.Blocks.GPS_velocity = {
   helpUrl: Blockly.MSG_GPS_HELPURL,
   init: function() {
@@ -2147,7 +2577,10 @@ Blockly.Blocks.GPS_velocity = {
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
         .appendField('GPS speed in')
-        .appendField(new Blockly.FieldDropdown([['mph', 'MPH'], ['knots', 'KNOTS']]), 'VELOCITYUNITS');
+        .appendField(new Blockly.FieldDropdown([
+          ['mph', 'MPH'],
+          ['knots', 'KNOTS'],
+        ]), 'VELOCITYUNITS');
 
     this.setOutput(true, 'Number');
     this.setNextStatement(false, null);
@@ -2156,23 +2589,43 @@ Blockly.Blocks.GPS_velocity = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('GPS module initialize') === -1) {
-      this.setWarningText('WARNING: You must use a GPS module\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a GPS module\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string|[string, number]}
+ * @constructor
+ */
 Blockly.propc.GPS_velocity = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('GPS module initialize') === -1) {
     return '// ERROR: Missing GPS initalize block!';
   } else {
-    const velocity_units = this.getFieldValue('VELOCITYUNITS');
-    return ['(int) gps_velocity(' + velocity_units + ')', Blockly.propc.ORDER_ATOMIC];
+    const velocityUnits = this.getFieldValue('VELOCITYUNITS');
+    return [
+      '(int) gps_velocity(' + velocityUnits + ')',
+      Blockly.propc.ORDER_ATOMIC,
+    ];
   }
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.GPS_date_time.init,
+ *  updateShape_: Blockly.Blocks.GPS_date_time.updateShape_,
+ *  mutationToDom: (function(): HTMLElement),
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.GPS_date_time.onchange,
+ *  domToMutation: Blockly.Blocks.GPS_date_time.domToMutation
+ *  }}
+ */
 Blockly.Blocks.GPS_date_time = {
   helpUrl: Blockly.MSG_GPS_HELPURL,
   init: function() {
@@ -2208,12 +2661,18 @@ Blockly.Blocks.GPS_date_time = {
       if (tz < -12) {
         tz = 14;
       }
-      this.timeZones.push(['UTC' + (tz > -1 ? '+' : '') + tz.toString(10), tz.toString(10)]);
+      this.timeZones.push(['UTC' + (tz > -1 ? '+' : '') +
+        tz.toString(10), tz.toString(10)]);
     }
     this.updateShape_(container.getAttribute('unit') || '');
   },
   updateShape_: function(action) {
-    const show = (['GPS_UNIT_HOUR', 'GPS_UNIT_DAY', 'GPS_UNIT_MONTH', 'GPS_UNIT_YEAR'].indexOf(action) >= 0);
+    const show = ([
+      'GPS_UNIT_HOUR',
+      'GPS_UNIT_DAY',
+      'GPS_UNIT_MONTH',
+      'GPS_UNIT_YEAR',
+    ].indexOf(action) >= 0);
     if (show && !this.getInput('ZONE_FIELDS')) {
       this.appendDummyInput('ZONE_FIELDS')
           .appendField('time zone', 'ZONE_LABEL')
@@ -2225,70 +2684,93 @@ Blockly.Blocks.GPS_date_time = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('GPS module initialize') === -1) {
-      this.setWarningText('WARNING: You must use a GPS module\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use a GPS module\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {[string, number]|string}
+ * @constructor
+ */
 Blockly.propc.GPS_date_time = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('GPS module initialize') === -1) {
     return '// ERROR: Missing GPS initalize block!';
   } else {
-    const time_unit = this.getFieldValue('TIME_UNIT');
-    let zone_unit = '0';
-    if (time_unit === 'GPS_UNIT_HOUR' ||
-                time_unit === 'GPS_UNIT_DAY' ||
-                time_unit === 'GPS_UNIT_MONTH' ||
-                time_unit === 'GPS_UNIT_YEAR') {
-      zone_unit = this.getFieldValue('ZONE_VALUE');
+    const timeUnit = this.getFieldValue('TIME_UNIT');
+    let zoneUnit = '0';
+    if (timeUnit === 'GPS_UNIT_HOUR' ||
+                timeUnit === 'GPS_UNIT_DAY' ||
+                timeUnit === 'GPS_UNIT_MONTH' ||
+                timeUnit === 'GPS_UNIT_YEAR') {
+      zoneUnit = this.getFieldValue('ZONE_VALUE');
     }
 
     Blockly.propc.definitions_['include GPS'] = '#include "gps.h"';
 
-    let dt_defines = '#define GPS_UNIT_YEAR     1\n';
-    dt_defines += '#define GPS_UNIT_DAY      2\n';
-    dt_defines += '#define GPS_UNIT_MONTH    3\n';
-    dt_defines += '#define GPS_UNIT_HOUR     4\n';
-    dt_defines += '#define GPS_UNIT_MINUTE   5\n';
-    dt_defines += '#define GPS_UNIT_SECOND   6\n';
-    Blockly.propc.definitions_['GPS_dateTime_units'] = dt_defines;
+    let dtDefines = '#define GPS_UNIT_YEAR     1\n';
+    dtDefines += '#define GPS_UNIT_DAY      2\n';
+    dtDefines += '#define GPS_UNIT_MONTH    3\n';
+    dtDefines += '#define GPS_UNIT_HOUR     4\n';
+    dtDefines += '#define GPS_UNIT_MINUTE   5\n';
+    dtDefines += '#define GPS_UNIT_SECOND   6\n';
+    Blockly.propc.definitions_['GPS_dateTime_units'] = dtDefines;
 
-    const dt_declare = 'int gps_dateTimeByUnit(char __u, int __z);\n';
-    let dt_function = 'int gps_dateTimeByUnit(char __u, int __z){';
-    dt_function += 'int __gpsTime = gps_rawTime();int __gpsDate = gps_rawDate();\n';
-    dt_function += 'int __monthDays[13] = {31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};\n';
-    dt_function += 'int __gpsDay = __gpsDate / 10000;\n';
-    dt_function += 'int __gpsMonth = __gpsDate / 100 - (__gpsDate / 10000) * 100;\n';
-    dt_function += 'int __gpsYear = __gpsDate - (__gpsDate / 100) * 100;\n';
-    dt_function += 'if (__gpsYear % 4 == 0) __monthDays[2] = 29;\n';
-    dt_function += 'int __gpsHour = __gpsTime / 10000 + __z;\n';
-    dt_function += 'if (__gpsHour < 0) { __gpsHour += 24; __gpsDay--; }\n';
-    dt_function += 'if (__gpsHour > 23) { __gpsHour -= 24; __gpsDay++; }\n';
-    dt_function += 'if (__gpsDay > __monthDays[__gpsMonth]) { __gpsDay = 1; __gpsMonth++; }\n';
-    dt_function += 'if (__gpsDay < 1) { __gpsMonth--; __gpsDay = __monthDays[__gpsMonth]; }\n';
-    dt_function += 'if (__gpsMonth < 1) { __gpsYear--; __gpsMonth = 12; }\n';
-    dt_function += 'if (__gpsMonth > 12) { __gpsYear++; __gpsMonth = 1; }\n';
-    dt_function += 'switch (__u){case GPS_UNIT_DAY:return __gpsDay;break;\n';
-    dt_function += 'case GPS_UNIT_MONTH:\nreturn __gpsMonth;break;\n';
-    dt_function += 'case GPS_UNIT_YEAR:\nreturn __gpsYear;break;\n';
-    dt_function += 'case GPS_UNIT_HOUR:\nreturn __gpsHour;break;\n';
-    dt_function += 'case GPS_UNIT_MINUTE:\nreturn __gpsTime / 100 - (__gpsTime / 10000) * 100;break;\n';
-    dt_function += 'case GPS_UNIT_SECOND:\nreturn __gpsTime - (__gpsTime / 100) * 100;break;\n';
-    dt_function += 'default:\nreturn -1;break;}}';
+    const dtDeclare = 'int gps_dateTimeByUnit(char __u, int __z);\n';
+    let dtFunction = 'int gps_dateTimeByUnit(char __u, int __z){';
+    dtFunction += 'int __gpsTime = gps_rawTime();int __gpsDate =' +
+        ' gps_rawDate();\n';
+    dtFunction += 'int __monthDays[13] = {31, 31, 28, 31, 30, 31, 30, 31,' +
+        ' 31, 30, 31, 30, 31};\n';
+    dtFunction += 'int __gpsDay = __gpsDate / 10000;\n';
+    dtFunction += 'int __gpsMonth = __gpsDate / 100 - (__gpsDate / 10000)' +
+        ' * 100;\n';
+    dtFunction += 'int __gpsYear = __gpsDate - (__gpsDate / 100) * 100;\n';
+    dtFunction += 'if (__gpsYear % 4 == 0) __monthDays[2] = 29;\n';
+    dtFunction += 'int __gpsHour = __gpsTime / 10000 + __z;\n';
+    dtFunction += 'if (__gpsHour < 0) { __gpsHour += 24; __gpsDay--; }\n';
+    dtFunction += 'if (__gpsHour > 23) { __gpsHour -= 24; __gpsDay++; }\n';
+    dtFunction += 'if (__gpsDay > __monthDays[__gpsMonth]) { __gpsDay = 1;' +
+        ' __gpsMonth++; }\n';
+    dtFunction += 'if (__gpsDay < 1) { __gpsMonth--; __gpsDay =' +
+        ' __monthDays[__gpsMonth]; }\n';
+    dtFunction += 'if (__gpsMonth < 1) { __gpsYear--; __gpsMonth = 12; }\n';
+    dtFunction += 'if (__gpsMonth > 12) { __gpsYear++; __gpsMonth = 1; }\n';
+    dtFunction += 'switch (__u){case GPS_UNIT_DAY:return __gpsDay;break;\n';
+    dtFunction += 'case GPS_UNIT_MONTH:\nreturn __gpsMonth;break;\n';
+    dtFunction += 'case GPS_UNIT_YEAR:\nreturn __gpsYear;break;\n';
+    dtFunction += 'case GPS_UNIT_HOUR:\nreturn __gpsHour;break;\n';
+    dtFunction += 'case GPS_UNIT_MINUTE:\nreturn __gpsTime / 100 - (__gpsTime' +
+        ' / 10000) * 100;break;\n';
+    dtFunction += 'case GPS_UNIT_SECOND:\nreturn __gpsTime -' +
+        ' (__gpsTime / 100) * 100;break;\n';
+    dtFunction += 'default:\nreturn -1;break;}}';
 
     if (!this.disabled) {
-      Blockly.propc.methods_['gps_time_func'] = dt_function;
-      Blockly.propc.method_declarations_['gps_time_func'] = dt_declare;
+      Blockly.propc.methods_['gps_time_func'] = dtFunction;
+      Blockly.propc.method_declarations_['gps_time_func'] = dtDeclare;
     }
-    return ['gps_dateTimeByUnit(' + time_unit + ', ' + zone_unit + ')', Blockly.propc.ORDER_ATOMIC];
+    return ['gps_dateTimeByUnit(' + timeUnit + ', ' + zoneUnit +
+    ')', Blockly.propc.ORDER_ATOMIC];
   }
 };
 
 
-// ------------------ RFID Reader Blocks ---------------------------------------
+// ------------------ RFID Reader Blocks --------------------
+
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.rfid_get.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.rfid_get.onchange
+ *  }}
+ */
 Blockly.Blocks.rfid_get = {
   helpUrl: Blockly.MSG_RFID_HELPURL,
   init: function() {
@@ -2296,7 +2778,8 @@ Blockly.Blocks.rfid_get = {
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
         .appendField('RFID store reading in')
-        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_GET_ITEM), 'BUFFER');
+        .appendField(new Blockly.FieldVariable(
+            Blockly.LANG_VARIABLES_GET_ITEM), 'BUFFER');
 
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
@@ -2304,13 +2787,18 @@ Blockly.Blocks.rfid_get = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('RFID initialize') === -1) {
-      this.setWarningText('WARNING: You must use an RFID\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use an RFID\ninitialize block' +
+          ' at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.rfid_get = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('RFID initialize') === -1) {
@@ -2324,10 +2812,20 @@ Blockly.propc.rfid_get = function() {
       Blockly.propc.global_vars_['rfid_buffer'] = 'char *rfidBfr;';
       Blockly.propc.definitions_['rfidser'] = '#include "rfidser.h"';
     }
-    return 'rfidBfr = rfid_get(rfid, 500);\n\tsscan(&rfidBfr[2], "%x", &' + saveVariable + ');\n\tif(' + saveVariable + ' == 237) ' + saveVariable + ' = 0;';
+    return 'rfidBfr = rfid_get(rfid, 500);\n\tsscan(&rfidBfr[2], "%x", &' +
+        saveVariable + ');\n\tif(' + saveVariable + ' == 237) ' +
+        saveVariable + ' = 0;';
   }
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.rfid_disable.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.rfid_disable.onchange
+ *  }}
+ */
 Blockly.Blocks.rfid_disable = {
   helpUrl: Blockly.MSG_RFID_HELPURL,
   init: function() {
@@ -2346,13 +2844,18 @@ Blockly.Blocks.rfid_disable = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('RFID initialize') === -1) {
-      this.setWarningText('WARNING: You must use an RFID\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use an RFID\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.rfid_disable = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('RFID initialize') === -1) {
@@ -2402,14 +2905,16 @@ Blockly.Blocks.rfid_enable = {
     this.appendDummyInput('PINS')
         .appendField('RFID initialize EN')
         .appendField(new Blockly.FieldDropdown(
-            profile.digital.concat(this.userDefinedConstantsList_.map(function(value) {
-              return [value, value]; // returns an array of arrays built from the original array.
-            }))), 'PIN_IN')
+            profile.digital.concat(
+                this.userDefinedConstantsList_.map(function(value) {
+                  return [value, value];
+                }))), 'PIN_IN')
         .appendField('SOUT')
         .appendField(new Blockly.FieldDropdown(
-            profile.digital.concat(this.userDefinedConstantsList_.map(function(value) {
-              return [value, value]; // returns an array of arrays built from the original array.
-            }))), 'PIN_OUT');
+            profile.digital.concat(
+                this.userDefinedConstantsList_.map(function(value) {
+                  return [value, value];
+                }))), 'PIN_OUT');
     if (m1 && m1 === oldValue && newValue) {
       this.setFieldValue(newValue, 'PIN_IN');
     } else if (m1) {
@@ -2424,7 +2929,6 @@ Blockly.Blocks.rfid_enable = {
   },
 };
 
-
 /**
  * RFID Enable C code generator
  * @return {string}
@@ -2432,23 +2936,32 @@ Blockly.Blocks.rfid_enable = {
 Blockly.propc.rfid_enable = function() {
   if (!this.disabled) {
     const profile = getDefaultProfile();
-    let pin_in = this.getFieldValue('PIN_IN');
-    let pin_out = this.getFieldValue('PIN_OUT');
+    let pinIN = this.getFieldValue('PIN_IN');
+    let pinOUT = this.getFieldValue('PIN_OUT');
 
-    if (profile.digital.toString().indexOf(pin_in + ',' + pin_in) === -1) {
-      pin_in = 'MY_' + pin_in;
+    if (profile.digital.toString().indexOf(pinIN + ',' + pinIN) === -1) {
+      pinIN = 'MY_' + pinIN;
     }
-    if (profile.digital.toString().indexOf(pin_out + ',' + pin_out) === -1) {
-      pin_out = 'MY_' + pin_out;
+    if (profile.digital.toString().indexOf(pinOUT + ',' + pinOUT) === -1) {
+      pinOUT = 'MY_' + pinOUT;
     }
 
     Blockly.propc.definitions_['rfidser'] = '#include "rfidser.h"';
     Blockly.propc.global_vars_['rfidser'] = 'rfidser *rfid;';
-    Blockly.propc.setups_['rfidser_setup'] = 'rfid = rfid_open(' + pin_out + ',' + pin_in + ');';
+    Blockly.propc.setups_['rfidser_setup'] = 'rfid = rfid_open(' +
+        pinOUT + ',' + pinIN + ');';
   }
   return '';
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.rfid_close.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.rfid_close.onchange
+ *  }}
+ */
 Blockly.Blocks.rfid_close = {
   helpUrl: Blockly.MSG_RFID_HELPURL,
   init: function() {
@@ -2463,13 +2976,18 @@ Blockly.Blocks.rfid_close = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('RFID initialize') === -1) {
-      this.setWarningText('WARNING: You must use an RFID\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use an RFID\ninitialize block' +
+          ' at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.rfid_close = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('RFID initialize') === -1) {
@@ -2482,7 +3000,19 @@ Blockly.propc.rfid_close = function() {
   }
 };
 
-// ------------------ Sony TV Remote (Using 40 kHz IR sensor) Blocks -----------
+// ---------- Sony TV Remote (Using 40 kHz IR sensor) Blocks -----------
+
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.sirc_get.init,
+ *  addPinMenu: *,
+ *  mutationToDom: *,
+ *  helpUrl: string,
+ *  setToOther: *,
+ *  domToMutation: *
+ *  }}
+ */
 Blockly.Blocks.sirc_get = {
   helpUrl: Blockly.MSG_SONY_REMOTE_HELPURL,
   init: function() {
@@ -2508,13 +3038,18 @@ Blockly.Blocks.sirc_get = {
   setToOther: Blockly.Blocks['sensor_ping'].setToOther,
 };
 
+/**
+ *
+ * @return {[string, number]}
+ */
 Blockly.propc.sirc_get = function() {
   const project = getProjectInitialState();
   let pin = '0';
   if (project.boardType.name === 'heb-wx') {
     pin = '23';
   } else if (this.otherPin[0]) {
-    pin = Blockly.propc.valueToCode(this, 'PIN', Blockly.propc.ORDER_ATOMIC) || '0';
+    pin = Blockly.propc.valueToCode(
+        this, 'PIN', Blockly.propc.ORDER_ATOMIC) || '0';
   } else {
     pin = this.getFieldValue('PIN');
   }
@@ -2551,14 +3086,14 @@ Blockly.Blocks.keypad_initialize = {
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m = [];
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
       m[i] = this.getFieldValue('P' + i.toString(10));
     }
     if (this.getInput('PINS')) {
       this.removeInput('PINS');
     }
     const pinConstantList = this.userDefinedConstantsList_.map(function(value) {
-      return [value, value]; // returns an array of arrays built from the original array.
+      return [value, value];
     });
     this.appendDummyInput('PINS')
         .appendField('4x4 Keypad initialize PINS left')
@@ -2605,16 +3140,27 @@ Blockly.propc.keypad_initialize = function() {
         kp[k] = 'MY_' + kp[k];
       }
     }
-    let keypad_vars = 'int __rowPins[] = {' + kp[0] + ', ' + kp[1] + ', ' + kp[2] + ', ' + kp[3] + '};\n';
-    keypad_vars += 'int __colPins[] = {' + kp[4] + ', ' + kp[5] + ', ' + kp[6] + ', ' + kp[7] + '};\n';
-    keypad_vars += 'int __buttonVals[] = {1, 2, 3, \'A\', 4, 5, 6, \'B\', 7, 8, 9, \'C\', \'*\', 0, \'#\', \'D\'};\n';
+    let keypadVars = 'int __rowPins[] = {' + kp[0] + ', ' + kp[1] + ', ' +
+        kp[2] + ', ' + kp[3] + '};\n';
+    keypadVars += 'int __colPins[] = {' + kp[4] + ', ' + kp[5] + ', ' +
+        kp[6] + ', ' + kp[7] + '};\n';
+    keypadVars += 'int __buttonVals[] = {1, 2, 3, \'A\', 4, 5, 6, \'B\', 7,' +
+        ' 8, 9, \'C\', \'*\', 0, \'#\', \'D\'};\n';
     Blockly.propc.definitions_['keypad_lib'] = '#include "keypad.h"';
-    Blockly.propc.global_vars_['keypad_pins'] = keypad_vars;
-    Blockly.propc.setups_['keypad_init'] = 'keypad_setup(4, 4, __rowPins, __colPins, __buttonVals);';
+    Blockly.propc.global_vars_['keypad_pins'] = keypadVars;
+    Blockly.propc.setups_['keypad_init'] =
+        'keypad_setup(4, 4, __rowPins, __colPins, __buttonVals);';
   }
   return '';
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.keypad_read.init,
+ *  helpUrl: string
+ *  }}
+ */
 Blockly.Blocks.keypad_read = {
   helpUrl: Blockly.MSG_KEYPAD_HELPURL,
   init: function() {
@@ -2626,17 +3172,33 @@ Blockly.Blocks.keypad_read = {
   },
 };
 
+/**
+ *
+ * @return {string|[string, number]}
+ */
 Blockly.propc.keypad_read = function() {
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('Keypad initialize') === -1) {
-    return '// ERROR: Missing Keypad initalize block!';
+    return '// ERROR: Missing Keypad initialize block!';
   } else {
     return ['keypad_read()', Blockly.propc.ORDER_ATOMIC];
   }
 };
 
 
-// ------------------ DHT22 Temp & Humidity Sensor -----------------------------
+// ------------------ DHT22 Temp & Humidity Sensor ----------------------
+
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.dht22_read.init,
+ *  addPinMenu: *,
+ *  mutationToDom: *,
+ *  helpUrl: string,
+ *  setToOther: *,
+ *  domToMutation: *
+ *  }}
+ */
 Blockly.Blocks.dht22_read = {
   helpUrl: Blockly.MSG_TEMPERATURE_HELPURL,
   init: function() {
@@ -2655,6 +3217,10 @@ Blockly.Blocks.dht22_read = {
   setToOther: Blockly.Blocks['sensor_ping'].setToOther,
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.dht22_read = function() {
   if (!this.disabled) {
     Blockly.propc.definitions_['dht22'] = '#include "dht22.h"';
@@ -2662,7 +3228,8 @@ Blockly.propc.dht22_read = function() {
 
   let pin = '0';
   if (this.otherPin[0]) {
-    pin = Blockly.propc.valueToCode(this, this.pinChoices[0], Blockly.propc.ORDER_ATOMIC) || '0';
+    pin = Blockly.propc.valueToCode(
+        this, this.pinChoices[0], Blockly.propc.ORDER_ATOMIC) || '0';
   } else {
     pin = this.getFieldValue(this.pinChoices[0]);
   }
@@ -2670,7 +3237,13 @@ Blockly.propc.dht22_read = function() {
   return 'dht22_read(' + pin + ');';
 };
 
-
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.dht22_value.init,
+ *  helpUrl: string
+ *  }}
+ */
 Blockly.Blocks.dht22_value = {
   helpUrl: Blockly.MSG_TEMPERATURE_HELPURL,
   init: function() {
@@ -2690,16 +3263,24 @@ Blockly.Blocks.dht22_value = {
   },
 };
 
+/**
+ *
+ * @return {[string, number]}
+ */
 Blockly.propc.dht22_value = function() {
   if (!this.disabled) {
     Blockly.propc.definitions_['dht22'] = '#include "dht22.h"';
   }
   const action = this.getFieldValue('ACTION').split(',');
-  return ['dht22_get' + action[0] + '(' + action[1] + ')', Blockly.propc.ORDER_ATOMIC];
+  return [
+    'dht22_get' + action[0] + '(' + action[1] + ')',
+    Blockly.propc.ORDER_ATOMIC,
+  ];
 };
 
 
 // ------------------ BME680 Air Quality Sensor -----------------------------
+
 /**
  * bme680 Initialization
  * @type {{
@@ -2734,7 +3315,7 @@ Blockly.Blocks.bme680_init = {
       this.removeInput('PINS');
     }
     const pinConstantList = this.userDefinedConstantsList_.map(function(value) {
-      return [value, value]; // returns an array of arrays built from the original array.
+      return [value, value];
     });
     this.appendDummyInput('PINS')
         .appendField('Air Quality initialize SCK')
@@ -2759,7 +3340,6 @@ Blockly.Blocks.bme680_init = {
   },
 };
 
-
 /**
  * BME-680 Initialization C code generator
  * @return {string}
@@ -2779,12 +3359,21 @@ Blockly.propc.bme680_init = function() {
   }
   if (!this.disabled) {
     Blockly.propc.definitions_['include_bme680'] = '#include "bme680.h"';
-    Blockly.propc.setups_['init_bme680'] = 'gas_sensor = bme680_openSPI(' + pin.join(', ') + ');\n';
+    Blockly.propc.setups_['init_bme680'] =
+        'gas_sensor = bme680_openSPI(' + pin.join(', ') + ');\n';
     Blockly.propc.global_vars_['device_bme680'] = 'bme680 *gas_sensor;\n';
   }
   return '';
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.bme680_read.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.bme680_read.onchange
+ *  }}
+ */
 Blockly.Blocks.bme680_read = {
   helpUrl: Blockly.MSG_BME680_HELPURL,
   init: function() {
@@ -2799,13 +3388,18 @@ Blockly.Blocks.bme680_read = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Air Quality initialize') === -1) {
-      this.setWarningText('WARNING: You must use an Air Quality\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use an Air Quality\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.bme680_read = function() {
   let code = '';
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
@@ -2817,6 +3411,14 @@ Blockly.propc.bme680_read = function() {
   return code;
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.bme680_heater.init,
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.bme680_heater.onchange
+ *  }}
+ */
 Blockly.Blocks.bme680_heater = {
   helpUrl: Blockly.MSG_BME680_HELPURL,
   init: function() {
@@ -2835,24 +3437,41 @@ Blockly.Blocks.bme680_heater = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Air Quality initialize') === -1) {
-      this.setWarningText('WARNING: You must use an Air Quality\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use an Air Quality\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {string}
+ */
 Blockly.propc.bme680_heater = function() {
   let code = '';
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
   if (allBlocks.indexOf('Air Quality initialize') === -1) {
     code += '// ERROR: Missing Air Quality initialize block!';
   } else {
-    code += 'bme680_heater' + this.getFieldValue('HEAT_STATE') + '(gas_sensor);';
+    code += 'bme680_heater' + this.getFieldValue(
+        'HEAT_STATE') + '(gas_sensor);';
   }
   return code;
 };
 
+/**
+ *
+ * @type {{
+ *  init: Blockly.Blocks.bme680_get_value.init,
+ *  mutationToDom: (function(): HTMLElement),
+ *  helpUrl: string,
+ *  onchange: Blockly.Blocks.bme680_get_value.onchange,
+ *  setMeasUnit: Blockly.Blocks.bme680_get_value.setMeasUnit,
+ *  domToMutation: Blockly.Blocks.bme680_get_value.domToMutation
+ *  }}
+ */
 Blockly.Blocks.bme680_get_value = {
   helpUrl: Blockly.MSG_BME680_HELPURL,
   init: function() {
@@ -2935,13 +3554,18 @@ Blockly.Blocks.bme680_get_value = {
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Air Quality initialize') === -1) {
-      this.setWarningText('WARNING: You must use an Air Quality\ninitialize block at the beginning of your program!');
+      this.setWarningText('WARNING: You must use an Air Quality\ninitialize' +
+          ' block at the beginning of your program!');
     } else {
       this.setWarningText(null);
     }
   },
 };
 
+/**
+ *
+ * @return {[string, number]}
+ */
 Blockly.propc.bme680_get_value = function() {
   let code = '';
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
