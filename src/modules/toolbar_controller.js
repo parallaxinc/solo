@@ -20,7 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import {Project} from './project.js';
+import {getProjectInitialState} from './project.js';
 
 /**
  *  Update the state of the Compiler toolbar buttons
@@ -30,14 +30,18 @@ import {Project} from './project.js';
  * @constructor
  */
 const propToolbarButtonController = (connected) => {
-  if (!Project.getProjectState()) {
+  const project = getProjectInitialState();
+
+  // No buttons are valid if there is no project.
+  if (!project) {
+    console.log('No active project. Disabling all buttons.');
     disableButtons();
     return;
   }
 
   // if (projectData && projectData.board === 's3') {
-  if (Project.getProjectState() &&
-      Project.getProjectState().boardType.name === 's3') {
+  if (project.boardType.name === 's3') {
+    console.log('Updating toolbar for S3 project options');
     /* ----------------------------------------------------------------
      * Hide the buttons that are not required for the S3 robot
      *
@@ -52,6 +56,7 @@ const propToolbarButtonController = (connected) => {
     $('#client-available').addClass('hidden');
     $('#client-available-short').removeClass('hidden');
   } else {
+    console.log('Updating toolbar for non-S3 project options');
     // Reveal these buttons
     $('.no-s3').removeClass('hidden');
 
@@ -73,6 +78,7 @@ const propToolbarButtonController = (connected) => {
          */
     $('.client-action').removeClass('disabled');
   } else {
+    console.log('No client connected. Disabling the loader options');
     disableButtons();
   }
 };
