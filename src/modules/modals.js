@@ -375,6 +375,7 @@ function openProjectModalCancelClick() {
 
     if (!getProjectInitialState() ||
         typeof(getProjectInitialState().board) === 'undefined') {
+      // TODO: Create a default project if there is not a valid current project.
       // If there is no project, go to home page.
       window.location.href = 'index.html' + window.getAllURLParameters();
     }
@@ -385,12 +386,12 @@ function openProjectModalCancelClick() {
  * Open project escape ('x') click event handler
  */
 function openProjectModalEscapeClick() {
-  /* Trap the modal event that fires when the modal window is
-     * closed when the user clicks on the 'x' icon.
-     */
+  // Trap the modal event that fires when the modal window is closed when
+  // the user clicks on the 'x' icon.
   $('#open-project-dialog').on('hidden.bs.modal', function() {
     if (!getProjectInitialState() ||
         typeof getProjectInitialState().boardType.name === 'undefined') {
+      // TODO: Create a default project if there is not a valid current project.
       // If there is no project, go to home page.
       window.location.href = 'index.html';
     }
@@ -429,7 +430,6 @@ function editProjectDetails() {
   $('#edit-project-dialog').modal({keyboard: false, backdrop: 'static'});
 }
 
-
 /**
  *  Handle the Enter key press when processing a form
  */
@@ -455,7 +455,6 @@ function setEditOfflineProjectDetailsEnterHandler() {
   });
 }
 
-
 /**
  *  Edit Project Details - Continue button onClick event handler
  */
@@ -471,13 +470,13 @@ function setEditOfflineProjectDetailsContinueHandler() {
   });
 }
 
-
 /**
  * Update the name and description details of the current project
  */
 function updateProjectDetails() {
   const project = getProjectInitialState();
   const newName = $('#edit-project-name').val();
+
   if (!(project.name === newName)) {
     project.name = newName;
     displayProjectName(project.name);
@@ -488,7 +487,6 @@ function updateProjectDetails() {
     project.description = newDescription;
   }
 }
-
 
 /**
  *  Edit Project Details - Cancel button onClick event handler
@@ -509,23 +507,18 @@ function setEditOfflineProjectDetailsCancelHandler() {
   });
 }
 
-
-/*   Load a Project file    */
 /**
- *
+ * Set the upload modal's title to "import"
  */
 function initUploadModalLabels() {
-  // set the upload modal's title to "import"
-  const label = page_text_label['editor_import'];
-  $('#upload-dialog-title').html(label);
-  $('#upload-project span').html(label);
+  $('#upload-dialog-title').html(page_text_label['editor_import']);
+  $('#upload-project span').html(page_text_label['editor_import']);
 
   // Hide the save-as button.
   $('#save-project-as, #save-as-btn').addClass('hidden');
 
   disableUploadDialogButtons();
 }
-
 
 /**
  * disable to upload dialog buttons until a valid file is uploaded
@@ -534,7 +527,6 @@ function disableUploadDialogButtons() {
   document.getElementById('selectfile-replace').disabled = true;
   document.getElementById('selectfile-append').disabled = true;
 }
-
 
 // HELPER FUNCTIONS
 

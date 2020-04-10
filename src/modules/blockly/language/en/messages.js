@@ -1170,22 +1170,6 @@ Blockly.BlockSvg.prototype.showHelp_ = function() {
     // Temp fix - Solo-26
     // Display help in a new browser window
     window.open(url);
-
-    // TODO: open modal/iframe with help content
-    // url = ""http://learn.parallax.com/ab-blocks/functions"
-
-    // Change protocol to HTTPS when accessing the learn site
-    // var u = url.replace(/https:\/\/learn.parallax.com\//g, '');
-
-    // Help is supposed to be in the /cdn/help folder. That does not
-    // yet exist.
-
-    // let u = 'cdn/help/' + u.replace(/\//g, '-') + '.html';
-
-    // Disable this until the help issue is addressed. Reference issue Solo-26
-    // $('#help-content').html('<iframe src="' + u +
-    // '" style="height:600px; border:none;" />');
-    // $('#help-dialog').modal('show');
   }
 };
 
