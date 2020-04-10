@@ -404,25 +404,13 @@ function openProjectModalEscapeClick() {
   });
 }
 
-
-/**
- * Dialog box to allow editing project name and description
- *
- * @description
- * The dialog displays a number of project details.
- */
-function editProjectDetails() {
-  editOfflineProjectDetails();
-}
-
-
 /**
  *  Present the Edit Project Details modal dialog box
  *
  *  The onClick event handlers for the Cancel and Continue buttons
  *  will manage the project state as required.
  */
-function editOfflineProjectDetails() {
+function editProjectDetails() {
   const project = getProjectInitialState();
 
   // Set the dialog buttons click event handlers
@@ -434,12 +422,15 @@ function editOfflineProjectDetails() {
   $('#edit-project-name').val(project.name);
   $('#edit-project-description').val(project.description);
 
-  // Display additional project details.
-  const projectBoardType = $('#edit-project-board-type-ro');
-  projectBoardType.val(project.boardType.name);
-  projectBoardType.html(project.description);
-  $('#edit-project-created-date-ro').html(project.created);
-  $('#edit-project-last-modified-ro').html(project.modified);
+  // Display project board type.
+  const elementProjectBoardType = $('#edit-project-board-type-ro');
+  elementProjectBoardType.html(project.boardType.name.toUpperCase());
+
+  // Display the project create and last modified time stamps
+  const createDate = new Date(project.created);
+  const modifiedDate = new Date(project.modified);
+  $('#edit-project-created-date-ro').html(createDate.toLocaleDateString());
+  $('#edit-project-last-modified-ro').html(modifiedDate.toLocaleDateString());
 
   // Show the dialog
   $('#edit-project-dialog').modal({keyboard: false, backdrop: 'static'});
