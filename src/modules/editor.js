@@ -1087,6 +1087,18 @@ function getBlocklyProjectXML() {
 
 /**
  * Save project to persistent storage
+ * @description The project metadata is retrieved from the static project
+ * object. The current the current state of the project code is retrieved
+ * from the Blockly workspace as an XMLDocument, which is required when the
+ * code is embedded in an SVG document.
+ *
+ * An SVG document is created and then persisted to local storage. There is
+ * no process confirmation message and, right now, there is no error message
+ * either. That needs to be addressed.
+ *
+ * Once the project file has been stored, the current static prject object
+ * is updated to reflect the new last update timestamp and the current
+ * state of the project code.
  */
 function downloadCode() {
   const projectXml = getBlocklyProjectXML();
@@ -1137,13 +1149,12 @@ function downloadCode() {
             '<ckm>' + xmlChecksum + '</ckm></svg>',
   ], {type: 'image/svg+xml'});
 
+  // TODO: Wrap this in a try/catch and maybe even a Promise, if needed
   // Persist the svg date to a project file
   saveAs(blob, projectFilename + '.svg');
 
-  // save the project into localStorage with a timestamp - if the page is
-  // simply refreshed, this will allow the project to be reloaded. make the
-  // projecData object reflect the current workspace and save it into
-  // localStorage
+  // Save the project into localStorage with a timestamp - if the page is
+  // simply refreshed, this will allow the project to be reloaded.
   const date = new Date();
   project.timestamp = date.getTime();
   project.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
@@ -1153,7 +1164,6 @@ function downloadCode() {
   // Mark the time when saved, add 20 minutes to it.
   ProjectSaveTimer.timestampSaveTime(0, true);
 }
-
 
 /**
  * Generate a blocklyprop project SVG file header to lead the text of the file
