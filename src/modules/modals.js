@@ -214,19 +214,17 @@ function newProjectModalEscapeClick() {
   });
 }
 
-
 /**
  * Verify that the project name and board type form fields have data
  *
  * @return {boolean} True if form contains valid data, otherwise false
  */
 function validateNewProjectForm() {
-  // Select the 'proj' class
-  const project = $('.proj');
+  const projectElement = $('.proj');
 
   // Validate the jQuery object based on these rules. Supply helpful
   // error messages to use when a rule is violated
-  project.validate({
+  projectElement.validate({
     rules: {
       'new-project-name': 'required',
       'new-project-board-type': 'required',
@@ -237,9 +235,8 @@ function validateNewProjectForm() {
     },
   });
 
-  return !!project.valid();
+  return !!projectElement.valid();
 }
-
 
 /**
  *  Validate the required elements of the edit project form
@@ -248,11 +245,11 @@ function validateNewProjectForm() {
  */
 function validateEditProjectForm() {
   // Select the form element
-  const project = $('#edit-project-form');
+  const projectElement = $('#edit-project-form');
 
   // Validate the jQuery object based on these rules. Supply helpful
   // error messages to use when a rule is violated
-  project.validate({
+  projectElement.validate({
     rules: {
       'edit-project-name': 'required',
       'edit-project-board-type': 'required',
@@ -263,9 +260,8 @@ function validateEditProjectForm() {
     },
   });
 
-  return !!project.valid();
+  return !!projectElement.valid();
 }
-
 
 /**
  *  Open the modal to select a project file to load
@@ -288,8 +284,8 @@ function openProjectModal() {
     // opening a new project
     if (isProjectChanged()) {
       const message =
-                'The current project has been modified. Click OK to\n' +
-                'discard the current changes and open an existing project.';
+          'The current project has been modified. Click OK to\n' +
+          'discard the current changes and open an existing project.';
 
       utils.confirm(
           'Abandon Current Project', message,
@@ -309,7 +305,6 @@ function openProjectModal() {
     openProjectModalSetHandlers();
   }
 }
-
 
 /**
  * Set up the callbacks for the open project modal dialog
@@ -365,7 +360,6 @@ function openProjectModalOpenClick() {
   });
 }
 
-
 /**
  * Open project cancel button clicked event handler
  */
@@ -386,7 +380,6 @@ function openProjectModalCancelClick() {
     }
   });
 }
-
 
 /**
  * Open project escape ('x') click event handler
@@ -551,14 +544,15 @@ function disableUploadDialogButtons() {
  * @param {HTMLElement} element is the <select> HTML element that will
  * be populated with a collection of possible board types
  *
- * @param {boolean }selected is an optional string parameter containing the
- * board type in the list that should be designated as the selected
- * board type.
+ * @param {boolean | null} selected is an optional string parameter
+ * containing the board type in the list that should be designated as the
+ * selected board type.
  */
 function populateProjectBoardTypesUIElement(element, selected = null) {
   if (element) {
     // Clear out the board type dropdown menu
-    element.empty();
+    // element.empty();
+    element.innerHTML = '';
 
     // Populate the board type dropdown menu with a header first,
 
@@ -572,28 +566,31 @@ function populateProjectBoardTypesUIElement(element, selected = null) {
     // then populate the dropdown with the board types
     // defined in propc.js in the 'profile' object
     // (except 'default', which is where the current project's type is stored)
-    for (const boardTypes in ProjectProfiles) {
-      if (Object.prototype.hasOwnProperty.call(ProjectProfiles, boardTypes)) {
-        if (boardTypes !== 'default') {
+    for (const board in ProjectProfiles) {
+      if (Object.prototype.hasOwnProperty.call(ProjectProfiles, board)) {
+        if (board !== 'default') {
           // Use the experimental tag to show code-only view
-          if (boardTypes !== 'propcfile' ||
-              (boardTypes === 'propcfile' &&
+          if (board !== 'propcfile' ||
+              (board === 'propcfile' &&
                   isExperimental.indexOf('propc') > -1)) {
-            element.append($('<option />')
-                .val(boardTypes)
-                .text(ProjectProfiles[boardTypes].description));
+            if (board !== 'unknown') {
+              // Exclude the 'unknown' board type. It is used only when
+              // something has gone wrong during a project load operation
+              element.append($('<option />')
+                  .val(board)
+                  .text(ProjectProfiles[board].description));
+            }
           }
         }
 
         // Optionally set the selected option element
-        if (selected && boardTypes === selected) {
+        if (selected && board === selected) {
           $(element).val(selected);
         }
       }
     }
   }
 }
-
 
 export {
   initUploadModalLabels, editProjectDetails, newProjectModal, openProjectModal,
