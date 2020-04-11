@@ -32,24 +32,24 @@ goog.require('goog.userAgent');
 /**
  * Class for an editable range field.
  * @param {string} text The initial content of the field.
- * @param {string} opt_min The minimum content of the field.
- * @param {string} opt_max The maximum content of the field.
- * @param {Function} opt_changeHandler An optional function that is called
+ * @param {string} optMin The minimum content of the field.
+ * @param {string} optMax The maximum content of the field.
+ * @param {Function} optChangeHandler An optional function that is called
  *     to validate any constraints on what the user entered.  Takes the new
  *     text as an argument and returns the accepted text or null to abort
  *     the change.
  * @extends {Blockly.FieldTextInput}
  * @constructor
  */
-Blockly.FieldRange = function(text, opt_min, opt_max, opt_changeHandler) {
+Blockly.FieldRange = function(text, optMin, optMax, optChangeHandler) {
   let changeHandler;
-  if (opt_changeHandler) {
+  if (optChangeHandler) {
     // Wrap the user's change handler together with the range validator.
     const thisObj = this;
     changeHandler = function(value) {
       value = Blockly.FieldRange.rangeValidator.call(thisObj, value);
       if (value !== null) {
-        opt_changeHandler.call(thisObj, value);
+        optChangeHandler.call(thisObj, value);
       }
       return value;
     };
@@ -57,8 +57,8 @@ Blockly.FieldRange = function(text, opt_min, opt_max, opt_changeHandler) {
     changeHandler = Blockly.FieldRange.rangeValidator;
   }
 
-  Blockly.FieldRange.MIN = Number(opt_min);
-  Blockly.FieldRange.MAX = Number(opt_max);
+  Blockly.FieldRange.MIN = Number(optMin);
+  Blockly.FieldRange.MAX = Number(optMax);
   Blockly.FieldRange.superClass_.constructor.call(this,
       text, changeHandler);
 };
@@ -99,7 +99,7 @@ Blockly.FieldRange.prototype.dispose_ = function() {
  */
 Blockly.FieldRange.prototype.showEditor_ = function() {
   const noFocus =
-            goog.userAgent.MOBILE || goog.userAgent.ANDROID || goog.userAgent.IPAD;
+      goog.userAgent.MOBILE || goog.userAgent.ANDROID || goog.userAgent.IPAD;
     // Mobile browsers have issues with in-line textareas (focus & keyboards).
   Blockly.FieldRange.superClass_.showEditor_.call(this, noFocus);
   const div = Blockly.WidgetDiv.DIV;
@@ -150,11 +150,11 @@ Blockly.FieldRange.prototype.showEditor_ = function() {
   }, svg);
   svg.style.marginLeft = '-35px';
   this.clickWrapper_ =
-            Blockly.bindEvent_(svg, 'click', this, Blockly.WidgetDiv.hide);
+      Blockly.bindEvent_(svg, 'click', this, Blockly.WidgetDiv.hide);
   this.moveWrapper1_ =
-            Blockly.bindEvent_(this.circle_, 'mousemove', this, this.onMouseMove);
+      Blockly.bindEvent_(this.circle_, 'mousemove', this, this.onMouseMove);
   this.moveWrapper2_ =
-            Blockly.bindEvent_(this.gauge_, 'mousemove', this, this.onMouseMove);
+      Blockly.bindEvent_(this.gauge_, 'mousemove', this, this.onMouseMove);
   this.updateGraph_();
 };
 /**

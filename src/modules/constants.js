@@ -39,7 +39,7 @@
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-const APP_VERSION = '1.4.3-b1';
+const APP_VERSION = '1.4.3-b2';
 
 
 /**

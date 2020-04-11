@@ -83,34 +83,6 @@
     <script type="text/javascript" src="src/lib/jszip.min.js" defer></script>
     -->
 
-    <!-- Javascript helpers -->
-    <!--
-    <script type="text/javascript" src="src/globals.js" defer></script>
-    <script type="text/javascript" src="src/utils.js" defer></script>
-    <script type="text/javascript" src="src/blocklypropclient.js" defer></script>
-    -->
-
-    <!--
-    <script type="text/javascript" src="src/blocklyc.js" defer></script>
-    -->
-
-    <!-- Blockly core/PropC generator -->
-    <!--
-    <script type="text/javascript" src="src/lib/blockly/blockly_compressed.js" defer></script>
-    <script type="text/javascript" src="src/blockly/generators/propc.js" defer></script>
-    <script type="text/javascript" src="src/blockly/generators/field_ace.js" defer></script>
-    -->
-
-    <!-- Internationalization text strings -->
-    <!--
-    <script type="text/javascript" src="src/blockly/language/en/messages.js" defer></script>
-    -->
-
-    <!-- Block Menu/Toolbox -->
-    <!--
-    <script type="text/javascript" src="src/blockly/generators/propcToolbox.js" defer></script>
-    -->
-
     <!-- Block definitions -->
     <!--
     <script type="text/javascript" src="src/blockly/generators/propc/base.js" defer></script>
@@ -151,7 +123,7 @@
 
                 <!-- BlocklyProp Client or Loader UI -->
                 <div id="client-status-alerts" style="float: left;">
-                    <span class="auth-true" style="padding-left: 10px; line-height: 30px;">
+                    <span style="padding-left: 10px; line-height: 30px;">
                         <span id="client-unavailable" class="bp-client-danger">
                             <a class="client-unavailable-link" data-toggle="modal" data-target="#client-download-modal"
                                 href="#">
@@ -182,41 +154,33 @@
                 <!-- Left Toolbar buttons -->
                 <div id="board-action-buttons" style="padding-left: 10px; float: left;">
                     <!-- Compile program -->
-                    <a id="prop-btn-comp" class="btn btn-success btn-circle auth-true" title=""
+                    <a id="prop-btn-comp" class="btn btn-success btn-circle" title=""
                     data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="checkMarkWhite">&#x2713;</span>
                     </a>
 
                     <!-- Load to RAM -->
-                    <a id="prop-btn-ram" class="btn btn-success btn-circle disabled auth-true client-action no-s3" title=""
+                    <a id="prop-btn-ram" class="btn btn-success btn-circle disabled client-action no-s3" title=""
                     data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="downArrowWhite"></span>
                     </a>
 
                     <!-- Load to EEPROM -->
-                    <a id="prop-btn-eeprom" class="btn btn-success btn-circle disabled auth-true client-action" title=""
+                    <a id="prop-btn-eeprom" class="btn btn-success btn-circle disabled client-action" title=""
                     data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="downArrowBoxWhite">&gt;&gt;</span></a>
 
                     <!-- Open a terminal -->
-                    <a id="prop-btn-term" class="btn btn-primary btn-circle disabled auth-true client-action" title=""
+                    <a id="prop-btn-term" class="btn btn-primary btn-circle disabled client-action" title=""
                     data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="terminalWhite">#</span>
                     </a>
 
                     <!-- Open a graphing window -->
-                    <a id="prop-btn-graph" class="btn btn-primary btn-circle disabled auth-true client-action no-s3" title=""
+                    <a id="prop-btn-graph" class="btn btn-primary btn-circle disabled client-action no-s3" title=""
                     data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="graphWhite">~</span>
                     </a>
-
-                    <!-- Find and replace - propc project type -->
-                    <!-- deprecated
-                    <a id="prop-btn-find-replace" class="btn btn-info btn-circle propc-only hidden" title=""
-                    data-toggle="tooltip" data-placement="bottom">
-                        <span class="bpIcon" data-icon="searchWhite">&#x1F50E;</span>
-                    </a>
-                    -->
 
                     <!-- Clean up source code -->
                     <a id="prop-btn-pretty" class="btn btn-info btn-circle propc-only hidden" title=""
@@ -237,7 +201,7 @@
                     </a>
 
                     <!-- Drop-down hardware port select -->
-                    <select id="comPort" class="dropdown port-dropdown auth-true select-css" title="Ports"
+                    <select id="comPort" class="dropdown port-dropdown select-css" title="Ports"
                             data-displayas="inline-block" data-placement="left">
                     </select>
                 </div>
@@ -288,7 +252,7 @@
                         </button>
 
                         <ul class="dropdown-menu pull-right btn-sm">
-                            <li class="auth-true" data-displayas="list-item">
+                            <li data-displayas="list-item">
                                 <a id="edit-project-details" href="#">
                                     <span class="keyed-lang-string" data-key="editor_edit-details"></span>
                                 </a>
@@ -310,15 +274,15 @@
                                 </a>
                             </li>
 
-                            <li class="auth-true" data-displayas="list-item">
+                            <li data-displayas="list-item">
                                 <a id="upload-project">
                                     <span class="keyed-lang-string" data-key="editor_upload"></span>
                                 </a>
                             </li>
 
-                            <li class="auth-true divider" data-displayas="list-item"></li>
+                            <li class="divider" data-displayas="list-item"></li>
 
-                            <li class="auth-true" data-displayas="list-item">
+                            <li data-displayas="list-item">
                                 <a id="client-setup">
                                     <span class="keyed-lang-string" data-key="editor_run_configure"></span>
                                 </a>
@@ -329,21 +293,6 @@
             </div>
         </div>
     </div>
-
-    <!-- PropC native coding toolbar -->
-    <!-- Deprecated
-    <div id="find-replace" style="background-color: #ddd; display: none; padding: 5px;">
-        <span class="keyed-lang-string indent-left-double" data-key="editor_find_label"></span>
-        <input type="text" class="input-find-replace" id="propc-find" name="propc-find" />&nbsp;
-        <button id="propc-find-btn" class="btn-view-blocks btn-find-replace keyed-lang-string"
-            data-key="editor_find_next"></button>
-        <span class="keyed-lang-string indent-left-double" data-key="editor_replace_label"></span>
-        <input type="text" class="input-find-replace" id="propc-replace" name="propc-replace" />&nbsp;
-        <button id="propc-replace-btn" class="btn-view-blocks btn-find-replace keyed-lang-string"
-            data-key="editor_replace"></button>
-        <button id="find-replace-close" class="close margin-left-double">&times;</button>
-    </div>
-    -->
 
     <!-- Blockly canvas -->
     <div id="content">
@@ -434,24 +383,6 @@
                         data-key="project_saveaslink"></button>
                     <button id="save-btn" class="btn btn-primary keyed-lang-string" data-dismiss="modal"
                         data-key="project_savelink"></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TODO: Help dialog is probably not used -->
-    <div class="modal fade" id="help-dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 id="help-dialog-title" class="modal-title keyed-lang-string" data-key="help_reference">&nbsp;
-                    </h4>
-                </div>
-                <div class="modal-body" id="help-content"></div>
-                <div class="modal-footer">
-                    <button class="btn btn-default keyed-lang-string" data-dismiss="modal"
-                        data-key="editor_button_close"></button>
                 </div>
             </div>
         </div>

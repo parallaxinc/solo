@@ -20,9 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-
-// import * as Blockly from 'blockly/core';
-// import Blockly from 'blockly/core.js';
+import 'bootstrap';
 import Blockly from 'blockly/core';
 // eslint-disable-next-line camelcase
 import {page_text_label, tooltip_text} from './blockly/language/en/messages';
@@ -37,15 +35,15 @@ import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
-import {saveAs} from 'file-saver';
+import * as saveAs from 'file-saver';
 import {
   EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
-  PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName, TestApplicationName,
-  productBannerHostTrigger,
+  PROJECT_NAME_MAX_LENGTH, PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName,
+  TestApplicationName, productBannerHostTrigger,
 } from './constants';
 import {
-  clientService, compile, getComPort, loadInto, renderContent, downloadCSV,
-  initializeBlockly, sanitizeFilename,
+  clientService, compile, findClient, formatWizard, getComPort, loadInto,
+  renderContent, downloadCSV, initializeBlockly, sanitizeFilename,
 } from './blocklyc';
 import {CodeEditor, propcAsBlocksXml} from './code_editor.js';
 import {
@@ -252,6 +250,11 @@ $(() => {
 
   // Set up the URLs to download new Launchers and BP Clients
   initClientDownloadLinks();
+
+  // Connect to the BP Launcher
+  findClient();
+  setInterval(findClient, 3500);
+  showAppName();
 
   // Load a project file from local storage
   if (window.getURLParameter('openFile') === 'true') {
@@ -728,14 +731,17 @@ function setupWorkspace(data, callback) {
   }
   // Set the master project image
   const project = setProjectInitialState(data);
+  if (project) {
+    setDefaultProfile(project.boardType);
+  } else {
+    throw new Error('Unable to load the project.');
+  }
 
   // Delete all existing blocks, comments and undo stacks
   clearBlocklyWorkspace();
 
   // Set various project settings based on the project board type
   // NOTE: This function is in propc.js
-  // Set the default profile.
-  setDefaultProfile(project.boardType);
   displayProjectName(project.name);
   displayProjectBoardIcon(project.boardType.name);
 
@@ -1073,74 +1079,94 @@ function decodeFromValidXml(str) {
 
 
 /**
- * Save project to persistent storage
+ * Retrieve the project blocks from the Blockly workspace
+ * @return {Document | XMLDocument}
  */
-function downloadCode() {
+function getBlocklyProjectXML() {
   // Create an XML parser and parse the project XML
   const xmlParser = new DOMParser();
-  const projectXml = xmlParser.parseFromString(getXml(), 'text/xml');
+  return xmlParser.parseFromString(getXml(), 'text/xml');
+}
+
+/**
+ * Save project to persistent storage
+ * @description The project metadata is retrieved from the static project
+ * object. The current the current state of the project code is retrieved
+ * from the Blockly workspace as an XMLDocument, which is required when the
+ * code is embedded in an SVG document.
+ *
+ * An SVG document is created and then persisted to local storage. There is
+ * no process confirmation message and, right now, there is no error message
+ * either. That needs to be addressed.
+ *
+ * Once the project file has been stored, the current static prject object
+ * is updated to reflect the new last update timestamp and the current
+ * state of the project code.
+ */
+function downloadCode() {
+  const projectXml = getBlocklyProjectXML();
   const project = getProjectInitialState();
 
-  if (project &&
-        project.boardType.name !== 'propcfile' &&
-        projectXml.getElementsByTagName('block').length < 1) {
-    // The project is empty, so warn and exit.
+  if (project && project.boardType.name !== 'propcfile' &&
+      projectXml.getElementsByTagName('block').length < 1) {
+    // The project is empty. notify the user
     utils.showMessage(
         Blockly.Msg.DIALOG_EMPTY_PROJECT,
         Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT);
-  } else {
-    // Create a filename from the project title
-    const projectFilename = sanitizeFilename(project.name);
-
-    // get the text of just the project inside of the outer XML tag
-    const projectXmlCode = projectXml.children[0].innerHTML;
-
-    // get the paths of the blocks themselves and the size/position
-    // of the blocks
-    const projSVG = document.getElementsByClassName('blocklyBlockCanvas');
-    const projSVGcode = projSVG[0].outerHTML.replace(/&nbsp;/g, ' ');
-    const projSize = projSVG[0].getBoundingClientRect();
-    const projH = parseInt(projSize.height) + parseInt(projSize.top);
-    const projW = parseInt(projSize.width) + parseInt(projSize.left);
-
-    // a blocklyprop project SVG file header to lead the text of the file
-    // and hold project metadata.
-    const SVGheader = generateSvgHeader( projW, projH );
-
-    // a footer to generate a watermark with the project's information at
-    // the bottom-right corner of the SVG
-    // and hold project metadata.
-    const SVGfooter = generateSvgFooter(project);
-
-    // Deprecating project checksum. Install a dummy checksum to keep
-    // the project loader happy.
-    const xmlChecksum = '000000000000';
-
-    // Assemble both the SVG (image) of the blocks and the
-    // blocks' XML definition
-    const blob = new Blob([
-      SVGheader + projSVGcode + SVGfooter + projectXmlCode +
-            '<ckm>' + xmlChecksum + '</ckm></svg>',
-    ], {type: 'image/svg+xml'});
-
-    // Persist the svg date to a project file
-    saveAs(blob, projectFilename + '.svg');
-
-    // save the project into localStorage with a timestamp - if the page is
-    // simply refreshed, this will allow the project to be reloaded. make the
-    // projecData object reflect the current workspace and save it into
-    // localStorage
-    const date = new Date();
-    project.timestamp = date.getTime();
-    project.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
-    window.localStorage.setItem(
-        LOCAL_PROJECT_STORE_NAME, JSON.stringify(project));
-
-    // Mark the time when saved, add 20 minutes to it.
-    ProjectSaveTimer.timestampSaveTime(0, true);
+    return;
   }
-}
 
+  // Create a filename from the project title
+  const projectFilename = sanitizeFilename(project.name);
+
+  // Get the text of just the project inside of the outer XML tag
+  const projectXmlCode = projectXml.children[0].innerHTML;
+
+  // Get the paths of the blocks themselves and the size/position
+  // of the blocks
+  const projectSVG = document.getElementsByClassName('blocklyBlockCanvas');
+  const projectSVGCode = projectSVG[0].outerHTML.replace(/&nbsp;/g, ' ');
+
+  // Get project elements canvas dimensions
+  const projectSize = projectSVG[0].getBoundingClientRect();
+  const projectHeight = projectSize.height + projectSize.top;
+  const projectWidth = projectSize.width + projectSize.left;
+
+  // a Blocklyprop project SVG file header to lead the text of the file
+  // and hold project metadata.
+  const svgHeader = generateSvgHeader( projectWidth, projectHeight );
+
+  // a footer to generate a watermark with the project's information at
+  // the bottom-right corner of the SVG
+  // and hold project metadata.
+  const svgFooter = generateSvgFooter(project);
+
+  // Deprecating project checksum. Install a dummy checksum to keep
+  // the project loader happy.
+  const xmlChecksum = '000000000000';
+
+  // Assemble both the SVG (image) of the blocks and the
+  // blocks' XML definition
+  const blob = new Blob([
+    svgHeader + projectSVGCode + svgFooter + projectXmlCode +
+            '<ckm>' + xmlChecksum + '</ckm></svg>',
+  ], {type: 'image/svg+xml'});
+
+  // TODO: Wrap this in a try/catch and maybe even a Promise, if needed
+  // Persist the svg date to a project file
+  saveAs(blob, projectFilename + '.svg');
+
+  // Save the project into localStorage with a timestamp - if the page is
+  // simply refreshed, this will allow the project to be reloaded.
+  const date = new Date();
+  project.timestamp = date.getTime();
+  project.code = EMPTY_PROJECT_CODE_HEADER + projectXmlCode + '</xml>';
+  window.localStorage.setItem(
+      LOCAL_PROJECT_STORE_NAME, JSON.stringify(project));
+
+  // Mark the time when saved, add 20 minutes to it.
+  ProjectSaveTimer.timestampSaveTime(0, true);
+}
 
 /**
  * Generate a blocklyprop project SVG file header to lead the text of the file
@@ -1151,53 +1177,53 @@ function downloadCode() {
  * @return {string}
  */
 function generateSvgHeader( width, height ) {
-  const projH = (height + 100).toString();
-  const projW = (width + 236).toString();
+  const projectHeight = (height + 100).toString();
+  const projectWidth = (width + 236).toString();
 
-  // a header with the necessary svg XML header and style information to make
-  // the blocks render correctly
-  // TODO: make SVG valid.
-  let SVGheader = '';
+  // Generate a header with the necessary svg XML header and style
+  // information to make the blocks render correctly
+  // TODO: Make SVG valid. How?
+  let svgHeader = '';
 
-  SVGheader += '<svg blocklyprop="blocklypropproject" xmlns="http://www.w3.org/2000/svg" ';
-  SVGheader += 'xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink" ';
+  svgHeader += '<svg blocklyprop="blocklypropproject" xmlns="http://www.w3.org/2000/svg" ';
+  svgHeader += 'xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink" ';
   // eslint-disable-next-line max-len
-  SVGheader += 'version="1.1" class="blocklySvg"><style>.blocklySvg { background-color: #fff; ';
+  svgHeader += 'version="1.1" class="blocklySvg"><style>.blocklySvg { background-color: #fff; ';
   // eslint-disable-next-line max-len
-  SVGheader += 'overflow: auto; width:' + projW + 'px; height:' + projH + 'px;} .blocklyWidgetDiv {display: none; position: absolute; ';
+  svgHeader += 'overflow: auto; width:' + projectWidth + 'px; height:' + projectHeight + 'px;} .blocklyWidgetDiv {display: none; position: absolute; ';
   // eslint-disable-next-line max-len
-  SVGheader += 'z-index: 999;} .blocklyPathLight { fill: none; stroke-linecap: round; ';
+  svgHeader += 'z-index: 999;} .blocklyPathLight { fill: none; stroke-linecap: round; ';
   // eslint-disable-next-line max-len
-  SVGheader += 'stroke-width: 2;} .blocklyDisabled>.blocklyPath { fill-opacity: .5; ';
+  svgHeader += 'stroke-width: 2;} .blocklyDisabled>.blocklyPath { fill-opacity: .5; ';
   // eslint-disable-next-line max-len
-  SVGheader += 'stroke-opacity: .5;} .blocklyDisabled>.blocklyPathLight, .blocklyDisabled>';
+  svgHeader += 'stroke-opacity: .5;} .blocklyDisabled>.blocklyPathLight, .blocklyDisabled>';
   // eslint-disable-next-line max-len
-  SVGheader += '.blocklyPathDark {display: none;} .blocklyText {cursor: default; fill: ';
+  svgHeader += '.blocklyPathDark {display: none;} .blocklyText {cursor: default; fill: ';
   // eslint-disable-next-line max-len
-  SVGheader += '#fff; font-family: sans-serif; font-size: 11pt;} .blocklyNonEditableText>text { ';
+  svgHeader += '#fff; font-family: sans-serif; font-size: 11pt;} .blocklyNonEditableText>text { ';
   // eslint-disable-next-line max-len
-  SVGheader += 'pointer-events: none;} .blocklyNonEditableText>rect, .blocklyEditableText>rect ';
+  svgHeader += 'pointer-events: none;} .blocklyNonEditableText>rect, .blocklyEditableText>rect ';
   // eslint-disable-next-line max-len
-  SVGheader += '{fill: #fff; fill-opacity: .6;} .blocklyNonEditableText>text, .blocklyEditableText>';
+  svgHeader += '{fill: #fff; fill-opacity: .6;} .blocklyNonEditableText>text, .blocklyEditableText>';
   // eslint-disable-next-line max-len
-  SVGheader += 'text {fill: #000;} .blocklyBubbleText {fill: #000;} .blocklySvg text {user';
+  svgHeader += 'text {fill: #000;} .blocklyBubbleText {fill: #000;} .blocklySvg text {user';
   // eslint-disable-next-line max-len
-  SVGheader += '-select: none; -moz-user-select: none; -webkit-user-select: none; cursor: ';
+  svgHeader += '-select: none; -moz-user-select: none; -webkit-user-select: none; cursor: ';
   // eslint-disable-next-line max-len
-  SVGheader += 'inherit;} .blocklyHidden {display: none;} .blocklyFieldDropdown:not(.blocklyHidden) ';
+  svgHeader += 'inherit;} .blocklyHidden {display: none;} .blocklyFieldDropdown:not(.blocklyHidden) ';
   // eslint-disable-next-line max-len
-  SVGheader += '{display: block;} .bkginfo {cursor: default; fill: rgba(0, 0, 0, 0.3); font-family: ';
+  svgHeader += '{display: block;} .bkginfo {cursor: default; fill: rgba(0, 0, 0, 0.3); font-family: ';
   // eslint-disable-next-line max-len
-  SVGheader += 'sans-serif; font-size: 10pt;}</style>';
+  svgHeader += 'sans-serif; font-size: 10pt;}</style>';
 
-  return SVGheader;
+  return svgHeader;
 }
 
 /**
  * Generate a watermark with the project's information at the bottom-right
  * corner of the SVG and hold project metadata.
  *
- * @param {{}} project Project details object
+ * @param {Project} project contains the project details
  * @return {string}
  */
 function generateSvgFooter( project ) {
@@ -1226,7 +1252,7 @@ function generateSvgFooter( project ) {
 
   svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
             'transform="translate(-225,-23)">' +
-            'Device: ' + project.board + '</text>';
+            'Device: ' + project.boardType.name + '</text>';
 
   svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
             'transform="translate(-225,-8)">' +
@@ -2100,6 +2126,13 @@ function createNewProject() {
   window.location = 'blocklyc.html';
 }
 
+/**
+ *Display the application name
+ */
+function showAppName() {
+  const html = 'BlocklyProp<br><strong>Solo</strong>';
+  $('#nav-logo').html(html);
+}
 
 export {
   isProjectChanged, displayProjectName, resetToolBoxSizing,

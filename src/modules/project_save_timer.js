@@ -37,7 +37,7 @@
  *
  * @type {number}
  */
-const SAVE_PROJECT_TIMER_DELAY = 10;
+const SAVE_PROJECT_TIMER_DELAY = 20;
 
 /**
  * Call this message handler when the timer expires
@@ -123,9 +123,7 @@ class ProjectSaveTimer {
     //  not that we are leaving the page. isProjectChanged is not the right
     //  method to use here.
     if (timeNow > lastSavedTimestamp) {
-      console.log('SAVEPRJ:Time\'s up.');
       if (messageHandler) {
-        console.log('SAVEPRJ:Invoking Save Project dialog.');
         messageHandler();
       }
     }

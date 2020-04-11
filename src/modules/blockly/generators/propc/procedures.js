@@ -589,7 +589,8 @@ Blockly.Blocks['procedures_callnoreturn'] = {
    * @this Blockly.Block
    */
   updateShape_: function() {
-    for (let i = 0; i < this.arguments_.length; i++) {
+    let i;
+    for (i = 0; i < this.arguments_.length; i++) {
       let field = this.getField('ARGNAME' + i);
       if (field) {
         // Ensure argument name is up to date.
