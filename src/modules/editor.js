@@ -42,8 +42,8 @@ import {
   TestApplicationName, productBannerHostTrigger,
 } from './constants';
 import {
-  clientService, compile, getComPort, loadInto, renderContent, downloadCSV,
-  initializeBlockly, sanitizeFilename,
+  clientService, compile, findClient, formatWizard, getComPort, loadInto,
+  renderContent, downloadCSV, initializeBlockly, sanitizeFilename,
 } from './blocklyc';
 import {CodeEditor, propcAsBlocksXml} from './code_editor.js';
 import {
@@ -250,6 +250,11 @@ $(() => {
 
   // Set up the URLs to download new Launchers and BP Clients
   initClientDownloadLinks();
+
+  // Connect to the BP Launcher
+  findClient();
+  setInterval(findClient, 3500);
+  showAppName();
 
   // Load a project file from local storage
   if (window.getURLParameter('openFile') === 'true') {
@@ -2121,6 +2126,13 @@ function createNewProject() {
   window.location = 'blocklyc.html';
 }
 
+/**
+ *Display the application name
+ */
+function showAppName() {
+  const html = 'BlocklyProp<br><strong>Solo</strong>';
+  $('#nav-logo').html(html);
+}
 
 export {
   isProjectChanged, displayProjectName, resetToolBoxSizing,

@@ -351,4 +351,18 @@ navigator.browserSpecs = (function() {
 const isExperimental = getURLParameter('experimental') || 'false';
 
 
-export {utils, isExperimental, getAllUrlParameters};
+/**
+ * Log a string to the console
+ * @param {string} message
+ */
+function logConsoleMessage(message) {
+  const dt = new Date();
+  const stamp = dt.getHours().toLocaleString() + ':' +
+      dt.getMinutes().toLocaleString() + ':' +
+      dt.getSeconds().toLocaleString();
+
+  console.log('[%s] %s', stamp, message);
+}
+
+
+export {utils, isExperimental, getAllUrlParameters, logConsoleMessage};

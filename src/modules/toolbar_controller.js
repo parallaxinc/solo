@@ -21,11 +21,13 @@
  */
 
 import {getProjectInitialState} from './project.js';
+import {logConsoleMessage} from './utility';
+import {clientService} from './blocklyc';
 
 /**
  *  Update the state of the Compiler toolbar buttons
  *
- * @param {boolean} connected - is the client launcher connected
+ * @param {boolean} connected - Is there at least one port available
  *
  * @constructor
  */
@@ -39,9 +41,10 @@ const propToolbarButtonController = (connected) => {
     return;
   }
 
-  // if (projectData && projectData.board === 's3') {
+  logConsoleMessage('Evaluating board type');
+  // Display buttons relevant to the project board type
   if (project.boardType.name === 's3') {
-    console.log('Updating toolbar for S3 project options');
+    logConsoleMessage('Updating toolbar for S3 project options');
     /* ----------------------------------------------------------------
      * Hide the buttons that are not required for the S3 robot
      *
@@ -51,34 +54,37 @@ const propToolbarButtonController = (connected) => {
      *  prop-btn-graph.
      * --------------------------------------------------------------*/
     $('.no-s3').addClass('hidden');
-
-    // Toggle the client available message to display the short form
-    $('#client-available').addClass('hidden');
-    $('#client-available-short').removeClass('hidden');
   } else {
-    console.log('Updating toolbar for non-S3 project options');
+    logConsoleMessage('Updating toolbar for non-S3 project options');
     // Reveal these buttons
     $('.no-s3').removeClass('hidden');
 
     // Toggle the client available message to display the long form
-    $('#client-available').removeClass('hidden');
-    $('#client-available-short').addClass('hidden');
+    // $('#client-available').removeClass('hidden');
+    // $('#client-available-short').addClass('hidden');
   }
 
+  logConsoleMessage('Evaluate client connection state.');
   // Update elements when we are connected
-  if (connected) {
+  if (clientService.activeConnection) {
+    // Toggle the client available message to display the short form
+    $('#client-available').addClass('hidden');
+    $('#client-available-short').removeClass('hidden');
+
+    logConsoleMessage('Connected to client, Updating UI');
     // Hide the 'client unavailable' message
     $('#client-unavailable').addClass('hidden');
 
-    /* Enable these buttons:
-         *   Compile to RAM
-         *   Compile to EEPROM
-         *   Open Terminal
-         *   Open graphing window
-         */
+    if (clientService.portsAvailable) {
+      // Enable these buttons:
+      //  * Compile to RAM
+      //  * Compile to EEPROM
+      //  * Open Terminal
+      //  * Open graphing window
+    }
     $('.client-action').removeClass('disabled');
   } else {
-    console.log('No client connected. Disabling the loader options');
+    logConsoleMessage('No client connected. Disabling the loader options');
     disableButtons();
   }
 };

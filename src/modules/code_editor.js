@@ -40,6 +40,12 @@ let cSourceCode = null;
 
 
 /**
+ *
+ * @type {AceAjax.Editor | null}
+ */
+let cXmlCode = null;
+
+/**
  * Prop c code editor implementing the Ace package
  */
 class CodeEditor {
@@ -48,7 +54,7 @@ class CodeEditor {
    * @param {string} boardType
    */
   constructor(boardType) {
-    if (!window.codePropC) {
+    if (!cSourceCode) {
       // cdnjs didn't have a "no-conflict" version, so we'll use jsdelivr
       const CDN = 'https://cdn.jsdelivr.net/npm/ace-builds@1.3.3/src-min-noconflict';
 
@@ -74,7 +80,7 @@ class CodeEditor {
       const xmlCode = ace.edit('code-xml');
       xmlCode.setTheme('ace/theme/chrome');
       xmlCode.getSession().setMode('ace/mode/xml');
-      setPropCodeXml(xmlCode);
+      cXmlCode = xmlCode;
     }
   }
 
@@ -82,7 +88,7 @@ class CodeEditor {
    * Ace editor Undo command
    */
   undo() {
-    window.codePropC.undo();
+    cSourceCode.undo();
   }
 
 
@@ -90,7 +96,7 @@ class CodeEditor {
    * Ace editor Redo command
    */
   redo() {
-    window.codePropC.redo();
+    cSourceCode.redo();
   }
 }
 
@@ -145,20 +151,10 @@ function generateBlockId(nonce) {
  * @param {Object} value
  * @deprecated - do not use!
  */
+// eslint-disable-next-line no-unused-vars,require-jsdoc
 function setPropCCode(value) {
   window.codePropC = value;
 }
-
-
-/**
- *
- * @param {object} value
- * @deprecated Do Not Use!
- */
-function setPropCodeXml(value) {
-  window.codeXml = value;
-}
-
 
 /**
  * Return the active Ace code editor instance
@@ -168,4 +164,12 @@ function getSourceEditor() {
   return cSourceCode;
 }
 
-export {CodeEditor, propcAsBlocksXml, setPropCCode, getSourceEditor};
+/**
+ * Return the active Ace editor instance for the project XML
+ * @return {AceAjax.Editor}
+ */
+function getXmlCode() {
+  return cXmlCode;
+}
+
+export {CodeEditor, propcAsBlocksXml, getSourceEditor, getXmlCode};
