@@ -781,6 +781,7 @@ Blockly.propc.scrubNakedValue = function(line) {
  * Common tasks for generating Prop-c from blocks.
  * Handles comments for the specified block and any connected value blocks.
  * Calls any statements following this block.
+ *
  * @param {!Blockly.Block} block The current block.
  * @param {string} code The propc code created for this block.
  * @return {string} Prop-c code with comments and subsequent blocks added.
@@ -804,7 +805,7 @@ Blockly.propc.scrub_ = function(block, code) {
     // Don't collect comments for nested statements.
     for (let x = 0; x < block.inputList.length; x++) {
       // TODO: Possible type coercion issue
-      if (block.inputList[x].type == Blockly.INPUT_VALUE) {
+      if (block.inputList[x].type === Blockly.INPUT_VALUE) {
         const childBlock = block.inputList[x].connection.targetBlock();
         if (childBlock) {
           const comment = Blockly.propc.allNestedComments(childBlock);
@@ -824,6 +825,7 @@ Blockly.propc.scrub_ = function(block, code) {
 // From: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
 // TODO: Remove this statement once we decide what browser
 //  revisions we are going to support
+/*
 if (!Object.keys) {
   Object.keys = (function() {
     const hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -864,7 +866,7 @@ if (!Object.keys) {
     };
   }());
 }
-
+*/
 
 // NOTE: Replaces core function!                   // USE WHEN CORE IS UPDATED
 /**
