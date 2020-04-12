@@ -20,18 +20,31 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-const path = require('path');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
+const path = require('path');
+
+// Bundle entry points
+const entries = {
+    index: 'index.js',
+    editor: 'editor.js',
+};
+
+// Places to look for application files
+const modulePaths = {
+    modules: [
+        './src/modules',
+        './node_modules',
+    ],
+    extensions: ['.js']
+};
 
 module.exports = {
+    resolve: modulePaths,
     target: 'web',
     mode: 'development',
     devtool: 'source-map',
-    entry: {
-        index: './src/modules/index.js',
-        editor: './src/modules/editor.js'
-    },
+    entry: entries,
     output: {
         path: path.resolve(__dirname, 'dist'),
         // filename: '[name].[chunkhash].bundle.js',

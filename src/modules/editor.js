@@ -229,7 +229,7 @@ $(() => {
 
   // Set the compile toolbar buttons to unavailable
   // setPropToolbarButtons();
-  propToolbarButtonController(false);
+  propToolbarButtonController();
 
   // This is necessary only because the target modal is being
   // used for multiple but similar purposes.
@@ -294,7 +294,7 @@ $(() => {
 
       // Set the compile toolbar buttons to unavailable
       // setPropToolbarButtons();
-      propToolbarButtonController(false);
+      propToolbarButtonController();
     } catch (objError) {
       if (objError instanceof SyntaxError) {
         console.error(objError.name);
@@ -329,7 +329,7 @@ $(() => {
 
     // Set the compile toolbar buttons to unavailable
     // setPropToolbarButtons();
-    propToolbarButtonController(false);
+    propToolbarButtonController();
   }
 
   // Make sure the toolbox appears correctly, just for good measure.
