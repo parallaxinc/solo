@@ -26,8 +26,6 @@ import {clientService} from './blocklyc';
 
 /**
  *  Update the state of the Compiler toolbar buttons
- *
- * @constructor
  */
 function propToolbarButtonController() {
   const project = getProjectInitialState();

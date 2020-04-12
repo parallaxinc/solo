@@ -293,7 +293,6 @@ $(() => {
       ProjectSaveTimer.setMessageHandler(ShowProjectTimerModalDialog);
 
       // Set the compile toolbar buttons to unavailable
-      // setPropToolbarButtons();
       propToolbarButtonController();
     } catch (objError) {
       if (objError instanceof SyntaxError) {
