@@ -26,78 +26,183 @@ import {clientService} from './blocklyc';
 
 /**
  *  Update the state of the Compiler toolbar buttons
- *
- * @param {boolean} connected - Is there at least one port available
- *
- * @constructor
  */
-const propToolbarButtonController = (connected) => {
+function propToolbarButtonController() {
   const project = getProjectInitialState();
 
   // No buttons are valid if there is no project.
   if (!project) {
-    console.log('No active project. Disabling all buttons.');
     disableButtons();
     return;
   }
 
-  logConsoleMessage('Evaluating board type');
-  // Display buttons relevant to the project board type
-  if (project.boardType.name === 's3') {
-    logConsoleMessage('Updating toolbar for S3 project options');
-    /* ----------------------------------------------------------------
-     * Hide the buttons that are not required for the S3 robot
-     *
-     * Find all of the HTML elements that have a class id of 'no-s3'
-     * and append a hidden attribute to the selected HTML elements.
-     * This currently applies to the elements prop-btn-ram and
-     *  prop-btn-graph.
-     * --------------------------------------------------------------*/
-    $('.no-s3').addClass('hidden');
-  } else {
-    logConsoleMessage('Updating toolbar for non-S3 project options');
-    // Reveal these buttons
-    $('.no-s3').removeClass('hidden');
-
-    // Toggle the client available message to display the long form
-    // $('#client-available').removeClass('hidden');
-    // $('#client-available-short').addClass('hidden');
-  }
-
-  logConsoleMessage('Evaluate client connection state.');
   // Update elements when we are connected
   if (clientService.activeConnection) {
-    // Toggle the client available message to display the short form
-    $('#client-available').addClass('hidden');
-    $('#client-available-short').removeClass('hidden');
-
-    logConsoleMessage('Connected to client, Updating UI');
-    // Hide the 'client unavailable' message
-    $('#client-unavailable').addClass('hidden');
+    clientConnectionUpdateUI(true);
+    setCompileButtonState(true, true);
 
     if (clientService.portsAvailable) {
-      // Enable these buttons:
-      //  * Compile to RAM
-      //  * Compile to EEPROM
-      //  * Open Terminal
-      //  * Open graphing window
+      if (project.boardType.name === 's3') {
+        setS3UIButtonGroup();
+      } else {
+        setUIButtonGroup();
+      }
+    } else {
+      disableUIButtonGroup();
     }
-    $('.client-action').removeClass('disabled');
   } else {
-    logConsoleMessage('No client connected. Disabling the loader options');
+    clientConnectionUpdateUI(false);
     disableButtons();
   }
-};
+}
+
+/**
+ * Update client connection UI elements
+ * @param {boolean} state is true if client is detected, otherwise false
+ */
+function clientConnectionUpdateUI(state) {
+  if (state) {
+    // Hide the client available message to display the short form
+    $('#client-available').removeClass('hidden');
+    // $('#client-available-short').removeClass('hidden');
+
+    // Hide the 'client unavailable' message
+    $('#client-unavailable').addClass('hidden');
+    logConsoleMessage('Connected to client, Updating UI');
+  } else {
+    // Toggle the client available message to display the short form
+    $('#client-available').addClass('hidden');
+    // $('#client-available-short').addClass('hidden');
+
+    // Show the 'client unavailable' message
+    $('#client-unavailable').removeClass('hidden');
+    logConsoleMessage('Connected to client, Updating UI');
+  }
+}
 
 /**
  * Disable the toolbar buttons
  */
 function disableButtons() {
-  // Disable the toolbar buttons
-  $('#client-unavailable').removeClass('hidden');
-  $('#client-available').addClass('hidden');
-  $('#client-available-short').addClass('hidden');
-  $('.client-action').addClass('disabled');
+  setCompileButtonState(true, false);
+  setLoadRAMButtonState(true, false);
+  setLoadEEPROMButtonState(true, false);
+  setTerminalButtonState(true, false);
+  setGraphButtonState(true, false);
 }
 
+/**
+ * Disable the UI buttons for a non-S3 project
+ */
+function disableUIButtonGroup() {
+  setCompileButtonState(true, true);
+  setLoadRAMButtonState(true, false);
+  setLoadEEPROMButtonState(true, false);
+  setTerminalButtonState(true, false);
+  setGraphButtonState(true, false);
+}
+
+/**
+ * Set the UI buttons for an S3 project
+ */
+function setS3UIButtonGroup() {
+  setCompileButtonState(true, true);
+  setLoadRAMButtonState(false, false);
+  setLoadEEPROMButtonState(true, true);
+  setTerminalButtonState(true, true);
+  setGraphButtonState(false, false);
+}
+
+/**
+ * Set the UI buttons for a non-S3 project
+ */
+function setUIButtonGroup() {
+  setCompileButtonState(true, true);
+  setLoadRAMButtonState(true, true);
+  setLoadEEPROMButtonState(true, true);
+  setTerminalButtonState(true, true);
+  setGraphButtonState(true, true);
+}
+
+/**
+ * Manage the Compile button UI
+ * @param {boolean} visible Is the button visible
+ * @param {boolean} enabled Is the button clickable
+ */
+function setCompileButtonState(visible, enabled) {
+  const element = $('#prop-btn-comp');
+  if (element) {
+    setUIControlState(element, visible, enabled);
+  }
+}
+
+/**
+ * Manage the Load to RAM button UI
+ * @param {boolean} visible Is the button visible
+ * @param {boolean} enabled Is the button clickable
+ */
+function setLoadRAMButtonState(visible, enabled) {
+  const element = $('#prop-btn-ram');
+  if (element) {
+    setUIControlState(element, visible, enabled);
+  }
+}
+
+/**
+ * Manage the Load to EEPROM button UI
+ * @param {boolean} visible Is the button visible
+ * @param {boolean} enabled Is the button clickable
+ */
+function setLoadEEPROMButtonState(visible, enabled) {
+  const element = $('#prop-btn-eeprom');
+  if (element) {
+    setUIControlState(element, visible, enabled);
+  }
+}
+
+/**
+ * Manage the Display Terminal button UI
+ * @param {boolean} visible Is the button visible
+ * @param {boolean} enabled Is the button clickable
+ */
+function setTerminalButtonState(visible, enabled) {
+  const element = $('#prop-btn-term');
+  if (element) {
+    setUIControlState(element, visible, enabled);
+  }
+}
+
+/**
+ * Manage the Display Graph button UI
+ * @param {boolean} visible Is the button visible
+ * @param {boolean} enabled Is the button clickable
+ */
+function setGraphButtonState(visible, enabled) {
+  const element = $('#prop-btn-graph');
+  if (element) {
+    setUIControlState(element, visible, enabled);
+  }
+}
+
+/**
+ * Generic UI control state manager
+ * @param {Object} element is the HTML element to act upon
+ * @param {boolean} visible Is the button visible
+ * @param {boolean} enabled Is the button clickable
+ */
+function setUIControlState(element, visible, enabled) {
+  // Set element visibility
+  if (visible) {
+    element.removeClass('hidden');
+
+    // Enable/disable element
+    if (enabled) {
+      element.removeClass('disabled');
+    } else {
+      element.addClass('disabled');
+    }
+  } else {
+    element.addClass('hidden');
+  }
+}
 export {propToolbarButtonController};

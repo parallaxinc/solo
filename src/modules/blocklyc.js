@@ -1562,16 +1562,9 @@ export const clientService = {
 };
 
 /**
- *  Try to connect to the BP-Launcher or BlocklyProp Client
-
+ *  Connect to the BP-Launcher or BlocklyProp Client
  */
 const findClient = function() {
-  // DEBUGGING PORT STATE
-  // const message  = 'Client available: ' + clientService.available.toString() +
-  //     ', Type: ' + clientService.type +
-  //     ', Ports available: ' + clientService.portsAvailable.toString();
-  // logConsoleMessage(message);
-
   // Try to connect to the BP-Launcher (websocket) first
   // TODO: evaluation is always true, probably not what we want here.
   if (!clientService.available && clientService.type !== 'http') {
@@ -1586,9 +1579,9 @@ const findClient = function() {
     if (clientService.portListReceiveCountUp > 2) {
       logConsoleMessage('Timeout waiting for client port list!');
       clientService.closeConnection();
-      // Update the toolbar
-      propToolbarButtonController(false);
       // clientService.activeConnection.close();
+      // Update the toolbar
+      propToolbarButtonController();
 
       // TODO: check to see if this is really necessary - it get's called by the WS onclose handler
       lostWSConnection();
@@ -1670,11 +1663,11 @@ const establishBPClientConnection = function() {
 
     // Set the compiler toolbar elements
     // setPropToolbarButtons();
-    propToolbarButtonController(clientService.portsAvailable);
+    propToolbarButtonController();
   }).always( function() {
     // Update the toolbar no mater what happens
     logConsoleMessage('Updating toolbar after client connection.');
-    propToolbarButtonController(clientService.portsAvailable);
+    propToolbarButtonController();
   });
 };
 
@@ -1805,7 +1798,7 @@ function establishBPLauncherConnection() {
         clientService.available = true;     // Connected to the Launcher/Client
 
         // Set the compiler toolbar elements
-        propToolbarButtonController(clientService.portsAvailable);
+        propToolbarButtonController();
 
         const portRequestMsg = JSON.stringify({
           type: 'port-list-request',
@@ -1907,7 +1900,7 @@ function establishBPLauncherConnection() {
           logConsoleMessage(wsMessage.msg);
         } else if (wsMessage.action === 'websocket-close') {
           clientService.closeConnection();
-          propToolbarButtonController(false);
+          propToolbarButtonController();
           // clientService.activeConnection.close();
         } else if (wsMessage.action === 'alert') {
           utils.showMessage(Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER, wsMessage.msg);
@@ -1934,14 +1927,12 @@ function lostWSConnection() {
     clientService.type = null;
     clientService.available = false;        // Not connected to the Launcher/Client
   }
-
-  // Set the compiler toolbar elements
-  propToolbarButtonController(clientService.portsAvailable);
-
   // Clear ports list
   setPortListUI(null);
-}
 
+  // Set the compiler toolbar elements
+  propToolbarButtonController();
+}
 
 /**
  * Set communication port list. Leave data unspecified when searching
@@ -1962,6 +1953,8 @@ const setPortListUI = function(data) {
         Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
     clientService.portsAvailable = false;
   }
+  // Update the toolbar UI
+  propToolbarButtonController();
   selectComPort(selectedPort);
 };
 
