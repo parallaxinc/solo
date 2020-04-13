@@ -35,7 +35,7 @@ import {getPropTerminal} from './prop_term';
 import {getProjectInitialState} from './project';
 import {isExperimental} from './url_parameters';
 import {getSourceEditor} from './code_editor';
-import {logConsoleMessage} from './utility';
+import {logConsoleMessage, utils} from './utility';
 
 
 /**
@@ -399,7 +399,8 @@ function cloudCompile(text, action, successHandler) {
   }
 
   if (propcCode.indexOf('EMPTY_PROJECT') > -1) {
-    utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
+    utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT,
+        Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
   } else {
     $('#compile-dialog-title').text(text);
     $('#compile-console').val('Compile... ');

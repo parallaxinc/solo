@@ -32,14 +32,16 @@ function propToolbarButtonController() {
 
   // No buttons are valid if there is no project.
   if (!project) {
-    disableButtons();
+    disableButtons(false);
     return;
   }
+
+  // The compile button should always be available when a project is loaded
+  setCompileButtonState(true, true);
 
   // Update elements when we are connected
   if (clientService.activeConnection) {
     clientConnectionUpdateUI(true);
-    setCompileButtonState(true, true);
 
     if (clientService.portsAvailable) {
       if (project.boardType.name === 's3') {
@@ -52,7 +54,7 @@ function propToolbarButtonController() {
     }
   } else {
     clientConnectionUpdateUI(false);
-    disableButtons();
+    disableButtons(true);
   }
 }
 
@@ -82,9 +84,12 @@ function clientConnectionUpdateUI(state) {
 
 /**
  * Disable the toolbar buttons
+ * @param {boolean} isProject is true if a project is loaded
  */
-function disableButtons() {
-  setCompileButtonState(true, false);
+function disableButtons(isProject) {
+  if (!isProject) {
+    setCompileButtonState(true, false);
+  }
   setLoadRAMButtonState(true, false);
   setLoadEEPROMButtonState(true, false);
   setTerminalButtonState(true, false);
@@ -95,7 +100,6 @@ function disableButtons() {
  * Disable the UI buttons for a non-S3 project
  */
 function disableUIButtonGroup() {
-  setCompileButtonState(true, true);
   setLoadRAMButtonState(true, false);
   setLoadEEPROMButtonState(true, false);
   setTerminalButtonState(true, false);
@@ -106,7 +110,6 @@ function disableUIButtonGroup() {
  * Set the UI buttons for an S3 project
  */
 function setS3UIButtonGroup() {
-  setCompileButtonState(true, true);
   setLoadRAMButtonState(false, false);
   setLoadEEPROMButtonState(true, true);
   setTerminalButtonState(true, true);
@@ -117,7 +120,7 @@ function setS3UIButtonGroup() {
  * Set the UI buttons for a non-S3 project
  */
 function setUIButtonGroup() {
-  setCompileButtonState(true, true);
+  // setCompileButtonState(true, true);
   setLoadRAMButtonState(true, true);
   setLoadEEPROMButtonState(true, true);
   setTerminalButtonState(true, true);
