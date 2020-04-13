@@ -64,21 +64,14 @@ function propToolbarButtonController() {
  */
 function clientConnectionUpdateUI(state) {
   if (state) {
-    // Hide the client available message to display the short form
+    // Hide the 'client unavailable' message and show the
+    // port selection message
     $('#client-available').removeClass('hidden');
-    // $('#client-available-short').removeClass('hidden');
-
-    // Hide the 'client unavailable' message
     $('#client-unavailable').addClass('hidden');
-    logConsoleMessage('Connected to client, Updating UI');
   } else {
-    // Toggle the client available message to display the short form
+    // Client has not been detected. Show the 'client unavailable' message
     $('#client-available').addClass('hidden');
-    // $('#client-available-short').addClass('hidden');
-
-    // Show the 'client unavailable' message
     $('#client-unavailable').removeClass('hidden');
-    logConsoleMessage('Connected to client, Updating UI');
   }
 }
 

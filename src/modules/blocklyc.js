@@ -1813,7 +1813,6 @@ function establishBPLauncherConnection() {
         // ports: ['port1', 'port2', 'port3'...]
         setPortListUI(wsMessage.ports);
         clientService.portListReceiveCountUp = 0;
-        logConsoleMessage('Received new port list: '+ wsMessage.ports.toString());
 
         // --- serial terminal/graph
       } else if (wsMessage.type === 'serial-terminal' &&
