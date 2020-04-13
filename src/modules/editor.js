@@ -44,8 +44,9 @@ import {
 import {
   clientService, compile, findClient, formatWizard, getComPort, loadInto,
   renderContent, downloadCSV, initializeBlockly, sanitizeFilename,
+  graphingConsole, serialConsole, configureConnectionPaths,
 } from './blocklyc';
-import {CodeEditor, propcAsBlocksXml} from './code_editor.js';
+import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
 import {
   editProjectDetails, newProjectModal, openProjectModal, initUploadModalLabels,
 } from './modals';
@@ -451,24 +452,27 @@ function initEventHandlers() {
     loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM');
   });
 
-  $('#prop-btn-term').on('click', () => serial_console());
-  $('#prop-btn-graph').on('click', () => graphing_console());
+  $('#prop-btn-term').on('click', () => serialConsole());
+  $('#prop-btn-graph').on('click', () => graphingConsole());
   // Deprecated.
   //  $('#prop-btn-find-replace').on('click', () => findReplaceCode());
   $('#prop-btn-pretty').on('click', () => formatWizard());
 
-  $('#prop-btn-undo').on('click', () => codePropC.undo());
-  $('#prop-btn-redo').on('click', () => codePropC.redo());
+  $('#prop-btn-undo').on('click', () => getSourceEditor().undo());
+  $('#prop-btn-redo').on('click', () => getSourceEditor().redo());
 
   // TODO: The event handler is just stub code.
   $('#term-graph-setup').on('click', () => configureTermGraph());
 
   $('#propc-find-btn').on('click', () => {
-    codePropC.find(document.getElementById('propc-find').value, {}, true);
+    getSourceEditor().find(
+        document.getElementById('propc-find').value,
+        {},
+        true);
   });
 
   $('#propc-replace-btn').on('click', () => {
-    codePropC.replace(
+    getSourceEditor().replace(
         document.getElementById('propc-replace').value,
         {needle: document.getElementById('propc-find').value},
         true);
@@ -707,7 +711,7 @@ function initCdnImageUrls() {
 
 
 /**
- * Populate the projectData global
+ * Populate the Blockly workspace with the new project
  *
  * @param {Project} data is the current project object
  * @param {function} callback is called if provided when the function completes
@@ -1607,6 +1611,7 @@ function clearUploadInfo(redirect) {
  * For offline mode, the project may not have been loaded yet.
  */
 // eslint-disable-next-line no-unused-vars,require-jsdoc
+/*
 function uploadMergeCode(append) {
   // Hide the Open Project modal dialog
   $('#upload-dialog').modal('hide');
@@ -1737,7 +1742,7 @@ function uploadMergeCode(append) {
     clearUploadInfo(false);
   }
 }
-
+*/
 
 /**
  * Replace the default Blockly fonts
