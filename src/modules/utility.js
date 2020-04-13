@@ -365,4 +365,6 @@ function logConsoleMessage(message) {
 }
 
 
-export {utils, isExperimental, getAllUrlParameters, logConsoleMessage};
+export {
+  utils, isExperimental, getURLParameter, getAllUrlParameters,
+  logConsoleMessage};

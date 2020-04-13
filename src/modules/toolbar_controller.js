@@ -21,7 +21,6 @@
  */
 
 import {getProjectInitialState} from './project.js';
-import {logConsoleMessage} from './utility';
 import {clientService} from './blocklyc';
 
 /**
@@ -32,14 +31,16 @@ function propToolbarButtonController() {
 
   // No buttons are valid if there is no project.
   if (!project) {
-    disableButtons();
+    disableButtons(false);
     return;
   }
+
+  // The compile button should always be available when a project is loaded
+  setCompileButtonState(true, true);
 
   // Update elements when we are connected
   if (clientService.activeConnection) {
     clientConnectionUpdateUI(true);
-    setCompileButtonState(true, true);
 
     if (clientService.portsAvailable) {
       if (project.boardType.name === 's3') {
@@ -52,7 +53,7 @@ function propToolbarButtonController() {
     }
   } else {
     clientConnectionUpdateUI(false);
-    disableButtons();
+    disableButtons(true);
   }
 }
 
@@ -62,29 +63,25 @@ function propToolbarButtonController() {
  */
 function clientConnectionUpdateUI(state) {
   if (state) {
-    // Hide the client available message to display the short form
+    // Hide the 'client unavailable' message and show the
+    // port selection message
     $('#client-available').removeClass('hidden');
-    // $('#client-available-short').removeClass('hidden');
-
-    // Hide the 'client unavailable' message
     $('#client-unavailable').addClass('hidden');
-    logConsoleMessage('Connected to client, Updating UI');
   } else {
-    // Toggle the client available message to display the short form
+    // Client has not been detected. Show the 'client unavailable' message
     $('#client-available').addClass('hidden');
-    // $('#client-available-short').addClass('hidden');
-
-    // Show the 'client unavailable' message
     $('#client-unavailable').removeClass('hidden');
-    logConsoleMessage('Connected to client, Updating UI');
   }
 }
 
 /**
  * Disable the toolbar buttons
+ * @param {boolean} isProject is true if a project is loaded
  */
-function disableButtons() {
-  setCompileButtonState(true, false);
+function disableButtons(isProject) {
+  if (!isProject) {
+    setCompileButtonState(true, false);
+  }
   setLoadRAMButtonState(true, false);
   setLoadEEPROMButtonState(true, false);
   setTerminalButtonState(true, false);
@@ -95,7 +92,6 @@ function disableButtons() {
  * Disable the UI buttons for a non-S3 project
  */
 function disableUIButtonGroup() {
-  setCompileButtonState(true, true);
   setLoadRAMButtonState(true, false);
   setLoadEEPROMButtonState(true, false);
   setTerminalButtonState(true, false);
@@ -106,7 +102,6 @@ function disableUIButtonGroup() {
  * Set the UI buttons for an S3 project
  */
 function setS3UIButtonGroup() {
-  setCompileButtonState(true, true);
   setLoadRAMButtonState(false, false);
   setLoadEEPROMButtonState(true, true);
   setTerminalButtonState(true, true);
@@ -117,7 +112,7 @@ function setS3UIButtonGroup() {
  * Set the UI buttons for a non-S3 project
  */
 function setUIButtonGroup() {
-  setCompileButtonState(true, true);
+  // setCompileButtonState(true, true);
   setLoadRAMButtonState(true, true);
   setLoadEEPROMButtonState(true, true);
   setTerminalButtonState(true, true);

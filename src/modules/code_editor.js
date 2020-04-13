@@ -98,6 +98,26 @@ class CodeEditor {
   redo() {
     cSourceCode.redo();
   }
+
+  /**
+   * Search for a matching element
+   * @param {string} needle
+   * @param {Object} options
+   * @param {boolean} isAnimated
+   */
+  find(needle, options, isAnimated) {
+    cSourceCode.find(needle, options, isAnimated);
+  }
+
+  /**
+   * Replace the selected text with the replacement text
+   * @param {string} source
+   * @param {string} replacement
+   * @param {Object} options
+   */
+  replace(source, replacement, options) {
+    cSourceCode.replace(replacement, options);
+  }
 }
 
 

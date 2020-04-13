@@ -647,9 +647,16 @@ Blockly.propc.finish = function(code) {
       for (const method in Blockly.propc.cog_methods_) {
         if (Blockly.propc.methods_[method]
             .indexOf(definitions[def]
-                .replace(/[charint]* (\w+)[\[\]0-9]*;/g, '$1')) > -1) {
+                .replace(/[charint]* (\w+)[[\]0-9]*;/g, '$1')) > -1) {
           functionVariables.push(definitions[def]);
         }
+
+        // TODO: Remove this code when the regEx above has been verified.
+        // if (Blockly.propc.methods_[method]
+        //     .indexOf(definitions[def]
+        //         .replace(/[charint]* (\w+)[\[\]0-9]*;/g, '$1')) > -1) {
+        //   functionVariables.push(definitions[def]);
+        // }
       }
     }
   }
