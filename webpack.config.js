@@ -49,9 +49,15 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         // filename: '[name].[chunkhash].bundle.js',
         filename: '[name].bundle.js',
+        chunkFilename: '[name].bundle.js',
         pathinfo: true,
         sourceMapFilename: '[name].bundle.js.map',
     },
+    // optimization: {
+    //     splitChunks: {
+    //         chunks: 'all',
+    //     },
+    // },
     module: {
         rules: [
             {
