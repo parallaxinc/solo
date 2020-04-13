@@ -20,12 +20,13 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import 'bootstrap';
 import {
   APP_VERSION,
   ApplicationName,
   productBannerHostTrigger,
-  TestApplicationName} from './constants.js';
-
+  TestApplicationName} from './constants';
+import {getURLParameter} from './utility';
 
 /**
  * Display the BlocklyProp Solo license in a modal window
@@ -33,7 +34,6 @@ import {
 function showLicense() {
   $('#licenseModal').modal();
 }
-
 
 /**
  * Display the application name
@@ -45,7 +45,6 @@ function showAppName() {
   }
   $('#nav-logo').html(html);
 }
-
 
 /**
  * Display the app name in the banner
@@ -59,7 +58,6 @@ function showAppBannerTitle(appName) {
   }
 }
 
-
 /**
  * Set the ending copyright date
  * @param {HTMLElement} element
@@ -69,7 +67,6 @@ function setCopyrightDate(element) {
   element.innerHTML = 'v' + APP_VERSION + ' &copy; 2015 - ' +
       d.getFullYear().toString() + ', Parallax Inc.';
 }
-
 
 let appName = ApplicationName;
 if (window.location.hostname === productBannerHostTrigger) {
@@ -81,12 +78,11 @@ showAppBannerTitle(appName);
 setCopyrightDate(document.getElementById('footer_copyright'));
 setCopyrightDate(document.getElementById('license-copyright-date'));
 
-
 // The browser localStorage object should be empty
 window.localStorage.clear();
 
 // Add experimental URL parameter to the open and new project links, if used
-if (window.getURLParameter('experimental')) {
+if (getURLParameter('experimental')) {
   $('.editor-link').attr('href', function() {
     return document.location.href +
         window.getAllURLParameters().replace('?', '&');
