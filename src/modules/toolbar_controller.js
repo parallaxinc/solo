@@ -21,7 +21,6 @@
  */
 
 import {getProjectInitialState} from './project.js';
-import {logConsoleMessage} from './utility';
 import {clientService} from './blocklyc';
 
 /**

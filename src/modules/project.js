@@ -30,7 +30,50 @@ let projectInitialState = null;
 
 /**
  * Current project profile
- * @type {Project.boardType | null}
+ * @type {
+ *  {
+ *    digital: string[][],
+ *    saves_to: ((string)[])[],
+ *    analog: ((string)[])[],
+ *    earphone_jack_inverted: string,
+ *    baudrate: number,
+ *    sd_card: string,
+ *    name: string,
+ *    description: string,
+ *    earphone_jack: string,
+ *    contiguous_pins_end: number,
+ *    contiguous_pins_start: number
+ *  } |
+ *  {
+ *    digital: string[][],
+ *    saves_to: ((string)[])[],
+ *    analog: *[],
+ *    earphone_jack_inverted: string,
+ *    baudrate: number,
+ *    sd_card: string,
+ *    name: string,
+ *    description: string,
+ *    earphone_jack: string,
+ *    contiguous_pins_end: number,
+ *    contiguous_pins_start: number
+ *  } |
+ *  ProjectProfiles |
+ *  {
+ *    saves_to: *[],
+ *    name: string,
+ *    description: string
+ *  } |
+ *  {
+ *    saves_to: [],
+ *    name: string,
+ *    description: string
+ *  } |
+ *  {
+ *    saves_to: [],
+ *    name: string,
+ *    description: string
+ *  }
+ * }
  */
 let defaultProfile = null;
 
@@ -54,16 +97,13 @@ function getProjectInitialState() {
 /**
  * Set the project state from an existing project object
  * @param {Project} project
- * @return {Project}
+ * @return {Project | null}
  */
 function setProjectInitialState(project) {
   if (project instanceof Project) {
     if (project !== projectInitialState) {
       projectInitialState = project;
-
-      // Add the the project to the ES5 global space for the
-      // custom block definitions
-      window.project = project;
+      defaultProfile = project.boardType;
     }
     return projectInitialState;
   }
@@ -72,9 +112,43 @@ function setProjectInitialState(project) {
   return null;
 }
 
+// eslint-disable-next-line valid-jsdoc
 /**
  * Return the current project profile
- * @return {Project.boardType}
+ *
+ * @return {
+ *    {
+ *      digital: string[][],
+ *      saves_to: string[][],
+ *      analog: string[][],
+ *      earphone_jack_inverted: string,
+ *      baudrate: number,
+ *      sd_card: string,
+ *      name: string,
+ *      description: string,
+ *      earphone_jack: string,
+ *      contiguous_pins_end: number,
+ *      contiguous_pins_start: number
+ *    } |
+ *    {
+ *      digital: string[][],
+ *      saves_to: string[][],
+ *      analog: *[],
+ *      earphone_jack_inverted: string,
+ *      baudrate: number,
+ *      sd_card: string,
+ *      name: string,
+ *      description: string,
+ *      earphone_jack: string,
+ *      contiguous_pins_end: number,
+ *      contiguous_pins_start: number
+ *    } |
+ *    ProjectProfiles |
+ *    {
+ *      saves_to: *[],
+ *      name: string,
+ *      description: string
+ *  }}
  */
 function getDefaultProfile() {
   return defaultProfile;
@@ -86,10 +160,6 @@ function getDefaultProfile() {
  */
 function setDefaultProfile(value) {
   defaultProfile = value;
-
-  // Add the the project profile (aka board type) to the ES5 global
-  // space for the custom block definitions
-  window.projectProfile = value;
 }
 
 
@@ -721,10 +791,33 @@ const ProjectProfiles = {
   'unknown': {
     name: 'unknown',
     description: 'Board type is unknown',
+    digital: [['P0', '0']],
+    analog: [['A0', '0']],
     saves_to: [],
   },
 };
 
+
+/**
+ * A board type interface definition
+ *
+ * @typedef {{
+ *    boardType:object,
+ *    board:string,
+ *    board.name:string,
+ *    board.description:string,
+ *    board.digital:string [][],
+ *    board.analog:string [][],
+ *    [board.earphone_jack]:string,
+ *    [board.earphone_jack_inverted]:string,
+ *    [board.baudrate]:number,
+ *    [board.sd_card]:string,
+ *    [board.contiguous_pins_start]:number,
+ *    [board.contiguous_pins_end],
+ *     board.saves_to:string [][]
+ *    }}
+ */
+Project.aBoardType;
 
 export {
   Project,
