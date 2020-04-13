@@ -116,7 +116,7 @@ Blockly.propc.variables_set = function() {
     } else if (argument0.indexOf('char') > -1) {
       Blockly.propc.vartype_[varName] = 'char';
       Blockly.propc.varlength_[varName] = '{{$var_length_' + varName + '}};';
-    } else if (argument0.indexOf('char\[\]') > -1) {
+    } else if (argument0.indexOf('char[]') > -1) {
       Blockly.propc.vartype_[varName] = 'char *';
     } else if (argument0.indexOf('"') > -1 && argument0.indexOf('"') < 4) {
       // Some functions that return numbers take strings as arguments, so
@@ -139,7 +139,7 @@ Blockly.propc.variables_set = function() {
   } else if (argument0.indexOf('char') > -1) {
     Blockly.propc.vartype_[varName] = 'char';
     Blockly.propc.varlength_[varName] = '{{$var_length_' + varName + '}};';
-  } else if (argument0.indexOf('char\[\]') > -1) {
+  } else if (argument0.indexOf('char[]') > -1) {
     Blockly.propc.vartype_[varName] = 'char *';
   }
 
@@ -545,9 +545,9 @@ Blockly.propc.array_fill = function() {
       this.getFieldValue('VAR'), 'Array');
   let varVals = this.getFieldValue('NUM');
   if (varVals.indexOf('0x') === 0 || varVals.indexOf(',0x') > 0) {
-    varVals = varVals.replace(/[^0-9xA-Fa-f,-\.]/g, '');
+    varVals = varVals.replace(/[^0-9xA-Fa-f,-.]/g, '');
   } else {
-    varVals = varVals.replace(/[^0-9b,-\.]/g, '');
+    varVals = varVals.replace(/[^0-9b,-.]/g, '');
   }
   varVals = varVals.replace(/,\./g, ',0.')
       .replace(/\b\.[0-9-]+,\b/g, ',')

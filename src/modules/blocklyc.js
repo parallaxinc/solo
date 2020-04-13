@@ -337,9 +337,9 @@ const formatWizard = function() {
 const prettyCode = function(rawCode) {
   // Prevent JS beautify from improperly formatting reference, dereference, and arrow operators
   rawCode = rawCode
-      .replace(/\*([_a-zA-Z\()])/g, '___REFERENCE_OPERATOR___$1')
-      .replace(/([_a-zA-Z\()])\*/g, '$1___REFERENCE_OPERATOR___')
-      .replace(/&([_a-zA-Z\()])/g, '___DEREFERENCE_OPERATOR___$1')
+      .replace(/\*([_a-zA-Z()])/g, '___REFERENCE_OPERATOR___$1')
+      .replace(/([_a-zA-Z()])\*/g, '$1___REFERENCE_OPERATOR___')
+      .replace(/&([_a-zA-Z()])/g, '___DEREFERENCE_OPERATOR___$1')
       .replace(/->/g, '___ARROW_OPERATOR___');
 
   // run the beautifier
@@ -574,9 +574,9 @@ export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
             document.getElementById('compile-console').scrollTop =
                 document.getElementById('compile-console').scrollHeight;
             if (terminalNeeded === 'term' && loadData.success) {
-              serial_console();
+              serialConsole();
             } else if (terminalNeeded === 'graph' && loadData.success) {
-              graphing_console();
+              graphingConsole();
             }
           });
         } else {
@@ -594,9 +594,9 @@ export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
             document.getElementById('compile-console').scrollTop =
                 document.getElementById('compile-console').scrollHeight;
             if (terminalNeeded === 'term' && loadData.success) {
-              serial_console();
+              serialConsole();
             } else if (terminalNeeded === 'graph' && loadData.success) {
-              graphing_console();
+              graphingConsole();
             }
           });
         }
@@ -614,7 +614,7 @@ export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
  * Serial console support
  */
 // eslint-disable-next-line camelcase,require-jsdoc
-function serial_console() {
+function serialConsole() {
   clientService.sendCharacterStreamTo = 'term';
 
   // HTTP client
@@ -740,7 +740,7 @@ function displayTerminalConnectionStatus(connectionInfo) {
  * Graphing console
  */
 // eslint-disable-next-line camelcase,require-jsdoc
-function graphing_console() {
+function graphingConsole() {
   clientService.sendCharacterStreamTo = 'graph';
 
   if (getGraphSettingsFromBlocks()) {
@@ -1080,12 +1080,12 @@ function sanitizeFilename(input) {
   }
 
   // replace OS-illegal characters or phrases
-  input = input.replace(/[\/\?<>\\:\*\|"]/g, '_')
+  input = input.replace(/[/?<>\\:*|"]/g, '_')
       // eslint-disable-next-line no-control-regex
       .replace(/[\x00-\x1f\x80-\x9f]/g, '_')
       .replace(/^\.+$/, '_')
       .replace(/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, '_')
-      .replace(/[\. ]+$/, '_');
+      .replace(/[. ]+$/, '_');
 
   // if the filename is too long, truncate it
   if (input.length > 31) {
@@ -1859,9 +1859,9 @@ function establishBPLauncherConnection() {
         // msg: [String message]
 
         if (wsMessage.action === 'open-terminal') {
-          serial_console();
+          serialConsole();
         } else if (wsMessage.action === 'open-graph') {
-          graphing_console();
+          graphingConsole();
         } else if (wsMessage.action === 'close-terminal') {
           $('#console-dialog').modal('hide');
           clientService.sendCharacterStreamTo = null;
@@ -2023,6 +2023,7 @@ function addComPortDeviceOption(port) {
 
 export {
   compile,  init, renderContent, downloadCSV, initializeBlockly,
-  sanitizeFilename, findClient, formatWizard,
+  sanitizeFilename, findClient, formatWizard, serialConsole,
+  graphingConsole, configureConnectionPaths,
 };
 
