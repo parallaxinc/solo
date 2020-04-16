@@ -36,32 +36,28 @@ import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
 import * as saveAs from 'file-saver';
-import {
-  EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
-  PROJECT_NAME_MAX_LENGTH, PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName,
-  TestApplicationName, productBannerHostTrigger,
-} from './constants';
-import {
-  clientService, compile, findClient, formatWizard, getComPort, loadInto,
-  renderContent, downloadCSV, initializeBlockly, sanitizeFilename,
-  graphingConsole, serialConsole, configureConnectionPaths,
-} from './blocklyc';
+import {clientService, compile, findClient, formatWizard} from './blocklyc';
+import {getComPort, loadInto, renderContent, downloadCSV} from './blocklyc';
+import {initializeBlockly, sanitizeFilename, serialConsole} from './blocklyc';
+import {graphingConsole, configureConnectionPaths} from './blocklyc';
+import {EMPTY_PROJECT_CODE_HEADER} from './constants';
+import {LOCAL_PROJECT_STORE_NAME} from './constants';
+import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
+import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
+import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
-import {
-  editProjectDetails, newProjectModal, openProjectModal, initUploadModalLabels,
-} from './modals';
-import {
-  Project, getProjectInitialState, setProjectInitialState,
-  setDefaultProfile,
-  ProjectTypes,
-  clearProjectInitialState, projectJsonFactory,
-} from './project';
+import {editProjectDetails, newProjectModal} from './modals';
+import {openProjectModal, initUploadModalLabels} from './modals';
+import {Project, getProjectInitialState} from './project';
+import {setProjectInitialState, setDefaultProfile} from './project';
+import {ProjectTypes, clearProjectInitialState} from './project';
+import {projectJsonFactory} from './project';
+import {buildDefaultProjectFile} from './project_default';
 import {ProjectSaveTimer} from './project_save_timer';
 import {PropTerm} from './prop_term';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
-import {buildDefaultProjectFile} from './project_default';
 import {utils} from './utility';
 
 /**
@@ -291,7 +287,13 @@ $(() => {
       }
 
       // Open the modal when the timer expires
-      ProjectSaveTimer.setMessageHandler(ShowProjectTimerModalDialog);
+      console.log('Adding project timer to project');
+      localProject.setProjectTimer(
+          new ProjectSaveTimer(
+              2,
+              isProjectChanged,
+              ShowProjectTimerModalDialog)
+      );
 
       // Set the compile toolbar buttons to unavailable
       propToolbarButtonController();
@@ -2024,11 +2026,25 @@ function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
  */
 function isProjectChanged() {
   const project = getProjectInitialState();
+  let result = false;
+
   if (!project || typeof project.name === 'undefined') {
-    return false;
+    console.log('There is no project defined.');
+    console.log('This should probably be investigated.');
+    return result;
   }
 
-  return project.code.localeCompare(getXml()) !== 0;
+  // Compare the project name to the initial project name
+
+
+  // Compare the project description with the initial description
+
+  result = project.code.localeCompare(getXml());
+  if (result) {
+    console.log('Project has been altered.');
+  } else {
+    console.log('Project has not been altered.');
+  }
 }
 
 

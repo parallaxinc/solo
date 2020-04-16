@@ -23,6 +23,81 @@
 'use strict';
 
 /**
+/**
+ * The Json representation of a project.
+ * Version 0
+ *
+ * @typedef {Object} JsonProjectType
+ * @property {string} name - The project filename.
+ * @property {string} board - The project board type.
+ * @property {string} code - The XML block code in this project.
+ * @property {string} created - The string representation of the project
+ * created date/time.
+ * @property {string} description - Notes that describe the project
+ * @property {string} description-html - (deprecated) HTML version of the
+ * description.
+ * @property {number} id - (deprecated) The unique project ID.
+ * @property {string} modified - Date/Time string noting the last time
+ * the project was modified.
+ * @property {boolean} private - (deprecated) Is the project private.
+ * @property {boolean} shared - (deprecated) Is the project publicly shared.
+ * @property {string} type - The project code generator output type.
+ * @property {string} user - (deprecated) The project user name.
+ * @property {boolean} yours - (deprecated) Is the project owned by the
+ * current user.
+ * @property {number} timestamp - The current epoch time.
+ */
+
+/**
+ * The Json representation of a project.
+ * Version 1
+ *
+ * @typedef {Object} JsonProjectTypeV1
+ * @property {string} name - The project filename.
+ * @property {string} boardType - The project board type.
+ * @property {string} code - The XML block code in this project.
+ * @property {string} created - The string representation of the project
+ * created date/time.
+ * @property {string} description - Notes that describe the project
+ * @property {string} description-html - (deprecated) HTML version of the
+ * description.
+ * @property {number} id - (deprecated) The unique project ID.
+ * @property {string} modified - Date/Time string noting the last time
+ * the project was modified.
+ * @property {boolean} private - (deprecated) Is the project private.
+ * @property {boolean} shared - (deprecated) Is the project publicly shared.
+ * @property {string} type - The project code generator output type.
+ * @property {string} user - (deprecated) The project user name.
+ * @property {boolean} yours - (deprecated) Is the project owned by the
+ * current user.
+ * @property {number} timestamp - The current epoch time.
+ * @property {string} version - The version of this typedef
+ */
+
+/* Version 0 file format
+const pd = {
+  'board': uploadBoardType,
+  'code': uploadedXML,
+  'created': projectCreated,
+  'description': decodeFromValidXml(projectDesc),
+  'description-html': '',
+  'id': 0,
+  'modified': projectModified,
+  'name': files[0].name.substring(0, files[0].name.lastIndexOf('.')),
+  'private': true,
+  'shared': false,
+  'type': 'PROPC',
+  'user': 'offline',
+  'yours': true,
+  'timestamp': date.getTime(),
+};
+*/
+
+
+
+
+
+/**
  * Preserve the initial state of the project
  * @type {Project | null}
  */
@@ -32,46 +107,23 @@ let projectInitialState = null;
  * Current project profile
  * @type {
  *  {
- *    digital: string[][],
- *    saves_to: ((string)[])[],
- *    analog: ((string)[])[],
- *    earphone_jack_inverted: string,
- *    baudrate: number,
- *    sd_card: string,
- *    name: string,
- *    description: string,
- *    earphone_jack: string,
- *    contiguous_pins_end: number,
- *    contiguous_pins_start: number
+ *    digital: string[][], saves_to: ((string)[])[], analog: ((string)[])[],
+ *    earphone_jack_inverted: string, baudrate: number, sd_card: string,
+ *    name: string, description: string, earphone_jack: string,
+ *    contiguous_pins_end: number, contiguous_pins_start: number
  *  } |
  *  {
- *    digital: string[][],
- *    saves_to: ((string)[])[],
- *    analog: *[],
- *    earphone_jack_inverted: string,
- *    baudrate: number,
- *    sd_card: string,
- *    name: string,
- *    description: string,
- *    earphone_jack: string,
- *    contiguous_pins_end: number,
- *    contiguous_pins_start: number
+ *    digital: string[][], saves_to: ((string)[])[], analog: *[],
+ *    earphone_jack_inverted: string, baudrate: number, sd_card: string,
+ *    name: string, description: string, earphone_jack: string,
+ *    contiguous_pins_end: number, contiguous_pins_start: number
  *  } |
  *  ProjectProfiles |
  *  {
- *    saves_to: *[],
- *    name: string,
- *    description: string
- *  } |
+ *    saves_to: *[], name: string, description: string
+    } |
  *  {
- *    saves_to: [],
- *    name: string,
- *    description: string
- *  } |
- *  {
- *    saves_to: [],
- *    name: string,
- *    description: string
+ *    saves_to: [], name: string, description: string
  *  }
  * }
  */
@@ -213,6 +265,16 @@ class Project {
       this.boardType = ProjectProfiles.unknown;
     }
 
+    /**
+     * Set the project type.
+     * @private
+     * @description The only currently valid project type is "PROPC". If a
+     * project is received and specifies another project type, it is set to
+     * the default 'UNKNOWN' project type. There is a side effect to this in
+     * that code throughout the system expects this value to be a real project
+     * type, and not 'unknown'.
+     * TODO: Throw an error here if the project type is "UNKNOWN".
+     */
     this.projectType = (projectType) ?
         ProjectTypes[projectType] : ProjectTypes.UNKNOWN;
 
@@ -225,17 +287,76 @@ class Project {
     this.timestamp = timestamp;
 
     // instance properties that are deprecated
+    /**
+     * The unique project ID, used in the BlocklyProp server implementation.
+     * @type {number}
+     * @private
+     * @deprecated All Solo projects are identified by unique path/filename
+     * combinations on the user's local file system
+     */
     this.id = 0;
+
+    /**
+     * The HTML encoded version of the project description.
+     * @type {string}
+     * @private
+     * @deprecated The HTML description is no longer used in the Solo project.
+     */
     this.descriptionHtml = description;
+
+    /**
+     * A flag to indicate the that the project is not public nor is it shared.
+     * @type {boolean}
+     * @private
+     * @deprecated This flag is not used in the Solo project
+     */
     this.private = true;
+
+    /**
+     * A flag to indicate that the online project is public and shared
+     * @type {boolean}
+     * @private
+     * @deprecated This flag is not used in the Solo project
+     */
     this.shared = false;
+
+    /**
+     * Flag to indicate if the project is being accessed through the
+     * BlocklyProp server
+     * @type {string} is 'online' to indicate use with the BlocklyProp
+     * server, 'offline' when used with the Solo project.
+     * @private
+     * @deprecated This flag is not used in the Solo project
+     */
     this.user = 'offline';
+
+    /**
+     * Flag to indicate that the project is owned by the current user
+     * @type {boolean}
+     * @private
+     * @deprecated This flag is not used in the Solo project
+     */
     this.yours = true;
+
+    /**
+     * Store a timer that will nudge the user to save project changes
+     * @type {ProjectSaveTimer}
+     * @private
+     */
+    this.saveTimer = null;
 
     // Set the project initial state
     if (isDefault) {
       this.projectData = this.getDetails();
     }
+  }
+
+  /**
+   * Return the project timer
+   * @return {ProjectSaveTimer}
+   */
+  getTimer() {
+    return this.saveTimer;
   }
 
   /**
@@ -339,9 +460,7 @@ class Project {
 
     if (projectA.name !== projectB.name) return false;
     if (projectA.description !== projectB.description) return false;
-    if (projectA.code !== projectB.code) return false;
-
-    return true;
+    return projectA.code === projectB.code;
   }
 
 
@@ -451,28 +570,12 @@ class Project {
 /**
  * Create a new Project object from JSON data
  *
- * @param {string} json Submit JSON data to create a new project object
+ * @param {JsonProjectType | JsonProjectTypeV1} json Submit JSON data to
+ * create a new project object
+ *
  * @return {Project}
  */
 function projectJsonFactory(json) {
-  /* Version 0 file format
-  const pd = {
-    'board': uploadBoardType,
-    'code': uploadedXML,
-    'created': projectCreated,
-    'description': decodeFromValidXml(projectDesc),
-    'description-html': '',
-    'id': 0,
-    'modified': projectModified,
-    'name': files[0].name.substring(0, files[0].name.lastIndexOf('.')),
-    'private': true,
-    'shared': false,
-    'type': 'PROPC',
-    'user': 'offline',
-    'yours': true,
-    'timestamp': date.getTime(),
-  };
-*/
   const date = new Date();
   let tmpBoardType;
 
@@ -492,8 +595,8 @@ function projectJsonFactory(json) {
       tmpBoardType,
       ProjectTypes.PROPC,
       json.code,
-      json.created,
-      json.modified,
+      Date.parse(json.created),
+      Date.parse(json.modified),
       date.getTime()
   );
 }
@@ -509,6 +612,14 @@ function projectJsonFactory(json) {
  * be misspelled without detection.
  */
 Project.prototype.EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
+
+/**
+ * Install a project save timer into the project
+ * @param {ProjectSaveTimer} timer
+ */
+Project.prototype.setProjectTimer = function(timer) {
+  this.saveTimer = timer;
+};
 
 
 /**
