@@ -6,6 +6,11 @@
   "scripts": {
     "lint": "eslint \"src/modules/**/*.js\"",
     "test": "tests/run_all_tests.sh",
+    "test:dev": "npm run test:prepare && npm run test:run",
+    "test:run": "tests/run_all_tests.sh",
+    "test:prepare": "npm run test:setupselenium && npm run test:startselenium",
+    "test:setupselenium": "selenium-standalone install --config=./tests/scripts/selenium-config.js",
+    "test:startselenium": "selenium-standalone start --config=./tests/scripts/selenium-config.js",
     "dev": "webpack --mode=development --watch",
     "build": "webpack --mode=production",
     "profile": "webpack --profile --json"
@@ -46,6 +51,8 @@
     "fsevents": "^2.1.2",
     "minimist": "^1.2.5",
     "mocha": "^6.2.3",
+    "selenium-standalone": "^6.17.0",
+    "selenium-webdriver": "^4.0.0-alpha.7",
     "sinon": "^7.5.0",
     "style-loader": "^1.1.3",
     "webpack": "^4.42.1",
