@@ -21,81 +21,7 @@
  */
 
 'use strict';
-
-/**
-/**
- * The Json representation of a project.
- * Version 0
- *
- * @typedef {Object} JsonProjectType
- * @property {string} name - The project filename.
- * @property {string} board - The project board type.
- * @property {string} code - The XML block code in this project.
- * @property {string} created - The string representation of the project
- * created date/time.
- * @property {string} description - Notes that describe the project
- * @property {string} description-html - (deprecated) HTML version of the
- * description.
- * @property {number} id - (deprecated) The unique project ID.
- * @property {string} modified - Date/Time string noting the last time
- * the project was modified.
- * @property {boolean} private - (deprecated) Is the project private.
- * @property {boolean} shared - (deprecated) Is the project publicly shared.
- * @property {string} type - The project code generator output type.
- * @property {string} user - (deprecated) The project user name.
- * @property {boolean} yours - (deprecated) Is the project owned by the
- * current user.
- * @property {number} timestamp - The current epoch time.
- */
-
-/**
- * The Json representation of a project.
- * Version 1
- *
- * @typedef {Object} JsonProjectTypeV1
- * @property {string} name - The project filename.
- * @property {string} boardType - The project board type.
- * @property {string} code - The XML block code in this project.
- * @property {string} created - The string representation of the project
- * created date/time.
- * @property {string} description - Notes that describe the project
- * @property {string} description-html - (deprecated) HTML version of the
- * description.
- * @property {number} id - (deprecated) The unique project ID.
- * @property {string} modified - Date/Time string noting the last time
- * the project was modified.
- * @property {boolean} private - (deprecated) Is the project private.
- * @property {boolean} shared - (deprecated) Is the project publicly shared.
- * @property {string} type - The project code generator output type.
- * @property {string} user - (deprecated) The project user name.
- * @property {boolean} yours - (deprecated) Is the project owned by the
- * current user.
- * @property {number} timestamp - The current epoch time.
- * @property {string} version - The version of this typedef
- */
-
-/* Version 0 file format
-const pd = {
-  'board': uploadBoardType,
-  'code': uploadedXML,
-  'created': projectCreated,
-  'description': decodeFromValidXml(projectDesc),
-  'description-html': '',
-  'id': 0,
-  'modified': projectModified,
-  'name': files[0].name.substring(0, files[0].name.lastIndexOf('.')),
-  'private': true,
-  'shared': false,
-  'type': 'PROPC',
-  'user': 'offline',
-  'yours': true,
-  'timestamp': date.getTime(),
-};
-*/
-
-
-
-
+// import {NudgeTimer} from './nudge_timer';
 
 /**
  * Preserve the initial state of the project
@@ -213,7 +139,6 @@ function getDefaultProfile() {
 function setDefaultProfile(value) {
   defaultProfile = value;
 }
-
 
 /**
  * Default implementation of a project object
@@ -340,7 +265,7 @@ class Project {
 
     /**
      * Store a timer that will nudge the user to save project changes
-     * @type {ProjectSaveTimer}
+     * @type {NudgeTimer}
      * @private
      */
     this.saveTimer = null;
@@ -349,14 +274,6 @@ class Project {
     if (isDefault) {
       this.projectData = this.getDetails();
     }
-  }
-
-  /**
-   * Return the project timer
-   * @return {ProjectSaveTimer}
-   */
-  getTimer() {
-    return this.saveTimer;
   }
 
   /**
@@ -390,7 +307,6 @@ class Project {
     };
   }
 
-
   /**
    * Returns a reference to the project data encapsulated into a single object
    * @return {
@@ -401,7 +317,6 @@ class Project {
    *   }
    * }
    */
-
 
   /**
      * Save the project details to a specified location in the browser's
@@ -447,7 +362,6 @@ class Project {
     }
   }
 
-
   /**
    * Compare the user-editable project fields for equality.
    * @param {Project} projectA
@@ -462,7 +376,6 @@ class Project {
     if (projectA.description !== projectB.description) return false;
     return projectA.code === projectB.code;
   }
-
 
   /**
      * Compare two instances of a Project.
@@ -556,7 +469,6 @@ class Project {
     return result;
   }
 
-
   /**
    * Get the state of the project when it was first loaded.
    * @return {Project}
@@ -566,6 +478,54 @@ class Project {
   }
 }
 
+/**
+ * The Json representation of a project v0.
+ *
+ * @typedef {Object} JsonProjectType
+ * @property {string} name - The project filename.
+ * @property {string} board - The project board type.
+ * @property {string} code - The XML block code in this project.
+ * @property {string} created - The string representation of the project
+ * created date/time.
+ * @property {string} description - Notes that describe the project
+ * @property {string} description-html - (deprecated) HTML version of the
+ * description.
+ * @property {number} id - (deprecated) The unique project ID.
+ * @property {string} modified - Date/Time string noting the last time
+ * the project was modified.
+ * @property {boolean} private - (deprecated) Is the project private.
+ * @property {boolean} shared - (deprecated) Is the project publicly shared.
+ * @property {string} type - The project code generator output type.
+ * @property {string} user - (deprecated) The project user name.
+ * @property {boolean} yours - (deprecated) Is the project owned by the
+ * current user.
+ * @property {number} timestamp - The current epoch time.
+ */
+
+/**
+ * The Json representation of a project v1.
+ *
+ * @typedef {Object} JsonProjectTypeV1
+ * @property {string} name - The project filename.
+ * @property {string} boardType - The project board type.
+ * @property {string} code - The XML block code in this project.
+ * @property {string} created - The string representation of the project
+ * created date/time.
+ * @property {string} description - Notes that describe the project
+ * @property {string} description-html - (deprecated) HTML version of the
+ * description.
+ * @property {number} id - (deprecated) The unique project ID.
+ * @property {string} modified - Date/Time string noting the last time
+ * the project was modified.
+ * @property {boolean} private - (deprecated) Is the project private.
+ * @property {boolean} shared - (deprecated) Is the project publicly shared.
+ * @property {string} type - The project code generator output type.
+ * @property {string} user - (deprecated) The project user name.
+ * @property {boolean} yours - (deprecated) Is the project owned by the
+ * current user.
+ * @property {number} timestamp - The current epoch time.
+ * @property {string} version - The version of this typedef
+ */
 
 /**
  * Create a new Project object from JSON data
@@ -601,7 +561,6 @@ function projectJsonFactory(json) {
   );
 }
 
-
 /**
  * Constant string that represents the base, empty project header
  *
@@ -615,12 +574,35 @@ Project.prototype.EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/x
 
 /**
  * Install a project save timer into the project
- * @param {ProjectSaveTimer} timer
+ * @param {NudgeTimer} timer
  */
 Project.prototype.setProjectTimer = function(timer) {
   this.saveTimer = timer;
 };
 
+/**
+ * Reset the epoch base time
+ */
+Project.prototype.resetProjectTimer = function() {
+  console.log('Resetting the project save timer');
+  this.saveTimer.reset();
+};
+
+/**
+ * Retrieve the time since the last save operation
+ * @return {number}
+ */
+Project.prototype.getProjectTimeSinceLastSave = function() {
+  return this.saveTimer.getTimeSinceLastSave();
+};
+
+/**
+ * Get the timer epoch value
+ * @return {number}
+ */
+Project.prototype.getProjectTimerEpoch = function() {
+  return this.saveTimer.getEpochTime();
+}
 
 /**
  * The project type defines the code that the blocks will emit. There
