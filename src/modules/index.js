@@ -73,6 +73,7 @@ if (window.location.hostname === productBannerHostTrigger) {
   appName = TestApplicationName;
 }
 
+
 showAppName();
 showAppBannerTitle(appName);
 setCopyrightDate(document.getElementById('footer_copyright'));

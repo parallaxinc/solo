@@ -36,32 +36,29 @@ import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
 import * as saveAs from 'file-saver';
-import {
-  EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME,
-  PROJECT_NAME_MAX_LENGTH, PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName,
-  TestApplicationName, productBannerHostTrigger,
-} from './constants';
-import {
-  clientService, compile, findClient, formatWizard, getComPort, loadInto,
-  renderContent, downloadCSV, initializeBlockly, sanitizeFilename,
-  graphingConsole, serialConsole, configureConnectionPaths,
-} from './blocklyc';
+import {clientService, compile, findClient, formatWizard} from './blocklyc';
+import {getComPort, loadInto, renderContent, downloadCSV} from './blocklyc';
+import {initializeBlockly, sanitizeFilename, serialConsole} from './blocklyc';
+import {graphingConsole, configureConnectionPaths} from './blocklyc';
+import {EMPTY_PROJECT_CODE_HEADER} from './constants';
+import {LOCAL_PROJECT_STORE_NAME} from './constants';
+import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
+import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
+import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
-import {
-  editProjectDetails, newProjectModal, openProjectModal, initUploadModalLabels,
-} from './modals';
-import {
-  Project, getProjectInitialState, setProjectInitialState,
-  setDefaultProfile,
-  ProjectTypes,
-  clearProjectInitialState, projectJsonFactory,
-} from './project';
-import {ProjectSaveTimer} from './project_save_timer';
+import {editProjectDetails, newProjectModal} from './modals';
+import {openProjectModal, initUploadModalLabels} from './modals';
+import {NudgeTimer} from './nudge_timer';
+import {Project, getProjectInitialState} from './project';
+import {setProjectInitialState, setDefaultProfile} from './project';
+import {ProjectTypes, clearProjectInitialState} from './project';
+import {projectJsonFactory} from './project';
+import {buildDefaultProjectFile} from './project_default';
+// import {ProjectSaveTimer} from './project_save_timer';
 import {PropTerm} from './prop_term';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
-import {buildDefaultProjectFile} from './project_default';
 import {utils} from './utility';
 
 /**
@@ -290,8 +287,6 @@ $(() => {
         console.log('Error allocating CodeEditor object');
       }
 
-      // Open the modal when the timer expires
-      ProjectSaveTimer.setMessageHandler(ShowProjectTimerModalDialog);
 
       // Set the compile toolbar buttons to unavailable
       propToolbarButtonController();
@@ -317,6 +312,18 @@ $(() => {
     // TODO: New Default Project
     const defaultProject = buildDefaultProjectFile();
     setProjectInitialState(defaultProject);
+    // Create a new nudge timer
+    const myTime = new NudgeTimer(0);
+    // Set the callback
+    myTime.myCallback = function() {
+      if (isProjectChanged) {
+        showProjectTimerModalDialog();
+      }
+    };
+    // Start the timer and save it to the project object
+    myTime.start(10);
+    defaultProject.setProjectTimer(myTime);
+
     setupWorkspace(defaultProject, function() {
       console.log('Building a default project.');
     });
@@ -328,7 +335,6 @@ $(() => {
     }
 
     // Set the compile toolbar buttons to unavailable
-    // setPropToolbarButtons();
     propToolbarButtonController();
   }
 
@@ -556,18 +562,15 @@ function initEventHandlers() {
   // Open Project toolbar button. Stash the current project into the
   // browser localStorage and then redirect to the OpenFile URL.
   $('#open-project-button').on('click', () => openProjectModal());
-  // {
-  //     // Save the project to localStorage
-  //     window.localStorage.setItem(
-  //        LOCAL_PROJECT_STORE_NAME, JSON.stringify(projectData));
-  //     window.location = "blocklyc.html?openFile=true" +
-  //        window.getAllUrlParameters().replace('?', '&');
-  // });
 
   // Save button
   // Save Project modal 'Save' button click handler
   $('#save-btn, #save-project').on('click', () => downloadCode());
 
+  // Save project nudge dialog onclose event handler
+  $('#save-check-dialog').on('hidden.bs.modal', () => {
+    console.log('Closing the project save timer dialog.');
+  });
 
   // --------------------------------
   // Hamburger menu items
@@ -582,6 +585,7 @@ function initEventHandlers() {
   // ---- Hamburger drop down horizontal line ----
 
   // Download project to Simple IDE
+  // TODO: Investigate why downloadPropC() is missing.
   $('#download-side').on('click', () => downloadPropC());
 
   /**
@@ -605,7 +609,6 @@ function initEventHandlers() {
   // --------------------------------
   // End of hamburger menu items
   // --------------------------------
-
 
   // Save As button
   $('#save-as-btn').on('click', () => saveAsDialog());
@@ -637,17 +640,6 @@ function initEventHandlers() {
   $('.show-os-chr').on('click', () => showOS('ChromeOS'));
   $('.show-os-lnx').on('click', () => showOS('Linux'));
 
-
-  // --------------------------------------------------------------
-  // Bootstrap modal event handler for the Save Project Timer
-  // dialog. The hidden.bs.model event occurs when the modal is
-  // fully hidden (after CSS transitions have completed)
-  // --------------------------------------------------------------
-  $('#save-check-dialog').on('hidden.bs.modal', () => {
-    ProjectSaveTimer.timestampSaveTime(5, false);
-  });
-
-
   // Hide these elements of the Open Project File modal when it
   // receives focus
   $('#selectfile').focus(function() {
@@ -656,7 +648,6 @@ function initEventHandlers() {
     $('#selectfile-verify-boardtype').css('display', 'none');
   });
 }
-
 
 /**
  * Set the BlocklyProp Client download links
@@ -736,6 +727,16 @@ function setupWorkspace(data, callback) {
   const project = setProjectInitialState(data);
   if (project) {
     setDefaultProfile(project.boardType);
+    const myTime = new NudgeTimer(0);
+    // Set the callback
+    myTime.myCallback = function() {
+      if (isProjectChanged()) {
+        showProjectTimerModalDialog();
+      }
+    };
+    // Start the timer and attach it to the project object
+    myTime.start(10);
+    project.setProjectTimer(myTime);
   } else {
     throw new Error('Unable to load the project.');
   }
@@ -775,25 +776,11 @@ function setupWorkspace(data, callback) {
 
   resetToolBoxSizing(0);
 
-  ProjectSaveTimer.timestampSaveTime(0, true);
-
-  // Save project reminder timer. Check project status every 60 seconds to
-  // determine if the project has been modified
-  setInterval(saveProjectTimerChange, 60000);
-
   // Execute the callback function if one was provided
   if (callback) {
     callback();
   }
 }
-
-/**
- * Check the project save timer only if the project has changed
- */
-function saveProjectTimerChange() {
-  if (isProjectChanged()) ProjectSaveTimer.checkLastSavedTime();
-}
-
 
 /**
  * Display the project name
@@ -897,7 +884,8 @@ function saveProject() {
     });
 
     // Mark the time when saved, add 20 minutes to it.
-    ProjectSaveTimer.timestampSaveTime(0, true);
+    // ProjectSaveTimer.timestampSaveTime(0, true);
+    // Replace with a NudgeTimer
   } else {
     // If user doesn't own the project - prompt for a new project name and route
     // through an endpoint that will make the project private.
@@ -1167,8 +1155,7 @@ function downloadCode() {
   window.localStorage.setItem(
       LOCAL_PROJECT_STORE_NAME, JSON.stringify(project));
 
-  // Mark the time when saved, add 20 minutes to it.
-  ProjectSaveTimer.timestampSaveTime(0, true);
+  project.resetProjectTimer();
 }
 
 /**
@@ -1924,7 +1911,23 @@ function RenderPageBrandingElements() {
  * Display the Timed Save Project modal dialog
  *
  */
-function ShowProjectTimerModalDialog() {
+function showProjectTimerModalDialog() {
+  const lastSave = Math.ceil(
+      getProjectInitialState().getProjectTimeSinceLastSave());
+  const message = [
+    page_text_label['editor_save-check_warning-1'],
+    page_text_label['editor_save-check_warning-2'],
+  ];
+
+  // The embedded anonymous function builds the message string
+  // for the modal dialog
+  $('#save-check-warning-message')
+      .html( ((strings, message) => {
+        const str0 = strings[0];
+        const str1 = strings[1];
+        return `${str0}${message}${str1}`;
+      })(message, lastSave));
+
   $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
 }
 
@@ -2024,13 +2027,25 @@ function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
  */
 function isProjectChanged() {
   const project = getProjectInitialState();
+  let result = false;
+
   if (!project || typeof project.name === 'undefined') {
-    return false;
+    console.log('There is no project defined.');
+    console.log('This should probably be investigated.');
+    return result;
   }
 
-  return project.code.localeCompare(getXml()) !== 0;
-}
+  // TODO: Compare the project name to the initial project name
 
+
+  // TODO: Compare the project description with the initial description
+
+  const isChanged = project.code.localeCompare(getXml());
+  if (isChanged !== 0) {
+    result = true;
+  }
+  return result;
+}
 
 /**
  * Convert the current project workspace into an XML document

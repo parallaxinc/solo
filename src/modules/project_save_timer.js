@@ -1,5 +1,3 @@
-
-
 /*
  *   TERMS OF USE: MIT License
  *
@@ -40,7 +38,7 @@
 const SAVE_PROJECT_TIMER_DELAY = 20;
 
 /**
- * Call this message handler when the timer expires
+ * Execute this callback when the timer expires
  * @type {null | function}
  */
 let messageHandler = null;
@@ -50,6 +48,7 @@ let messageHandler = null;
  *  the user is advised to save their project.
  *
  * @type {number}
+ * @deprecated
  */
 let lastSavedTimestamp = 0;
 
@@ -59,6 +58,7 @@ let lastSavedTimestamp = 0;
  * current project was last saved to storage.
  *
  * @type {number}
+ * @deprecated
  */
 let lastSavedTime = 0;
 
@@ -66,6 +66,80 @@ let lastSavedTime = 0;
  *
  */
 class ProjectSaveTimer {
+  /**
+   * Initialize the project save timer
+   * @param {number} wait time, in seconds
+   * @param {function} projectChanged method to determine it project is
+   * changed. The method must return a boolean true if the project has
+   * changed; false if it has not.
+   * @param {function} timeoutCallback is the function that is called when
+   * the timer has expired.
+   * @description This sets up the timer to know how often it should check
+   * the project state to detect changes and a function to call when both
+   * the project has changed and the timer interval has expired. Once these
+   * elements are set, the timer runs autonomously.
+   */
+  constructor(wait, projectChanged, timeoutCallback) {
+    /**
+     * Hold the start time in Epoch time.
+     * @type {number}
+     * @private
+     */
+    this.startTime = Date.now();
+
+    /**
+     * The amount of time to wait (in minutes) before the callback is called
+     * @type {number}
+     * @private
+     */
+    this.wait = (wait === 0) ? SAVE_PROJECT_TIMER_DELAY : wait;
+
+    /**
+     * Call this method to determine of the project has changed.
+     * @private
+     */
+    this.isProjectChanged = projectChanged;
+
+    /**
+     * Execute the callback when the timer expires
+     * @private
+     */
+    this.callback = timeoutCallback;
+
+    /**
+     * This is the handle to the interval timer that is created
+     * when the project timer object is created
+     * @type {Object}
+     * @private
+     */
+    this.timer = setInterval(this.checkTimerInterval, this.wait * 60000);
+
+    /**
+     * Return time remaining in the interval
+     * @return {number}
+     */
+    this.getTimeRemaining = function() {
+      const now = Date.now();
+      const timeLeft = now - this.startTime;
+      return (timeLeft > 0) ? timeLeft/1000 : 0;
+    };
+
+    /**
+     * Check the interval timer
+     */
+    this.checkTimerInterval = function() {
+      console.log('Project time left before save: ' + this.getTimeRemaining());
+    };
+  } /* end of constructor */
+
+  /**
+   * Return the start time for this interval
+   * @return {Date}
+   */
+  getStartTime() {
+    return this.startTime;
+  }
+
   /**
    * The function to call when it is time to notify the user.
    * @param {Function} callback
@@ -75,9 +149,7 @@ class ProjectSaveTimer {
     messageHandler = callback;
   }
 
-
   /**
-   *
    * @param {number} delay number of minutes before next nudge
    * @param {boolean} resetTimer
    *
@@ -129,6 +201,5 @@ class ProjectSaveTimer {
     }
   }
 }
-
 
 export {ProjectSaveTimer};
