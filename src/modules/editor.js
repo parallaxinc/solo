@@ -20,6 +20,9 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import {startSentry} from './sentry';
+startSentry();
+
 import 'bootstrap';
 import Blockly from 'blockly/core';
 // eslint-disable-next-line camelcase
