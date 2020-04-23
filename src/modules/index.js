@@ -20,6 +20,9 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import {startSentry} from './sentry';
+startSentry();
+
 import 'bootstrap';
 import {
   APP_VERSION,
