@@ -90,6 +90,13 @@ module.exports = {
                 to: path.resolve(__dirname, 'dist/images')
             }
         ]),
+        // Copy over style sheets
+        new CopyPlugin([
+            { from: './src/site.css', to: path.resolve(__dirname, 'dist')},
+            { from: './src/style.css', to: path.resolve(__dirname, 'dist')},
+            { from: './src/style-clientdownload.css', to: path.resolve(__dirname, 'dist')},
+            { from: './src/style-editor.css', to: path.resolve(__dirname, 'dist')}
+        ]),
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery'
