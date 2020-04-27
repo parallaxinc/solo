@@ -569,7 +569,7 @@ function populateProjectBoardTypesUIElement(element, selected = null) {
               // Exclude the 'unknown' board type. It is used only when
               // something has gone wrong during a project load operation
               element.append($('<option />')
-                  .val(board)
+                  .val(ProjectProfiles[board].name)
                   .text(ProjectProfiles[board].description));
             }
           }
