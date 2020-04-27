@@ -1178,9 +1178,6 @@ xmlToolbox += '        <category key="category_sensor-input_LIS3DH" >';
 xmlToolbox += '            <block type="lis3dh_init"></block>';
 xmlToolbox += '            <block type="lis3dh_read"></block>';
 xmlToolbox += '            <block type="lis3dh_temp"></block>';
-
-// xmlToolbox += '            <block type="lis3dh_tilt"></block>';
-
 xmlToolbox += '        </category>';
 xmlToolbox += '        <category key="category_sensor-input_LSM9DS1" >';
 xmlToolbox += '            <block type="lsm9ds1_init"></block>';
@@ -1230,6 +1227,10 @@ xmlToolbox += '            <block type="dht22_read"></block>';
 xmlToolbox += '            <block type="dht22_value"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
+
+/*
+ * MEMORY blocks
+ */
 xmlToolbox += '    <category key="category_memory" include="activity-board,flip,other," colour="165">';
 xmlToolbox += '        <category key="category_memory_eeprom" >';
 xmlToolbox += '            <block type="eeprom_read">';
@@ -1260,6 +1261,10 @@ xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="sd_file_pointer"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
+
+/*
+ * ANALOG/PULSE blocks
+ */
 xmlToolbox += '    <category key="category_analog-pulses" exclude="s3,heb,heb-wx," colour="185">';
 xmlToolbox += '        <category key="category_analog-pulses_pulse-in-out" exclude="s3,">';
 xmlToolbox += '            <block type="pulse_in"></block>';
@@ -1307,6 +1312,10 @@ xmlToolbox += '            <block type="mcp320x_read"></block>';
 xmlToolbox += '            <block type="mcp320x_set_vref"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
+
+/*
+ * AUDIO blocks
+ */
 xmlToolbox += '    <category key="category_audio" exclude="s3," colour="185">';
 xmlToolbox += '        <category key="category_audio_freqout" >';
 xmlToolbox += '            <block type="base_freqout">';
