@@ -36,7 +36,6 @@
     "file-saver": "^2.0.2",
     "jquery": "^3.4.1",
     "jquery-validation": "^1.19.1",
-    "js-beautify": "^1.11.0",
     "jszip": "^3.3.0",
     "node-chartist": "^1.0.5"
   },

@@ -792,22 +792,26 @@ Blockly.Blocks.fp_scanner_init = {
  * @return {string}
  */
 Blockly.propc.fp_scanner_init = function() {
-  if (!this.disabled) {
-    const profile = getDefaultProfile();
-    let rxPin = this.getFieldValue('RXPIN');
-    let txPin = this.getFieldValue('TXPIN');
-    if (profile.digital.toString().indexOf(rxPin + ',' + rxPin) === -1) {
-      rxPin = 'MY_' + rxPin;
-    }
-    if (profile.digital.toString().indexOf(txPin + ',' + txPin) === -1) {
-      txPin = 'MY_' + txPin;
-    }
-    Blockly.propc.global_vars_['fpScannerObj'] = 'fpScanner *fpScan;';
-    Blockly.propc.definitions_['fpScannerDef'] = '#include "fingerprint.h"';
-    Blockly.propc.setups_['fpScanner'] = 'fpScan = fingerprint_open(' +
-        txPin + ', ' + rxPin + ');';
+  if (this.disabled) {
+    return '';
   }
-  return '';
+
+  const profile = getDefaultProfile();
+  let rxPin = this.getFieldValue('RXPIN');
+  let txPin = this.getFieldValue('TXPIN');
+
+  if (profile.digital.toString().indexOf(rxPin + ',' + rxPin) === -1) {
+    rxPin = 'MY_' + rxPin;
+  }
+  if (profile.digital.toString().indexOf(txPin + ',' + txPin) === -1) {
+    txPin = 'MY_' + txPin;
+  }
+
+  // Set up the fpScanner global variable, include file and init setup code
+  Blockly.propc.global_vars_['fpScannerObj'] = 'fpScanner *fpScan;';
+  Blockly.propc.definitions_['fpScannerDef'] = '#include "fingerprint.h"';
+  Blockly.propc.setups_['fpScanner'] = 'fpScan = fingerprint_open(' +
+      txPin + ', ' + rxPin + ');';
 };
 
 /**
@@ -1999,6 +2003,7 @@ Blockly.propc.lsm9ds1_read = function() {
 };
 
 /**
+ * IMU tilt block
  *
  * @type {{
  *  init: Blockly.Blocks.lsm9ds1_tilt.init,
@@ -2072,17 +2077,35 @@ Blockly.Blocks.lsm9ds1_tilt = {
 };
 
 /**
- *
+ * IMU tilt block C code generator
  * @return {string}
  */
 Blockly.propc.lsm9ds1_tilt = function() {
   let code = '';
+  // TODO: Refactor getAllBlocks reference to GetBlocksByType
+  // const blocks = Blockly
+  //     .getMainWorkspace()
+  //     .getBlocksByType('IMU initialize', false);
+  // console.log(blocks);
+
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+
   if (allBlocks.indexOf('IMU initialize') === -1) {
     code += '// ERROR: Missing IMU initialize block!';
   } else {
-    const t1Axis = '__imu' + this.getFieldValue('A1')[6].toUpperCase();
-    const t2Axis = '__imu' + this.getFieldValue('A2')[0].toUpperCase();
+    // getFieldValue may return a null or undefined, so blindly accessing
+    // a substring from getFieldValue could throw a type error
+    let t1Axis;
+    let t2Axis;
+    let tmpFieldValue = this.getFieldValue('A1');
+    if (tmpFieldValue) {
+      t1Axis = `__imu${tmpFieldValue.substr(6, 1).toUpperCase()}`;
+    }
+    tmpFieldValue = this.getFieldValue('A2');
+    if (tmpFieldValue) {
+      t2Axis = `__imu${tmpFieldValue.substr(0, 1).toUpperCase()}`;
+    }
+
     const gAxis = '__imu' + this.getFieldValue('G_AXIS');
     const storage1 = Blockly.propc.variableDB_.getName(
         this.getFieldValue('VAR1'),
@@ -2093,9 +2116,9 @@ Blockly.propc.lsm9ds1_tilt = function() {
 
     code += 'imu_readAccelCalculated(&__imuX, &__imuY, &__imuZ);\n';
     code += storage1 + ' = (int) (atan2(' + t1Axis + ', ' +
-        gAxis + ') * 180.0/PI);\n';
+        gAxis + ') * 180.0 / PI);\n';
     code += storage2 + ' = (int) (atan2(' + t2Axis + ', ' +
-        gAxis + ') * 180.0/PI);\n';
+        gAxis + ') * 180.0 / PI);\n';
   }
   return code;
 };
