@@ -20,10 +20,9 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-// import * as ace from 'ace-builds/src-noconflict/ace';
 import Blockly from 'blockly/core';
 import * as Chartist from 'chartist';
-import * as jsBeautify from 'js-beautify';
+// import * as jsBeautify from 'js-beautify';
 import * as JSZip from 'jszip';
 import {saveAs} from 'file-saver';
 
@@ -327,7 +326,6 @@ const formatWizard = function() {
   codePropC.gotoLine(currentLine);
 };
 
-
 /**
  * Pretty formatter for C code
  *
@@ -336,34 +334,37 @@ const formatWizard = function() {
  */
 const prettyCode = function(rawCode) {
   // Prevent JS beautify from improperly formatting reference, dereference, and arrow operators
-  rawCode = rawCode
-      .replace(/\*([_a-zA-Z()])/g, '___REFERENCE_OPERATOR___$1')
-      .replace(/([_a-zA-Z()])\*/g, '$1___REFERENCE_OPERATOR___')
-      .replace(/&([_a-zA-Z()])/g, '___DEREFERENCE_OPERATOR___$1')
-      .replace(/->/g, '___ARROW_OPERATOR___');
+  // rawCode = rawCode
+  //     .replace(/\*([_a-zA-Z()])/g, '___REFERENCE_OPERATOR___$1')
+  //     .replace(/([_a-zA-Z()])\*/g, '$1___REFERENCE_OPERATOR___')
+  //     .replace(/&([_a-zA-Z()])/g, '___DEREFERENCE_OPERATOR___$1')
+  //     .replace(/->/g, '___ARROW_OPERATOR___');
 
+  // TODO: The jsBeautifer package is NOT targeted to C source code. Replace
+  //  this functionality with something that understands C source code.
   // run the beautifier
-  rawCode = jsBeautify(rawCode, {
-    'brace_style': 'expand',
-    'indent_size': 2,
-  });
+  // rawCode = jsBeautify(rawCode, {
+  //   'brace_style': 'expand',
+  //   'indent_size': 2,
+  //   'preserve_newlines': true,
+  // });
 
   // restore the reference, dereference, and arrow operators
-  rawCode = rawCode.replace(/,\n[\s\xA0]+/g, ', ')
-      .replace(/___REFERENCE_OPERATOR___/g, '*')
-      .replace(/___DEREFERENCE_OPERATOR___/g, '&')
-      .replace(/___ARROW_OPERATOR___/g, '->')
+  // rawCode = rawCode.replace(/,\n[\s\xA0]+/g, ', ')
+  //     .replace(/___REFERENCE_OPERATOR___/g, '*')
+  //     .replace(/___DEREFERENCE_OPERATOR___/g, '&')
+  //     .replace(/___ARROW_OPERATOR___/g, '->')
 
-      // improve the way functions and arrays are rendered
-      .replace(/\)\s*[\n\r]\s*{/g, ') {')
-      .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g, function(str, m1, m2) {
-        m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
-        return '[' + m1 + '] = {' + m2 + '};';
-      });
+  // improve the way functions and arrays are rendered
+  rawCode = rawCode.replace(/\)\s*[\n\r]\s*{/g, ') {')
+      .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g,
+          function(str, m1, m2) {
+            m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
+            return '[' + m1 + '] = {' + m2 + '};';
+          });
 
-  return (rawCode);
+  return rawCode;
 };
-
 
 /**
  * Toggle the find-replace display style between 'block' and 'none'
@@ -376,7 +377,6 @@ const findReplaceCode = function() {
     document.getElementById('find-replace').style.display = 'none';
   }
 };
-
 
 /**
  * Submit a project's source code to the cloud compiler
@@ -442,6 +442,8 @@ function cloudCompile(text, action, successHandler) {
     if (window.location.protocol === 'http:') {
       postUrl = 'http://' + window.location.hostname + ':5001/single/prop-c/' + action;
     }
+
+    // Post the code to the compiler API and await the results
     $.ajax({
       'method': 'POST',
       'url': postUrl,
@@ -481,14 +483,12 @@ function cloudCompile(text, action, successHandler) {
   }
 }
 
-
 /**
  * Stub function to the cloudCompile function
  */
 function compile() {
   cloudCompile('Compile', 'compile', null);
 }
-
 
 /**
  * return the address for the cloud compiler
@@ -505,7 +505,6 @@ function getCompilerUrl(action) {
   // Direct compilation to the cloud compiler service
   return window.location.protocol + '//' + window.location.hostname + 'compile/single/prop-c/' + action;
 }
-
 
 /**
  * Begins loading process
