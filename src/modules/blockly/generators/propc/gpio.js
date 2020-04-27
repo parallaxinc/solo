@@ -3470,7 +3470,7 @@ Blockly.propc.activitybot_parallaxy_load = function() {
 };
 
 /**
- * MCP 320x Read
+ * A/D Read block for Flip and Other board types
  * @type {{
  *  init: Blockly.Blocks.mcp320x_read.init,
  *  updateShape_: Blockly.Blocks.mcp320x_read.updateShape_,
