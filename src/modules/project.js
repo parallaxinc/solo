@@ -203,7 +203,13 @@ class Project {
     this.projectType = (projectType) ?
         ProjectTypes[projectType] : ProjectTypes.UNKNOWN;
 
-    this.code = (code) ? code : this.EmptyProjectCodeHeader + '</xml>';
+    /**
+     * Initialize code to the default namespace if the code parameter is null
+     * or is an empty string. Otherwise, use the code string passed in
+     * @type {string}
+     */
+    this.code = (code && code.length > 0) ?
+        code : this.EmptyProjectCodeHeader;
 
     // This should be a timestamp but is received as a string
     // TODO: Convert timestamp string to numeric values
@@ -570,8 +576,14 @@ function projectJsonFactory(json) {
  * in a number of places. The string is sufficiently complex that it could
  * be misspelled without detection.
  */
-Project.prototype.EmptyProjectCodeHeader = '<xml xmlns="http://www.w3.org/1999/xhtml">';
+Project.prototype.EmptyProjectCodeHeader = '"<xml xmlns="https://developers.google.com/blockly/xml"/>"';
 
+/**
+ * The original code block XML namespace reference
+ * @type {string}
+ * @deprecated Use the EmptyProjectCodeHeader constant instead
+ */
+Project.prototype.EmptyProjectCodeHeader_V0 = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 /**
  * Install a project save timer into the project
  * @param {NudgeTimer} timer
