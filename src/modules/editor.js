@@ -62,7 +62,7 @@ import {PropTerm} from './prop_term';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
-import {utils} from './utility';
+import {getAllUrlParameters, utils} from './utility';
 
 /**
  * The call to Blockly.svgResize() requires a reference to the
@@ -449,6 +449,10 @@ function initEventHandlers() {
     uploadHandler(e.target.files);
   });
 
+  // Import project modal dialog onClick event handlers
+  $('#selectfile-replace').on('click', () => uploadMergeCode(false));
+  $('#selectfile-append').on('click', () => uploadMergeCode(true));
+
   // ----------------------------------------------------------------------- //
   // Left side toolbar event handlers                                        //
   // ----------------------------------------------------------------------- //
@@ -722,10 +726,6 @@ function setupWorkspace(data, callback) {
     return -1;
   }
 
-  // Complete the XML document if we only have a header
-  if (data.code === EMPTY_PROJECT_CODE_HEADER) {
-    data.code += '</xml>';
-  }
   // Set the master project image
   const project = setProjectInitialState(data);
   if (project) {
@@ -1293,20 +1293,24 @@ function uploadHandler(files) {
   // Event handler that fires when the file that the user selected is loaded
   // from local storage
   UploadReader.onload = function() {
+    // Save the file contents in xmlString
+    const xmlString = this.result;
+
     // The project board type string
-    let uploadBoardType = '';
+    const uploadBoardType = getProjectBoardTypeName(xmlString);
+
+    // The text name of the project
+    const projectName =
+        files[0].name.substring(0, files[0].name.lastIndexOf('.'));
 
     // Raw XML from the .svg file
     let projectRawXmlCode = '';
 
     // Project code with the correct xml namespace xml tag
-    let projectXmlCode = '';
+    // let projectXmlCode = '';
 
     // Flag to indicate that the project contains a valid code block
     let xmlValid = false;
-
-    // Save the file contents in xmlString
-    const xmlString = this.result;
 
     // TODO: Solo #261
     // Loop through blocks to verify blocks are supported for the project
@@ -1327,10 +1331,22 @@ function uploadHandler(files) {
 
     // validate file, screen for potentially malicious code.
     if ((files[0].type === 'image/svg+xml' || isSvgeFile) &&
-            xmlString.indexOf('<svg blocklyprop="blocklypropproject"') === 0 &&
-            xmlString.indexOf('<!ENTITY') === -1 &&
-            xmlString.indexOf('CDATA') === -1 &&
-            xmlString.indexOf('<!--') === -1) {
+        xmlString.indexOf('<svg blocklyprop="blocklypropproject"') === 0 &&
+        xmlString.indexOf('<!ENTITY') === -1 &&
+        xmlString.indexOf('CDATA') === -1 &&
+        xmlString.indexOf('<!--') === -1) {
+      // Check to see if there is a project already loaded. If there is, check
+      // the existing project's board type to verify that the new project is
+      // of the same type
+      // ----------------------------------------------------------------------
+      if (getProjectInitialState() &&
+          uploadBoardType !== getProjectInitialState().boardType.name) {
+        // Display a modal?
+        $('#selectfile-verify-boardtype').css('display', 'block');
+      } else {
+        $('#selectfile-verify-boardtype').css('display', 'none');
+      }
+
       // Search the project file for the first variable or block
       const findBPCstart =
           (xmlString.indexOf('<variables') > -1) ? '<variables' : '<block';
@@ -1341,24 +1357,30 @@ function uploadHandler(files) {
           xmlString.indexOf(findBPCstart),
           xmlString.indexOf('<ckm>'));
 
-      // Add the xml namespace tag to the project code
-      if (projectRawXmlCode.length > 0) {
-        projectXmlCode =
-            EMPTY_PROJECT_CODE_HEADER + projectRawXmlCode + '</xml>';
+      // ----------------------------------------------------------------------
+      // File processing is done. The projectXmlCode variable holds the
+      // XML string for the project that was just loaded
+      // ----------------------------------------------------------------------
+      const tmpProject = fileToProject(
+          projectName, projectRawXmlCode, uploadBoardType);
+      if (tmpProject) {
         xmlValid = true;
-      }
-
-      uploadBoardType = getProjectBoardTypeName(xmlString);
-
-      // Check to see if there is a project already loaded. If there is, check
-      // the existing project's board type to verify that the new project is
-      // of the same type
-      if (getProjectInitialState() &&
-          uploadBoardType !== getProjectInitialState().boardType.name) {
-        // Display a modal?
-        $('#selectfile-verify-boardtype').css('display', 'block');
-      } else {
-        $('#selectfile-verify-boardtype').css('display', 'none');
+        // projectXmlCode = tmpProject.code;
+        console.log('File to Project conversion successful');
+        // Save the project to the browser store
+        window.localStorage.setItem(
+            TEMP_PROJECT_STORE_NAME, JSON.stringify(tmpProject.getDetails()));
+        if (xmlValid === true) {
+          $('#selectfile-verify-valid').css('display', 'block');
+          document.getElementById('selectfile-replace').disabled = false;
+          document.getElementById('selectfile-append').disabled = false;
+          // uploadedXML = xmlString;
+        } else {
+          $('#selectfile-verify-notvalid').css('display', 'block');
+          document.getElementById('selectfile-replace').disabled = true;
+          document.getElementById('selectfile-append').disabled = true;
+          // uploadedXML = '';
+        }
       }
 
       // TODO: check to see if this is used when opened from the editor
@@ -1368,94 +1390,138 @@ function uploadHandler(files) {
 
       // Loading a .SVG project file. Create a project object and
       // save it into the browser store.
-      const projectTitle = getProjectTitleFromXML(xmlString);
-      const projectDesc = getProjectDescriptionFromXML(xmlString);
+      // const projectTitle = getProjectTitleFromXML(xmlString);
+      // const projectDesc = getProjectDescriptionFromXML(xmlString);
+      //
+      // const tt = new Date();
+      // const projectCreated = getProjectCreatedDateFromXML(xmlString, tt);
+      // const projectModified = getProjectModifiedDateFromXML(xmlString, tt);
+      // const date = new Date();
 
-      const tt = new Date();
-      const projectCreated = getProjectCreatedDateFromXML(xmlString, tt);
-      const projectModified = getProjectModifiedDateFromXML(xmlString, tt);
-      const date = new Date();
-
-      const pd = {
-        'board': uploadBoardType,
-        'code': projectXmlCode,
-        'created': projectCreated,
-        'description': decodeFromValidXml(projectDesc),
-        'description-html': '',
-        'id': 0,
-        'modified': projectModified,
-        'name': files[0].name.substring(0, files[0].name.lastIndexOf('.')),
-        'private': true,
-        'shared': false,
-        'type': 'PROPC',
-        'user': 'offline',
-        'yours': true,
-        'timestamp': date.getTime(),
-      };
+      // const pd = {
+      //   'board': uploadBoardType,
+      //   'code': projectXmlCode,
+      //   'created': projectCreated,
+      //   'description': decodeFromValidXml(projectDesc),
+      //   'description-html': '',
+      //   'id': 0,
+      //   'modified': projectModified,
+      //   'name': projectName,
+      //   'private': true,
+      //   'shared': false,
+      //   'type': 'PROPC',
+      //   'user': 'offline',
+      //   'yours': true,
+      //   'timestamp': date.getTime(),
+      // };
 
       // Compute a parallel dataset to replace 'pd'
-      try {
-        // Convert the string board type name to a ProjectBoardType object
-
-        const tmpBoardType = Project.convertBoardType(uploadBoardType);
-        if (tmpBoardType === undefined) {
-          console.log('Unknown board type: %s', uploadBoardType);
-        }
-
-        const project = new Project(
-            decodeFromValidXml(projectTitle),
-            decodeFromValidXml(projectDesc),
-            tmpBoardType,
-            ProjectTypes.PROPC,
-            projectXmlCode,
-            projectCreated,
-            projectModified,
-
-            date.getTime(),
-            true);
-
-        // Convert the Project object details to projectData object
-        const projectOutput = project.getDetails();
-        if (projectOutput === undefined) {
-          console.log('Unable to convert Project to projectData object.');
-        }
-
-        console.log('Compare projects state');
-        if (! Project.testProjectEquality(pd, projectOutput)) {
-          console.log('Project output differs.');
-        }
-      } catch (e) {
-        console.log('Error while creating project object. %s', e.message);
-      }
-
-      // Save the output in a temp storage space
-      // TODO: Test this result with the value 'pd'
-      // window.localStorage.setItem(
-      //     "tempProject",
-      //     JSON.stringify(projectOutput));
-
-      // Save the project to the browser store
-      window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
-
-      // TODO: Reload the UI
-    }
-
-    if (xmlValid === true) {
-      $('#selectfile-verify-valid').css('display', 'block');
-      document.getElementById('selectfile-replace').disabled = false;
-      document.getElementById('selectfile-append').disabled = false;
-      // uploadedXML = xmlString;
-    } else {
-      $('#selectfile-verify-notvalid').css('display', 'block');
-      document.getElementById('selectfile-replace').disabled = true;
-      document.getElementById('selectfile-append').disabled = true;
-      // uploadedXML = '';
+      //   try {
+      //     // Convert the string board type name to a ProjectBoardType object
+      //     const tmpBoardType = Project.convertBoardType(uploadBoardType);
+      //     if (tmpBoardType === undefined) {
+      //       console.log('Unknown board type: %s', uploadBoardType);
+      //     }
+      //
+      //     const project = new Project(
+      //         decodeFromValidXml(projectTitle),
+      //         decodeFromValidXml(projectDesc),
+      //         tmpBoardType,
+      //         ProjectTypes.PROPC,
+      //         projectXmlCode,
+      //         projectCreated,
+      //         projectModified,
+      //
+      //         date.getTime(),
+      //         true);
+      //
+      //     // Convert the Project object details to projectData object
+      //     const projectOutput = project.getDetails();
+      //     if (projectOutput === undefined) {
+      //       console.log('Unable to convert Project to projectData object.');
+      //     }
+      //
+      //     console.log('Compare projects state');
+      //     if (! Project.testProjectEquality(pd, projectOutput)) {
+      //       console.log('Project output differs.');
+      //     }
+      //   } catch (e) {
+      //     console.log('Error while creating project object. %s', e.message);
+      //   }
+      //
+      //   // Save the output in a temp storage space
+      //   // TODO: Test this result with the value 'pd'
+      //   // window.localStorage.setItem(
+      //   //     "tempProject",
+      //   //     JSON.stringify(projectOutput));
+      //
+      //   // Save the project to the browser store
+      //   window.localStorage.setItem(
+      //       TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
+      //
+      //   // TODO: Reload the UI
+      // }
+      //
+      // if (xmlValid === true) {
+      //   $('#selectfile-verify-valid').css('display', 'block');
+      //   document.getElementById('selectfile-replace').disabled = false;
+      //   document.getElementById('selectfile-append').disabled = false;
+      //   // uploadedXML = xmlString;
+      // } else {
+      //   $('#selectfile-verify-notvalid').css('display', 'block');
+      //   document.getElementById('selectfile-replace').disabled = true;
+      //   document.getElementById('selectfile-append').disabled = true;
+      //   // uploadedXML = '';
+      // }
     }
   };
 
   // Load the SVG project file.
   UploadReader.readAsText(files[0]);
 }
+
+/**
+ * Convert an svg project file content to a Project object
+ * @param {string} projectName is the text name of the project
+ * @param {string} rawCode This is the raw XML code without a namespace
+ * @param {string} boardType This is the board type for the new project
+ * @return {Project}
+ */
+const fileToProject = (projectName, rawCode, boardType) => {
+  // TODO: Solo #261
+  // validateProjectBlockList(this.result);
+
+  const projectXmlCode = (rawCode.length > 0) ?
+      Project.getEmptyProjectCodeHeader() + rawCode + '</xml>' :
+      Project.getEmptyProjectCodeHeader() + '</xml>';
+
+  const date = new Date();
+  const projectDesc = getProjectDescriptionFromXML(rawCode);
+  const projectCreated = getProjectCreatedDateFromXML(rawCode, date);
+  const projectModified = getProjectModifiedDateFromXML(rawCode, date);
+
+  try {
+    const tmpBoardType = Project.convertBoardType(boardType);
+    if (tmpBoardType === undefined) {
+      console.log('Unknown board type: %s', boardType);
+    }
+
+    return new Project(
+        projectName,
+        decodeFromValidXml(projectDesc),
+        tmpBoardType,
+        ProjectTypes.PROPC,
+        projectXmlCode,
+        projectCreated,
+        projectModified,
+        date.getTime(),
+        true);
+  } catch (e) {
+    console.log('Error while creating project object. %s', e.message);
+  }
+
+  return null;
+};
 
 
 /**
@@ -1485,6 +1551,7 @@ function getProjectBoardTypeName(xmlString) {
  * @param {string} xmlString
  * @return {string}
  */
+// eslint-disable-next-line no-unused-vars,require-jsdoc
 function getProjectTitleFromXML(xmlString) {
   const titleIndex = xmlString.indexOf(
       'transform="translate(-225,-53)">Title: ');
@@ -1583,31 +1650,20 @@ function clearUploadInfo(redirect) {
   }
 }
 
-
 /**
- * Open and load an svg project file
+ * Append a project to the current project or replace the current project
+ * with the specified project.
  *
- * @param {boolean} append is true if the project being loaded will be appended
- * to the existing project
+ * @param {boolean} append if true, appends the new project to the current
+ * project, otherwise, replace the current project with the new project
  *
  * @description
- * This is called when the 'Open' button on the Open Project dialog
- * box is selected. At this point, the projectData global object
- * has been populated. In the offline mode, the function copies the
- * project to the browser's localStorage and then redirects the
- * browser back to the same page, but without the 'opeFile..' query
- * string.
- *
- * For offline mode, the project may not have been loaded yet.
+ * This code assumes that the new project file has been loaded into a
+ * variable. Not sure that is happening at this point.
  */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-/*
 function uploadMergeCode(append) {
-  // Hide the Open Project modal dialog
   $('#upload-dialog').modal('hide');
 
-  // When opening a file when directed from the splash screen in
-  // the offline app, load the selected project
   if (!append && window.getURLParameter('openFile') === 'true') {
     // The project was loaded into the localStorage. The global
     // variable tempProjectStoreName holds the name of the object
@@ -1732,7 +1788,6 @@ function uploadMergeCode(append) {
     clearUploadInfo(false);
   }
 }
-*/
 
 /**
  * Replace the default Blockly fonts
@@ -1820,6 +1875,9 @@ function initToolbox(profileName) {
 /**
  * Load the workspace
  * @param {string} xmlText
+ * @description Despite the function name, this is NOT loading a Blockly
+ * toolbox. Instead, it is attempting to load project blocks into an
+ * existing, default Blockly workspace.
  */
 function loadToolbox(xmlText) {
   if (Blockly.mainWorkspace) {
@@ -2043,7 +2101,8 @@ function isProjectChanged() {
 
   // TODO: Compare the project description with the initial description
 
-  const isChanged = project.code.localeCompare(getXml());
+  const code = getXml();
+  const isChanged = project.code.localeCompare(code);
   if (isChanged !== 0) {
     result = true;
   }
@@ -2059,6 +2118,7 @@ function getXml() {
   // TODO: This feels like propcfile is hijacking this method.
   const project = getProjectInitialState();
   if (project && project.boardType.name === 'propcfile') {
+    // TODO: This needs to be converted to using a Project class
     return propcAsBlocksXml();
   }
 
@@ -2080,7 +2140,7 @@ function getXml() {
  * from the browser localStorage
  */
 function createNewProject() {
-  let code;
+  let code = '';
   const project = getProjectInitialState();
 
   // If editing details, preserve the code, otherwise start over
@@ -2088,11 +2148,7 @@ function createNewProject() {
       typeof(project.boardType.name) !== 'undefined' &&
       $('#new-project-dialog-title')
           .html() === page_text_label['editor_edit-details']) {
-    // eslint-disable-next-line no-undef
     code = getXml();
-  } else {
-    // eslint-disable-next-line no-undef
-    code = EMPTY_PROJECT_CODE_HEADER;
   }
 
   // Save the form fields into the projectData object
@@ -2108,36 +2164,21 @@ function createNewProject() {
       console.log('Unknown board type: %s', boardType);
     }
 
-    const timestamp = new Date();
+    const date = new Date();
+    const timestamp = date.getTime();
     const newProject = new Project(
-        projectName,
-        description,
-        tmpBoardType,
-        ProjectTypes.PROPC,
-        code,
-        // eslint-disable-next-line no-undef
-        createdDateHtml, createdDateHtml,
-        timestamp.getTime(),
-        true);
+        projectName, description, tmpBoardType, ProjectTypes.PROPC, code,
+        createdDateHtml, createdDateHtml, timestamp, true);
 
-    // Save the project to the browser local store for the page
-    // transition
-    // eslint-disable-next-line no-undef
     newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
-
-    // ------------------------------------------------------
-    // Clear the projectData global to prevent the onLeave
-    // event handler from storing the old project code into
-    // the browser storage.
-    // ------------------------------------------------------
     clearProjectInitialState();
   } catch (e) {
     console.log('Error while creating project object. %s', e.message);
   }
 
-  // Redirect to the editor page
+  // TODO: Eliminate this for single-page application
   try {
-    const parameters = window.getAllUrlParameters();
+    const parameters = getAllUrlParameters();
     if (parameters !== '?') {
       window.location = 'blocklyc.html' + parameters;
     }
