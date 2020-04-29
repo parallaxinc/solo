@@ -24,6 +24,17 @@
 // import {NudgeTimer} from './nudge_timer';
 
 /**
+ * Constant string that represents the base, empty project header
+ *
+ * @type {string}
+ *
+ * @description Converting the string to a constant because it is referenced
+ * in a number of places. The string is sufficiently complex that it could
+ * be misspelled without detection.
+ */
+const EmptyProjectCodeHeader = '<xml xmlns="https://developers.google.com/blockly/xml">';
+
+/**
  * Preserve the initial state of the project
  * @type {Project | null}
  */
@@ -209,7 +220,7 @@ class Project {
      * @type {string}
      */
     this.code = (code && code.length > 0) ?
-        code : this.EmptyProjectCodeHeader;
+        code : EmptyProjectCodeHeader;
 
     // This should be a timestamp but is received as a string
     // TODO: Convert timestamp string to numeric values
@@ -333,6 +344,14 @@ class Project {
     window.localStorage.setItem(
         localStoreName,
         JSON.stringify(this.getDetails()));
+  }
+
+  /**
+   * Getter for the empty project code header constant
+   * @return {string}
+   */
+  static getEmptyProjectCodeHeader() {
+    return EmptyProjectCodeHeader;
   }
 
   /**
@@ -568,22 +587,12 @@ function projectJsonFactory(json) {
 }
 
 /**
- * Constant string that represents the base, empty project header
- *
- * @type {string}
- *
- * @description Converting the string to a constant because it is referenced
- * in a number of places. The string is sufficiently complex that it could
- * be misspelled without detection.
- */
-Project.prototype.EmptyProjectCodeHeader = '"<xml xmlns="https://developers.google.com/blockly/xml"/>"';
-
-/**
  * The original code block XML namespace reference
  * @type {string}
  * @deprecated Use the EmptyProjectCodeHeader constant instead
  */
 Project.prototype.EmptyProjectCodeHeader_V0 = '<xml xmlns="http://www.w3.org/1999/xhtml">';
+
 /**
  * Install a project save timer into the project
  * @param {NudgeTimer} timer
@@ -614,7 +623,7 @@ Project.prototype.getProjectTimeSinceLastSave = function() {
  */
 Project.prototype.getProjectTimerEpoch = function() {
   return this.saveTimer.getEpochTime();
-}
+};
 
 /**
  * The project type defines the code that the blocks will emit. There
