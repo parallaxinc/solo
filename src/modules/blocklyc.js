@@ -26,7 +26,6 @@ import * as Chartist from 'chartist';
 import * as JSZip from 'jszip';
 import {saveAs} from 'file-saver';
 
-import {EMPTY_PROJECT_CODE_HEADER} from './constants';
 import {loadToolbox, getWorkspaceSvg} from './editor';
 import {CodeEditor, getXmlCode} from './code_editor';
 import {propToolbarButtonController} from './toolbar_controller';
@@ -1451,22 +1450,23 @@ function initializeBlockly(data) {
  * @param {!Blockly} blockly Instance of Blockly from iframe.
  */
 function init(blockly) {
+  // TODO: window.Blockly should already be a thing at this point.
   window.Blockly = blockly;
   const project = getProjectInitialState();
   if (project) {
-    // Looking for the first <block> XML element
-    const searchTerm = '<block';
-
     if (project.boardType.name !== 'propcfile') {
       new CodeEditor(project.boardType.name);
       loadToolbox(project.code);
     }
-    if (!project.code || project.code.indexOf(searchTerm) < 0) {
-      project.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
-    }
-  } else {
-    project.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
+    // // Looking for the first <block> XML element
+    // const searchTerm = '<block';
+    // if (!project.code || project.code.indexOf(searchTerm) < 0) {
+    //   project.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
+    // }
   }
+  // else {
+  //   project.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
+  // }
 }
 
 // ---------------------------------------

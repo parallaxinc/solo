@@ -230,7 +230,7 @@ if (!window.getAllURLParameters) {
  * @param {boolean} keepNewOpen
  * @return {string}
  */
-function getAllUrlParameters(keepNewOpen= false) {
+function getAllUrlParameters(keepNewOpen = false) {
   if (keepNewOpen) {
     return window.location.search;
   }

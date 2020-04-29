@@ -74,6 +74,8 @@ const TestApplicationName = 'Solocup';
  * @description Converting the string to a constant because it is referenced
  * in a number of places. The string is sufficiently complex that it could
  * be misspelled without detection.
+ *
+ * @deprecated This constant is now located in the Project class.
  */
 const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
 
