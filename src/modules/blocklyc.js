@@ -26,7 +26,6 @@ import * as Chartist from 'chartist';
 import * as JSZip from 'jszip';
 import {saveAs} from 'file-saver';
 
-import {EMPTY_PROJECT_CODE_HEADER} from './constants';
 import {loadToolbox, getWorkspaceSvg} from './editor';
 import {CodeEditor, getXmlCode} from './code_editor';
 import {propToolbarButtonController} from './toolbar_controller';
