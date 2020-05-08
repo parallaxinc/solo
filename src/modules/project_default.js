@@ -25,27 +25,28 @@
  */
 
 
-import {EMPTY_PROJECT_CODE_HEADER} from './constants.js';
-
 import {Project, ProjectProfiles, ProjectTypes} from './project.js';
 
 /**
  * Generate an empty default project
  * @return {Project}
  */
-function buildDefaultProjectFile() {
+function buildDefaultProject() {
   const date = new Date();
-  return new Project(
+  const project = new Project(
       'MyProject',
       'Empty default project',
       ProjectProfiles.activityboard,
       ProjectTypes.PROPC,
-      EMPTY_PROJECT_CODE_HEADER,
-      date.getTime(),
-      date.getTime(),
+      Project.getEmptyProjectCodeHeader(),
+      date,
+      date,
       date.getTime()
   );
+
+  project.setCodeWithNamespace('');
+  return project;
 }
 
 
-export {buildDefaultProjectFile};
+export {buildDefaultProject};
