@@ -32,7 +32,6 @@ import bootbox from 'bootbox';
  */
 let osName = 'unknown-client';
 
-
 /**
  *
  * @type {{
@@ -76,21 +75,31 @@ const utils = {
     });
   },
 
+  /**
+   * Confirmation dialog
+   * @param {string} title
+   * @param {string} message
+   * @param {function} callback
+   * @param {string=} confirmLabel
+   * @param {string=} cancelLabel
+   */
   confirm: function(
-      title, message, callback, optionLabelConfirm, optionLabelCancel) {
+      title, message, callback,
+      confirmLabel = 'Confirm',
+      cancelLabel = 'Cancel') {
     bootbox.dialog({
       title: title,
       message: message,
       buttons: {
         cancel: {
-          label: (optionLabelCancel || 'Cancel'),
+          label: cancelLabel,
           className: 'btn-default',
           callback: function() {
             callback(false);
           },
         },
         confirm: {
-          label: (optionLabelConfirm || 'Confirm'),
+          label: confirmLabel,
           className: 'btn-primary',
           callback: function() {
             callback(true);
@@ -190,17 +199,17 @@ if (!Array.prototype.sortedUnique) {
 }
 
 // http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
-if (!window.getURLParameter) {
-  Object.defineProperty(window, 'getURLParameter', {
-    value: function(name) {
-      return decodeURIComponent(
-          (new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)')
-              .exec(window.location.search) || [null, ''])[1]
-              .replace(/\+/g, '%20')) || null;
-    },
-    enumerable: false,
-  });
-}
+// if (!window.getURLParameter) {
+//   Object.defineProperty(window, 'getURLParameter', {
+//     value: function(name) {
+//       return decodeURIComponent(
+//           (new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)')
+//               .exec(window.location.search) || [null, ''])[1]
+//               .replace(/\+/g, '%20')) || null;
+//     },
+//     enumerable: false,
+//   });
+// }
 
 
 /**
@@ -210,19 +219,19 @@ if (!window.getURLParameter) {
  * parameters, otherwise filter them out.
  * @returns {string} all or filtered URL parameters
  */
-if (!window.getAllURLParameters) {
-  Object.defineProperty(window, 'getAllURLParameters', {
-    value: function(keepNewOpen) {
-      if (keepNewOpen) {
-        return window.location.search;
-      } else {
-        return window.location.search
-            .replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g, '');
-      }
-    },
-    enumerable: false,
-  });
-}
+// if (!window.getAllURLParameters) {
+//   Object.defineProperty(window, 'getAllURLParameters', {
+//     value: function(keepNewOpen) {
+//       if (keepNewOpen) {
+//         return window.location.search;
+//       } else {
+//         return window.location.search
+//           .replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g, '');
+//       }
+//     },
+//     enumerable: false,
+//   });
+// }
 
 
 /**
@@ -302,9 +311,8 @@ $(function() {
   $('#client-instructions-copy')
       .html($('#client-instructions-original').html());
 
-  if (window.getURLParameter('debug')) console.log(navigator.browserSpecs);
+  if (getURLParameter('debug')) console.log(navigator.browserSpecs);
 });
-
 
 // https://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
 navigator.browserSpecs = (function() {
@@ -357,9 +365,12 @@ const isExperimental = getURLParameter('experimental') || 'false';
  */
 function logConsoleMessage(message) {
   const dt = new Date();
-  const stamp = dt.getHours().toLocaleString() + ':' +
-      dt.getMinutes().toLocaleString() + ':' +
-      dt.getSeconds().toLocaleString();
+  let stamp = dt.getHours() > 9 ?
+      dt.getHours().toString() : `0${dt.getHours().toString()}`;
+  stamp += dt.getMinutes() > 9 ?
+      `:${dt.getMinutes().toString()}` : `:0${dt.getMinutes().toString()}`;
+  stamp += dt.getSeconds() > 9 ?
+      `:${dt.getSeconds().toString()}` : `:0${dt.getSeconds().toString()}`;
 
   console.log('[%s] %s', stamp, message);
 }
