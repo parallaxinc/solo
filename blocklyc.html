@@ -621,6 +621,7 @@
                             <label for="edit-project-description"  class="keyed-lang-string"
                                    data-key="project_edit_description"></label>
 -->
+                            <!-- TODO: match textarea with correct label -->
                             <textarea id="edit-project-description" class="form-control" rows="7"
                                       name="new-project-description"></textarea>
                         </div>
@@ -739,9 +740,8 @@
                             <!-- <li><a href="#" class="show-os-lnx"><span class="keyed-lang-string" data-key="os_name_lnx"></span></a></li> -->
                         </ul>
                     </div>
-                    <button style="display:inline-block; margin-left:20px;"
-                            class="btn btn-sm btn-primary"
-                            onclick="$('.bpc-old').removeClass('hidden'); $(this).addClass('hidden');">
+                    <button id="older-clients" class="btn btn-sm btn-primary"
+                            style="display:inline-block; margin-left:20px;">
                         Show BlocklyProp-Client (older) downloads</button>
                 </div>
             </div>
