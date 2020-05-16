@@ -53,10 +53,6 @@
         <link type="image/png" rel="icon" sizes="16x16" href="dist/images/favicon-16x16.png"/>
 
         <title>BlocklyProp Solo</title>
-        <script src="https://browser.sentry-cdn.com/5.12.1/bundle.min.js"
-                integrity="sha384-y+an4eARFKvjzOivf/Z7JtMJhaN6b+lLQ5oFbBbUwZNNVir39cYtkjW1r6Xjbxg3"
-                crossorigin="anonymous" defer>
-        </script>
         <script type="module" src="./dist/index.bundle.js" defer></script>
     </head>
 
@@ -69,6 +65,7 @@
                 <!-- Projects -->
                 <div class="collapse navbar-collapse" id="navbar-collapse">
                     <ul class="nav navbar-nav">
+                        <li><a id="open-project" class="editor-link" href="#">Open a Project</a></li>
                         <li><a class="editor-link" href="blocklyc.html?openFile=true">Open project</a></li>
                         <li><a class="editor-link" href="blocklyc.html?newProject=true">New project</a></li>
                         <li id="noScript">

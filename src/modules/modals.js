@@ -23,6 +23,7 @@
 
 import 'bootstrap/js/modal';
 import 'jquery-validation';
+import * as Cookies from 'js-cookie';
 
 import {
   LOCAL_PROJECT_STORE_NAME,
@@ -40,6 +41,10 @@ import {getProjectInitialState, ProjectProfiles} from './project.js';
 import {page_text_label} from './blockly/language/en/messages.js';
 import {utils} from './utility.js';
 
+/* -------------------------------- */
+/*     NEW PROJECT MODAL DIALOG     */
+/* -------------------------------- */
+
 /**
  * Start the process to open a new project
  *
@@ -48,27 +53,54 @@ import {utils} from './utility.js';
  * document.ready() handler.
  */
 function newProjectModal() {
-  // If the current project has been modified, give the user
-  // an opportunity to abort the new project process.
-  // eslint-disable-next-line no-undef
+  // If the current project has been modified, give the user an opportunity
+  // to abort the new project process.
   if (isProjectChanged()) {
-    const message =
-            'The current project has been modified. Click OK to\n' +
-            'discard the current changes and create a new project.';
+    const promiseFn = () => {
+      return new Promise((resolve, reject) => {
+        utils.confirm(
+            'Abandon Current Project',
+            `The current project has been modified. Click OK to\n
+    discard the current changes and create a new project.`,
+            (result) => {
+              // result is true if the OK button was selected
+              if (result) {
+                reject( new Error('User wishes to keep existing project'));
+              } else {
+                resolve('Discard current project');
+              }
+            },
+            'Cancel',
+            'OK'
+        );
+      });
+    };
+
+    promiseFn().then(console.log).catch((e) => {
+      console.log(`ThenCatch: ${e.message}`);
+    });
+    // promiseFn().catch((error) => {
+    //   console.error(error.message);
+    // });
+
 
     // Default to the Cancel button to prevent inattentive users from
     // inadvertently destroying their projects.
-    utils.confirm(
-        'Abandon Current Project', message,
-        // result is true if the OK button was selected
+    /*    utils.confirm(
+        'Abandon Current Project',
+        `The current project has been modified. Click OK to\n
+    discard the current changes and create a new project.`,
         (result) => {
+          // result is true if the OK button was selected
           if (!result) {
             // Open up a modal window to get new project details.
             showNewProjectModal();
           }
         },
+        // npmCallback(result),
         'Cancel',
         'OK');
+ */
   } else {
     // Reset the values in the form to defaults
     $('#new-project-name').val('');
@@ -80,7 +112,6 @@ function newProjectModal() {
     showNewProjectModal();
   }
 }
-
 
 /**
  *  Displays the new project modal.
@@ -100,8 +131,6 @@ function showNewProjectModal() {
   newProjectModalEnterClick(); // Handle the user pressing the Enter key
   newProjectModalEscapeClick(); // Handle user clicking on the 'x' icon
 
-
-  // let dialog = $("#new-project-board-type");
   populateProjectBoardTypesUIElement($('#new-project-board-type'));
 
   // Show the New Project modal dialog box
@@ -113,7 +142,6 @@ function showNewProjectModal() {
   $('#edit-project-created-date').html(projectTimestamp);
   $('#edit-project-last-modified').html(projectTimestamp);
 }
-
 
 /**
  * Handle the <enter> keypress in the modal form
@@ -140,7 +168,6 @@ function newProjectModalEnterClick() {
   });
 }
 
-
 /**
  *  New project modal Accept button onClick handler
  */
@@ -161,7 +188,6 @@ function newProjectModalAcceptClick() {
     resetToolBoxSizing(100);
   });
 }
-
 
 /**
  *  New project modal Cancel button onClick handler
@@ -194,7 +220,6 @@ function newProjectModalCancelClick() {
     $('#edit-project-last-modified').html('');
   });
 }
-
 
 /**
  * New project modal 'x' click handler
@@ -238,30 +263,10 @@ function validateNewProjectForm() {
   return !!projectElement.valid();
 }
 
-/**
- *  Validate the required elements of the edit project form
- *
- * @return {boolean}
- */
-function validateEditProjectForm() {
-  // Select the form element
-  const projectElement = $('#edit-project-form');
 
-  // Validate the jQuery object based on these rules. Supply helpful
-  // error messages to use when a rule is violated
-  projectElement.validate({
-    rules: {
-      'edit-project-name': 'required',
-      'edit-project-board-type': 'required',
-    },
-    messages: {
-      'edit-project-name': 'Please enter a project name',
-      'edit-project-board-type': 'Please select a board type',
-    },
-  });
-
-  return !!projectElement.valid();
-}
+/* -------------------------------- */
+/*    OPEN PROJECT MODAL DIALOG     */
+/* -------------------------------- */
 
 /**
  *  Open the modal to select a project file to load
@@ -344,6 +349,8 @@ function openProjectModalSetHandlers() {
  */
 function openProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
+    Cookies.remove('action');
+
     // Copy the stored temp project to the stored local project
     const project = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
     if (project) {
@@ -372,12 +379,15 @@ function openProjectModalCancelClick() {
   $('#open-project-select-file-cancel').on('click', () => {
     // Dismiss the modal in the UX
     $('#open-project-dialog').modal('hide');
+    Cookies.remove('action');
+    const project = getProjectInitialState();
+    if (!project) {
+      console.log('Project has disappeared.');
+      return;
+    }
 
-    if (!getProjectInitialState() ||
-        typeof(getProjectInitialState().board) === 'undefined') {
-      // TODO: Create a default project if there is not a valid current project.
-      // If there is no project, go to home page.
-      window.location.href = 'index.html' + window.getAllURLParameters();
+    if (typeof(project.boardType) === 'undefined') {
+      console.log('Project board type is undefined');
     }
   });
 }
@@ -389,13 +399,40 @@ function openProjectModalEscapeClick() {
   // Trap the modal event that fires when the modal window is closed when
   // the user clicks on the 'x' icon.
   $('#open-project-dialog').on('hidden.bs.modal', function() {
-    if (!getProjectInitialState() ||
-        typeof getProjectInitialState().boardType.name === 'undefined') {
-      // TODO: Create a default project if there is not a valid current project.
-      // If there is no project, go to home page.
-      window.location.href = 'index.html';
-    }
+    Cookies.remove('action');
+    console.log('Open project modal has closed');
+    // if (!getProjectInitialState() ||
+    //     typeof getProjectInitialState().boardType.name === 'undefined') {
+    //   TODO: Create a default project if there is not a valid current project.
+    //   If there is no project, go to home page.
+    //   window.location.href = 'index.html';
+    // }
   });
+}
+
+/**
+ *  Validate the required elements of the edit project form
+ *
+ * @return {boolean}
+ */
+function validateEditProjectForm() {
+  // Select the form element
+  const projectElement = $('#edit-project-form');
+
+  // Validate the jQuery object based on these rules. Supply helpful
+  // error messages to use when a rule is violated
+  projectElement.validate({
+    rules: {
+      'edit-project-name': 'required',
+      'edit-project-board-type': 'required',
+    },
+    messages: {
+      'edit-project-name': 'Please enter a project name',
+      'edit-project-board-type': 'Please select a board type',
+    },
+  });
+
+  return !!projectElement.valid();
 }
 
 /**
@@ -471,18 +508,29 @@ function setEditOfflineProjectDetailsContinueHandler() {
 }
 
 /**
- * Update the name and description details of the current project
+ * Update the name and description details of the current project from the
+ * DOM elements for those fields
  */
 function updateProjectDetails() {
+  updateProjectNameDescription(
+      $('#edit-project-name').val(),
+      $('#edit-project-description').val()
+  );
+}
+
+/**
+ * Update the project object name and description
+ * @param {string} newName
+ * @param {string} newDescription
+ */
+function updateProjectNameDescription(newName, newDescription) {
   const project = getProjectInitialState();
-  const newName = $('#edit-project-name').val();
 
   if (!(project.name === newName)) {
     project.name = newName;
     displayProjectName(project.name);
   }
 
-  const newDescription = $('#edit-project-description').val();
   if (!(project.description === newDescription)) {
     project.description = newDescription;
   }

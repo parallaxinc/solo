@@ -50,8 +50,10 @@ Blockly.FieldAceEditor = function(displayText, optionalValue, optValidator) {
   if (!optionalValue) {
     optionalValue = '';
   }
+  // Call the parent constructor first
   Blockly.FieldAceEditor.superClass_.constructor.call(
-      this, optionalValue, optValidator);
+      this, optionalValue, optValidator
+  );
 };
 
 goog.inherits(Blockly.FieldAceEditor, Blockly.Field);

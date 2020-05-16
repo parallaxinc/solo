@@ -3173,10 +3173,13 @@ Blockly.Blocks.custom_code_multiple = {
       this.destroyFields();
     }
   },
+
+  // Build fields
   buildFields: function() {
     if (this.getInput('SET_LABEL')) {
       return;
     }
+
     this.appendDummyInput('SET_LABEL')
         .appendField('label')
         .appendField(new Blockly.FieldTextInput(

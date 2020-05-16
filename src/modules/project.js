@@ -336,6 +336,21 @@ class Project {
    */
 
   /**
+   * Setter for code field
+   * @param {string} newCode
+   */
+  setCode(newCode) {
+    this.code = newCode;
+  }
+
+  /**
+   * Setting for code field with namespaced added automatically
+   * @param {string} newCode
+   */
+  setCodeWithNamespace(newCode) {
+    this.code = EmptyProjectCodeHeader + newCode + '</xml>';
+  }
+  /**
      * Save the project details to a specified location in the browser's
      * localStorage.
      * @param {string} localStoreName
@@ -605,8 +620,10 @@ Project.prototype.setProjectTimer = function(timer) {
  * Reset the epoch base time
  */
 Project.prototype.resetProjectTimer = function() {
-  console.log('Resetting the project save timer');
-  this.saveTimer.reset();
+  if (this.saveTimer) {
+    console.log('Resetting the project save timer');
+    this.saveTimer.reset();
+  }
 };
 
 /**

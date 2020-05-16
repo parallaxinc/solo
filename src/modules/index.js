@@ -24,19 +24,14 @@ import {startSentry} from './sentry';
 startSentry();
 
 import 'bootstrap';
+import * as Cookies from 'js-cookie';
+
 import {
   APP_VERSION,
   ApplicationName,
   productBannerHostTrigger,
   TestApplicationName} from './constants';
-import {getURLParameter} from './utility';
-
-/**
- * Display the BlocklyProp Solo license in a modal window
- */
-function showLicense() {
-  $('#licenseModal').modal();
-}
+import {getURLParameter, getAllUrlParameters} from './utility';
 
 /**
  * Display the application name
@@ -71,16 +66,29 @@ function setCopyrightDate(element) {
       d.getFullYear().toString() + ', Parallax Inc.';
 }
 
+/**
+ * Set link onClick handlers
+ */
+function setClickHandlers() {
+  // Display the license in a modal when the link is clicked
+  $('#show_license').on('click', () => $('#licenseModal').modal());
+
+  $('#open-project').on( 'click', () => {
+    Cookies.set('action', 'open', {expires: 1});
+    window.location = 'blocklyc.html';
+  });
+}
+
 let appName = ApplicationName;
 if (window.location.hostname === productBannerHostTrigger) {
   appName = TestApplicationName;
 }
 
-
 showAppName();
 showAppBannerTitle(appName);
 setCopyrightDate(document.getElementById('footer_copyright'));
 setCopyrightDate(document.getElementById('license-copyright-date'));
+setClickHandlers();
 
 // The browser localStorage object should be empty
 window.localStorage.clear();
@@ -88,10 +96,6 @@ window.localStorage.clear();
 // Add experimental URL parameter to the open and new project links, if used
 if (getURLParameter('experimental')) {
   $('.editor-link').attr('href', function() {
-    return document.location.href +
-        window.getAllURLParameters().replace('?', '&');
+    return document.location.href + getAllUrlParameters().replace('?', '&');
   });
 }
-
-// Display the license in a modal when the link is clicked
-$('#show_license').on('click', () => showLicense());
