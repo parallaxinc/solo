@@ -21,7 +21,8 @@
  */
 
 import {getProjectInitialState} from './project.js';
-import {clientService} from './blocklyc';
+import {clientService, serviceConnectionTypes} from './blocklyc';
+import {logConsoleMessage} from './utility';
 
 /**
  *  Update the state of the Compiler toolbar buttons
@@ -31,6 +32,7 @@ function propToolbarButtonController() {
 
   // No buttons are valid if there is no project.
   if (!project) {
+    logConsoleMessage('No project is available.');
     disableButtons(false);
     return;
   }
@@ -39,7 +41,10 @@ function propToolbarButtonController() {
   setCompileButtonState(true, true);
 
   // Update elements when we are connected
-  if (clientService.activeConnection) {
+  // Use activeConnection for WebSockets and available for BP Client
+  if (clientService.activeConnection ||
+      (clientService.available &&
+       clientService.type === serviceConnectionTypes.WS )) {
     clientConnectionUpdateUI(true);
 
     if (clientService.portsAvailable) {
