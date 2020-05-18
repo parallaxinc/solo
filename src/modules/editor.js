@@ -160,11 +160,11 @@ $(() => {
   });
 
   initInternationalText();
-  initToolbarIcons();
   initEventHandlers();
 
   // Set the compile toolbar buttons to unavailable
   // setPropToolbarButtons();
+  initToolbarIcons();
   propToolbarButtonController();
 
   // This is necessary only because the target modal is being
@@ -322,7 +322,7 @@ $(() => {
  */
 function initInternationalText() {
   // Locate each HTML element of class 'keyed-lang-string'
-  $('.keyed-lang-string').each(function() {
+  $('.keyed-lang-string').each(function(key, value) {
     // Set a reference to the current selected element
     // eslint-disable-next-line no-invalid-this
     const spanTag = $(this);
@@ -355,8 +355,6 @@ function initInternationalText() {
     }
   }
 }
-
-
 
 /**
  * Set up event handlers - Attach events to nav/action menus/buttons

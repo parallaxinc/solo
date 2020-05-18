@@ -204,8 +204,6 @@ function setUIControlState(element, visible, enabled) {
   }
 }
 
-
-
 /**
  * Initialize the tool bar icons
  */
@@ -286,10 +284,9 @@ function initToolbarIcons() {
   // 'data-icon' attribute. Iterate through each match and draw the custom
   // icons into the specified element.
   // ------------------------------------------------------------------------
-  $('.bpIcon[data-icon]').each(function(key, value ) {
-    $(this).html(bpIcons[value.dataset.icon]);
+  $('.bpIcon').each(function(key, value ) {
+    $(value).html(bpIcons[value.dataset.icon]);
   });
 }
-
 
 export {propToolbarButtonController, initToolbarIcons};
