@@ -1668,9 +1668,13 @@ const clientService = {
  *  Connect to the BP-Launcher or BlocklyProp Client
  */
 const findClient = function() {
-  logConsoleMessage(`Finding a client`);
+  if (clientService.activeConnection) {
+    return;
+  }
+
   // Try to connect to the BP-Launcher (websocket) first
   // TODO: evaluation is always true, probably not what we want here.
+  logConsoleMessage(`Finding a client`);
   if (!clientService.available &&
       clientService.type !== serviceConnectionTypes.HTTP) {
     logConsoleMessage('Connecting to Launcher client');
