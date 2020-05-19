@@ -99,18 +99,13 @@ function getWorkspaceSvg() {
   return injectedBlocklyWorkspace;
 }
 
+logConsoleMessage(`Launching the editor`);
+
 /**
  * Execute this code as soon as the DOM becomes ready.
  * Replaces the old document.ready() construct
  */
 $(() => {
-  // Update the blockly workspace to ensure that it takes
-  // the remainder of the window. This is an async call.
-  $(window).on('resize', function() {
-    // TODO: Add correct parameters to the resetToolBoxSizing()
-    resetToolBoxSizing(100);
-  });
-
   // Event handler for the OnBeforeUnload event
   // ------------------------------------------------------------------------
   // This event fires just before the document begins to unload. The unload
@@ -321,8 +316,10 @@ $(() => {
  * elements on the editor page once the page has been loaded.
  */
 function initInternationalText() {
-  // Locate each HTML element of class 'keyed-lang-string'
+  logConsoleMessage(`Init international messages`);
+
   $('.keyed-lang-string').each(function(key, value) {
+    // Locate each HTML element of class 'keyed-lang-string'
     // Set a reference to the current selected element
     // eslint-disable-next-line no-invalid-this
     const spanTag = $(this);
@@ -360,10 +357,19 @@ function initInternationalText() {
  * Set up event handlers - Attach events to nav/action menus/buttons
  */
 function initEventHandlers() {
+  // Leave editor page exit processing
+  leavePageHandler();
+
+  // Update the blockly workspace to ensure that it takes the remainder of
+  // the window.
+  $(window).on('resize', function() {
+    // TODO: Add correct parameters to the resetToolBoxSizing()
+    resetToolBoxSizing(100);
+  });
+
   // ----------------------------------------------------------------------- //
   // Select file event handlers                                              //
   // ----------------------------------------------------------------------- //
-
   // Attach handler to process a project file when it is selected in the
   // Import Project File hamburger menu item
   const selectControl = document.getElementById('selectfile');
@@ -407,39 +413,17 @@ function initEventHandlers() {
     loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM');
   });
 
+  // Open a serial terminal window
   $('#prop-btn-term').on('click', () => serialConsole());
-  $('#prop-btn-graph').on('click', () => graphingConsole());
-  // Deprecated.
-  //  $('#prop-btn-find-replace').on('click', () => findReplaceCode());
-  $('#prop-btn-pretty').on('click', () => formatWizard());
 
-  $('#prop-btn-undo').on('click', () => getSourceEditor().undo());
-  $('#prop-btn-redo').on('click', () => getSourceEditor().redo());
+  // Open a graphing window
+  $('#prop-btn-graph').on('click', () => graphingConsole());
+
+  // Init C source editor toolbar event handlers
+  initCSourceEditorButtonEvenHandlers();
 
   // TODO: The event handler is just stub code.
   $('#term-graph-setup').on('click', () => configureTermGraph());
-
-  $('#propc-find-btn').on('click', () => {
-    getSourceEditor().find(
-        document.getElementById('propc-find').value,
-        {},
-        true);
-  });
-
-  $('#propc-replace-btn').on('click', () => {
-    getSourceEditor().replace(
-        document.getElementById('propc-replace').value,
-        {needle: document.getElementById('propc-find').value},
-        true);
-  });
-
-  $('#find-replace-close').on('click', () => {
-    if (document.getElementById('find-replace').style.display === 'none') {
-      document.getElementById('find-replace').style.display = 'block';
-    } else {
-      document.getElementById('find-replace').style.display = 'none';
-    }
-  });
 
   // Close upload project dialog event handler
   $('#upload-close').on('click', () => clearUploadInfo(false));
@@ -550,6 +534,60 @@ function initEventHandlers() {
 }
 
 /**
+ * Interrupt browser from leaving the editor page if the current project
+ * has been modified until the project is explicitly saved or abandoned.
+ */
+function leavePageHandler() {
+  // Event handler for the OnBeforeUnload event
+  // ------------------------------------------------------------------------
+  // This event fires just before the document begins to unload. The unload
+  // can be stopped by returning a string message. The browser will then
+  // open a modal dialog the presents the message and options for Cancel and
+  // Leave. If the Cancel option is selected the unload event is cancelled
+  // and page processing continues.
+  // ------------------------------------------------------------------------
+  window.addEventListener('beforeunload', function(e) {
+    // Call isProjectChanged only if we are NOT loading a new project
+    if (getURLParameter('openFile') === 'true') {
+      return;
+    }
+
+    // Or creating a new project
+    if (getURLParameter('newProject') === 'true') {
+      return;
+    }
+
+    // If the localStorage is empty, store the current project into the
+    // localStore so that if the page is being refreshed, it will
+    // automatically be reloaded.
+    if (getProjectInitialState() &&
+        getProjectInitialState().name !== undefined &&
+        ! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
+      // Deep copy of the project
+      const tempProject = {};
+      Object.assign(tempProject, getProjectInitialState());
+
+      // Overwrite the code blocks with the current project state
+      tempProject.code = getXml();
+      const today = new Date();
+      tempProject.timestamp = today.getTime();
+
+      // Save the current project into the browser store where it will
+      // get picked up by the page loading code.
+      window.localStorage.setItem(
+          LOCAL_PROJECT_STORE_NAME,
+          JSON.stringify(tempProject));
+    }
+
+    if (isProjectChanged()) {
+      e.preventDefault(); // Cancel the event
+      e.returnValue = Blockly.Msg.DIALOG_CHANGED_SINCE;
+      return Blockly.Msg.DIALOG_CHANGED_SINCE;
+    }
+  });
+}
+
+/**
  * Set the BlocklyProp Client download links
  *
  * Set the href for each of the client links to point to the correct files
@@ -562,7 +600,6 @@ function initClientDownloadLinks() {
   // Windows 32-bit
   $('.client-win32-link')
       .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-32.exe');
-
   $('.client-win32zip-link')
       .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-32.zip');
 
@@ -583,7 +620,6 @@ function initClientDownloadLinks() {
       .attr('href', uriRoot + '/launcher/Setup-BPLauncher-MacOS.zip');
 }
 
-
 /**
  * Set the base path for CDN-sourced images
  */
@@ -600,6 +636,41 @@ function initCdnImageUrls() {
   });
 }
 
+/**
+ * Initialize the event handlers for the C source editor buttons
+ */
+function initCSourceEditorButtonEvenHandlers() {
+  // Clean up C source code
+  $('#prop-btn-pretty').on('click', () => formatWizard());
+
+  // C source editor Undo button
+  $('#prop-btn-undo').on('click', () => getSourceEditor().undo());
+
+  // C source editor Redo button
+  $('#prop-btn-redo').on('click', () => getSourceEditor().redo());
+
+  // C source Find button
+  $('#propc-find-btn').on('click', () => {
+    getSourceEditor().find(
+        document.getElementById('propc-find').value, {}, true);
+  });
+
+  // C source Replace button
+  $('#propc-replace-btn').on('click', () => {
+    getSourceEditor().replace(
+        document.getElementById('propc-replace').value,
+        {needle: document.getElementById('propc-find').value});
+  });
+
+  // C source Find and Replace button
+  $('#find-replace-close').on('click', () => {
+    if (document.getElementById('find-replace').style.display === 'none') {
+      document.getElementById('find-replace').style.display = 'block';
+    } else {
+      document.getElementById('find-replace').style.display = 'none';
+    }
+  });
+}
 
 /**
  * Populate the Blockly workspace with the new project
@@ -806,6 +877,7 @@ function checkBoardType(requester) {
  * @param {string} projectName
  */
 function saveProjectAs(boardType, projectName) {
+  // TODO: Wrap this in a project object
   const tt = new Date();
   const pd = {
     'board': boardType,
