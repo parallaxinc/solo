@@ -55,7 +55,7 @@ const tooltip_text = [
   ['prop-btn-eeprom', 'Load and run (save code to EEPROM)'],
   ['prop-btn-term', 'Open Serial Terminal'],
   ['prop-btn-graph', 'Open Graphing Output'],
-  ['prop-btn-find-replace', 'Find/Replace'],
+// ['prop-btn-find-replace', 'Find/Replace'],
   ['prop-btn-pretty', 'Beautify Code'],
   ['prop-btn-undo', 'Undo'],
   ['prop-btn-redo', 'Redo'],
