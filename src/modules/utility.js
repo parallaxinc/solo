@@ -371,8 +371,9 @@ function logConsoleMessage(message) {
       `:${dt.getMinutes().toString()}` : `:0${dt.getMinutes().toString()}`;
   stamp += dt.getSeconds() > 9 ?
       `:${dt.getSeconds().toString()}` : `:0${dt.getSeconds().toString()}`;
+  stamp += `.${dt.getMilliseconds()}`;
 
-  console.log('[%s] %s', stamp, message);
+  console.log(`${stamp} ${message}`);
 }
 
 
