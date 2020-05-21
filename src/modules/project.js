@@ -21,7 +21,8 @@
  */
 
 'use strict';
-// import {NudgeTimer} from './nudge_timer';
+
+import {logConsoleMessage} from './utility';
 
 /**
  * Constant string that represents the base, empty project header
@@ -71,6 +72,7 @@ let defaultProfile = null;
  * Reset the initial project state to null
  */
 function clearProjectInitialState() {
+  logConsoleMessage(`Clearing project initial state`);
   projectInitialState = null;
 }
 
@@ -91,6 +93,7 @@ function getProjectInitialState() {
 function setProjectInitialState(project) {
   if (project instanceof Project) {
     if (project !== projectInitialState) {
+      logConsoleMessage(`Setting project state for ${project.name}`);
       projectInitialState = project;
       defaultProfile = project.boardType;
     }
@@ -220,7 +223,7 @@ class Project {
      * @type {string}
      */
     this.code = (code && code.length > 0) ?
-        code : EmptyProjectCodeHeader;
+        code : EmptyProjectCodeHeader + '</xml>';
 
     // This should be a timestamp but is received as a string
     // TODO: Convert timestamp string to numeric values

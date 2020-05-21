@@ -1442,7 +1442,7 @@ function initializeBlockly(data) {
  */
 function init(blockly) {
   // TODO: window.Blockly should already be a thing at this point.
-  window.Blockly = blockly;
+  // window.Blockly = blockly;
   const project = getProjectInitialState();
   if (project) {
     if (project.boardType.name !== 'propcfile') {
@@ -1668,9 +1668,13 @@ const clientService = {
  *  Connect to the BP-Launcher or BlocklyProp Client
  */
 const findClient = function() {
-  logConsoleMessage(`Finding a client`);
+  if (clientService.activeConnection) {
+    return;
+  }
+
   // Try to connect to the BP-Launcher (websocket) first
   // TODO: evaluation is always true, probably not what we want here.
+  logConsoleMessage(`Finding a client`);
   if (!clientService.available &&
       clientService.type !== serviceConnectionTypes.HTTP) {
     logConsoleMessage('Connecting to Launcher client');
@@ -1879,7 +1883,6 @@ const WS_ACTION_CLOSE_COMPILE         = 'close-compile';
 const WS_ACTION_CONSOLE_LOG           = 'console-log';
 const WS_ACTION_CLOSE_WEBSOCKET       = 'websocket-close';
 
-
 /**
  * Checks for and, if found, uses a newer WebSockets-only client
  *
@@ -1934,9 +1937,8 @@ function establishBPLauncherConnection() {
 
     // handle messages from the client
     connection.onmessage = function(e) {
-      logConsoleMessage(`Message pump: ${e.data}`);
-
       const wsMessage = JSON.parse(e.data);
+
       if (wsMessage.type === WS_TYPE_HELLO_MESSAGE) {
         // --- hello handshake - establish new connection
         // type: 'hello-client',
@@ -1963,7 +1965,6 @@ function establishBPLauncherConnection() {
             clientService.portList.push(port);
           });
         }
-
         setPortListUI();
         clientService.portListReceiveCountUp = 0;
       } else if (wsMessage.type === WS_TYPE_SERIAL_TERMINAL_MESSAGE &&
@@ -2170,9 +2171,9 @@ function lostWSConnection() {
  */
 const setPortListUI = function(data = null) {
   if (! data) {
-    logConsoleMessage(`Using the CS port list`);
     data = clientService.portList;
   }
+  // TODO: why are we doing this?
   clearComPortUI();
 
   // We must have a non-empty array to work from
@@ -2182,6 +2183,7 @@ const setPortListUI = function(data = null) {
     });
     clientService.portsAvailable = true;
   } else {
+    // port list is empty, populate it
     addComPortDeviceOption(clientService.available ?
         Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
     clientService.portsAvailable = false;

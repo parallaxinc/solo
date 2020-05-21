@@ -25,6 +25,9 @@
     Author     : Michel
 */
 
+/* CSS selector reference for newbies */
+/* https://www.w3schools.com/cssref/css_selectors.asp */
+
 .header {
     position: relative;
     padding: 30px 15px;

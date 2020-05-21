@@ -55,7 +55,6 @@ const tooltip_text = [
   ['prop-btn-eeprom', 'Load and run (save code to EEPROM)'],
   ['prop-btn-term', 'Open Serial Terminal'],
   ['prop-btn-graph', 'Open Graphing Output'],
-  ['prop-btn-find-replace', 'Find/Replace'],
   ['prop-btn-pretty', 'Beautify Code'],
   ['prop-btn-undo', 'Undo'],
   ['prop-btn-redo', 'Redo'],
@@ -921,7 +920,7 @@ page_text_label['editor_term_graph_setup'] = 'Terminal &amp; Graph setup';
 page_text_label['editor_title_graphing'] = 'Graphing';
 page_text_label['editor_title_result'] = 'Result';
 page_text_label['editor_title_terminal'] = 'Terminal';
-page_text_label['editor_upload'] = 'Upload blocks file';
+page_text_label['editor_upload'] = 'Import Project';
 page_text_label['editor_upload_boardtype_warning'] = '<strong>Warning!</strong> You are about to upload a blocks file from a different board/device than you are currently using.  If the blocks you are trying to upload are not available for your current board, uploading this blocks file into your project may <strong>break your project</strong>.  If your project does break after uploading this file - do not save it! Click your browser\'s refresh button to reload your project.';
 page_text_label['editor_upload_notvalid'] = 'The selected file is not valid.';
 page_text_label['editor_upload_selectfile'] = 'Select File';

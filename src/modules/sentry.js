@@ -21,14 +21,19 @@
  */
 
 import * as Sentry from '@sentry/browser';
+import {EnableSentry} from './constants';
 
 /**
  * Initialize the Sentry logger
  */
 function startSentry() {
   /* Error logging */
-  Sentry.init({dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639'});
-  console.log('Sentry initialized');
+  if (EnableSentry) {
+    Sentry.init({dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639'});
+    console.log('Sentry initialized');
+  } else {
+    console.log(`WARNING: Sentry is disabled.`);
+  }
 }
 
 export {startSentry};

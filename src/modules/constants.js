@@ -39,32 +39,7 @@
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-const APP_VERSION = '1.5.0-b2';
-
-
-/**
- * This is the name of the test ECS cluster. A matching hostname will
- * trigger a few UI changes to visually confirm that the visitor has reached
- * the test site.
- *
- * @type {string}
- */
-const productBannerHostTrigger = 'solocup.parallax.com';
-
-
-/**
- * The application brand name in the production system
- * @type {string}
- */
-const ApplicationName = 'Solo';
-
-
-/**
- * The application brand name as used in the Test system
- * @type {string}
- */
-const TestApplicationName = 'Solocup';
-
+export const APP_VERSION = '1.5.0-b2';
 
 /**
  * Constant string that represents the base, empty project header
@@ -77,8 +52,8 @@ const TestApplicationName = 'Solocup';
  *
  * @deprecated This constant is now located in the Project class.
  */
+// eslint-disable-next-line no-unused-vars
 const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
-
 
 /**
  * The name used to store a project that is being loaded from
@@ -93,26 +68,15 @@ const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
  *
  * @type {string}
  */
-const TEMP_PROJECT_STORE_NAME = 'tempProject';
-const LOCAL_PROJECT_STORE_NAME = 'localProject';
-
-
-/* Error logging */
-// Sentry.init({dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639'});
-
-
-// TODO: Enumerate the OS version
-// window.navigator.oscpu
-// - Question: is this referring to the navigator.browserspecs in utils.js?
-
+export const TEMP_PROJECT_STORE_NAME = 'tempProject';
+export const LOCAL_PROJECT_STORE_NAME = 'localProject';
 
 /**
  * Constant number that represents the maximum length of a project name
  *
  * @type {number}
  */
-const PROJECT_NAME_MAX_LENGTH = 100;
-
+export const PROJECT_NAME_MAX_LENGTH = 100;
 
 /**
  * Constant number that represents the maximum number of
@@ -120,12 +84,35 @@ const PROJECT_NAME_MAX_LENGTH = 100;
  *
  * @type {number}
  */
-const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
+export const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
 
-export {
-  APP_VERSION, EMPTY_PROJECT_CODE_HEADER, LOCAL_PROJECT_STORE_NAME,
-  TEMP_PROJECT_STORE_NAME,
-  PROJECT_NAME_DISPLAY_MAX_LENGTH,
-  PROJECT_NAME_MAX_LENGTH,
-  ApplicationName, productBannerHostTrigger, TestApplicationName,
-};
+/**
+ * Global flag to enable/disable the Sentry logger
+ * @type {boolean}
+ */
+export const EnableSentry = false;
+
+/**
+ * This is the name of the test ECS cluster. A matching hostname will
+ * trigger a few UI changes to visually confirm that the visitor has reached
+ * the test site.
+ *
+ * @type {string}
+ */
+export const productBannerHostTrigger = 'solocup.parallax.com';
+
+/**
+ * The application brand name in the production system
+ * @type {string}
+ */
+export const ApplicationName = 'Solo';
+
+/**
+ * The application brand name as used in the Test system
+ * @type {string}
+ */
+export const TestApplicationName = 'Solocup';
+
+// TODO: Enumerate the OS version
+// window.navigator.oscpu
+// - Question: is this referring to the navigator.browserspecs in utils.js?
