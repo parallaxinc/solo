@@ -371,8 +371,15 @@ function logConsoleMessage(message) {
       `:${dt.getMinutes().toString()}` : `:0${dt.getMinutes().toString()}`;
   stamp += dt.getSeconds() > 9 ?
       `:${dt.getSeconds().toString()}` : `:0${dt.getSeconds().toString()}`;
-  stamp += `.${dt.getMilliseconds()}`;
 
+  const milliseconds = dt.getMilliseconds();
+  if (milliseconds > 99) {
+    stamp += `.${milliseconds}`;
+  } else if (milliseconds > 9 ) {
+    stamp += `.0${milliseconds}`;
+  } else {
+    stamp += `.00${milliseconds}`;
+  }
   console.log(`${stamp} ${message}`);
 }
 
