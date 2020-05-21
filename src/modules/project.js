@@ -21,7 +21,6 @@
  */
 
 'use strict';
-// import {NudgeTimer} from './nudge_timer';
 
 /**
  * Constant string that represents the base, empty project header
@@ -220,7 +219,7 @@ class Project {
      * @type {string}
      */
     this.code = (code && code.length > 0) ?
-        code : EmptyProjectCodeHeader;
+        code : EmptyProjectCodeHeader + '</xml>';
 
     // This should be a timestamp but is received as a string
     // TODO: Convert timestamp string to numeric values
