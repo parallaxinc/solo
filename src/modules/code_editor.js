@@ -30,7 +30,7 @@ import 'ace-builds/src-min-noconflict/theme-chrome';
 import 'ace-builds/src-min-noconflict/mode-javascript';
 
 import {isExperimental} from './url_parameters';
-import {EMPTY_PROJECT_CODE_HEADER} from './constants';
+import {Project} from './project';
 
 /**
  *
@@ -127,7 +127,7 @@ class CodeEditor {
  * @return {string} An XML representation of the source code.
  */
 function propcAsBlocksXml() {
-  let code = EMPTY_PROJECT_CODE_HEADER;
+  let code = Project.getEmptyProjectCodeHeader();
   const codePropC = window.codePropC;
   code += '<block type="propc_file" id="' +
       generateBlockId(codePropC ?

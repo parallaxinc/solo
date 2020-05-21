@@ -26,7 +26,7 @@ import {clientService, serviceConnectionTypes} from './blocklyc';
 /**
  *  Update the state of the Compiler toolbar buttons
  */
-function propToolbarButtonController() {
+export function propToolbarButtonController() {
   const project = getProjectInitialState();
 
   if (!project) {
@@ -206,8 +206,13 @@ function setUIControlState(element, visible, enabled) {
 
 /**
  * Initialize the tool bar icons
+ *
+ * @description
+ * Locate each element that has a class 'bpIcon' assigned and contains a
+ * 'data-icon' attribute. Iterate through each match and draw the custom
+ * icons into the specified element.
  */
-function initToolbarIcons() {
+export function initToolbarIcons() {
   /**
    * WIP - TODO: generate svg icons and inject them (search for glyphicon
    *          and font-awesome and replace them).
@@ -279,14 +284,7 @@ function initToolbarIcons() {
     // eslint-disable-next-line max-len
     cameraWhite: '<svg width="14" height="15"><path d="M1.5,13.5 L.5,12.5 .5,5.5 1.5,4.5 2.5,4.5 4,3 7,3 8.5,4.5 12.5,4.5 13.5,5.5 13.5,12.5 12.5,13.5 Z M 2,9 A 4,4,0,0,0,10,9 A 4,4,0,0,0,2,9 Z M 4.5,9 A 1.5,1.5,0,0,0,7.5,9 A 1.5,1.5,0,0,0,4.5,9 Z M 10.5,6.5 A 1,1,0,0,0,13.5,6.5 A 1,1,0,0,0,10.5,6.5 Z" style="stroke:#fff;stroke-width:1;fill:#fff;" fill-rule="evenodd"/></svg>',
   };
-  // ------------------------------------------------------------------------
-  // Locate each element that has a class 'bpIcon' assigned and contains a
-  // 'data-icon' attribute. Iterate through each match and draw the custom
-  // icons into the specified element.
-  // ------------------------------------------------------------------------
   $('.bpIcon').each(function(key, value ) {
     $(value).html(bpIcons[value.dataset.icon]);
   });
 }
-
-export {propToolbarButtonController, initToolbarIcons};
