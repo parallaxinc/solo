@@ -24,8 +24,9 @@ import {startSentry} from './sentry';
 startSentry();
 
 import 'bootstrap';
-import * as Cookies from 'js-cookie';
 import Blockly from 'blockly/core';
+import * as Cookies from 'js-cookie';
+import * as saveAs from 'file-saver';
 // eslint-disable-next-line camelcase
 import {page_text_label, tooltip_text} from './blockly/language/en/messages';
 import './blockly/generators/propc';
@@ -39,14 +40,11 @@ import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
-
-import * as saveAs from 'file-saver';
 import {clientService, serviceConnectionTypes, compile} from './blocklyc';
 import {getComPort, loadInto, renderContent, downloadCSV} from './blocklyc';
 import {initializeBlockly, sanitizeFilename, serialConsole} from './blocklyc';
 import {graphingConsole, configureConnectionPaths} from './blocklyc';
 import {downloadPropC, findClient, formatWizard} from './blocklyc';
-import {EMPTY_PROJECT_CODE_HEADER} from './constants';
 import {LOCAL_PROJECT_STORE_NAME} from './constants';
 import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
@@ -60,13 +58,12 @@ import {setProjectInitialState, setDefaultProfile} from './project';
 import {ProjectTypes, clearProjectInitialState} from './project';
 import {projectJsonFactory} from './project';
 import {buildDefaultProject} from './project_default';
-// import {ProjectSaveTimer} from './project_save_timer';
 import {PropTerm} from './prop_term';
 import {initToolbarIcons} from './toolbar_controller';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
-import {getAllUrlParameters, getURLParameter} from './utility';
+import {getURLParameter} from './utility';
 import {utils, logConsoleMessage} from './utility';
 
 /**
@@ -106,54 +103,6 @@ logConsoleMessage(`Launching the editor`);
  * Replaces the old document.ready() construct
  */
 $(() => {
-  // Event handler for the OnBeforeUnload event
-  // ------------------------------------------------------------------------
-  // This event fires just before the document begins to unload. The unload
-  // can be stopped by returning a string message. The browser will then
-  // open a modal dialog the presents the message and options for Cancel and
-  // Leave. If the Cancel option is selected the unload event is cancelled
-  // and page processing continues.
-  // ------------------------------------------------------------------------
-  window.addEventListener('beforeunload', function(e) {
-    // Call isProjectChanged only if we are NOT loading a new project
-    if (getURLParameter('openFile') === 'true') {
-      return;
-    }
-
-    // Or creating a new project
-    if (getURLParameter('newProject') === 'true') {
-      return;
-    }
-
-    // If the localStorage is empty, store the current project into the
-    // localStore so that if the page is being refreshed, it will
-    // automatically be reloaded.
-    if (getProjectInitialState() &&
-        getProjectInitialState().name !== undefined &&
-        ! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
-      // Deep copy of the project
-      const tempProject = {};
-      Object.assign(tempProject, getProjectInitialState());
-
-      // Overwrite the code blocks with the current project state
-      tempProject.code = getXml();
-      const today = new Date();
-      tempProject.timestamp = today.getTime();
-
-      // Save the current project into the browser store where it will
-      // get picked up by the page loading code.
-      window.localStorage.setItem(
-          LOCAL_PROJECT_STORE_NAME,
-          JSON.stringify(tempProject));
-    }
-
-    if (isProjectChanged()) {
-      e.preventDefault(); // Cancel the event
-      e.returnValue = Blockly.Msg.DIALOG_CHANGED_SINCE;
-      return Blockly.Msg.DIALOG_CHANGED_SINCE;
-    }
-  });
-
   initInternationalText();
   initEventHandlers();
 
@@ -168,7 +117,7 @@ $(() => {
   initUploadModalLabels();
 
   // Reset the import/append modal to its default state when closed
-  $('#upload-dialog').on('hidden.bs.modal', resetUploadImportModalDialog());
+  $('#import-project-dialog').on('hidden.bs.modal', resetUploadImportDialog());
 
   // The BASE_URL is deprecated since it is always the empty string
   $('.url-prefix').attr('href', function(idx, cur) {
@@ -192,14 +141,16 @@ $(() => {
 
   const state = Cookies.get('action');
   if (state !== undefined) {
-    openProjectModal();
+    if (state === 'open') {
+      openProjectModal();
+    }
   }
 
   // Load a project file from local storage
   if (getURLParameter('openFile') === 'true') {
     // Show the Open Project modal dialog
     // openProjectModal();
-    console.log('Old open project handler');
+    logConsoleMessage('Old open project handler');
   } else if (getURLParameter('newProject') === 'true') {
     // Show the New Project modal dialog
     newProjectModal();
@@ -247,36 +198,8 @@ $(() => {
       }
     }
   } else {
-    // No viable project available, so redirect to index page.
-    // Create a default project and press forward
-    // window.location.href = 'index.html' + getAllUrlParameters();
-    // TODO: New Default Project
-    const defaultProject = buildDefaultProject();
-    setProjectInitialState(defaultProject);
-    // Create a new nudge timer
-    const myTime = new NudgeTimer(0);
-    // Set the callback
-    myTime.myCallback = function() {
-      if (isProjectChanged) {
-        showProjectTimerModalDialog();
-      }
-    };
-    // Start the timer and save it to the project object
-    myTime.start(10);
-    defaultProject.setProjectTimer(myTime);
-
-    setupWorkspace(defaultProject, function() {
-      console.log('Building a default project.');
-    });
-
-    // Create an instance of the CodeEditor class
-    codeEditor = new CodeEditor(defaultProject.boardType.name);
-    if (!codeEditor) {
-      console.log('Error allocating CodeEditor object');
-    }
-
-    // Set the compile toolbar buttons to unavailable
-    propToolbarButtonController();
+    logConsoleMessage(`Creating default project`);
+    initDefaultProject();
   }
 
   // Make sure the toolbox appears correctly, just for good measure.
@@ -285,29 +208,7 @@ $(() => {
   resetToolBoxSizing(250);
 
   // Initialize the terminal
-  new PropTerm(
-      document.getElementById('serial_console'),
-
-      function(characterToSend) {
-        if (clientService.type === serviceConnectionTypes.HTTP &&
-            clientService.activeConnection) {
-          clientService.activeConnection.send(btoa(characterToSend));
-        } else if (clientService.type === serviceConnectionTypes.WS) {
-          const msgToSend = {
-            type: 'serial-terminal',
-            outTo: 'terminal',
-            portPath: getComPort(),
-            // TODO: Correct baudrate reference
-            baudrate: baudrate.toString(10),
-            msg: (clientService.rxBase64 ?
-                btoa(characterToSend) : characterToSend),
-            action: 'msg',
-          };
-          clientService.activeConnection.send(JSON.stringify(msgToSend));
-        }
-      },
-      null
-  );
+  initTerminal();
 });
 
 
@@ -374,7 +275,23 @@ function initEventHandlers() {
   // Import Project File hamburger menu item
   const selectControl = document.getElementById('selectfile');
   selectControl.addEventListener('change', (e) => {
+    logConsoleMessage(`SelectFile onChange event: ${e.message}`);
     uploadHandler(e.target.files);
+    // const localProject = projectJsonFactory(
+    //     JSON.parse(
+    //         window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)));
+    // setupWorkspace(localProject, function() {
+    //   window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
+    // });
+    //
+    // // Create an instance of the CodeEditor class
+    // codeEditor = new CodeEditor(localProject.boardType.name);
+    // if (!codeEditor) {
+    //   console.log('Error allocating CodeEditor object');
+    // }
+    //
+    // // Set the compile toolbar buttons to unavailable
+    // propToolbarButtonController();
   });
 
   // Attach handler to process a project file when it is selected in the
@@ -382,6 +299,9 @@ function initEventHandlers() {
   const openFileSelectControl = document.getElementById(
       'open-project-select-file' );
   openFileSelectControl.addEventListener('change', (e) => {
+    logConsoleMessage(`OpenProject onChange event: ${e.target.files[0].name}`);
+    // Load project into browser storage and let the modal event handler
+    // decide what to do with it
     uploadHandler(e.target.files);
   });
 
@@ -479,7 +399,7 @@ function initEventHandlers() {
      * Import (upload) project from storage. This is designed to
      * merge code from an existing project into the current project.
      */
-  $('#upload-project').on('click', () => uploadCode());
+  $('#upload-project').on('click', () => importProjectFromStorage());
 
   // ---- Hamburger drop down horizontal line ----
 
@@ -531,6 +451,36 @@ function initEventHandlers() {
     $('#selectfile-verify-valid').css('display', 'none');
     $('#selectfile-verify-boardtype').css('display', 'none');
   });
+}
+
+/**
+ * Initialize the terminal object
+ */
+function initTerminal() {
+  // Initialize the terminal
+  new PropTerm(
+      document.getElementById('serial_console'),
+
+      function(characterToSend) {
+        if (clientService.type === serviceConnectionTypes.HTTP &&
+            clientService.activeConnection) {
+          clientService.activeConnection.send(btoa(characterToSend));
+        } else if (clientService.type === serviceConnectionTypes.WS) {
+          const msgToSend = {
+            type: 'serial-terminal',
+            outTo: 'terminal',
+            portPath: getComPort(),
+            // TODO: Correct baudrate reference
+            baudrate: baudrate.toString(10),
+            msg: (clientService.rxBase64 ?
+                btoa(characterToSend) : characterToSend),
+            action: 'msg',
+          };
+          clientService.activeConnection.send(JSON.stringify(msgToSend));
+        }
+      },
+      null
+  );
 }
 
 /**
@@ -673,13 +623,46 @@ function initCSourceEditorButtonEvenHandlers() {
 }
 
 /**
+ * Create a default project in the Blockly workspace
+ */
+function initDefaultProject() {
+  // No viable project available, so redirect to index page.
+  // Create a default project and press forward
+  // window.location.href = 'index.html' + getAllUrlParameters();
+  // TODO: New Default Project
+  const defaultProject = buildDefaultProject();
+  setProjectInitialState(defaultProject);
+  // Create a new nudge timer
+  const myTime = new NudgeTimer(0);
+  // Set the callback
+  myTime.myCallback = function() {
+    if (isProjectChanged) {
+      showProjectTimerModalDialog();
+    }
+  };
+
+  // Start the timer and save it to the project object
+  myTime.start(10);
+  defaultProject.setProjectTimer(myTime);
+  setupWorkspace(defaultProject);
+
+  // Create an instance of the CodeEditor class
+  codeEditor = new CodeEditor(defaultProject.boardType.name);
+  if (!codeEditor) {
+    console.log('Error allocating CodeEditor object');
+  }
+  propToolbarButtonController();
+}
+
+/**
  * Populate the Blockly workspace with the new project
  *
  * @param {Project} data is the current project object
- * @param {function} callback is called if provided when the function completes
+ * @param {function=} callback is called if provided when the function completes
  * @return {number} Error code
  */
 function setupWorkspace(data, callback) {
+  logConsoleMessage(`setupWorkspace: Preparing Blockly workspace`);
   if (data && typeof(data.boardType.name) === 'undefined') {
     if (callback) {
       callback({
@@ -690,34 +673,42 @@ function setupWorkspace(data, callback) {
     return -1;
   }
 
-  // Set the master project image
-  const project = setProjectInitialState(data);
-  if (project) {
-    setDefaultProfile(project.boardType);
-    const myTime = new NudgeTimer(0);
-    // Set the callback
-    myTime.myCallback = function() {
-      if (isProjectChanged()) {
-        showProjectTimerModalDialog();
-      }
-    };
-    // Start the timer and attach it to the project object
-    myTime.start(10);
-    project.setProjectTimer(myTime);
-  } else {
+  // Set the project if the current project does not match the one supplied
+  // by the caller
+  let project = getProjectInitialState();
+  if (data !== project) {
+    project = setProjectInitialState(data);
+  }
+
+  if (!project) {
+    // Something has gone sideways
     throw new Error('Unable to load the project.');
   }
+
+  setDefaultProfile(project.boardType);
+
+  logConsoleMessage(`setupWorkSpace: Preparing nudge timer`);
+  const myTime = new NudgeTimer(0);
+  // Set the callback
+  myTime.myCallback = function() {
+    if (isProjectChanged()) {
+      showProjectTimerModalDialog();
+    }
+  };
+  // Start the timer and attach it to the project object
+  myTime.start(10);
+  project.setProjectTimer(myTime);
 
   // Delete all existing blocks, comments and undo stacks
   clearBlocklyWorkspace();
 
   // Set various project settings based on the project board type
-  // NOTE: This function is in propc.js
   displayProjectName(project.name);
   displayProjectBoardIcon(project.boardType.name);
 
   // Set the help link to the ab-blocks, s3 reference, or propc reference
   // TODO: modify blocklyc.html/jsp and use an id or class selector
+  logConsoleMessage(`setupWorkspace: Render content for: ${project.name}`);
   if (project.boardType.name === 's3') {
     initToolbox(project.boardType.name);
     $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
@@ -747,6 +738,7 @@ function setupWorkspace(data, callback) {
   // which future comparisons will be made. If anything changes it will be
   // due to a change in the code blocks contained within the Blockly core.
   // --------------------------------------------------------------------------
+  // refreshEditorCanvas(project);
   project.setCode(getXml());
 
   // Edit project details menu item
@@ -849,7 +841,6 @@ function saveAsDialog() {
 //  }
 }
 
-
 /**
  *
  * @param {string} requester
@@ -870,7 +861,6 @@ function checkBoardType(requester) {
   }
 }
 
-
 /**
  * Save an existing project under a new project ID with the new project owner
  * @param {string} boardType
@@ -881,7 +871,7 @@ function saveProjectAs(boardType, projectName) {
   const tt = new Date();
   const pd = {
     'board': boardType,
-    'code': EMPTY_PROJECT_CODE_HEADER,
+    'code': Project.getEmptyProjectCodeHeader(),
     'created': tt,
     'description': '',
     'description-html': '',
@@ -899,7 +889,6 @@ function saveProjectAs(boardType, projectName) {
   window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
   redirectToEditorPage(window.getAllUrlParameters());
 }
-
 
 /**
  *
@@ -1151,34 +1140,29 @@ function generateSvgFooter( project ) {
 /**
  * Import project file from disk
  */
-function uploadCode() {
+function importProjectFromStorage() {
+  // Reject import request if the current project has
+  // not been persisted to storage
   if (isProjectChanged()) {
     utils.showMessage(
         Blockly.Msg.DIALOG_UNSAVED_PROJECT,
         Blockly.Msg.DIALOG_SAVE_BEFORE_ADD_BLOCKS);
   } else {
-    $('#upload-dialog').modal({keyboard: false, backdrop: 'static'});
+    $('#import-project-dialog').modal({keyboard: false, backdrop: 'static'});
   }
 }
 
-
 /**
- *  Retrieve an SVG project file from storage.
+ *  Retrieve an SVG project file from local storage.
  *
  *  This is the .selectfile.onChange() event handler.
  *  This function loads an .svg file, parses it for reasonable values
- *  and then stores the verified resulting project into the uploadXML
- *  string.
+ *  and then stores the verified resulting project into the browser's
+ *  localStorage.
  *
- * @param {Array} files
- * project file will be appended to the existing project
+ * @param {string []} files is an array of file names
  */
 function uploadHandler(files) {
-  // This is he number of bytes from the end of the project file where the
-  // <ckm>000...000</cmk> checksum block is located. The project code XML
-  // representation ends with a </block> immediately preceding the
-  // checksum block.
-
   const UploadReader = new FileReader();
 
   // Event handler that fires when the file that the user selected is loaded
@@ -1191,13 +1175,13 @@ function uploadHandler(files) {
     const uploadBoardType = getProjectBoardTypeName(xmlString);
 
     // The text name of the project
-    const projectName =
-        files[0].name.substring(0, files[0].name.lastIndexOf('.'));
+    const projectName = files[0].name.substring(
+        0, files[0].name.lastIndexOf('.'));
 
-    console.log(`Project name is: ${projectName}`);
+    logConsoleMessage(`Loading project: ${projectName}`);
 
     // Raw XML from the .svg file
-    let projectRawXmlCode = '';
+    // let projectRawXmlCode = '';
 
     // Project code with the correct xml namespace xml tag
     // let projectXmlCode = '';
@@ -1240,16 +1224,6 @@ function uploadHandler(files) {
         $('#selectfile-verify-boardtype').css('display', 'none');
       }
 
-      // Search the project file for the first variable or block
-      const findBPCstart =
-          (xmlString.indexOf('<variables') > -1) ? '<variables' : '<block';
-
-      // Extract everything from the first variable or block tag to the
-      // beginning of the checksum block. This is the project code
-      projectRawXmlCode = xmlString.substring(
-          xmlString.indexOf(findBPCstart),
-          xmlString.indexOf('<ckm>'));
-
       // ----------------------------------------------------------------------
       // File processing is done. The projectXmlCode variable holds the
       // XML string for the project that was just loaded. Convert the code
@@ -1257,11 +1231,10 @@ function uploadHandler(files) {
       // localStorage
       // ----------------------------------------------------------------------
       const tmpProject = fileToProject(
-          projectName, projectRawXmlCode, uploadBoardType);
+          projectName, xmlString, uploadBoardType);
       if (tmpProject) {
         xmlValid = true;
-        console.log('File to Project conversion successful');
-        console.log(`Project object name is: ${tmpProject.name}`);
+        logConsoleMessage(`File to Project conversion successful`);
         // Save the project to the browser store
         window.localStorage.setItem(
             TEMP_PROJECT_STORE_NAME, JSON.stringify(tmpProject.getDetails()));
@@ -1379,7 +1352,8 @@ function uploadHandler(files) {
 /**
  * Convert an svg project file content to a Project object
  * @param {string} projectName is the text name of the project
- * @param {string} rawCode This is the raw XML code without a namespace
+ * @param {string} rawCode This is the raw XML code from the project file
+ *  without a namespace
  * @param {string} boardType This is the board type for the new project
  * @return {Project}
  */
@@ -1387,8 +1361,18 @@ const fileToProject = (projectName, rawCode, boardType) => {
   // TODO: Solo #261
   // validateProjectBlockList(this.result);
 
-  const projectXmlCode = (rawCode.length > 0) ?
-      Project.getEmptyProjectCodeHeader() + rawCode + '</xml>' :
+  // Search the project file for the first variable or block
+  const codeStartIndex =
+      (rawCode.indexOf('<variables') > -1) ? '<variables' : '<block';
+
+  // Extract everything from the first variable or block tag to the
+  // beginning of the checksum block. This is the project code
+  const blockCode = rawCode.substring(
+      rawCode.indexOf(codeStartIndex),
+      rawCode.indexOf('<ckm>'));
+
+  const projectXmlCode = (blockCode.length > 0) ?
+      Project.getEmptyProjectCodeHeader() + blockCode + '</xml>' :
       Project.getEmptyProjectCodeHeader() + '</xml>';
 
   const date = new Date();
@@ -1530,7 +1514,6 @@ function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
   }
 }
 
-
 /**
  *
  * @param {boolean} redirect boolean flag to permit page redirection
@@ -1538,6 +1521,7 @@ function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
 function clearUploadInfo(redirect) {
   // Reset all of the upload fields and containers
   // uploadedXML = '';
+  logConsoleMessage(`Clearing upload metadata`);
 
   $('#selectfile').val('');
   $('#selectfile-verify-notvalid').css('display', 'none');
@@ -1569,7 +1553,7 @@ function clearUploadInfo(redirect) {
  */
 function uploadMergeCode(append) {
   const xmlTagLength = '</xml>'.length;
-  $('#upload-dialog').modal('hide');
+  $('#import-project-dialog').modal('hide');
 
   let projectData = '';
   const project = projectJsonFactory(
@@ -1714,7 +1698,6 @@ function initializeToolboxFonts() {
       }
 
       $('html, body').css('font-family', '\'' + font + '\', sans-serif');
-      //    font: normal 14px Arimo, sans-serif !important;
       $('.blocklyWidgetDiv .goog-menuitem-content')
           .css(
               'font',
@@ -1767,9 +1750,11 @@ function initToolbox(profileName) {
   };
 
   // Provide configuration options and inject this into the content_blocks div
-  injectedBlocklyWorkspace = Blockly.inject(
-      'content_blocks',
-      blocklyOptions);
+  if (document.getElementsByClassName('blocklyToolboxDiv').length === 0) {
+    injectedBlocklyWorkspace = Blockly.inject(
+        'content_blocks',
+        blocklyOptions);
+  }
 
   initializeBlockly(Blockly);
 
@@ -1777,7 +1762,6 @@ function initToolbox(profileName) {
   // https://groups.google.com/forum/#!topic/blockly/SgJoEEXuzsg
   Blockly.mainWorkspace.createVariable(Blockly.LANG_VARIABLES_GET_ITEM);
 }
-
 
 /**
  * Load the workspace
@@ -1829,6 +1813,7 @@ function showOS(os) {
  * Clear the main workspace in the Blockly object
  */
 function clearBlocklyWorkspace() {
+  logConsoleMessage(`Clearing the current Blockly root workspace`);
   const workspace = Blockly.getMainWorkspace();
 
   if (workspace) {
@@ -1902,9 +1887,9 @@ function showProjectTimerModalDialog() {
 /**
  * Reset the upload/import modal window to defaults after use
  */
-function resetUploadImportModalDialog() {
+function resetUploadImportDialog() {
   // reset the title of the modal
-  $('upload-dialog-title').html(page_text_label['editor_import']);
+  $('import-project-dialog-title').html(page_text_label['editor_import']);
 
   // hide "append" button
   $('#selectfile-append').removeClass('hidden');
@@ -2037,7 +2022,7 @@ function getXml() {
   }
 
   // Return the XML for a blank project if none is found.
-  return EMPTY_PROJECT_CODE_HEADER + '</xml>';
+  return Project.getEmptyProjectCodeHeader() + '</xml>';
 }
 
 
@@ -2047,16 +2032,20 @@ function getXml() {
  * from the browser localStorage
  */
 function createNewProject() {
-  let code = '';
-  const project = getProjectInitialState();
+  logConsoleMessage(`Creating a new project`);
+  // let code = '';
+  // const project = getProjectInitialState();
 
   // If editing details, preserve the code, otherwise start over
-  if (project &&
-      typeof(project.boardType.name) !== 'undefined' &&
-      $('#new-project-dialog-title')
-          .html() === page_text_label['editor_edit-details']) {
-    code = getXml();
-  }
+  // This should no longer be handled here.
+  // TODO: Refactor this into a separate function to handled editing
+  //  project details.
+  // if (project &&
+  //     typeof(project.boardType.name) !== 'undefined' &&
+  //     $('#new-project-dialog-title')
+  //         .html() === page_text_label['editor_edit-details']) {
+  //   code = getXml();
+  // }
 
   // Save the form fields into the projectData object
   // The projectData variable is defined in globals.js
@@ -2074,26 +2063,84 @@ function createNewProject() {
     const date = new Date();
     const timestamp = date.getTime();
     const newProject = new Project(
-        projectName, description, tmpBoardType, ProjectTypes.PROPC, code,
-        createdDateHtml, createdDateHtml, timestamp, true);
+        projectName,
+        description,
+        tmpBoardType,
+        ProjectTypes.PROPC,
+        '',
+        createdDateHtml,
+        createdDateHtml,
+        timestamp,
+        true);
 
     newProject.stashProject(LOCAL_PROJECT_STORE_NAME);
     clearProjectInitialState();
-  } catch (e) {
-    console.log('Error while creating project object. %s', e.message);
-  }
 
-  // TODO: Eliminate this for single-page application
-  try {
-    const parameters = getAllUrlParameters();
-    if (parameters !== '?') {
-      redirectToEditorPage();
+    // Update the Blockly core
+    setProjectInitialState(newProject);
+    // Create a new nudge timer
+    const myTime = new NudgeTimer(0);
+    // Set the callback
+    myTime.myCallback = function() {
+      if (isProjectChanged) {
+        showProjectTimerModalDialog();
+      }
+    };
+
+    // Start the timer and save it to the project object
+    myTime.start(10);
+    newProject.setProjectTimer(myTime);
+    setupWorkspace(newProject);
+
+    // Create an instance of the CodeEditor class
+    codeEditor = new CodeEditor(newProject.boardType.name);
+    if (!codeEditor) {
+      console.log('Error allocating CodeEditor object');
     }
+    propToolbarButtonController();
   } catch (e) {
-    console.log('Error while creating project object. %s', e.message);
+    logConsoleMessage(`Error while creating project object. ${e.message}.`);
   }
-  redirectToEditorPage();
 }
+
+/**
+ * Insert or replace an existing project in the Blockly core
+ * @param {Project} project
+ */
+function insertProject(project) {
+  logConsoleMessage(`Inserting project ${project.name}`);
+
+  try {
+    project.stashProject(LOCAL_PROJECT_STORE_NAME);
+    clearProjectInitialState();
+    setProjectInitialState(project);
+
+    // Create a new nudge timer
+    const myTime = new NudgeTimer(0);
+    // Set the callback
+    myTime.myCallback = function() {
+      if (isProjectChanged) {
+        showProjectTimerModalDialog();
+      }
+    };
+
+    // Start the timer and save it to the project object
+    myTime.start(10);
+    project.setProjectTimer(myTime);
+    logConsoleMessage(`Setting up the workspace in blockly core`);
+    setupWorkspace(project);
+
+    // Create an instance of the CodeEditor class
+    codeEditor = new CodeEditor(project.boardType.name);
+    if (!codeEditor) {
+      console.log('Error allocating CodeEditor object');
+    }
+    propToolbarButtonController();
+  } catch (e) {
+    logConsoleMessage(`Error while creating project object. ${e.message}.`);
+  }
+}
+
 
 /**
  *Display the application name
@@ -2139,7 +2186,7 @@ function projectNameUIEvents() {
           range.select();
         }
         projectName.removeClass('project-name-editable');
-        // Limit project name chracters that are displayed
+        // Limit project name characters that are displayed
         if (getProjectInitialState().name.length >
             PROJECT_NAME_DISPLAY_MAX_LENGTH) {
           projectName.html(
@@ -2173,5 +2220,5 @@ function projectNameUIEvents() {
 
 export {
   isProjectChanged, displayProjectName, resetToolBoxSizing,
-  loadToolbox, createNewProject, getWorkspaceSvg,
+  loadToolbox, createNewProject, getWorkspaceSvg, insertProject,
 };

@@ -25,21 +25,19 @@ import 'bootstrap/js/modal';
 import 'jquery-validation';
 import * as Cookies from 'js-cookie';
 
-import {
-  LOCAL_PROJECT_STORE_NAME,
-  TEMP_PROJECT_STORE_NAME,
-} from './constants.js';
+import {LOCAL_PROJECT_STORE_NAME} from './constants.js';
+import {TEMP_PROJECT_STORE_NAME} from './constants.js';
 
-import {
-  createNewProject, isProjectChanged, resetToolBoxSizing, displayProjectName,
-} from './editor.js';
+import {createNewProject, isProjectChanged, insertProject} from './editor.js';
+import {resetToolBoxSizing, displayProjectName} from './editor.js';
 
 import {isExperimental} from './url_parameters.js';
 import {getProjectInitialState, ProjectProfiles} from './project.js';
+import {projectJsonFactory} from './project';
 
 // eslint-disable-next-line camelcase
 import {page_text_label} from './blockly/language/en/messages.js';
-import {utils} from './utility.js';
+import {utils, logConsoleMessage} from './utility';
 
 /* -------------------------------- */
 /*     NEW PROJECT MODAL DIALOG     */
@@ -52,7 +50,7 @@ import {utils} from './utility.js';
  * This is code that was refactored out of the editor.js
  * document.ready() handler.
  */
-function newProjectModal() {
+export function newProjectModal() {
   // If the current project has been modified, give the user an opportunity
   // to abort the new project process.
   if (isProjectChanged()) {
@@ -76,31 +74,11 @@ function newProjectModal() {
       });
     };
 
-    promiseFn().then(console.log).catch((e) => {
-      console.log(`ThenCatch: ${e.message}`);
-    });
-    // promiseFn().catch((error) => {
-    //   console.error(error.message);
-    // });
-
-
-    // Default to the Cancel button to prevent inattentive users from
-    // inadvertently destroying their projects.
-    /*    utils.confirm(
-        'Abandon Current Project',
-        `The current project has been modified. Click OK to\n
-    discard the current changes and create a new project.`,
-        (result) => {
-          // result is true if the OK button was selected
-          if (!result) {
-            // Open up a modal window to get new project details.
-            showNewProjectModal();
-          }
-        },
-        // npmCallback(result),
-        'Cancel',
-        'OK');
- */
+    promiseFn()
+        .then(logConsoleMessage)
+        .catch((e) => {
+          logConsoleMessage(`ThenCatch: ${e.message}`);
+        });
   } else {
     // Reset the values in the form to defaults
     $('#new-project-name').val('');
@@ -131,7 +109,7 @@ function showNewProjectModal() {
   newProjectModalEnterClick(); // Handle the user pressing the Enter key
   newProjectModalEscapeClick(); // Handle user clicking on the 'x' icon
 
-  populateProjectBoardTypesUIElement($('#new-project-board-type'));
+  populateProjectBoardTypesUIElement();
 
   // Show the New Project modal dialog box
   $('#new-project-dialog').modal({keyboard: false, backdrop: 'static'});
@@ -207,7 +185,7 @@ function newProjectModalCancelClick() {
     if (! getProjectInitialState() ||
         typeof(getProjectInitialState().board) === 'undefined' ) {
       // If there is no project, go to home page.
-      window.location.href = 'index.html' + window.getAllURLParameters();
+      // window.location.href = 'index.html' + window.getAllURLParameters();
     }
 
     // if the project is being edited, clear the fields and close the modal
@@ -234,7 +212,7 @@ function newProjectModalEscapeClick() {
     if (!getProjectInitialState() ||
         typeof(getProjectInitialState().board) === 'undefined') {
       // If there is no project, go to home page.
-      window.location.href = 'index.html';
+      // window.location.href = 'index.html';
     }
   });
 }
@@ -277,7 +255,7 @@ function validateNewProjectForm() {
  *  The form Accept button handler should look there when it is
  *  time to process the new project.
  */
-function openProjectModal() {
+export function openProjectModal() {
   // Save a copy of the original project in case the page gets reloaded
   if (getProjectInitialState() &&
       getProjectInitialState().name !== 'undefined') {
@@ -321,8 +299,7 @@ function openProjectModalSetHandlers() {
   openProjectModalCancelClick();
   openProjectModalOpenClick();
   openProjectModalEscapeClick();
-
-  // Import a project .SVG file
+  // Open the modal dialog. The event handlers will take it from here.
   $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
 }
 
@@ -349,19 +326,28 @@ function openProjectModalSetHandlers() {
  */
 function openProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
+    logConsoleMessage(`User elected to open the project`);
+
+    $('#open-project-dialog').modal('hide');
     Cookies.remove('action');
 
     // Copy the stored temp project to the stored local project
-    const project = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
-    if (project) {
-      window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, project);
+    const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
+    if (projectJson) {
+      logConsoleMessage(`Saving copy of selected project to temporary storage`);
+      window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, projectJson);
       window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
 
+      const project = projectJsonFactory(JSON.parse(projectJson));
+      logConsoleMessage(`Calling InsertiProject for: ${project.name}`);
+      insertProject(project);
+
+      // window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)));
       // Redirecting to the editor page. The editor initialization
       // will pick up the project file and present it to the user.
-      window.location = 'blocklyc.html';
+      // window.location = 'blocklyc.html';
     } else {
-      console.log('The opened project cannot be found in storage.');
+      logConsoleMessage('The opened project cannot be found in storage.');
       alert('The opened project cannot be found in storage.');
     }
   });
@@ -382,12 +368,12 @@ function openProjectModalCancelClick() {
     Cookies.remove('action');
     const project = getProjectInitialState();
     if (!project) {
-      console.log('Project has disappeared.');
+      logConsoleMessage('Project has disappeared.');
       return;
     }
 
     if (typeof(project.boardType) === 'undefined') {
-      console.log('Project board type is undefined');
+      logConsoleMessage('Project board type is undefined');
     }
   });
 }
@@ -400,7 +386,7 @@ function openProjectModalEscapeClick() {
   // the user clicks on the 'x' icon.
   $('#open-project-dialog').on('hidden.bs.modal', function() {
     Cookies.remove('action');
-    console.log('Open project modal has closed');
+    logConsoleMessage('Open project modal has closed');
     // if (!getProjectInitialState() ||
     //     typeof getProjectInitialState().boardType.name === 'undefined') {
     //   TODO: Create a default project if there is not a valid current project.
@@ -441,7 +427,7 @@ function validateEditProjectForm() {
  *  The onClick event handlers for the Cancel and Continue buttons
  *  will manage the project state as required.
  */
-function editProjectDetails() {
+export function editProjectDetails() {
   const project = getProjectInitialState();
 
   // Set the dialog buttons click event handlers
@@ -558,9 +544,9 @@ function setEditOfflineProjectDetailsCancelHandler() {
 /**
  * Set the upload modal's title to "import"
  */
-function initUploadModalLabels() {
-  $('#upload-dialog-title').html(page_text_label['editor_import']);
-  $('#upload-project span').html(page_text_label['editor_import']);
+export function initUploadModalLabels() {
+  $('#import-project-dialog-title').html(page_text_label['editor_import']);
+  $('#import-project-dialog span').html(page_text_label['editor_import']);
 
   // Hide the save-as button.
   $('#save-project-as, #save-as-btn').addClass('hidden');
@@ -580,58 +566,59 @@ function disableUploadDialogButtons() {
 
 /**
  * Populate the UI Project board type drop-down list
+ * @description
+ * element is the <select> HTML element that will be populated with a
+ * collection of possible board types
  *
- * @param {HTMLElement} element is the <select> HTML element that will
- * be populated with a collection of possible board types
- *
- * @param {boolean | null} selected is an optional string parameter
+ * selected is an optional string parameter
  * containing the board type in the list that should be designated as the
  * selected board type.
  */
-function populateProjectBoardTypesUIElement(element, selected = null) {
-  if (element) {
-    // Clear out the board type dropdown menu
-    // element.empty();
-    element.innerHTML = '';
+function populateProjectBoardTypesUIElement() {
+  const element = $('#new-project-board-type');
+  if (!element) {
+    logConsoleMessage(`Unable to find Board Type UI element.`);
+    return;
+  }
 
-    // Populate the board type dropdown menu with a header first,
+  // Clear out the board type dropdown menu
+  const length = element[0].options.length;
+  for (let i = length-1; i >= 0; i--) {
+    element[0].options[i].remove();
+  }
 
-    element.append($('<option />')
-        .val('')
-        .text(page_text_label['project_create_board_type_select'])
-        .attr('disabled', 'disabled')
-        .attr('selected', 'selected')
-    );
+  // Populate the board type dropdown menu with a header first,
+  element.append($('<option />')
+      .val('')
+      .text(page_text_label['project_create_board_type_select'])
+      .attr('disabled', 'disabled')
+      .attr('selected', 'selected')
+  );
 
-    // then populate the dropdown with the board types
-    // defined in propc.js in the 'profile' object
-    // (except 'default', which is where the current project's type is stored)
-    for (const board in ProjectProfiles) {
-      if (Object.prototype.hasOwnProperty.call(ProjectProfiles, board)) {
-        if (board !== 'default') {
-          // Use the experimental tag to show code-only view
-          if (board !== 'propcfile' ||
-              (board === 'propcfile' &&
-                  isExperimental.indexOf('propc') > -1)) {
-            if (board !== 'unknown') {
-              // Exclude the 'unknown' board type. It is used only when
-              // something has gone wrong during a project load operation
-              element.append($('<option />')
-                  .val(ProjectProfiles[board].name)
-                  .text(ProjectProfiles[board].description));
-            }
+  // then populate the dropdown with the board types
+  // defined in propc.js in the 'profile' object
+  // (except 'default', which is where the current project's type is stored)
+  for (const board in ProjectProfiles) {
+    if (Object.prototype.hasOwnProperty.call(ProjectProfiles, board)) {
+      if (board !== 'default') {
+        // Use the experimental tag to show code-only view
+        if (board !== 'propcfile' ||
+            (board === 'propcfile' &&
+                isExperimental.indexOf('propc') > -1)) {
+          if (board !== 'unknown') {
+            // Exclude the 'unknown' board type. It is used only when
+            // something has gone wrong during a project load operation
+            element.append($('<option />')
+                .val(ProjectProfiles[board].name)
+                .text(ProjectProfiles[board].description));
           }
         }
-
-        // Optionally set the selected option element
-        if (selected && board === selected) {
-          $(element).val(selected);
-        }
       }
+
+      // Optionally set the selected option element
+      // if (selected && board === selected) {
+      //   $(element).val(selected);
+      // }
     }
   }
 }
-
-export {
-  initUploadModalLabels, editProjectDetails, newProjectModal, openProjectModal,
-};
