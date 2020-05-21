@@ -22,6 +22,8 @@
 
 'use strict';
 
+import {logConsoleMessage} from './utility';
+
 /**
  * Constant string that represents the base, empty project header
  *
@@ -70,6 +72,7 @@ let defaultProfile = null;
  * Reset the initial project state to null
  */
 function clearProjectInitialState() {
+  logConsoleMessage(`Clearing project initial state`);
   projectInitialState = null;
 }
 
@@ -90,6 +93,7 @@ function getProjectInitialState() {
 function setProjectInitialState(project) {
   if (project instanceof Project) {
     if (project !== projectInitialState) {
+      logConsoleMessage(`Setting project state for ${project.name}`);
       projectInitialState = project;
       defaultProfile = project.boardType;
     }
