@@ -944,7 +944,7 @@ function getGraphSettingsFromBlocks() {
  *     pause
  *     clear
  */
-const graphStartStop = function(action) {
+export const graphStartStop = function(action) {
   if (action === 'start' || action === 'play') {
     graph_new_labels();
     // eslint-disable-next-line camelcase
@@ -965,7 +965,7 @@ const graphStartStop = function(action) {
     // eslint-disable-next-line camelcase
     graph_paused = false;
     graph_reset();
-    graph_play('play');
+    graphPlay('play');
   }
   if (action === 'clear') {
     graph_reset();
@@ -1237,8 +1237,7 @@ function graph_reset() {
  *
  * @param {string} setTo
  */
-// eslint-disable-next-line camelcase,require-jsdoc
-function graph_play(setTo) {
+export function graphPlay(setTo) {
   if (document.getElementById('btn-graph-play')) {
     // eslint-disable-next-line camelcase
     const play_state = document.getElementById('btn-graph-play').innerHTML;
@@ -1260,8 +1259,7 @@ function graph_play(setTo) {
 /**
  * Save a graph to the local file system
  */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-function downloadGraph() {
+export function downloadGraph() {
   utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_GRAPH_DIALOG, 'BlocklyProp_Graph', function(value) {
     if (value) {
       // Make sure filename is safe

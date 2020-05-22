@@ -45,6 +45,8 @@ import {getComPort, loadInto, renderContent, downloadCSV} from './blocklyc';
 import {initializeBlockly, sanitizeFilename, serialConsole} from './blocklyc';
 import {graphingConsole, configureConnectionPaths} from './blocklyc';
 import {downloadPropC, findClient, formatWizard} from './blocklyc';
+// eslint-disable-next-line camelcase
+import {graphPlay, downloadGraph, graphStartStop} from './blocklyc';
 import {LOCAL_PROJECT_STORE_NAME} from './constants';
 import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
@@ -432,7 +434,7 @@ function initEventHandlers() {
   // Clear the select project file dialog event handler
   $('#selectfile-clear').on('click', () => clearUploadInfo(true));
 
-  $('#btn-graph-play').on('click', () => graph_play());
+  $('#btn-graph-play').on('click', () => graphPlay());
   $('#btn-graph-snapshot').on('click', () => downloadGraph());
   $('#btn-graph-csv').on('click', () => downloadCSV());
   $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
