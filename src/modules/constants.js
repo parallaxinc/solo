@@ -90,7 +90,7 @@ export const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
  * Global flag to enable/disable the Sentry logger
  * @type {boolean}
  */
-export const EnableSentry = false;
+export const EnableSentry = true;
 
 /**
  * This is the name of the test ECS cluster. A matching hostname will
