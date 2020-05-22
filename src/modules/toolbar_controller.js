@@ -38,14 +38,15 @@ export function propToolbarButtonController() {
   // The compile button should always be available when a project is loaded
   setCompileButtonState(true, true);
 
-  // Update elements when we are connected
   // Use activeConnection for WebSockets and available for BP Client
   if (clientService.activeConnection ||
       (clientService.available &&
        clientService.type === serviceConnectionTypes.WS )) {
+    // Replace the no client found on the UI with a happy message
     clientConnectionUpdateUI(true);
 
-    if (clientService.portsAvailable) {
+    if (clientService.portsAvailable &&
+        clientService.getSelectedPort().length > 0) {
       if (project.boardType.name === 's3') {
         setS3UIButtonGroup();
       } else {

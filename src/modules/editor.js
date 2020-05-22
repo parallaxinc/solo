@@ -451,6 +451,13 @@ function initEventHandlers() {
     $('#selectfile-verify-valid').css('display', 'none');
     $('#selectfile-verify-boardtype').css('display', 'none');
   });
+
+  // Serial port drop down onClick event handler
+  $('#comPort').on('change', (event) => {
+    logConsoleMessage(`Selecting port: ${event.target.value}`);
+    clientService.setSelectedPort(event.target.value);
+    propToolbarButtonController();
+  });
 }
 
 /**

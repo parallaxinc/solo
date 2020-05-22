@@ -1568,6 +1568,13 @@ const clientService = {
   portList: [],
 
   /**
+   * The currently selected port.
+   * @type {string} selectedPort contains the selected port string or
+   *   an empty string
+   */
+  selectedPort_: '',
+
+  /**
    * Set a custom URL used to contact the BP Launcher
    * @param {string=} location is the custom URL
    * @param {string=} protocol is one of 'http', 'https', or 'ws'
@@ -1583,6 +1590,27 @@ const clientService = {
    */
   isPortListTimeOut: function() {
     return this.portListReceiveCountUp > 3;
+  },
+
+  /**
+   * Getter for the selectedPort property
+   * @return {string}
+   */
+  getSelectedPort: function() {
+    return this.selectedPort_;
+  },
+
+  /**
+   * Setter for the selectedPort property
+   * @param {string} portName
+   */
+  setSelectedPort: function(portName) {
+    this.selectedPort_ = portName;
+    // Request a port list from the server
+    this.activeConnection.send(JSON.stringify({
+      type: 'pref-port',
+      portPath: portName,
+    }));
   },
 
   /**
@@ -1661,6 +1689,7 @@ const clientService = {
     }
     this.available = false;
     this.portsAvailable = false;
+    this.selectedPort_ = '';
   },
 };
 
@@ -1964,6 +1993,7 @@ function establishBPLauncherConnection() {
           wsMessage.ports.forEach(function(port) {
             clientService.portList.push(port);
           });
+          clientService.setSelectedPort(clientService.portList[0]);
         }
         setPortListUI();
         clientService.portListReceiveCountUp = 0;
@@ -2151,7 +2181,7 @@ function lostWSConnection() {
       logConsoleMessage(`Closing socket: ReadyState is:
      ${clientService.activeConnection.readyState}`);
     }
-    logConsoleMessage(`Nulling the active connection`);
+    logConsoleMessage(`Null-ing the active connection`);
     clientService.activeConnection = null;
     clientService.type = serviceConnectionTypes.NONE;
     clientService.available = false;
@@ -2173,22 +2203,32 @@ const setPortListUI = function(data = null) {
   if (! data) {
     data = clientService.portList;
   }
-  // TODO: why are we doing this?
-  clearComPortUI();
+
+  const selectedPort = clearComPortUI();
 
   // We must have a non-empty array to work from
+  // Solo-#438 - handle 'blank' port name
+  // The Launcher now sends an empty string as a port name under certain
+  // circumstances. If the 'blank' port is the only item in the list,
+  // treat the clientServices.portsAvailable as if there are still no ports.
   if (typeof (data) === 'object' && data.length > 0) {
+    let blankPort = false;
     data.forEach(function(port) {
+      if (port.length === 0) {
+        blankPort = true;
+      }
       addComPortDeviceOption(port);
     });
-    clientService.portsAvailable = true;
+    if ((data.length === 1 && !blankPort) || data.length > 1) {
+      clientService.portsAvailable = true;
+    }
   } else {
     // port list is empty, populate it
     addComPortDeviceOption(clientService.available ?
         Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
     clientService.portsAvailable = false;
   }
-  // Update the toolbar UI
+  selectComPort(selectedPort);
   propToolbarButtonController();
 };
 
