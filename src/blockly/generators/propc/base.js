@@ -1163,7 +1163,10 @@ Blockly.propc.comment = function () {
  };
  */
 
-/* Color Picker block */
+/**
+ * Color Picker block
+ * @type {{init: Blockly.Blocks.color_picker.init, helpUrl: string}}
+ */
 Blockly.Blocks.color_picker = {
     helpUrl: Blockly.MSG_VALUES_HELPURL,
     init: function () {
@@ -1183,11 +1186,18 @@ Blockly.propc.color_picker = function () {
     var color = this.getFieldValue('COLOR');
     color = "0x" + color.substr(1);
 
-
     // Return an array
     return [color, Blockly.propc.ORDER_NONE];
 };
 
+/**
+ * Generate a 24-bit integer representing a color value from the red, green,
+ * and blue values (0 to 255) inserted.
+ * @type {{
+ *      init: Blockly.Blocks.color_value_from.init,
+ *      helpUrl: string
+ *  }}
+ */
 Blockly.Blocks.color_value_from = {
     helpUrl: Blockly.MSG_VALUES_HELPURL,
     init: function () {
@@ -1221,6 +1231,8 @@ Blockly.propc.color_value_from = function () {
     const red = Blockly.propc.valueToCode(this, 'RED_VALUE', Blockly.propc.ORDER_NONE) || '0';
     const green = Blockly.propc.valueToCode(this, 'GREEN_VALUE', Blockly.propc.ORDER_NONE) || '0';
     const blue = Blockly.propc.valueToCode(this, 'BLUE_VALUE', Blockly.propc.ORDER_NONE) || '0';
+
+    // TODO: This is not the 24-bit value that is the expected output of this block
     const output = 'getColorRRGGBB(' + red + ', ' + green + ', ' + blue + ')';
 
     // Return an array
