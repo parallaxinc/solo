@@ -22,6 +22,8 @@
 
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 const path = require('path');
 
 // Bundle entry points
@@ -39,7 +41,12 @@ const modulePaths = {
     extensions: ['.js']
 };
 
-module.exports = {
+module.exports = env => {
+    // Use env.<YOUR VARIABLE> here:
+    // console.log('NODE_ENV: ', env.NODE_ENV); // 'local'
+    // console.log('Production: ', env.production); // true
+
+    return {
     resolve: modulePaths,
     target: 'web',
     mode: 'development',
@@ -49,7 +56,7 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         // filename: '[name].[chunkhash].bundle.js',
         filename: '[name].bundle.js',
-        chunkFilename: '[name].bundle.js',
+        chunkFilename: '[id].bundle.js',
         pathinfo: true,
         sourceMapFilename: '[name].bundle.js.map',
     },
@@ -105,4 +112,5 @@ module.exports = {
     devServer: {
         port: 3000
     }
+ };
 };
