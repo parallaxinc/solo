@@ -1991,7 +1991,6 @@ function establishBPLauncherConnection() {
           wsMessage.ports.forEach(function(port) {
             clientService.portList.push(port);
           });
-          clientService.setSelectedPort(clientService.portList[0]);
         }
         setPortListUI();
         clientService.portListReceiveCountUp = 0;
