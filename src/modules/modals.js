@@ -293,13 +293,24 @@ export function openProjectModal() {
  * Set up the callbacks for the open project modal dialog
  */
 function openProjectModalSetHandlers() {
-  // set title to Open file
-  $('#open-project-dialog-title').html(page_text_label['editor_open']);
-
   openProjectModalCancelClick();
   openProjectModalOpenClick();
   openProjectModalEscapeClick();
+
+  // set title to Open file
+  $('#open-project-dialog-title').html(page_text_label['editor_open']);
+
+  // Clear any previous filename
+  const filenameInput = $('#open-project-select-file');
+  if (filenameInput.length > 0) {
+    const filename = filenameInput[0].value;
+    if (filename.length > 0) {
+      filenameInput[0].value = '';
+    }
+  }
+
   // Open the modal dialog. The event handlers will take it from here.
+  logConsoleMessage(`Open Project modal was opened`);
   $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
 }
 
