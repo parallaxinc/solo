@@ -21,8 +21,6 @@
  */
 
 import {startSentry} from './sentry';
-startSentry();
-
 import 'bootstrap';
 import Blockly from 'blockly/core';
 import * as Cookies from 'js-cookie';
@@ -68,6 +66,9 @@ import {isExperimental} from './url_parameters';
 import {getURLParameter} from './utility';
 import {utils, logConsoleMessage} from './utility';
 
+startSentry();
+logConsoleMessage(`Launching the editor`);
+
 /**
  * The call to Blockly.svgResize() requires a reference to the
  * Blockly.WorkspaceSvg workspace that was returned from the
@@ -97,8 +98,6 @@ let codeEditor = null;
 function getWorkspaceSvg() {
   return injectedBlocklyWorkspace;
 }
-
-logConsoleMessage(`Launching the editor`);
 
 /**
  * Execute this code as soon as the DOM becomes ready.
@@ -1871,11 +1870,18 @@ function RenderPageBrandingElements() {
 
 /**
  * Display the Timed Save Project modal dialog
- *
+ * @description This shows the nudge message to encourage the user to
+ * save the project changes. It is an error if this gets called when the
+ * current project is undefined.
  */
 function showProjectTimerModalDialog() {
-  const lastSave = Math.ceil(
-      getProjectInitialState().getProjectTimeSinceLastSave());
+  const project = getProjectInitialState();
+  if (!project) {
+    logConsoleMessage(`Project save timer: project is null.`);
+    return;
+  }
+
+  const lastSave = Math.ceil(project.getProjectTimeSinceLastSave());
   const message = [
     page_text_label['editor_save-check_warning-1'],
     page_text_label['editor_save-check_warning-2'],
