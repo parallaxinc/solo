@@ -434,11 +434,13 @@ function cloudCompile(text, action, successHandler) {
     }
 
     // Post the code to the compiler API and await the results
+    logConsoleMessage(`Requesting compiler service`);
     $.ajax({
       'method': 'POST',
       'url': postUrl,
       'data': {'code': propcCode},
     }).done(function(data) {
+      logConsoleMessage(`Receiving compiler service results`);
       // The compiler will return one of three payloads:
       // Compile-only
       // data = {
@@ -481,9 +483,17 @@ function cloudCompile(text, action, successHandler) {
         compileConsoleScrollToBottom();
       }
     }).fail(function(data) {
-      // Data appears to be an HTTP response object
+      // Something unexpected has happened while calling the compile service
       if (data) {
-        const message = 'A compiler server error "' + data.status + '" has been detected.';
+        const state = data.state();
+        let message = 'Unable to compile the project.\n';
+        logConsoleMessage(`Compiler service request failed: ${data.state()}`);
+        if (state === 'rejected') {
+          message += '\nThe compiler service is temporarily unavailable or unreachable.';
+          message += '\nPlease try again in a few moments.';
+        } else {
+          message += 'Error "' + data.status + '" has been detected.';
+        }
         appendCompileConsoleMessage(message);
       }
     });
@@ -1817,8 +1827,6 @@ const establishBPClientConnection = function() {
 /**
  * Create a modal that allows the user to set a different port or path
  * to the BlocklyProp-Client or -Launcher
- *
- * TODO: Add fields for setting a different path to the compile service (for anyone wanting to host their own)
  */
 // eslint-disable-next-line no-unused-vars
 const configureConnectionPaths = function() {
