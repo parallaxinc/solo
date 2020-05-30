@@ -34,6 +34,7 @@ import {logConsoleMessage} from './utility';
  * be misspelled without detection.
  */
 const EmptyProjectCodeHeader = '<xml xmlns="https://developers.google.com/blockly/xml">';
+const TerminatedEmptyProjectCodeHeader = '<xml xmlns="https://developers.google.com/blockly/xml"/>';
 
 /**
  * Preserve the initial state of the project
@@ -370,6 +371,14 @@ class Project {
    */
   static getEmptyProjectCodeHeader() {
     return EmptyProjectCodeHeader;
+  }
+
+  /**
+   * Getter for a properly terminated project code header constant
+   * @return {string}
+   */
+  static getTerminatedEmptyProjectCodeHeader() {
+    return TerminatedEmptyProjectCodeHeader;
   }
 
   /**
