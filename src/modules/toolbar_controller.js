@@ -20,16 +20,26 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import {getProjectInitialState} from './project.js';
-import {clientService, serviceConnectionTypes} from './blocklyc';
+import Blockly from 'blockly/core';
+
+import {Project, getProjectInitialState} from './project.js';
+import {clientService, serviceConnectionTypes} from './client_service';
+
 
 /**
  *  Update the state of the Compiler toolbar buttons
  */
 export function propToolbarButtonController() {
-  const project = getProjectInitialState();
+  // Update Client not found UI
+  // Use activeConnection for WebSockets and available for BP Client
+  if (clientService.activeConnection || clientService.available) {
+    // Replace the no client found on the UI with a happy message
+    clientConnectionUpdateUI(true);
+  } else {
+    clientConnectionUpdateUI(false);
+  }
 
-  if (!project) {
+  if (!hasCode()) {
     // No buttons are valid if there is no project.
     disableButtons(false);
     return;
@@ -43,10 +53,12 @@ export function propToolbarButtonController() {
       (clientService.available &&
        clientService.type === serviceConnectionTypes.WS )) {
     // Replace the no client found on the UI with a happy message
-    clientConnectionUpdateUI(true);
+    // clientConnectionUpdateUI(true);
 
     if (clientService.portsAvailable &&
-        clientService.getSelectedPort().length > 0) {
+        clientService.portList.length > 0 &&
+        clientService.portList[0].length > 0) {
+      const project = getProjectInitialState();
       if (project.boardType.name === 's3') {
         setS3UIButtonGroup();
       } else {
@@ -288,4 +300,25 @@ export function initToolbarIcons() {
   $('.bpIcon').each(function(key, value ) {
     $(value).html(bpIcons[value.dataset.icon]);
   });
+}
+
+/**
+ * Are there any blocks in the Blockly workspace
+ * @return {boolean}
+ */
+function hasCode() {
+  let result = false;
+  if (Blockly) {
+    if (Blockly.Xml) {
+      if (Blockly.mainWorkspace) {
+        const xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
+        const text = Blockly.Xml.domToText(xml);
+        const emptyHeader = Project.getTerminatedEmptyProjectCodeHeader();
+        if (text !== emptyHeader) {
+          result = true;
+        }
+      }
+    }
+  }
+  return result;
 }
