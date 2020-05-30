@@ -38,13 +38,15 @@ import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
-import {clientService, serviceConnectionTypes, compile} from './blocklyc';
-import {getComPort, loadInto, renderContent, downloadCSV} from './blocklyc';
-import {initializeBlockly, sanitizeFilename, serialConsole} from './blocklyc';
-import {graphingConsole, configureConnectionPaths} from './blocklyc';
-import {downloadPropC, findClient, formatWizard} from './blocklyc';
-// eslint-disable-next-line camelcase
-import {graphPlay, downloadGraph, graphStartStop} from './blocklyc';
+
+import {
+  sanitizeFilename, compile, getComPort, loadInto, initializeBlockly,
+  renderContent, downloadCSV, graphingConsole, configureConnectionPaths,
+  downloadPropC, findClient, formatWizard, serialConsole, graphPlay,
+  downloadGraph, graphStartStop,
+} from './blocklyc';
+
+import {clientService, serviceConnectionTypes} from './client_service';
 import {LOCAL_PROJECT_STORE_NAME} from './constants';
 import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
@@ -374,7 +376,7 @@ function initEventHandlers() {
 
   // Save project nudge dialog onclose event handler
   $('#save-check-dialog').on('hidden.bs.modal', () => {
-    console.log('Closing the project save timer dialog.');
+    logConsoleMessage('Closing the project save timer dialog.');
   });
 
   // --------------------------------

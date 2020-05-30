@@ -1380,77 +1380,10 @@ function graph_update_labels() {
 
 
 /**
- * Initialize Blockly
- *
- * Called on page load. Loads a Blockly project onto the editor pallet
- *
- * @param {!Blockly} blockly Instance of Blockly from iframe.
- * @deprecated use the CodeEditor class
- */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-/*
-function initOldVersionCode(blockly) {
-  const codePropC = getSourceEditor();
-  const project = getProjectInitialState();
-  if (!codePropC) {
-    // codePropC = new CodeEditor('propcfile');
-    // codePropC = ace.edit('code-propc');
-    const code = ace.edit('code-propc');
-    setPropCCode(code);
-
-    codePropC.setTheme('ace/theme/chrome');
-    codePropC.getSession().setMode('ace/mode/c_cpp');
-    codePropC.getSession().setTabSize(2);
-    codePropC.$blockScrolling = Infinity;
-    codePropC.setReadOnly(true);
-
-    // if the project is a propc code-only project, enable code editing.
-    if (project.boardType.name === 'propcfile') {
-      codePropC.setReadOnly(false);
-    }
-  }
-
-  if (!codeXml && isExperimental.indexOf('xedit') > -1) {
-    codeXml = ace.edit('code-xml');
-    codeXml.setTheme('ace/theme/chrome');
-    codeXml.getSession().setMode('ace/mode/xml');
-  }
-
-  window.Blockly = blockly;
-
-  // TODO: Replace string length check with code that detects the first <block> xml element.
-  if (project) {
-    // Looking for the first <block> XML element
-    const searchTerm = '<block';
-
-    if (!project.code || project.code.indexOf(searchTerm) < 0) {
-      project.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
-    }
-    if (project.boardType.name !== 'propcfile') {
-      loadToolbox(project.code);
-    }
-  }
-}
-*/
-
-/**
- * Replacement function for the Blockly initialization function init().
- * @param {Blockly} data
+ * Blockly initialization
+ * @param {!Blockly} data is the global blockly object
  */
 function initializeBlockly(data) {
-  init(data);
-}
-
-/**
- * Initialize Blockly
- *
- * Called on page load. Loads a Blockly project onto the editor pallet
- *
- * @param {!Blockly} blockly Instance of Blockly from iframe.
- */
-function init(blockly) {
-  // TODO: window.Blockly should already be a thing at this point.
-  // window.Blockly = blockly;
   const project = getProjectInitialState();
   if (project) {
     if (project.boardType.name !== 'propcfile') {
@@ -1459,8 +1392,6 @@ function init(blockly) {
     }
   }
 }
-
-// ---------------------------------------
 
 /**
  *  Connect to the BP-Launcher or BlocklyProp Client
@@ -2079,7 +2010,7 @@ function addComPortDeviceOption(port) {
 // -------------------------------
 
 export {
-  compile,  init, renderContent, downloadCSV, initializeBlockly,
+  compile, renderContent, downloadCSV, initializeBlockly,
   sanitizeFilename, findClient, formatWizard, serialConsole,
   graphingConsole, configureConnectionPaths, downloadPropC,
 };
