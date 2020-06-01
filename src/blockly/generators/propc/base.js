@@ -66,9 +66,9 @@ Blockly.Blocks.math_number = {
         this.connectedBlockId = null;
     },
     onchange: function (event) {
-        if (event && (event.type === Blockly.Events.CHANGE || 
-                    event.type === Blockly.Events.MOVE) && 
-                    (event.blockId === this.id || 
+        if (event && (event.type === Blockly.Events.CHANGE ||
+                    event.type === Blockly.Events.MOVE) &&
+                    (event.blockId === this.id ||
                     event.blockId === this.connectedBlockId)) {
             this.updateShape();
         }
@@ -891,7 +891,7 @@ Blockly.Blocks.string_var_length = {
             i++;
             optionBlock = optionBlock.nextConnection &&
                     optionBlock.nextConnection.targetBlock();
-        }  
+        }
     },
     updateConstMenu: function (oldValue, newValue) {
         this.userDefinedConstantsList_ = [];
@@ -952,7 +952,7 @@ Blockly.Blocks.string_var_length = {
                         .appendField(new Blockly.FieldDropdown(this.userDefinedConstantsList_.map(function (value) {
                             return [value, value];  // returns an array of arrays built from the original array.
                         })), "VAR_LEN" + i)
-                        .appendField('characters');                
+                        .appendField('characters');
             } else {
                 this.getInput('VAR' + i)
                         .appendField(new Blockly.FieldNumber('64', null, null, 1), "VAR_LEN" + i)
@@ -1032,8 +1032,8 @@ Blockly.propc.string_var_length = function () {
             varPref = 'MY_';
         }
         Blockly.propc.string_var_lengths.push([
-                Blockly.propc.variableDB_.getName(this.getFieldValue('VAR_NAME' + i.toString(10)), 
-                        Blockly.Variables.NAME_TYPE), 
+                Blockly.propc.variableDB_.getName(this.getFieldValue('VAR_NAME' + i.toString(10)),
+                        Blockly.Variables.NAME_TYPE),
                 varPref + varLenValue
         ]);
         i++;
@@ -1163,7 +1163,10 @@ Blockly.propc.comment = function () {
  };
  */
 
-/* Color Picker block */
+/**
+ * Color Picker block
+ * @type {{init: Blockly.Blocks.color_picker.init, helpUrl: string}}
+ */
 Blockly.Blocks.color_picker = {
     helpUrl: Blockly.MSG_VALUES_HELPURL,
     init: function () {
@@ -1183,11 +1186,18 @@ Blockly.propc.color_picker = function () {
     var color = this.getFieldValue('COLOR');
     color = "0x" + color.substr(1);
 
-
     // Return an array
     return [color, Blockly.propc.ORDER_NONE];
 };
 
+/**
+ * Generate a 24-bit integer representing a color value from the red, green,
+ * and blue values (0 to 255) inserted.
+ * @type {{
+ *      init: Blockly.Blocks.color_value_from.init,
+ *      helpUrl: string
+ *  }}
+ */
 Blockly.Blocks.color_value_from = {
     helpUrl: Blockly.MSG_VALUES_HELPURL,
     init: function () {
@@ -1221,6 +1231,8 @@ Blockly.propc.color_value_from = function () {
     const red = Blockly.propc.valueToCode(this, 'RED_VALUE', Blockly.propc.ORDER_NONE) || '0';
     const green = Blockly.propc.valueToCode(this, 'GREEN_VALUE', Blockly.propc.ORDER_NONE) || '0';
     const blue = Blockly.propc.valueToCode(this, 'BLUE_VALUE', Blockly.propc.ORDER_NONE) || '0';
+
+    // TODO: This is not the 24-bit value that is the expected output of this block
     const output = 'getColorRRGGBB(' + red + ', ' + green + ', ' + blue + ')';
 
     // Return an array
@@ -2360,10 +2372,10 @@ Blockly.Blocks.custom_code_multiple = {
                     ]).setColumns(3), 'COLOR');
         var currentCustomBlock = this;
         ([
-            ['INCL', 'includes'], 
-            ['GLOB', 'globals'], 
-            ['SETS', 'setups'], 
-            ['MAIN', 'main'], 
+            ['INCL', 'includes'],
+            ['GLOB', 'globals'],
+            ['SETS', 'setups'],
+            ['MAIN', 'main'],
             ['FUNC', 'functions']
         ]).forEach(function (value) {
             currentCustomBlock.appendDummyInput(value[0])
@@ -2474,8 +2486,8 @@ Blockly.Blocks.custom_code_multiple = {
     },
     setupInputs: function () {
         var argsCount = this.fieldValueTemp_['ARG_COUNT'];
-        var blockEditState = (this.fieldValueTemp_['EDIT'] === true || 
-                this.fieldValueTemp_['EDIT'] === 'true' || 
+        var blockEditState = (this.fieldValueTemp_['EDIT'] === true ||
+                this.fieldValueTemp_['EDIT'] === 'true' ||
                 this.fieldValueTemp_['EDIT'] === 'TRUE');
         this.getConnectedBlocks();
         for (var i = 1; i < 10; i++) {
@@ -2510,7 +2522,7 @@ Blockly.propc.custom_code_multiple = function () {
     for (var tk = 1; tk < 10; tk++) {
         in_arg.push(Blockly.propc.valueToCode(this, 'ARG' + tk.toString(10), Blockly.propc.ORDER_ATOMIC) || '');
     }
-    // Create a key for this blocks includes/defs/globals/funcs so when multiple blocks are used, it only generates one copy in the propc code 
+    // Create a key for this blocks includes/defs/globals/funcs so when multiple blocks are used, it only generates one copy in the propc code
     var ccCode = this.getFieldValue("LABEL");
     ccCode = encodeURI(ccCode.replace(/ /g, '_')).replace(/[^\w]/g, '_');
     if ('0123456789'.indexOf(ccCode[0]) !== -1 || (ccCode[0] === '_' && ccCode[1] === '_')) {  // addition here: prevents collision with names with a leading double undescore.

@@ -1131,9 +1131,9 @@ Blockly.Blocks.serial_open = {
     onchange: function (event) {
         // only monitor changes to serial init blocks
         if (event && (
-                event.name === 'RXPIN' || 
-                event.name === 'TXPIN' || 
-                event.type == Blockly.Events.BLOCK_CREATE || 
+                event.name === 'RXPIN' ||
+                event.name === 'TXPIN' ||
+                event.type == Blockly.Events.BLOCK_CREATE ||
                 event.blockId === this.id)) {
             var warnText = [];
             var rxPin = this.getFieldValue('RXPIN');
@@ -1148,8 +1148,8 @@ Blockly.Blocks.serial_open = {
             if (rxPin === txPin) {
                 warnText.push('WARNING: RX and TX should use different pins!');
             }
-    
-            // warn if multiple serial protocol instances are sharing  
+
+            // warn if multiple serial protocol instances are sharing
             var allSerialInitBlocks = Blockly.getMainWorkspace().getBlocksByType('serial_open');
             for (var i = 0; i < allSerialInitBlocks.length; i++) {
                 if (this.id !== allSerialInitBlocks[i].id) {
@@ -1281,7 +1281,7 @@ Blockly.Blocks.serial_send_text = {
             } else {
                 // scan the 'serial_open' blocks and build a pin list
                 for (var i = 0; i < serialInitBlocks.length; i++) {
-                    serialPinList.push(serialInitBlocks[i].getFieldValue('RXPIN') + ',' + 
+                    serialPinList.push(serialInitBlocks[i].getFieldValue('RXPIN') + ',' +
                         serialInitBlocks[i].getFieldValue('TXPIN'));
                 }
                 serialPinList = serialPinList.sortedUnique();
@@ -1298,10 +1298,10 @@ Blockly.Blocks.serial_send_text = {
                 }
 
                 // if the selected value changed, select the new value
-                if (oldValue.length === 1 && currentValue && 
-                        oldValue[0] === currentValue && 
+                if (oldValue.length === 1 && currentValue &&
+                        oldValue[0] === currentValue &&
                         newValue.length === 1 &&
-                        newValue[0] && 
+                        newValue[0] &&
                         // make sure this doesn't fire in an invalid state
                         this.getField('SER_PIN').textContent_) {
                     this.setFieldValue(newValue[0], 'SER_PIN');
@@ -1310,7 +1310,7 @@ Blockly.Blocks.serial_send_text = {
                 // update the variable that stores the list of pins
                 this.ser_pins = serialPinList;
 
-                if (this.type === 'serial_print_multiple' && this.workspace && 
+                if (this.type === 'serial_print_multiple' && this.workspace &&
                         this.optionList_.length < 1) {
                     warnText = 'Serial transmit multiple must have at least one term.';
                 }
@@ -3576,6 +3576,7 @@ Blockly.propc.oled_draw_triangle = function () {
                 Blockly.propc.definitions_["colormath"] = '#include "colormath.h"';
             }
             color = Blockly.propc.valueToCode(this, 'COLOR', Blockly.propc.ORDER_NONE) || '0xFFFFFF';
+
             if (/0x[0-9A-Fa-f]{4}/.test(color)) {
                 color = color.substr(2,6);
             }
@@ -3678,10 +3679,19 @@ Blockly.propc.oled_draw_rectangle = function () {
                 Blockly.propc.definitions_["colormath"] = '#include "colormath.h"';
             }
             color = Blockly.propc.valueToCode(this, 'COLOR', Blockly.propc.ORDER_NONE) || '0xFFFFFF';
-            if (/0x[0-9A-Fa-f]{4}/.test(color)) {
-                color = color.substr(2,6);
+
+            // The input might be the getColor() function, so we test here for a
+            // reasonable hex value. If it fails, assume that the color variable
+            // has received test from a call to something like getColor
+            if (!isNaN(parseInt(color, 16))) {
+                if (/0x[0-9A-Fa-f]{4}/.test(color)) {
+                    color = color.substr(2,6);
+                }
+                color = 'remapColor(0x' + parseInt(color, 16).toString(16) + ', "8R8G8B", "5R6G5B")';
+            } else {
+                color = `remapColor(${color}, "8R8G8B", "5R6G5B")`;
             }
-            color = 'remapColor(0x' + parseInt(color, 16).toString(16) + ', "8R8G8B", "5R6G5B")';
+
         } else if (this.displayKind === 'ePaper') {
             color = this.getFieldValue('COLOR_VALUE');
         }
@@ -3689,7 +3699,7 @@ Blockly.propc.oled_draw_rectangle = function () {
         if (this.getFieldValue('ck_fill') === 'TRUE') {
             code = 'fillRoundRect(';
         }
-        code += this.myType + ', ' + point_x + ', ' + point_y + ', ' + width + ', ' + height + ', ';
+        code += `${this.myType}, ${point_x}, ${point_y}, ${width}, ${height}, `;
         if (corners === '0') {
             code = code.replace(/RoundRect\(/g, 'Rect(');
         } else {
