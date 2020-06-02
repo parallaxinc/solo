@@ -73,8 +73,17 @@ function setClickHandlers() {
   // Display the license in a modal when the link is clicked
   $('#show_license').on('click', () => $('#licenseModal').modal());
 
+  // Set a cookie to let blocklyc that we want to open a project
+  // then redirect to the blocklyc editor page
   $('#open-project').on( 'click', () => {
     Cookies.set('action', 'open', {expires: 1});
+    window.location = 'blocklyc.html';
+  });
+
+  // Set a cookie to let blocklyc that we want to create a new project
+  // then redirect to the blocklyc editor page
+  $('#new-project').on( 'click', () => {
+    Cookies.set('action', 'new', {expires: 1});
     window.location = 'blocklyc.html';
   });
 }

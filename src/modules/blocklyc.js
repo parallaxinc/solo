@@ -1747,13 +1747,10 @@ function establishBPLauncherConnection() {
 function wsProcessPortListMessage(message) {
   clientService.portList = [];
   if (message.ports.length > 0) {
-    logConsoleMessage(`Number of ports reported: ${message.ports.length}`);
     message.ports.forEach(function(port) {
-      logConsoleMessage(`Port: "${port}"`);
       clientService.portList.push(port);
     });
   }
-  logConsoleMessage(`Port list: ${message.ports}`);
   setPortListUI();
   clientService.portListReceiveCountUp = 0;
 }
@@ -1923,11 +1920,15 @@ const setPortListUI = function(data = null) {
 
   const selectedPort = clearComPortUI();
 
+  // --------------------------------------------------------------------------
   // We must have a non-empty array to work from
   // Solo-#438 - handle 'blank' port name
-  // The Launcher now sends an empty string as a port name under certain
-  // circumstances. If the 'blank' port is the only item in the list,
-  // treat the clientServices.portsAvailable as if there are still no ports.
+  // The Launcher now sends an empty string as a port name in the first element
+  // of the port list when the user has disconnected the preferred port. The
+  // port list will always have at least one available port if the blank entry
+  // is in the port list. Otherwise, the port list will either be empty or
+  // contain a list of non-blank port names.
+  // --------------------------------------------------------------------------
   if (typeof (data) === 'object' && data.length > 0) {
     let blankPort = false;
     data.forEach(function(port) {

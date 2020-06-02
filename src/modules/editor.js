@@ -139,70 +139,31 @@ $(() => {
   //  must be a better way to handle this in the clientService object.
   findClient();
   setInterval(findClient, 2000);
-
   showAppName();
+
+  const backup = window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME);
+  if (backup) {
+    // Load this project
+    // Copy the stored temp project to the stored local project
+    const project = projectJsonFactory(JSON.parse(backup));
+    const currentProject = getProjectInitialState();
+    logConsoleMessage(`Comparing new project to current project:
+     ${Project.compare(project, currentProject)}`);
+
+    insertProject(project);
+  } else {
+    logConsoleMessage(`Creating default project`);
+    initDefaultProject();
+  }
 
   const state = Cookies.get('action');
   if (state !== undefined) {
     if (state === 'open') {
       openProjectModal();
     }
-  }
-
-  // Load a project file from local storage
-  if (getURLParameter('openFile') === 'true') {
-    // Show the Open Project modal dialog
-    // openProjectModal();
-    logConsoleMessage('Old open project handler');
-  } else if (getURLParameter('newProject') === 'true') {
-    // Show the New Project modal dialog
-    newProjectModal();
-  } else if (window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
-    // Load a project from localStorage if available
-    try {
-      // Get a copy of the last know state of the current project
-      const localProject = projectJsonFactory(
-          JSON.parse(
-              window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)));
-      // TODO: Address clear workspace has unexpected result
-      // **************************************************
-      // This should clear out the existing blockly project
-      // and reset Blockly core for a new project. That
-      // does not appear to be happening.
-      // **************************************************
-      // setProfile(projectData.board);
-      // setProfile(localProject.boardType);
-
-      setupWorkspace(localProject, function() {
-        window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-      });
-
-      // Create an instance of the CodeEditor class
-      codeEditor = new CodeEditor(localProject.boardType.name);
-      if (!codeEditor) {
-        console.log('Error allocating CodeEditor object');
-      }
-
-      // Set the compile toolbar buttons to unavailable
-      propToolbarButtonController();
-    } catch (objError) {
-      if (objError instanceof SyntaxError) {
-        console.error(objError.name);
-        utils.showMessage(Blockly.Msg.DIALOG_ERROR, objError.message);
-      } else {
-        console.error(objError.message);
-        console.error(objError.trace);
-        clearBlocklyWorkspace();
-        clearProjectInitialState();
-
-        utils.showMessage(
-            Blockly.Msg.DIALOG_ERROR,
-            Blockly.Msg.DIALOG_LOADING_ERROR);
-      }
+    if (state === 'new') {
+      newProjectModal();
     }
-  } else {
-    logConsoleMessage(`Creating default project`);
-    initDefaultProject();
   }
 
   // Make sure the toolbox appears correctly, just for good measure.
@@ -507,22 +468,13 @@ function leavePageHandler() {
   // and page processing continues.
   // ------------------------------------------------------------------------
   window.addEventListener('beforeunload', function(e) {
-    // Call isProjectChanged only if we are NOT loading a new project
-    if (getURLParameter('openFile') === 'true') {
-      return;
-    }
-
-    // Or creating a new project
-    if (getURLParameter('newProject') === 'true') {
-      return;
-    }
+    logConsoleMessage(`Leaving the page`);
 
     // If the localStorage is empty, store the current project into the
     // localStore so that if the page is being refreshed, it will
     // automatically be reloaded.
     if (getProjectInitialState() &&
-        getProjectInitialState().name !== undefined &&
-        ! window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)) {
+        getProjectInitialState().name !== undefined) {
       // Deep copy of the project
       const tempProject = {};
       Object.assign(tempProject, getProjectInitialState());
@@ -673,6 +625,8 @@ function initDefaultProject() {
  */
 function setupWorkspace(data, callback) {
   logConsoleMessage(`setupWorkspace: Preparing Blockly workspace`);
+
+  // TODO: Calling the callback BEFORE the method has completed?
   if (data && typeof(data.boardType.name) === 'undefined') {
     if (callback) {
       callback({
@@ -686,7 +640,7 @@ function setupWorkspace(data, callback) {
   // Set the project if the current project does not match the one supplied
   // by the caller
   let project = getProjectInitialState();
-  if (data !== project) {
+  if (project && (data !== project)) {
     project = setProjectInitialState(data);
   }
 
@@ -697,18 +651,19 @@ function setupWorkspace(data, callback) {
 
   setDefaultProfile(project.boardType);
 
-  logConsoleMessage(`setupWorkSpace: Preparing nudge timer`);
-  const myTime = new NudgeTimer(0);
-  // Set the callback
-  myTime.myCallback = function() {
-    if (isProjectChanged()) {
-      showProjectTimerModalDialog();
-    }
-  };
-  // Start the timer and attach it to the project object
-  myTime.start(10);
-  project.setProjectTimer(myTime);
-
+  if (!project.isTimerSet()) {
+    logConsoleMessage(`setupWorkSpace: Preparing nudge timer`);
+    const myTime = new NudgeTimer(0);
+    // Set the callback
+    myTime.myCallback = function() {
+      if (isProjectChanged()) {
+        showProjectTimerModalDialog();
+      }
+    };
+    // Start the timer and attach it to the project object
+    myTime.start(10);
+    project.setProjectTimer(myTime);
+  }
   // Delete all existing blocks, comments and undo stacks
   clearBlocklyWorkspace();
 
@@ -757,12 +712,13 @@ function setupWorkspace(data, callback) {
     $('#edit-project-details').html(page_text_label['editor_edit-details']);
   }
 
-  resetToolBoxSizing(0);
+  resetToolBoxSizing(0, true);
 
   // Execute the callback function if one was provided
   if (callback) {
     callback();
   }
+  return 0;
 }
 
 /**
@@ -1788,6 +1744,12 @@ function loadToolbox(xmlText) {
       Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
     } catch (e) {
       dumpErrorStack(e, 'Error while loading the toolbox.' );
+      utils.showMessage(
+          `Project Load Error`,
+          `Project was load was not successful.\nLoading default project.`,
+          () => {
+            initDefaultProject();
+          });
     }
   }
 }
@@ -2128,22 +2090,25 @@ function insertProject(project) {
   logConsoleMessage(`Inserting project ${project.name}`);
 
   try {
-    project.stashProject(LOCAL_PROJECT_STORE_NAME);
+    // project.stashProject(LOCAL_PROJECT_STORE_NAME);
     clearProjectInitialState();
     setProjectInitialState(project);
 
-    // Create a new nudge timer
-    const myTime = new NudgeTimer(0);
-    // Set the callback
-    myTime.myCallback = function() {
-      if (isProjectChanged) {
-        showProjectTimerModalDialog();
-      }
-    };
+    if (!project.isTimerSet()) {
+      // Create a new nudge timer
+      const myTime = new NudgeTimer(0);
+      // Set the callback
+      myTime.myCallback = function() {
+        if (isProjectChanged) {
+          showProjectTimerModalDialog();
+        }
+      };
 
-    // Start the timer and save it to the project object
-    myTime.start(10);
-    project.setProjectTimer(myTime);
+      // Start the timer and save it to the project object
+      myTime.start(10);
+      project.setProjectTimer(myTime);
+    }
+
     logConsoleMessage(`Setting up the workspace in blockly core`);
     setupWorkspace(project);
 
