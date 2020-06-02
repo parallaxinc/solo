@@ -329,6 +329,14 @@ class Project {
   }
 
   /**
+   * Has the nudge timer been set?
+   * @return {boolean} true if it has been set, otherwise false
+   */
+  isTimerSet() {
+    return this.saveTimer !== null;
+  }
+
+  /**
    * Returns a reference to the project data encapsulated into a single object
    * @return {
    *   {
