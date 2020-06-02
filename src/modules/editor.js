@@ -25,6 +25,7 @@ import 'bootstrap';
 import Blockly from 'blockly/core';
 import * as Cookies from 'js-cookie';
 import * as saveAs from 'file-saver';
+import * as JSZip from 'jszip';
 // eslint-disable-next-line camelcase
 import {page_text_label, tooltip_text} from './blockly/language/en/messages';
 import './blockly/generators/propc';
@@ -40,9 +41,9 @@ import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
 
 import {
-  sanitizeFilename, compile, loadInto, initializeBlockly,
-  renderContent, downloadCSV, graphingConsole, configureConnectionPaths,
-  downloadPropC, formatWizard, serialConsole, graphPlay,
+  compile, loadInto, initializeBlockly,
+  downloadCSV, graphingConsole, configureConnectionPaths,
+  serialConsole, graphPlay,
   downloadGraph, graphStartStop,
 } from './blocklyc';
 
@@ -67,7 +68,8 @@ import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
 import {getURLParameter} from './utility';
-import {utils, logConsoleMessage} from './utility';
+import {utils, logConsoleMessage, sanitizeFilename} from './utility';
+import {getXmlCode} from './code_editor';
 
 startSentry();
 logConsoleMessage(`Launching the editor`);
@@ -723,7 +725,7 @@ function setupWorkspace(data, callback) {
  * Display the project name
  * @param {string} name
  */
-function displayProjectName(name) {
+export function displayProjectName(name) {
   // Display the project name
   if (name.length > PROJECT_NAME_DISPLAY_MAX_LENGTH) {
     $('.project-name')
@@ -855,21 +857,6 @@ function saveProjectAs(boardType, projectName) {
 }
 
 /**
- *
- * @param {string} str
- * @return {number}
- */
-/*
-function hashCode(str) {
-  let hash = 0; let i = 0; const len = str.length;
-  while (i < len) {
-    hash = ((hash << 5) - hash + str.charCodeAt(i++)) << 0;
-  }
-  return (hash + 2147483647) + 1;
-}
-*/
-
-/**
  * Encode a string to an XML-safe string by replacing unsafe
  * characters with HTML entities
  *
@@ -888,7 +875,6 @@ function encodeToValidXml(str) {
       .replace(/\r/g, '&#xD;')
   );
 }
-
 
 /**
  * Decode a string from an XML-safe string by replacing HTML
@@ -909,7 +895,6 @@ function decodeFromValidXml(str) {
       .replace(/&#xD;/g, '\r')
   );
 }
-
 
 /**
  * Retrieve the project blocks from the Blockly workspace
@@ -1240,97 +1225,6 @@ function uploadHandler(files) {
           document.getElementById('selectfile-append').disabled = true;
         }
       }
-
-      // TODO: check to see if this is used when opened from the editor
-      //  (and not the splash screen)
-      // maybe projectData.code.length < 43??? i.e. empty project? instead
-      // of the URL parameter...
-
-      // Loading a .SVG project file. Create a project object and
-      // save it into the browser store.
-      // const projectTitle = getProjectTitleFromXML(xmlString);
-      // const projectDesc = getProjectDescriptionFromXML(xmlString);
-      //
-      // const tt = new Date();
-      // const projectCreated = getProjectCreatedDateFromXML(xmlString, tt);
-      // const projectModified = getProjectModifiedDateFromXML(xmlString, tt);
-      // const date = new Date();
-
-      // const pd = {
-      //   'board': uploadBoardType,
-      //   'code': projectXmlCode,
-      //   'created': projectCreated,
-      //   'description': decodeFromValidXml(projectDesc),
-      //   'description-html': '',
-      //   'id': 0,
-      //   'modified': projectModified,
-      //   'name': projectName,
-      //   'private': true,
-      //   'shared': false,
-      //   'type': 'PROPC',
-      //   'user': 'offline',
-      //   'yours': true,
-      //   'timestamp': date.getTime(),
-      // };
-
-      // Compute a parallel dataset to replace 'pd'
-      //   try {
-      //     // Convert the string board type name to a ProjectBoardType object
-      //     const tmpBoardType = Project.convertBoardType(uploadBoardType);
-      //     if (tmpBoardType === undefined) {
-      //       console.log('Unknown board type: %s', uploadBoardType);
-      //     }
-      //
-      //     const project = new Project(
-      //         decodeFromValidXml(projectTitle),
-      //         decodeFromValidXml(projectDesc),
-      //         tmpBoardType,
-      //         ProjectTypes.PROPC,
-      //         projectXmlCode,
-      //         projectCreated,
-      //         projectModified,
-      //
-      //         date.getTime(),
-      //         true);
-      //
-      //     // Convert the Project object details to projectData object
-      //     const projectOutput = project.getDetails();
-      //     if (projectOutput === undefined) {
-      //       console.log('Unable to convert Project to projectData object.');
-      //     }
-      //
-      //     console.log('Compare projects state');
-      //     if (! Project.testProjectEquality(pd, projectOutput)) {
-      //       console.log('Project output differs.');
-      //     }
-      //   } catch (e) {
-      //     console.log('Error while creating project object. %s', e.message);
-      //   }
-      //
-      //   // Save the output in a temp storage space
-      //   // TODO: Test this result with the value 'pd'
-      //   // window.localStorage.setItem(
-      //   //     "tempProject",
-      //   //     JSON.stringify(projectOutput));
-      //
-      //   // Save the project to the browser store
-      //   window.localStorage.setItem(
-      //       TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
-      //
-      //   // TODO: Reload the UI
-      // }
-      //
-      // if (xmlValid === true) {
-      //   $('#selectfile-verify-valid').css('display', 'block');
-      //   document.getElementById('selectfile-replace').disabled = false;
-      //   document.getElementById('selectfile-append').disabled = false;
-      //   // uploadedXML = xmlString;
-      // } else {
-      //   $('#selectfile-verify-notvalid').css('display', 'block');
-      //   document.getElementById('selectfile-replace').disabled = true;
-      //   document.getElementById('selectfile-append').disabled = true;
-      //   // uploadedXML = '';
-      // }
     }
   };
 
@@ -1759,7 +1653,7 @@ function initToolbox(profileName) {
  * toolbox. Instead, it is attempting to load project blocks into an
  * existing, default Blockly workspace.
  */
-function loadToolbox(xmlText) {
+export function loadToolbox(xmlText) {
   if (Blockly.mainWorkspace) {
     // The xmlText variable is assumed to be legitimate xml.
     try {
@@ -1903,7 +1797,7 @@ function showProjectTimerModalDialog() {
  * the modals.js file. That copy will be deprecated when the modals.js file
  * is converted to a module.
  */
-function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
+export function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
   // Vanilla Javascript is used here for speed - jQuery
   // could probably be used, but this is faster. Force
   // the toolbox to render correctly
@@ -1960,7 +1854,7 @@ function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
  * This only examines the project code block. It does not evaluate
  * changes in the project name or description.
  */
-function isProjectChanged() {
+export function isProjectChanged() {
   const project = getProjectInitialState();
   let result = false;
 
@@ -2013,7 +1907,7 @@ function getXml() {
  * and redirect to the editor.html page to force a project reload
  * from the browser localStorage
  */
-function createNewProject() {
+export function createNewProject() {
   logConsoleMessage(`Creating a new project`);
   // let code = '';
   // const project = getProjectInitialState();
@@ -2089,7 +1983,7 @@ function createNewProject() {
  * Insert or replace an existing project in the Blockly core
  * @param {Project} project
  */
-function insertProject(project) {
+export function insertProject(project) {
   logConsoleMessage(`Inserting project ${project.name}`);
 
   try {
@@ -2202,8 +2096,187 @@ function projectNameUIEvents() {
       });
 }
 
+/**
+ * Switch the visible pane when a tab is clicked.
+ *
+ * @param {string} id ID of tab clicked.
+ */
+function renderContent(id) {
+  // Get the initial project state
+  const project = getProjectInitialState();
+  const codePropC = getSourceEditor();
+  const codeXml = getXmlCode();
 
-export {
-  isProjectChanged, displayProjectName, resetToolBoxSizing,
-  loadToolbox, createNewProject, getWorkspaceSvg, insertProject,
+  // Select the active tab.
+  const selectedTab = id.replace('tab_', '');
+
+  // Is this project a C source code only project?
+  const isPropcOnlyProject = (project.boardType.name === 'propcfile');
+
+  // Read the URL for experimental parameters to turn on XML editing
+  const allowXmlEditing = isExperimental.indexOf('xedit') > -1;
+
+  if (isPropcOnlyProject) {
+    // Show PropC editing UI elements
+    $('.propc-only').removeClass('hidden');
+  }
+
+  switch (selectedTab) {
+    case 'blocks':
+      logConsoleMessage('Displaying project blocks');
+      $('.blocklyToolboxDiv').css('display', 'block');
+
+      $('#content_xml').css('display', 'none');
+      $('#content_propc').css('display', 'none');
+      $('#content_blocks').css('display', 'block');
+
+      $('#btn-view-xml').css('display', 'none');
+      $('#btn-view-propc').css('display', 'inline-block');
+      $('#btn-view-blocks').css('display', 'none');
+
+      if (allowXmlEditing) {
+        if (Blockly && codeXml && codeXml.getValue().length > 40) {
+          Blockly.Xml.clearWorkspaceAndLoadFromXml(
+              Blockly.Xml.textToDom(codeXml.getValue()),
+              Blockly.mainWorkspace);
+        }
+      }
+      Blockly.svgResize(getWorkspaceSvg());
+      getWorkspaceSvg().render();
+      break;
+    case 'propc':
+      logConsoleMessage('Displaying project C source code');
+
+      $('.blocklyToolboxDiv').css('display', 'none');
+
+      $('#content_xml').css('display', 'none');
+      $('#content_propc').css('display', 'block');
+      $('#content_blocks').css('display', 'none');
+
+      $('#btn-view-xml').css(
+          'display', allowXmlEditing ? 'inline-block' : 'none');
+      $('#btn-view-blocks').css('display',
+          (isPropcOnlyProject || allowXmlEditing) ? 'none' : 'inline-block');
+
+      $('#btn-view-propc').css('display', 'none');
+
+      if (!isPropcOnlyProject) {
+        // Load C code for Ace editor
+        const rawC = prettyCode(
+            Blockly.propc.workspaceToCode(Blockly.mainWorkspace));
+        const codePropC = getSourceEditor();
+        codePropC.setValue(rawC);
+        codePropC.gotoLine(0);
+      } else {
+        if (!codePropC || codePropC.getValue() === '') {
+          codePropC.setValue(atob(
+              (project.code.match(/<field name="CODE">(.*)<\/field>/) || ['',
+                ''])[1] || ''));
+          codePropC.gotoLine(0);
+        }
+        if (codePropC.getValue() === '') {
+          let blankProjectCode = '// ------ Libraries and Definitions ------\n';
+          blankProjectCode += '#include "simpletools.h"\n\n\n';
+          blankProjectCode += '// ------ Global Variables and Objects ------';
+          blankProjectCode += '\n\n\n// ------ Main Program ------\n';
+          blankProjectCode += 'int main() {\n\n\nwhile (1) {\n\n\n}}';
+
+          const rawC = prettyCode(blankProjectCode);
+          codePropC.setValue(rawC);
+          codePropC.gotoLine(0);
+        }
+      }
+      break;
+    case 'xml':
+      $('.blocklyToolboxDiv').css('display', 'none');
+
+      $('#content_xml').css('display', 'block');
+      $('#content_propc').css('display', 'none');
+      $('#content_blocks').css('display', 'none');
+
+      $('#btn-view-xml').css('display', 'none');
+      $('#btn-view-propc').css('display', 'none');
+      $('#btn-view-blocks').css('display', 'inline-block');
+
+      // Load project code
+      codeXml.setValue(Blockly.Xml.domToPrettyText(
+          Blockly.Xml.workspaceToDom(Blockly.mainWorkspace)) || '');
+      codeXml.getSession().setUseWrapMode(true);
+      codeXml.gotoLine(0);
+      break;
+  }
+}
+
+/**
+ * Formats code in editor and sets cursor to the line is was on
+ * Used by the code formatter button in the editor UI
+ */
+const formatWizard = function() {
+  const codePropC = getSourceEditor();
+  const currentLine = codePropC.getCursorPosition()['row'] + 1;
+  codePropC.setValue(prettyCode(codePropC.getValue()));
+  codePropC.focus();
+  codePropC.gotoLine(currentLine);
 };
+
+/**
+ * Pretty formatter for C code
+ *
+ * @param {string} rawCode
+ * @return {string}
+ */
+export const prettyCode = function(rawCode) {
+  // TODO: The jsBeautifer package is NOT targeted to C source code. Replace
+  //  this functionality with something that understands C source code.
+  // improve the way functions and arrays are rendered
+  rawCode = rawCode.replace(/\)\s*[\n\r]\s*{/g, ') {')
+      .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g,
+          function(str, m1, m2) {
+            m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
+            return '[' + m1 + '] = {' + m2 + '};';
+          });
+
+  return rawCode;
+};
+
+/**
+ * Save a project to the local file system
+ */
+function downloadPropC() {
+  const project = getProjectInitialState();
+  const propcCode = Blockly.propc.workspaceToCode(Blockly.mainWorkspace);
+  const isEmptyProject = propcCode.indexOf('EMPTY_PROJECT') > -1;
+  if (isEmptyProject) {
+    // The project is empty, so warn and exit.
+    utils.showMessage(
+        Blockly.Msg.DIALOG_EMPTY_PROJECT,
+        Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT);
+  } else {
+    // Make sure the filename doesn't have any illegal characters
+    const value = sanitizeFilename(project.boardType.name);
+
+    let sideFileContent = '.c\n>compiler=C\n>memtype=cmm main ram compact\n';
+    sideFileContent += '>optimize=-Os\n>-m32bit-doubles\n>-fno-exceptions\n';
+    sideFileContent += '>defs::-std=c99\n';
+    sideFileContent += '>-lm\n>BOARD::ACTIVITYBOARD';
+
+    const fileCblob = new Blob([propcCode], {type: 'text/plain'});
+    const fileSIDEblob = new Blob(
+        [value + sideFileContent], {type: 'text/plain'});
+
+    const zip = new JSZip();
+    const sideFolder = zip.folder(value);
+    sideFolder.file(value + '.c', fileCblob);
+    sideFolder.file(value + '.side', fileSIDEblob);
+
+    // Generate the zip file
+    sideFolder.generateAsync({type: 'blob'}).then(function(blob) {
+      // Trigger the download
+      saveAs(blob, value + '.zip');
+    }, function(err) {
+      utils.showMessage(
+          Blockly.Msg.DIALOG_ERROR,
+          Blockly.Msg.DIALOG_SIDE_FILES_ERROR + err);
+    });
+  }
+}
