@@ -383,6 +383,35 @@ function logConsoleMessage(message) {
   console.log(`${stamp} ${message}`);
 }
 
+/**
+ * Sanitize a string into an OS-safe filename
+ *
+ * @param {string} input string representing a potential filename
+ * @return {string}
+ */
+export function sanitizeFilename(input) {
+  // if the input is not a string, or is an empty string, return a
+  // generic filename
+  if (typeof input !== 'string' || input.length < 1) {
+    return 'my_project';
+  }
+
+  // replace OS-illegal characters or phrases
+  input = input.replace(/[/?<>\\:*|"]/g, '_')
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\x00-\x1f\x80-\x9f]/g, '_')
+      .replace(/^\.+$/, '_')
+      .replace(/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, '_')
+      .replace(/[. ]+$/, '_');
+
+  // if the filename is too long, truncate it
+  if (input.length > 31) {
+    return input.substring(0, 30);
+  }
+
+  return input;
+}
+
 
 export {
   utils, isExperimental, getURLParameter, getAllUrlParameters,

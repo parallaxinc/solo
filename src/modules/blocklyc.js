@@ -22,26 +22,16 @@
 
 import Blockly from 'blockly/core';
 import * as Chartist from 'chartist';
-// import * as jsBeautify from 'js-beautify';
-import * as JSZip from 'jszip';
 import {saveAs} from 'file-saver';
 
-import {loadToolbox, getWorkspaceSvg} from './editor';
-import {CodeEditor, getXmlCode} from './code_editor';
-import {propToolbarButtonController} from './toolbar_controller';
+import {baudrate, getComPort} from './client_connection';
+import {clientService, serviceConnectionTypes} from './client_service';
+import {loadToolbox, prettyCode} from './editor';
+import {CodeEditor} from './code_editor';
 import {getPropTerminal} from './prop_term';
 import {getProjectInitialState} from './project';
-import {isExperimental} from './url_parameters';
 import {getSourceEditor} from './code_editor';
-import {logConsoleMessage, getURLParameter, utils} from './utility';
-
-
-/**
- * TODO: Identify the purpose of this variable
- *
- * @type {string | null}
- */
-// let codeXml = null;
+import {logConsoleMessage, getURLParameter, utils, sanitizeFilename} from './utility';
 
 
 /**
@@ -50,14 +40,6 @@ import {logConsoleMessage, getURLParameter, utils} from './utility';
  * @type {null}
  */
 let graph = null;
-
-
-/**
- * Terminal baudrate setting
- *
- * @type {number}
- */
-const baudrate = 115200;
 
 
 /**
@@ -206,165 +188,6 @@ const graph_data = {
   ],
 };
 
-
-/**
- * Switch the visible pane when a tab is clicked.
- *
- * @param {string} id ID of tab clicked.
- */
-function renderContent(id) {
-  // Get the initial project state
-  const project = getProjectInitialState();
-  const codePropC = getSourceEditor();
-  const codeXml = getXmlCode();
-
-  // Select the active tab.
-  const selectedTab = id.replace('tab_', '');
-
-  // Is this project a C source code only project?
-  const isPropcOnlyProject = (project.boardType.name === 'propcfile');
-
-  // Read the URL for experimental parameters to turn on XML editing
-  const allowXmlEditing = isExperimental.indexOf('xedit') > -1;
-
-  if (isPropcOnlyProject) {
-    // Show PropC editing UI elements
-    $('.propc-only').removeClass('hidden');
-  }
-
-  switch (selectedTab) {
-    case 'blocks':
-      logConsoleMessage('Displaying project blocks');
-      $('.blocklyToolboxDiv').css('display', 'block');
-
-      $('#content_xml').css('display', 'none');
-      $('#content_propc').css('display', 'none');
-      $('#content_blocks').css('display', 'block');
-
-      $('#btn-view-xml').css('display', 'none');
-      $('#btn-view-propc').css('display', 'inline-block');
-      $('#btn-view-blocks').css('display', 'none');
-
-      if (allowXmlEditing) {
-        if (Blockly && codeXml && codeXml.getValue().length > 40) {
-          Blockly.Xml.clearWorkspaceAndLoadFromXml(
-              Blockly.Xml.textToDom(codeXml.getValue()),
-              Blockly.mainWorkspace);
-        }
-      }
-      Blockly.svgResize(getWorkspaceSvg());
-      getWorkspaceSvg().render();
-      break;
-    case 'propc':
-      logConsoleMessage('Displaying project C source code');
-
-      $('.blocklyToolboxDiv').css('display', 'none');
-
-      $('#content_xml').css('display', 'none');
-      $('#content_propc').css('display', 'block');
-      $('#content_blocks').css('display', 'none');
-
-      $('#btn-view-xml').css('display', allowXmlEditing ? 'inline-block' : 'none');
-      $('#btn-view-blocks').css('display',
-          (isPropcOnlyProject || allowXmlEditing) ? 'none' : 'inline-block');
-
-      $('#btn-view-propc').css('display', 'none');
-
-      if (!isPropcOnlyProject) {
-        // Load C code for Ace editor
-        const rawC = prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace));
-        const codePropC = getSourceEditor();
-        codePropC.setValue(rawC);
-        codePropC.gotoLine(0);
-      } else {
-        if (!codePropC || codePropC.getValue() === '') {
-          codePropC.setValue(atob((project.code.match(/<field name="CODE">(.*)<\/field>/) || ['', ''])[1] || ''));
-          codePropC.gotoLine(0);
-        }
-        if (codePropC.getValue() === '') {
-          let blankProjectCode = '// ------ Libraries and Definitions ------\n';
-          blankProjectCode += '#include "simpletools.h"\n\n\n';
-          blankProjectCode += '// ------ Global Variables and Objects ------\n\n\n';
-          blankProjectCode += '// ------ Main Program ------\n';
-          blankProjectCode += 'int main() {\n\n\nwhile (1) {\n\n\n}}';
-
-          const rawC = prettyCode(blankProjectCode);
-          codePropC.setValue(rawC);
-          codePropC.gotoLine(0);
-        }
-      }
-      break;
-    case 'xml':
-      $('.blocklyToolboxDiv').css('display', 'none');
-
-      $('#content_xml').css('display', 'block');
-      $('#content_propc').css('display', 'none');
-      $('#content_blocks').css('display', 'none');
-
-      $('#btn-view-xml').css('display', 'none');
-      $('#btn-view-propc').css('display', 'none');
-      $('#btn-view-blocks').css('display', 'inline-block');
-
-      // Load project code
-      codeXml.setValue(Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.mainWorkspace)) || '');
-      codeXml.getSession().setUseWrapMode(true);
-      codeXml.gotoLine(0);
-      break;
-  }
-}
-
-/**
- * Formats code in editor and sets cursor to the line is was on
- * Used by the code formatter button in the editor UI
- */
-const formatWizard = function() {
-  const codePropC = getSourceEditor();
-  const currentLine = codePropC.getCursorPosition()['row'] + 1;
-  codePropC.setValue(prettyCode(codePropC.getValue()));
-  codePropC.focus();
-  codePropC.gotoLine(currentLine);
-};
-
-/**
- * Pretty formatter for C code
- *
- * @param {string} rawCode
- * @return {string}
- */
-const prettyCode = function(rawCode) {
-  // Prevent JS beautify from improperly formatting reference, dereference, and arrow operators
-  // rawCode = rawCode
-  //     .replace(/\*([_a-zA-Z()])/g, '___REFERENCE_OPERATOR___$1')
-  //     .replace(/([_a-zA-Z()])\*/g, '$1___REFERENCE_OPERATOR___')
-  //     .replace(/&([_a-zA-Z()])/g, '___DEREFERENCE_OPERATOR___$1')
-  //     .replace(/->/g, '___ARROW_OPERATOR___');
-
-  // TODO: The jsBeautifer package is NOT targeted to C source code. Replace
-  //  this functionality with something that understands C source code.
-  // run the beautifier
-  // rawCode = jsBeautify(rawCode, {
-  //   'brace_style': 'expand',
-  //   'indent_size': 2,
-  //   'preserve_newlines': true,
-  // });
-
-  // restore the reference, dereference, and arrow operators
-  // rawCode = rawCode.replace(/,\n[\s\xA0]+/g, ', ')
-  //     .replace(/___REFERENCE_OPERATOR___/g, '*')
-  //     .replace(/___DEREFERENCE_OPERATOR___/g, '&')
-  //     .replace(/___ARROW_OPERATOR___/g, '->')
-
-  // improve the way functions and arrays are rendered
-  rawCode = rawCode.replace(/\)\s*[\n\r]\s*{/g, ') {')
-      .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g,
-          function(str, m1, m2) {
-            m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
-            return '[' + m1 + '] = {' + m2 + '};';
-          });
-
-  return rawCode;
-};
-
 /**
  * Submit a project's source code to the cloud compiler
  *
@@ -434,11 +257,13 @@ function cloudCompile(text, action, successHandler) {
     }
 
     // Post the code to the compiler API and await the results
+    logConsoleMessage(`Requesting compiler service`);
     $.ajax({
       'method': 'POST',
       'url': postUrl,
       'data': {'code': propcCode},
     }).done(function(data) {
+      logConsoleMessage(`Receiving compiler service results`);
       // The compiler will return one of three payloads:
       // Compile-only
       // data = {
@@ -481,9 +306,17 @@ function cloudCompile(text, action, successHandler) {
         compileConsoleScrollToBottom();
       }
     }).fail(function(data) {
-      // Data appears to be an HTTP response object
+      // Something unexpected has happened while calling the compile service
       if (data) {
-        const message = 'A compiler server error "' + data.status + '" has been detected.';
+        const state = data.state();
+        let message = 'Unable to compile the project.\n';
+        logConsoleMessage(`Compiler service request failed: ${data.state()}`);
+        if (state === 'rejected') {
+          message += '\nThe compiler service is temporarily unavailable or unreachable.';
+          message += '\nPlease try again in a few moments.';
+        } else {
+          message += 'Error "' + data.status + '" has been detected.';
+        }
         appendCompileConsoleMessage(message);
       }
     });
@@ -493,7 +326,7 @@ function cloudCompile(text, action, successHandler) {
 /**
  * Stub function to the cloudCompile function
  */
-function compile() {
+export function compile() {
   cloudCompile('Compile', 'compile', null);
 }
 
@@ -608,8 +441,7 @@ export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
 /**
  * Serial console support
  */
-// eslint-disable-next-line camelcase,require-jsdoc
-function serialConsole() {
+export function serialConsole() {
   clientService.sendCharacterStreamTo = 'term';
 
   // HTTP client
@@ -736,12 +568,12 @@ function displayTerminalConnectionStatus(connectionInfo) {
  * Graphing console
  */
 // eslint-disable-next-line camelcase,require-jsdoc
-function graphingConsole() {
+export function graphingConsole() {
   clientService.sendCharacterStreamTo = 'graph';
 
   if (getGraphSettingsFromBlocks()) {
     if (graph === null) {
-      graph_reset();
+      graphReset();
       graphTempString = '';
       graph = new Chartist.Line('#serial_graphing', graph_data, graph_options);
       if (getURLParameter('debug')) {
@@ -775,14 +607,14 @@ function graphingConsole() {
       connection.onmessage = function(e) {
         const charBuffer = atob(e.data);
         if (connStrYet) {
-          graph_new_data(charBuffer);
+          graphNewData(charBuffer);
         } else {
           connString += charBuffer;
           if (connString.indexOf(baudrate.toString(10)) > -1) {
             connStrYet = true;
             displayTerminalConnectionStatus(connString.trim());
           } else {
-            graph_new_data(charBuffer);
+            graphNewData(charBuffer);
           }
         }
       };
@@ -944,7 +776,7 @@ function getGraphSettingsFromBlocks() {
  *     pause
  *     clear
  */
-const graphStartStop = function(action) {
+export const graphStartStop = function(action) {
   if (action === 'start' || action === 'play') {
     graph_new_labels();
     // eslint-disable-next-line camelcase
@@ -964,15 +796,15 @@ const graphStartStop = function(action) {
   if (action === 'stop') {
     // eslint-disable-next-line camelcase
     graph_paused = false;
-    graph_reset();
-    graph_play('play');
+    graphReset();
+    graphPlay('play');
   }
   if (action === 'clear') {
-    graph_reset();
+    graphReset();
   }
   if (action === 'play') {
     if (graph_data.series[0].length === 0) {
-      graph_reset();
+      graphReset();
     }
     // eslint-disable-next-line camelcase
     graph_paused = false;
@@ -993,111 +825,12 @@ const graphStartStop = function(action) {
 };
 
 /**
- * Update the list of serial ports available on the host machine
- * NOTE: This function is used by the BP-Client only.
- */
-const checkForComPorts = function() {
-  try {
-    if (clientService.type === serviceConnectionTypes.HTTP) {
-      $.get(clientService.url('ports.json'), function(data) {
-        logConsoleMessage('Getting a port list');
-        setPortListUI(data);
-      }).fail(function() {
-        setPortListUI(null);
-      }).always(function(data) {
-        logConsoleMessage(`The data is: ${data}`);
-      });
-    }
-  } catch (e) {
-    logConsoleMessage('Unable to get port list. ' + e.message);
-    setPortListUI(null);
-  }
-};
-
-/**
- * Return the selected com port name
- *
- * @return {string}
- */
-export const getComPort = function() {
-  const commPortSelection = $('#comPort').val();
-  if (commPortSelection === Blockly.Msg.DIALOG_PORT_SEARCHING || commPortSelection === Blockly.Msg.DIALOG_NO_DEVICE) {
-    return 'none';
-  } else {
-    return commPortSelection;
-  }
-};
-
-/**
- * Save a project to the local file system
- */
-function downloadPropC() {
-  const project = getProjectInitialState();
-  const propcCode = Blockly.propc.workspaceToCode(Blockly.mainWorkspace);
-  const isEmptyProject = propcCode.indexOf('EMPTY_PROJECT') > -1;
-  if (isEmptyProject) {
-    // The project is empty, so warn and exit.
-    utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_SAVE_EMPTY_PROJECT);
-  } else {
-    // Make sure the filename doesn't have any illegal characters
-    const value = sanitizeFilename(project.boardType.name);
-
-    let sideFileContent = '.c\n>compiler=C\n>memtype=cmm main ram compact\n';
-    sideFileContent += '>optimize=-Os\n>-m32bit-doubles\n>-fno-exceptions\n>defs::-std=c99\n';
-    sideFileContent += '>-lm\n>BOARD::ACTIVITYBOARD';
-
-    const fileCblob = new Blob([propcCode], {type: 'text/plain'});
-    const fileSIDEblob = new Blob([value + sideFileContent], {type: 'text/plain'});
-
-    const zip = new JSZip();
-    const sideFolder = zip.folder(value);
-    sideFolder.file(value + '.c', fileCblob);
-    sideFolder.file(value + '.side', fileSIDEblob);
-
-    sideFolder.generateAsync({type: 'blob'}).then(function(blob) { // 1) generate the zip file
-      saveAs(blob, value + '.zip');                                 // 2) trigger the download
-    }, function(err) {
-      utils.showMessage(Blockly.Msg.DIALOG_ERROR, Blockly.Msg.DIALOG_SIDE_FILES_ERROR + err);
-    });
-  }
-}
-
-/**
- * Sanitize a string into an OS-safe filename
- *
- * @param {string} input string representing a potential filename
- * @return {string}
- */
-function sanitizeFilename(input) {
-  // if the input is not a string, or is an empty string, return a
-  // generic filename
-  if (typeof input !== 'string' || input.length < 1) {
-    return 'my_project';
-  }
-
-  // replace OS-illegal characters or phrases
-  input = input.replace(/[/?<>\\:*|"]/g, '_')
-      // eslint-disable-next-line no-control-regex
-      .replace(/[\x00-\x1f\x80-\x9f]/g, '_')
-      .replace(/^\.+$/, '_')
-      .replace(/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, '_')
-      .replace(/[. ]+$/, '_');
-
-  // if the filename is too long, truncate it
-  if (input.length > 31) {
-    return input.substring(0, 30);
-  }
-
-  return input;
-}
-
-/**
  * Graph the data represented in the stream parameter
  *
  * @param {string} stream
  */
 // eslint-disable-next-line camelcase,require-jsdoc
-function graph_new_data(stream) {
+export function graphNewData(stream) {
   // Check for a failed connection:
   if (stream.indexOf('ailed') > -1) {
     displayTerminalConnectionStatus(stream);
@@ -1212,7 +945,7 @@ function graph_new_data(stream) {
  * Reset the graphing system
  */
 // eslint-disable-next-line camelcase,require-jsdoc
-function graph_reset() {
+export function graphReset() {
   graph_temp_data.length = 0;
   graph_csv_data.length = 0;
   for (let k = 0; k < 10; k++) {
@@ -1237,8 +970,7 @@ function graph_reset() {
  *
  * @param {string} setTo
  */
-// eslint-disable-next-line camelcase,require-jsdoc
-function graph_play(setTo) {
+export function graphPlay(setTo) {
   if (document.getElementById('btn-graph-play')) {
     // eslint-disable-next-line camelcase
     const play_state = document.getElementById('btn-graph-play').innerHTML;
@@ -1260,8 +992,7 @@ function graph_play(setTo) {
 /**
  * Save a graph to the local file system
  */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-function downloadGraph() {
+export function downloadGraph() {
   utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_GRAPH_DIALOG, 'BlocklyProp_Graph', function(value) {
     if (value) {
       // Make sure filename is safe
@@ -1297,7 +1028,7 @@ function downloadGraph() {
 /**
  * Download the graph as a csv file to the local file system
  */
-function downloadCSV() {
+export function downloadCSV() {
   utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG, 'BlocklyProp_Data', function(value) {
     if (value) {
       // Make sure filename is safe
@@ -1363,86 +1094,11 @@ function graph_update_labels() {
   }
 }
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-
 /**
- * Initialize Blockly
- *
- * Called on page load. Loads a Blockly project onto the editor pallet
- *
- * @param {!Blockly} blockly Instance of Blockly from iframe.
- * @deprecated use the CodeEditor class
+ * Blockly initialization
+ * @param {!Blockly} data is the global blockly object
  */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-/*
-function initOldVersionCode(blockly) {
-  const codePropC = getSourceEditor();
-  const project = getProjectInitialState();
-  if (!codePropC) {
-    // codePropC = new CodeEditor('propcfile');
-    // codePropC = ace.edit('code-propc');
-    const code = ace.edit('code-propc');
-    setPropCCode(code);
-
-    codePropC.setTheme('ace/theme/chrome');
-    codePropC.getSession().setMode('ace/mode/c_cpp');
-    codePropC.getSession().setTabSize(2);
-    codePropC.$blockScrolling = Infinity;
-    codePropC.setReadOnly(true);
-
-    // if the project is a propc code-only project, enable code editing.
-    if (project.boardType.name === 'propcfile') {
-      codePropC.setReadOnly(false);
-    }
-  }
-
-  if (!codeXml && isExperimental.indexOf('xedit') > -1) {
-    codeXml = ace.edit('code-xml');
-    codeXml.setTheme('ace/theme/chrome');
-    codeXml.getSession().setMode('ace/mode/xml');
-  }
-
-  window.Blockly = blockly;
-
-  // TODO: Replace string length check with code that detects the first <block> xml element.
-  if (project) {
-    // Looking for the first <block> XML element
-    const searchTerm = '<block';
-
-    if (!project.code || project.code.indexOf(searchTerm) < 0) {
-      project.code = EMPTY_PROJECT_CODE_HEADER + '</xml>';
-    }
-    if (project.boardType.name !== 'propcfile') {
-      loadToolbox(project.code);
-    }
-  }
-}
-*/
-
-/**
- * Replacement function for the Blockly initialization function init().
- * @param {Blockly} data
- */
-function initializeBlockly(data) {
-  init(data);
-}
-
-/**
- * Initialize Blockly
- *
- * Called on page load. Loads a Blockly project onto the editor pallet
- *
- * @param {!Blockly} blockly Instance of Blockly from iframe.
- */
-function init(blockly) {
-  // TODO: window.Blockly should already be a thing at this point.
-  // window.Blockly = blockly;
+export function initializeBlockly(data) {
   const project = getProjectInitialState();
   if (project) {
     if (project.boardType.name !== 'propcfile') {
@@ -1452,349 +1108,11 @@ function init(blockly) {
   }
 }
 
-// ---------------------------------------
-
-/**
- * These are the permitted states of the clientService.type property
- *
- * @type {{
- *    NONE: string,
- *    HTTP: string,
- *    WS: string
- *  }}
- */
-const serviceConnectionTypes =  {
-  // Constants for the type property
-  HTTP: 'http',
-  WS: 'ws',
-  NONE: '',
-};
-
-/**
- * Client Service Object
- */
-const clientService = {
-  /**
-   * Has a client (BPC/BPL) successfully connected?
-   * @type {boolean}
-   * @description Seems that the fact that the connection is available is
-   * mirrored in the state of the activeConnection. If activeConnection is
-   * null, 'available' must necessarily be false. Conversely, if
-   * active connection is not null, the 'available' flag must be true.
-   * However, in the case where the browser is connected to a BP Client,
-   * the activeConnection will be null since there is no WebSocket object
-   * available. So it seems that we might need a virtual field to determine
-   * if there is a connection to a BP Client.
-   */
-  available: false,
-
-  /**
-   * Are any serial ports enumerated
-   * @type {boolean}
-   */
-  portsAvailable: false,
-
-  /**
-   * This is the URL portion of the address to open the connection. The default
-   * is 'localhost', but can be configured to point to a client at any
-   * reachable IP/DNS address.
-   * @type {string}
-   */
-  path: 'localhost',
-
-  /**
-   *  BlocklyProp Client/Launcher port number
-   * @type {number}
-   */
-  port: 6009,
-
-
-  /**
-   * Connection type: "ws", "http", or ''
-   * @type {string}
-   * @description The value of this field must be one of the
-   * SERVICE_CONNECTION_TYPE_xxx constants are defined in the
-   * serviceConnectionTypes object.
-   */
-  type: serviceConnectionTypes.NONE,
-
-  /**
-   * BP Launcher full base64 encoding support flag
-   * @type {boolean}
-   */
-  rxBase64: true,
-
-  /**
-   * BP Launcher download message flag
-   * @type {boolean}
-   */
-  loadBinary: false,
-
-  /**
-   * BP Launcher result messages log
-   * @type {string}
-   */
-  resultLog: '',
-
-  /**
-   * This is set to 0 each time the port list is received, and incremented
-   * once each heartbeat
-   * @type {number}
-   */
-  portListReceiveCountUp: 0,
-
-  /**
-   * Used differently by BPL and BPC - pointer to connection object
-   * @type {WebSocket | null}
-   * @description In the context of the BlocklyProp Launcher, activeConnection
-   * holds a copy of the WebSocket connection object or null if there is not
-   * an active WebSocket connection
-   */
-  activeConnection: null,
-
-  /**
-   * @type {string | null}
-   * @description Flag to inform connection methods which modal/class to send
-   * characters to be displayed to. Possible settings are:
-   *  null - do not stream characters
-   *  "term" - Stream characters to a terminal session
-   *  "graph" - Stream characters to a graphing session
-   */
-  sendCharacterStreamTo: null,
-
-  /**
-   * The current list of ports available to receive program load commands
-   */
-  portList: [],
-
-  /**
-   * Set a custom URL used to contact the BP Launcher
-   * @param {string=} location is the custom URL
-   * @param {string=} protocol is one of 'http', 'https', or 'ws'
-   * @return {string}
-   */
-  url: function(location, protocol) {
-    return (protocol || window.location.protocol.replace(':', '')) + '://' + this.path + ':' + this.port + '/' + (location || '');
-  },
-
-  /**
-   * Test for port list timeout
-   * @return {boolean}
-   */
-  isPortListTimeOut: function() {
-    return this.portListReceiveCountUp > 3;
-  },
-
-  /**
-   * Version object
-   */
-  version: {
-    /**
-     * {string} Constant Semantic versioning, minimum client (BPL/BPC) allowed
-     */
-    MINIMUM_ALLOWED: '0.7.0',
-
-    /**
-     * {string} Constant Semantic versioning, minimum recommended client/launcher version
-     */
-    RECOMMENDED: '0.11.0',
-
-    /**
-     * {string} Constant Semantic versioning, Minimum client/launcher version
-     * supporting coded/verbose responses.
-     * NOTE: (remove after MINIMUM_ALLOWED > this)
-     */
-    CODED_MINIMUM: '0.7.5',
-
-    current: '0.0.0',         // {string} Semantic versioning, Current version
-    currentAsNumber: 0,       // {number} Version as an integer calulated from string representation
-    isValid: false,           // {boolean} current >= MINIMUM_ALLOWED
-    isRecommended: false,     // {boolean} current >= RECOMMENDED
-    isCoded: false,           // {boolean} current >= CODED_MINIMUM
-
-    /**
-     * Returns integer calculated from passed in string representation of version
-     * @param {number} rawVersion
-     * @return {number}
-     */
-    getNumeric: function(rawVersion) {
-      let tempVersion = rawVersion.toString().split('.');
-      tempVersion.push('0');
-
-      if (tempVersion.length < 3) {
-        if (tempVersion.length === 1) {
-          tempVersion = '0.0.0';
-        } else {
-          tempVersion.unshift('0');
-        }
-      }
-
-      // Allow for any of the three numbers to be between 0 and 1023.
-      // Equivalent to: (Major * 104856) + (Minor * 1024) + Revision.
-      return (Number(tempVersion[0]) << 20 | Number(tempVersion[1]) << 10 | Number(tempVersion[2]));
-    },
-
-    /**
-     * Sets self-knowledge of current client/launcher version.
-     * @param {number} rawVersion
-     */
-    set: function(rawVersion) {
-      this.current = rawVersion;
-      this.currentAsNumber = this.getNumeric(rawVersion);
-      this.isValid = (this.getNumeric(rawVersion) >= this.getNumeric(this.MINIMUM_ALLOWED));
-      this.isRecommended = (this.getNumeric(rawVersion) >= this.getNumeric(this.RECOMMENDED));
-      this.isCoded = (this.getNumeric(rawVersion) >= this.getNumeric(this.CODED_MINIMUM));   // remove after MINIMUM_ALLOWED is greater
-    },
-  },
-
-  /**
-   * Close the current connection and notify interested parties.
-   */
-  closeConnection: function() {
-    logConsoleMessage('Closing the WS connection');
-    if (this.activeConnection) {
-      logConsoleMessage(`WS connection is active. Ready: ${this.activeConnection.readyState}`);
-      this.activeConnection.close(1000, 'Normal closure');
-      this.activeConnection = null;
-    } else {
-      logConsoleMessage('WS connection is null');
-    }
-    this.available = false;
-    this.portsAvailable = false;
-  },
-};
-
-/**
- *  Connect to the BP-Launcher or BlocklyProp Client
- */
-const findClient = function() {
-  if (clientService.activeConnection) {
-    return;
-  }
-
-  // Try to connect to the BP-Launcher (websocket) first
-  // TODO: evaluation is always true, probably not what we want here.
-  logConsoleMessage(`Finding a client`);
-  if (!clientService.available &&
-      clientService.type !== serviceConnectionTypes.HTTP) {
-    logConsoleMessage('Connecting to Launcher client');
-    establishBPLauncherConnection();
-  }
-
-  // Check how much time has passed since the port list was received from the BP-Launcher
-  if (clientService.type === serviceConnectionTypes.WS) {
-    clientService.portListReceiveCountUp++;
-    // Is the BP-Launcher taking to long to respond?  If so, close the connection
-    if (clientService.isPortListTimeOut()) {
-      logConsoleMessage('Timeout waiting for client port list!');
-      clientService.closeConnection();
-      // Update the toolbar
-      propToolbarButtonController();
-
-      // TODO: check to see if this is really necessary - it get's called by the WS onclose handler
-      lostWSConnection();
-    }
-  }
-
-  // BP-Launcher not found? Try connecting to the BP-Client
-  setTimeout(function() {
-    if (clientService.type !== serviceConnectionTypes.WS) {
-      logConsoleMessage('Trying to connect to the BP Client.');
-      establishBPClientConnection();
-    }
-  }, 1000);
-
-  // If connected to the BP-Client, poll for an updated port list
-  if (clientService.type === serviceConnectionTypes.HTTP) {
-    logConsoleMessage('From findClient(): looking for com ports');
-    checkForComPorts();
-  }
-};
-
-/**
- * checkClientVersionModal
- * Displays a modal with information about the client version if the one
- * being used is outdated. If the version is below the recommended version,
- * the user is warned, and versions below the minimum are alerted.
- * @param {string} rawVersion A string representing the client version in
- *  '0.0.0' format (Semantic versioning)
- */
-function checkClientVersionModal(rawVersion) {
-  // Record the version reported by the client
-  if (rawVersion) {
-    clientService.version.set(rawVersion);
-  }
-  if (!clientService.version.isRecommended) {
-    $('.bpc-version').addClass('hidden');
-
-    if (clientService.version.currentAsNumber === 0) {
-      $('#client-unknown-span').removeClass('hidden');
-    } else if (clientService.version.isValid) {
-      $('#client-warning-span').removeClass('hidden');
-    } else {
-      $('#client-danger-span').removeClass('hidden');
-    }
-
-    $('.client-required-version').html(clientService.version.RECOMMENDED);
-    if (clientService.version.currentAsNumber === 0) {
-      $('.client-your-version').html('<b>UNKNOWN</b>');
-    } else {
-      $('.client-your-version').html(clientService.version.current);
-    }
-    $('#client-version-modal').modal('show');
-  }
-}
-
-/**
- * @typedef {Object} BPClientDataBlock
- * @property {number} version
- * @property {string} version_str
- * @property {string} server
- */
-/**
- * Establish a connection to the BlocklyProp-Client (BPC) application
- * Retrieves the BPC's version
- * Sets parameters in the clientService object
- * Calls UI configuration functions
- */
-const establishBPClientConnection = function() {
-  logConsoleMessage('establishBPConnection: entry');
-  // Load data from the server using a HTTP GET request.
-  $.get(clientService.url(), function(/* @type BPClientDataBlock */ data) {
-    // {version: 0.7, version_str: "0.7.5", server: "BlocklyPropHTTP"}
-    logConsoleMessage(`Connected to client?: ${data.version_str}`);
-    if (!clientService.available) {
-      let clientVersionString = (typeof data.version_str !== 'undefined') ? data.version_str : data.version;
-      logConsoleMessage(`Client version is: ${clientVersionString}`);
-
-      if (!data.server || data.server !== 'BlocklyPropHTTP') {
-        clientVersionString = '0.0.0';
-      }
-      checkClientVersionModal(clientVersionString);
-      clientService.type = serviceConnectionTypes.HTTP;
-      clientService.available = true;         // Connected to the Launcher/Client
-    }
-  }).fail(function() {
-    logConsoleMessage('Failed to open client connection');
-    clientService.type = serviceConnectionTypes.NONE;
-    clientService.available = false;            // Not connected to the Launcher/Client
-    clientService.portsAvailable = false;
-  }).always( function() {
-    // Update the toolbar no mater what happens
-    logConsoleMessage('Updating toolbar after client connection.');
-    propToolbarButtonController();
-  });
-};
-
-
 /**
  * Create a modal that allows the user to set a different port or path
  * to the BlocklyProp-Client or -Launcher
- *
- * TODO: Add fields for setting a different path to the compile service (for anyone wanting to host their own)
  */
-// eslint-disable-next-line no-unused-vars
-const configureConnectionPaths = function() {
+export const configureConnectionPaths = function() {
   // All of this code is building the UI for the Configure
   // BlocklyProp Client dialog.
   const pathPortInput = $('<form/>', {
@@ -1849,286 +1167,10 @@ const configureConnectionPaths = function() {
 };
 
 /**
- * Data returned from the web socket for type 'port-list'
- * @typedef WebSocketMessagePortList
- * @type {string} type
- * @type {Array} ports
- */
-
-/**
- * @typedef WebSocketHelloMessage
- * @type {string} type contains the message text
- * @type {number} baud contains the default baud rate
- * @description This is the format of the object passed into a newly opened
- * WebSocket connection.
- */
-
-/**
- * Constant used in connection init sequence in BP Launcher
- * @type {string}
- */
-const WS_TYPE_HELLO_MESSAGE           = 'hello-client';
-const WS_TYPE_LIST_PORT_MESSAGE       = 'port-list';
-const WS_TYPE_SERIAL_TERMINAL_MESSAGE = 'serial-terminal';
-const WS_TYPE_UI_COMMAND              = 'ui-command';
-
-const WS_ACTION_ALERT                 = 'alert';
-const WS_ACTION_OPEN_TERMINAL         = 'open-terminal';
-const WS_ACTION_CLOSE_TERMINAL        = 'close-terminal';
-const WS_ACTION_OPEN_GRAPH            = 'open-graph';
-const WS_ACTION_CLOSE_GRAPH           = 'close-graph';
-const WS_ACTION_CLEAR_COMPILE         = 'clear-compile';
-const WS_ACTION_MESSAGE_COMPILE       = 'message-compile';
-const WS_ACTION_CLOSE_COMPILE         = 'close-compile';
-const WS_ACTION_CONSOLE_LOG           = 'console-log';
-const WS_ACTION_CLOSE_WEBSOCKET       = 'websocket-close';
-
-/**
- * Checks for and, if found, uses a newer WebSockets-only client
- *
- * TODO: Refactor this function to use switch statements and sub-functions
- *  to make clear what this function is really doing.
- */
-function establishBPLauncherConnection() {
-  logConsoleMessage(`In BPLauncherConnection`);
-  if (!clientService.available) {
-    let connection;
-
-    // Clear the port list
-    clientService.portList = [];
-
-    try {
-      connection = new WebSocket(clientService.url('', 'ws'));
-    } catch (e) {
-      logConsoleMessage(`Unable to connect to the launcher: ${e.message}`);
-      return;
-    }
-
-    // Callback executed when the connection is opened
-    connection.onopen = function(event) {
-      logConsoleMessage(`Socket connection opened. Connection state: ${connection.readyState.toString()}`);
-      if (! clientService.activeConnection) {
-        logConsoleMessage('WS connection onOpen but there is no activeConnection object');
-        clientService.closeConnection();
-      }
-      /**
-       * Web Socket greeting message object
-       * @type WebSocketHelloMessage
-       */
-      const wsMessage = {
-        type: 'hello-browser',
-        baud: baudrate,
-      };
-      clientService.activeConnection = connection;
-      connection.send(JSON.stringify(wsMessage));
-    };
-
-    // Log errors
-    connection.onerror = function(error) {
-      // Only display a message on the first attempt
-      if (clientService.type !== serviceConnectionTypes.NONE) {
-        logConsoleMessage('Unable to find websocket client');
-        connection.close();
-      } else {
-        logConsoleMessage('Websocket Communication Error');
-        logConsoleMessage(error.message);
-      }
-    };
-
-    // handle messages from the client
-    connection.onmessage = function(e) {
-      const wsMessage = JSON.parse(e.data);
-
-      if (wsMessage.type === WS_TYPE_HELLO_MESSAGE) {
-        // --- hello handshake - establish new connection
-        // type: 'hello-client',
-        // version: [String version (semantic versioning)]
-        // rxBase64: [boolean, accepts base64-encoded serial streams (all versions transmit base64)]
-        checkClientVersionModal(wsMessage.version);
-        logConsoleMessage('Websocket client/launcher found - version ' + wsMessage.version);
-        clientService.rxBase64 = wsMessage.rxBase64 || false;
-        clientService.type = serviceConnectionTypes.WS;
-        clientService.available = true;
-        // Request a port list from the server
-        connection.send(JSON.stringify({
-          type: 'port-list-request',
-          msg: 'port-list-request',
-        }));
-      } else if (wsMessage.type === WS_TYPE_LIST_PORT_MESSAGE) {
-        // wsMessage.ports
-        // {"type":"port-list","ports":["cu.usbserial-DN0286UD"]}
-        // wsMessage.ports is a array of available ports
-
-        clientService.portList = [];
-        if (wsMessage.ports.length > 0) {
-          wsMessage.ports.forEach(function(port) {
-            clientService.portList.push(port);
-          });
-        }
-        setPortListUI();
-        clientService.portListReceiveCountUp = 0;
-      } else if (wsMessage.type === WS_TYPE_SERIAL_TERMINAL_MESSAGE &&
-          (typeof wsMessage.msg === 'string' || wsMessage.msg instanceof String)) {
-        // --- serial terminal/graph
-        // sometimes some weird stuff comes through...
-        // type: 'serial-terminal'
-        // msg: [String Base64-encoded message]
-
-        let messageText;
-        try {
-          messageText = atob(wsMessage.msg);
-        } catch (error) {
-          // only show the error if it's something other than base-64 encoding
-          if (error.toString().indexOf('\'atob\'') < 0) {
-            console.error(error);
-          }
-          messageText = wsMessage.msg;
-        }
-
-        if (clientService.sendCharacterStreamTo && messageText !== '' && wsMessage.packetID) {
-          // is the terminal open?
-          if (clientService.sendCharacterStreamTo === 'term') {
-            const pTerm = getPropTerminal();
-            pTerm.display(messageText);
-            pTerm.focus();
-          } else {    // is the graph open?
-            graph_new_data(messageText);
-          }
-        }
-
-        // --- UI Commands coming from the client
-      } else if (wsMessage.type === WS_TYPE_UI_COMMAND) {
-        // type: 'ui-command',
-        // action: [
-        //  'open-terminal',
-        //  'open-graph',
-        //  'close-terminal',
-        //  'close-graph',
-        //  'close-compile',
-        //  'clear-compile',
-        //  'message-compile',
-        //  'alert'
-        //  ],
-        // msg: [String message]
-
-        switch (wsMessage.action) {
-          case WS_ACTION_OPEN_TERMINAL:
-            serialConsole();
-            break;
-
-          case WS_ACTION_OPEN_GRAPH:
-            graphingConsole();
-            break;
-
-          case WS_ACTION_CLOSE_TERMINAL:
-            $('#console-dialog').modal('hide');
-            clientService.sendCharacterStreamTo = null;
-            getPropTerminal().display(null);
-            break;
-
-          case WS_ACTION_CLOSE_GRAPH:
-            $('#graphing-dialog').modal('hide');
-            clientService.sendCharacterStreamTo = null;
-            graph_reset();
-            break;
-
-          case WS_ACTION_CLEAR_COMPILE:
-            $('#compile-console').val('');
-            break;
-
-          case WS_ACTION_MESSAGE_COMPILE:
-            wsCompileMessageProcessor(wsMessage);
-            break;
-
-          case WS_ACTION_CLOSE_COMPILE:
-            $('#compile-dialog').modal('hide');
-            $('#compile-console').val('');
-            break;
-
-          case WS_ACTION_CONSOLE_LOG:
-            logConsoleMessage(wsMessage.msg);
-            break;
-
-          case WS_ACTION_CLOSE_WEBSOCKET:
-            logConsoleMessage('Received a WS Close connection from server');
-            clientService.closeConnection();
-            propToolbarButtonController();
-            break;
-
-          case WS_ACTION_ALERT:
-            utils.showMessage(Blockly.Msg.DIALOG_BLOCKLYPROP_LAUNCHER, wsMessage.msg);
-            break;
-
-          default:
-            logConsoleMessage(`Unknown message received: ${wsMessage.msg}`);
-        }
-
-        // --- older client - disconnect it?
-      } else {
-        logConsoleMessage('Unknown WS msg: ' + JSON.stringify(wsMessage));
-      }
-    };
-
-    connection.onclose = function(event) {
-      logConsoleMessage(`Closing WS: ${event.code}, ${event.message}`);
-      lostWSConnection();
-    };
-  }
-}
-
-// Status Notice IDs
-const NS_DOWNLOADING          = 2;
-const NS_DOWNLOAD_SUCCESSFUL  = 5;
-
-// Error Notice IDs
-const NE_DOWNLOAD_FAILED      = 102;
-
-/**
- * Process a loader message
- * @param {object} message
- */
-function wsCompileMessageProcessor(message) {
-  const [command, text] = parseCompileMessage(message.msg);
-  if (command === NS_DOWNLOAD_SUCCESSFUL) {
-    appendCompileConsoleMessage('Succeeded');
-  } else {
-    // If the download is still happening and the stream is not binary,
-    // append the received text to the result log
-    if (!clientService.loadBinary) {
-      clientService.resultLog = clientService.resultLog + text + '\n';
-      clientService.loadBinary = command !== NS_DOWNLOADING;
-    }
-  }
-  if (command === NE_DOWNLOAD_FAILED) {
-    appendCompileConsoleMessage(
-        ` Failed!\n\n-------- loader messages --------\n${clientService.resultLog}`);
-  } else {
-    appendCompileConsoleMessage('.');
-  }
-  compileConsoleScrollToBottom();
-}
-
-/**
- * Split the compiler message into it's component parts
- * @param {string} message
- * @return {Array}
- * @description The message is formatted as 'nnn-ttttttt...'. Where n is a
- * three digit message mumber and t is the texts of the message. For example:
- * // 000-Scanning port cu.usbserial-DN0286UD
- */
-function parseCompileMessage(message) {
-  const result = [];
-  result.push(parseInt(message.substring(0, 4)));
-  result.push(message.substr(5));
-  return result;
-}
-
-
-/**
  * Append text to the compiler progress dialog window
  * @param {string} message
  */
-function appendCompileConsoleMessage(message) {
+export function appendCompileConsoleMessage(message) {
   $('#compile-console').val($('#compile-console').val() + message);
 }
 
@@ -2136,126 +1178,7 @@ function appendCompileConsoleMessage(message) {
  * Scroll to the bottom of the compiler output dialog
  * @description UI code to scroll the text area to the bottom line
  */
-function compileConsoleScrollToBottom() {
+export function compileConsoleScrollToBottom() {
   const compileConsoleObj = document.getElementById('compile-console');
   compileConsoleObj.scrollTop = compileConsoleObj.scrollHeight;
 }
-
-/**
- * Lost websocket connection, clean up and restart findClient processing
- */
-function lostWSConnection() {
-  logConsoleMessage(`Lost WS connection`);
-  if (clientService.type !== serviceConnectionTypes.HTTP) {
-    if (clientService.activeConnection) {
-      logConsoleMessage(`Closing socket: ReadyState is:
-     ${clientService.activeConnection.readyState}`);
-    }
-    logConsoleMessage(`Nulling the active connection`);
-    clientService.activeConnection = null;
-    clientService.type = serviceConnectionTypes.NONE;
-    clientService.available = false;
-  }
-  // Clear ports list
-  clientService.portList = [];
-  setPortListUI();
-
-  // Set the compiler toolbar elements
-  propToolbarButtonController();
-}
-
-/**
- * Set communication port list. Leave data unspecified when searching
- *
- * @param {Array | null} data
- */
-const setPortListUI = function(data = null) {
-  if (! data) {
-    data = clientService.portList;
-  }
-  // TODO: why are we doing this?
-  clearComPortUI();
-
-  // We must have a non-empty array to work from
-  if (typeof (data) === 'object' && data.length > 0) {
-    data.forEach(function(port) {
-      addComPortDeviceOption(port);
-    });
-    clientService.portsAvailable = true;
-  } else {
-    // port list is empty, populate it
-    addComPortDeviceOption(clientService.available ?
-        Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
-    clientService.portsAvailable = false;
-  }
-  // Update the toolbar UI
-  propToolbarButtonController();
-};
-
-/**
- *  Clear the com port drop-down
- *
- * @return {string | jQuery} the currently selected value in the drop-down
- * before the element is cleared.
- */
-function clearComPortUI() {
-  const portUI = $('#comPort');
-  if (portUI) {
-    try {
-      const port = portUI.val();
-      portUI.empty();
-      return port;
-    } catch (e) {
-      if (e) {
-        logConsoleMessage('Error: ' + e.message);
-      }
-    }
-  }
-
-  portUI.empty();
-  return null;
-}
-
-/**
- * Set the selected element in the com port dropdown list
- * @param {string | null} comPort
- */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-function selectComPort(comPort) {
-  const uiComPort = $('#comPort');
-  // A valid com port has been selected
-  if (comPort !== null) {
-    uiComPort.val(comPort);
-    return;
-  }
-
-  // Com port is null. Select first com port as a default
-  if (uiComPort.val() === null) {
-    const options = $('#comPort option');
-    if (options.length > 0) {
-      uiComPort.val($('#comPort option:first').text());
-    }
-  }
-}
-
-/**
- *  Add a device port to the Com Port drop-down list
- *
- * @param {string }port
- */
-function addComPortDeviceOption(port) {
-  if (typeof(port) === 'string') {
-    $('#comPort').append($('<option>', {text: port}));
-  }
-}
-
-
-// -------------------------------
-
-export {
-  clientService, serviceConnectionTypes,
-  compile,  init, renderContent, downloadCSV, initializeBlockly,
-  sanitizeFilename, findClient, formatWizard, serialConsole,
-  graphingConsole, configureConnectionPaths, downloadPropC,
-};
-

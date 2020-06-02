@@ -33,7 +33,7 @@ import {resetToolBoxSizing, displayProjectName} from './editor.js';
 
 import {isExperimental} from './url_parameters.js';
 import {getProjectInitialState, ProjectProfiles} from './project.js';
-import {projectJsonFactory} from './project';
+import {Project, projectJsonFactory} from './project';
 
 // eslint-disable-next-line camelcase
 import {page_text_label} from './blockly/language/en/messages.js';
@@ -65,7 +65,7 @@ export function newProjectModal() {
               if (result) {
                 reject( new Error('User wishes to keep existing project'));
               } else {
-                resolve('Discard current project');
+                resolve(true);
               }
             },
             'Cancel',
@@ -75,17 +75,14 @@ export function newProjectModal() {
     };
 
     promiseFn()
-        .then(logConsoleMessage)
+        .then(() => {
+          logConsoleMessage(`Opening New Project modal...`);
+          showNewProjectModal();
+        })
         .catch((e) => {
           logConsoleMessage(`ThenCatch: ${e.message}`);
         });
   } else {
-    // Reset the values in the form to defaults
-    $('#new-project-name').val('');
-    $('#new-project-description').val('');
-    $('#new-project-dialog-title')
-        .html(page_text_label['editor_new_project_title']);
-
     // Open up a modal window to get new project details.
     showNewProjectModal();
   }
@@ -103,6 +100,8 @@ export function newProjectModal() {
  *  update the global project object with a new, empty project.
  */
 function showNewProjectModal() {
+  resetNewProjectModalUI();
+
   // Set up element event handlers
   newProjectModalCancelClick(); // Handle a click on the Cancel button
   newProjectModalAcceptClick(); // Handle a click on the Open button
@@ -122,6 +121,16 @@ function showNewProjectModal() {
 }
 
 /**
+ * Reset the New Project modal input fields
+ */
+function resetNewProjectModalUI() {
+  // Reset the values in the form to defaults
+  $('#new-project-name').val('');
+  $('#new-project-description').val('');
+  $('#new-project-dialog-title')
+      .html(page_text_label['editor_new_project_title']);
+}
+/**
  * Handle the <enter> keypress in the modal form
  */
 function newProjectModalEnterClick() {
@@ -140,6 +149,8 @@ function newProjectModalEnterClick() {
         $(this).trigger('submit');
       } else {
         $('#new-project-dialog').modal('hide');
+        // Clear the action cookie
+        Cookies.remove('action');
         createNewProject();
       }
     }
@@ -157,6 +168,8 @@ function newProjectModalAcceptClick() {
     // verify that the project contains a valid board type and project name
     if (validateNewProjectForm()) {
       $('#new-project-dialog').modal('hide');
+      // Clear the action cookie
+      Cookies.remove('action');
       createNewProject();
     }
     // TODO: Add test for existing project before resizing
@@ -181,6 +194,8 @@ function newProjectModalCancelClick() {
   $('#new-project-cancel').on('click', () => {
     // Dismiss the modal in the UX
     $('#new-project-dialog').modal('hide');
+    // Clear the action cookie
+    Cookies.remove('action');
 
     if (! getProjectInitialState() ||
         typeof(getProjectInitialState().board) === 'undefined' ) {
@@ -256,6 +271,7 @@ function validateNewProjectForm() {
  *  time to process the new project.
  */
 export function openProjectModal() {
+  logConsoleMessage(`Entering openProjectModal`);
   // Save a copy of the original project in case the page gets reloaded
   if (getProjectInitialState() &&
       getProjectInitialState().name !== 'undefined') {
@@ -293,14 +309,37 @@ export function openProjectModal() {
  * Set up the callbacks for the open project modal dialog
  */
 function openProjectModalSetHandlers() {
-  // set title to Open file
-  $('#open-project-dialog-title').html(page_text_label['editor_open']);
-
+  logConsoleMessage(`Entering openProjectModalSetHandlers`);
   openProjectModalCancelClick();
   openProjectModalOpenClick();
   openProjectModalEscapeClick();
+
+  // set title to Open file
+  $('#open-project-dialog-title').html(page_text_label['editor_open']);
+
+  // Clear any previous filename
+  const filenameInput = $('#open-project-select-file');
+  if (filenameInput.length > 0) {
+    const filename = filenameInput[0].value;
+    if (filename.length > 0) {
+      filenameInput[0].value = '';
+    }
+  }
+
+  openProjectModalWindow();
+}
+
+/**
+ * Open the 'Open Project' modal dialog window
+ */
+function openProjectModalWindow() {
   // Open the modal dialog. The event handlers will take it from here.
-  $('#open-project-dialog').modal({keyboard: false, backdrop: 'static'});
+  logConsoleMessage(`Open Project modal is opening`);
+  $('#open-project-dialog').modal({
+    keyboard: false,
+    backdrop: 'static',
+    show: true,
+  });
 }
 
 /**
@@ -327,28 +366,31 @@ function openProjectModalSetHandlers() {
 function openProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
     logConsoleMessage(`User elected to open the project`);
-
     $('#open-project-dialog').modal('hide');
-    Cookies.remove('action');
+    logConsoleMessage('Open project modal is hidden. [Open]');
+    if (Cookies.get('action')) {
+      logConsoleMessage(`Removing the action cookie.`);
+      Cookies.remove('action');
+    }
 
     // Copy the stored temp project to the stored local project
     const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
     if (projectJson) {
-      logConsoleMessage(`Saving copy of selected project to temporary storage`);
-      window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, projectJson);
-      window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
-
       const project = projectJsonFactory(JSON.parse(projectJson));
-      logConsoleMessage(`Calling InsertiProject for: ${project.name}`);
-      insertProject(project);
+      const currentProject = getProjectInitialState();
+      logConsoleMessage(`Comparing new project to current project: ${
+        Project.compare(project, currentProject)
+      }`);
 
-      // window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)));
-      // Redirecting to the editor page. The editor initialization
-      // will pick up the project file and present it to the user.
-      // window.location = 'blocklyc.html';
+      insertProject(project);
     } else {
       logConsoleMessage('The opened project cannot be found in storage.');
-      alert('The opened project cannot be found in storage.');
+      utils.showMessage(
+          `Project Load Error`,
+          `Unable to load the project`,
+          () => {
+            logConsoleMessage(`Possible project load failure`);
+          });
     }
   });
 }
@@ -365,7 +407,11 @@ function openProjectModalCancelClick() {
   $('#open-project-select-file-cancel').on('click', () => {
     // Dismiss the modal in the UX
     $('#open-project-dialog').modal('hide');
-    Cookies.remove('action');
+    logConsoleMessage('Open project modal is hidden. [Cancel]');
+
+    if (Cookies.get('action')) {
+      Cookies.remove('action');
+    }
     const project = getProjectInitialState();
     if (!project) {
       logConsoleMessage('Project has disappeared.');
@@ -382,17 +428,13 @@ function openProjectModalCancelClick() {
  * Open project escape ('x') click event handler
  */
 function openProjectModalEscapeClick() {
-  // Trap the modal event that fires when the modal window is closed when
-  // the user clicks on the 'x' icon.
-  $('#open-project-dialog').on('hidden.bs.modal', function() {
-    Cookies.remove('action');
+  $('#open-project-dialog').on('hidden.bs.modal', () => {
+    // Trap the modal event that fires when the modal window is closed when
+    // the user clicks on the 'x' icon.
+    if (Cookies.get('action')) {
+      Cookies.remove('action');
+    }
     logConsoleMessage('Open project modal has closed');
-    // if (!getProjectInitialState() ||
-    //     typeof getProjectInitialState().boardType.name === 'undefined') {
-    //   TODO: Create a default project if there is not a valid current project.
-    //   If there is no project, go to home page.
-    //   window.location.href = 'index.html';
-    // }
   });
 }
 
