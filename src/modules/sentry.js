@@ -21,7 +21,7 @@
  */
 
 import * as Sentry from '@sentry/browser';
-import {EnableSentry} from './constants';
+import {APP_VERSION, EnableSentry} from './constants';
 
 /**
  * Initialize the Sentry logger
@@ -29,7 +29,10 @@ import {EnableSentry} from './constants';
 function startSentry() {
   /* Error logging */
   if (EnableSentry) {
-    Sentry.init({dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639'});
+    Sentry.init({
+      dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639',
+      release: `SoloCup:${APP_VERSION}`,
+    });
     console.log('Sentry initialized');
   } else {
     console.log(`WARNING: Sentry is disabled.`);
