@@ -428,7 +428,7 @@ Blockly.propc.ORDER_NONE = 99; // (...)
 Blockly.propc.init = function(workspace) {
   const profile = getDefaultProfile();
   // Create a dictionary of definitions to be printed before setups.
-  Blockly.propc.definitions_ = {};
+  Blockly.propc.definitions_ = [];
   Blockly.propc.definitions_['include simpletools'] =
       '#include "simpletools.h"';
   Blockly.propc.methods_ = {};
