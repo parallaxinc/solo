@@ -21,10 +21,10 @@
  */
 
 const webpack = require('webpack');
-const CopyPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const CopyPlugin = require('copy-webpack-plugin');
+// const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const path = require('path');
+// const path = require('path');
 
 // Bundle entry points
 const entries = {
@@ -41,30 +41,14 @@ const modulePaths = {
     extensions: ['.js']
 };
 
-module.exports = env => {
+module.exports = {
     // Use env.<YOUR VARIABLE> here:
     // console.log('NODE_ENV: ', env.NODE_ENV); // 'local'
     // console.log('Production: ', env.production); // true
 
-    return {
     resolve: modulePaths,
-    target: 'web',
-    mode: 'development',
-    devtool: 'source-map',
     entry: entries,
-    output: {
-        path: path.resolve(__dirname, 'dist'),
-        // filename: '[name].[chunkhash].bundle.js',
-        filename: '[name].bundle.js',
-        chunkFilename: '[id].bundle.js',
-        pathinfo: true,
-        sourceMapFilename: '[name].bundle.js.map',
-    },
-    // optimization: {
-    //     splitChunks: {
-    //         chunks: 'all',
-    //     },
-    // },
+    target: 'web',
     module: {
         rules: [
             {
@@ -77,40 +61,12 @@ module.exports = env => {
         ]
     },
     plugins: [
-        new webpack.optimize.ModuleConcatenationPlugin(),
-        new CopyPlugin([
-            { from: './index.html', to: path.resolve(__dirname, 'dist') },
-            { from: './blocklyc.html', to: path.resolve(__dirname, 'dist') }
-        ]),
-
-        // Copy over media resources from the Blockly package
-        new CopyPlugin([
-            {
-                from: path.resolve(__dirname, './node_modules/blockly/media'),
-                to: path.resolve(__dirname, 'dist/media')
-            }
-        ]),
-        // Copy over media resources from Solo images tree
-        new CopyPlugin([
-            {
-                from: path.resolve(__dirname, './src/images'),
-                to: path.resolve(__dirname, 'dist/images')
-            }
-        ]),
-        // Copy over style sheets
-        new CopyPlugin([
-            { from: './src/site.css', to: path.resolve(__dirname, 'dist')},
-            { from: './src/style.css', to: path.resolve(__dirname, 'dist')},
-            { from: './src/style-clientdownload.css', to: path.resolve(__dirname, 'dist')},
-            { from: './src/style-editor.css', to: path.resolve(__dirname, 'dist')}
+        new webpack.EnvironmentPlugin([
+            'NODE_ENV'
         ]),
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery'
         })
     ],
-    devServer: {
-        port: 3000
-    }
- };
 };
