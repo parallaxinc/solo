@@ -20,6 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import Blockly from 'blockly/core';
 
 import {graphingConsole, serialConsole} from './blocklyc';
 import {graphReset, graphNewData} from './blocklyc';
