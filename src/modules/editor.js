@@ -40,12 +40,13 @@ import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
 
 import {
-  sanitizeFilename, compile, getComPort, loadInto, initializeBlockly,
+  sanitizeFilename, compile, loadInto, initializeBlockly,
   renderContent, downloadCSV, graphingConsole, configureConnectionPaths,
-  downloadPropC, findClient, formatWizard, serialConsole, graphPlay,
+  downloadPropC, formatWizard, serialConsole, graphPlay,
   downloadGraph, graphStartStop,
 } from './blocklyc';
 
+import {findClient, getComPort} from './client_connection';
 import {clientService, serviceConnectionTypes} from './client_service';
 import {LOCAL_PROJECT_STORE_NAME} from './constants';
 import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
@@ -114,14 +115,6 @@ $(() => {
   initToolbarIcons();
   propToolbarButtonController();
 
-  // This is necessary only because the target modal is being
-  // used for multiple but similar purposes.
-  // TODO: Make separate modals for each purpose
-  initUploadModalLabels();
-
-  // Reset the import/append modal to its default state when closed
-  $('#import-project-dialog').on('hidden.bs.modal', resetUploadImportDialog());
-
   // The BASE_URL is deprecated since it is always the empty string
   $('.url-prefix').attr('href', function(idx, cur) {
     // return BASE_URL + cur;
@@ -133,13 +126,18 @@ $(() => {
 
   // Set up the URLs to download new Launchers and BP Clients
   initClientDownloadLinks();
+  showAppName();
+
+  // This is necessary only because the target modal is being
+  // used for multiple but similar purposes.
+  // TODO: Make separate modals for each purpose
+  initUploadModalLabels();
 
   // Connect to the BP Launcher
   // TODO: Finding the client and then look again every 3.5 seconds? There
   //  must be a better way to handle this in the clientService object.
   findClient();
   setInterval(findClient, 2000);
-  showAppName();
 
   const backup = window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME);
   if (backup) {
@@ -1114,9 +1112,34 @@ function importProjectFromStorage() {
         Blockly.Msg.DIALOG_UNSAVED_PROJECT,
         Blockly.Msg.DIALOG_SAVE_BEFORE_ADD_BLOCKS);
   } else {
-    $('#import-project-dialog').modal({keyboard: false, backdrop: 'static'});
+    // Reset the import/append modal to its default state when closed
+    const dialog = $('#import-project-dialog');
+    dialog.on('hidden.bs.modal', resetUploadImportDialog());
+    dialog.modal({keyboard: false, backdrop: 'static'});
   }
 }
+
+/**
+ * Reset the upload/import modal window to defaults after use
+ */
+function resetUploadImportDialog() {
+  // reset the title of the modal
+  $('import-project-dialog-title').html(page_text_label['editor_import']);
+
+  // hide "append" button
+  $('#selectfile-append').removeClass('hidden');
+
+  // change color of the "replace" button to blue and change text to "Open"
+  $('#selectfile-replace')
+      .removeClass('btn-primary')
+      .addClass('btn-danger')
+      .html(page_text_label['editor_button_replace']);
+
+  // reset the blockly toolbox sizing to ensure it renders correctly:
+  // eslint-disable-next-line no-undef
+  resetToolBoxSizing(100);
+}
+
 
 /**
  *  Retrieve an SVG project file from local storage.
@@ -1863,26 +1886,6 @@ function showProjectTimerModalDialog() {
   $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
 }
 
-/**
- * Reset the upload/import modal window to defaults after use
- */
-function resetUploadImportDialog() {
-  // reset the title of the modal
-  $('import-project-dialog-title').html(page_text_label['editor_import']);
-
-  // hide "append" button
-  $('#selectfile-append').removeClass('hidden');
-
-  // change color of the "replace" button to blue and change text to "Open"
-  $('#selectfile-replace')
-      .removeClass('btn-primary')
-      .addClass('btn-danger')
-      .html(page_text_label['editor_button_replace']);
-
-  // reset the blockly toolbox sizing to ensure it renders correctly:
-  // eslint-disable-next-line no-undef
-  resetToolBoxSizing(100);
-}
 
 /**
  * Reset the sizing of blockly's toolbox and canvas.
