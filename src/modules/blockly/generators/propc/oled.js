@@ -311,7 +311,7 @@ Blockly.Blocks.oled_draw_circle = {
     }
     this.setTooltip(Blockly.MSG_OLED_DRAW_CIRCLE_TOOLTIP
         .replace(/Display /, this.displayKind + ' '));
-    // First x/y coordinates
+    // Center the circle at these coordinates
     this.appendValueInput('POINT_X')
         .setCheck('Number')
         .appendField(this.displayKind + ' draw circle at (x)');
@@ -319,10 +319,12 @@ Blockly.Blocks.oled_draw_circle = {
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField('(y)');
+    // The size of the circle
     this.appendValueInput('RADIUS')
         .setCheck('Number')
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField('radius');
+
     // Color picker control
     if (this.displayKind === 'OLED') {
       this.appendValueInput('COLOR')
@@ -339,6 +341,7 @@ Blockly.Blocks.oled_draw_circle = {
             ['invert', '2'],
           ]), 'COLOR_VALUE');
     }
+    // Fill the circle if checked
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField('fill')
@@ -355,7 +358,7 @@ Blockly.Blocks.oled_draw_circle = {
 };
 
 /**
- *
+ * Generate the C source code for the OLED circle block
  * @return {string}
  */
 Blockly.propc.oled_draw_circle = function() {
@@ -369,19 +372,29 @@ Blockly.propc.oled_draw_circle = function() {
         this, 'POINT_Y', Blockly.propc.ORDER_NONE);
     const radius = Blockly.propc.valueToCode(
         this, 'RADIUS', Blockly.propc.ORDER_NONE);
+
     let color = 0;
+
     if (this.displayKind === 'OLED') {
       if (!this.disabled) { // Ensure header file is included
         Blockly.propc.definitions_['colormath'] = '#include "colormath.h"';
       }
-      color = Blockly.propc.valueToCode(
+      // Get a string representation of the color value
+      const colorString = Blockly.propc.valueToCode(
           this, 'COLOR', Blockly.propc.ORDER_NONE) || '0xFFFFFF';
-      if (/0x[0-9A-Fa-f]{4}/.test(color)) {
-        color = color.substr(2, 6);
+
+      let colorHexString = '';
+      if (colorString.substr(0, 2) === '0x' &&
+          /0x[0-9A-Fa-f]{4}/.test(colorString)) {
+        // Get the 6 digits of the RRGGBB color value
+        colorHexString = colorString.substr(2, 6);
+        color = 'remapColor(0x' +
+            parseInt(colorHexString, 16).toString(16) +
+            ', "8R8G8B", "5R6G5B")';
+      } else {
+        // The color value is a variable name of a function call. Pass it on
+        color = `remapColor(${colorString},"8R8G8B", "5R6G5B")`;
       }
-      color = 'remapColor(0x' +
-          parseInt(color, 16).toString(16) +
-          ', "8R8G8B", "5R6G5B")';
     } else if (this.displayKind === 'ePaper') {
       color = this.getFieldValue('COLOR_VALUE');
     }
@@ -389,7 +402,7 @@ Blockly.propc.oled_draw_circle = function() {
     if (this.getFieldValue('ck_fill') === 'TRUE') {
       code = 'fillCircle(' + this.myType + ', ';
     }
-    code += pointX0 + ', ' + pointY0 + ', ' + radius + ', ' + color + ');';
+    code += pointX0 + ', ' + pointY0 + ', ' + radius + ', ' + color + ');\n';
     return code;
   }
 };
@@ -462,6 +475,7 @@ Blockly.propc.oled_draw_line = function() {
   if (allBlocks.indexOf(this.displayKind + ' initialize') === -1) {
     return '// ERROR: ' + this.displayKind + ' is not initialized!\n';
   } else {
+    // Beginning and ending line coordinates
     const xOne = Blockly.propc.valueToCode(
         this, 'X_ONE', Blockly.propc.ORDER_NONE);
     const yOne = Blockly.propc.valueToCode(
@@ -470,24 +484,32 @@ Blockly.propc.oled_draw_line = function() {
         this, 'X_TWO', Blockly.propc.ORDER_NONE);
     const yTwo = Blockly.propc.valueToCode(
         this, 'Y_TWO', Blockly.propc.ORDER_NONE);
+
     let color = 0;
     if (this.displayKind === 'OLED') {
       if (!this.disabled) { // Ensure header file is included
         Blockly.propc.definitions_['colormath'] = '#include "colormath.h"';
       }
-      color = Blockly.propc.valueToCode(
+      const colorString = Blockly.propc.valueToCode(
           this, 'COLOR', Blockly.propc.ORDER_NONE) || '0xFFFFFF';
-      if (/0x[0-9A-Fa-f]{4}/.test(color)) {
-        color = color.substr(2, 6);
+      let colorHexString = '';
+      if (colorString.substr(0, 2) === '0x' &&
+          /0x[0-9A-Fa-f]{4}/.test(colorString)) {
+        // Get the 6 digits of the RRGGBB color value
+        colorHexString = colorString.substr(2, 6);
+        color = 'remapColor(0x' +
+            parseInt(colorHexString, 16).toString(16) +
+            ', "8R8G8B", "5R6G5B")';
+      } else {
+        // The color value is a variable name of a function call. Pass it on
+        color = `remapColor(${colorString},"8R8G8B", "5R6G5B")`;
       }
-      color = 'remapColor(0x' +
-          parseInt(color, 16).toString(16) + ', "8R8G8B", "5R6G5B")';
     } else if (this.displayKind === 'ePaper') {
       color = this.getFieldValue('COLOR_VALUE');
     }
     let code = '';
     code += 'drawLine(' + this.myType + ', ' + xOne + ', ' + yOne + ', ' +
-        xTwo + ', ' + yTwo + ', ' + color + ');';
+        xTwo + ', ' + yTwo + ', ' + color + ');\n';
     return code;
   }
 };
@@ -557,18 +579,34 @@ Blockly.propc.oled_draw_pixel = function() {
       if (!this.disabled) { // Ensure header file is included
         Blockly.propc.definitions_['colormath'] = '#include "colormath.h"';
       }
-      color = Blockly.propc.valueToCode(
+      // Get a string representation of the color value
+      const colorString = Blockly.propc.valueToCode(
           this, 'COLOR', Blockly.propc.ORDER_NONE) || '0xFFFFFF';
-      if (/0x[0-9A-Fa-f]{4}/.test(color)) {
-        color = color.substr(2, 6);
+
+      let colorHexString = '';
+      if (colorString.substr(0, 2) === '0x' &&
+          /0x[0-9A-Fa-f]{4}/.test(colorString)) {
+        // Get the 6 digits of the RRGGBB color value
+        colorHexString = colorString.substr(2, 6);
+        color = 'remapColor(0x' +
+            parseInt(colorHexString, 16).toString(16) +
+            ', "8R8G8B", "5R6G5B")';
+      } else {
+        // The color value is a variable name of a function call. Pass it on
+        color = `remapColor(${colorString},"8R8G8B", "5R6G5B")`;
       }
-      color = 'remapColor(0x' + parseInt(color, 16).toString(16) +
-          ', "8R8G8B", "5R6G5B")';
+      // color = Blockly.propc.valueToCode(
+      //     this, 'COLOR', Blockly.propc.ORDER_NONE) || '0xFFFFFF';
+      // if (/0x[0-9A-Fa-f]{4}/.test(color)) {
+      //   color = color.substr(2, 6);
+      // }
+      // color = 'remapColor(0x' + parseInt(color, 16).toString(16) +
+      //     ', "8R8G8B", "5R6G5B")';
     } else if (this.displayKind === 'ePaper') {
       color = this.getFieldValue('COLOR_VALUE');
     }
     return 'drawPixel(' + this.myType + ', ' + pointX + ', ' +
-        pointY + ', ' + color + ');';
+        pointY + ', ' + color + ');\n';
   }
 };
 
@@ -671,13 +709,20 @@ Blockly.propc.oled_draw_triangle = function() {
       if (!this.disabled) { // Ensure header file is included
         Blockly.propc.definitions_['colormath'] = '#include "colormath.h"';
       }
-      color = Blockly.propc.valueToCode(
+      const colorString = Blockly.propc.valueToCode(
           this, 'COLOR', Blockly.propc.ORDER_NONE) || '0xFFFFFF';
-      if (/0x[0-9A-Fa-f]{4}/.test(color)) {
-        color = color.substr(2, 6);
+      let colorHexString = '';
+      if (colorString.substr(0, 2) === '0x' &&
+          /0x[0-9A-Fa-f]{4}/.test(colorString)) {
+        // Get the 6 digits of the RRGGBB color value
+        colorHexString = colorString.substr(2, 6);
+        color = 'remapColor(0x' +
+            parseInt(colorHexString, 16).toString(16) +
+            ', "8R8G8B", "5R6G5B")';
+      } else {
+        // The color value is a variable name of a function call. Pass it on
+        color = `remapColor(${colorString},"8R8G8B", "5R6G5B")`;
       }
-      color = 'remapColor(0x' + parseInt(color, 16).toString(16) +
-          ', "8R8G8B", "5R6G5B")';
     } else if (this.displayKind === 'ePaper') {
       color = this.getFieldValue('COLOR_VALUE');
     }
@@ -689,7 +734,7 @@ Blockly.propc.oled_draw_triangle = function() {
     code += pointX0 + ', ' + pointY0 + ', ';
     code += pointX1 + ', ' + pointY1 + ', ';
     code += pointX2 + ', ' + pointY2 + ', ';
-    code += color + ');';
+    code += color + ');\n';
     return code;
   }
 };
@@ -788,13 +833,28 @@ Blockly.propc.oled_draw_rectangle = function() {
       if (!this.disabled) { // Ensure header file is included
         Blockly.propc.definitions_['colormath'] = '#include "colormath.h"';
       }
-      color = Blockly.propc.valueToCode(
+      const colorString = Blockly.propc.valueToCode(
           this, 'COLOR', Blockly.propc.ORDER_NONE) || '0xFFFFFF';
-      if (/0x[0-9A-Fa-f]{4}/.test(color)) {
-        color = color.substr(2, 6);
+      let colorHexString = '';
+      if (colorString.substr(0, 2) === '0x' &&
+          /0x[0-9A-Fa-f]{4}/.test(colorString)) {
+        // Get the 6 digits of the RRGGBB color value
+        colorHexString = colorString.substr(2, 6);
+        color = 'remapColor(0x' +
+            parseInt(colorHexString, 16).toString(16) +
+            ', "8R8G8B", "5R6G5B")';
+      } else {
+        // The color value is a variable name of a function call. Pass it on
+        color = `remapColor(${colorString},"8R8G8B", "5R6G5B")`;
       }
-      color = 'remapColor(0x' + parseInt(color, 16).toString(16) +
-          ', "8R8G8B", "5R6G5B")';
+
+      // color = Blockly.propc.valueToCode(
+      //     this, 'COLOR', Blockly.propc.ORDER_NONE) || '0xFFFFFF';
+      // if (/0x[0-9A-Fa-f]{4}/.test(color)) {
+      //   color = color.substr(2, 6);
+      // }
+      // color = 'remapColor(0x' + parseInt(color, 16).toString(16) +
+      //     ', "8R8G8B", "5R6G5B")';
     } else if (this.displayKind === 'ePaper') {
       color = this.getFieldValue('COLOR_VALUE');
     }
@@ -809,7 +869,7 @@ Blockly.propc.oled_draw_rectangle = function() {
     } else {
       code += corners + ', ';
     }
-    return code + color + ');';
+    return code + color + ');\n';
   }
 };
 
