@@ -170,10 +170,10 @@ Blockly.propc.oled_initialize = function() {
       if (cogStartBlock && isExperimental.indexOf('volatile') > -1) {
         Blockly.propc.cog_setups_[this.myType] =
             [cogStartBlock, this.myType + ' = ' +
-            devType + '_init(' + pin.join(', ') + devWidthHeight + ');'];
+            devType + '_init(' + pin.join(', ') + devWidthHeight + ');\n'];
       } else {
         Blockly.propc.setups_[this.myType] = this.myType + ' = ' +
-            devType + '_init(' + pin.join(', ') + devWidthHeight + ');';
+            devType + '_init(' + pin.join(', ') + devWidthHeight + ');\n';
       }
     }
   }
@@ -1026,8 +1026,8 @@ Blockly.propc.oled_text_color = function() {
       backgroundColor = this.getFieldValue('BACKGROUND_COLOR_VALUE');
     }
     let code = '';
-    code += 'setTextColor(' + this.myType + ', ' + fontColor + ');';
-    code += 'setBgColor(' + this.myType + ', ' + backgroundColor + ');';
+    code += 'setTextColor(' + this.myType + ', ' + fontColor + ');\n';
+    code += 'setBgColor(' + this.myType + ', ' + backgroundColor + ');\n';
     return code;
   }
 };
@@ -1127,7 +1127,7 @@ Blockly.propc.oled_set_cursor = function() {
     const y = Blockly.propc.valueToCode(
         this, 'Y_POS', Blockly.propc.ORDER_NONE);
 
-    return 'setCursor(' + this.myType + ', ' + x + ', ' + y + ',0);';
+    return 'setCursor(' + this.myType + ', ' + x + ', ' + y + ',0);\n';
   }
 };
 
@@ -1172,7 +1172,7 @@ Blockly.propc.oled_print_text = function() {
   } else {
     const msg = Blockly.propc.valueToCode(
         this, 'MESSAGE', Blockly.propc.ORDER_NONE);
-    return 'drawText(' + this.myType + ', ' + msg + ');';
+    return 'drawText(' + this.myType + ', ' + msg + ');\n';
   }
 };
 
@@ -1224,7 +1224,7 @@ Blockly.propc.oled_print_number = function() {
     const num = Blockly.propc.valueToCode(
         this, 'NUMIN', Blockly.propc.ORDER_NONE);
     const type = this.getFieldValue('type');
-    return 'drawNumber(' + this.myType + ', ' + num + ', ' + type + ');';
+    return 'drawNumber(' + this.myType + ', ' + num + ', ' + type + ');\n';
   }
 };
 
@@ -1357,7 +1357,7 @@ Blockly.propc.oled_bitmap = function() {
       }
     }
     if (!initFound) {
-      Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');';
+      Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');\n';
     }
   }
 
@@ -1368,7 +1368,7 @@ Blockly.propc.oled_bitmap = function() {
       this, 'POS_Y', Blockly.propc.ORDER_NONE) || '0';
 
   return 'drawBitmap(' + this.myType + ', "' + filename + '.bmp", ' +
-      posX + ', ' + posY + ');';
+      posX + ', ' + posY + ');\n';
 };
 
 // TODO: What in going on here? Is swapping the height & width correct?
