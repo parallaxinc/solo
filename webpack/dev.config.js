@@ -45,8 +45,11 @@ module.exports = merge(baseConfig, {
     chunkFilename: '[id].bundle.js',
     pathinfo: true,
     sourceMapFilename: '[name].bundle.js.map',
-    },
-  module: {},
+  },
+  watchOptions: {
+    ignored: '/node_modules',
+    poll: 1000,
+  },
   plugins: [
     new CopyPlugin([
         {

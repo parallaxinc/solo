@@ -32,7 +32,6 @@
 'use strict';
 
 import Blockly from 'blockly/core.js';
-
 import {colorPalette} from '../propc.js';
 
 /**
@@ -47,7 +46,10 @@ let tempArrayNumber = 0;
 /**
  *  Variable getter
  *
- * @type {{init: Blockly.Blocks.variables_get.init, helpUrl: *}}
+ * @type {{
+ *    init: Blockly.Blocks.variables_get.init,
+ *    helpUrl: *
+ *  }}
  */
 Blockly.Blocks.variables_get = {
   helpUrl: Blockly.MSG_VARIABLES_HELPURL,
@@ -61,6 +63,18 @@ Blockly.Blocks.variables_get = {
     this.setOutput(true);
     this.typeCheckRun = null;
   },
+};
+
+/**
+ * Propeller C variable getter
+ *
+ * @return {[string, number]}
+ */
+Blockly.propc.variables_get = function() {
+  const code = Blockly.propc.variableDB_.getName(
+      this.getFieldValue('VAR'),
+      Blockly.VARIABLE_CATEGORY_NAME);
+  return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
 /**
@@ -82,19 +96,6 @@ Blockly.Blocks.variables_set = {
     this.setNextStatement(true);
   },
 };
-
-/**
- * Propeller C variable getter
- *
- * @return {[string, number]}
- */
-Blockly.propc.variables_get = function() {
-  const code = Blockly.propc.variableDB_.getName(
-      this.getFieldValue('VAR'),
-      Blockly.VARIABLE_CATEGORY_NAME);
-  return [code, Blockly.propc.ORDER_ATOMIC];
-};
-
 
 /**
  *  Propeller C variable setter
