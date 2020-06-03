@@ -580,20 +580,16 @@ Blockly.Blocks.math_random = {
 };
 
 /**
- *
- * @return {[string, number]}
+ * Random number generator
+ * @return { [string, number] }
  */
 Blockly.propc.math_random = function() {
   const arg1 = Blockly.propc.valueToCode(
-      this,
-      'A',
-      Blockly.propc.ORDER_ATOMIC) || '1';
+      this, 'A', Blockly.propc.ORDER_ATOMIC) || '1';
   const arg2 = Blockly.propc.valueToCode(
-      this,
-      'B',
-      Blockly.propc.ORDER_ATOMIC) || '100';
+      this, 'B', Blockly.propc.ORDER_ATOMIC) || '100';
 
-  return ['random(' + arg1 + ', ' + arg2 + ')', Blockly.propc.ORDER_NONE];
+  return [`random(${arg1}, ${arg2})`, Blockly.propc.ORDER_NONE];
 };
 
 /**

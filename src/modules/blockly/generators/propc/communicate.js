@@ -4914,7 +4914,8 @@ Blockly.propc.ws2812b_init = function() {
 
     Blockly.propc.definitions_['ws2812b_def'] = '#include "ws2812.h"';
     Blockly.propc.definitions_['ws2812b_sets' + pin] = '';
-    if (getDefaultProfile().boardType.name !== 'heb-wx') {
+    const profile = getDefaultProfile();
+    if (profile && profile.name !== 'heb-wx') {
       Blockly.propc.definitions_['ws2812b_sets' + pin] +=
           '#define RGB_PIN' + pin + '   ' + pin;
     }
