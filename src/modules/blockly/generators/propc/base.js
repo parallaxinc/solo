@@ -1572,8 +1572,15 @@ Blockly.Blocks.color_value_from = {
 };
 
 /**
+ * Generate the C source code for the color_value_from block
+ * @return { [string, number] }
  *
- * @return {[string, number]}
+ * @description The color_value_from block can receive numeric data or
+ * variable expressions as inputs for the R, G, and B color inputs. The
+ * generator need to evaluate each value to determine if there are any
+ * variable expressions contained in the inputs. If they are, build a
+ * response string to make a library call to convert the variable
+ * expressions at compile time.
  */
 Blockly.propc.color_value_from = function() {
   Blockly.propc.definitions_['colormath'] = '#include "colormath.h"';
@@ -1585,14 +1592,42 @@ Blockly.propc.color_value_from = function() {
   const blue = Blockly.propc.valueToCode(
       this, 'BLUE_VALUE', Blockly.propc.ORDER_NONE) || '0';
 
-  // Solo-#434
-  // Convert the RGB decimal values to a 24 bit hexadecimal value
-  const rgbToHex = (r, g, b) => '0x' + [r, g, b].map((x) => {
-    const hex = x.toString(16);
-    return hex.length === 1 ? '0' + hex : hex;
-  }).join('');
+  let redString;
+  let greenString;
+  let blueString;
 
-  return [rgbToHex(red, green, blue), Blockly.propc.ORDER_NONE];
+  // Test input values for numeric field values
+  if (isNaN(parseInt(red))) {
+    redString = red;
+  }
+  if (isNaN(parseInt(green))) {
+    greenString = green;
+  }
+  if (isNaN(parseInt(blue))) {
+    blueString = blue;
+  }
+
+  // if any of the colors in not a number, set up a call to getColorRRGGBB()
+  if (redString === undefined &&
+      greenString === undefined &&
+      blueString === undefined) {
+    // Solo-#434
+    // Convert the RGB decimal values to a 24 bit hexadecimal value
+    const rgbToHex = (r, g, b) => '0x' + [r, g, b].map((x) => {
+      const hex = x.toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    }).join('');
+
+    return [rgbToHex(red, green, blue), Blockly.propc.ORDER_NONE];
+  }
+
+  // Insert variables where they are found
+  let code = `getColorRRGGBB(`;
+  code += `${(redString) ? redString : red}, `;
+  code += `${(greenString) ? greenString : green}, `;
+  code += `${(blueString) ? blueString : blue})`;
+
+  return [code, Blockly.propc.ORDER_NONE];
 };
 
 /**
@@ -1632,11 +1667,7 @@ Blockly.propc.get_channel_from = function() {
 
   // Set include file required for the library call below
   Blockly.propc.definitions_['colormath'] = '#include "colormath.h"';
-
-  return [
-    'get8bitColor(' + color + ', "' + channel + '")',
-    Blockly.propc.ORDER_NONE,
-  ];
+  return [`get8bitColor(${color}, "${channel}")`, Blockly.propc.ORDER_NONE];
 };
 
 /**
