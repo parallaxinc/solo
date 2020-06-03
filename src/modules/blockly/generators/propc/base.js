@@ -1588,9 +1588,15 @@ Blockly.propc.color_value_from = function() {
       this, 'GREEN_VALUE', Blockly.propc.ORDER_NONE) || '0';
   const blue = Blockly.propc.valueToCode(
       this, 'BLUE_VALUE', Blockly.propc.ORDER_NONE) || '0';
-  const output = 'getColorRRGGBB(' + red + ', ' + green + ', ' + blue + ')';
 
-  return [output, Blockly.propc.ORDER_NONE];
+  // Solo-#434
+  // Convert the RGB decimal values to a 24 bit hexadecimal value
+  const rgbToHex = (r, g, b) => '0x' + [r, g, b].map((x) => {
+    const hex = x.toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  }).join('');
+
+  return [rgbToHex(red, green, blue), Blockly.propc.ORDER_NONE];
 };
 
 /**
