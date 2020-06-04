@@ -1763,6 +1763,10 @@ function showProjectTimerModalDialog() {
   }
 
   const lastSave = Math.ceil(project.getProjectTimeSinceLastSave());
+  if (lastSave === 0) {
+    logConsoleMessage(`Nudge timer is likely no longer working`);
+    return;
+  }
   const message = [
     page_text_label['editor_save-check_warning-1'],
     page_text_label['editor_save-check_warning-2'],
