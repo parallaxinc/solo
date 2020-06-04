@@ -39,7 +39,7 @@
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.5.0-b4';
+export const APP_VERSION = '1.5.0-b5';
 
 /**
  * Constant string that represents the base, empty project header
