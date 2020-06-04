@@ -651,7 +651,12 @@ Project.prototype.resetProjectTimer = function() {
  * @return {number}
  */
 Project.prototype.getProjectTimeSinceLastSave = function() {
-  return this.saveTimer.getTimeSinceLastSave();
+  if (this.saveTimer) {
+    return this.saveTimer.getTimeSinceLastSave();
+  } else {
+    logConsoleMessage(`Called TimeSinceLastSave but there is no active timer`);
+    return 0;
+  }
 };
 
 /**
