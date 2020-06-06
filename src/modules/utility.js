@@ -75,6 +75,27 @@ const utils = {
     });
   },
 
+  confirmYesNo: function(title, message, callback) {
+    bootbox.confirm({
+      title: title,
+      message: message,
+      buttons: {
+        confirm: {
+          label: '<i class="fa fa-check"></i> Yes',
+        },
+        cancel: {
+          label: '<i class="fa fa-times"></i> No',
+        },
+      },
+      callback: function(result) {
+        console.log('This was logged in the callback: ' + result);
+        if (callback) {
+          callback(result);
+        }
+      },
+    });
+  },
+
   /**
    * Confirmation dialog
    * @param {string} title
