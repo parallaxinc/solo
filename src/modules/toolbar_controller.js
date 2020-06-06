@@ -24,13 +24,13 @@ import Blockly from 'blockly/core';
 
 import {Project, getProjectInitialState} from './project.js';
 import {clientService, serviceConnectionTypes} from './client_service';
+import {logConsoleMessage} from './utility';
 
 
 /**
  *  Update the state of the Compiler toolbar buttons
  */
 export function propToolbarButtonController() {
-  // Update Client not found UI
   // Use activeConnection for WebSockets and available for BP Client
   if (clientService.activeConnection || clientService.available) {
     // Replace the no client found on the UI with a happy message
@@ -39,37 +39,56 @@ export function propToolbarButtonController() {
     clientConnectionUpdateUI(false);
   }
 
-  if (!hasCode()) {
-    // No buttons are valid if there is no project.
+  const project = getProjectInitialState();
+  let isS3boardType = false;
+
+  if (!project) {
+    // No project loaded. Turn off all visible buttons
     disableButtons(false);
     return;
-  }
+  } else {
+    // Determine if project board type is an S3
+    if (project.boardType.name === 's3') {
+      isS3boardType = true;
+    }
 
-  // The compile button should always be available when a project is loaded
+    if (!hasCode()) {
+      // There is a project without any blocks defined
+      disableButtons(false, isS3boardType);
+      return;
+    }
+  }
+  // The compile button should always be available when a project
+  // is loaded and there is at least one block defined in the project
   setCompileButtonState(true, true);
+
+  // Set buttons available based on project type
+  if (isS3boardType) {
+    setS3UIButtonGroupDisabled();
+    isS3boardType = true;
+  } else {
+    setUIButtonGroupDisabled();
+  }
 
   // Use activeConnection for WebSockets and available for BP Client
   if (clientService.activeConnection ||
       (clientService.available &&
        clientService.type === serviceConnectionTypes.WS )) {
-    // Replace the no client found on the UI with a happy message
-    // clientConnectionUpdateUI(true);
 
     if (clientService.portsAvailable &&
         clientService.portList.length > 0 &&
         clientService.portList[0].length > 0) {
-      const project = getProjectInitialState();
-      if (project.boardType.name === 's3') {
+      if (isS3boardType) {
         setS3UIButtonGroup();
       } else {
         setUIButtonGroup();
       }
     } else {
-      disableUIButtonGroup();
+      disableUIButtonGroup(isS3boardType);
     }
   } else {
     clientConnectionUpdateUI(false);
-    disableButtons(true);
+    disableButtons(true, isS3boardType);
   }
 }
 
@@ -93,25 +112,38 @@ function clientConnectionUpdateUI(state) {
 /**
  * Disable the toolbar buttons
  * @param {boolean} isProject is true if a project is loaded
+ * @param {boolean?} isScribblerProject is true if the project has a
+ *  board type of S3
  */
-function disableButtons(isProject) {
+function disableButtons(isProject, isScribblerProject = false) {
   if (!isProject) {
     setCompileButtonState(true, false);
   }
+  if (isScribblerProject) {
+    setLoadEEPROMButtonState(false, false);
+    setGraphButtonState(false, false);
+  } else {
+    setLoadEEPROMButtonState(true, false);
+    setGraphButtonState(true, false);
+  }
   setLoadRAMButtonState(true, false);
-  setLoadEEPROMButtonState(true, false);
   setTerminalButtonState(true, false);
-  setGraphButtonState(true, false);
 }
 
 /**
  * Disable the UI buttons for a non-S3 project
+ * @param {boolean} isS3Project
  */
-function disableUIButtonGroup() {
+function disableUIButtonGroup(isS3Project) {
+  if (isS3Project) {
+    setLoadEEPROMButtonState(false, false);
+    setGraphButtonState(false, false);
+  } else {
+    setLoadEEPROMButtonState(true, false);
+    setGraphButtonState(true, false);
+  }
   setLoadRAMButtonState(true, false);
-  setLoadEEPROMButtonState(true, false);
   setTerminalButtonState(true, false);
-  setGraphButtonState(true, false);
 }
 
 /**
@@ -125,6 +157,16 @@ function setS3UIButtonGroup() {
 }
 
 /**
+ * Set the UI buttons for an S3 project
+ */
+function setS3UIButtonGroupDisabled() {
+  setLoadRAMButtonState(false, false);
+  setLoadEEPROMButtonState(true, false);
+  setTerminalButtonState(true, false);
+  setGraphButtonState(false, false);
+}
+
+/**
  * Set the UI buttons for a non-S3 project
  */
 function setUIButtonGroup() {
@@ -133,6 +175,17 @@ function setUIButtonGroup() {
   setLoadEEPROMButtonState(true, true);
   setTerminalButtonState(true, true);
   setGraphButtonState(true, true);
+}
+
+/**
+ * Set the UI buttons for a non-S3 project
+ */
+function setUIButtonGroupDisabled() {
+  // setCompileButtonState(true, true);
+  setLoadRAMButtonState(true, false);
+  setLoadEEPROMButtonState(true, false);
+  setTerminalButtonState(true, false);
+  setGraphButtonState(true, false);
 }
 
 /**
@@ -297,7 +350,11 @@ export function initToolbarIcons() {
     // eslint-disable-next-line max-len
     cameraWhite: '<svg width="14" height="15"><path d="M1.5,13.5 L.5,12.5 .5,5.5 1.5,4.5 2.5,4.5 4,3 7,3 8.5,4.5 12.5,4.5 13.5,5.5 13.5,12.5 12.5,13.5 Z M 2,9 A 4,4,0,0,0,10,9 A 4,4,0,0,0,2,9 Z M 4.5,9 A 1.5,1.5,0,0,0,7.5,9 A 1.5,1.5,0,0,0,4.5,9 Z M 10.5,6.5 A 1,1,0,0,0,13.5,6.5 A 1,1,0,0,0,10.5,6.5 Z" style="stroke:#fff;stroke-width:1;fill:#fff;" fill-rule="evenodd"/></svg>',
   };
+
   $('.bpIcon').each(function(key, value ) {
+    logConsoleMessage(
+        // eslint-disable-next-line max-len
+        `Init icons: ${key}, ${value.dataset.icon}, icon:${value.dataset.icon}`);
     $(value).html(bpIcons[value.dataset.icon]);
   });
 }

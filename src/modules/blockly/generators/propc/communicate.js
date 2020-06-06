@@ -684,7 +684,9 @@ Blockly.propc.console_print_multiple = function() {
       errorString = '// ERROR: Serial is not initialized!\n';
       p = '';
       if (this.ser_pins.length > 0) {
-        p = this.ser_pins[0].replace(',', '_').replace(/None/g, 'N');
+        if (typeof this.ser_pins[0] === 'string') {
+          p = this.ser_pins[0].replace(',', '_').replace(/None/g, 'N');
+        }
       }
       if (this.getInput('SERPIN')) {
         p = this.getFieldValue('SER_PIN')

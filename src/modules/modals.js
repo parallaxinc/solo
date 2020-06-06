@@ -23,6 +23,7 @@
 
 import 'bootstrap/js/modal';
 import 'jquery-validation';
+import Blockly from 'blockly/core';
 import * as Cookies from 'js-cookie';
 
 import {LOCAL_PROJECT_STORE_NAME} from './constants.js';
@@ -30,6 +31,7 @@ import {TEMP_PROJECT_STORE_NAME} from './constants.js';
 
 import {createNewProject, isProjectChanged, insertProject} from './editor.js';
 import {resetToolBoxSizing, displayProjectName} from './editor.js';
+import {uploadHandler, uploadMergeCode} from './editor.js';
 
 import {isExperimental} from './url_parameters.js';
 import {getProjectInitialState, ProjectProfiles} from './project.js';
@@ -39,9 +41,11 @@ import {Project, projectJsonFactory} from './project';
 import {page_text_label} from './blockly/language/en/messages.js';
 import {utils, logConsoleMessage} from './utility';
 
-/* -------------------------------- */
-/*     NEW PROJECT MODAL DIALOG     */
-/* -------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/*  New Project Modal Dialog Handlers                                        */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
 
 /**
  * Start the process to open a new project
@@ -256,10 +260,11 @@ function validateNewProjectForm() {
   return !!projectElement.valid();
 }
 
-
-/* -------------------------------- */
-/*    OPEN PROJECT MODAL DIALOG     */
-/* -------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/*  Open Project Modal Dialog Handlers                                       */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
 
 /**
  *  Open the modal to select a project file to load
@@ -271,48 +276,39 @@ function validateNewProjectForm() {
  *  time to process the new project.
  */
 export function openProjectModal() {
-  logConsoleMessage(`Entering openProjectModal`);
   // Save a copy of the original project in case the page gets reloaded
   if (getProjectInitialState() &&
       getProjectInitialState().name !== 'undefined') {
     window.localStorage.setItem(
         LOCAL_PROJECT_STORE_NAME,
         JSON.stringify(getProjectInitialState()));
+  }
 
-    // Has the project been revised. If it has, offer to persist it before
-    // opening a new project
-    if (isProjectChanged()) {
-      const message =
-          'The current project has been modified. Click OK to\n' +
-          'discard the current changes and open an existing project.';
-
-      utils.confirm(
-          'Abandon Current Project', message,
-          // result is true if the OK button was selected
-          (result) => {
-            if (!result) {
-              openProjectModalSetHandlers();
-            }
-          },
-          'Cancel',
-          'OK');
-    } else {
-      openProjectModalSetHandlers();
-    }
+  // Has the project been revised. If it has, offer to persist it before
+  // opening a new project
+  if (!isProjectChanged()) {
+    openProject();
   } else {
-    // The project has not changed. Continue with the dialog.
-    openProjectModalSetHandlers();
+    const message =
+        'The current project has been modified. Click Yes to\n' +
+        'discard the current changes and open an existing project.';
+
+    utils.confirmYesNo(
+        'Checking Project Changes',
+        message,
+        function(result) {
+          if (result) {
+            openProject();
+          }
+        });
   }
 }
 
 /**
- * Set up the callbacks for the open project modal dialog
+ * Open a modal dialog to prompt user for the project file name
  */
-function openProjectModalSetHandlers() {
-  logConsoleMessage(`Entering openProjectModalSetHandlers`);
-  openProjectModalCancelClick();
-  openProjectModalOpenClick();
-  openProjectModalEscapeClick();
+function openProject() {
+  openProjectModalSetHandlers();
 
   // set title to Open file
   $('#open-project-dialog-title').html(page_text_label['editor_open']);
@@ -326,13 +322,6 @@ function openProjectModalSetHandlers() {
     }
   }
 
-  openProjectModalWindow();
-}
-
-/**
- * Open the 'Open Project' modal dialog window
- */
-function openProjectModalWindow() {
   // Open the modal dialog. The event handlers will take it from here.
   logConsoleMessage(`Open Project modal is opening`);
   $('#open-project-dialog').modal({
@@ -341,6 +330,16 @@ function openProjectModalWindow() {
     show: true,
   });
 }
+
+/**
+ * Set up the callbacks for the open project modal dialog
+ */
+function openProjectModalSetHandlers() {
+  openProjectModalCancelClick();
+  openProjectModalOpenClick();
+  openProjectModalEscapeClick();
+}
+
 
 /**
  * Connect an event handler to the 'Open' button in the Open
@@ -367,9 +366,7 @@ function openProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
     logConsoleMessage(`User elected to open the project`);
     $('#open-project-dialog').modal('hide');
-    logConsoleMessage('Open project modal is hidden. [Open]');
     if (Cookies.get('action')) {
-      logConsoleMessage(`Removing the action cookie.`);
       Cookies.remove('action');
     }
 
@@ -377,21 +374,19 @@ function openProjectModalOpenClick() {
     const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
     if (projectJson) {
       const project = projectJsonFactory(JSON.parse(projectJson));
-      const currentProject = getProjectInitialState();
-      logConsoleMessage(`Comparing new project to current project: ${
-        Project.compare(project, currentProject)
-      }`);
-
-      insertProject(project);
-    } else {
-      logConsoleMessage('The opened project cannot be found in storage.');
-      utils.showMessage(
-          `Project Load Error`,
-          `Unable to load the project`,
-          () => {
-            logConsoleMessage(`Possible project load failure`);
-          });
+      if (project) {
+        insertProject(project);
+        return;
+      }
     }
+
+    logConsoleMessage('The opened project cannot be found in storage.');
+    utils.showMessage(
+        `Project Load Error`,
+        `Unable to load the project`,
+        () => {
+          logConsoleMessage(`Possible project load failure`);
+        });
   });
 }
 
@@ -407,7 +402,6 @@ function openProjectModalCancelClick() {
   $('#open-project-select-file-cancel').on('click', () => {
     // Dismiss the modal in the UX
     $('#open-project-dialog').modal('hide');
-    logConsoleMessage('Open project modal is hidden. [Cancel]');
 
     if (Cookies.get('action')) {
       Cookies.remove('action');
@@ -434,7 +428,8 @@ function openProjectModalEscapeClick() {
     if (Cookies.get('action')) {
       Cookies.remove('action');
     }
-    logConsoleMessage('Open project modal has closed');
+    // Remove the event handler
+    $('#open-project-select-file-open').off('click');
   });
 }
 
@@ -583,28 +578,132 @@ function setEditOfflineProjectDetailsCancelHandler() {
   });
 }
 
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/*  Import Project Modal Dialog Handlers                                     */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+
+/**
+ * Import project file from disk
+ */
+export function importProjectFromStorage() {
+  logConsoleMessage(`Launching Import Project dialog process.`);
+  initUploadModalLabels();
+
+  // Reject import request if the current project has
+  // not been persisted to storage
+  if (isProjectChanged()) {
+    logConsoleMessage(`Project change detected before import`);
+    utils.showMessage(
+        Blockly.Msg.DIALOG_UNSAVED_PROJECT,
+        Blockly.Msg.DIALOG_SAVE_BEFORE_ADD_BLOCKS);
+  } else {
+    // Reset the import/append modal to its default state when closed
+    const dialog = $('#import-project-dialog');
+    dialog.on('hidden.bs.modal', () => {
+      resetUploadImportDialog();
+    });
+    importProjectSetCallbacks();
+    window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
+    dialog.modal({keyboard: false, backdrop: 'static'});
+  }
+}
+
 /**
  * Set the upload modal's title to "import"
  */
 export function initUploadModalLabels() {
+  logConsoleMessage(`Setting dialog labels`);
   $('#import-project-dialog-title').html(page_text_label['editor_import']);
   $('#import-project-dialog span').html(page_text_label['editor_import']);
 
   // Hide the save-as button.
   $('#save-project-as, #save-as-btn').addClass('hidden');
 
-  disableUploadDialogButtons();
-}
-
-/**
- * disable to upload dialog buttons until a valid file is uploaded
- */
-function disableUploadDialogButtons() {
+  // Disable the import dialog Append and Replace buttons
+  logConsoleMessage(`Disabling the Import Project Append and Replace buttons`);
   document.getElementById('selectfile-replace').disabled = true;
   document.getElementById('selectfile-append').disabled = true;
 }
 
-// HELPER FUNCTIONS
+/**
+ * Set up the dialog "Choose File" onChange handler
+ */
+function importProjectSetCallbacks() {
+  logConsoleMessage(`Setting Import Project callbacks`);
+  // Attach handler to process a project file when it is selected in the
+  // Import Project File hamburger menu item.
+  const selectControl = document.getElementById('selectfile');
+  selectControl.addEventListener('change', (e) => {
+    logConsoleMessage(`SelectFile onChange event: ${e.message}`);
+    uploadHandler(e.target.files);
+    logConsoleMessage(`We should expect to eventually see a project file.`);
+    // const localProject = projectJsonFactory(
+    //     JSON.parse(
+    //         window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)));
+    // setupWorkspace(localProject, function() {
+    //   window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
+    // });
+    //
+    // // Create an instance of the CodeEditor class
+    // codeEditor = new CodeEditor(localProject.boardType.name);
+    // if (!codeEditor) {
+    //   console.log('Error allocating CodeEditor object');
+    // }
+    //
+    // // Set the compile toolbar buttons to unavailable
+    // propToolbarButtonController();
+  });
+
+  // Clear the select project file dialog event handler
+  $('#selectfile-cancel-button').on('click', () => {
+    cancelImportProjectHandler();
+  });
+
+  // Import project modal dialog Replace Project button onClick event handler
+  $('#selectfile-replace').on('click', () => uploadMergeCode(false));
+
+  // Import project modal dialog Append Project button onClick event handler
+  $('#selectfile-append').on('click', () => uploadMergeCode(true));
+}
+
+/**
+ * Import Project Cancel button click event handler
+ */
+function cancelImportProjectHandler() {
+  logConsoleMessage(`The import has been cancelled.`);
+  window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
+}
+/**
+ * Reset the upload/import modal window to defaults after use
+ */
+function resetUploadImportDialog() {
+  // reset the title of the modal
+  $('import-project-dialog-title').html(page_text_label['editor_import']);
+
+  // hide "append" button
+  $('#selectfile-append').removeClass('hidden');
+
+  // change color of the "replace" button to blue and change text to "Open"
+  $('#selectfile-replace')
+      .removeClass('btn-primary')
+      .addClass('btn-danger')
+      .html(page_text_label['editor_button_replace']);
+
+  // reset the blockly toolbox sizing to ensure it renders correctly:
+  // eslint-disable-next-line no-undef
+  resetToolBoxSizing(100);
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/*            HELPER FUNCTIONS                                               */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
 
 /**
  * Populate the UI Project board type drop-down list

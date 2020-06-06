@@ -55,7 +55,7 @@ import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
 import {editProjectDetails, newProjectModal} from './modals';
-import {openProjectModal, initUploadModalLabels} from './modals';
+import {openProjectModal, importProjectFromStorage} from './modals';
 import {NudgeTimer} from './nudge_timer';
 import {Project, getProjectInitialState, getDefaultProfile} from './project';
 import {setProjectInitialState, setDefaultProfile} from './project';
@@ -129,11 +129,6 @@ $(() => {
   // Set up the URLs to download new Launchers and BP Clients
   initClientDownloadLinks();
   showAppName();
-
-  // This is necessary only because the target modal is being
-  // used for multiple but similar purposes.
-  // TODO: Make separate modals for each purpose
-  initUploadModalLabels();
 
   // Connect to the BP Launcher
   // TODO: Finding the client and then look again every 3.5 seconds? There
@@ -235,28 +230,7 @@ function initEventHandlers() {
   // ----------------------------------------------------------------------- //
   // Select file event handlers                                              //
   // ----------------------------------------------------------------------- //
-  // Attach handler to process a project file when it is selected in the
-  // Import Project File hamburger menu item
-  const selectControl = document.getElementById('selectfile');
-  selectControl.addEventListener('change', (e) => {
-    logConsoleMessage(`SelectFile onChange event: ${e.message}`);
-    uploadHandler(e.target.files);
-    // const localProject = projectJsonFactory(
-    //     JSON.parse(
-    //         window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)));
-    // setupWorkspace(localProject, function() {
-    //   window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-    // });
-    //
-    // // Create an instance of the CodeEditor class
-    // codeEditor = new CodeEditor(localProject.boardType.name);
-    // if (!codeEditor) {
-    //   console.log('Error allocating CodeEditor object');
-    // }
-    //
-    // // Set the compile toolbar buttons to unavailable
-    // propToolbarButtonController();
-  });
+
 
   // Attach handler to process a project file when it is selected in the
   // Open Project toolbar button
@@ -268,12 +242,6 @@ function initEventHandlers() {
     // decide what to do with it
     uploadHandler(e.target.files);
   });
-
-  // Import project modal dialog Replace Project onClick event handler
-  $('#selectfile-replace').on('click', () => uploadMergeCode(false));
-
-  // Import project modal dialog Append Project onClick event handler
-  $('#selectfile-append').on('click', () => uploadMergeCode(true));
 
   // View older BP Client installations button onClick handler
   $('#older-clients').on('click', function() {
@@ -310,7 +278,7 @@ function initEventHandlers() {
   $('#term-graph-setup').on('click', () => configureTermGraph());
 
   // Close upload project dialog event handler
-  $('#upload-close').on('click', () => clearUploadInfo(false));
+  $('#upload-close').on('click', () => clearUploadInfo());
 
 
   // **********************************
@@ -356,13 +324,9 @@ function initEventHandlers() {
   // TODO: Investigate why downloadPropC() is missing.
   $('#download-side').on('click', () => downloadPropC());
 
-  /**
-     * Import project file menu selector
-     *
-     * @description
-     * Import (upload) project from storage. This is designed to
-     * merge code from an existing project into the current project.
-     */
+  // Import project file menu selector
+  // Import (upload) project from storage. This is designed to
+  // merge code from an existing project into the current project.
   $('#upload-project').on('click', () => importProjectFromStorage());
 
   // ---- Hamburger drop down horizontal line ----
@@ -393,9 +357,6 @@ function initEventHandlers() {
       $('#save-as-project-name').val()
   ));
 
-  // Clear the select project file dialog event handler
-  $('#selectfile-clear').on('click', () => clearUploadInfo(true));
-
   $('#btn-graph-play').on('click', () => graphPlay());
   $('#btn-graph-snapshot').on('click', () => downloadGraph());
   $('#btn-graph-csv').on('click', () => downloadCSV());
@@ -411,6 +372,7 @@ function initEventHandlers() {
   // Hide these elements of the Open Project File modal when it
   // receives focus
   $('#selectfile').focus(function() {
+    logConsoleMessage(`Resetting select file validation messages`);
     $('#selectfile-verify-notvalid').css('display', 'none');
     $('#selectfile-verify-valid').css('display', 'none');
     $('#selectfile-verify-boardtype').css('display', 'none');
@@ -1086,45 +1048,6 @@ function generateSvgFooter( project ) {
   return svgFooter;
 }
 
-/**
- * Import project file from disk
- */
-function importProjectFromStorage() {
-  // Reject import request if the current project has
-  // not been persisted to storage
-  if (isProjectChanged()) {
-    utils.showMessage(
-        Blockly.Msg.DIALOG_UNSAVED_PROJECT,
-        Blockly.Msg.DIALOG_SAVE_BEFORE_ADD_BLOCKS);
-  } else {
-    // Reset the import/append modal to its default state when closed
-    const dialog = $('#import-project-dialog');
-    dialog.on('hidden.bs.modal', resetUploadImportDialog());
-    dialog.modal({keyboard: false, backdrop: 'static'});
-  }
-}
-
-/**
- * Reset the upload/import modal window to defaults after use
- */
-function resetUploadImportDialog() {
-  // reset the title of the modal
-  $('import-project-dialog-title').html(page_text_label['editor_import']);
-
-  // hide "append" button
-  $('#selectfile-append').removeClass('hidden');
-
-  // change color of the "replace" button to blue and change text to "Open"
-  $('#selectfile-replace')
-      .removeClass('btn-primary')
-      .addClass('btn-danger')
-      .html(page_text_label['editor_button_replace']);
-
-  // reset the blockly toolbox sizing to ensure it renders correctly:
-  // eslint-disable-next-line no-undef
-  resetToolBoxSizing(100);
-}
-
 
 /**
  *  Retrieve an SVG project file from local storage.
@@ -1136,7 +1059,7 @@ function resetUploadImportDialog() {
  *
  * @param {string []} files is an array of file names
  */
-function uploadHandler(files) {
+export function uploadHandler(files) {
   const UploadReader = new FileReader();
 
   // Event handler that fires when the file that the user selected is loaded
@@ -1214,6 +1137,7 @@ function uploadHandler(files) {
             TEMP_PROJECT_STORE_NAME, JSON.stringify(tmpProject.getDetails()));
 
         // Set the status message in the modal dialog
+        // This only happens after the import project dialog has fired
         if (xmlValid === true) {
           $('#selectfile-verify-valid').css('display', 'block');
           document.getElementById('selectfile-replace').disabled = false;
@@ -1229,7 +1153,11 @@ function uploadHandler(files) {
   };
 
   // Load the SVG project file.
-  UploadReader.readAsText(files[0]);
+  if (files && files[0]) {
+    UploadReader.readAsText(files[0]);
+  } else {
+    logConsoleMessage(`File upload filename is missing`);
+  }
 }
 
 /**
@@ -1398,12 +1326,10 @@ function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
 }
 
 /**
- *
- * @param {boolean} redirect boolean flag to permit page redirection
+ * Reset the dialog prompts
+ * TODO: This should be called on the front end before the dialog is opened.
  */
-function clearUploadInfo(redirect) {
-  // Reset all of the upload fields and containers
-  // uploadedXML = '';
+function clearUploadInfo() {
   logConsoleMessage(`Clearing upload metadata`);
 
   $('#selectfile').val('');
@@ -1413,14 +1339,6 @@ function clearUploadInfo(redirect) {
 
   document.getElementById('selectfile-replace').disabled = true;
   document.getElementById('selectfile-append').disabled = true;
-
-  // when opening a file but the user cancels, return to the splash screen
-  if (redirect === true) {
-    if (getURLParameter('openFile') === 'true') {
-      logConsoleMessage(`User aborted project load operation.`);
-      // window.location = 'index.html' + window.location.search;
-    }
-  }
 }
 
 /**
@@ -1434,7 +1352,7 @@ function clearUploadInfo(redirect) {
  * This code assumes that the new project file has been loaded into a
  * variable. Not sure that is happening at this point.
  */
-function uploadMergeCode(append) {
+export function uploadMergeCode(append) {
   const xmlTagLength = '</xml>'.length;
   $('#import-project-dialog').modal('hide');
 
@@ -1763,6 +1681,10 @@ function showProjectTimerModalDialog() {
   }
 
   const lastSave = Math.ceil(project.getProjectTimeSinceLastSave());
+  if (lastSave === 0) {
+    logConsoleMessage(`Nudge timer is likely no longer working`);
+    return;
+  }
   const message = [
     page_text_label['editor_save-check_warning-1'],
     page_text_label['editor_save-check_warning-2'],
@@ -1856,25 +1778,19 @@ export function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
  */
 export function isProjectChanged() {
   const project = getProjectInitialState();
-  let result = false;
 
   if (!project || typeof project.name === 'undefined') {
     console.log('There is no project defined.');
     console.log('This should probably be investigated.');
-    return result;
+    return false;
   }
 
   // TODO: Compare the project name to the initial project name
-
-
   // TODO: Compare the project description with the initial description
 
   const code = getXml();
   const isChanged = project.code.localeCompare(code);
-  if (isChanged !== 0) {
-    result = true;
-  }
-  return result;
+  return isChanged !== 0;
 }
 
 /**
