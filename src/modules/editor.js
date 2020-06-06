@@ -55,7 +55,7 @@ import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
 import {editProjectDetails} from './modals';
-import {openProjectModal, importProjectFromStorage} from './modals';
+import {importProjectFromStorage} from './modals';
 import {NudgeTimer} from './nudge_timer';
 import {Project, getProjectInitialState, getDefaultProfile} from './project';
 import {setProjectInitialState, setDefaultProfile} from './project';
@@ -71,6 +71,7 @@ import {getURLParameter} from './utility';
 import {utils, logConsoleMessage, sanitizeFilename} from './utility';
 import {getXmlCode} from './code_editor';
 import {newProjectDialog} from './dialogs/new_project';
+import {openProjectDialog} from './dialogs/open_project';
 
 startSentry();
 logConsoleMessage(`Launching the editor`);
@@ -155,11 +156,10 @@ $(() => {
   const state = Cookies.get('action');
   if (state !== undefined) {
     if (state === 'open') {
-      openProjectModal();
+      openProjectDialog.show();
     }
     if (state === 'new') {
       newProjectDialog.show();
-      // newProjectModal();
     }
   }
 
@@ -219,11 +219,13 @@ function initInternationalText() {
  * Set up event handlers - Attach events to nav/action menus/buttons
  */
 function initEventHandlers() {
+  logConsoleMessage(`Init event handlers`);
   // Leave editor page exit processing
   leavePageHandler();
 
   // Dialog Windows
   newProjectDialog.initEventHandlers();
+  openProjectDialog.initEventHandlers();
 
   // Update the blockly workspace to ensure that it takes the remainder of
   // the window.
@@ -242,10 +244,13 @@ function initEventHandlers() {
   const openFileSelectControl = document.getElementById(
       'open-project-select-file' );
   openFileSelectControl.addEventListener('change', (e) => {
-    logConsoleMessage(`OpenProject onChange event: ${e.target.files[0].name}`);
-    // Load project into browser storage and let the modal event handler
-    // decide what to do with it
-    uploadHandler(e.target.files);
+    if (e.target.files[0] && e.target.files[0].length > 0) {
+      logConsoleMessage(
+          `OpenProject onChange event: ${e.target.files[0].name}`);
+      // Load project into browser storage and let the modal event handler
+      // decide what to do with it
+      uploadHandler(e.target.files);
+    }
   });
 
   // View older BP Client installations button onClick handler
@@ -303,7 +308,7 @@ function initEventHandlers() {
   $('#new-project-button').on('click', () => newProjectDialog.show());
 
   // Open Project toolbar button
-  $('#open-project-button').on('click', () => openProjectModal());
+  $('#open-project-button').on('click', () => openProjectDialog.show());
 
   // Save Project toolbar button
   $('#save-btn, #save-project').on('click', () => saveProject());

@@ -24,15 +24,13 @@
 import 'bootstrap/js/modal';
 import 'jquery-validation';
 import Blockly from 'blockly/core';
-import * as Cookies from 'js-cookie';
 
-import {LOCAL_PROJECT_STORE_NAME} from './constants.js';
 import {TEMP_PROJECT_STORE_NAME} from './constants.js';
 
-import {isProjectChanged, insertProject} from './editor.js';
+import {isProjectChanged} from './editor.js';
 import {resetToolBoxSizing, displayProjectName} from './editor.js';
 import {uploadHandler, uploadMergeCode} from './editor.js';
-import {getProjectInitialState, projectJsonFactory} from './project';
+import {getProjectInitialState} from './project';
 
 // eslint-disable-next-line camelcase
 import {page_text_label} from './blockly/language/en/messages.js';
@@ -53,163 +51,163 @@ import {utils, logConsoleMessage} from './utility';
  *  The form Accept button handler should look there when it is
  *  time to process the new project.
  */
-export function openProjectModal() {
-  // Save a copy of the original project in case the page gets reloaded
-  if (getProjectInitialState() &&
-      getProjectInitialState().name !== 'undefined') {
-    window.localStorage.setItem(
-        LOCAL_PROJECT_STORE_NAME,
-        JSON.stringify(getProjectInitialState()));
-  }
-
-  // Has the project been revised. If it has, offer to persist it before
-  // opening a new project
-  if (!isProjectChanged()) {
-    openProject();
-  } else {
-    const message =
-        'The current project has been modified. Click Yes to\n' +
-        'discard the current changes and open an existing project.';
-
-    utils.confirmYesNo(
-        'Checking Project Changes',
-        message,
-        function(result) {
-          if (result) {
-            openProject();
-          }
-        });
-  }
-}
+// export function openProjectModal() {
+//   // Save a copy of the original project in case the page gets reloaded
+//   if (getProjectInitialState() &&
+//       getProjectInitialState().name !== 'undefined') {
+//     window.localStorage.setItem(
+//         LOCAL_PROJECT_STORE_NAME,
+//         JSON.stringify(getProjectInitialState()));
+//   }
+//
+//   // Has the project been revised. If it has, offer to persist it before
+//   // opening a new project
+//   if (!isProjectChanged()) {
+//     openProject();
+//   } else {
+//     const message =
+//         'The current project has been modified. Click Yes to\n' +
+//         'discard the current changes and open an existing project.';
+//
+//     utils.confirmYesNo(
+//         'Checking Project Changes',
+//         message,
+//         function(result) {
+//           if (result) {
+//             openProject();
+//           }
+//         });
+//   }
+// }
 
 /**
  * Open a modal dialog to prompt user for the project file name
  */
-function openProject() {
-  openProjectModalSetHandlers();
-
-  // set title to Open file
-  $('#open-project-dialog-title').html(page_text_label['editor_open']);
-
-  // Clear any previous filename
-  const filenameInput = $('#open-project-select-file');
-  if (filenameInput.length > 0) {
-    const filename = filenameInput[0].value;
-    if (filename.length > 0) {
-      filenameInput[0].value = '';
-    }
-  }
-
-  // Open the modal dialog. The event handlers will take it from here.
-  logConsoleMessage(`Open Project modal is opening`);
-  $('#open-project-dialog').modal({
-    keyboard: false,
-    backdrop: 'static',
-    show: true,
-  });
-}
+// function openProject() {
+//   openProjectModalSetHandlers();
+//
+//   // set title to Open file
+//   $('#open-project-dialog-title').html(page_text_label['editor_open']);
+//
+//   // Clear any previous filename
+//   const filenameInput = $('#open-project-select-file');
+//   if (filenameInput.length > 0) {
+//     const filename = filenameInput[0].value;
+//     if (filename.length > 0) {
+//       filenameInput[0].value = '';
+//     }
+//   }
+//
+//   // Open the modal dialog. The event handlers will take it from here.
+//   logConsoleMessage(`Open Project modal is opening`);
+//   $('#open-project-dialog').modal({
+//     keyboard: false,
+//     backdrop: 'static',
+//     show: true,
+//   });
+// }
 
 /**
  * Set up the callbacks for the open project modal dialog
  */
-function openProjectModalSetHandlers() {
-  openProjectModalCancelClick();
-  openProjectModalOpenClick();
-  openProjectModalEscapeClick();
-}
+// function openProjectModalSetHandlers() {
+//   openProjectModalCancelClick();
+//   openProjectModalOpenClick();
+//   openProjectModalEscapeClick();
+// }
 
-
-/**
- * Connect an event handler to the 'Open' button in the Open
- * Project modal dialog.
- *
- * @description
- * When a project is selected, the code responsible for retrieving the project
- * from disk, uploadHandler(), will store it in the browser's localStorage
- * under the key value TEMP_PROJECT_STORE_NAME. That same code will return
- * control to the Open Project modal, where the user can select Open or
- * Cancel.
- *
- * This event handler is invoked when the user selects the Open button. It
- * looks for a project in the browser's local storage with a key value of
- * TEMP_PROJECT_STORE_NAME. If one is found, it simply copies the project
- * to a new key in the browser's local storage with the key
- * LOCAL_PROJECT_STORE_NAME and removes the temporary copy stored in
- * TEMP_PROJECT_STORE_NAME. It then redirects the browser to the editor page,
- * where other code will look for a project in the browser's local storage
- * under the LOCAL_PROJECT_STORE_NAME key and load it into the editor canvas
- * if a project is found there.
- */
-function openProjectModalOpenClick() {
-  $('#open-project-select-file-open').on('click', () => {
-    logConsoleMessage(`User elected to open the project`);
-    $('#open-project-dialog').modal('hide');
-    if (Cookies.get('action')) {
-      Cookies.remove('action');
-    }
-
-    // Copy the stored temp project to the stored local project
-    const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
-    if (projectJson) {
-      const project = projectJsonFactory(JSON.parse(projectJson));
-      if (project) {
-        insertProject(project);
-        return;
-      }
-    }
-
-    logConsoleMessage('The opened project cannot be found in storage.');
-    utils.showMessage(
-        `Project Load Error`,
-        `Unable to load the project`,
-        () => {
-          logConsoleMessage(`Possible project load failure`);
-        });
-  });
-}
-
-/**
- * Open project cancel button clicked event handler
- */
-function openProjectModalCancelClick() {
-  // Set button onClick event handlers
-  // ----------------------------------------------------------
-  // This is also handling the 'Edit Project Details' modal
-  // dialog box
-  // ----------------------------------------------------------
-  $('#open-project-select-file-cancel').on('click', () => {
-    // Dismiss the modal in the UX
-    $('#open-project-dialog').modal('hide');
-
-    if (Cookies.get('action')) {
-      Cookies.remove('action');
-    }
-    const project = getProjectInitialState();
-    if (!project) {
-      logConsoleMessage('Project has disappeared.');
-      return;
-    }
-
-    if (typeof(project.boardType) === 'undefined') {
-      logConsoleMessage('Project board type is undefined');
-    }
-  });
-}
-
-/**
- * Open project escape ('x') click event handler
- */
-function openProjectModalEscapeClick() {
-  $('#open-project-dialog').on('hidden.bs.modal', () => {
-    // Trap the modal event that fires when the modal window is closed when
-    // the user clicks on the 'x' icon.
-    if (Cookies.get('action')) {
-      Cookies.remove('action');
-    }
-    // Remove the event handler
-    $('#open-project-select-file-open').off('click');
-  });
-}
+//
+// /**
+//  * Connect an event handler to the 'Open' button in the Open
+//  * Project modal dialog.
+//  *
+//  * @description
+//  * When a project is selected, the code responsible for retrieving the
+//  * project from disk, uploadHandler(), will store it in the browser's
+//  * localStorage under the key value TEMP_PROJECT_STORE_NAME. That same
+//  * code will return control to the Open Project modal, where the user can
+//  * select Open or Cancel.
+//  *
+//  * This event handler is invoked when the user selects the Open button. It
+//  * looks for a project in the browser's local storage with a key value of
+//  * TEMP_PROJECT_STORE_NAME. If one is found, it simply copies the project
+//  * to a new key in the browser's local storage with the key
+//  * LOCAL_PROJECT_STORE_NAME and removes the temporary copy stored in
+//  * TEMP_PROJECT_STORE_NAME. It then redirects the browser to the editor page,
+//  * where other code will look for a project in the browser's local storage
+//  * under the LOCAL_PROJECT_STORE_NAME key and load it into the editor canvas
+//  * if a project is found there.
+//  */
+// function openProjectModalOpenClick() {
+//   $('#open-project-select-file-open').on('click', () => {
+//     logConsoleMessage(`User elected to open the project`);
+//     $('#open-project-dialog').modal('hide');
+//     if (Cookies.get('action')) {
+//       Cookies.remove('action');
+//     }
+//
+//     // Copy the stored temp project to the stored local project
+//     const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
+//     if (projectJson) {
+//       const project = projectJsonFactory(JSON.parse(projectJson));
+//       if (project) {
+//         insertProject(project);
+//         return;
+//       }
+//     }
+//
+//     logConsoleMessage('The opened project cannot be found in storage.');
+//     utils.showMessage(
+//         `Project Load Error`,
+//         `Unable to load the project`,
+//         () => {
+//           logConsoleMessage(`Possible project load failure`);
+//         });
+//   });
+// }
+//
+// /**
+//  * Open project cancel button clicked event handler
+//  */
+// function openProjectModalCancelClick() {
+//   // Set button onClick event handlers
+//   // ----------------------------------------------------------
+//   // This is also handling the 'Edit Project Details' modal
+//   // dialog box
+//   // ----------------------------------------------------------
+//   $('#open-project-select-file-cancel').on('click', () => {
+//     // Dismiss the modal in the UX
+//     $('#open-project-dialog').modal('hide');
+//
+//     if (Cookies.get('action')) {
+//       Cookies.remove('action');
+//     }
+//     const project = getProjectInitialState();
+//     if (!project) {
+//       logConsoleMessage('Project has disappeared.');
+//       return;
+//     }
+//
+//     if (typeof(project.boardType) === 'undefined') {
+//       logConsoleMessage('Project board type is undefined');
+//     }
+//   });
+// }
+//
+// /**
+//  * Open project escape ('x') click event handler
+//  */
+// function openProjectModalEscapeClick() {
+//   $('#open-project-dialog').on('hidden.bs.modal', () => {
+//     // Trap the modal event that fires when the modal window is closed when
+//     // the user clicks on the 'x' icon.
+//     if (Cookies.get('action')) {
+//       Cookies.remove('action');
+//     }
+//     // Remove the event handler
+//     $('#open-project-select-file-open').off('click');
+//   });
+// }
 
 /**
  *  Validate the required elements of the edit project form

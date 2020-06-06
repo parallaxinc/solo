@@ -28,13 +28,28 @@ import {page_text_label} from '../blockly/language/en/messages';
 import {logConsoleMessage} from '../utility';
 import {isExperimental} from '../url_parameters';
 
+
+/**
+ * New Project dialog window
+ * @type {{
+ *    show: newProjectDialog.show,
+ *    isEventHandler: boolean,
+ *    reset: newProjectDialog.reset,
+ *    initEventHandlers: newProjectDialog.initEventHandlers
+ *  }}
+ */
 export const newProjectDialog = {
-  init_count: 0,
+  /**
+   * Are the dialog event handlers initialized
+   * @type {boolean} is true if the initializer has been called otherwise false
+   */
+  isEventHandler: false,
+
   /**
    * Set up the event callbacks for the new project dialog
    */
   initEventHandlers: function() {
-    if (this.init_count > 0) {
+    if (this.isEventHandler) {
       logConsoleMessage(`New Project dialog handlers already initialized`);
       return;
     }
@@ -45,7 +60,7 @@ export const newProjectDialog = {
     newProjectModalCancelClick(); // Handle a click on the Cancel button
     newProjectModalEscapeClick(); // Handle user clicking on the 'x' icon
 
-    this.init_count++;
+    this.isEventHandler = true;
   },
 
   /**
@@ -60,6 +75,11 @@ export const newProjectDialog = {
    *  update the global project object with a new, empty project.
    */
   show: function() {
+    if (!this.isEventHandler) {
+      logConsoleMessage(`Initialize New Project dialog event handlers first.`);
+      return;
+    }
+
     this.reset();
     populateProjectBoardTypesUIElement();
 
@@ -84,7 +104,6 @@ export const newProjectDialog = {
         .html(page_text_label['editor_new_project_title']);
   },
 };
-
 
 /**
  * Handle the <enter> keypress in the modal form
@@ -188,7 +207,6 @@ function newProjectModalEscapeClick() {
   });
 }
 
-
 /**
  * Populate the UI Project board type drop-down list
  * @description
@@ -239,15 +257,9 @@ function populateProjectBoardTypesUIElement() {
           }
         }
       }
-
-      // Optionally set the selected option element
-      // if (selected && board === selected) {
-      //   $(element).val(selected);
-      // }
     }
   }
 }
-
 
 /**
  * Verify that the project name and board type form fields have data
