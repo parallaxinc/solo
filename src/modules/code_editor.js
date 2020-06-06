@@ -38,9 +38,8 @@ import {Project} from './project';
  */
 let cSourceCode = null;
 
-
 /**
- *
+ * Ace Editor XML code representation
  * @type {AceAjax.Editor | null}
  */
 let cXmlCode = null;
@@ -48,9 +47,9 @@ let cXmlCode = null;
 /**
  * Prop c code editor implementing the Ace package
  */
-class CodeEditor {
+export class CodeEditor {
   /**
-   *
+   * Create a new CodeEditor instance object
    * @param {string} boardType
    */
   constructor(boardType) {
@@ -76,7 +75,7 @@ class CodeEditor {
       cSourceCode = code;
     }
 
-    if (!window.codeXml && isExperimental.indexOf('xedit') > -1) {
+    if (!cXmlCode && isExperimental.indexOf('xedit') > -1) {
       const xmlCode = ace.edit('code-xml');
       xmlCode.setTheme('ace/theme/chrome');
       xmlCode.getSession().setMode('ace/mode/xml');
@@ -90,7 +89,6 @@ class CodeEditor {
   undo() {
     cSourceCode.undo();
   }
-
 
   /**
    * Ace editor Redo command
@@ -120,13 +118,12 @@ class CodeEditor {
   }
 }
 
-
 /**
  * Covert C source code into a Blockly block
  *
  * @return {string} An XML representation of the source code.
  */
-function propcAsBlocksXml() {
+export function propcAsBlocksXml() {
   let code = Project.getEmptyProjectCodeHeader();
   const codePropC = window.codePropC;
   code += '<block type="propc_file" id="' +
@@ -145,6 +142,21 @@ function propcAsBlocksXml() {
   return code;
 }
 
+/**
+ * Return the active Ace code editor instance
+ * @return {AceAjax.Editor}
+ */
+export function getSourceEditor() {
+  return cSourceCode;
+}
+
+/**
+ * Return the active Ace editor instance for the project XML
+ * @return {AceAjax.Editor}
+ */
+export function getXmlCode() {
+  return cXmlCode;
+}
 
 /**
  * Generate a unique block ID
@@ -165,7 +177,6 @@ function generateBlockId(nonce) {
   return blockId;
 }
 
-
 /**
  * Set the global codePropC variable
  * @param {Object} value
@@ -175,21 +186,3 @@ function generateBlockId(nonce) {
 function setPropCCode(value) {
   window.codePropC = value;
 }
-
-/**
- * Return the active Ace code editor instance
- * @return {AceAjax.Editor}
- */
-function getSourceEditor() {
-  return cSourceCode;
-}
-
-/**
- * Return the active Ace editor instance for the project XML
- * @return {AceAjax.Editor}
- */
-function getXmlCode() {
-  return cXmlCode;
-}
-
-export {CodeEditor, propcAsBlocksXml, getSourceEditor, getXmlCode};
