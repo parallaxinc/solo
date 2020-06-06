@@ -54,7 +54,7 @@ import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
-import {editProjectDetails, newProjectModal} from './modals';
+import {editProjectDetails} from './modals';
 import {openProjectModal, importProjectFromStorage} from './modals';
 import {NudgeTimer} from './nudge_timer';
 import {Project, getProjectInitialState, getDefaultProfile} from './project';
@@ -70,6 +70,7 @@ import {isExperimental} from './url_parameters';
 import {getURLParameter} from './utility';
 import {utils, logConsoleMessage, sanitizeFilename} from './utility';
 import {getXmlCode} from './code_editor';
+import {newProjectDialog} from './dialogs/new_project';
 
 startSentry();
 logConsoleMessage(`Launching the editor`);
@@ -157,7 +158,8 @@ $(() => {
       openProjectModal();
     }
     if (state === 'new') {
-      newProjectModal();
+      newProjectDialog.show();
+      // newProjectModal();
     }
   }
 
@@ -219,6 +221,9 @@ function initInternationalText() {
 function initEventHandlers() {
   // Leave editor page exit processing
   leavePageHandler();
+
+  // Dialog Windows
+  newProjectDialog.initEventHandlers();
 
   // Update the blockly workspace to ensure that it takes the remainder of
   // the window.
@@ -295,7 +300,7 @@ function initEventHandlers() {
 
   // New Project toolbar button
   // TODO: New Project should be treated the same way as Open Project.
-  $('#new-project-button').on('click', () => newProjectModal());
+  $('#new-project-button').on('click', () => newProjectDialog.show());
 
   // Open Project toolbar button
   $('#open-project-button').on('click', () => openProjectModal());
