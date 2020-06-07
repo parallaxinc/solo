@@ -47,8 +47,8 @@ import {
   downloadGraph, graphStartStop,
 } from './blocklyc';
 
-import {findClient, getComPort} from './client_connection';
-import {clientService, serviceConnectionTypes} from './client_service';
+import {findClient} from './client_connection';
+import {clientService, initTerminal} from './client_service';
 import {LOCAL_PROJECT_STORE_NAME} from './constants';
 import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
@@ -62,7 +62,6 @@ import {setProjectInitialState, setDefaultProfile} from './project';
 import {ProjectTypes, clearProjectInitialState} from './project';
 import {projectJsonFactory} from './project';
 import {buildDefaultProject} from './project_default';
-import {PropTerm} from './prop_term';
 import {initToolbarIcons} from './toolbar_controller';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
@@ -137,6 +136,7 @@ $(() => {
   //  must be a better way to handle this in the clientService object.
   findClient();
   setInterval(findClient, 2000);
+  initTerminal();
 
   const backup = window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME);
   if (backup) {
@@ -144,9 +144,8 @@ $(() => {
     // Copy the stored temp project to the stored local project
     const project = projectJsonFactory(JSON.parse(backup));
     const currentProject = getProjectInitialState();
-    logConsoleMessage(`Comparing new project to current project:
-     ${Project.compare(project, currentProject)}`);
-
+    logConsoleMessage(`Current project and new project are equal?  ` +
+        `${Project.compare(project, currentProject)}`);
     insertProject(project);
   } else {
     logConsoleMessage(`Creating default project`);
@@ -162,14 +161,7 @@ $(() => {
       newProjectDialog.show();
     }
   }
-
-  // Make sure the toolbox appears correctly, just for good measure.
-  // And center the blocks on the workspace. This assumes that there is
-  // an active project in the Blockly object.
   resetToolBoxSizing(250);
-
-  // Initialize the terminal
-  initTerminal();
 });
 
 
@@ -396,35 +388,6 @@ function initEventHandlers() {
   });
 }
 
-/**
- * Initialize the terminal object
- */
-function initTerminal() {
-  // Initialize the terminal
-  new PropTerm(
-      document.getElementById('serial_console'),
-
-      function(characterToSend) {
-        if (clientService.type === serviceConnectionTypes.HTTP &&
-            clientService.activeConnection) {
-          clientService.activeConnection.send(btoa(characterToSend));
-        } else if (clientService.type === serviceConnectionTypes.WS) {
-          const msgToSend = {
-            type: 'serial-terminal',
-            outTo: 'terminal',
-            portPath: getComPort(),
-            // TODO: Correct baudrate reference
-            baudrate: baudrate.toString(10),
-            msg: (clientService.rxBase64 ?
-                btoa(characterToSend) : characterToSend),
-            action: 'msg',
-          };
-          clientService.activeConnection.send(JSON.stringify(msgToSend));
-        }
-      },
-      null
-  );
-}
 
 /**
  * Interrupt browser from leaving the editor page if the current project
