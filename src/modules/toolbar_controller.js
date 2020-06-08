@@ -352,9 +352,9 @@ export function initToolbarIcons() {
   };
 
   $('.bpIcon').each(function(key, value ) {
-    logConsoleMessage(
-        // eslint-disable-next-line max-len
-        `Init icons: ${key}, ${value.dataset.icon}, icon:${value.dataset.icon}`);
+    // logConsoleMessage(
+    //  eslint-disable-next-line max-len
+    // `Init icons: ${key}, ${value.dataset.icon}, icon:${value.dataset.icon}`);
     $(value).html(bpIcons[value.dataset.icon]);
   });
 }
