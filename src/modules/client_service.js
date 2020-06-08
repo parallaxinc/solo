@@ -22,8 +22,8 @@
 
 
 import {logConsoleMessage} from './utility';
-import {PropTerm} from "./prop_term";
-import {getComPort} from "./client_connection";
+import {PropTerm} from './prop_term';
+import {baudrate, getComPort} from './client_connection';
 
 /**
  * These are the permitted states of the clientService.type property
