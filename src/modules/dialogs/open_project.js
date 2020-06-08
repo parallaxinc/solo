@@ -25,7 +25,7 @@ import * as Cookies from 'js-cookie';
 // eslint-disable-next-line camelcase
 import {page_text_label} from '../blockly/language/en/messages';
 import {LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME} from '../constants';
-import {insertProject, isProjectChanged} from '../editor';
+import {insertProject, isProjectChanged, uploadHandler} from '../editor';
 import {getProjectInitialState, projectJsonFactory} from '../project';
 import {logConsoleMessage, utils} from '../utility';
 
@@ -34,12 +34,42 @@ import {logConsoleMessage, utils} from '../utility';
  * New Project dialog window
  * @type {{
  *    isEventHandler: boolean,
+ *    isProjectFileValid: boolean,
  *    initEventHandlers: openProjectDialog.initEventHandlers,
  *    show: openProjectDialog.show,
  *    reset: openProjectDialog.reset
  *  }}
+ *
+ * @description
+ * The Open Project dialog event handlers are set in a single call to the
+ * initEventHandlers() method. This should be invoked during the editor page
+ * load event.
+ *
+ * The dialog is opened when the show() method is invoked. Currently, this
+ * triggers a number of asynchronous events that ultimately culminate with
+ * a copy of the project file loaded into the browser's local storage. The
+ * sequence of events follows this path:
+ *
+ * The Open Project dialog is displayed to the user. The user clicks on the
+ * 'select file' control. This opens a File Manager dialog where the user
+ * selects a file to open. When the OK button from the File Manager is
+ * selected, The 'select file' onChange event fires and invokes the
+ * uploadHandler() function.
+ *
+ * The uploadHandler function sets a callback to process the file after it
+ * is read from the users file system. The callback parses the project file
+ * and determines if the file is formatted properly. If it is, the
+ * UploadHandler() function converts the project to a JSON object and stores
+ * it in the browser's localStorage in the TEMP_FILE bucket.
  */
 export const openProjectDialog = {
+  /**
+   * Indicator for the validity of the imported project
+   * @type {boolean} is true if the impoted project has been loaded into the
+   * localStorage temporary project buffer
+   */
+  isProjectFileValid: false,
+
   /**
    * Are the dialog event handlers initialized
    * @type {boolean} is true if the initializer has been called otherwise false
@@ -60,6 +90,7 @@ export const openProjectDialog = {
     // openProjectModalEnterClick(); // Handle the user pressing the Enter key
     openProjectModalCancelClick(); // Handle a click on the Cancel button
     openProjectModalEscapeClick(); // Handle user clicking on the 'x' icon
+    setSelectedFileOnChange(); // Handle selected file onChange event
 
     this.isEventHandler = true;
     logConsoleMessage(`Open Project dialog handlers initialized.`);
@@ -74,7 +105,6 @@ export const openProjectDialog = {
       return;
     }
 
-    logConsoleMessage(`Open Project dialog: show`);
     this.reset();
     // Save a copy of the original project in case the page gets reloaded
     if (getProjectInitialState() &&
@@ -87,7 +117,7 @@ export const openProjectDialog = {
     // Has the project been revised. If it has, offer to persist it before
     // opening a new project
     if (!isProjectChanged()) {
-      openProject();
+      openProjectDialogWindow();
     } else {
       const message =
           'The current project has been modified. Click Yes to\n' +
@@ -98,7 +128,7 @@ export const openProjectDialog = {
           message,
           function(result) {
             if (result) {
-              openProject();
+              openProjectDialogWindow();
             }
           });
     }
@@ -125,13 +155,41 @@ export const openProjectDialog = {
 /**
  * Open a modal dialog to prompt user for the project file name
  */
-function openProject() {
+function openProjectDialogWindow() {
   // Open the modal dialog. The event handlers will take it from here.
-  logConsoleMessage(`'Open Project' dialog is opening`);
+  logConsoleMessage(`Open Project dialog is opening`);
   $('#open-project-dialog').modal({
     keyboard: false,
     backdrop: 'static',
     show: true,
+  });
+}
+
+/**
+ * Handle the onChange event for the file selection dialog
+ */
+function setSelectedFileOnChange() {
+  // const inputElement = document.getElementById('open-project-select-file');
+  // inputElement.addEventListener('change', function() {
+  //   const fileList = this.files; /* now you can work with the file list */
+  //   logConsoleMessage(`${fileList}`);
+  // },
+  // false);
+
+  // Attach handler to process a project file when it is selected in the
+  // Open Project toolbar button
+
+  $('#open-project-select-file').on('change', function(event) {
+    logConsoleMessage(`File selector has changed`);
+    if (event.target.files[0] && event.target.files[0].name.length > 0) {
+      logConsoleMessage(
+          `OpenProject onChange event: ${event.target.files[0].name}`);
+      // Load project into browser storage and let the modal event handler
+      // decide what to do with it
+      uploadHandler(event.target.files, function(fileFlag) {
+        logConsoleMessage(`Project file load state is: ${fileFlag}`);
+      });
+    }
   });
 }
 
@@ -159,7 +217,7 @@ function openProject() {
 function openProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
     logConsoleMessage(`User elected to open the project`);
-    logConsoleMessage(`Closing the 'Oprn Project' dialog`);
+    logConsoleMessage(`Closing the 'Open Project' dialog`);
     $('#open-project-dialog').modal('hide');
     clearCookie();
 
