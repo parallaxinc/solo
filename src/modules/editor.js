@@ -47,22 +47,20 @@ import {
   downloadGraph, graphStartStop,
 } from './blocklyc';
 
-import {findClient, getComPort} from './client_connection';
-import {clientService, serviceConnectionTypes} from './client_service';
+import {findClient} from './client_connection';
+import {clientService, initTerminal} from './client_service';
 import {LOCAL_PROJECT_STORE_NAME} from './constants';
 import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
-import {editProjectDetails, newProjectModal} from './modals';
-import {openProjectModal, importProjectFromStorage} from './modals';
+import {editProjectDetails} from './modals';
 import {NudgeTimer} from './nudge_timer';
 import {Project, getProjectInitialState, getDefaultProfile} from './project';
 import {setProjectInitialState, setDefaultProfile} from './project';
 import {ProjectTypes, clearProjectInitialState} from './project';
 import {projectJsonFactory} from './project';
 import {buildDefaultProject} from './project_default';
-import {PropTerm} from './prop_term';
 import {initToolbarIcons} from './toolbar_controller';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
@@ -70,6 +68,9 @@ import {isExperimental} from './url_parameters';
 import {getURLParameter} from './utility';
 import {utils, logConsoleMessage, sanitizeFilename} from './utility';
 import {getXmlCode} from './code_editor';
+import {newProjectDialog} from './dialogs/new_project';
+import {openProjectDialog} from './dialogs/open_project';
+import {importProjectDialog} from './dialogs/import_project';
 
 startSentry();
 logConsoleMessage(`Launching the editor`);
@@ -135,6 +136,7 @@ $(() => {
   //  must be a better way to handle this in the clientService object.
   findClient();
   setInterval(findClient, 2000);
+  initTerminal();
 
   const backup = window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME);
   if (backup) {
@@ -142,9 +144,8 @@ $(() => {
     // Copy the stored temp project to the stored local project
     const project = projectJsonFactory(JSON.parse(backup));
     const currentProject = getProjectInitialState();
-    logConsoleMessage(`Comparing new project to current project:
-     ${Project.compare(project, currentProject)}`);
-
+    logConsoleMessage(`Current project and new project are equal?  ` +
+        `${Project.compare(project, currentProject)}`);
     insertProject(project);
   } else {
     logConsoleMessage(`Creating default project`);
@@ -154,20 +155,13 @@ $(() => {
   const state = Cookies.get('action');
   if (state !== undefined) {
     if (state === 'open') {
-      openProjectModal();
+      openProjectDialog.show();
     }
     if (state === 'new') {
-      newProjectModal();
+      newProjectDialog.show();
     }
   }
-
-  // Make sure the toolbox appears correctly, just for good measure.
-  // And center the blocks on the workspace. This assumes that there is
-  // an active project in the Blockly object.
   resetToolBoxSizing(250);
-
-  // Initialize the terminal
-  initTerminal();
 });
 
 
@@ -217,8 +211,14 @@ function initInternationalText() {
  * Set up event handlers - Attach events to nav/action menus/buttons
  */
 function initEventHandlers() {
+  logConsoleMessage(`Init event handlers`);
   // Leave editor page exit processing
   leavePageHandler();
+
+  // Dialog Windows
+  newProjectDialog.initEventHandlers();
+  openProjectDialog.initEventHandlers();
+  importProjectDialog.initEventHandlers();
 
   // Update the blockly workspace to ensure that it takes the remainder of
   // the window.
@@ -234,14 +234,17 @@ function initEventHandlers() {
 
   // Attach handler to process a project file when it is selected in the
   // Open Project toolbar button
-  const openFileSelectControl = document.getElementById(
-      'open-project-select-file' );
-  openFileSelectControl.addEventListener('change', (e) => {
-    logConsoleMessage(`OpenProject onChange event: ${e.target.files[0].name}`);
-    // Load project into browser storage and let the modal event handler
-    // decide what to do with it
-    uploadHandler(e.target.files);
-  });
+  // const openFileSelectControl = document.getElementById(
+  //     'open-project-select-file' );
+  // openFileSelectControl.addEventListener('change', (e) => {
+  //   if (e.target.files[0] && e.target.files[0].length > 0) {
+  //     logConsoleMessage(
+  //         `OpenProject onChange event: ${e.target.files[0].name}`);
+  //     // Load project into browser storage and let the modal event handler
+  //     // decide what to do with it
+  //     uploadHandler(e.target.files);
+  //   }
+  // });
 
   // View older BP Client installations button onClick handler
   $('#older-clients').on('click', function() {
@@ -295,10 +298,10 @@ function initEventHandlers() {
 
   // New Project toolbar button
   // TODO: New Project should be treated the same way as Open Project.
-  $('#new-project-button').on('click', () => newProjectModal());
+  $('#new-project-button').on('click', () => newProjectDialog.show());
 
   // Open Project toolbar button
-  $('#open-project-button').on('click', () => openProjectModal());
+  $('#open-project-button').on('click', () => openProjectDialog.show());
 
   // Save Project toolbar button
   $('#save-btn, #save-project').on('click', () => saveProject());
@@ -327,7 +330,8 @@ function initEventHandlers() {
   // Import project file menu selector
   // Import (upload) project from storage. This is designed to
   // merge code from an existing project into the current project.
-  $('#upload-project').on('click', () => importProjectFromStorage());
+  // merge code from an existing project into the current project.
+  $('#upload-project').on('click', () => importProjectDialog.show());
 
   // ---- Hamburger drop down horizontal line ----
 
@@ -371,12 +375,12 @@ function initEventHandlers() {
 
   // Hide these elements of the Open Project File modal when it
   // receives focus
-  $('#selectfile').focus(function() {
-    logConsoleMessage(`Resetting select file validation messages`);
-    $('#selectfile-verify-notvalid').css('display', 'none');
-    $('#selectfile-verify-valid').css('display', 'none');
-    $('#selectfile-verify-boardtype').css('display', 'none');
-  });
+  // $('#selectfile').focus(function() {
+  //   logConsoleMessage(`Resetting select file validation messages`);
+  //   $('#selectfile-verify-notvalid').css('display', 'none');
+  //   $('#selectfile-verify-valid').css('display', 'none');
+  //   $('#selectfile-verify-boardtype').css('display', 'none');
+  // });
 
   // Serial port drop down onClick event handler
   $('#comPort').on('change', (event) => {
@@ -384,36 +388,6 @@ function initEventHandlers() {
     clientService.setSelectedPort(event.target.value);
     propToolbarButtonController();
   });
-}
-
-/**
- * Initialize the terminal object
- */
-function initTerminal() {
-  // Initialize the terminal
-  new PropTerm(
-      document.getElementById('serial_console'),
-
-      function(characterToSend) {
-        if (clientService.type === serviceConnectionTypes.HTTP &&
-            clientService.activeConnection) {
-          clientService.activeConnection.send(btoa(characterToSend));
-        } else if (clientService.type === serviceConnectionTypes.WS) {
-          const msgToSend = {
-            type: 'serial-terminal',
-            outTo: 'terminal',
-            portPath: getComPort(),
-            // TODO: Correct baudrate reference
-            baudrate: baudrate.toString(10),
-            msg: (clientService.rxBase64 ?
-                btoa(characterToSend) : characterToSend),
-            action: 'msg',
-          };
-          clientService.activeConnection.send(JSON.stringify(msgToSend));
-        }
-      },
-      null
-  );
 }
 
 /**
@@ -1048,7 +1022,6 @@ function generateSvgFooter( project ) {
   return svgFooter;
 }
 
-
 /**
  *  Retrieve an SVG project file from local storage.
  *
@@ -1058,105 +1031,96 @@ function generateSvgFooter( project ) {
  *  localStorage.
  *
  * @param {string []} files is an array of file names
+ * @param {function?} callback Execute callback function if one is provided
  */
-export function uploadHandler(files) {
+export function uploadHandler(files, callback = null) {
   const UploadReader = new FileReader();
+  const fileBlob = new Blob(files);
+  const filename = files[0].name;
+  const fileType = files[0].type;
 
-  // Event handler that fires when the file that the user selected is loaded
-  // from local storage
-  UploadReader.onload = function() {
-    // Save the file contents in xmlString
-    const xmlString = this.result;
-
-    // The project board type string
-    const uploadBoardType = getProjectBoardTypeName(xmlString);
-
-    // The text name of the project
-    const projectName = files[0].name.substring(
-        0, files[0].name.lastIndexOf('.'));
-
-    logConsoleMessage(`Loading project: ${projectName}`);
-
-    // Raw XML from the .svg file
-    // let projectRawXmlCode = '';
-
-    // Project code with the correct xml namespace xml tag
-    // let projectXmlCode = '';
-
-    // Flag to indicate that the project contains a valid code block
-    let xmlValid = false;
-
-    // TODO: Solo #261
-    // Loop through blocks to verify blocks are supported for the project
-    // board type
-    // validateProjectBlockList(this.result);
-
-    // Flag to indicate that we are importing a file that
-    // was exported from the blockly.parallax.com site
-    let isSvgeFile = false;
-
-    // We need to support our rouge .svge type
-    if (files[0].type === '') {
-      const name = files[0].name;
-      if (name.slice(name.length - 4) === 'svge') {
-        isSvgeFile = true;
-      }
-    }
-
-    // validate file, screen for potentially malicious code.
-    if ((files[0].type === 'image/svg+xml' || isSvgeFile) &&
-        xmlString.indexOf('<svg blocklyprop="blocklypropproject"') === 0 &&
-        xmlString.indexOf('<!ENTITY') === -1 &&
-        xmlString.indexOf('CDATA') === -1 &&
-        xmlString.indexOf('<!--') === -1) {
-      // Check to see if there is a project already loaded. If there is, check
-      // the existing project's board type to verify that the new project is
-      // of the same type
-      // ----------------------------------------------------------------------
-      if (getProjectInitialState() &&
-          uploadBoardType !== getProjectInitialState().boardType.name) {
-        // Display a modal?
-        $('#selectfile-verify-boardtype').css('display', 'block');
-      } else {
-        $('#selectfile-verify-boardtype').css('display', 'none');
-      }
-
-      // ----------------------------------------------------------------------
-      // File processing is done. The projectXmlCode variable holds the
-      // XML string for the project that was just loaded. Convert the code
-      // into a new Project object and persist it into the browser's
-      // localStorage
-      // ----------------------------------------------------------------------
-      const tmpProject = fileToProject(
-          projectName, xmlString, uploadBoardType);
-      if (tmpProject) {
-        xmlValid = true;
-        logConsoleMessage(`File to Project conversion successful`);
-        // Save the project to the browser store
-        window.localStorage.setItem(
-            TEMP_PROJECT_STORE_NAME, JSON.stringify(tmpProject.getDetails()));
-
-        // Set the status message in the modal dialog
-        // This only happens after the import project dialog has fired
-        if (xmlValid === true) {
-          $('#selectfile-verify-valid').css('display', 'block');
-          document.getElementById('selectfile-replace').disabled = false;
-          document.getElementById('selectfile-append').disabled = false;
-          // uploadedXML = xmlString;
-        } else {
-          $('#selectfile-verify-notvalid').css('display', 'block');
-          document.getElementById('selectfile-replace').disabled = true;
-          document.getElementById('selectfile-append').disabled = true;
-        }
-      }
-    }
+  // This will fire is something goes sideways
+  UploadReader.onerror = function() {
+    logConsoleMessage(`File upload filename is missing`);
   };
 
-  // Load the SVG project file.
-  if (files && files[0]) {
-    UploadReader.readAsText(files[0]);
-  } else {
-    logConsoleMessage(`File upload filename is missing`);
+  // eslint-disable-next-line no-unused-vars
+  const textPromise = fileBlob.text();
+  fileBlob.text().then((text) => {
+    parseProjectFileString(filename, fileType, text);
+  });
+}
+
+/**
+ * Parse the project text
+ * @param {string} filename
+ * @param {string} fileType
+ * @param {string} xmlString
+ */
+function parseProjectFileString(filename, fileType, xmlString) {
+  logConsoleMessage(`Loading project file from promise`);
+
+  // The project board type string
+  const uploadBoardType = getProjectBoardTypeName(xmlString);
+
+  // The text name of the project
+  const projectName = filename.substring(0, filename.lastIndexOf('.'));
+
+  logConsoleMessage(`Loading project: ${projectName}`);
+
+  // TODO: Solo #261
+  // Loop through blocks to verify blocks are supported for the project
+  // board type
+  // validateProjectBlockList(this.result);
+
+  // Flag to indicate that we are importing a file that
+  // was exported from the blockly.parallax.com site
+  let isSvgeFile = false;
+
+  // We need to support our rouge .svge type
+  if (fileType === '') {
+    const name = filename;
+    if (name.slice(name.length - 4) === 'svge') {
+      isSvgeFile = true;
+    }
+  }
+
+  // validate file, screen for potentially malicious code.
+  if ((fileType === 'image/svg+xml' || isSvgeFile) &&
+      xmlString.indexOf('<svg blocklyprop="blocklypropproject"') === 0 &&
+      xmlString.indexOf('<!ENTITY') === -1 &&
+      xmlString.indexOf('CDATA') === -1 &&
+      xmlString.indexOf('<!--') === -1) {
+    // Check to see if there is a project already loaded. If there is, check
+    // the existing project's board type to verify that the new project is
+    // of the same type
+    // ----------------------------------------------------------------------
+    // if (getProjectInitialState() &&
+    //     uploadBoardType !== getProjectInitialState().boardType.name) {
+    //   // Display a modal?
+    //   $('#selectfile-verify-boardtype').css('display', 'block');
+    // } else {
+    //   $('#selectfile-verify-boardtype').css('display', 'none');
+    // }
+
+    // ----------------------------------------------------------------------
+    // File processing is done. The projectXmlCode variable holds the
+    // XML string for the project that was just loaded. Convert the code
+    // into a new Project object and persist it into the browser's
+    // localStorage
+    // ----------------------------------------------------------------------
+    const tmpProject = fileToProject(
+        projectName, xmlString, uploadBoardType);
+    if (tmpProject) {
+      // Save the project to the browser store
+      window.localStorage.setItem(
+          TEMP_PROJECT_STORE_NAME,
+          JSON.stringify(tmpProject.getDetails()));
+      importProjectDialog.isProjectFileValid = true;
+      openProjectDialog.isProjectFileValid = true;
+      logConsoleMessage(
+          `Project conversion successful. A copy is in local storage`);
+    }
   }
 }
 
@@ -1214,7 +1178,6 @@ const fileToProject = (projectName, rawCode, boardType) => {
   return null;
 };
 
-
 /**
  * Append supplied code to the existing project.
  */
@@ -1244,7 +1207,6 @@ function getProjectBoardTypeName(xmlString) {
       xmlString.indexOf('</text>', (boardIndex + 41)));
 }
 
-
 /**
  * Parse the xml string to locate and return the project title
  *
@@ -1265,7 +1227,6 @@ function getProjectTitleFromXML(xmlString) {
   }
 }
 
-
 /**
  * Parse the xml string to locate and return the text of the project description
  *
@@ -1285,7 +1246,6 @@ function getProjectDescriptionFromXML(xmlString) {
   return '';
 }
 
-
 /**
  * Parse the xml string to locate and return the project created timestamp
  *
@@ -1304,7 +1264,6 @@ function getProjectCreatedDateFromXML(xmlString, defaultTimestamp) {
 
   return defaultTimestamp;
 }
-
 
 /**
  * Parse the xml string to locate and return the project last modified timestamp
@@ -1589,7 +1548,6 @@ export function loadToolbox(xmlText) {
   }
 }
 
-
 /**
  *
  * @param {object} error
@@ -1615,7 +1573,6 @@ function showOS(os) {
   body.addClass(os);
 }
 
-
 /**
  * Clear the main workspace in the Blockly object
  */
@@ -1632,7 +1589,6 @@ function clearBlocklyWorkspace() {
   }
 }
 
-
 /**
  * Placeholder function
  *
@@ -1646,7 +1602,6 @@ function clearBlocklyWorkspace() {
 function configureTermGraph() {
   return true;
 }
-
 
 /**
  * Render the branding logo and related text.
@@ -1701,7 +1656,6 @@ function showProjectTimerModalDialog() {
 
   $('#save-check-dialog').modal({keyboard: false, backdrop: 'static'});
 }
-
 
 /**
  * Reset the sizing of blockly's toolbox and canvas.
@@ -1759,7 +1713,6 @@ export function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
   }, resizeDelay || 10);
 }
 
-
 /**
  * Check project state to see if it has changed before leaving the page
  *
@@ -1816,7 +1769,6 @@ function getXml() {
   // Return the XML for a blank project if none is found.
   return Project.getEmptyProjectCodeHeader() + '</xml>';
 }
-
 
 /**
  * Create a new project object, store it in the browser localStorage
@@ -1935,7 +1887,6 @@ export function insertProject(project) {
     logConsoleMessage(`Error while creating project object. ${e.message}.`);
   }
 }
-
 
 /**
  *Display the application name

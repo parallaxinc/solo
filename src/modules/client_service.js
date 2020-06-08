@@ -22,6 +22,8 @@
 
 
 import {logConsoleMessage} from './utility';
+import {PropTerm} from './prop_term';
+import {baudrate, getComPort} from './client_connection';
 
 /**
  * These are the permitted states of the clientService.type property
@@ -299,3 +301,34 @@ export const clientService = {
     this.selectedPort_ = '';
   },
 };
+
+
+/**
+ * Initialize the terminal object
+ */
+export function initTerminal() {
+  logConsoleMessage(`Init terminal communications`);
+  new PropTerm(
+      document.getElementById('serial_console'),
+
+      function(characterToSend) {
+        if (clientService.type === serviceConnectionTypes.HTTP &&
+            clientService.activeConnection) {
+          clientService.activeConnection.send(btoa(characterToSend));
+        } else if (clientService.type === serviceConnectionTypes.WS) {
+          const msgToSend = {
+            type: 'serial-terminal',
+            outTo: 'terminal',
+            portPath: getComPort(),
+            // TODO: Correct baudrate reference
+            baudrate: baudrate.toString(10),
+            msg: (clientService.rxBase64 ?
+                btoa(characterToSend) : characterToSend),
+            action: 'msg',
+          };
+          clientService.activeConnection.send(JSON.stringify(msgToSend));
+        }
+      },
+      null
+  );
+}
