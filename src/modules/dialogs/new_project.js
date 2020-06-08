@@ -61,6 +61,7 @@ export const newProjectDialog = {
     newProjectModalEscapeClick(); // Handle user clicking on the 'x' icon
 
     this.isEventHandler = true;
+    logConsoleMessage(`New Project dialog handlers initialized.`);
   },
 
   /**
