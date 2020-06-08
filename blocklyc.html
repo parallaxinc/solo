@@ -270,6 +270,50 @@
         </div>
     </div>
 
+    <!-- Open Project dialog -->
+    <div class="modal fade" id="open-project-dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- Closes the dialog when the button is clicked -->
+                    <button id="open-project-close" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 id="open-project-dialog-title" class="modal-title keyed-lang-string" data-key="editor_upload">
+                        <span>&nbsp;QQQQ</span>
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <!-- Upload a project. Results stored in localStorage -->
+                    <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
+                    <input id="open-project-select-file" type="file" accept=".svg, .svge">
+
+                    <!-- File is valid message -->
+                    <div id="open-project-select-file-verify-valid" class="alert alert-success" style="display: none;">
+                        <span class="bpIcon" data-icon="checkMarkGreen">&#x2713;</span>&nbsp;
+                        <span class="keyed-lang-string" data-key="editor_upload_valid"></span>
+                    </div>
+
+                    <!-- Uploaded file failed sanity checks -->
+                    <div id="open-project-select-file-verify-not-valid" class="alert alert-danger" style="display: none;">
+                        <span class="bpIcon" data-icon="dangerTriangle">!!</span>&nbsp;
+                        <span class="keyed-lang-string" data-key="editor_upload_notvalid"></span>
+                    </div>
+
+                    <!-- Board type has changed -->
+                    <div id="open-project-select-file-verify-board-type" class="alert alert-warning" style="display: none;">
+                        <span class="bpIcon" data-icon="warningCircle">!</span>&nbsp;
+                        <span class="keyed-lang-string" data-key="editor_upload_boardtype_warning"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="open-project-select-file-cancel" class="btn btn-default btn-sm keyed-lang-string"
+                            data-dismiss="modal" data-key="editor_button_cancel"></button>
+                    <button id="open-project-select-file-open" class="btn btn-primary btn-sm keyed-lang-string"
+                            data-key="editor_button_open"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Import a project to append or replace the existing project -->
     <div class="modal fade" id="import-project-dialog">
         <div class="modal-dialog">
@@ -285,6 +329,7 @@
                     <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
                     <input id="selectfile" type="file" accept=".svg,image/svg+xml">
 
+                    <!-- Uploaded file is valid -->
                     <div id="selectfile-verify-valid" class="alert alert-success" style="display: none;">
                         <span class="bpIcon" data-icon="checkMarkGreen">&#x2713;</span>&nbsp;
                         <span class="keyed-lang-string" data-key="editor_upload_valid"></span>
@@ -530,55 +575,6 @@
                             data-key="editor_button_cancel"></button>
                     <button id="new-project-continue" class="btn btn-primary keyed-lang-string"
                             data-key="editor_button_continue"></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Save or Upload a project file -->
-    <div class="modal fade" id="open-project-dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <!-- Closes the dialog when the button is clicked -->
-                    <button id="open-project-close" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 id="open-project-dialog-title" class="modal-title keyed-lang-string" data-key="editor_upload">
-                        <span>&nbsp;QQQQ</span>
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    <!-- Upload a project. Results stored in localStorage -->
-                    <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
-
-                    <!--
-                    <input id="open-project-select-file" type="file" accept=".svg, .svge"
-                           onchange="uploadHandler(this.files);">
-                    -->
-                    <input id="open-project-select-file" type="file" accept=".svg, .svge">
-
-                    <!-- File is valid message -->
-                    <div id="open-project-select-file-verify-valid" class="alert alert-success" style="display: none;">
-                        <span class="bpIcon" data-icon="checkMarkGreen">&#x2713;</span>&nbsp;
-                        <span class="keyed-lang-string" data-key="editor_upload_valid"></span>
-                    </div>
-
-                    <!-- Uploaded file failed sanity checks -->
-                    <div id="open-project-select-file-verify-not-valid" class="alert alert-danger" style="display: none;">
-                        <span class="bpIcon" data-icon="dangerTriangle">!!</span>&nbsp;
-                        <span class="keyed-lang-string" data-key="editor_upload_notvalid"></span>
-                    </div>
-
-                    <!-- Board type has changed -->
-                    <div id="open-project-select-file-verify-board-type" class="alert alert-warning" style="display: none;">
-                        <span class="bpIcon" data-icon="warningCircle">!</span>&nbsp;
-                        <span class="keyed-lang-string" data-key="editor_upload_boardtype_warning"></span>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="open-project-select-file-cancel" class="btn btn-default btn-sm keyed-lang-string"
-                            data-dismiss="modal" data-key="editor_button_cancel"></button>
-                    <button id="open-project-select-file-open" class="btn btn-primary btn-sm keyed-lang-string"
-                            data-key="editor_button_open"></button>
                 </div>
             </div>
         </div>
