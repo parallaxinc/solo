@@ -23,9 +23,9 @@
 // eslint-disable-next-line camelcase
 import {page_text_label} from '../blockly/language/en/messages';
 import {LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME} from '../constants';
-import {isProjectChanged} from '../editor';
+import {insertProject, isProjectChanged} from '../editor';
 import {uploadHandler, appendProjectCode} from '../editor';
-import {getProjectInitialState} from '../project';
+import {getProjectInitialState, projectJsonFactory} from '../project';
 import {logConsoleMessage, utils} from '../utility';
 
 
@@ -180,7 +180,25 @@ function installAppendClickHandler() {
 function installReplaceClickHandler() {
   $('#selectfile-replace').on('click', function() {
     logConsoleMessage(`Import Replace project button clicked`);
-    // Replace the existing project
+    $('#import-project-dialog').modal('hide');
+    // Replace the existing project. This is the same as loading a new project
+    // Copy the stored temp project to the stored local project
+    const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
+    if (projectJson) {
+      const project = projectJsonFactory(JSON.parse(projectJson));
+      if (project) {
+        insertProject(project);
+        return;
+      }
+    }
+
+    logConsoleMessage('The imported project cannot be found in storage.');
+    utils.showMessage(
+        `Project Load Error`,
+        `Unable to import the project`,
+        () => {
+          logConsoleMessage(`Possible project load failure`);
+        });
   });
 }
 
