@@ -1031,9 +1031,16 @@ function generateSvgFooter( project ) {
  *  localStorage.
  *
  * @param {string []} files is an array of file names
- * @param {function?} callback Execute callback function if one is provided
+ * @param {Array?} elements contains an array of HTMLElement ids that
+ * identify the UI controls to enable when a valid project file has been
+ * loaded.
  */
-export function uploadHandler(files, callback = null) {
+export function uploadHandler(files, elements = null) {
+  // Sanity checks
+  if (!files || files.length === 0) {
+    logConsoleMessage(`UploadHandler: files list is empty`);
+    return;
+  }
   const UploadReader = new FileReader();
   const fileBlob = new Blob(files);
   const filename = files[0].name;
@@ -1047,7 +1054,21 @@ export function uploadHandler(files, callback = null) {
   // eslint-disable-next-line no-unused-vars
   const textPromise = fileBlob.text();
   fileBlob.text().then((text) => {
-    parseProjectFileString(filename, fileType, text);
+    if (text && text.length > 0) {
+      if (parseProjectFileString(filename, fileType, text)) {
+        // update controls is provided
+        if (elements) {
+          elements.forEach(function(item, index, array) {
+            const element = $(`#${item}`);
+            if (element) {
+              element.removeClass('disabled');
+            }
+          });
+        }
+      }
+    } else {
+      logConsoleMessage(`The selected project file appears to be empty`);
+    }
   });
 }
 
@@ -1056,6 +1077,7 @@ export function uploadHandler(files, callback = null) {
  * @param {string} filename
  * @param {string} fileType
  * @param {string} xmlString
+ * @return {boolean} true if the file is converted to a project, otherwise false
  */
 function parseProjectFileString(filename, fileType, xmlString) {
   logConsoleMessage(`Loading project file from promise`);
@@ -1120,8 +1142,10 @@ function parseProjectFileString(filename, fileType, xmlString) {
       openProjectDialog.isProjectFileValid = true;
       logConsoleMessage(
           `Project conversion successful. A copy is in local storage`);
+      return true;
     }
   }
+  return false;
 }
 
 /**

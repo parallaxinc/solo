@@ -140,6 +140,7 @@ export const openProjectDialog = {
   reset: function() {
     // set title to Open file
     $('#open-project-dialog-title').html(page_text_label['editor_open']);
+    uiDisableOpenButton();
 
     // Clear any previous filename
     const filenameInput = $('#open-project-select-file');
@@ -151,6 +152,14 @@ export const openProjectDialog = {
     }
   },
 };
+
+/**
+ * Disable the dialog's Open button
+ */
+function uiDisableOpenButton() {
+  // Disable the Open button until we have a file to open
+  $('#open-project-select-file-open').addClass('disabled');
+}
 
 /**
  * Open a modal dialog to prompt user for the project file name
@@ -169,16 +178,6 @@ function openProjectDialogWindow() {
  * Handle the onChange event for the file selection dialog
  */
 function setSelectedFileOnChange() {
-  // const inputElement = document.getElementById('open-project-select-file');
-  // inputElement.addEventListener('change', function() {
-  //   const fileList = this.files; /* now you can work with the file list */
-  //   logConsoleMessage(`${fileList}`);
-  // },
-  // false);
-
-  // Attach handler to process a project file when it is selected in the
-  // Open Project toolbar button
-
   $('#open-project-select-file').on('change', function(event) {
     logConsoleMessage(`File selector has changed`);
     if (event.target.files[0] && event.target.files[0].name.length > 0) {
@@ -186,9 +185,10 @@ function setSelectedFileOnChange() {
           `OpenProject onChange event: ${event.target.files[0].name}`);
       // Load project into browser storage and let the modal event handler
       // decide what to do with it
-      uploadHandler(event.target.files, function(fileFlag) {
-        logConsoleMessage(`Project file load state is: ${fileFlag}`);
-      });
+      uploadHandler(event.target.files, ['open-project-select-file-open']);
+    } else {
+      // Disable the Open button
+      uiDisableOpenButton();
     }
   });
 }
