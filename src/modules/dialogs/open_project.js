@@ -100,6 +100,7 @@ export const openProjectDialog = {
    *  Displays the open project modal.
    */
   show: function() {
+    logProjectName();
     if (!this.isEventHandler) {
       logConsoleMessage(`Initialize dialog event handlers first.`);
       return;
@@ -140,6 +141,7 @@ export const openProjectDialog = {
   reset: function() {
     // set title to Open file
     $('#open-project-dialog-title').html(page_text_label['editor_open']);
+    uiDisableOpenButton();
 
     // Clear any previous filename
     const filenameInput = $('#open-project-select-file');
@@ -153,9 +155,18 @@ export const openProjectDialog = {
 };
 
 /**
+ * Disable the dialog's Open button
+ */
+function uiDisableOpenButton() {
+  // Disable the Open button until we have a file to open
+  $('#open-project-select-file-open').addClass('disabled');
+}
+
+/**
  * Open a modal dialog to prompt user for the project file name
  */
 function openProjectDialogWindow() {
+  logProjectName();
   // Open the modal dialog. The event handlers will take it from here.
   logConsoleMessage(`Open Project dialog is opening`);
   $('#open-project-dialog').modal({
@@ -169,26 +180,18 @@ function openProjectDialogWindow() {
  * Handle the onChange event for the file selection dialog
  */
 function setSelectedFileOnChange() {
-  // const inputElement = document.getElementById('open-project-select-file');
-  // inputElement.addEventListener('change', function() {
-  //   const fileList = this.files; /* now you can work with the file list */
-  //   logConsoleMessage(`${fileList}`);
-  // },
-  // false);
-
-  // Attach handler to process a project file when it is selected in the
-  // Open Project toolbar button
-
   $('#open-project-select-file').on('change', function(event) {
+    logProjectName();
     logConsoleMessage(`File selector has changed`);
     if (event.target.files[0] && event.target.files[0].name.length > 0) {
       logConsoleMessage(
           `OpenProject onChange event: ${event.target.files[0].name}`);
       // Load project into browser storage and let the modal event handler
       // decide what to do with it
-      uploadHandler(event.target.files, function(fileFlag) {
-        logConsoleMessage(`Project file load state is: ${fileFlag}`);
-      });
+      uploadHandler(event.target.files, ['open-project-select-file-open']);
+    } else {
+      // Disable the Open button
+      uiDisableOpenButton();
     }
   });
 }
@@ -216,6 +219,7 @@ function setSelectedFileOnChange() {
  */
 function openProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
+    logProjectName();
     logConsoleMessage(`User elected to open the project`);
     logConsoleMessage(`Closing the 'Open Project' dialog`);
     $('#open-project-dialog').modal('hide');
@@ -227,6 +231,7 @@ function openProjectModalOpenClick() {
       const project = projectJsonFactory(JSON.parse(projectJson));
       if (project) {
         insertProject(project);
+        logProjectName();
         return;
       }
     }
@@ -238,6 +243,7 @@ function openProjectModalOpenClick() {
         () => {
           logConsoleMessage(`Possible project load failure`);
         });
+    logProjectName();
   });
 }
 
@@ -273,6 +279,7 @@ function openProjectModalOpenClick() {
  */
 function openProjectModalCancelClick() {
   $('#open-project-select-file-cancel').on('click', () => {
+    logProjectName();
     logConsoleMessage(`Open Dialog: cancelled`);
     // Dismiss the modal in the UX
     $('#open-project-dialog').modal('hide');
@@ -297,6 +304,7 @@ function openProjectModalCancelClick() {
  */
 function openProjectModalEscapeClick() {
   $('#open-project-dialog').on('hidden.bs.modal', () => {
+    logProjectName();
     clearCookie();
   });
 }
@@ -308,4 +316,12 @@ function clearCookie() {
   if (Cookies.get('action')) {
     Cookies.remove('action');
   }
+}
+
+/**
+ * Write the current project name to the console log
+ */
+function logProjectName() {
+  logConsoleMessage(
+      `Current project name is:=> ${getProjectInitialState().name}`);
 }

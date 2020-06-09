@@ -40,7 +40,8 @@
     "jquery-validation": "^1.19.1",
     "js-cookie": "^2.2.1",
     "jszip": "^3.3.0",
-    "node-chartist": "^1.0.5"
+    "node-chartist": "^1.0.5",
+    "websocket-extensions": ">=0.1.4"
   },
   "devDependencies": {
     "@types/ace": "0.0.43",
