@@ -85,7 +85,6 @@ function getProjectInitialState() {
   return projectInitialState;
 }
 
-
 /**
  * Set the project state from an existing project object
  * @param {Project} project
@@ -184,7 +183,9 @@ class Project {
   constructor(name, description, board, projectType,
       code, created, modified, timestamp, isDefault = false) {
     // Preserve the instance if one is not set
-    projectInitialState = this;
+    if (!projectInitialState) {
+      projectInitialState = this;
+    }
 
     this.name = (name) ? name : '';
     this.description = (description) ? description : '';
@@ -295,7 +296,7 @@ class Project {
     if (isDefault) {
       this.projectData = this.getDetails();
     }
-  }
+  } // End of constructor
 
   /**
      * Get all of the project details in one function call. This is
@@ -338,13 +339,11 @@ class Project {
 
   /**
    * Returns a reference to the project data encapsulated into a single object
-   * @return {
-   *   {
+   * @return {{
    *     shared: *, private: *, boardType: *, code: *, created: *,
    *     description: *, type: *, name: *, modified: *, descriptionHtml: *,
    *     id: *, user: *, yours: *, timestamp: *
-   *   }
-   * }
+   *   }}
    */
 
   /**
