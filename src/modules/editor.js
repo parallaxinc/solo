@@ -1073,22 +1073,20 @@ export function uploadHandler(files, elements = null) {
 }
 
 /**
- * Parse the project text
+ * Convert the project string into a JSON object and store that the results in
+ * the browser's localStorage temporary project store.
  * @param {string} filename
  * @param {string} fileType
  * @param {string} xmlString
  * @return {boolean} true if the file is converted to a project, otherwise false
  */
 function parseProjectFileString(filename, fileType, xmlString) {
-  logConsoleMessage(`Loading project file from promise`);
-
   // The project board type string
   const uploadBoardType = getProjectBoardTypeName(xmlString);
 
   // The text name of the project
   const projectName = filename.substring(0, filename.lastIndexOf('.'));
-
-  logConsoleMessage(`Loading project: ${projectName}`);
+  logConsoleMessage(`Loading project :=> ${projectName}`);
 
   // TODO: Solo #261
   // Loop through blocks to verify blocks are supported for the project
@@ -1133,13 +1131,17 @@ function parseProjectFileString(filename, fileType, xmlString) {
     // ----------------------------------------------------------------------
     const tmpProject = fileToProject(
         projectName, xmlString, uploadBoardType);
+
     if (tmpProject) {
       // Save the project to the browser store
       window.localStorage.setItem(
           TEMP_PROJECT_STORE_NAME,
           JSON.stringify(tmpProject.getDetails()));
+
+      // These may no longer be necessary
       importProjectDialog.isProjectFileValid = true;
       openProjectDialog.isProjectFileValid = true;
+
       logConsoleMessage(
           `Project conversion successful. A copy is in local storage`);
       return true;
@@ -1328,122 +1330,105 @@ function clearUploadInfo() {
  * Append a project to the current project or replace the current project
  * with the specified project.
  *
- * @param {boolean} append if true, appends the new project to the current
- * project, otherwise, replace the current project with the new project
- *
  * @description
- * This code assumes that the new project file has been loaded into a
- * variable. Not sure that is happening at this point.
+ * This code looks for the code that will be appended to the current project
+ * in the browser's localStorage temp project location.
  */
-export function uploadMergeCode(append) {
+export function appendProjectCode() {
   const xmlTagLength = '</xml>'.length;
-  $('#import-project-dialog').modal('hide');
-
   let projectData = '';
+  const currentProject = getProjectInitialState();
   const project = projectJsonFactory(
       JSON.parse(window.localStorage.getItem(TEMP_PROJECT_STORE_NAME)));
+  const uploadedXML = project.code;
+  if (!uploadedXML || uploadedXML.length === 0) {
+    logConsoleMessage(`Imported project contains no code segment`);
+    return;
+  }
 
-  console.log(`Initial project name: ${getProjectInitialState().name}.`);
+  console.log(`Initial project name: ${currentProject.name}.`);
   console.log(`Imported project name is ${project.name}.`);
 
-  const uploadedXML = project.code;
-
-  if (uploadedXML !== '') {
-    let projCode = '';
-    if (append) {
-      // Get the project code and strip off the root namespace tags
-      projCode = getXml();
-      projCode = projCode.substring(
-          Project.getEmptyProjectCodeHeader().length,
-          projCode.length - xmlTagLength);
-    }
-
-    let newCode = uploadedXML;
-    if (newCode.indexOf('<variables>') === -1) {
-      newCode = newCode.substring(
-          uploadedXML.indexOf('<block'),
-          newCode.length - xmlTagLength);
-    } else {
-      newCode = newCode.substring(
-          uploadedXML.indexOf('<variables'),
-          newCode.length - xmlTagLength);
-    }
-
-    // check for newer blockly XML code (contains a list of variables)
-    if (newCode.indexOf('<variables') > -1 &&
-        projCode.indexOf('<variables') > -1) {
-      const findVarRegExp = /type="(\w*)" id="(.{20})">(\w+)</g;
-      const newBPCvars = [];
-      const oldBPCvars = [];
-
-      let varCodeTemp = newCode.split('</variables>');
-      newCode = varCodeTemp[1];
-      // use a regex to match the id, name, and type of the variables in both
-      // the old and new code.
-      let tmpv = varCodeTemp[0]
-          .split('<variables')[1]
-          .replace(findVarRegExp,
-              // type, id, name
-              function(p, m1, m2, m3) {
-                newBPCvars.push([m3, m2, m1]); // name, id, type
-                return p;
-              });
-      varCodeTemp = projCode.split('</variables>');
-      projCode = varCodeTemp[1];
-      // type, id, name
-      tmpv = varCodeTemp[0].replace(
-          findVarRegExp,
-          function(p, m1, m2, m3) {
-            oldBPCvars.push([m3, m2, m1]); // name, id, type
-            return p;
-          });
-      // record how many variables are in the original and new code
-      tmpv = [oldBPCvars.length, newBPCvars.length];
-      // iterate through the captured variables to detemine if any overlap
-      for (let j = 0; j < tmpv[0]; j++) {
-        for (let k = 0; k < tmpv[1]; k++) {
-          // see if var is a match
-          if (newBPCvars[k][0] === oldBPCvars[j][0]) {
-            // replace old variable IDs with new ones
-            const tmpVars = newCode.split(newBPCvars[k][1]);
-            newCode = tmpVars.join(oldBPCvars[j][1]);
-            // null the ID to mark that it's a duplicate and
-            // should not be included in the combined list
-            newBPCvars[k][1] = null;
-          }
-        }
-      }
-      for (let k = 0; k < tmpv[1]; k++) {
-        if (newBPCvars[k][1]) {
-          // Add var from uploaded xml to the project code
-          oldBPCvars.push(newBPCvars[k]);
-        }
-      }
-
-      // rebuild vars from both new/old
-      tmpv = '<variables>';
-      oldBPCvars.forEach(function(vi) {
-        tmpv += '<variable id="' + vi[1] + '" type="' + vi[2] + '">' +
-            vi[0] + '</variable>';
-      });
-      tmpv += '</variables>';
-      // add everything back together
-      projectData = tmpv + projCode + newCode;
-    } else if (newCode.indexOf('<variables') > -1 &&
-        projCode.indexOf('<variables') === -1) {
-      projectData = newCode + projCode;
-    } else {
-      projectData = projCode + newCode;
-    }
-
-    project.setCodeWithNamespace(projectData);
-
-    // Set the current project code block from the temporary one
-    const tempProject = getProjectInitialState();
-    tempProject.setCode(project.code);
-
-    refreshEditorCanvas(project);
+  let projCode = '';
+  let newCode = uploadedXML;
+  if (newCode.indexOf('<variables>') === -1) {
+    newCode = newCode.substring(
+        uploadedXML.indexOf('<block'),
+        newCode.length - xmlTagLength);
+  } else {
+    newCode = newCode.substring(
+        uploadedXML.indexOf('<variables'),
+        newCode.length - xmlTagLength);
   }
+
+  // check for newer blockly XML code (contains a list of variables)
+  if (newCode.indexOf('<variables') > -1 &&
+        projCode.indexOf('<variables') > -1) {
+    const findVarRegExp = /type="(\w*)" id="(.{20})">(\w+)</g;
+    const newBPCvars = [];
+    const oldBPCvars = [];
+
+    let varCodeTemp = newCode.split('</variables>');
+    newCode = varCodeTemp[1];
+    // use a regex to match the id, name, and type of the variables in both
+    // the old and new code.
+    let tmpv = varCodeTemp[0]
+        .split('<variables')[1]
+        .replace(findVarRegExp,
+            // type, id, name
+            function(p, m1, m2, m3) {
+              newBPCvars.push([m3, m2, m1]); // name, id, type
+              return p;
+            });
+    varCodeTemp = projCode.split('</variables>');
+    projCode = varCodeTemp[1];
+    // type, id, name
+    tmpv = varCodeTemp[0].replace(
+        findVarRegExp,
+        function(p, m1, m2, m3) {
+          oldBPCvars.push([m3, m2, m1]); // name, id, type
+          return p;
+        });
+    // record how many variables are in the original and new code
+    tmpv = [oldBPCvars.length, newBPCvars.length];
+    // iterate through the captured variables to detemine if any overlap
+    for (let j = 0; j < tmpv[0]; j++) {
+      for (let k = 0; k < tmpv[1]; k++) {
+        // see if var is a match
+        if (newBPCvars[k][0] === oldBPCvars[j][0]) {
+          // replace old variable IDs with new ones
+          const tmpVars = newCode.split(newBPCvars[k][1]);
+          newCode = tmpVars.join(oldBPCvars[j][1]);
+          // null the ID to mark that it's a duplicate and
+          // should not be included in the combined list
+          newBPCvars[k][1] = null;
+        }
+      }
+    }
+    for (let k = 0; k < tmpv[1]; k++) {
+      if (newBPCvars[k][1]) {
+        // Add var from uploaded xml to the project code
+        oldBPCvars.push(newBPCvars[k]);
+      }
+    }
+
+    // rebuild vars from both new/old
+    tmpv = '<variables>';
+    oldBPCvars.forEach(function(vi) {
+      tmpv += '<variable id="' + vi[1] + '" type="' + vi[2] + '">' +
+            vi[0] + '</variable>';
+    });
+    tmpv += '</variables>';
+    // add everything back together
+    projectData = tmpv + projCode + newCode;
+  } else if (newCode.indexOf('<variables') > -1 &&
+        projCode.indexOf('<variables') === -1) {
+    projectData = newCode + projCode;
+  } else {
+    projectData = projCode + newCode;
+  }
+  currentProject.setCodeWithNamespace(projectData);
+  refreshEditorCanvas(currentProject);
 }
 
 /**
