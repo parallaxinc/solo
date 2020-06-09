@@ -100,6 +100,7 @@ export const openProjectDialog = {
    *  Displays the open project modal.
    */
   show: function() {
+    logProjectName();
     if (!this.isEventHandler) {
       logConsoleMessage(`Initialize dialog event handlers first.`);
       return;
@@ -165,6 +166,7 @@ function uiDisableOpenButton() {
  * Open a modal dialog to prompt user for the project file name
  */
 function openProjectDialogWindow() {
+  logProjectName();
   // Open the modal dialog. The event handlers will take it from here.
   logConsoleMessage(`Open Project dialog is opening`);
   $('#open-project-dialog').modal({
@@ -179,6 +181,7 @@ function openProjectDialogWindow() {
  */
 function setSelectedFileOnChange() {
   $('#open-project-select-file').on('change', function(event) {
+    logProjectName();
     logConsoleMessage(`File selector has changed`);
     if (event.target.files[0] && event.target.files[0].name.length > 0) {
       logConsoleMessage(
@@ -216,6 +219,7 @@ function setSelectedFileOnChange() {
  */
 function openProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
+    logProjectName();
     logConsoleMessage(`User elected to open the project`);
     logConsoleMessage(`Closing the 'Open Project' dialog`);
     $('#open-project-dialog').modal('hide');
@@ -227,6 +231,7 @@ function openProjectModalOpenClick() {
       const project = projectJsonFactory(JSON.parse(projectJson));
       if (project) {
         insertProject(project);
+        logProjectName();
         return;
       }
     }
@@ -238,6 +243,7 @@ function openProjectModalOpenClick() {
         () => {
           logConsoleMessage(`Possible project load failure`);
         });
+    logProjectName();
   });
 }
 
@@ -273,6 +279,7 @@ function openProjectModalOpenClick() {
  */
 function openProjectModalCancelClick() {
   $('#open-project-select-file-cancel').on('click', () => {
+    logProjectName();
     logConsoleMessage(`Open Dialog: cancelled`);
     // Dismiss the modal in the UX
     $('#open-project-dialog').modal('hide');
@@ -297,6 +304,7 @@ function openProjectModalCancelClick() {
  */
 function openProjectModalEscapeClick() {
   $('#open-project-dialog').on('hidden.bs.modal', () => {
+    logProjectName();
     clearCookie();
   });
 }
@@ -308,4 +316,12 @@ function clearCookie() {
   if (Cookies.get('action')) {
     Cookies.remove('action');
   }
+}
+
+/**
+ * Write the current project name to the console log
+ */
+function logProjectName() {
+  logConsoleMessage(
+      `Current project name is:=> ${getProjectInitialState().name}`);
 }
