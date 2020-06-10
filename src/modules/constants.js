@@ -39,7 +39,7 @@
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.5.0-b6';
+export const APP_VERSION = '1.5.0-RC-1';
 
 /**
  * Constant string that represents the base, empty project header
@@ -90,7 +90,7 @@ export const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
  * Global flag to enable/disable the Sentry logger
  * @type {boolean}
  */
-export const EnableSentry = false;
+export const EnableSentry = true;
 
 /**
  * This is the name of the test ECS cluster. A matching hostname will
