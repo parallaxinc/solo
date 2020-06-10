@@ -146,6 +146,14 @@ export const clientService = {
   selectedPort_: '',
 
   /**
+   * The timestamp of the last port list update.
+   * @type {number}
+   * @description This is used to verify that there is traffic coming from
+   *  the active client connection. Sort of a poor man's watchdog.
+   */
+  lastPortUpdate_: 0,
+
+  /**
    * Set a custom URL used to contact the BP Launcher
    * @param {string=} location is the custom URL
    * @param {string=} protocol is one of 'http', 'https', or 'ws'
@@ -183,6 +191,30 @@ export const clientService = {
       type: 'pref-port',
       portPath: portName,
     }));
+  },
+
+  /**
+   * Add a port to the client port list
+   * @param {string} portName
+   */
+  addPort: function( portName) {
+    this.portList.push(portName);
+    this.lastPortUpdate_= Date.now();
+  },
+
+  /**
+   * Clear the existing port list
+   */
+  clearPortList: function() {
+    this.portList = [];
+  },
+
+  /**
+   * Get the timestamp for the last port change
+   * @return {number}
+   */
+  getPortLastUpdate: function() {
+    return this.lastPortUpdate_;
   },
 
   /**
