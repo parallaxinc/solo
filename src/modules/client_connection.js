@@ -39,54 +39,11 @@ import {getPropTerminal} from './prop_term';
 export const baudrate = 115200;
 
 /**
- *  Connect to the BP-Launcher or BlocklyProp Client
+ * This is the number of milliseconds that can go by between port updates
+ * before the active connection state can be tagged as questionable
+ * @type {number}
  */
-export const findClient = function() {
-  if (clientService.activeConnection) {
-    return;
-  }
-
-  // Try to connect to the BP-Launcher (websocket) first
-  // TODO: evaluation is always true, probably not what we want here.
-  logConsoleMessage(`Finding a client`);
-  if (!clientService.available &&
-      clientService.type !== serviceConnectionTypes.HTTP) {
-    logConsoleMessage('Connecting to Launcher client');
-    establishBPLauncherConnection();
-  }
-
-  // Check how much time has passed since the port list was received
-  // from the BP-Launcher
-  if (clientService.type === serviceConnectionTypes.WS) {
-    clientService.portListReceiveCountUp++;
-    // Is the BP-Launcher taking to long to respond?  If so,
-    // close the connection
-    if (clientService.isPortListTimeOut()) {
-      logConsoleMessage('Timeout waiting for client port list!');
-      clientService.closeConnection();
-      // Update the toolbar
-      propToolbarButtonController();
-
-      // TODO: check to see if this is really necessary - it gets
-      //  called by the WS onclose handler
-      lostWSConnection();
-    }
-  }
-
-  // BP-Launcher not found? Try connecting to the BP-Client
-  setTimeout(function() {
-    if (clientService.type !== serviceConnectionTypes.WS) {
-      logConsoleMessage('Trying to connect to the BP Client.');
-      establishBPClientConnection();
-    }
-  }, 1000);
-
-  // If connected to the BP-Client, poll for an updated port list
-  if (clientService.type === serviceConnectionTypes.HTTP) {
-    logConsoleMessage('From findClient(): looking for com ports');
-    checkForComPorts();
-  }
-};
+const PORT_TIMEOUT = 15000;
 
 /**
  * Data returned from the web socket for type 'port-list'
@@ -102,6 +59,14 @@ export const findClient = function() {
  * @description This is the format of the object passed into a newly opened
  * WebSocket connection.
  */
+
+// Status Notice IDs
+// const NS_FOUND_PROPELLER = 0;
+const NS_DOWNLOADING = 2;
+const NS_DOWNLOAD_SUCCESSFUL = 5;
+
+// Error Notice IDs
+const NE_DOWNLOAD_FAILED = 102;
 
 /**
  * Constant used in connection init sequence in BP Launcher
@@ -135,7 +100,7 @@ function establishBPLauncherConnection() {
     let connection;
 
     // Clear the port list
-    clientService.portList = [];
+    clientService.clearPortList();
 
     try {
       connection = new WebSocket(clientService.url('', 'ws'));
@@ -172,7 +137,7 @@ function establishBPLauncherConnection() {
       }
     };
 
-    // handle messages from the client
+    // handle messages from the client / launcher
     connection.onmessage = function(e) {
       const wsMessage = JSON.parse(e.data);
 
@@ -184,7 +149,7 @@ function establishBPLauncherConnection() {
         // (all versions transmit base64)]
         checkClientVersionModal(wsMessage.version);
         logConsoleMessage(
-            'Websocket client/launcher found - version ' + wsMessage.version);
+            `BlocklyProp Launcher v${wsMessage.version} detected.`);
         clientService.rxBase64 = wsMessage.rxBase64 || false;
         clientService.type = serviceConnectionTypes.WS;
         clientService.available = true;
@@ -245,7 +210,6 @@ function establishBPLauncherConnection() {
   }
 }
 
-
 /**
  * Process a websocket Port List message
  * @param {object} message
@@ -260,10 +224,10 @@ function establishBPLauncherConnection() {
  *  wsMessage.ports is a array of available ports
  */
 function wsProcessPortListMessage(message) {
-  clientService.portList = [];
+  clientService.clearPortList();
   if (message.ports.length > 0) {
     message.ports.forEach(function(port) {
-      clientService.portList.push(port);
+      clientService.addPort(port);
     });
   }
   setPortListUI();
@@ -323,7 +287,7 @@ function wsProcessUiCommand(message) {
       break;
 
     case WS_ACTION_CLOSE_WEBSOCKET:
-      logConsoleMessage('Received a WS Close connection from server');
+      logConsoleMessage('WARNING: Received a WS Close connection from server');
       clientService.closeConnection();
       propToolbarButtonController();
       break;
@@ -337,35 +301,38 @@ function wsProcessUiCommand(message) {
   }
 }
 
-// Status Notice IDs
-const NS_DOWNLOADING = 2;
-const NS_DOWNLOAD_SUCCESSFUL = 5;
-
-// Error Notice IDs
-const NE_DOWNLOAD_FAILED = 102;
-
 /**
  * Process a loader message
  * @param {object} message
  */
 function wsCompileMessageProcessor(message) {
   const [command, text] = parseCompileMessage(message.msg);
+  // logConsoleMessage(`Cmd:${command}: '${text}'`);
+
   if (command === NS_DOWNLOAD_SUCCESSFUL) {
-    appendCompileConsoleMessage('Succeeded');
+    appendCompileConsoleMessage('Succeeded.');
   } else {
     // If the download is still happening and the stream is not binary,
     // append the received text to the result log
     if (!clientService.loadBinary) {
       clientService.resultLog = clientService.resultLog + text + '\n';
       clientService.loadBinary = command !== NS_DOWNLOADING;
+    } else {
+      clientService.resultLog = clientService.resultLog + text + '\n';
     }
   }
-  if (command === NE_DOWNLOAD_FAILED) {
-    appendCompileConsoleMessage(
-        ` Failed!\n\n-------- loader messages --------\n
-        ${clientService.resultLog}`);
-  } else {
-    appendCompileConsoleMessage('.');
+
+  switch (command) {
+    case NS_DOWNLOADING:
+      appendCompileConsoleMessage('.');
+      break;
+    case NE_DOWNLOAD_FAILED:
+      appendCompileConsoleMessage(
+          `Failed!\n\n-------- loader messages --------\n` +
+        `${clientService.resultLog}`);
+      break;
+    default:
+      // Ignore everything else.
   }
   compileConsoleScrollToBottom();
 }
@@ -379,11 +346,71 @@ function wsCompileMessageProcessor(message) {
  * // 000-Scanning port cu.usbserial-DN0286UD
  */
 function parseCompileMessage(message) {
+  // Split off the command component
+  const command = message.split('-', 1);
   const result = [];
-  result.push(parseInt(message.substring(0, 4)));
+  result.push(parseInt(command[0]));
   result.push(message.substr(5));
   return result;
 }
+
+/**
+ *  Connect to the BP-Launcher or BlocklyProp Client
+ */
+export const findClient = function() {
+  if (clientService.activeConnection) {
+    // All good if we received a port update in the past 10 seconds
+    if (clientService.getPortLastUpdate() > Date.now() - PORT_TIMEOUT) {
+      return;
+    } else {
+      logConsoleMessage(`Connection may have gone away`);
+    }
+  }
+
+  // Try to connect to the BP-Launcher (websocket) first
+  // TODO: evaluation is always true, probably not what we want here.
+  logConsoleMessage(`Finding a client`);
+
+  if (!clientService.available &&
+      clientService.type !== serviceConnectionTypes.HTTP) {
+    // Verify that the web socket is alive
+    logConsoleMessage('Connecting to BP Launcher client');
+    establishBPLauncherConnection();
+  }
+
+  // Check how much time has passed since the port list was received
+  // from the BP-Launcher
+  if (clientService.type === serviceConnectionTypes.WS) {
+    clientService.portListReceiveCountUp++;
+    // Is the BP-Launcher taking to long to respond?  If so,
+    // close the connection
+    if (clientService.isPortListTimeOut()) {
+      logConsoleMessage('Timeout waiting for client port list!');
+      clientService.closeConnection();
+      // Update the toolbar
+      propToolbarButtonController();
+
+      // TODO: check to see if this is really necessary - it gets
+      //  called by the WS onclose handler
+      lostWSConnection();
+    }
+  }
+
+  // BP-Launcher not found? Try connecting to the BP-Client
+  setTimeout(function() {
+    if (clientService.type !== serviceConnectionTypes.WS) {
+      logConsoleMessage('Trying to connect to the BP Client.');
+      establishBPClientConnection();
+    }
+  }, 1000);
+
+  // If connected to the BP-Client, poll for an updated port list
+  if (clientService.type === serviceConnectionTypes.HTTP) {
+    logConsoleMessage('From findClient(): looking for com ports');
+    checkForComPorts();
+  }
+};
+
 
 /**
  * Lost websocket connection, clean up and restart findClient processing
@@ -401,7 +428,7 @@ function lostWSConnection() {
     clientService.available = false;
   }
   // Clear ports list
-  clientService.portList = [];
+  clientService.clearPortList();
   setPortListUI();
   propToolbarButtonController();
 }

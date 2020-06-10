@@ -31,7 +31,8 @@ import {CodeEditor} from './code_editor';
 import {getPropTerminal} from './prop_term';
 import {getProjectInitialState} from './project';
 import {getSourceEditor} from './code_editor';
-import {logConsoleMessage, getURLParameter, utils, sanitizeFilename} from './utility';
+import {logConsoleMessage, getURLParameter, utils} from './utility';
+import {sanitizeFilename} from './utility';
 
 
 /**
@@ -199,11 +200,13 @@ const graph_data = {
 function cloudCompile(text, action, successHandler) {
   const codePropC = getSourceEditor();
   const project = getProjectInitialState();
-  // if PropC is in edit mode, get it from the editor, otherwise render it from the blocks.
+  // if PropC is in edit mode, get it from the editor, otherwise
+  // render it from the blocks.
   let propcCode = '';
 
   if (codePropC.getReadOnly()) {
-    propcCode = prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace));
+    propcCode = prettyCode(
+        Blockly.propc.workspaceToCode(Blockly.mainWorkspace));
   } else {
     propcCode = codePropC.getValue();
   }
@@ -292,7 +295,8 @@ function cloudCompile(text, action, successHandler) {
       // Check for an error response from the compiler
       if (!data || data['compiler-error'] != '') {
         // Get message as a string, or blank if undefined
-        const message = (typeof data['compiler-error'] === 'string') ? data['compiler-error'] : '';
+        const message = (typeof data['compiler-error'] === 'string') ?
+            data['compiler-error'] : '';
         appendCompileConsoleMessage(
             data['compiler-output'] + data['compiler-error'] + message);
       } else {
@@ -308,12 +312,13 @@ function cloudCompile(text, action, successHandler) {
     }).fail(function(data) {
       // Something unexpected has happened while calling the compile service
       if (data) {
+        logConsoleMessage(`Compiler service request failed: ${data.state()}`);
+
         const state = data.state();
         let message = 'Unable to compile the project.\n';
-        logConsoleMessage(`Compiler service request failed: ${data.state()}`);
         if (state === 'rejected') {
-          message += '\nThe compiler service is temporarily unavailable or unreachable.';
-          message += '\nPlease try again in a few moments.';
+          message += '\nThe compiler service is temporarily unavailable or';
+          message += ' unreachable.\nPlease try again in a few moments.';
         } else {
           message += 'Error "' + data.status + '" has been detected.';
         }
@@ -333,19 +338,29 @@ export function compile() {
 /**
  * Begins loading process
  *
- * @param {string} modalMessage message shown at the top of the compile/load modal.
+ * @param {string} modalMessage message shown at the top of the
+ *  compile/load modal.
  * @param {string} compileCommand for the cloud compiler (bin/eeprom).
- * @param {string} loadOption command for the loader (CODE/VERBOSE/CODE_VERBOSE).
+ * @param {string} loadOption command for the loader
+ *  (CODE/VERBOSE/CODE_VERBOSE).
  * @param {string} loadAction command for the loader (RAM/EEPROM).
  *
- * USED by the COMPILE, LOAD TO RAM, and LOAD TO EEPROM UI buttons directly (blocklyc.jsp/blocklyc.html)
+ * USED by the COMPILE, LOAD TO RAM, and LOAD TO EEPROM UI buttons directly
  */
-export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
+export function loadInto(
+    modalMessage,
+    compileCommand,
+    loadOption,
+    loadAction) {
   logConsoleMessage(`Loading program to ${loadAction}.`);
-  logConsoleMessage(`Load connection is ${clientService.activeConnection ? 'active' : 'inactive'}`);
+  logConsoleMessage(`Load connection is ` +
+      `${clientService.activeConnection ? 'active' : 'inactive'}`);
   if (clientService.portsAvailable) {
+    logConsoleMessage(`Ports are available`);
     cloudCompile(modalMessage, compileCommand, function(data, terminalNeeded) {
+      logConsoleMessage(`Processing cloud compiler callback`);
       if (clientService.type === serviceConnectionTypes.WS) {
+        logConsoleMessage(`Device loaded via websocket`);
         // Send the compile submission via a web socket
         clientService.resultLog = '';
         clientService.loadBinary = false;
@@ -372,12 +387,17 @@ export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
             'extension': data.extension,
             'comport': getComPort(),
           }, function(loadData) {
-            logConsoleMessage(`Processing results from server: ${loadData.message}`);
-            // Replace response message's consecutive white space with a new-line, then split at new lines
-            const message = loadData.message.replace(/\s{2,}/g, '\n').split('\n');
+            // Callback to report results from client/launcher command
+            logConsoleMessage(`Processing compiler results from server: ` +
+                `${loadData.message}`);
+            // Replace response message's consecutive white space with a
+            // new-line, then split at new lines
+            const message =
+                loadData.message.replace(/\s{2,}/g, '\n').split('\n');
             // If responses have codes, check for all success codes (< 100)
             let success = true;
-            const coded = (loadOption === 'CODE' || loadOption === 'CODE_VERBOSE');
+            const coded =
+                (loadOption === 'CODE' || loadOption === 'CODE_VERBOSE');
             if (coded) {
               message.forEach(function(x) {
                 success = success && x.substr(0, 3) < 100;
@@ -394,7 +414,8 @@ export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
               message.forEach(function(x) {
                 error.push(x.substr((coded) ? 4 : 0));
               });
-              result = ((coded) ? ' Failed!' : '') + '\n\n-------- loader messages --------\n' + error.join('\n');
+              result = ((coded) ? ' Failed!' : '') +
+                  '\n\n-------- loader messages --------\n' + error.join('\n');
             }
 
             $('#compile-console').val($('#compile-console').val() + result);
@@ -417,7 +438,9 @@ export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
             'extension': data.extension,
             'comport': getComPort(),
           }, function(loadData) {
-            $('#compile-console').val($('#compile-console').val() + loadData.message);
+            $('#compile-console')
+                .val($('#compile-console')
+                    .val() + loadData.message);
 
             // Scroll automatically to the bottom after new data is added
             document.getElementById('compile-console').scrollTop =
@@ -432,9 +455,13 @@ export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
       }
     });
   } else if (clientService.available) {
-    utils.showMessage(Blockly.Msg.DIALOG_NO_DEVICE, Blockly.Msg.DIALOG_NO_DEVICE_TEXT);
+    utils.showMessage(
+        Blockly.Msg.DIALOG_NO_DEVICE,
+        Blockly.Msg.DIALOG_NO_DEVICE_TEXT);
   } else {
-    utils.showMessage(Blockly.Msg.DIALOG_DEVICE_COMM_ERROR, Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT);
+    utils.showMessage(
+        Blockly.Msg.DIALOG_DEVICE_COMM_ERROR,
+        Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT);
   }
 }
 
@@ -454,13 +481,15 @@ export function serialConsole() {
       let connStrYet = false;
 
       // open a websocket to the BPC for just the serial communications
-      const connection = new WebSocket(clientService.url('serial.connect', 'ws'));
+      const connection = new WebSocket(
+          clientService.url('serial.connect', 'ws'));
 
       // When the connection is open, open com port
       connection.onopen = function() {
         connString = '';
         connStrYet = false;
-        connection.send('+++ open port ' + getComPort() + (baudrate ? ' ' + baudrate : ''));
+        connection.send('+++ open port ' + getComPort() +
+            (baudrate ? ' ' + baudrate : ''));
         clientService.activeConnection = connection;
       };
 
@@ -506,7 +535,8 @@ export function serialConsole() {
       clientService.activeConnection = null;
 
       // Display a "No connected devices" message in the terminal
-      displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
+      displayTerminalConnectionStatus(
+          Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
       getPropTerminal().display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
 
       // Clear the terminal if the user closes it.
@@ -536,7 +566,8 @@ export function serialConsole() {
         messageToSend.baudrate,
       ].join[' ']);
     } else {
-      displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
+      displayTerminalConnectionStatus(
+          Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
       getPropTerminal().display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
     }
 
@@ -544,7 +575,8 @@ export function serialConsole() {
 
     $('#console-dialog').on('hidden.bs.modal', function() {
       clientService.sendCharacterStreamTo = null;
-      if (messageToSend.action !== 'close') { // because this is getting called multiple times...?
+      if (messageToSend.action !== 'close') {
+        // because this is getting called multiple times...?
         messageToSend.action = 'close';
         displayTerminalConnectionStatus(null);
         clientService.activeConnection.send(JSON.stringify(messageToSend));
@@ -558,7 +590,8 @@ export function serialConsole() {
 
 /**
  * Display information about the serial connection to the device
- * @param {string | null} connectionInfo text to display above the console or graph
+ * @param {string | null} connectionInfo text to display above
+ *  the console or graph
  */
 function displayTerminalConnectionStatus(connectionInfo) {
   $('.connection-string').html(connectionInfo ? connectionInfo : '');
@@ -590,11 +623,13 @@ export function graphingConsole() {
       // string before serial data begins streaming in.
       let connString = '';
       let connStrYet = false;
-      const connection = new WebSocket(clientService.url('serial.connect', 'ws'));
+      const connection = new WebSocket(
+          clientService.url('serial.connect', 'ws'));
 
       // When the connection is open, open com port
       connection.onopen = function() {
-        connection.send('+++ open port ' + getComPort() + (baudrate ? ' ' + baudrate : ''));
+        connection.send('+++ open port ' + getComPort() +
+            (baudrate ? ' ' + baudrate : ''));
         graphStartStop('start');
       };
 
@@ -646,7 +681,8 @@ export function graphingConsole() {
           messageToSend.baudrate,
         ].join(' '));
       } else {
-        displayTerminalConnectionStatus(Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT);
+        displayTerminalConnectionStatus(
+            Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT);
       }
 
       clientService.activeConnection.send(JSON.stringify(messageToSend));
@@ -659,7 +695,8 @@ export function graphingConsole() {
       $('#graphing-dialog').on('hidden.bs.modal', function() {
         clientService.sendCharacterStreamTo = null;
         graphStartStop('stop');
-        if (messageToSend.action !== 'close') { // because this is getting called multiple times.... ?
+        if (messageToSend.action !== 'close') {
+          // because this is getting called multiple times.... ?
           messageToSend.action = 'close';
           displayTerminalConnectionStatus(null);
           clientService.activeConnection.send(JSON.stringify(messageToSend));
@@ -667,7 +704,8 @@ export function graphingConsole() {
       });
     } else {
       // create simulated graph?
-      displayTerminalConnectionStatus(Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT);
+      displayTerminalConnectionStatus(
+          Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT);
     }
 
     $('#graphing-dialog').modal('show');
@@ -675,7 +713,9 @@ export function graphingConsole() {
       document.getElementById('btn-graph-play').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="15"><path d="M5.5,2 L4,2 4,11 5.5,11 Z M8.5,2 L10,2 10,11 8.5,11 Z" style="stroke:#fff;stroke-width:1;fill:#fff;"/></svg>';
     }
   } else {
-    utils.showMessage(Blockly.Msg.DIALOG_MISSING_BLOCKS, Blockly.Msg.DIALOG_MISSING_BLOCKS_GRAPHING);
+    utils.showMessage(
+        Blockly.Msg.DIALOG_MISSING_BLOCKS,
+        Blockly.Msg.DIALOG_MISSING_BLOCKS_GRAPHING);
   }
 }
 
@@ -683,7 +723,8 @@ export function graphingConsole() {
  * getGraphSettingsFromBlocks
  * @description sets the graphing engine's settings and graph labels
  * based on values in the graph setup and output blocks
- * @return {boolean} true if the appropriate graphing blocks are present and false if they are not
+ * @return {boolean} true if the appropriate graphing blocks are
+ *  present and false if they are not
  */
 function getGraphSettingsFromBlocks() {
   const project = getProjectInitialState();
@@ -691,18 +732,23 @@ function getGraphSettingsFromBlocks() {
   if (project.boardType.name === 'propcfile') {
     return false;
   }
-  const graphSettingsBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_settings');
+  const graphSettingsBlocks = Blockly
+      .getMainWorkspace()
+      .getBlocksByType('graph_settings');
 
   if (graphSettingsBlocks.length > 0) {
     logConsoleMessage('found settings');
-    const graphOutputBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_output');
+    const graphOutputBlocks = Blockly
+        .getMainWorkspace()
+        .getBlocksByType('graph_output');
     // eslint-disable-next-line camelcase
     graph_labels = [];
     if (graphOutputBlocks.length > 0) {
       logConsoleMessage('found block');
       let i = 0;
       while (graphOutputBlocks[0].getField('GRAPH_LABEL' + i)) {
-        graph_labels.push(graphOutputBlocks[0].getFieldValue('GRAPH_LABEL' + i));
+        graph_labels.push(
+            graphOutputBlocks[0].getFieldValue('GRAPH_LABEL' + i));
         i++;
       }
     } else {
@@ -721,7 +767,8 @@ function getGraphSettingsFromBlocks() {
     }[graphSettingsBlocks[0].getFieldValue('YSETTING')];
 
 
-    if (graphSettingsBlocks[0].getFieldValue('YMIN') || graphSettingsBlocks[0].getFieldValue('YMAX')) {
+    if (graphSettingsBlocks[0].getFieldValue('YMIN') ||
+        graphSettingsBlocks[0].getFieldValue('YMAX')) {
       graph_options.axisY = {
         type: Chartist.AutoScaleAxis,
         low: Number(graphSettingsBlocks[0].getFieldValue('YMIN') || '0'),
@@ -739,7 +786,8 @@ function getGraphSettingsFromBlocks() {
     graph_options.showLine = true;
     if (graph_options.graph_type === 'X') {
       $('#graph_x-axis_label').css('display', 'none');
-      if (graphSettingsBlocks[0].getFieldValue('XMIN') || graphSettingsBlocks[0].getFieldValue('XMAX')) {
+      if (graphSettingsBlocks[0].getFieldValue('XMIN') ||
+          graphSettingsBlocks[0].getFieldValue('XMAX')) {
         graph_options.axisX = {
           type: Chartist.AutoScaleAxis,
           low: Number(graphSettingsBlocks[0].getFieldValue('XMIN') || '0'),
@@ -757,7 +805,8 @@ function getGraphSettingsFromBlocks() {
     }
 
     if (graph_options.graph_type === 'S' || graph_options.graph_type === 'X') {
-      graph_options.sampleTotal = Number(graphSettingsBlocks[0].getFieldValue('XAXIS') || '10');
+      graph_options.sampleTotal = Number(
+          graphSettingsBlocks[0].getFieldValue('XAXIS') || '10');
     }
     return true;
   } else {
@@ -869,7 +918,8 @@ export function graphNewData(stream) {
         }
         // eslint-disable-next-line camelcase
         if (row > 0 && !graph_start_playing) {
-          if (parseFloat(graph_temp_data[row][0]) < parseFloat(graph_temp_data[row - 1][1])) {
+          if (parseFloat(graph_temp_data[row][0]) <
+              parseFloat(graph_temp_data[row - 1][1])) {
             // eslint-disable-next-line camelcase
             graph_time_multiplier += fullCycleTime;
           }
@@ -883,13 +933,16 @@ export function graphNewData(stream) {
               // eslint-disable-next-line camelcase
               graph_timestamp_start);
           // eslint-disable-next-line camelcase
-          let graph_csv_temp = (Math.round(graph_temp_data[row][0] * 10000) / 10000) + ',';
+          let graph_csv_temp =
+              (Math.round(graph_temp_data[row][0] * 10000) / 10000) + ',';
 
-          if (graph_options.graph_type === 'X') {   // xy scatter plot
+          if (graph_options.graph_type === 'X') {
+            // xy scatter plot
             let jk = 0;
             for (let j = 2; j < graph_temp_data[row].length; j = j + 2) {
               // eslint-disable-next-line camelcase
-              graph_csv_temp += graph_temp_data[row][j] + ',' + graph_temp_data[row][j + 1] + ',';
+              graph_csv_temp += graph_temp_data[row][j] + ',' +
+                  graph_temp_data[row][j + 1] + ',';
               graph_data.series[jk].push({
                 x: graph_temp_data[row][j] || null,
                 y: graph_temp_data[row][j + 1] || null,
@@ -899,7 +952,8 @@ export function graphNewData(stream) {
               }
               jk++;
             }
-          } else {    // Time series graph
+          } else {
+            // Time series graph
             for (let j = 2; j < graph_temp_data[row].length; j++) {
               // eslint-disable-next-line camelcase
               graph_csv_temp += graph_temp_data[row][j] + ',';
@@ -907,7 +961,10 @@ export function graphNewData(stream) {
                 x: graph_temp_data[row][0],
                 y: graph_temp_data[row][j] || null,
               });
-              $('.ct_line').css('stroke-width', '2.5px');  // TODO: if this slows performance too much - explore changing the stylesheet (https://stackoverflow.com/questions/50036922/change-a-css-stylesheets-selectors-properties/50036923#50036923)
+              // TODO: if this slows performance too much - explore changing
+              //  the stylesheet
+              //  (https://stackoverflow.com/questions/50036922/change-a-css-stylesheets-selectors-properties/50036923#50036923)
+              $('.ct_line').css('stroke-width', '2.5px');
               if (graph_temp_data[row][0] > graph_options.sampleTotal) {
                 graph_data.series[j - 2].shift();
               }
@@ -916,7 +973,8 @@ export function graphNewData(stream) {
 
           graph_csv_data.push(graph_csv_temp.slice(0, -1).split(','));
 
-          // limits total number of data points collected to prevent memory issues
+          // limits total number of data points collected to prevent
+          // memory issues
           if (graph_csv_data.length > 15000) {
             graph_csv_data.shift();
           }
@@ -925,11 +983,11 @@ export function graphNewData(stream) {
         graphTempString = '';
       } else {
         // eslint-disable-next-line camelcase
-        if (!graph_data_ready) {            // wait for a full set of data to
-          if (stream[k] === '\r') {       // come in before graphing, ends up
+        if (!graph_data_ready) { // wait for a full set of data to
+          if (stream[k] === '\r') { // come in before graphing, ends up
             // eslint-disable-next-line camelcase
-            graph_data_ready = true;    // tossing the first point but prevents
-          }                               // garbage from mucking up the graph.
+            graph_data_ready = true; // tossing the first point but prevents
+          } // garbage from mucking up the graph.
         } else {
           // make sure it's a number, comma, CR, or LF
           if ('-0123456789.,\r\n'.indexOf(stream[k]) > -1) {
@@ -974,13 +1032,17 @@ export function graphPlay(setTo) {
   if (document.getElementById('btn-graph-play')) {
     // eslint-disable-next-line camelcase
     const play_state = document.getElementById('btn-graph-play').innerHTML;
-    if (setTo !== 'play' && (play_state.indexOf('pause') > -1 || play_state.indexOf('<!--p') === -1)) {
-      document.getElementById('btn-graph-play').innerHTML = '<!--play--><svg xmlns="http://www.w3.org/2000/svg" width="14" height="15"><path d="M4,3 L4,11 10,7 Z" style="stroke:#fff;stroke-width:1;fill:#fff;"/></svg>';
+    if (setTo !== 'play' &&
+        (play_state.indexOf('pause') > -1 ||
+            play_state.indexOf('<!--p') === -1)) {
+      document.getElementById('btn-graph-play')
+          .innerHTML = '<!--play--><svg xmlns="http://www.w3.org/2000/svg" width="14" height="15"><path d="M4,3 L4,11 10,7 Z" style="stroke:#fff;stroke-width:1;fill:#fff;"/></svg>';
       if (!setTo) {
         graphStartStop('pause');
       }
     } else {
-      document.getElementById('btn-graph-play').innerHTML = '<!--pause--><svg xmlns="http://www.w3.org/2000/svg" width="14" height="15"><path d="M5.5,2 L4,2 4,11 5.5,11 Z M8.5,2 L10,2 10,11 8.5,11 Z" style="stroke:#fff;stroke-width:1;fill:#fff;"/></svg>';
+      document.getElementById('btn-graph-play')
+          .innerHTML = '<!--pause--><svg xmlns="http://www.w3.org/2000/svg" width="14" height="15"><path d="M5.5,2 L4,2 4,11 5.5,11 Z M8.5,2 L10,2 10,11 8.5,11 Z" style="stroke:#fff;stroke-width:1;fill:#fff;"/></svg>';
       // eslint-disable-next-line camelcase
       if (!graph_interval_id && !setTo) {
         graphStartStop('play');
@@ -993,55 +1055,71 @@ export function graphPlay(setTo) {
  * Save a graph to the local file system
  */
 export function downloadGraph() {
-  utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_GRAPH_DIALOG, 'BlocklyProp_Graph', function(value) {
-    if (value) {
-      // Make sure filename is safe
-      value = sanitizeFilename(value);
+  utils.prompt(
+      Blockly.Msg.DIALOG_DOWNLOAD_GRAPH_DIALOG,
+      'BlocklyProp_Graph',
+      function(value) {
+        if (value) {
+          // Make sure filename is safe
+          value = sanitizeFilename(value);
 
-      const svgGraph = document.getElementById('serial_graphing');
-      const pattern = new RegExp('xmlns="http://www.w3.org/2000/xmlns/"', 'g');
-      const findY = 'class="ct-label ct-horizontal ct-end"';
-      const chartStyle = '<style>.ct-grid-background,.ct-line{fill:none}.ct-point{stroke-width:10px;stroke-linecap:round}.ct-grid{stroke:rgba(0,0,0,.2);stroke-width:1px;stroke-dasharray:2px}.ct-area{stroke:none;fill-opacity:.1}.ct-line{stroke-width:1px}.ct-point{stroke-width:5px}.ct-series-a{stroke:#00f}.ct-series-b{stroke:#0bb}.ct-series-c{stroke:#0d0}.ct-series-d{stroke:#dd0}.ct-series-e{stroke:#f90}.ct-series-f{stroke:red}.ct-series-g{stroke:#d09}.ct-series-h{stroke:#90d}.ct-series-i{stroke:#777}.ct-series-j{stroke:#000}text{font-family:sans-serif;fill:rgba(0,0,0,.4);color:rgba(0,0,0,.4);font-size:.75rem;line-height:1;overflow:visible}</style>';
-      let svgxml = new XMLSerializer().serializeToString(svgGraph);
+          const svgGraph = document.getElementById('serial_graphing');
+          const pattern = new RegExp('xmlns="http://www.w3.org/2000/xmlns/"', 'g');
+          const findY = 'class="ct-label ct-horizontal ct-end"';
+          // eslint-disable-next-line max-len
+          const chartStyle = '<style>.ct-grid-background,.ct-line{fill:none}.ct-point{stroke-width:10px;stroke-linecap:round}.ct-grid{stroke:rgba(0,0,0,.2);stroke-width:1px;stroke-dasharray:2px}.ct-area{stroke:none;fill-opacity:.1}.ct-line{stroke-width:1px}.ct-point{stroke-width:5px}.ct-series-a{stroke:#00f}.ct-series-b{stroke:#0bb}.ct-series-c{stroke:#0d0}.ct-series-d{stroke:#dd0}.ct-series-e{stroke:#f90}.ct-series-f{stroke:red}.ct-series-g{stroke:#d09}.ct-series-h{stroke:#90d}.ct-series-i{stroke:#777}.ct-series-j{stroke:#000}text{font-family:sans-serif;fill:rgba(0,0,0,.4);color:rgba(0,0,0,.4);font-size:.75rem;line-height:1;overflow:visible}</style>';
+          let svgxml = new XMLSerializer().serializeToString(svgGraph);
 
-      svgxml = svgxml.replace(pattern, '');
-      svgxml = svgxml.replace(/foreignObject/g, 'text');
-      svgxml = svgxml.replace(/([<|</])a[0-9]+:/g, '$1');
-      svgxml = svgxml.replace(/xmlns: /g, '');
-      svgxml = svgxml.replace(/x="10" /g, 'x="40" ');
+          svgxml = svgxml.replace(pattern, '');
+          svgxml = svgxml.replace(/foreignObject/g, 'text');
+          svgxml = svgxml.replace(/([<|</])a[0-9]+:/g, '$1');
+          svgxml = svgxml.replace(/xmlns: /g, '');
+          svgxml = svgxml.replace(/x="10" /g, 'x="40" ');
 
-      svgxml = svgxml.substring(svgxml.indexOf('<svg'), svgxml.length - 6);
-      const foundY = svgxml.indexOf(findY);
-      const theY = parseFloat(svgxml.substring(svgxml.indexOf(' y="', foundY + 20) + 4, svgxml.indexOf('"', svgxml.indexOf(' y="', foundY + 20) + 4)));
-      const regY = new RegExp('y="' + theY + '"', 'g');
-      svgxml = svgxml.replace(regY, 'y="' + (theY + 12) + '"');
-      const breakpoint = svgxml.indexOf('>') + 1;
-      svgxml = svgxml.substring(0, breakpoint) + chartStyle + svgxml.substring(breakpoint, svgxml.length);
-      svgxml = svgxml.replace(/<text style="overflow: visible;" ([xy])="([0-9.-]+)" ([xy])="([0-9.-]+)" [a-z]+="[0-9.]+" [a-z]+="[0-9.]+"><span[0-9a-zA-Z =.":;/-]+>([0-9.-]+)<\/span>/g, '<text $1="$2" $3="$4">$5');
+          svgxml = svgxml.substring(svgxml.indexOf('<svg'), svgxml.length - 6);
+          const foundY = svgxml.indexOf(findY);
+          // eslint-disable-next-line max-len
+          const theY = parseFloat(svgxml.substring(svgxml.indexOf(' y="', foundY + 20) + 4, svgxml.indexOf('"', svgxml.indexOf(' y="', foundY + 20) + 4)));
+          const regY = new RegExp('y="' + theY + '"', 'g');
+          svgxml = svgxml.replace(regY, 'y="' + (theY + 12) + '"');
+          const breakpoint = svgxml.indexOf('>') + 1;
+          // eslint-disable-next-line max-len
+          svgxml = svgxml.substring(0, breakpoint) + chartStyle + svgxml.substring(breakpoint, svgxml.length);
+          // eslint-disable-next-line max-len
+          svgxml = svgxml.replace(/<text style="overflow: visible;" ([xy])="([0-9.-]+)" ([xy])="([0-9.-]+)" [a-z]+="[0-9.]+" [a-z]+="[0-9.]+"><span[0-9a-zA-Z =.":;/-]+>([0-9.-]+)<\/span>/g, '<text $1="$2" $3="$4">$5');
 
-      const blob = new Blob([svgxml], {type: 'image/svg+xml'});
-      saveAs(blob, value + '.svg');
-    }
-  });
+          const blob = new Blob([svgxml], {type: 'image/svg+xml'});
+          saveAs(blob, value + '.svg');
+        }
+      });
 }
 
 /**
  * Download the graph as a csv file to the local file system
  */
 export function downloadCSV() {
-  utils.prompt(Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG, 'BlocklyProp_Data', function(value) {
-    if (value) {
-      // Make sure filename is safe
-      value = sanitizeFilename(value);
+  utils.prompt(
+      Blockly.Msg.DIALOG_DOWNLOAD_DATA_DIALOG,
+      'BlocklyProp_Data',
+      function(value) {
+        if (value) {
+          // Make sure filename is safe
+          value = sanitizeFilename(value);
 
-      // eslint-disable-next-line camelcase
-      const graph_csv_temp = graph_csv_data.join('\n');
-      const idx1 = graph_csv_temp.indexOf('\n') + 1;
-      const idx2 = graph_csv_temp.indexOf('\n', idx1 + 1);
-      const blob = new Blob([graph_csv_temp.substring(0, idx1) + graph_csv_temp.substring(idx2 + 1, graph_csv_temp.length - 1)], {type: 'text/csv'});
-      saveAs(blob, value + '.csv');
-    }
-  });
+          // eslint-disable-next-line camelcase
+          const graph_csv_temp = graph_csv_data.join('\n');
+          const idx1 = graph_csv_temp.indexOf('\n') + 1;
+          const idx2 = graph_csv_temp.indexOf('\n', idx1 + 1);
+          const blob = new Blob(
+              [
+                graph_csv_temp.substring(0, idx1) +
+                  graph_csv_temp.substring(idx2 + 1,
+                      graph_csv_temp.length - 1),
+              ],
+              {type: 'text/csv'});
+          saveAs(blob, value + '.csv');
+        }
+      });
 }
 
 /**
@@ -1058,15 +1136,23 @@ function graph_new_labels() {
   let labelPre = ['', '', '', '', '', '', '', '', '', '', '', '', '', ''];
   if (graph_options.graph_type === 'X') {
     labelClass = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7];
+    // eslint-disable-next-line max-len
     labelPre = ['x: ', 'y: ', 'x: ', 'y: ', 'x: ', 'y: ', 'x: ', 'y: ', 'x: ', 'y: ', 'x: ', 'y: ', 'x: ', 'y: '];
   }
   for (let t = 0; t < graph_labels.length; t++) {
+    // eslint-disable-next-line max-len
     labelsvg += '<g id="labelgroup' + (t + 1) + '" transform="translate(0,' + (t * 30 + 25) + ')">';
+    // eslint-disable-next-line max-len
     labelsvg += '<rect x="0" y = "0" width="60" height="26" rx="3" ry="3" id="label' + (t + 1) + '" ';
+    // eslint-disable-next-line max-len
     labelsvg += 'style="stroke:1px;stroke-color:blue;" class="ct-marker-' + labelClass[t] + '"/><rect x="3" y="12"';
+    // eslint-disable-next-line max-len
     labelsvg += 'width="54" height="11" rx="3" ry="3" id="value' + (t + 1) + 'bkg" style="fill:rgba';
+    // eslint-disable-next-line max-len
     labelsvg += '(255,255,255,.7);stroke:none;"/><text id="label' + (t + 1) + 'text" x="3" ';
+    // eslint-disable-next-line max-len
     labelsvg += 'y="9" style="font-family:Arial;font-size: 9px;fill:#fff;font-weight:bold;">' + labelPre[t];
+    // eslint-disable-next-line max-len
     labelsvg += graph_labels[t] + '</text><text id="gValue' + (t + 1) + '" x="5" y="21" style="align:right;';
     labelsvg += 'font-family:Arial;font-size: 10px;fill:#000;"></text></g>';
     // eslint-disable-next-line camelcase
