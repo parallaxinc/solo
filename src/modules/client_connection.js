@@ -146,7 +146,6 @@ export const findClient = function() {
   }
 };
 
-
 /**
  * Checks for and, if found, uses a newer WebSockets-only client
  *
