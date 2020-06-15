@@ -29,7 +29,6 @@ import * as JSZip from 'jszip';
 // eslint-disable-next-line camelcase
 import {page_text_label, tooltip_text} from './blockly/language/en/messages';
 import './blockly/generators/propc';
-import './blockly/generators/field_ace';
 import './blockly/generators/propc/base';
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
