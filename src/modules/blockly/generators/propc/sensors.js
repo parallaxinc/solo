@@ -790,6 +790,13 @@ Blockly.Blocks.fp_scanner_init = {
 /**
  * FP Scanner Initialization C code generator
  * @return {string}
+ * @description This function adds data to several arrays that will be used
+ * later to assemble the #include file, a global pointer to the fingerprint
+ * scanner data structure and some code to initialize the pointer.
+ *
+ * Solo-#410
+ * We are returning an empty string because code generators are required to
+ * return a string, even if it is an empty one.
  */
 Blockly.propc.fp_scanner_init = function() {
   if (this.disabled) {
@@ -801,17 +808,19 @@ Blockly.propc.fp_scanner_init = function() {
   let txPin = this.getFieldValue('TXPIN');
 
   if (profile.digital.toString().indexOf(rxPin + ',' + rxPin) === -1) {
-    rxPin = 'MY_' + rxPin;
+    rxPin = `MY_${rxPin}`;
   }
   if (profile.digital.toString().indexOf(txPin + ',' + txPin) === -1) {
-    txPin = 'MY_' + txPin;
+    txPin = `MY_${txPin}`;
   }
 
   // Set up the fpScanner global variable, include file and init setup code
   Blockly.propc.global_vars_['fpScannerObj'] = 'fpScanner *fpScan;';
   Blockly.propc.definitions_['fpScannerDef'] = '#include "fingerprint.h"';
-  Blockly.propc.setups_['fpScanner'] = 'fpScan = fingerprint_open(' +
-      txPin + ', ' + rxPin + ');';
+  Blockly.propc.setups_['fpScanner'] =
+      `fpScan = fingerprint_open(${txPin}, ${rxPin});`;
+
+  return ''; // Because we have to return a string
 };
 
 /**

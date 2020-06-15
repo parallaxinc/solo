@@ -29,6 +29,7 @@ import * as JSZip from 'jszip';
 // eslint-disable-next-line camelcase
 import {page_text_label, tooltip_text} from './blockly/language/en/messages';
 import './blockly/generators/propc';
+import './blockly/generators/field_ace';
 import './blockly/generators/propc/base';
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
@@ -1436,6 +1437,7 @@ export function appendProjectCode() {
  * @param {Project} project is the project object to use for the refresh
  */
 function refreshEditorCanvas(project) {
+  logConsoleMessage(`Refreshing editor canvas`);
   initializeBlockly(Blockly);
   renderContent('blocks');
 
@@ -1846,10 +1848,10 @@ export function createNewProject() {
     setupWorkspace(newProject);
 
     // Create an instance of the CodeEditor class
-    codeEditor = new CodeEditor(newProject.boardType.name);
-    if (!codeEditor) {
-      console.log('Error allocating CodeEditor object');
-    }
+    // codeEditor = new CodeEditor(newProject.boardType.name);
+    // if (!codeEditor) {
+    //   console.log('Error allocating CodeEditor object');
+    // }
     propToolbarButtonController();
   } catch (e) {
     logConsoleMessage(`Error while creating project object. ${e.message}.`);
@@ -2011,12 +2013,14 @@ function renderContent(id) {
       $('#btn-view-blocks').css('display', 'none');
 
       if (allowXmlEditing) {
+        logConsoleMessage(`XML editing is permitted.`);
         if (Blockly && codeXml && codeXml.getValue().length > 40) {
           Blockly.Xml.clearWorkspaceAndLoadFromXml(
               Blockly.Xml.textToDom(codeXml.getValue()),
               Blockly.mainWorkspace);
         }
       }
+
       Blockly.svgResize(getWorkspaceSvg());
       getWorkspaceSvg().render();
       break;
@@ -2081,6 +2085,7 @@ function renderContent(id) {
       codeXml.gotoLine(0);
       break;
   }
+  logConsoleMessage(`Content is rendered.`);
 }
 
 /**

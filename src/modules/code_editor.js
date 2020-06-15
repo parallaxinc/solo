@@ -54,6 +54,7 @@ export class CodeEditor {
    */
   constructor(boardType) {
     if (!cSourceCode) {
+      // TODO: Is it necessary to import a package outside on NPM?
       // cdnjs didn't have a "no-conflict" version, so we'll use jsdelivr
       const CDN = 'https://cdn.jsdelivr.net/npm/ace-builds@1.3.3/src-min-noconflict';
 

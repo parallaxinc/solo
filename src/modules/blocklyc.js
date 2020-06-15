@@ -42,7 +42,6 @@ import {sanitizeFilename} from './utility';
  */
 let graph = null;
 
-
 /**
  * Graph temporary storage array
  *
@@ -50,7 +49,6 @@ let graph = null;
  */
 // eslint-disable-next-line camelcase
 const graph_temp_data = [];
-
 
 /**
  * Flag that indicates if the graph system is ready
@@ -60,7 +58,6 @@ const graph_temp_data = [];
 // eslint-disable-next-line camelcase
 let graph_data_ready = false;
 
-
 /**
  * Graph data series start timestamp
  *
@@ -68,7 +65,6 @@ let graph_data_ready = false;
  */
 // eslint-disable-next-line camelcase
 let graph_timestamp_start = null;
-
 
 /**
  * TODO: Identify the purpose of this variable
@@ -78,7 +74,6 @@ let graph_timestamp_start = null;
 // eslint-disable-next-line camelcase
 let graph_timestamp_restart = 0;
 
-
 /**
  * TODO: Identify the purpose of this variable
  *
@@ -86,7 +81,6 @@ let graph_timestamp_restart = 0;
  */
 // eslint-disable-next-line camelcase
 let graph_paused = false;
-
 
 /**
  * TODO: Identify the purpose of this variable
@@ -96,7 +90,6 @@ let graph_paused = false;
 // eslint-disable-next-line camelcase
 let graph_start_playing = false;
 
-
 /**
  * TODO: Identify the purpose of this variable
  *
@@ -104,7 +97,6 @@ let graph_start_playing = false;
  */
 // eslint-disable-next-line camelcase
 let graphTempString = '';
-
 
 /**
  * TODO: Identify the purpose of this variable
@@ -114,7 +106,6 @@ let graphTempString = '';
 // eslint-disable-next-line camelcase
 let graph_time_multiplier = 0;
 
-
 /**
  * TODO: Identify the purpose of this variable
  *
@@ -123,14 +114,12 @@ let graph_time_multiplier = 0;
 // eslint-disable-next-line camelcase
 let graph_interval_id = null;
 
-
 /**
  * TODO: Identify the purpose of this variable
  *
  * @type {number}
  */
 const fullCycleTime = 4294967296 / 80000000;
-
 
 /**
  * TODO: Identify the purpose of this variable
@@ -140,7 +129,6 @@ const fullCycleTime = 4294967296 / 80000000;
 // eslint-disable-next-line camelcase
 let graph_labels = null;
 
-
 /**
  * TODO: Identify the purpose of this variable
  *
@@ -148,7 +136,6 @@ let graph_labels = null;
  */
 // eslint-disable-next-line camelcase
 const graph_csv_data = [];
-
 
 /**
  * Graph system settings
@@ -174,7 +161,6 @@ const graph_options = {
   sampleTotal: 40,
   graph_type: 'S',
 };
-
 
 /**
  * Array to store source data for the graph system

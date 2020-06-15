@@ -149,7 +149,9 @@ export const clientService = {
    * The timestamp of the last port list update.
    * @type {number}
    * @description This is used to verify that there is traffic coming from
-   *  the active client connection. Sort of a poor man's watchdog.
+   *  the active client connection. The timestamp is updated whenever the
+   *  port list is cleared or when a port is added to the list. Both activities
+   *  are indicative of traffic received from the client.
    */
   lastPortUpdate_: 0,
 
@@ -207,6 +209,7 @@ export const clientService = {
    */
   clearPortList: function() {
     this.portList = [];
+    this.lastPortUpdate_= Date.now();
   },
 
   /**
@@ -331,6 +334,7 @@ export const clientService = {
     this.available = false;
     this.portsAvailable = false;
     this.selectedPort_ = '';
+    this.lastPortUpdate_ = 0;
   },
 };
 
