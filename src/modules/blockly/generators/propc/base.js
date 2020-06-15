@@ -35,6 +35,7 @@ import Blockly from 'blockly/core';
 
 import {getDefaultProfile} from '../../../project';
 import {colorPalette} from '../propc';
+import '../field_ace';
 
 /**
  * Use this to create a module-level incrementing variable, which makes
@@ -3184,6 +3185,7 @@ Blockly.Blocks.custom_code_multiple = {
     this.setTooltip(Blockly.MSG_CUSTOM_CODE_MULTIPLE_TOOLTIP);
     this.setColour(colorPalette.getColor('system'));
     this.appendDummyInput('BLOCK_LABEL')
+        // Check box
         .appendField(new Blockly.FieldCheckbox(
             'FALSE',
             function(showFields) {
@@ -3191,6 +3193,8 @@ Blockly.Blocks.custom_code_multiple = {
               this.getSourceBlock().updateShape_(showFields, true);
             }),
         'EDIT')
+
+        // Block text
         .appendField('  User defined code', 'LABEL');
 
     this.setInputsInline(false);
@@ -3223,7 +3227,13 @@ Blockly.Blocks.custom_code_multiple = {
    */
   updateShape_: function(showFields, populate) {
     this.fieldValueTemp_['EDIT'] = showFields;
-    if (showFields === true || showFields === 'true' || showFields === 'TRUE') {
+    if (showFields === true ||
+        showFields === 'true' ||
+        showFields === 'TRUE') {
+      // ----------------------------------------------------------------------
+      // This call is creating a fault when it tries to create a custom
+      // field, FieldAceEditor
+      // ----------------------------------------------------------------------
       this.buildFields();
       this.setupInputs();
 
@@ -3236,7 +3246,9 @@ Blockly.Blocks.custom_code_multiple = {
     }
   },
 
-  // Build fields
+  /**
+   * Build source code input fields
+   */
   buildFields: function() {
     // Return if the label is already set up
     if (this.getInput('SET_LABEL')) {
@@ -3287,17 +3299,26 @@ Blockly.Blocks.custom_code_multiple = {
       ['FUNC', 'functions'],
     ]).forEach(function(value) {
       currentCustomBlock.appendDummyInput(value[0])
-          .appendField(new Blockly.FieldAceEditor(
-              `${value[1]} code`,
-              '',
-              function(userInput) {
-                // TODO STAT: Replace incorrect use of 'this'.
-                // eslint-disable-next-line no-invalid-this
-                this.getSourceBlock()
-                    .fieldValueTemp_[value[1].toUpperCase()] =
-                    userInput;
-              }),
-          value[1].toUpperCase()
+          // Label text
+          .appendField(value[1].toLowerCase())
+          // source code field
+          .appendField(
+              new Blockly.FieldTextInput(''),
+              value[1].toUpperCase()
+
+          //     new Blockly.FieldAceEditor(
+          //     `${value[1]} code`,
+          //     '',
+          //     function(userInput) {
+          //       // TODO STAT: Replace incorrect use of 'this'.
+          //       // eslint-disable-next-line no-invalid-this
+          //       currentCustomBlock
+          //           .fieldValueTemp_[value[1].toUpperCase()] =
+          //           userInput;
+          //     }),
+          // // Language-neutral identifier which may be used to find this field
+          // // again. Should be unique to the host block.
+          // value[1].toUpperCase()
           );
     });
 
@@ -3336,6 +3357,10 @@ Blockly.Blocks.custom_code_multiple = {
         }), 'ARG_COUNT');
     this.setColour('#909090');
   },
+
+  /**
+   * Destroy the fields that were previously created
+   */
   destroyFields: function() {
     const blockInputList = [
       'SET_LABEL',
@@ -3370,6 +3395,9 @@ Blockly.Blocks.custom_code_multiple = {
     });
   },
 
+  /**
+   * Get the blocks connected to this block
+   */
   getConnectedBlocks: function() {
     for (let idx = 0; idx < 10; idx++) {
       if (this.getInput('ARG' + idx.toString(10))) {
@@ -3378,6 +3406,10 @@ Blockly.Blocks.custom_code_multiple = {
       }
     }
   },
+
+  /**
+   * Restore the connected blocks
+   */
   restoreConnectedBlocks: function() {
     for (let idx = 0; idx < 10; idx++) {
       if (this.getInput('ARG' + idx.toString(10))) {
@@ -3392,12 +3424,22 @@ Blockly.Blocks.custom_code_multiple = {
       }
     }
   },
+
+  /**
+   * Convert to DOM model
+   * @return {HTMLElement}
+   */
   mutationToDom: function() {
     const container = document.createElement('mutation');
     container.setAttribute(
         'field_values', JSON.stringify(this.fieldValueTemp_));
     return container;
   },
+
+  /**
+   * Convert from DOM model to a mutation
+   * @param {Element} container
+   */
   domToMutation: function(container) {
     const blockData = container.getAttribute('field_values');
     if (blockData) {
@@ -3421,6 +3463,11 @@ Blockly.Blocks.custom_code_multiple = {
     this.setFieldValue(this.fieldValueTemp_['LABEL_SET'], 'LABEL');
     this.setOutputType(this.fieldValueTemp_['TYPE'] || 'INL');
   },
+
+  /**
+   * Set the output block type
+   * @param {string} outType
+   */
   setOutputType: function(outType) {
     if (outType === 'INL') {
       this.setOutput(false);
@@ -3432,17 +3479,25 @@ Blockly.Blocks.custom_code_multiple = {
       this.setOutput(true, (outType === 'STR' ? 'String' : 'Number'));
     }
   },
+
+  /**
+   * Configure block inputs
+   */
   setupInputs: function() {
     const argsCount = this.fieldValueTemp_['ARG_COUNT'];
-    const blockEditState = (this.fieldValueTemp_['EDIT'] === true ||
-                this.fieldValueTemp_['EDIT'] === 'true' ||
-                this.fieldValueTemp_['EDIT'] === 'TRUE');
+    const blockEditState = (
+      this.fieldValueTemp_['EDIT'] === true ||
+      this.fieldValueTemp_['EDIT'] === 'true' ||
+      this.fieldValueTemp_['EDIT'] === 'TRUE');
+
     this.getConnectedBlocks();
+
     for (let i = 1; i < 10; i++) {
       if (this.getInput('ARG' + i.toString(10))) {
         this.removeInput('ARG' + i.toString(10));
       }
     }
+
     for (let i = 1; i <= Number(argsCount); i++) {
       if (!this.getInput('ARG' + i.toString(10))) {
         if (blockEditState) {
