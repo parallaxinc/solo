@@ -20,6 +20,11 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+/**
+ * Global flag to enable/disable the Sentry logger
+ * @type {boolean}
+ */
+export const EnableSentry = true;
 
 /**
  * Set the application version string
@@ -85,12 +90,6 @@ export const PROJECT_NAME_MAX_LENGTH = 100;
  * @type {number}
  */
 export const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
-
-/**
- * Global flag to enable/disable the Sentry logger
- * @type {boolean}
- */
-export const EnableSentry = false;
 
 /**
  * This is the name of the test ECS cluster. A matching hostname will
