@@ -235,3 +235,12 @@ div#project div.wizard-container {
     display: inline;
     float: left;
 }
+
+/* Will-change memory consumption is too high. Budget limit is the document
+ * surface area multiplied by 3 (1237768 px). Occurrences of will-change over
+ * the budget will be ignored.
+ */
+.ace_gutter {
+    contain: strict;
+    will-change: transform !important;
+}

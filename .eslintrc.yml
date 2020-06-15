@@ -41,4 +41,18 @@ overrides:
       - google
     parserOptions:
       sourceType: module
+  - files: [
+    "src/modules/toolbox_data.js",
+    "src/modules/blockly_prop_client.js"
+    ]
+    rules: {
+      max-len: "off",
+      no-multi-spaces: "off"
+    }
+  - files: [
+      "src/modules/blockly/language/**/*.js"
+    ]
+    rules: {
+      max-len: "off"
 
+    }
