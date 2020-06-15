@@ -23,10 +23,13 @@
 /**
  * @fileoverview Style sheet for a Blockly editor.
  * @author fraser@google.com (Neil Fraser)
+ * @author mmatz@parallax.com (Matt Matz)
  */
 .blocklySvg {
   background-color: #fff;
 }
+
+/* TODO: Identify the functionality underlying this class */
 .blocklyWidgetDiv {
   position: absolute;
   display: none;
@@ -124,6 +127,7 @@
   stroke-width: 1px;
   stroke: #d8d8d8;
 }
+
 .blocklyTooltipShadow,
 .blocklyContextMenuShadow,
 .blocklyDropdownMenuShadow {
