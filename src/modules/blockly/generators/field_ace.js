@@ -28,35 +28,58 @@
  * https://github.com/BeksOmega/BlocklySummit2019-Fields
  */
 'use strict';
+import Blockly from 'blockly/core.js';
 
-goog.provide('Blockly.FieldAceEditor');
+// import 'google-closure-library';
 
-goog.require('Blockly.Field');
-goog.require('Blockly.utils');
-goog.require('Blockly.utils.dom');
+// goog.provide('Blockly.FieldAceEditor');
+//
+// goog.require('Blockly.Field');
+// goog.require('Blockly.utils');
+// goog.require('Blockly.utils.dom');
+//
+// /**
+//  * Class for a field used to edit custom code.
+//  * @param {string} displayText
+//  * @param {string=} optionalValue
+//  *  text or code to initially start with in the editor.
+//  * @param {Function=} optValidator A function that is called to validate
+//  *    changes to the field's value.
+//  * @constructor
+//  */
+// Blockly.FieldAceEditor = function(
+//     displayText, optionalValue, optValidator) {
+//   this.displayText_ = displayText;
+//   this.arrowRendered_ = false;
+//   if (!optionalValue) {
+//     optionalValue = '';
+//   }
+//   // Call the parent constructor first
+//   // Blockly.FieldAceEditor.superClass_.constructor.call(
+//   //     this, optionalValue, optValidator
+//   // );
+// };
+
+// goog.inherits(Blockly.FieldAceEditor, Blockly.Field);
 
 /**
- * Class for a field used to edit custom code.
+ *
  * @param {string} displayText
- * @param {string=} optionalValue
- *  text or code to initially start with in the editor.
- * @param {Function=} optValidator A function that is called to validate
- *    changes to the field's value.
+ * @param {string} optValue
+ * @param {function} optValidator
  * @constructor
  */
-Blockly.FieldAceEditor = function(displayText, optionalValue, optValidator) {
+Blockly.FieldAceEditor = function(displayText, optValue, optValidator) {
   this.displayText_ = displayText;
   this.arrowRendered_ = false;
-  if (!optionalValue) {
-    optionalValue = '';
+  if (!optValue) {
+    optValue = '';
   }
-  // Call the parent constructor first
   Blockly.FieldAceEditor.superClass_.constructor.call(
-      this, optionalValue, optValidator
-  );
+      this, optValue, optValidator);
 };
+// goog.inherits(Blockly.FieldAceEditor, Blockly.Field);
 
-goog.inherits(Blockly.FieldAceEditor, Blockly.Field);
 
 /**
  * Construct a FieldAceEditor from a JSON arg object.
@@ -168,4 +191,4 @@ Blockly.FieldAceEditor.prototype.dropdownDispose_ = function() {
   this.editor_ = null;
 };
 
-Blockly.Field.register('field_ace', Blockly.FieldAceEditor);
+// Blockly.Field.register('field_ace', Blockly.FieldAceEditor);
