@@ -6,4 +6,4 @@ if [ -n "$TRAVIS" ]; then
 fi
 
 echo "Running tests"
-./node_modules/.bin/eslint src
+./node_modules/.bin/eslint src/modules

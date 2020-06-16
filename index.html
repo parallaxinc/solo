@@ -35,34 +35,25 @@
         </noscript>
         <meta name="application-name" content="BlocklyProp"/>
         <meta name="msapplication-TileColor" content="#FFFFFF"/>
-        <meta name="msapplication-TileImage" content="src/images/mstile-144x144.png"/>
+        <meta name="msapplication-TileImage" content="dist/images/mstile-144x144.png"/>
         <meta name="base" content="">
-        <meta name="cdn" content="src/">
+        <meta name="cdn" content="dist/">
+        <meta name="whoami" content="root">
 
-        <link rel="stylesheet" href="src/lib/bootstrap/core/css/bootstrap.min.css"/>
-        <link rel="stylesheet" href="src/lib/bootstrap/plugins/bootstrap-table.min.css"/>
-        <link type="text/css" rel="stylesheet" href="src/style.css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <link type="text/css" rel="stylesheet" href="dist/style.css"/>
 
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="57x57" href="src/images/apple-touch-icon-57x57.png"/>
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="114x114" href="src/images/apple-touch-icon-114x114.png"/>
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="72x72" href="src/images/apple-touch-icon-72x72.png"/>
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="144x144" href="src/images/apple-touch-icon-144x144.png"/>
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="120x120" href="src/images/apple-touch-icon-120x120.png"/>
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="152x152" href="src/images/apple-touch-icon-152x152.png"/>
-        <link type="image/png" rel="icon" sizes="32x32" href="src/images/favicon-32x32.png"/>
-        <link type="image/png" rel="icon" sizes="16x16" href="src/images/favicon-16x16.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="57x57" href="dist/images/apple-touch-icon-57x57.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="114x114" href="dist/images/apple-touch-icon-114x114.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="72x72" href="dist/images/apple-touch-icon-72x72.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="144x144" href="dist/images/apple-touch-icon-144x144.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="120x120" href="dist/images/apple-touch-icon-120x120.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="152x152" href="dist/images/apple-touch-icon-152x152.png"/>
+        <link type="image/png" rel="icon" sizes="32x32" href="dist/images/favicon-32x32.png"/>
+        <link type="image/png" rel="icon" sizes="16x16" href="dist/images/favicon-16x16.png"/>
 
         <title>BlocklyProp Solo</title>
-        <script type="application/javascript" src="src/lib/jquery-1.11.3.min.js" defer></script>
-        <script type="application/javascript" src="src/lib/bootstrap/core/js/bootstrap.min.js" defer></script>
-        <script src="https://browser.sentry-cdn.com/5.12.1/bundle.min.js"
-                integrity="sha384-y+an4eARFKvjzOivf/Z7JtMJhaN6b+lLQ5oFbBbUwZNNVir39cYtkjW1r6Xjbxg3"
-                crossorigin="anonymous" defer>
-        </script>
-        <script type="application/javascript" src="src/globals.js" defer></script>
-        <script type="application/javascript" src="src/utils.js" defer></script>
-        <script type="module" src="src/modules/constants.js" defer></script>
-        <script type="module" src="src/modules/index.js" defer></script>
+        <script type="module" src="./dist/index.bundle.js" defer></script>
     </head>
 
     <body>
@@ -74,8 +65,8 @@
                 <!-- Projects -->
                 <div class="collapse navbar-collapse" id="navbar-collapse">
                     <ul class="nav navbar-nav">
-                        <li><a class="editor-link" href="blocklyc.html?openFile=true">Open project</a></li>
-                        <li><a class="editor-link" href="blocklyc.html?newProject=true">New project</a></li>
+                        <li><a id="open-project" class="editor-link" href="#">Open Project</a></li>
+                        <li><a id="new-project" class="editor-link" href="#">New Project</a></li>
                         <li id="noScript">
                             <noscript>
                                 <p>This site works best if JavaScript is enabled in your browser.</p>
@@ -102,7 +93,7 @@
                 </div>
                 <p><strong>Blockly for Propeller Multicore:</strong>&nbsp;Making amazing projects and learning to code just became easier</p>
                 <p>
-                    <img class="cdn full-width" src="src/images/home-banner.png"
+                    <img class="cdn full-width" src="dist/images/home-banner.png"
                          style="border: 0" alt="Home page banner image">
                 </p>
             </div>
