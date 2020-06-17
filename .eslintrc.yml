@@ -43,7 +43,6 @@ overrides:
       sourceType: module
   - files: [
     "src/modules/toolbox_data.js",
-    "src/modules/blockly_prop_client.js"
     ]
     rules: {
       max-len: "off",
@@ -54,5 +53,4 @@ overrides:
     ]
     rules: {
       max-len: "off"
-
     }

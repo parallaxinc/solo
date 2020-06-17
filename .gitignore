@@ -20,3 +20,6 @@ dist
 
 # Environment variables
 .env*
+
+# Library files for IDE autocomplete assistance
+lib
