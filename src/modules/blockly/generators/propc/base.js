@@ -3079,12 +3079,13 @@ Blockly.propc.constant_define = function() {
 };
 
 /**
+ * A block representing a static constant value
  *
  * @type {{
- *  init: Blockly.Blocks.constant_value.init,
- *  helpUrl: string,
- *  onchange: Blockly.Blocks.constant_value.onchange,
- *  updateConstMenu: Blockly.Blocks.constant_value.updateConstMenu
+ *    init: Blockly.Blocks.constant_value.init,
+ *    helpUrl: string,
+ *    onchange: Blockly.Blocks.constant_value.onchange,
+ *    updateConstMenu: Blockly.Blocks.constant_value.updateConstMenu
  * }}
  */
 Blockly.Blocks.constant_value = {
