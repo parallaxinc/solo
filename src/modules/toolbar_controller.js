@@ -24,7 +24,6 @@ import Blockly from 'blockly/core';
 
 import {Project, getProjectInitialState} from './project.js';
 import {clientService, serviceConnectionTypes} from './client_service';
-import {logConsoleMessage} from './utility';
 
 
 /**
@@ -74,7 +73,6 @@ export function propToolbarButtonController() {
   if (clientService.activeConnection ||
       (clientService.available &&
        clientService.type === serviceConnectionTypes.WS )) {
-
     if (clientService.portsAvailable &&
         clientService.portList.length > 0 &&
         clientService.portList[0].length > 0) {
