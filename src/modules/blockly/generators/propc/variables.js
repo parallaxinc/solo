@@ -103,11 +103,15 @@ Blockly.Blocks.variables_set = {
  * @return {string}
  */
 Blockly.propc.variables_set = function() {
-  const argument0 = Blockly.propc.valueToCode(this, 'VALUE',
+  const argument0 = Blockly.propc.valueToCode(
+      this,
+      'VALUE',
       Blockly.propc.ORDER_ASSIGNMENT) || '0';
+
   const varName = Blockly.propc.variableDB_.getName(
       this.getFieldValue('VAR'),
       Blockly.VARIABLE_CATEGORY_NAME);
+
   if (Blockly.propc.vartype_[varName] === undefined) {
     if (argument0.indexOf('int') > -1) {
       Blockly.propc.vartype_[varName] = 'int';
@@ -162,24 +166,53 @@ Blockly.propc.variables_set = function() {
  */
 Blockly.Blocks.array_get = {
   helpUrl: Blockly.MSG_ARRAYS_HELPURL,
+
+  /**
+   * Initialize the array getter
+   */
   init: function() {
     this.setTooltip(Blockly.MSG_ARRAY_GET_TOOLTIP);
     this.setColour(colorPalette.getColor('variables'));
     this.appendValueInput('NUM')
         .setCheck('Number')
         .appendField('array')
-        .appendField(new Blockly.FieldDropdown([['list', 'list']]), 'VAR')
+        .appendField(new Blockly.FieldDropdown(
+            [
+              ['list', 'list'],
+            ]),
+        'VAR')
         .appendField('element');
+
     this.setInputsInline(true);
     this.setOutput(true, 'Number');
+
+    /**
+     * This holds the collection of array names defined in the project
+     * @type {string[]}
+     */
     this.arrayList = ['list'];
+
+    /**
+     * Flag to indicate if the array warning indicator is active
+     * @type {boolean}
+     */
     this.arrayInitWarnFlag = false;
   },
+
+  /**
+   * Convert to XML
+   * @return {HTMLElement}
+   */
   mutationToDom: function() {
     const container = document.createElement('mutation');
     container.setAttribute('array_list', this.arrayList.join(','));
     return container;
   },
+
+  /**
+   * Convert from XML
+   * @param {Element} container
+   */
   domToMutation: function(container) {
     const arrayString = container.getAttribute('array_list');
     if (arrayString) {
@@ -187,11 +220,16 @@ Blockly.Blocks.array_get = {
     }
     this.buildArrayMenu();
   },
+
+  /**
+   * Build the dropdown for array variables
+   */
   buildArrayMenu: function() {
     const toConn = this.getInput('NUM').connection.targetConnection;
     if (this.getInput('NUM')) {
       this.removeInput('NUM');
     }
+
     this.appendValueInput('NUM')
         .setCheck('Number')
         .appendField('array')
@@ -211,10 +249,18 @@ Blockly.Blocks.array_get = {
       this.getInput('NUM').connection.connect(toConn);
     }
   },
+
+  /**
+   * Update the contents of the array variable dropdown
+   * @param {string} oldValue
+   * @param {string} newValue
+   */
   updateArrayMenu: function(oldValue, newValue) {
+    // Flyouts only need to look good but not do any work
     if (this.isInFlyout) {
       return;
     }
+
     const currentValue = this.getFieldValue('VAR');
     // Needs to contain 'list' - otherwise when it tries to set it as a
     // default, lots of warnings get thrown in the console.
@@ -223,14 +269,17 @@ Blockly.Blocks.array_get = {
         .forEach(function(element) {
           initBlockList.push(element.getFieldValue('VAR'));
         });
+
     this.arrayList = this.arrayList.concat(initBlockList);
 
     if (newValue) {
       this.arrayList.push(newValue); // add the new value to the list of arrays
     }
+
     if (oldValue) {
+      // Remove all elements of the old value from the array
       this.arrayList = this.arrayList.filter(function(value) {
-        return value !== oldValue; // remove the old value to the list of arrays
+        return value !== oldValue;
       });
     }
 
@@ -238,6 +287,7 @@ Blockly.Blocks.array_get = {
     this.arrayList = this.arrayList.sortedUnique();
     this.buildArrayMenu();
 
+    // TODO: This is where the variable is getting humped up
     // update the menu on the block
     if (newValue && currentValue && currentValue === oldValue) {
       this.setFieldValue(newValue, 'VAR');
@@ -256,42 +306,75 @@ Blockly.Blocks.array_get = {
       }
     }
   },
+
+  /**
+   * Handle the onChange event
+   * @param {!Blockly.Events.Abstract} event
+   *
+   * @description
+   * ChangeEvent:
+   *   blockId: ":%+WoKojpI7^N$6UEp+_"
+   *   element: "field"
+   *   group: ""
+   *   name: "VAR"
+   *   newValue: "myArray"
+   *   oldValue: "list"
+   *   recordUndo: true
+   *   workspaceId: "l:.b:0M8RObFmlw,Y_HL"
+   */
   onchange: function(event) {
-    let blockType = null;
+    let blockType = '';
     let oldValue = null;
     let newValue = null;
-    if (event.type === Blockly.Events.BLOCK_DELETE) {
-      // The block's fields can't be accessed after it's deleted, so we
-      // have to dive into it's XML, since that's all that's preserved
-      if (event.oldXml.attributes.type.nodeValue === 'array_init') {
-        blockType = 'array_init';
-        // Block field previous value
-        oldValue = event.oldXml.firstChild.innerHTML;
-      }
-    } else if (event.type === Blockly.Events.BLOCK_CREATE) {
-      const eventBlock = Blockly.getMainWorkspace().getBlockById(event.blockId);
-      if (eventBlock && eventBlock.type === 'array_init') {
-        blockType = 'array_init';
-        newValue = eventBlock.getFieldValue('VAR'); // Block field new value
-      }
-      if (eventBlock === this) {
-        this.updateArrayMenu();
-      }
-    } else if (event.type === Blockly.Events.BLOCK_CHANGE) {
-      const eventBlock = Blockly.getMainWorkspace().getBlockById(event.blockId);
-      if (eventBlock && eventBlock.type === 'array_init' &&
-          event.name === 'VAR') {
-        blockType = 'array_init';
-        newValue = event.newValue; // Block field new value
-        oldValue = event.oldValue; // Block field previous value
-      }
+    let eventBlock = null;
+
+    switch (event.type) {
+      case Blockly.Events.BLOCK_DELETE:
+        // oldXml - {object}
+        // An XML tree defining the deleted block and any connected
+        // child blocks.
+        // --------------------------------------------------------------
+        // The block's fields can't be accessed after it's deleted, so we
+        // have to dive into it's XML, since that's all that's preserved
+        // --------------------------------------------------------------
+        if (event.oldXml.attributes.type.nodeValue === 'array_init') {
+          blockType = 'array_init';
+          // Block field previous value
+          oldValue = event.oldXml.firstChild.innerHTML;
+        }
+        break;
+      case Blockly.Events.BLOCK_CREATE:
+        eventBlock = Blockly.getMainWorkspace().getBlockById(event.blockId);
+        if (eventBlock && eventBlock.type === 'array_init') {
+          blockType = 'array_init';
+          newValue = eventBlock.getFieldValue('VAR'); // Block field new value
+        }
+        if (eventBlock === this) {
+          this.updateArrayMenu();
+        }
+        break;
+      case Blockly.Events.BLOCK_CHANGE:
+        // Get the block that is impacted by this change event
+        eventBlock = Blockly.getMainWorkspace().getBlockById(event.blockId);
+        if (eventBlock && eventBlock.type === 'array_init' &&
+            event.name === 'VAR') {
+          blockType = 'array_init';
+          newValue = event.newValue; // Block field new value
+          oldValue = event.oldValue; // Block field previous value
+        }
+        break;
+      case Blockly.Events.VAR_CREATE:
+        break;
+      default:
     }
+
     if (blockType === 'array_init') {
       this.updateArrayMenu(oldValue, newValue);
     }
 
     let warnText = null;
     let elementCount = null;
+
     if (this.type === 'array_get' || this.type === 'array_set' ) {
       const connectedBlock = this.getInput('NUM').connection.targetBlock();
       if (connectedBlock && connectedBlock.type === 'math_number') {
@@ -305,19 +388,28 @@ Blockly.Blocks.array_get = {
         }
       }
     } else if (this.type === 'array_fill') {
+      // Find the number of initialized array elements defined in the
+      // array_fill block. This value must be less than or equal to the
+      // number of elements declared in the block.
       elementCount = (this.getFieldValue('NUM').split(',')).length;
     }
+
     const arrayName = this.getFieldValue('VAR');
-    let initBlockCount = null;
+    let initBlockCount = 0;
+
+    // Look through all of the array_init blocks
     Blockly.getMainWorkspace().getBlocksByType('array_init', false)
         .forEach(function(element) {
+          // Find the block definition for the array we are working on
+          // Why are we not using a this. reference?
           if (element.getFieldValue('VAR') === arrayName) {
+            // Get the number of elements declared for this block
             initBlockCount = parseInt(element.getFieldValue('NUM'), 10);
           }
         });
-    if (!initBlockCount) {
-      warnText = 'WARNING: The array "' + arrayName +
-          '" has not been initialized!';
+
+    if (initBlockCount === 0) {
+      warnText = `WARNING: The array "${arrayName}" has not been initialized!`;
     } else if (elementCount && (elementCount > initBlockCount ||
         elementCount < 0)) {
       // We have more array elements than places to store them. (#159)
@@ -356,6 +448,11 @@ Blockly.Blocks.array_init = {
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true);
   },
+
+  /**
+   * Handle the onChange event
+   * @param {!Blockly.Events.Abstract} event
+   */
   onchange: function(event) {
     const myName = this.getFieldValue('VAR');
     const theBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
@@ -449,14 +546,21 @@ Blockly.Blocks.array_set = {
     this.arrayList = ['list'];
     this.arrayInitWarnFlag = false;
   },
+
   mutationToDom: Blockly.Blocks['array_get'].mutationToDom,
   domToMutation: Blockly.Blocks['array_get'].domToMutation,
+
+  /**
+   * Build a dropdown containing the array variables
+   */
   buildArrayMenu: function() {
     const inputTargetConnection =
         this.getInput('NUM').connection.targetConnection;
+
     if (this.getInput('NUM')) {
       this.removeInput('NUM');
     }
+
     this.appendValueInput('NUM')
         .appendField('array')
         .setCheck('Number')
@@ -467,10 +571,12 @@ Blockly.Blocks.array_set = {
                 })), 'VAR')
         .appendField('element');
     this.moveInputBefore('NUM', 'VALUE');
+
     if (inputTargetConnection) {
       this.getInput('NUM').connection.connect(inputTargetConnection);
     }
   },
+
   updateArrayMenu: Blockly.Blocks['array_get'].updateArrayMenu,
   onchange: Blockly.Blocks['array_get'].onchange,
 };
@@ -499,8 +605,13 @@ Blockly.Blocks.array_clear = {
     this.arrayList = ['list'];
     this.arrayInitWarnFlag = false;
   },
+
   mutationToDom: Blockly.Blocks['array_get'].mutationToDom,
   domToMutation: Blockly.Blocks['array_get'].domToMutation,
+
+  /**
+   * Build a dropdown array variable list
+   */
   buildArrayMenu: function() {
     if (this.getInput('NUM')) {
       this.removeInput('NUM');
@@ -526,7 +637,7 @@ Blockly.Blocks.array_clear = {
 Blockly.propc.array_clear = function() {
   const varName = Blockly.propc.variableDB_.getName(
       this.getFieldValue('VAR'), 'Array');
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
   if (allBlocks.toString().indexOf(
       'array initialize ' + this.getFieldValue('VAR')) === -1) {
     return '// ERROR: The array "' + this.getFieldValue('VAR') +
@@ -550,6 +661,7 @@ Blockly.propc.array_fill = function() {
   } else {
     varVals = varVals.replace(/[^0-9b,-.]/g, '');
   }
+
   varVals = varVals.replace(/,\./g, ',0.')
       .replace(/\b\.[0-9-]+,\b/g, ',')
       .replace(/\.[0-9],/g, ',')

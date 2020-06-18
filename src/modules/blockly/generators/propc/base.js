@@ -2983,44 +2983,70 @@ Blockly.propc.math_inv_trig = function() {
 };
 
 /**
+ * Create a Constant variable block
  *
  * @type {{
- *  init: Blockly.Blocks.constant_define.init,
- *  sendConstantVal: Blockly.Blocks.constant_define.sendConstantVal,
- *  helpUrl: string,
- *  onchange: Blockly.Blocks.constant_define.onchange
+ *    init: Blockly.Blocks.constant_define.init,
+ *    sendConstantVal: Blockly.Blocks.constant_define.sendConstantVal,
+ *    helpUrl: string,
+ *    onchange: Blockly.Blocks.constant_define.onchange
  * }}
  */
 Blockly.Blocks.constant_define = {
   helpUrl: Blockly.MSG_VALUES_HELPURL,
+
+  /**
+   * Initialization
+   */
   init: function() {
     this.setTooltip(Blockly.MSG_CONSTANT_DEF_TOOLTIP);
     this.setColour(colorPalette.getColor('programming'));
     this.appendDummyInput('MAIN')
         .appendField('constant')
-        .appendField(new Blockly.FieldTextInput('MYVALUE', function(a) {
-          a = a.toUpperCase();
-          a = a.replace(/ /g, '_').replace(/[^A-Z0-9_]/g, '');
-          // TODO STAT: Replace unresolved this references
-          // eslint-disable-next-line no-invalid-this
-          this.getSourceBlock().sendConstantVal(
+        .appendField(new Blockly.FieldTextInput(
+            'MYVALUE',
+            function(a) {
+              a = a.toUpperCase();
+              a = a.replace(/ /g, '_')
+                  .replace(/[^A-Z0-9_]/g, '');
+              // TODO STAT: Replace unresolved this references
               // eslint-disable-next-line no-invalid-this
-              this.getSourceBlock().getFieldValue('CONSTANT_NAME'), a);
-          return a;
-        }), 'CONSTANT_NAME')
+              this.getSourceBlock().sendConstantVal(
+                  // eslint-disable-next-line no-invalid-this
+                  this.getSourceBlock().getFieldValue('CONSTANT_NAME'), a);
+              return a;
+            }),
+        'CONSTANT_NAME')
+
         .appendField(' = ')
-        .appendField(new Blockly.FieldTextInput('0', function(a) {
-          if (a.indexOf('0x') === 0) {
-            a = a.replace(/[^0-9xA-Fa-f-]/g, '');
-          } else {
-            a = a.replace(/[^0-9b-]/g, '');
-          }
-          return a;
-        }), 'VALUE');
+        .appendField(new Blockly.FieldTextInput(
+            '0',
+            function(a) {
+              if (a.indexOf('0x') === 0) {
+                a = a.replace(/[^0-9xA-Fa-f-]/g, '');
+              } else {
+                a = a.replace(/[^0-9b-]/g, '');
+              }
+              return a;
+            }),
+        'VALUE');
+
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
+
+    /**
+     * What does this do?
+     * @type {boolean}
+     */
     this.sendUpdate = true;
   },
+
+  /**
+   * Sending this somewhere
+   *
+   * @param {string|null} oldValue
+   * @param {string|null} newValue
+   */
   sendConstantVal: function(oldValue, newValue) {
     if (this.sendUpdate || (oldValue === '-1' && newValue === '-1')) {
       if (oldValue === '-1' && newValue === '-1') {
@@ -3028,7 +3054,11 @@ Blockly.Blocks.constant_define = {
         newValue = null;
       }
       // Find all the blocks that have my value and tell them to update it
-      const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+      // const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
+      const workspace = Blockly.getMainWorkspace();
+      const allBlocks = workspace.getBlocksByType('constant_value', false);
+      // const allBlocks =
+      //     Blockly.getMainWorkspace.getBlocksByType('constant_value');
       for (let x = 0; x < allBlocks.length; x++) {
         if (allBlocks[x] && allBlocks[x].updateConstMenu) {
           allBlocks[x].updateConstMenu.call(allBlocks[x], oldValue, newValue);
@@ -3037,6 +3067,11 @@ Blockly.Blocks.constant_define = {
     }
     this.sendUpdate = true;
   },
+
+  /**
+   * Handle the block onChange event
+   * @param {!Blockly.Events.Abstract} event Change event.
+   */
   onchange: function(event) {
     const myName = this.getFieldValue('CONSTANT_NAME');
     const theBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
@@ -3079,16 +3114,21 @@ Blockly.propc.constant_define = function() {
 };
 
 /**
+ * A block representing a static constant value
  *
  * @type {{
- *  init: Blockly.Blocks.constant_value.init,
- *  helpUrl: string,
- *  onchange: Blockly.Blocks.constant_value.onchange,
- *  updateConstMenu: Blockly.Blocks.constant_value.updateConstMenu
+ *    init: Blockly.Blocks.constant_value.init,
+ *    helpUrl: string,
+ *    onchange: Blockly.Blocks.constant_value.onchange,
+ *    updateConstMenu: Blockly.Blocks.constant_value.updateConstMenu
  * }}
  */
 Blockly.Blocks.constant_value = {
   helpUrl: Blockly.MSG_VALUES_HELPURL,
+
+  /**
+   * Initialize the Constant Value block
+   */
   init: function() {
     this.userDefinedConstantsList_ = [];
     this.setTooltip(Blockly.MSG_CONSTANT_VALUE_TOOLTIP);
@@ -3100,30 +3140,47 @@ Blockly.Blocks.constant_value = {
     this.setPreviousStatement(false, null);
     this.setNextStatement(false, null);
     this.setOutput(true, null);
-    this.updateConstMenu();
+    this.updateConstMenu('', '');
   },
+
+  /**
+   * Replace the dropdown list of constants.
+   *
+   * @param {string} oldValue
+   * @param {string} newValue
+   */
   updateConstMenu: function(oldValue, newValue) {
     this.userDefinedConstantsList_ = [];
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+
+    // Get a list of constant definitions
+    const allBlocks = Blockly.getMainWorkspace()
+        .getBlocksByType('constant_define', false);
+
+    // Loop through the list and set a variable for each constant
     for (let x = 0; x < allBlocks.length; x++) {
-      if (allBlocks[x].type === 'constant_define') {
-        let variableName = allBlocks[x].getFieldValue('CONSTANT_NAME');
-        if (variableName === oldValue && newValue) {
-          variableName = newValue;
-        }
-        if (variableName) {
-          this.userDefinedConstantsList_.push(variableName);
-        }
+      let variableName = allBlocks[x].getFieldValue('CONSTANT_NAME');
+      if (variableName === oldValue && newValue) {
+        variableName = newValue;
+      }
+      if (variableName) {
+        this.userDefinedConstantsList_.push(variableName);
       }
     }
+
+    // Push the default constant 'MYVALUE' onto the list
     this.userDefinedConstantsList_.push('MYVALUE');
     this.userDefinedConstantsList_ =
         this.userDefinedConstantsList_.sortedUnique();
+
+    // Save the current value of the selected constant from the list
     const currentValue = this.getFieldValue('VALUE');
 
+    // Eject the input if it is a value list
     if (this.getInput('VALUE_LIST')) {
       this.removeInput('VALUE_LIST');
     }
+
+    // Create a new dropdown list with the new values.
     this.appendDummyInput('VALUE_LIST')
         .appendField(new Blockly.FieldDropdown(
             this.userDefinedConstantsList_.map(function(value) {
@@ -3137,11 +3194,16 @@ Blockly.Blocks.constant_value = {
       this.setFieldValue(currentValue, 'VALUE');
     }
   },
+
+  /**
+   * OnChange event handler
+   */
   onchange: function() {
     const val = this.getFieldValue('VALUE');
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('constant ' + val) === -1) {
-      this.setWarningText('WARNING: Your program must include a constant' +
+      this.setWarningText(
+          'WARNING: Your program must include a constant' +
           ' define block for this value!');
     } else {
       this.setWarningText(null);
@@ -3155,7 +3217,7 @@ Blockly.Blocks.constant_value = {
  */
 Blockly.propc.constant_value = function() {
   const code = this.getFieldValue('VALUE');
-  return ['MY_' + code, Blockly.propc.ORDER_ATOMIC];
+  return [`MY_${code}`, Blockly.propc.ORDER_ATOMIC];
 };
 
 /**
