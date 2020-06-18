@@ -1090,16 +1090,18 @@ Blockly.BlockSvg.prototype.bumpNeighbours = function() {
     return; // Don't move blocks around in a flyout.
   }
   // Loop through every connection on this block.
-  // Returns Array of non-null Blockly.RenderedConnection
+  /** @type {Blockly.Connection[]} */
   const myConnections = this.getConnections_(false);
+  /** @type {RenderedConnection} connection */
   // TODO: Correct assignment/boolean in for/next block
   for (let i = 0, connection; connection = myConnections[i]; i++) {
+    // connection is of type Blockly.RenderedConnection
     // Spider down from this block bumping all sub-blocks.
     if (connection.isConnected() && connection.isSuperior()) {
       connection.targetBlock().bumpNeighbours();
     }
 
-    const neighbours = connection.neighbours(Blockly.SNAP_RADIUS);
+    const neighbours = connection.neighbours_(Blockly.SNAP_RADIUS);
     for (let j = 0, otherConnection; otherConnection = neighbours[j]; j++) {
       // If both connections are connected, that's probably fine.  But if
       // either one of them is unconnected, then there could be confusion.
