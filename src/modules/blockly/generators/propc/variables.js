@@ -481,27 +481,74 @@ Blockly.Blocks.array_init = {
  */
 Blockly.Blocks.array_fill = {
   helpUrl: Blockly.MSG_ARRAYS_HELPURL,
+
+  /**
+   * Initialize an array_fill block
+   */
   init: function() {
     this.setTooltip(Blockly.MSG_ARRAY_FILL_TOOLTIP);
-    this.setColour(colorPalette.getColor('variables'));
+
+    // Build a default block configurations
     this.appendDummyInput('NUMS')
-        .appendField('array fill')
-        .appendField(new Blockly.FieldDropdown([['list', 'list']]), 'VAR')
-        .appendField('with values')
+        .appendField('array fill') // label text
+        .appendField(new Blockly.FieldDropdown([
+          ['list', 'list'],
+        ]),
+        'VAR')
+        .appendField('with values') // label text
         .appendField(new Blockly.FieldTextInput('10,20,30,40,50'), 'NUM');
+
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true);
+    this.setColour(colorPalette.getColor('variables'));
+
+    /**
+     * a list of array variables
+     * @type {string[]}
+     */
     this.arrayList = ['list'];
+
+    /**
+     * Flag to indicate a missing array init block for this array
+     * @type {boolean}
+     */
     this.arrayInitWarnFlag = false;
   },
+
   mutationToDom: Blockly.Blocks['array_get'].mutationToDom,
   domToMutation: Blockly.Blocks['array_get'].domToMutation,
+
+  /**
+   * Build the array variables dropdown list
+   */
   buildArrayMenu: function() {
+    // Get the list of array values defined in the block. This will initially
+    // be the default list, '10,20,30,40,50'. Install a set of default values
+    // If there are no values currently defined.
     const currList = this.getFieldValue('NUM') || '10,20,30,40,50';
+    const currArrayVar = this.getField('VAR').getValue() || '';
+    // console.log(`Selected array variable is '${currArrayVar}'`);
+    // console.log(`The array list is: ${this.arrayList.toLocaleString()}`);
+    // Add the array variable to the array variable list if it is missing
+    // TODO: Figure out why it is missing in the first place.
+    if (!this.arrayList.includes(currArrayVar)) {
+      this.arrayList.push(currArrayVar);
+    }
+
+    // Get the current list of array values. This is a comma delimited string
+    const currentValue = this.getFieldValue('NUM');
+
+    // If the input field 'NUMS' exists, delete it. This is initially created
+    // in the init method of this block.
     if (this.getInput('NUMS')) {
       this.removeInput('NUMS');
     }
-    const currentValue = this.getFieldValue('NUM');
+    // ************************************************************************
+    // The local copy of the array list is incomplete. The default value 'list'
+    // is missing. This causes the dropdown list to default to the first
+    // value in the list, which may not be what we wanted.
+    // ************************************************************************
+    // Create a new Input for this block
     this.appendDummyInput('NUMS')
         .appendField('array fill')
         .appendField(new Blockly.FieldDropdown(
@@ -513,6 +560,7 @@ Blockly.Blocks.array_fill = {
         .appendField(new Blockly.FieldTextInput(currList), 'NUM');
     this.setFieldValue(currentValue, 'NUM');
   },
+
   updateArrayMenu: Blockly.Blocks['array_get'].updateArrayMenu,
   onchange: Blockly.Blocks['array_get'].onchange,
 };
