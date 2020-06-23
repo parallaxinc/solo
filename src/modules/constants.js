@@ -44,7 +44,7 @@ export const EnableSentry = true;
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.5.0-RC-4';
+export const APP_VERSION = '1.5.0';
 
 /**
  * Constant string that represents the base, empty project header
