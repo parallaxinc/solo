@@ -32,29 +32,35 @@ import {getDefaultProfile} from '../../../project';
 import {colorPalette} from '../propc';
 
 /**
- * Procedures DefNoReturn
+ *  Block for defining a procedure with no return value.
+ *    Procedures DefNoReturn
  * @type {{
- *  init: Blockly.Blocks.procedures_defnoreturn.init,
- *  getVars: (function(): []|*[]),
- *  displayRenamedVar_:
- *    Blockly.Blocks.procedures_defnoreturn.displayRenamedVar_,
- *  decompose: (function(!Blockly.Workspace): Blockly.Block),
- *  callType_: string,
- *  domToMutation: Blockly.Blocks.procedures_defnoreturn.domToMutation,
- *  updateVarName: Blockly.Blocks.procedures_defnoreturn.updateVarName,
- *  compose: Blockly.Blocks.procedures_defnoreturn.compose,
- *  mutationToDom: (function(boolean=): HTMLElement),
- *  setStatements_: Blockly.Blocks.procedures_defnoreturn.setStatements_,
- *  updateParams_: Blockly.Blocks.procedures_defnoreturn.updateParams_,
- *  getVarModels: (function(): []|*[]),
- *  getProcedureDef: (function(): ([]|*[]|boolean)[]),
- *  renameVarById: Blockly.Blocks.procedures_defnoreturn.renameVarById,
- *  customContextMenu: Blockly.Blocks.procedures_defnoreturn.customContextMenu
+ *    callType_: string,
+ *    init: Blockly.Blocks.procedures_defnoreturn.init,
+ *    getVars: (function(): []|*[]),
+ *    displayRenamedVar_:
+ *      Blockly.Blocks.procedures_defnoreturn.displayRenamedVar_,
+ *    decompose: (function(!Blockly.Workspace): Blockly.Block),
+ *    domToMutation: Blockly.Blocks.procedures_defnoreturn.domToMutation,
+ *    updateVarName: Blockly.Blocks.procedures_defnoreturn.updateVarName,
+ *    compose: Blockly.Blocks.procedures_defnoreturn.compose,
+ *    mutationToDom: (function(boolean=): HTMLElement),
+ *    setStatements_: Blockly.Blocks.procedures_defnoreturn.setStatements_,
+ *    updateParams_: Blockly.Blocks.procedures_defnoreturn.updateParams_,
+ *    getVarModels: (function(): []|*[]),
+ *    getProcedureDef: (function(): ([]|*[]|boolean)[]),
+ *    renameVarById: Blockly.Blocks.procedures_defnoreturn.renameVarById,
+ *    customContextMenu: Blockly.Blocks.procedures_defnoreturn.customContextMenu
  *  }}
  */
 Blockly.Blocks['procedures_defnoreturn'] = {
   /**
-   * Block for defining a procedure with no return value.
+   * This is used how?
+   * @type {string}
+   */
+  callType_: 'procedures_callnoreturn',
+
+  /**
    * @this Blockly.Block
    */
   init: function() {
@@ -78,6 +84,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     this.setStatements_(true);
     this.statementConnection_ = null;
   },
+
   /**
    * Add or remove the statement block from this function definition.
    * @param {boolean} hasStatements True if a statement block is needed.
@@ -98,6 +105,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     }
     this.hasStatements_ = hasStatements;
   },
+
   /**
    * Update the display of parameters for this procedure definition block.
    * Display a warning if there are duplicately named parameters.
@@ -135,6 +143,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       Blockly.Events.enable();
     }
   },
+
   /**
    * Create XML to represent the argument inputs.
    * @param {boolean=} optParameterIds If true include the IDs of the parameter
@@ -164,6 +173,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     }
     return container;
   },
+
   /**
    * Parse XML to restore the argument inputs.
    * @param {!Element} xmlElement XML storage element.
@@ -189,6 +199,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     // Show or hide the statement input.
     this.setStatements_(xmlElement.getAttribute('statements') !== 'false');
   },
+
   /**
    * Populate the mutator's dialog with this block's components.
    * @param {!Blockly.Workspace} workspace Mutator's workspace.
@@ -222,6 +233,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     Blockly.Procedures.mutateCallers(this);
     return containerBlock;
   },
+
   /**
    * Reconfigure this block based on the mutator dialog's components.
    * @param {!Blockly.Block} containerBlock Root block in mutator.
@@ -269,6 +281,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       }
     }
   },
+
   /**
    * Return the signature of this procedure definition.
    * @return {!Array} Tuple containing three elements:
@@ -280,6 +293,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   getProcedureDef: function() {
     return [this.getFieldValue('NAME'), this.arguments_, false];
   },
+
   /**
    * Return all variables referenced by this block.
    * @return {!Array.<string>} List of variable names.
@@ -288,6 +302,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   getVars: function() {
     return this.arguments_;
   },
+
   /**
    * Return all variables referenced by this block.
    * @return {!Array.<!Blockly.VariableModel>} List of variable models.
@@ -296,6 +311,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   getVarModels: function() {
     return this.argumentVarModels_;
   },
+
   /**
    * Notification that a variable is renaming.
    * If the ID matches one of this block's variables, rename it.
@@ -327,6 +343,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       this.displayRenamedVar_(oldName, newVar.name);
     }
   },
+
   /**
    * Notification that a variable is renaming but keeping the same ID.  If the
    * variable is in use on this block, rerender to show the new name.
@@ -350,6 +367,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       this.displayRenamedVar_(oldName, newName);
     }
   },
+
   /**
    * Update the display to reflect a newly renamed argument.
    * @param {string} oldName The old display name of the argument.
@@ -369,6 +387,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       }
     }
   },
+
   /**
    * Add custom menu options to this block's context menu.
    * @param {!Array} options List of menu options to add to.
@@ -414,24 +433,27 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       }
     }
   },
-  callType_: 'procedures_callnoreturn',
 };
 
 /**
  * Procedure Call No Return
+ *
  * @type {{
- *  init: Blockly.Blocks.procedures_callnoreturn.init,
- *  defType_: string,
- *  setProcedureParameters_:
- *    Blockly.Blocks.procedures_callnoreturn.setProcedureParameters_,
- *  renameProcedure: Blockly.Blocks.procedures_callnoreturn.renameProcedure,
- *  updateShape_: Blockly.Blocks.procedures_callnoreturn.updateShape_,
- *  mutationToDom: (function(): HTMLElement),
- *  onchange: Blockly.Blocks.procedures_callnoreturn.onchange,
- *  getVarModels: (function(): []|*[]),
- *  domToMutation: Blockly.Blocks.procedures_callnoreturn.domToMutation,
- *  customContextMenu: Blockly.Blocks.procedures_callnoreturn.customContextMenu,
- *  getProcedureCall: (function(): string)
+ *    init: Blockly.Blocks.procedures_callnoreturn.init,
+ *    defType_: string,
+ *    setProcedureParameters_:
+ *      Blockly.Blocks.procedures_callnoreturn.setProcedureParameters_,
+ *    renameProcedure:
+ *      Blockly.Blocks.procedures_callnoreturn.renameProcedure,
+ *    updateShape_:
+ *      Blockly.Blocks.procedures_callnoreturn.updateShape_,
+ *    mutationToDom: (function(): HTMLElement),
+ *    onchange: Blockly.Blocks.procedures_callnoreturn.onchange,
+ *    getVarModels: (function(): []|*[]),
+ *    domToMutation: Blockly.Blocks.procedures_callnoreturn.domToMutation,
+ *    customContextMenu:
+ *      Blockly.Blocks.procedures_callnoreturn.customContextMenu,
+ *    getProcedureCall: (function(): string)
  *  }}
  */
 Blockly.Blocks['procedures_callnoreturn'] = {
@@ -456,6 +478,13 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     this.argumentVarModels_ = [];
     this.quarkConnections_ = {};
     this.quarkIds_ = null;
+
+    /**
+     * Set the previous disabled state to false (off)
+     *
+     * @type {boolean}
+     * @private
+     */
     this.previousDisabledState_ = false;
   },
 
@@ -470,6 +499,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
       (this.getFieldValue('NAME'))
           .split('\u201C'))[1].slice(0, -1);
   },
+
   /**
    * Notification that a procedure is renaming.
    * If the name matches this block's procedure, rename it.
@@ -480,14 +510,9 @@ Blockly.Blocks['procedures_callnoreturn'] = {
   renameProcedure: function(oldName, newName) {
     if (Blockly.Names.equals(oldName, this.getProcedureCall())) {
       this.setFieldValue('run function \u201C' + newName + '\u201D', 'NAME');
-      /*
-      const baseMsg = this.outputConnection ?
-          Blockly.Msg['PROCEDURES_CALLRETURN_TOOLTIP'] :
-          Blockly.Msg['PROCEDURES_CALLNORETURN_TOOLTIP'];
-      // this.setTooltip(baseMsg.replace('%1', newName));
-      */
     }
   },
+
   /**
    * Notification that the procedure's parameters have changed.
    * @param {!Array.<string>} paramNames New param names, e.g. ['x', 'y', 'z'].
@@ -583,6 +608,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
       this.render();
     }
   },
+
   /**
    * Modify this block to have the correct number of arguments.
    * @private
@@ -632,6 +658,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
       }
     }
   },
+
   /**
    * Create XML to represent the (non-editable) name and arguments.
    * @return {!Element} XML storage element.
@@ -647,6 +674,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     }
     return container;
   },
+
   /**
    * Parse XML to restore the (non-editable) name and parameters.
    * @param {!Element} xmlElement XML storage element.
@@ -665,6 +693,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     }
     this.setProcedureParameters_(args, paramIds);
   },
+
   /**
    * Return all variables referenced by this block.
    * @return {!Array.<!Blockly.VariableModel>} List of variable models.
@@ -673,6 +702,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
   getVarModels: function() {
     return this.argumentVarModels_;
   },
+
   /**
    * Procedure calls cannot exist without the corresponding procedure
    * definition.  Enforce this link whenever an event is fired.
@@ -767,9 +797,12 @@ Blockly.Blocks['procedures_callnoreturn'] = {
           console.log('Saw an existing group while responding' +
               ' to a definition change');
         }
+
         Blockly.Events.setGroup(event.group);
+
         if (event.newValue) {
           this.previousDisabledState_ = this.disabled;
+          // TODO: setDisabled is deprecated. Use setEnabled() instead.
           this.setDisabled(true);
         } else {
           this.setDisabled(this.previousDisabledState_);
@@ -778,6 +811,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
       }
     }
   },
+
   /**
    * Add menu option to find the definition block for this call.
    * @param {!Array} options List of menu options to add to.
@@ -800,7 +834,10 @@ Blockly.Blocks['procedures_callnoreturn'] = {
   defType_: 'procedures_defnoreturn',
 };
 
-
+/**
+ *
+ * @return {null}
+ */
 Blockly.propc.procedures_defreturn = function() {
   // Define a procedure with a return value.
   const funcName = Blockly.propc.variableDB_.getName(

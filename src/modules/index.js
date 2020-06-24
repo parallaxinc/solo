@@ -27,6 +27,7 @@ import 'bootstrap';
 import * as Cookies from 'js-cookie';
 
 import {
+  APP_VERSION,
   ApplicationName,
   productBannerHostTrigger,
   TestApplicationName} from './constants';
@@ -61,7 +62,8 @@ function showAppBannerTitle(appName) {
  */
 function setCopyrightDate(element) {
   const d = new Date();
-  element.innerHTML = d.getFullYear().toString();
+  const year = d.getFullYear().toString();
+  element.innerHTML = `v${APP_VERSION} &copy; 2015 - ${year}, Parallax Inc.`;
 }
 
 /**
