@@ -565,7 +565,12 @@ export function serialConsole() {
         // because this is getting called multiple times...?
         messageToSend.action = 'close';
         displayTerminalConnectionStatus(null);
-        clientService.activeConnection.send(JSON.stringify(messageToSend));
+
+        // Solo-484
+        // Send the message if the connection has not closed
+        if (clientService.activeConnection) {
+          clientService.activeConnection.send(JSON.stringify(messageToSend));
+        }
       }
       getPropTerminal().display(null);
     });
