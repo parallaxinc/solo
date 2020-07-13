@@ -454,17 +454,35 @@ Blockly.Blocks.array_init = {
    * @param {!Blockly.Events.Abstract} event
    */
   onchange: function(event) {
-    const myName = this.getFieldValue('VAR');
-    const theBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+    // // Events we probably don't need to watch
+    // if (event.type === Blockly.Events.CREATE) {
+    //   console.log(`New block is: ${event.xml.attributes.type.value}.`);
+    // } else if (event.type === Blockly.Events.MOVE) {
+    //   const block = Blockly.getMainWorkspace().getBlockById(event.blockId);
+    //   console.log(`Block ${event.blockId} is moving`);
+    //   console.log(`Vars: ${block.getVars()}`);
+    //   if (event.blockId !== this.id) {
+    //     console.log(`...and it isn't this one.`);
+    //   }
+    // }
 
-    let warnTxt = null;
-    const fStart = theBlocks.indexOf('array initialize ' + myName + ' with');
-    if (theBlocks
-        .indexOf('array initialize ' + myName + ' with', fStart + 1) > -1) {
-      warnTxt = 'WARNING! you can only initialize the array "' +
-          myName + '" once!';
+    const block = Blockly.getMainWorkspace().getBlockById(event.blockId);
+    if (block && block.type === this.type ) {
+      const myName = this.getFieldValue('VAR');
+      const theBlocks = Blockly
+          .getMainWorkspace()
+          .getAllBlocks(false)
+          .toString();
+
+      let warnTxt = null;
+      const fStart = theBlocks.indexOf('array initialize ' + myName + ' with');
+      if (theBlocks
+          .indexOf('array initialize ' + myName + ' with', fStart + 1) > -1) {
+        warnTxt = 'WARNING! you can only initialize the array "' +
+            myName + '" once!';
+      }
+      this.setWarningText(warnTxt);
     }
-    this.setWarningText(warnTxt);
   },
 };
 

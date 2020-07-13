@@ -5,5 +5,7 @@ if [ -n "$TRAVIS" ]; then
   echo "Executing run_all_tests.sh from $(pwd)";
 fi
 
-echo "Running tests"
+echo "Running lint tests."
 ./node_modules/.bin/eslint src/modules
+
+echo "End lint tests."
