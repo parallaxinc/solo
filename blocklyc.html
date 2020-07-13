@@ -34,99 +34,35 @@
         </style>
     </noscript>
     <meta charset="utf-8">
-    <meta name="base" content="">
-    <meta name="cdn" content="src/">
+    <meta name="cdn" content="dist/">
     <meta name="projectlink" content="">
     <meta name="isOffline" content="true">
     <meta name="docker" content="true">
-
-    <!-- BlockyProp Client download links -->
-    <meta name="win32client" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-32.exe">
-    <meta name="win32zipclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-32.zip">
-    <meta name="win64client" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-64.exe">
-    <meta name="win64zipclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-64.zip">
-    <meta name="macOSclient" content="http://downloads.parallax.com/blockly/clients/BlocklyPropClient-setup-MacOS.pkg">
-    <meta name="win64launcher" content="http://downloads.parallax.com/blockly/launcher/Setup-BPLauncher-Win.exe">
-    <meta name="win64ziplauncher" content="http://downloads.parallax.com/blockly/launcher/Setup-BPLauncher-Win.exe.zip">
-    <meta name="macOSlauncher" content="http://downloads.parallax.com/blockly/launcher/Setup-BPLauncher-MacOS.zip">
-    <meta name="macOSlauncher-10-14" content="http://downloads.parallax.com/blockly/launcher/Setup-BPLauncher-MacOS-Mojave.zip">
-    <meta name="macOSlauncher-10-13" content="http://downloads.parallax.com/blockly/launcher/Setup-BPLauncher-MacOS-High-Sierra.zip">
-
     <meta name="application-name" content="BlocklyProp Solo" />
     <meta name="msapplication-TileColor" content="#FFFFFF" />
-    <meta name="msapplication-TileImage" content="src/images/mstile-144x144.png" />
+    <meta name="msapplication-TileImage" content="dist/images/mstile-144x144.png" />
 
-    <link type="image/png" rel="icon" sizes="32x32" href="src/images/favicon-32x32.png" />
-    <link type="image/png" rel="icon" sizes="16x16" href="src/images/favicon-16x16.png" />
-
+    <link type="image/png" rel="icon" sizes="32x32" href="dist/images/favicon-32x32.png" />
+    <link type="image/png" rel="icon" sizes="16x16" href="dist/images/favicon-16x16.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="57x57"
-        href="src/images/apple-touch-icon-57x57.png" />
+        href="dist/images/apple-touch-icon-57x57.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="114x114"
-        href="src/images/apple-touch-icon-114x114.png" />
+        href="dist/images/apple-touch-icon-114x114.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="72x72"
-        href="src/images/apple-touch-icon-72x72.png" />
+        href="dist/images/apple-touch-icon-72x72.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="144x144"
-        href="src/images/apple-touch-icon-144x144.png" />
+        href="dist/images/apple-touch-icon-144x144.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="120x120"
-        href="src/images/apple-touch-icon-120x120.png" />
+        href="dist/images/apple-touch-icon-120x120.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="152x152"
-        href="src/images/apple-touch-icon-152x152.png" />
+        href="dist/images/apple-touch-icon-152x152.png" />
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link href="dist/style-editor.css" rel="stylesheet" type="text/css" />
+    <link href="dist/style-clientdownload.css" rel="stylesheet" type="text/css" />
 
     <title>BlocklyProp Solo</title>
-
-    <!-- JavaScript libraries -->
-    <script src="https://browser.sentry-cdn.com/5.12.1/bundle.min.js"
-            integrity="sha384-y+an4eARFKvjzOivf/Z7JtMJhaN6b+lLQ5oFbBbUwZNNVir39cYtkjW1r6Xjbxg3"
-            crossorigin="anonymous">
-    </script>
-    <script type="text/javascript" src="src/lib/chartist.min.js"></script>
-    <script type="text/javascript" src="src/lib/jquery-1.11.3.min.js"></script>
-    <script type="text/javascript" src="src/lib/jquery.validate.min.js"></script>
-    <script type="text/javascript" src="src/lib/beautify.js"></script>
-    <script type="text/javascript" src="src/lib/bootstrap/core/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="src/lib/bootstrap/plugins/bootbox.min.js"></script>
-    <script type="text/javascript" src="src/lib/ace/ace.js"></script>
-    <script type="text/javascript" src="src/lib/FileSaver.min.js"></script>
-    <script type="text/javascript" src="src/lib/jszip.min.js"></script>
-
-    <!-- Javascript helpers -->
-    <script type="text/javascript" src="src/globals.js"></script>
-    <script type="text/javascript" src="src/utils.js"></script>
-    <script type="text/javascript" src="src/project.js"></script>
-    <script type="text/javascript" src="src/propterm.js"></script>
-    <script type="text/javascript" src="src/blocklypropclient.js"></script>
-    <script type="text/javascript" src="src/blocklyc.js"></script>
-    <script type="text/javascript" src="src/editor.js"></script>
-    <script type="text/javascript" src="src/modals.js"></script>
-    <!-- <script type="text/javascript" src="src/localcompile.js"></script> -->
-
-    <!-- Blockly core/PropC generator -->
-    <script type="text/javascript" src="src/lib/blockly/blockly_compressed.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/field_ace.js"></script>
-
-    <!-- Internationalization text strings -->
-    <script type="text/javascript" src="src/blockly/language/en/messages.js"></script>
-
-    <!-- Block Menu/Toolbox -->
-    <script type="text/javascript" src="src/blockly/generators/propcToolbox.js"></script>
-
-    <!-- Block definitions -->
-    <script type="text/javascript" src="src/blockly/generators/propc/base.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/control.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/variables.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/procedures.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/gpio.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/communicate.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/sensors.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/heb.js"></script>
-    <script type="text/javascript" src="src/blockly/generators/propc/s3.js"></script>
-
-    <!-- Style sheets -->
-    <link href="src/lib/chartist.min.css" rel="stylesheet" type="text/css" />
-    <link href="src/lib/bootstrap/core/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-    <link href="src/style-editor.css" rel="stylesheet" type="text/css" />
-    <link href="src/style-clientdownload.css" rel="stylesheet" type="text/css" />
+    <script type="module" src="dist/editor.bundle.js" defer></script>
 </head>
 
 <body>
@@ -149,7 +85,7 @@
 
                 <!-- BlocklyProp Client or Loader UI -->
                 <div id="client-status-alerts" style="float: left;">
-                    <span class="auth-true" style="padding-left: 10px; line-height: 30px;">
+                    <span style="padding-left: 10px; line-height: 30px;">
                         <span id="client-unavailable" class="bp-client-danger">
                             <a class="client-unavailable-link" data-toggle="modal" data-target="#client-download-modal"
                                 href="#">
@@ -180,38 +116,32 @@
                 <!-- Left Toolbar buttons -->
                 <div id="board-action-buttons" style="padding-left: 10px; float: left;">
                     <!-- Compile program -->
-                    <a id="prop-btn-comp" class="btn btn-success btn-circle auth-true" title=""
+                    <a id="prop-btn-comp" class="btn btn-success btn-circle" title=""
                     data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="checkMarkWhite">&#x2713;</span>
                     </a>
 
                     <!-- Load to RAM -->
-                    <a id="prop-btn-ram" class="btn btn-success btn-circle disabled auth-true client-action no-s3" title=""
+                    <a id="prop-btn-ram" class="btn btn-success btn-circle disabled" title=""
                     data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="downArrowWhite"></span>
                     </a>
 
                     <!-- Load to EEPROM -->
-                    <a id="prop-btn-eeprom" class="btn btn-success btn-circle disabled auth-true client-action" title=""
+                    <a id="prop-btn-eeprom" class="btn btn-success btn-circle disabled" title=""
                     data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="downArrowBoxWhite">&gt;&gt;</span></a>
 
                     <!-- Open a terminal -->
-                    <a id="prop-btn-term" class="btn btn-primary btn-circle disabled auth-true client-action" title=""
+                    <a id="prop-btn-term" class="btn btn-primary btn-circle disabled" title=""
                     data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="terminalWhite">#</span>
                     </a>
 
                     <!-- Open a graphing window -->
-                    <a id="prop-btn-graph" class="btn btn-primary btn-circle disabled auth-true client-action no-s3" title=""
+                    <a id="prop-btn-graph" class="btn btn-primary btn-circle disabled" title=""
                     data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="graphWhite">~</span>
-                    </a>
-
-                    <!-- Find and replace - propc project type -->
-                    <a id="prop-btn-find-replace" class="btn btn-info btn-circle propc-only hidden" title=""
-                    data-toggle="tooltip" data-placement="bottom">
-                        <span class="bpIcon" data-icon="searchWhite">&#x1F50E;</span>
                     </a>
 
                     <!-- Clean up source code -->
@@ -233,7 +163,7 @@
                     </a>
 
                     <!-- Drop-down hardware port select -->
-                    <select id="comPort" class="dropdown port-dropdown auth-true select-css" title="Ports"
+                    <select id="comPort" class="dropdown port-dropdown select-css" title="Ports"
                             data-displayas="inline-block" data-placement="left">
                     </select>
                 </div>
@@ -284,7 +214,7 @@
                         </button>
 
                         <ul class="dropdown-menu pull-right btn-sm">
-                            <li class="auth-true" data-displayas="list-item">
+                            <li data-displayas="list-item">
                                 <a id="edit-project-details" href="#">
                                     <span class="keyed-lang-string" data-key="editor_edit-details"></span>
                                 </a>
@@ -306,15 +236,15 @@
                                 </a>
                             </li>
 
-                            <li class="auth-true" data-displayas="list-item">
+                            <li data-displayas="list-item">
                                 <a id="upload-project">
                                     <span class="keyed-lang-string" data-key="editor_upload"></span>
                                 </a>
                             </li>
 
-                            <li class="auth-true divider" data-displayas="list-item"></li>
+                            <li class="divider" data-displayas="list-item"></li>
 
-                            <li class="auth-true" data-displayas="list-item">
+                            <li data-displayas="list-item">
                                 <a id="client-setup">
                                     <span class="keyed-lang-string" data-key="editor_run_configure"></span>
                                 </a>
@@ -324,19 +254,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- PropC native coding toolbar -->
-    <div id="find-replace" style="background-color: #ddd; display: none; padding: 5px;">
-        <span class="keyed-lang-string indent-left-double" data-key="editor_find_label"></span>
-        <input type="text" class="input-find-replace" id="propc-find" name="propc-find" />&nbsp;
-        <button id="propc-find-btn" class="btn-view-blocks btn-find-replace keyed-lang-string"
-            data-key="editor_find_next"></button>
-        <span class="keyed-lang-string indent-left-double" data-key="editor_replace_label"></span>
-        <input type="text" class="input-find-replace" id="propc-replace" name="propc-replace" />&nbsp;
-        <button id="propc-replace-btn" class="btn-view-blocks btn-find-replace keyed-lang-string"
-            data-key="editor_replace"></button>
-        <button id="find-replace-close" class="close margin-left-double">&times;</button>
     </div>
 
     <!-- Blockly canvas -->
@@ -355,26 +272,71 @@
         </div>
     </div>
 
-    <!-- Possible one of two -->
-    <!-- Save or Upload a project file -->
-    <div class="modal fade" id="upload-dialog">
+    <!-- Open Project dialog -->
+    <div class="modal fade" id="open-project-dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <!-- Closes the dialog when the button is clicked -->
-                    <button id="upload-close" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 id="upload-dialog-title" class="modal-title keyed-lang-string" data-key="editor_upload">&nbsp;
+                    <button id="open-project-close" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 id="open-project-dialog-title" class="modal-title keyed-lang-string" data-key="editor_upload">
+                        <span>&nbsp;QQQQ</span>
                     </h4>
                 </div>
                 <div class="modal-body">
                     <!-- Upload a project. Results stored in localStorage -->
                     <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
-                    <input id="selectfile" type="file" accept=".svg,image/svg+xml" onchange="uploadHandler(this.files);">
+                    <input id="open-project-select-file" type="file" accept=".svg, .svge">
 
+                    <!-- File is valid message -->
+                    <div id="open-project-select-file-verify-valid" class="alert alert-success" style="display: none;">
+                        <span class="bpIcon" data-icon="checkMarkGreen">&#x2713;</span>&nbsp;
+                        <span class="keyed-lang-string" data-key="editor_upload_valid"></span>
+                    </div>
+
+                    <!-- Uploaded file failed sanity checks -->
+                    <div id="open-project-select-file-verify-not-valid" class="alert alert-danger" style="display: none;">
+                        <span class="bpIcon" data-icon="dangerTriangle">!!</span>&nbsp;
+                        <span class="keyed-lang-string" data-key="editor_upload_notvalid"></span>
+                    </div>
+
+                    <!-- Board type has changed -->
+                    <div id="open-project-select-file-verify-board-type" class="alert alert-warning" style="display: none;">
+                        <span class="bpIcon" data-icon="warningCircle">!</span>&nbsp;
+                        <span class="keyed-lang-string" data-key="editor_upload_boardtype_warning"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="open-project-select-file-cancel" class="btn btn-default btn-sm keyed-lang-string"
+                            data-dismiss="modal" data-key="editor_button_cancel"></button>
+                    <button id="open-project-select-file-open" class="btn btn-primary btn-sm keyed-lang-string"
+                            data-key="editor_button_open"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import a project to append or replace the existing project -->
+    <div class="modal fade" id="import-project-dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- Closes the dialog when the button is clicked -->
+                    <button id="upload-close" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 id="import-project-dialog-title" class="modal-title keyed-lang-string" data-key="editor_upload">&nbsp;
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <!-- Upload a project. Results stored in localStorage -->
+                    <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
+                    <input id="selectfile" type="file" accept=".svg,image/svg+xml">
+
+                    <!-- Uploaded file is valid -->
                     <div id="selectfile-verify-valid" class="alert alert-success" style="display: none;">
                         <span class="bpIcon" data-icon="checkMarkGreen">&#x2713;</span>&nbsp;
                         <span class="keyed-lang-string" data-key="editor_upload_valid"></span>
                     </div>
+
                     <!-- Uploaded file failed sanity checks -->
                     <div id="selectfile-verify-notvalid" class="alert alert-danger" style="display: none;">
                         <span class="bpIcon" data-icon="dangerTriangle">!!</span>&nbsp;
@@ -387,16 +349,21 @@
                         <span class="keyed-lang-string" data-key="editor_upload_boardtype_warning"></span>
                     </div>
                 </div>
+                <!-- Modal dialog buttons -->
                 <div class="modal-footer">
-                    <button id="selectfile-replace" class="btn btn-danger btn-sm keyed-lang-string"
-                        data-key="editor_button_replace" onclick="uploadMergeCode(false);"></button>
-
-                    <button id="selectfile-append" class="btn btn-primary btn-sm keyed-lang-string"
-                        data-key="editor_button_append" onclick="uploadMergeCode(true);"></button>
-
-                    <!-- Closes the dialog when the button is clicked -->
-                    <button id="selectfile-clear" class="btn btn-default btn-sm keyed-lang-string" data-dismiss="modal"
-                        data-key="editor_button_cancel"></button>
+                    <button id="selectfile-replace"
+                            class="btn btn-danger btn-sm keyed-lang-string"
+                            data-key="editor_button_replace">
+                    </button>
+                    <button id="selectfile-append"
+                            class="btn btn-primary btn-sm keyed-lang-string"
+                            data-key="editor_button_append">
+                    </button>
+                    <button id="selectfile-cancel-button"
+                            class="btn btn-default btn-sm keyed-lang-string"
+                            data-dismiss="modal"
+                            data-key="editor_button_cancel">
+                    </button>
                 </div>
             </div>
         </div>
@@ -414,8 +381,13 @@
                 </div>
                 <div class="modal-body">
                     <div id="save-check-warning">
-                        <span class="bpIcon" data-icon="dangerTriangleBlack">!!</span>&nbsp;
-                        <span class="keyed-lang-string" data-key="editor_save-check_warning"></span>
+                        <span class="bpIcon" data-icon="dangerTriangleBlack">!!</span>
+                        <span id="save-check-warning-message" class="keyed-lang-string"></span>
+
+                        <!--
+                        <span id="save-check-warning-message" class="keyed-lang-string"
+                              data-key="editor_save-check_warning"></span>
+                        -->
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -425,24 +397,6 @@
                         data-key="project_saveaslink"></button>
                     <button id="save-btn" class="btn btn-primary keyed-lang-string" data-dismiss="modal"
                         data-key="project_savelink"></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TODO: Help dialog is probably not used -->
-    <div class="modal fade" id="help-dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 id="help-dialog-title" class="modal-title keyed-lang-string" data-key="help_reference">&nbsp;
-                    </h4>
-                </div>
-                <div class="modal-body" id="help-content"></div>
-                <div class="modal-footer">
-                    <button class="btn btn-default keyed-lang-string" data-dismiss="modal"
-                        data-key="editor_button_close"></button>
                 </div>
             </div>
         </div>
@@ -628,53 +582,6 @@
         </div>
     </div>
 
-    <!-- Save or Upload a project file -->
-    <div class="modal fade" id="open-project-dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <!-- Closes the dialog when the button is clicked -->
-                    <button id="open-project-close" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 id="open-project-dialog-title" class="modal-title keyed-lang-string" data-key="editor_upload">
-                        <span>&nbsp;QQQQ</span>
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    <!-- Upload a project. Results stored in localStorage -->
-                    <label class="control-label keyed-lang-string" data-key="editor_upload_selectfile"></label>
-                    <input id="open-project-select-file" type="file" accept=".svg, .svge"
-                           onchange="uploadHandler(this.files);">
-
-                    <!-- File is valid message -->
-                    <div id="open-project-select-file-verify-valid" class="alert alert-success" style="display: none;">
-                        <span class="bpIcon" data-icon="checkMarkGreen">&#x2713;</span>&nbsp;
-                        <span class="keyed-lang-string" data-key="editor_upload_valid"></span>
-                    </div>
-
-                    <!-- Uploaded file failed sanity checks -->
-                    <div id="open-project-select-file-verify-not-valid" class="alert alert-danger" style="display: none;">
-                        <span class="bpIcon" data-icon="dangerTriangle">!!</span>&nbsp;
-                        <span class="keyed-lang-string" data-key="editor_upload_notvalid"></span>
-                    </div>
-
-                    <!-- Board type has changed -->
-                    <div id="open-project-select-file-verify-board-type" class="alert alert-warning" style="display: none;">
-                        <span class="bpIcon" data-icon="warningCircle">!</span>&nbsp;
-                        <span class="keyed-lang-string" data-key="editor_upload_boardtype_warning"></span>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="open-project-select-file-cancel" class="btn btn-default btn-sm keyed-lang-string"
-                            data-dismiss="modal" data-key="editor_button_cancel"></button>
-                    <button id="open-project-select-file-open" class="btn btn-primary btn-sm keyed-lang-string"
-                            data-key="editor_button_open"></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
     <!-- Edit project details modal -->
     <div class="modal fade" id="edit-project-dialog">
         <div class="modal-dialog">
@@ -708,13 +615,14 @@
                         <div class="form-group">
                             <label for="new-project-description" class="keyed-lang-string"
                                    data-key="project_create_description"></label>
-                            <textarea id="edit-project-description" class="form-control"  rows="7"
+<!--
+                            <label for="edit-project-description"  class="keyed-lang-string"
+                                   data-key="project_edit_description"></label>
+-->
+                            <!-- TODO: match textarea with correct label -->
+                            <textarea id="edit-project-description" class="form-control" rows="7"
                                       name="new-project-description"></textarea>
                         </div>
-                        <!-- Hidden field to store a mode. possible values are 'open' and '' -->
-<!--
-                        <div id="open-modal-sender" class="hidden"></div>
--->
                     </form>
                 </div>
 
@@ -830,16 +738,18 @@
                             <!-- <li><a href="#" class="show-os-lnx"><span class="keyed-lang-string" data-key="os_name_lnx"></span></a></li> -->
                         </ul>
                     </div>
-                    <button style="display:inline-block; margin-left:20px;"
-                            class="btn btn-sm btn-primary"
-                            onclick="$('.bpc-old').removeClass('hidden'); $(this).addClass('hidden');">
+                    <button id="older-clients" class="btn btn-sm btn-primary"
+                            style="display:inline-block; margin-left:20px;">
                         Show BlocklyProp-Client (older) downloads</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal window that enumerates the versions of the client installer available -->
+    <!--
+        Modal window that enumerates the versions of the client installer
+        available with links to the package for each os and os version.
+    -->
     <div class="modal fade" id="client-version-modal">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -866,13 +776,12 @@
                     <hr />
 
                     <div class="clients" id="client-instructions-original">
-
-                        <!-- MacOS client -->
+                        <!-- MacOS client download links list header -->
                         <div class="client-instructions MacOS">
                             <h4 class="keyed-lang-string" data-key="clientdownload_download_installer">&nbsp;</h4>
                         </div>
 
-                        <!-- MacOS Launcher for MacOS Catalina 10.15.x-->
+                        <!-- MacOS Launcher download link -->
                         <div class="client MacOS">
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="images/os-icons/mac_os.png" alt="Mac OS icon" />
                             <a href="#" class="launcher-mac-link">
@@ -880,23 +789,7 @@
                                     data-key="clientdownload_launcher_macos_installer"></span></a>
                         </div>
 
-                        <!-- MacOS Launcher for MacOS Mohave 10.14.x, including a separate, unsigned FTDI driver -->
-                        <div class="client MacOS">
-                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="images/os-icons/mac_os.png" alt="Mac OS icon" />
-                            <a href="#" class="launcher-mac-link-10-14">
-                                <span class="keyed-lang-string"
-                                      data-key="clientdownload_launcher_macos_installer_10_14"></span></a>
-                        </div>
-
-                        <!-- MacOS Launcher for MacOS High Sierra 10.13.x-->
-                        <div class="client MacOS">
-                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="images/os-icons/mac_os.png" alt="Mac OS icon" />
-                            <a href="#" class="launcher-mac-link-10-13">
-                                <span class="keyed-lang-string"
-                                      data-key="clientdownload_launcher_macos_installer_10_13"></span></a>
-                        </div>
-
-                        <!-- MacOS Client -->
+                        <!-- MacOS Client download link -->
                         <div class="client MacOS bpc-old hidden">
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                                 data-src="images/os-icons/mac_os.png" alt="Mac OS icon" />

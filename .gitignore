@@ -16,3 +16,10 @@ dist
 
 # MacOS files
 .DS_Store
+/webpack.stats.json
+
+# Environment variables
+.env*
+
+# Library files for IDE autocomplete assistance
+lib
