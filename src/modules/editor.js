@@ -65,7 +65,7 @@ import {initToolbarIcons} from './toolbar_controller';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
-import {getURLParameter} from './utility';
+import {getAllUrlParameters, getURLParameter} from './utility';
 import {utils, logConsoleMessage, sanitizeFilename} from './utility';
 import {getXmlCode} from './code_editor';
 import {newProjectDialog} from './dialogs/new_project';
@@ -387,6 +387,13 @@ function initEventHandlers() {
     logConsoleMessage(`Selecting port: ${event.target.value}`);
     clientService.setSelectedPort(event.target.value);
     propToolbarButtonController();
+  });
+
+  // Click event handler for the older BP Clients dialog
+  $('#show-older-clients').on('click', function() {
+    $('.bpc-old').removeClass('hidden');
+    // eslint-disable-next-line no-invalid-this
+    $(this).addClass('hidden');
   });
 }
 
@@ -789,7 +796,7 @@ function saveProjectAs(boardType, projectName) {
   };
 
   window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
-  redirectToEditorPage(window.getAllUrlParameters());
+  redirectToEditorPage(getAllUrlParameters());
 }
 
 /**
