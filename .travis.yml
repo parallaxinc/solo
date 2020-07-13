@@ -17,8 +17,7 @@ addons:
 language: minimal
 
 node_js:
-  - 8
-  - 10
+  - 12
 
 env:
   - TRAVIS_CI=true
