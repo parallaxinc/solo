@@ -1114,6 +1114,8 @@ xmlToolbox += '            <block type="heb_count_contacts"></block>';
 xmlToolbox += '            <block type="heb_erase_all_contacts"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '        <category key="category_memory_sdcard" include="heb-wx,">';
+// Solo-473 Add SD_Init block to menu for Flip board type
+xmlToolbox += '            <block type="sd_init" exclude="activity-board,"></block>';
 xmlToolbox += '            <block type="sd_open"></block>';
 xmlToolbox += '            <block type="sd_read">';
 xmlToolbox += '                <value name="SIZE">';
