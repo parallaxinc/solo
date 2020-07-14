@@ -1526,12 +1526,16 @@ function initToolbox(profileName) {
     },
   };
 
-  // Provide configuration options and inject this into the content_blocks div
-  if (document.getElementsByClassName('blocklyToolboxDiv').length === 0) {
-    injectedBlocklyWorkspace = Blockly.inject(
-        'content_blocks',
-        blocklyOptions);
+  // Solo-485 This is a sledgehammer approach to updating the toolbox. If the
+  // toolbox is already defined, destroy the Blockly canvas inner HTML and
+  // rebuild the whole thing from scratch, with the correct toolbox
+  if (document.getElementsByClassName('blocklyToolboxDiv').length !== 0) {
+    document.getElementById('content_blocks').innerHTML = '';
   }
+
+  injectedBlocklyWorkspace = Blockly.inject(
+      'content_blocks',
+      blocklyOptions);
 
   initializeBlockly(Blockly);
 
