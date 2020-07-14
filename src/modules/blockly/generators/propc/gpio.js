@@ -32,6 +32,7 @@
 'use strict';
 
 import Blockly from 'blockly/core';
+import * as Sentry from '@sentry/browser';
 
 import {getDefaultProfile, getProjectInitialState} from '../../../project';
 import {colorPalette} from '../propc';
@@ -1511,13 +1512,24 @@ Blockly.propc.fb360_status = function() {
 Blockly.Blocks.ab_volt_in = {
   helpUrl: Blockly.MSG_ANALOG_PULSES_HELPURL,
   init: function() {
-    const profile = getDefaultProfile();
+    let profile = getDefaultProfile();
+
+    if (profile.analog.length === 0) {
+      const project = getProjectInitialState();
+      const message = `ABVoltsIn: ` +
+          `Empty profile analog list detected for board type ` +
+          `'${project.boardType.name}'.`;
+
+      Sentry.captureMessage(message);
+      console.log(message);
+      profile = ['A0', '0'];
+    }
+
     this.setTooltip(Blockly.MSG_AB_VOLT_IN_TOOLTIP);
     this.setColour(colorPalette.getColor('io'));
     this.appendDummyInput()
         .appendField('A/D channel')
-        .appendField(new Blockly.FieldDropdown(
-            profile.analog), 'CHANNEL')
+        .appendField(new Blockly.FieldDropdown(profile.analog), 'CHANNEL')
         .appendField('read (0-5V) in volt-100ths');
     this.setOutput(true, 'Number');
     this.setPreviousStatement(false, null);
