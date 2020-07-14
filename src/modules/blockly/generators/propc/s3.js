@@ -793,14 +793,16 @@ Blockly.Blocks.scribbler_drive = {
 };
 
 /**
- *
+ * C code generator for the Scribbler_Drive block
  * @return {string}
  */
 Blockly.propc.scribbler_drive = function() {
-  return 's3_simpleDrive(S3_' +
-      this.getFieldValue('DRIVE_DIRECTION') + ', ' +
-      this.getFieldValue('DRIVE_ANGLE').trim() +
-      this.getFieldValue('DRIVE_SPEED') + ');\n';
+  // Direction is either a space ' ' or a minus sign '-'
+  const direction = this.getFieldValue('DRIVE_DIRECTION');
+  const angle = this.getFieldValue('DRIVE_ANGLE').trim();
+  const speed = this.getFieldValue('DRIVE_SPEED');
+
+  return `s3_simpleDrive(S3_${angle},${direction}${speed});\n`;
 };
 
 /**
