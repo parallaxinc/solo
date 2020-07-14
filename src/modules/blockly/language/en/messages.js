@@ -1154,25 +1154,7 @@ page_text_label['register_error_sponsor_email_empty'] = 'Please enter a sponsor 
 page_text_label['register_error_sponsor_email_format_error'] = 'The sponsor email address is not formatted correctly';
 page_text_label['register_error_user_email_empty'] = 'Please enter your email address';
 
-
-// If online, return the full help URL, if offline, open a modal
-
 // TODO: Need offline help system
-
-/**
- * Load the block's help page in a new window.
- * @private
- */
-Blockly.BlockSvg.prototype.showHelp_ = function() {
-  const url = goog.isFunction(this.helpUrl) ? this.helpUrl() : this.helpUrl;
-
-  if (url) {
-    // Temp fix - Solo-26
-    // Display help in a new browser window
-    window.open(url);
-  }
-};
-
 
 // eslint-disable-next-line camelcase
 export {tooltip_text, page_text_label, toolbox_label};
