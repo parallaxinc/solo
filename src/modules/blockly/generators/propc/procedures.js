@@ -515,6 +515,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
 
   /**
    * Notification that the procedure's parameters have changed.
+   *
    * @param {!Array.<string>} paramNames New param names, e.g. ['x', 'y', 'z'].
    * @param {!Array.<string>} paramIds IDs of params (consistent for each
    *     parameter through the life of a mutator, regardless of param renaming),
@@ -706,6 +707,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
   /**
    * Procedure calls cannot exist without the corresponding procedure
    * definition.  Enforce this link whenever an event is fired.
+   *
    * @param {!Blockly.Events.Abstract} event Change event.
    * @this Blockly.Block
    */
@@ -713,7 +715,21 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     const tBlock = this.previousConnection.targetBlock();
     if (tBlock) {
       if (tBlock.toString().indexOf('new processor ') === 0) {
-        this.setNextStatement(false);
+        // Solo-497
+        // Cannot set nextStatement to false if there is a block attached
+        // below the current block. Detach the block first.
+        const nextBlock = this.getNextBlock();
+        if (nextBlock !== null) {
+          console.log(`NextBlock: ${nextBlock.type.toString()}`);
+          // nextBlock.nextConnection.disconnect();
+        }
+        try {
+          this.setNextStatement(false);
+        } catch (event) {
+          console.log(event.message);
+          this.nextConnection.disconnect();
+          this.setNextStatement(false);
+        }
       } else {
         this.setNextStatement(true);
       }

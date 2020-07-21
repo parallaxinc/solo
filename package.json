@@ -1,20 +1,19 @@
 {
   "name": "blocklyprop-solo",
-  "version": "1.5.0",
+  "version": "1.5.2",
   "description": "A simplified implementation of Google's Blockly project configured to support Parallax robots and sensors.",
   "main": "index.js",
   "scripts": {
+    "dev": "NODE_ENV=development webpack --config webpack/dev.config.js --watch",
+    "build": "NODE_ENV=production webpack --config webpack/prod.config.js",
     "lint": "eslint \"src/modules/**/*.js\"",
+    "profile": "webpack --profile --json",
     "test": "tests/run_all_tests.sh",
     "test:dev": "npm run test:prepare && npm run test:run",
     "test:run": "tests/run_all_tests.sh",
     "test:prepare": "npm run test:setupselenium && npm run test:startselenium",
     "test:setupselenium": "selenium-standalone install --config=./tests/scripts/selenium-config.js",
-    "test:startselenium": "selenium-standalone start --config=./tests/scripts/selenium-config.js",
-    "dev": "webpack --mode=development --watch",
-    "build": "NODE_ENV=production webpack --config webpack/prod.config.js",
-    "profile": "webpack --profile --json",
-    "start": "NODE_ENV=development webpack --config webpack/dev.config.js --watch"
+    "test:startselenium": "selenium-standalone start --config=./tests/scripts/selenium-config.js"
   },
   "repository": {
     "type": "git",
@@ -28,7 +27,7 @@
   },
   "homepage": "https://github.com/parallaxinc/solo#readme",
   "dependencies": {
-    "@sentry/browser": "^5.16.1",
+    "@sentry/browser": "^5.19.2",
     "ace-builds": "^1.4.8",
     "blockly": "^2.20190722.1",
     "bootbox": "^5.4.0",
