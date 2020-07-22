@@ -186,13 +186,16 @@ export const clientService = {
    * @param {string} portName
    */
   setSelectedPort: function(portName) {
-    logConsoleMessage(`Setting preferred port to: ${portName}`);
-    this.selectedPort_ = portName;
-    // Request a port list from the server
-    this.activeConnection.send(JSON.stringify({
-      type: 'pref-port',
-      portPath: portName,
-    }));
+    // Sentry Solo-6T
+    if (this.activeConnection) {
+      logConsoleMessage(`Setting preferred port to: ${portName}`);
+      this.selectedPort_ = portName;
+      // Request a port list from the server
+      this.activeConnection.send(JSON.stringify({
+        type: 'pref-port',
+        portPath: portName,
+      }));
+    }
   },
 
   /**
