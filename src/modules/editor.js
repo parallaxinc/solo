@@ -33,12 +33,13 @@ import './blockly/generators/propc/base';
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
 import './blockly/generators/propc/gpio';
-import './blockly/generators/propc/heb';
 import './blockly/generators/propc/oled';
+import './blockly/generators/propc/heb';
 import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
+import './blockly/generators/propc/aliaes';
 
 import {
   compile, loadInto, initializeBlockly,

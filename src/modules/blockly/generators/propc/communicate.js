@@ -1765,7 +1765,7 @@ Blockly.Blocks.serial_print_multiple = {
   onchange: Blockly.Blocks['serial_send_text'].onchange,
 };
 
-Blockly.propc.serial_print_multiple = Blockly.propc.console_print_multiple;
+// Blockly.propc.serial_print_multiple = Blockly.propc.console_print_multiple;
 
 /**
  * Serial Scan Multiple block definition
@@ -2815,7 +2815,7 @@ Blockly.Blocks.debug_lcd_print_multiple = {
   },
 };
 
-Blockly.propc.debug_lcd_print_multiple = Blockly.propc.console_print_multiple;
+// Blockly.propc.debug_lcd_print_multiple = Blockly.propc.console_print_multiple;
 
 // --------------- Parallel LCD Blocks ----------------------------------------
 
@@ -2938,11 +2938,11 @@ Blockly.propc.parallel_lcd_init = function() {
   }
 };
 
-Blockly.Blocks.parallel_lcd_print = Blockly.Blocks.debug_lcd_print;
-Blockly.propc.parallel_lcd_print = Blockly.propc.debug_lcd_print;
-
-Blockly.Blocks.parallel_lcd_number = Blockly.Blocks.debug_lcd_number;
-Blockly.propc.parallel_lcd_number = Blockly.propc.debug_lcd_number;
+// Blockly.Blocks.parallel_lcd_print = Blockly.Blocks.debug_lcd_print;
+// Blockly.propc.parallel_lcd_print = Blockly.propc.debug_lcd_print;
+//
+// Blockly.Blocks.parallel_lcd_number = Blockly.Blocks.debug_lcd_number;
+// Blockly.propc.parallel_lcd_number = Blockly.propc.debug_lcd_number;
 
 /**
  *
@@ -3002,13 +3002,13 @@ Blockly.propc.parallel_lcd_action = function() {
   }
 };
 
-Blockly.Blocks.parallel_lcd_set_cursor = Blockly.Blocks.debug_lcd_set_cursor;
-Blockly.propc.parallel_lcd_set_cursor = Blockly.propc.debug_lcd_set_cursor;
-
-Blockly.Blocks.parallel_lcd_print_multiple =
-    Blockly.Blocks.debug_lcd_print_multiple;
-Blockly.propc.parallel_lcd_print_multiple =
-    Blockly.propc.console_print_multiple;
+// Blockly.Blocks.parallel_lcd_set_cursor = Blockly.Blocks.debug_lcd_set_cursor;
+// Blockly.propc.parallel_lcd_set_cursor = Blockly.propc.debug_lcd_set_cursor;
+//
+// Blockly.Blocks.parallel_lcd_print_multiple =
+//     Blockly.Blocks.debug_lcd_print_multiple;
+// Blockly.propc.parallel_lcd_print_multiple =
+//     Blockly.propc.console_print_multiple;
 
 // --------------- XBee Blocks ------------------------------------------------
 
@@ -3328,7 +3328,7 @@ Blockly.Blocks.xbee_print_multiple = {
   },
 };
 
-Blockly.propc.xbee_print_multiple = Blockly.propc.console_print_multiple;
+// Blockly.propc.xbee_print_multiple = Blockly.propc.console_print_multiple;
 
 /**
  *
@@ -4841,7 +4841,7 @@ Blockly.Blocks.wx_print_multiple = {
   onchange: Blockly.Blocks['wx_scan_multiple'].onchange,
 };
 
-Blockly.propc.wx_print_multiple = Blockly.propc.console_print_multiple;
+// Blockly.propc.wx_print_multiple = Blockly.propc.console_print_multiple;
 
 /**
  *
@@ -6801,12 +6801,12 @@ Blockly.Blocks.string_scan_container = {
   },
 };
 
-Blockly.Blocks.string_scan_str = Blockly.Blocks.console_print_str;
-Blockly.Blocks.string_scan_dec = Blockly.Blocks.console_print_dec;
-Blockly.Blocks.string_scan_hex = Blockly.Blocks.console_print_hex;
-Blockly.Blocks.string_scan_bin = Blockly.Blocks.console_print_bin;
-Blockly.Blocks.string_scan_float = Blockly.Blocks.console_print_float;
-Blockly.Blocks.string_scan_char = Blockly.Blocks.console_print_char;
+// Blockly.Blocks.string_scan_str = Blockly.Blocks.console_print_str;
+// Blockly.Blocks.string_scan_dec = Blockly.Blocks.console_print_dec;
+// Blockly.Blocks.string_scan_hex = Blockly.Blocks.console_print_hex;
+// Blockly.Blocks.string_scan_bin = Blockly.Blocks.console_print_bin;
+// Blockly.Blocks.string_scan_float = Blockly.Blocks.console_print_float;
+// Blockly.Blocks.string_scan_char = Blockly.Blocks.console_print_char;
 
 /**
  *
@@ -6914,4 +6914,4 @@ Blockly.Blocks.string_sprint_multiple = {
   saveConnections: Blockly.Blocks['console_print_multiple'].saveConnections,
 };
 
-Blockly.propc.string_sprint_multiple = Blockly.propc.console_print_multiple;
+// Blockly.propc.string_sprint_multiple = Blockly.propc.console_print_multiple;

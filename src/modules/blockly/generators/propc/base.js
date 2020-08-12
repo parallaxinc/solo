@@ -2237,7 +2237,8 @@ Blockly.Blocks.set_char_at_position = {
 };
 
 // Map deprecated block to its replacement
-Blockly.Blocks.set_char_at_position_zero = Blockly.Blocks.set_char_at_position;
+// Blockly.Blocks.set_char_at_position_zero =
+//    Blockly.Blocks.set_char_at_position;
 
 /**
  *
@@ -2273,7 +2274,7 @@ Blockly.propc.set_char_at_position = function() {
 };
 
 // Map deprecated code to its replacement
-Blockly.propc.set_char_at_position_zero = Blockly.propc.set_char_at_position;
+// Blockly.propc.set_char_at_position_zero = Blockly.propc.set_char_at_position;
 
 /**
  *
@@ -2317,7 +2318,7 @@ Blockly.Blocks.get_substring = {
 };
 
 // Map deprecated code to its replacement
-Blockly.Blocks.get_substring_zero = Blockly.Blocks.get_substring;
+// Blockly.Blocks.get_substring_zero = Blockly.Blocks.get_substring;
 
 /**
  *
@@ -2383,7 +2384,7 @@ Blockly.propc.get_substring = function() {
 };
 
 // Map deprecated code to its replacement
-Blockly.propc.get_substring_zero = Blockly.propc.get_substring;
+// Blockly.propc.get_substring_zero = Blockly.propc.get_substring;
 
 /**
  *
