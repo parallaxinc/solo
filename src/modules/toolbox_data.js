@@ -284,7 +284,14 @@ xmlToolbox += '    </category>';
 
 xmlToolbox += '    <sep include="heb,heb-wx,"></sep>';
 
+/*
+ * Communications
+ */
 xmlToolbox += '    <category key="category_communicate" exclude="s3," colour="340">';
+
+/*
+ * Communications->Badge Display
+ */
 xmlToolbox += '        <category key="category_hackable-electronic-badge_oled" include="heb,heb-wx,">';
 xmlToolbox += '            <block type="heb_print_numeric_var">';
 xmlToolbox += '                <value name="VALUE">';
@@ -422,6 +429,9 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '        </category>';
+/*
+ * Communications->Badge IR Communications
+ */
 xmlToolbox += '        <category key="category_hackable-electronic-badge_ir-communication" include="heb,heb-wx,">';
 xmlToolbox += '            <block type="heb_ir_send_signal">';
 xmlToolbox += '                <value name="MESSAGE">';
@@ -1716,7 +1726,7 @@ xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
 xmlToolbox += '    <category key="category_system" colour="320">';
 xmlToolbox += '        <block type="run_as_setup" exclude="s3," experimental="true"></block>';
-xmlToolbox += '        <block type="custom_code_multiple" include="s3,"></block>';
+xmlToolbox += '        <block type="custom_code_multiple" include="activity-board,flip,heb,heb-wx,other,s3,"></block>';
 xmlToolbox += '        <block type="waitcnt">';
 xmlToolbox += '            <value name="TARGET">';
 xmlToolbox += '                <block type="math_arithmetic">';
