@@ -203,8 +203,8 @@ Blockly.propc.joystick_input_yaxis = function() {
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
-Blockly.Blocks.joystick_input_xaxis = Blockly.Blocks.joystick_input_yaxis;
-Blockly.propc.joystick_input_xaxis = Blockly.propc.joystick_input_yaxis;
+// Blockly.Blocks.joystick_input_xaxis = Blockly.Blocks.joystick_input_yaxis;
+// Blockly.propc.joystick_input_xaxis = Blockly.propc.joystick_input_yaxis;
 
 // ---------------- PIR Sensor Blocks --------------------------------
 
@@ -1100,15 +1100,15 @@ Blockly.propc.MX2125_acceleration_xaxis = function() {
   return ['mx_' + this.res[1] + '(' + pin + ')', Blockly.propc.ORDER_NONE];
 };
 
-Blockly.Blocks.MX2125_acceleration_yaxis =
-    Blockly.Blocks.MX2125_acceleration_xaxis;
-Blockly.propc.MX2125_acceleration_yaxis =
-    Blockly.propc.MX2125_acceleration_xaxis;
-
-Blockly.Blocks.MX2125_tilt_xaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
-Blockly.propc.MX2125_tilt_xaxis = Blockly.propc.MX2125_acceleration_xaxis;
-Blockly.Blocks.MX2125_tilt_yaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
-Blockly.propc.MX2125_tilt_yaxis = Blockly.propc.MX2125_acceleration_xaxis;
+// Blockly.Blocks.MX2125_acceleration_yaxis =
+//     Blockly.Blocks.MX2125_acceleration_xaxis;
+// Blockly.propc.MX2125_acceleration_yaxis =
+//     Blockly.propc.MX2125_acceleration_xaxis;
+//
+// Blockly.Blocks.MX2125_tilt_xaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
+// Blockly.propc.MX2125_tilt_xaxis = Blockly.propc.MX2125_acceleration_xaxis;
+// Blockly.Blocks.MX2125_tilt_yaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
+// Blockly.propc.MX2125_tilt_yaxis = Blockly.propc.MX2125_acceleration_xaxis;
 
 Blockly.Blocks.MX2125_rotation = {
   helpUrl: Blockly.MSG_MEMSIC_HELPURL,
