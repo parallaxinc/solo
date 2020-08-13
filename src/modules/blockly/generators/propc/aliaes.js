@@ -57,6 +57,9 @@ Blockly.propc.string_sprint_multiple = Blockly.propc.console_print_multiple;
 Blockly.propc.fb360_set = Blockly.propc.fb360_setup;
 
 /* OLED */
+Blockly.Blocks.oled_get_max_width = Blockly.Blocks.oled_get_max_height;
+Blockly.propc.oled_get_max_width = Blockly.propc.oled_get_max_height;
+
 Blockly.propc.oled_print_multiple = Blockly.propc.console_print_multiple;
 
 /* E-PAPER */
