@@ -31,12 +31,6 @@ import {logConsoleMessage, utils} from './utility';
 import {propToolbarButtonController} from './toolbar_controller';
 import {getPropTerminal} from './prop_term';
 
-/**
- * Terminal baudrate setting
- *
- * @type {number}
- */
-export const baudrate = 115200;
 
 /**
  * This is the number of milliseconds that can go by between port updates
@@ -178,7 +172,7 @@ function establishBPLauncherConnection() {
        */
       const wsMessage = {
         type: 'hello-browser',
-        baud: baudrate,
+        baud: clientService.terminalBaudRate,
       };
       clientService.activeConnection = connection;
       connection.send(JSON.stringify(wsMessage));

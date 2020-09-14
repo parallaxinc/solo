@@ -537,7 +537,13 @@ function initDefaultProject() {
   // window.location.href = 'index.html' + getAllUrlParameters();
   // TODO: New Default Project
   const defaultProject = buildDefaultProject();
-  setProjectInitialState(defaultProject);
+  const myProject = setProjectInitialState(defaultProject);
+
+  // Update the terminal serial port baud rate
+  if (myProject) {
+    clientService.setTerminalBaudRate(myProject.boardType.baudrate);
+  }
+
   // Create a new nudge timer
   const myTime = new NudgeTimer(0);
   // Set the callback
@@ -592,6 +598,11 @@ function setupWorkspace(data, callback) {
     // Something has gone sideways
     throw new Error('Unable to load the project.');
   }
+  // Update the terminal serial port baud rate
+  if (project) {
+    clientService.setTerminalBaudRate(project.boardType.baudrate);
+  }
+
 
   setDefaultProfile(project.boardType);
 
@@ -1843,7 +1854,12 @@ export function createNewProject() {
     clearProjectInitialState();
 
     // Update the Blockly core
-    setProjectInitialState(newProject);
+    const myProject = setProjectInitialState(newProject);
+
+    // Update the terminal serial port baud rate
+    if (myProject) {
+      clientService.setTerminalBaudRate(myProject.boardType.baudrate);
+    }
     // Create a new nudge timer
     const myTime = new NudgeTimer(0);
     // Set the callback
@@ -1879,7 +1895,12 @@ export function insertProject(project) {
   try {
     // project.stashProject(LOCAL_PROJECT_STORE_NAME);
     clearProjectInitialState();
-    setProjectInitialState(project);
+    const myProject = setProjectInitialState(project);
+
+    // Update the terminal serial port baud rate
+    if (myProject) {
+      clientService.setTerminalBaudRate(myProject.boardType.baudrate);
+    }
 
     if (!project.isTimerSet()) {
       // Create a new nudge timer
