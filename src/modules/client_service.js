@@ -251,7 +251,16 @@ export const clientService = {
     const wsMessage = {
       type: 'hello-browser',
     };
-    this.activeConnection.send(JSON.stringify(wsMessage));
+
+    const payload = JSON.stringify(wsMessage);
+
+    if (this.activeConnection) {
+      this.activeConnection.send(payload);
+    } else {
+      logConsoleMessage(
+          `Cannot send "hello-browser message. ` +
+          `Connection is closed."`);
+    }
   },
 
   /**
@@ -262,8 +271,15 @@ export const clientService = {
       type: 'port-list-request',
       msg: 'port-list-request',
     };
+    const payload = JSON.stringify(message);
 
-    this.activeConnection.send(JSON.stringify(message));
+    if (this.activeConnection) {
+      this.activeConnection.send(payload);
+    } else {
+      logConsoleMessage(
+          `Cannot send "port-list-request message. ` +
+          `Connection is closed."`);
+    }
   },
 
 
@@ -276,29 +292,39 @@ export const clientService = {
    * @param {string} port
    */
   wsSendLoadProp: function(loadAction, data, terminal, port) {
+    logConsoleMessage(`(wsSLP) Entering`);
     const programToSend = {
       type: 'load-prop',
       action: loadAction,
-      payload: data.binary,
+      portPath: port,
       debug: (terminal) ? terminal : 'none',
       extension: data.extension,
-      portPath: port,
+      payload: data.binary,
     };
     // Debugging message
-    const debug = false;
+    const debug = true;
     if (debug) {
-      logConsoleMessage(`(LOAI) Sending message to the web socket:`);
-      logConsoleMessage(`(LOAI) Type: ${programToSend.type}`);
-      logConsoleMessage(`(LOAI) Action: ${programToSend.action}`);
-      logConsoleMessage(`(LOAI) Debug: ${programToSend.debug}`);
-      logConsoleMessage(`(LOAI) ComPort: ${programToSend.portPath}`);
+      logConsoleMessage(`(wsSLP) Sending message to the web socket:`);
+      logConsoleMessage(`(wsSLP) Type: ${programToSend.type}`);
+      logConsoleMessage(`(wsSLP) Action: ${programToSend.action}`);
+      logConsoleMessage(`(wsSLP) Debug: ${programToSend.debug}`);
+      logConsoleMessage(`(wsSLP) ComPort: ${programToSend.portPath}`);
 
       // eslint-disable-next-line max-len
       logConsoleMessage(
-          `(LOAI) Web socket state is: ` +
+          `(wsSLP) Web socket state is: ` +
           `${clientService.activeConnection.readyState}`);
     }
-    this.activeConnection.send(JSON.stringify(programToSend));
+    const payload = JSON.stringify(programToSend);
+    // logConsoleMessage(`(wsSLP) Payload: ${payload}`);
+
+    if (this.activeConnection) {
+      this.activeConnection.send(payload);
+    } else {
+      logConsoleMessage(
+          `Cannot send "load-prop:${loadAction} message. ` +
+          `Connection is closed."`);
+    }
   },
 
   /**
@@ -309,23 +335,35 @@ export const clientService = {
    * @param {string} message
    */
   wsSendSerialTerminal(action, port, message) {
-    const actions = ['open', 'close', 'msg'];
     if (!action) {
       throw new Error('Action was not provided in call to wsSendTerminal');
     }
-    if (!actions.includes(action)) {
+    // Validate the supplied action
+    const actions = ['open', 'close', 'msg'];
+    const requestedAction = action.toLowerCase();
+
+    if (!actions.includes(requestedAction)) {
       throw new Error(`The supplied action, '${action}', is unsupported.`);
     }
+
     const messageToSend = {
       type: 'serial-terminal',
-      action: action,
+      action: requestedAction,
       outTo: 'terminal',
       portPath: port,
       baudrate: this.terminalBaudRate.toString(10),
       msg: message,
     };
 
-    this.activeConnection.send(JSON.stringify(messageToSend));
+    const payload = JSON.stringify(messageToSend);
+
+    if (this.activeConnection) {
+      this.activeConnection.send(payload);
+    } else {
+      logConsoleMessage(
+          `Cannot send "serial-terminal message, action: ${requestedAction}. ` +
+          `Connection is closed."`);
+    }
   },
 
   /**
