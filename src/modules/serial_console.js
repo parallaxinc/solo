@@ -164,13 +164,7 @@ export function serialConsole() {
         if (action !== 'close') {
           action = 'close';
           displayTerminalConnectionStatus(null);
-
-          // Solo-484
-          // Send the message if the connection has not closed
-          // This is actually closing the terminal session.
-          if (clientService.activeConnection) {
-            clientService.wsSendSerialTerminal(action, port, 'none');
-          }
+          clientService.wsSendSerialTerminal(action, port, 'none');
         }
         logConsoleMessage(`Flushing the terminal buffer`);
         // Flush the serial terminal buffer
