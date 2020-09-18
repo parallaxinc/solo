@@ -44,10 +44,9 @@ import './blockly/generators/propc/aliaes';
 import {
   compile, loadInto, initializeBlockly,
   downloadCSV, graphingConsole, configureConnectionPaths,
-  serialConsole, graphPlay,
-  downloadGraph, graphStartStop,
+  graphPlay, downloadGraph, graphStartStop,
 } from './blocklyc';
-
+import {serialConsole} from './serial_console';
 import {findClient} from './client_connection';
 import {clientService, initTerminal} from './client_service';
 import {LOCAL_PROJECT_STORE_NAME} from './constants';

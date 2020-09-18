@@ -28,7 +28,7 @@ import {getComPort} from './client_connection';
 import {clientService, serviceConnectionTypes} from './client_service';
 import {loadToolbox, prettyCode} from './editor';
 import {CodeEditor} from './code_editor';
-import {getPropTerminal} from './prop_term';
+// import {getPropTerminal} from './prop_term';
 import {getProjectInitialState} from './project';
 import {getSourceEditor} from './code_editor';
 import {logConsoleMessage, getURLParameter, utils} from './utility';
@@ -332,38 +332,22 @@ export function compile() {
  * @param {string} loadAction command for the loader (RAM/EEPROM).
  *
  * USED by the COMPILE, LOAD TO RAM, and LOAD TO EEPROM UI buttons directly
+ *
+ * @description: Console logging uses the identifier (LOAI).
  */
-export function loadInto(
-    modalMessage,
-    compileCommand,
-    loadOption,
-    loadAction) {
-  logConsoleMessage(`Loading program to ${loadAction}.`);
-  logConsoleMessage(`Load connection is ` +
-      `${clientService.activeConnection ? 'active' : 'inactive'}`);
+export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
   if (clientService.portsAvailable) {
-    logConsoleMessage(`Ports are available`);
     cloudCompile(modalMessage, compileCommand, function(data, terminalNeeded) {
       logConsoleMessage(`Processing cloud compiler callback`);
       if (clientService.type === serviceConnectionTypes.WS) {
-        logConsoleMessage(`Device loaded via websocket`);
+        logConsoleMessage(`(LOAI) Device loaded via websocket`);
         // Send the compile submission via a web socket
         clientService.resultLog = '';
         clientService.loadBinary = false;
-
-        const programToSend = {
-          type: 'load-prop',
-          action: loadAction,
-          payload: data.binary,
-          debug: (terminalNeeded) ? terminalNeeded : 'none',
-          extension: data.extension,
-          portPath: getComPort(),
-        };
-        clientService.activeConnection.send(JSON.stringify(programToSend));
+        clientService.wsSendLoadProp(
+            loadAction, data, terminalNeeded, getComPort());
       } else {
         // Send the compile submission via an HTTP post
-        logConsoleMessage('Sending program binary to the BlocklyProp Client');
-        // BlocklyProp Client
         if (clientService.version.isCoded) {
           // Request load with options from BlocklyProp Client
           $.post(clientService.url('load.action'), {
@@ -374,7 +358,8 @@ export function loadInto(
             'comport': getComPort(),
           }, function(loadData) {
             // Callback to report results from client/launcher command
-            logConsoleMessage(`Processing compiler results from server: ` +
+            logConsoleMessage(
+                `(LOAI) Processing compiler results from server: ` +
                 `${loadData.message}`);
             // Replace response message's consecutive white space with a
             // new-line, then split at new lines
@@ -450,143 +435,155 @@ export function loadInto(
         Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT);
   }
 }
-
-/**
- * Serial console support
- */
-export function serialConsole() {
-  clientService.sendCharacterStreamTo = 'term';
-
-  // HTTP client
-  // TODO: Linter claims that this expression is always false
-  if (clientService.type !== serviceConnectionTypes.WS) {
-    if (clientService.portsAvailable) {
-      // Container and flag needed to receive and parse initial connection
-      // string before serial data begins streaming in.
-      let connString = '';
-      let connStrYet = false;
-
-      // open a websocket to the BPC for just the serial communications
-      const connection = new WebSocket(
-          clientService.url('serial.connect', 'ws'));
-
-      // When the connection is open, open com port
-      connection.onopen = function() {
-        connString = '';
-        connStrYet = false;
-        const baudRate = clientService.terminalBaudRate > 0 ?
-            ` ${clientService.terminalBaudRate}`: '';
-        connection.send(`+++ open port ${getComPort()} ${baudRate}`);
-        clientService.activeConnection = connection;
-      };
-
-      // Log errors
-      connection.onerror = function(error) {
-        logConsoleMessage('WebSocket Error');
-        logConsoleMessage(error.message);
-      };
-
-      // Receive characters
-      connection.onmessage = function(e) {
-        const pTerm = getPropTerminal();
-        // incoming data is base64 encoded
-        const charBuffer = atob(e.data);
-        if (connStrYet) {
-          pTerm.display(charBuffer);
-        } else {
-          connString += charBuffer;
-          if (connString.indexOf(
-              clientService.terminalBaudRate.toString(10)) > -1) {
-            connStrYet = true;
-            displayTerminalConnectionStatus(connString.trim());
-          } else {
-            pTerm.display(e.data);
-          }
-        }
-        pTerm.focus();
-      };
-
-      // When the user closed the console, close the serial comms connection
-      $('#console-dialog').on('hidden.bs.modal', function() {
-        clientService.sendCharacterStreamTo = null;
-        logConsoleMessage(`Closing serial console WS connection`);
-        clientService.activeConnection = null;
-        connString = '';
-        connStrYet = false;
-        connection.close();
-        displayTerminalConnectionStatus(null);
-        getPropTerminal().display(null);
-      });
-    } else {
-      // Remove any previous connection
-      logConsoleMessage(`No ports available so closing the WS connection.`);
-      clientService.activeConnection = null;
-
-      // Display a "No connected devices" message in the terminal
-      displayTerminalConnectionStatus(
-          Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
-      getPropTerminal().display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
-
-      // Clear the terminal if the user closes it.
-      $('#console-dialog').on('hidden.bs.modal', function() {
-        clientService.sendCharacterStreamTo = null;
-        displayTerminalConnectionStatus(null);
-        getPropTerminal().display(null);
-      });
-    }
-  } else if (clientService.type === serviceConnectionTypes.WS) {
-    // using Websocket-only client
-
-    const messageToSend = {
-      type: 'serial-terminal',
-      outTo: 'terminal',
-      portPath: getComPort(),
-      baudrate: clientService.terminalBaudRate.toString(10),
-      msg: 'none',
-      action: 'open',
-    };
-
-    if (messageToSend.portPath !== 'none') {
-      displayTerminalConnectionStatus([
-        Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
-        messageToSend.portPath,
-        Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
-        messageToSend.baudrate,
-      ].join[' ']);
-    } else {
-      displayTerminalConnectionStatus(
-          Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
-      getPropTerminal().display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
-    }
-
-    clientService.activeConnection.send(JSON.stringify(messageToSend));
-
-    $('#console-dialog').on('hidden.bs.modal', function() {
-      clientService.sendCharacterStreamTo = null;
-      if (messageToSend.action !== 'close') {
-        // because this is getting called multiple times...?
-        messageToSend.action = 'close';
-        displayTerminalConnectionStatus(null);
-
-        // Solo-484
-        // Send the message if the connection has not closed
-        if (clientService.activeConnection) {
-          clientService.activeConnection.send(JSON.stringify(messageToSend));
-        }
-      }
-      getPropTerminal().display(null);
-    });
-  }
-
-  $('#console-dialog').modal('show');
-}
-
+//
+// /**
+//  * Serial console support
+//  */
+// export function serialConsole() {
+//   const debug = true;
+//   const dbgs = 'SERC';
+//   clientService.sendCharacterStreamTo = 'term';
+//
+//   // HTTP client
+//   // TODO: Linter claims that this expression is always false
+//   if (clientService.type !== serviceConnectionTypes.WS) {
+//     if (clientService.portsAvailable) {
+//       // Container and flag needed to receive and parse initial connection
+//       // string before serial data begins streaming in.
+//       let connString = '';
+//       let connStrYet = false;
+//
+//       // open a websocket to the BPC for just the serial communications
+//       if (debug) {
+//         logConsoleMessage(`${dbgs}:Opening new web socket`);
+//       }
+//       const connection = new WebSocket(
+//           clientService.url('serial.connect', 'ws'));
+//
+//       // When the connection is open, open com port
+//       connection.onopen = function() {
+//         connString = '';
+//         connStrYet = false;
+//         const baudRate = clientService.terminalBaudRate > 0 ?
+//             ` ${clientService.terminalBaudRate}`: '';
+//         connection.send(`+++ open port ${getComPort()} ${baudRate}`);
+//         clientService.activeConnection = connection;
+//       };
+//
+//       // Log errors
+//       connection.onerror = function(error) {
+//         logConsoleMessage('WebSocket Error');
+//         logConsoleMessage(error.message);
+//       };
+//
+//       // Receive characters
+//       connection.onmessage = function(e) {
+//         const pTerm = getPropTerminal();
+//         // incoming data is base64 encoded
+//         const charBuffer = atob(e.data);
+//         if (connStrYet) {
+//           pTerm.display(charBuffer);
+//         } else {
+//           connString += charBuffer;
+//           if (connString.indexOf(
+//               clientService.terminalBaudRate.toString(10)) > -1) {
+//             connStrYet = true;
+//             displayTerminalConnectionStatus(connString.trim());
+//           } else {
+//             pTerm.display(e.data);
+//           }
+//         }
+//         pTerm.focus();
+//       };
+//
+//       // When the user closed the console, close the serial comms connection
+//       $('#console-dialog').on('hidden.bs.modal', function() {
+//         clientService.sendCharacterStreamTo = null;
+//         logConsoleMessage(`Closing serial console WS connection`);
+//         clientService.activeConnection = null;
+//         connString = '';
+//         connStrYet = false;
+//         connection.close();
+//         displayTerminalConnectionStatus(null);
+//         getPropTerminal().display(null);
+//       });
+//     } else {
+//       // Remove any previous connection
+//       logConsoleMessage(`No ports available so closing the WS connection.`);
+//       clientService.activeConnection = null;
+//
+//       // Display a "No connected devices" message in the terminal
+//       displayTerminalConnectionStatus(
+//           Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
+//       getPropTerminal().display(
+//        Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
+//
+//       // Clear the terminal if the user closes it.
+//       $('#console-dialog').on('hidden.bs.modal', function() {
+//         clientService.sendCharacterStreamTo = null;
+//         displayTerminalConnectionStatus(null);
+//         getPropTerminal().display(null);
+//       });
+//     }
+//   } else if (clientService.type === serviceConnectionTypes.WS) {
+//     // --------------------------------------------------------------
+//     //              Using Websocket-only client
+//     // --------------------------------------------------------------
+//     let action = 'open';
+//     const port = getComPort();
+//     const baudRate = clientService.terminalBaudRate;
+//
+//     // Update a UI element
+//     // if (messageToSend.portPath !== 'none') {
+//     if (port !== 'none') {
+//       displayTerminalConnectionStatus([
+//         Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
+//         port,
+//         Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
+//         baudRate.toString(10),
+//       ].join[' ']);
+//     } else {
+//       displayTerminalConnectionStatus(
+//           Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
+//       getPropTerminal().display(
+//        Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
+//     }
+//
+//     // Open the terminal session
+//     clientService.wsSendSerialTerminal('open', port, 'none');
+//
+//     // Closing terminal console event handler
+//     // TODO: This needs to be initialized only once.
+//     $('#console-dialog').on('hidden.bs.modal', function() {
+//       clientService.sendCharacterStreamTo = null;
+//       logConsoleMessage(`Closing console window. Action is: ${action}`);
+//       // Close the serial terminal
+//       if (action !== 'close') {
+//         action = 'close';
+//         displayTerminalConnectionStatus(null);
+//
+//         // Solo-484
+//         // Send the message if the connection has not closed
+//         // This is actually closing the terminal session.
+//         if (clientService.activeConnection) {
+//           clientService.wsSendSerialTerminal(action, port, 'none');
+//         }
+//       }
+//       logConsoleMessage(`Flushing the terminal buffer`);
+//       // Flush the serial terminal buffer
+//       getPropTerminal().display(null);
+//     });
+//   }
+//
+//   $('#console-dialog').modal('show');
+// }
+//
 /**
  * Display information about the serial connection to the device
  * @param {string | null} connectionInfo text to display above
  *  the console or graph
  */
-function displayTerminalConnectionStatus(connectionInfo) {
+export function displayTerminalConnectionStatus(connectionInfo) {
   $('.connection-string').html(connectionInfo ? connectionInfo : '');
 }
 
