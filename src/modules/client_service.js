@@ -241,6 +241,94 @@ export const clientService = {
   },
 
   /**
+   * Send a 'hello' message to the BP Launcher
+   */
+  wsSendHello: function() {
+    /**
+     * Web Socket greeting message object
+     * @type WebSocketHelloMessage
+     */
+    const wsMessage = {
+      type: 'hello-browser',
+    };
+    this.activeConnection.send(JSON.stringify(wsMessage));
+  },
+
+  /**
+   * Send a request for a list of detected ports from the BP Launcher
+   */
+  wsSendRequestPortList: function() {
+    const message = {
+      type: 'port-list-request',
+      msg: 'port-list-request',
+    };
+
+    this.activeConnection.send(JSON.stringify(message));
+  },
+
+
+  /**
+   * Send a load-prop message to the BP Launcher
+   *
+   * @param {string} loadAction
+   * @param {object} data
+   * @param {string} terminal
+   * @param {string} port
+   */
+  wsSendLoadProp: function(loadAction, data, terminal, port) {
+    const programToSend = {
+      type: 'load-prop',
+      action: loadAction,
+      payload: data.binary,
+      debug: (terminal) ? terminal : 'none',
+      extension: data.extension,
+      portPath: port,
+    };
+    // Debugging message
+    const debug = false;
+    if (debug) {
+      logConsoleMessage(`(LOAI) Sending message to the web socket:`);
+      logConsoleMessage(`(LOAI) Type: ${programToSend.type}`);
+      logConsoleMessage(`(LOAI) Action: ${programToSend.action}`);
+      logConsoleMessage(`(LOAI) Debug: ${programToSend.debug}`);
+      logConsoleMessage(`(LOAI) ComPort: ${programToSend.portPath}`);
+
+      // eslint-disable-next-line max-len
+      logConsoleMessage(
+          `(LOAI) Web socket state is: ` +
+          `${clientService.activeConnection.readyState}`);
+    }
+    this.activeConnection.send(JSON.stringify(programToSend));
+  },
+
+  /**
+   * Send a serial terminal message to the BP Launcher
+   *
+   * @param {string} action
+   * @param {string} port
+   * @param {string} message
+   */
+  wsSendSerialTerminal(action, port, message) {
+    const actions = ['open', 'close', 'msg'];
+    if (!action) {
+      throw new Error('Action was not provided in call to wsSendTerminal');
+    }
+    if (!actions.includes(action)) {
+      throw new Error(`The supplied action, '${action}', is unsupported.`);
+    }
+    const messageToSend = {
+      type: 'serial-terminal',
+      action: action,
+      outTo: 'terminal',
+      portPath: port,
+      baudrate: this.terminalBaudRate.toString(10),
+      msg: message,
+    };
+
+    this.activeConnection.send(JSON.stringify(messageToSend));
+  },
+
+  /**
    * Version object
    */
   version: {
