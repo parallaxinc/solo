@@ -224,10 +224,9 @@ function establishBPLauncherConnection() {
           }
           messageText = wsMessage.msg;
         }
-        logConsoleMessage(`Serial Terminal Msg: "${messageText}"`);
 
         if (clientService.sendCharacterStreamTo &&
-            messageText !== '' && wsMessage.packetID) {
+            messageText !== '' && wsMessage.packetID >= 0) {
           // is the terminal open?
           if (clientService.sendCharacterStreamTo === 'term') {
             const pTerm = getPropTerminal();
@@ -237,6 +236,8 @@ function establishBPLauncherConnection() {
             // is the graph open?
             graphNewData(messageText);
           }
+        } else {
+          logConsoleMessage(`Unable to send stream to the terminal`);
         }
 
         // --- UI Commands coming from the client
