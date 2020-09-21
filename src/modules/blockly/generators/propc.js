@@ -665,7 +665,11 @@ Blockly.propc.finish = function(code) {
   }
 
   if (profile.description === 'Scribbler Robot') {
-    setups.unshift('  s3_setup();pause(100);');
+    // setups.unshift('  s3_setup();pause(100);');
+    setups.unshift(' ');
+    setups.unshift('  pause(100);');
+    setups.unshift('  s3_setup();');
+    setups.unshift('  // Initialize the robot');
   }
 
   // Add volatile to variable declarations in cogs
