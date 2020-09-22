@@ -316,9 +316,9 @@ export const clientService = {
           `${clientService.activeConnection.readyState}`);
     }
     const payload = JSON.stringify(programToSend);
-    // logConsoleMessage(`(wsSLP) Payload: ${payload}`);
 
     if (this.activeConnection) {
+      logConsoleMessage(`(wsSLP) Sending payload to socket`);
       this.activeConnection.send(payload);
     } else {
       logConsoleMessage(

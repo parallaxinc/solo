@@ -339,11 +339,14 @@ export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
   if (clientService.portsAvailable) {
     cloudCompile(modalMessage, compileCommand, function(data, terminalNeeded) {
       logConsoleMessage(`Processing cloud compiler callback`);
+
       if (clientService.type === serviceConnectionTypes.WS) {
         logConsoleMessage(`(LOAI) Device loaded via websocket`);
+
         // Send the compile submission via a web socket
         clientService.resultLog = '';
         clientService.loadBinary = false;
+        logConsoleMessage(`Sending Load-Prop message`);
         clientService.wsSendLoadProp(
             loadAction, data, terminalNeeded, getComPort());
       } else {

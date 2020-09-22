@@ -205,6 +205,7 @@ function establishBPLauncherConnection() {
         clientService.wsSendRequestPortList();
         propToolbarButtonController();
       } else if (wsMessage.type === WS_TYPE_LIST_PORT_MESSAGE) {
+        logConsoleMessage(`(MsgPump) Received port-list message.`);
         wsProcessPortListMessage(wsMessage);
       } else if (wsMessage.type === WS_TYPE_SERIAL_TERMINAL_MESSAGE &&
           (typeof wsMessage.msg === 'string' ||
