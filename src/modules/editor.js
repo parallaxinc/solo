@@ -1069,6 +1069,7 @@ export function uploadHandler(files, elements = null) {
     logConsoleMessage(`File upload filename is missing`);
   };
 
+  // TODO: Refactor this to ES5 for support in Safari and Opera
   // eslint-disable-next-line no-unused-vars
   const textPromise = fileBlob.text();
   fileBlob.text().then((text) => {
