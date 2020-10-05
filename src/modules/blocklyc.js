@@ -28,7 +28,6 @@ import {getComPort} from './client_connection';
 import {clientService, serviceConnectionTypes} from './client_service';
 import {loadToolbox, prettyCode} from './editor';
 import {CodeEditor} from './code_editor';
-// import {getPropTerminal} from './prop_term';
 import {getProjectInitialState} from './project';
 import {getSourceEditor} from './code_editor';
 import {logConsoleMessage, getURLParameter, utils} from './utility';
