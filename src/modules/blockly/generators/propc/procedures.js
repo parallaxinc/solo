@@ -915,7 +915,7 @@ Blockly.propc.procedures_callreturn = function() {
   }
 };
 
-// Blockly.propc.procedures_callnoreturn = Blockly.propc.procedures_callreturn;
+Blockly.propc.procedures_callnoreturn = Blockly.propc.procedures_callreturn;
 
 Blockly.propc.procedures_ifreturn = function() {
   // Conditionally return value from a procedure.

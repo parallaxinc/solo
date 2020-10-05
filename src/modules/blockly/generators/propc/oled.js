@@ -146,14 +146,15 @@ Blockly.propc.oled_initialize = function() {
       let myRootBlockName = null;
       let cogStartBlock = null;
       if (myRootBlock.type === 'procedures_defnoreturn') {
-        myRootBlockName = Blockly.propc.variableDB_.getName(myRootBlock.
-            getFieldValue('NAME'), Blockly.Procedures.NAME_TYPE);
+        myRootBlockName = Blockly.propc.variableDB_.getName(
+            myRootBlock.getFieldValue('NAME'),
+            Blockly.Procedures.NAME_TYPE
+        );
 
         // TODO: Refactor with getBlocksByTye
         for (let k = 0;
           k < Blockly.getMainWorkspace().getAllBlocks().length; k++) {
-          const tempBlock = Blockly.getMainWorkspace().getAllBlocks()[k];
-
+          const tempBlock = Blockly.getMainWorkspace().getAllBlocks(false)[k];
           if (tempBlock.type === 'procedures_callnoreturn' &&
               tempBlock.getRootBlock().type === 'cog_new') {
             if (Blockly.propc.variableDB_.getName(
@@ -1048,11 +1049,13 @@ Blockly.Blocks.oled_get_max_height = {
       this.displayKind = 'ePaper';
     }
     if (this.type.split('_')[3] === 'height') {
+      // Compute the maximum display height
       this.setTooltip(Blockly.MSG_OLED_GET_MAX_HEIGHT_TOOLTIP
           .replace(/Display /, this.displayKind + ' '));
       this.appendDummyInput()
           .appendField(this.displayKind + ' max height');
     } else {
+      // Compute the maximum display width
       this.setTooltip(Blockly.MSG_OLED_GET_MAX_WIDTH_TOOLTIP
           .replace(/Display /, this.displayKind + ' '));
       this.appendDummyInput()
@@ -1064,6 +1067,16 @@ Blockly.Blocks.oled_get_max_height = {
     this.setOutput(true, 'Number');
   },
 };
+
+// noinspection JSSuspiciousNameCombination
+/**
+ * Alias the oled_get_max_width block to the oled_get_max_height block
+ * @type {{init: Blockly.Blocks.oled_get_max_height.init}}
+ * @description The oled_get_max_height block is capable of computing the
+ * display height and width. This alias abstracts the max width.
+ */
+Blockly.Blocks.oled_get_max_width = Blockly.Blocks.oled_get_max_height;
+
 
 /**
  *
@@ -1079,6 +1092,17 @@ Blockly.propc.oled_get_max_height = function() {
     return [code + this.myType + ')', Blockly.propc.ORDER_NONE];
   }
 };
+
+// noinspection JSSuspiciousNameCombination
+/**
+ * Alias the oled_get_max_width C code generator to the oled_get_max_height
+ * object
+ * @type {function(): ((string|number)[])}
+ * @description The oled_get_max_height object is capable of generating
+ * C source code for either of the maximum display height or the maximum
+ * display width.
+ */
+Blockly.propc.oled_get_max_width = Blockly.propc.oled_get_max_height;
 
 /**
  *
@@ -1302,6 +1326,13 @@ Blockly.Blocks.oled_print_multiple = {
 };
 
 /**
+ * Alias the oled_print_multiple C code generator object to the
+ * console_print_multiple object
+ * @type {function(): string}
+ */
+Blockly.propc.oled_print_multiple = Blockly.propc.console_print_multiple;
+
+/**
  *
  * @type {{init: Blockly.Blocks.oled_bitmap.init, onchange: *}}
  */
@@ -1398,11 +1429,13 @@ Blockly.Blocks.epaper_update = {
 };
 
 /**
- *
+ * Update the display
  * @return {string}
  */
 Blockly.propc.epaper_update = function() {
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  // TODO: Replace the getAllBlocks call with a call to retrieve only the
+  //  initialize blocks
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf(this.displayKind + ' initialize') === -1) {
     return '// ERROR: ' + this.displayKind + ' is not initialized!\n';
   } else {
@@ -1410,61 +1443,58 @@ Blockly.propc.epaper_update = function() {
   }
 };
 
-//
-// // TODO: What in going on here? Is swapping the height & width correct?
-// Blockly.Blocks.oled_get_max_width = Blockly.Blocks.oled_get_max_height;
-// Blockly.propc.oled_get_max_width = Blockly.propc.oled_get_max_height;
-//
-// Blockly.propc.oled_print_multiple = Blockly.propc.console_print_multiple;
-//
-//
+
 // /* E-PAPER */
 //
-// Blockly.Blocks.epaper_initialize = Blockly.Blocks.oled_initialize;
-// Blockly.propc.epaper_initialize = Blockly.propc.oled_initialize;
-//
-// Blockly.Blocks.epaper_clear_screen = Blockly.Blocks.oled_clear_screen;
-// Blockly.propc.epaper_clear_screen = Blockly.propc.oled_clear_screen;
+Blockly.Blocks.epaper_initialize = Blockly.Blocks.oled_initialize;
+Blockly.propc.epaper_initialize = Blockly.propc.oled_initialize;
 
-// Blockly.Blocks.epaper_draw_circle = Blockly.Blocks.oled_draw_circle;
-// Blockly.propc.epaper_draw_circle = Blockly.propc.oled_draw_circle;
-//
-// Blockly.Blocks.epaper_draw_line = Blockly.Blocks.oled_draw_line;
-// Blockly.propc.epaper_draw_line = Blockly.propc.oled_draw_line;
-//
-// Blockly.Blocks.epaper_draw_pixel = Blockly.Blocks.oled_draw_pixel;
-// Blockly.propc.epaper_draw_pixel = Blockly.propc.oled_draw_pixel;
-//
-// Blockly.Blocks.epaper_draw_triangle = Blockly.Blocks.oled_draw_triangle;
-// Blockly.propc.epaper_draw_triangle = Blockly.propc.oled_draw_triangle;
-//
-// Blockly.Blocks.epaper_draw_rectangle = Blockly.Blocks.oled_draw_rectangle;
-// Blockly.propc.epaper_draw_rectangle = Blockly.propc.oled_draw_rectangle;
-//
-// Blockly.Blocks.epaper_text_size = Blockly.Blocks.oled_text_size;
-// Blockly.propc.epaper_text_size = Blockly.propc.oled_text_size;
-//
-// Blockly.Blocks.epaper_text_color = Blockly.Blocks.oled_text_color;
-// Blockly.propc.epaper_text_color = Blockly.propc.oled_text_color;
-//
-// // TODO: What in going on here? Is swapping the height & width correct?
-// Blockly.Blocks.epaper_get_max_height = Blockly.Blocks.oled_get_max_height;
-// Blockly.propc.epaper_get_max_height = Blockly.propc.oled_get_max_height;
-// Blockly.Blocks.epaper_get_max_width = Blockly.Blocks.oled_get_max_height;
-// Blockly.propc.epaper_get_max_width = Blockly.propc.oled_get_max_height;
-//
-// Blockly.Blocks.epaper_set_cursor = Blockly.Blocks.oled_set_cursor;
-// Blockly.propc.epaper_set_cursor = Blockly.propc.oled_set_cursor;
-//
-// Blockly.Blocks.epaper_print_text = Blockly.Blocks.oled_print_text;
-// Blockly.propc.epaper_print_text = Blockly.propc.oled_print_text;
-//
-// Blockly.Blocks.epaper_print_number = Blockly.Blocks.oled_print_number;
-// Blockly.propc.epaper_print_number = Blockly.propc.oled_print_number;
-//
-// Blockly.Blocks.epaper_print_multiple = Blockly.Blocks.oled_print_multiple;
-// Blockly.propc.epaper_print_multiple = Blockly.propc.console_print_multiple;
-//
-// Blockly.Blocks.epaper_bitmap = Blockly.Blocks.oled_bitmap;
-// Blockly.propc.epaper_bitmap = Blockly.propc.oled_bitmap;
+Blockly.Blocks.epaper_clear_screen = Blockly.Blocks.oled_clear_screen;
+Blockly.propc.epaper_clear_screen = Blockly.propc.oled_clear_screen;
+
+Blockly.Blocks.epaper_draw_circle = Blockly.Blocks.oled_draw_circle;
+Blockly.propc.epaper_draw_circle = Blockly.propc.oled_draw_circle;
+
+Blockly.Blocks.epaper_draw_line = Blockly.Blocks.oled_draw_line;
+Blockly.propc.epaper_draw_line = Blockly.propc.oled_draw_line;
+
+Blockly.Blocks.epaper_draw_pixel = Blockly.Blocks.oled_draw_pixel;
+Blockly.propc.epaper_draw_pixel = Blockly.propc.oled_draw_pixel;
+
+Blockly.Blocks.epaper_draw_triangle = Blockly.Blocks.oled_draw_triangle;
+Blockly.propc.epaper_draw_triangle = Blockly.propc.oled_draw_triangle;
+
+Blockly.Blocks.epaper_draw_rectangle = Blockly.Blocks.oled_draw_rectangle;
+Blockly.propc.epaper_draw_rectangle = Blockly.propc.oled_draw_rectangle;
+
+Blockly.Blocks.epaper_text_size = Blockly.Blocks.oled_text_size;
+Blockly.propc.epaper_text_size = Blockly.propc.oled_text_size;
+
+Blockly.Blocks.epaper_text_color = Blockly.Blocks.oled_text_color;
+Blockly.propc.epaper_text_color = Blockly.propc.oled_text_color;
+
+
+Blockly.Blocks.epaper_get_max_height = Blockly.Blocks.oled_get_max_height;
+Blockly.propc.epaper_get_max_height = Blockly.propc.oled_get_max_height;
+
+// noinspection JSSuspiciousNameCombination
+Blockly.Blocks.epaper_get_max_width = Blockly.Blocks.oled_get_max_height;
+
+// noinspection JSSuspiciousNameCombination
+Blockly.propc.epaper_get_max_width = Blockly.propc.oled_get_max_height;
+
+Blockly.Blocks.epaper_set_cursor = Blockly.Blocks.oled_set_cursor;
+Blockly.propc.epaper_set_cursor = Blockly.propc.oled_set_cursor;
+
+Blockly.Blocks.epaper_print_text = Blockly.Blocks.oled_print_text;
+Blockly.propc.epaper_print_text = Blockly.propc.oled_print_text;
+
+Blockly.Blocks.epaper_print_number = Blockly.Blocks.oled_print_number;
+Blockly.propc.epaper_print_number = Blockly.propc.oled_print_number;
+
+Blockly.Blocks.epaper_print_multiple = Blockly.Blocks.oled_print_multiple;
+Blockly.propc.epaper_print_multiple = Blockly.propc.console_print_multiple;
+
+Blockly.Blocks.epaper_bitmap = Blockly.Blocks.oled_bitmap;
+Blockly.propc.epaper_bitmap = Blockly.propc.oled_bitmap;
 

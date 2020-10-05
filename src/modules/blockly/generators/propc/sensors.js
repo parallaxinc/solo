@@ -203,8 +203,8 @@ Blockly.propc.joystick_input_yaxis = function() {
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
-// Blockly.Blocks.joystick_input_xaxis = Blockly.Blocks.joystick_input_yaxis;
-// Blockly.propc.joystick_input_xaxis = Blockly.propc.joystick_input_yaxis;
+Blockly.Blocks.joystick_input_xaxis = Blockly.Blocks.joystick_input_yaxis;
+Blockly.propc.joystick_input_xaxis = Blockly.propc.joystick_input_yaxis;
 
 // ---------------- PIR Sensor Blocks --------------------------------
 
@@ -1100,15 +1100,32 @@ Blockly.propc.MX2125_acceleration_xaxis = function() {
   return ['mx_' + this.res[1] + '(' + pin + ')', Blockly.propc.ORDER_NONE];
 };
 
-// Blockly.Blocks.MX2125_acceleration_yaxis =
-//     Blockly.Blocks.MX2125_acceleration_xaxis;
-// Blockly.propc.MX2125_acceleration_yaxis =
-//     Blockly.propc.MX2125_acceleration_xaxis;
-//
-// Blockly.Blocks.MX2125_tilt_xaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
-// Blockly.propc.MX2125_tilt_xaxis = Blockly.propc.MX2125_acceleration_xaxis;
-// Blockly.Blocks.MX2125_tilt_yaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
-// Blockly.propc.MX2125_tilt_yaxis = Blockly.propc.MX2125_acceleration_xaxis;
+/**
+ * Alias MX2125_acceleration_yaxis block to the MX2125_acceleration_xaxis block
+ * @type {{
+ *    init: Blockly.Blocks.MX2125_acceleration_xaxis.init,
+ *    addPinMenu: *,
+ *    mutationToDom: *,
+ *    helpUrl: string,
+ *    setToOther: *,
+ *    domToMutation: *
+ *  }}
+ */
+Blockly.Blocks.MX2125_acceleration_yaxis =
+    Blockly.Blocks.MX2125_acceleration_xaxis;
+
+/**
+ * Alias the MX2125_acceleration_yaxis C code generator to the
+ * MX2125_acceleration_xaxis object
+ * @type {function(): (string|number)[]}
+ */
+Blockly.propc.MX2125_acceleration_yaxis =
+    Blockly.propc.MX2125_acceleration_xaxis;
+
+Blockly.Blocks.MX2125_tilt_xaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
+Blockly.propc.MX2125_tilt_xaxis = Blockly.propc.MX2125_acceleration_xaxis;
+Blockly.Blocks.MX2125_tilt_yaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
+Blockly.propc.MX2125_tilt_yaxis = Blockly.propc.MX2125_acceleration_xaxis;
 
 Blockly.Blocks.MX2125_rotation = {
   helpUrl: Blockly.MSG_MEMSIC_HELPURL,
