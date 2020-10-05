@@ -22,15 +22,22 @@
 
 import Blockly from 'blockly/core';
 
-import {graphingConsole, serialConsole} from './blocklyc';
+import {graphingConsole} from './blocklyc';
 import {graphReset, graphNewData} from './blocklyc';
 import {compileConsoleScrollToBottom} from './blocklyc';
 import {appendCompileConsoleMessage} from './blocklyc';
 import {clientService, serviceConnectionTypes} from './client_service';
+import {serialConsole} from './serial_console';
 import {logConsoleMessage, utils} from './utility';
 import {propToolbarButtonController} from './toolbar_controller';
 import {getPropTerminal} from './prop_term';
 
+
+/**
+ * Enable or disable debug-level console logging
+ * @type {boolean}
+ */
+const debug = false;
 
 /**
  * This is the number of milliseconds that can go by between port updates
@@ -68,6 +75,7 @@ const NE_DOWNLOAD_FAILED = 102;
  */
 const WS_TYPE_HELLO_MESSAGE = 'hello-client';
 const WS_TYPE_LIST_PORT_MESSAGE = 'port-list';
+// const WS_TYPE_PREFERRED_PORT_MESSAGE = 'pref-port';
 const WS_TYPE_SERIAL_TERMINAL_MESSAGE = 'serial-terminal';
 const WS_TYPE_UI_COMMAND = 'ui-command';
 
@@ -140,6 +148,7 @@ export const findClient = function() {
   }
 };
 
+
 /**
  * Checks for and, if found, uses a newer WebSockets-only client
  *
@@ -163,19 +172,10 @@ function establishBPLauncherConnection() {
 
     // Callback executed when the connection is opened
     connection.onopen = function(event) {
+      clientService.activeConnection = connection;
       logConsoleMessage(
           `Connection is: ${event.type}, URL: ${event.target.url}.`);
-      logConsoleMessage(`Sending "Hello" to client`);
-      /**
-       * Web Socket greeting message object
-       * @type WebSocketHelloMessage
-       */
-      const wsMessage = {
-        type: 'hello-browser',
-        baud: clientService.terminalBaudRate,
-      };
-      clientService.activeConnection = connection;
-      connection.send(JSON.stringify(wsMessage));
+      clientService.wsSendHello();
     };
 
     // Log errors
@@ -208,13 +208,12 @@ function establishBPLauncherConnection() {
         clientService.available = true;
 
         logConsoleMessage(`Sending request for port list`);
-        // Request a port list from the server
-        connection.send(JSON.stringify({
-          type: 'port-list-request',
-          msg: 'port-list-request',
-        }));
+        clientService.wsSendRequestPortList();
         propToolbarButtonController();
       } else if (wsMessage.type === WS_TYPE_LIST_PORT_MESSAGE) {
+        if (debug) {
+          logConsoleMessage(`(MsgPump) Received port-list message.`);
+        }
         wsProcessPortListMessage(wsMessage);
       } else if (wsMessage.type === WS_TYPE_SERIAL_TERMINAL_MESSAGE &&
           (typeof wsMessage.msg === 'string' ||
@@ -223,7 +222,7 @@ function establishBPLauncherConnection() {
         // sometimes some weird stuff comes through...
         // type: 'serial-terminal'
         // msg: [String Base64-encoded message]
-
+        logConsoleMessage(`Received a Serial Terminal message`);
         let messageText;
         try {
           messageText = atob(wsMessage.msg);
@@ -236,7 +235,7 @@ function establishBPLauncherConnection() {
         }
 
         if (clientService.sendCharacterStreamTo &&
-            messageText !== '' && wsMessage.packetID) {
+            messageText !== '' && wsMessage.packetID >= 0) {
           // is the terminal open?
           if (clientService.sendCharacterStreamTo === 'term') {
             const pTerm = getPropTerminal();
@@ -246,6 +245,8 @@ function establishBPLauncherConnection() {
             // is the graph open?
             graphNewData(messageText);
           }
+        } else {
+          logConsoleMessage(`Unable to send stream to the terminal`);
         }
 
         // --- UI Commands coming from the client
@@ -308,6 +309,7 @@ function wsProcessPortListMessage(message) {
 function wsProcessUiCommand(message) {
   switch (message.action) {
     case WS_ACTION_OPEN_TERMINAL:
+      logConsoleMessage(`MSG: Open Terminal`);
       serialConsole();
       break;
 
@@ -316,6 +318,7 @@ function wsProcessUiCommand(message) {
       break;
 
     case WS_ACTION_CLOSE_TERMINAL:
+      logConsoleMessage(`MSG: Close Terminal`);
       $('#console-dialog').modal('hide');
       clientService.sendCharacterStreamTo = null;
       getPropTerminal().display(null);

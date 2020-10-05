@@ -39,15 +39,13 @@ import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
-import './blockly/generators/propc/aliaes';
 
 import {
   compile, loadInto, initializeBlockly,
   downloadCSV, graphingConsole, configureConnectionPaths,
-  serialConsole, graphPlay,
-  downloadGraph, graphStartStop,
+  graphPlay, downloadGraph, graphStartStop,
 } from './blocklyc';
-
+import {serialConsole} from './serial_console';
 import {findClient} from './client_connection';
 import {clientService, initTerminal} from './client_service';
 import {LOCAL_PROJECT_STORE_NAME} from './constants';
@@ -1070,6 +1068,7 @@ export function uploadHandler(files, elements = null) {
     logConsoleMessage(`File upload filename is missing`);
   };
 
+  // TODO: Refactor this to ES5 for support in Safari and Opera
   // eslint-disable-next-line no-unused-vars
   const textPromise = fileBlob.text();
   fileBlob.text().then((text) => {

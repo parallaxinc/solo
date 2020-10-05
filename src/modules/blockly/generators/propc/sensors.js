@@ -52,6 +52,10 @@ import {colorPalette} from '../propc.js';
  */
 Blockly.Blocks.sensor_ping = {
   helpUrl: Blockly.MSG_PING_HELPURL,
+
+  /**
+   * Initialize the ping sensor block
+   */
   init: function() {
     this.setTooltip(Blockly.MSG_SENSOR_PING_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
@@ -63,27 +67,44 @@ Blockly.Blocks.sensor_ping = {
           ['\u00B5s', ''],
         ]),
         'UNIT');
+
     // Mutation. Use a variable to identify the pir
     this.pinChoices = ['PIN'];
     this.otherPin = [false];
+
     this.addPinMenu('PIN', null, 0);
     this.setOutput(true, 'Number');
     this.setInputsInline(true);
     this.setPreviousStatement(false, null);
     this.setNextStatement(false, null);
   },
+
+  /**
+   * Add a pin to the block configuration
+   * @param {string} label
+   * @param {boolean} moveBefore
+   * @param {number} pinOpt is an index into the pins array
+   */
   addPinMenu: function(label, moveBefore, pinOpt) {
     const profile = getDefaultProfile();
     this.appendDummyInput('SET_PIN')
         .appendField(label, 'LABEL')
         .appendField(new Blockly.FieldDropdown(
-            profile.digital.concat([['other', 'other']]), function(op) {
+            profile.digital.concat([['other', 'other']]),
+            function(op) {
               // eslint-disable-next-line no-invalid-this
               this.getSourceBlock().setToOther(op, moveBefore, pinOpt);
             }), this.pinChoices[pinOpt]);
     this.moveBefore = moveBefore;
     this.otherPin[pinOpt] = false;
   },
+
+  /**
+   * Set the pin to default 'other' as defined in the board type profile
+   * @param {string} op
+   * @param {boolean} moveBefore
+   * @param {number} pinOpt
+   */
   setToOther: function(op, moveBefore, pinOpt) {
     if (op === 'other') {
       const profile = getDefaultProfile();
@@ -203,8 +224,8 @@ Blockly.propc.joystick_input_yaxis = function() {
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
-// Blockly.Blocks.joystick_input_xaxis = Blockly.Blocks.joystick_input_yaxis;
-// Blockly.propc.joystick_input_xaxis = Blockly.propc.joystick_input_yaxis;
+Blockly.Blocks.joystick_input_xaxis = Blockly.Blocks.joystick_input_yaxis;
+Blockly.propc.joystick_input_xaxis = Blockly.propc.joystick_input_yaxis;
 
 // ---------------- PIR Sensor Blocks --------------------------------
 
@@ -1100,15 +1121,32 @@ Blockly.propc.MX2125_acceleration_xaxis = function() {
   return ['mx_' + this.res[1] + '(' + pin + ')', Blockly.propc.ORDER_NONE];
 };
 
-// Blockly.Blocks.MX2125_acceleration_yaxis =
-//     Blockly.Blocks.MX2125_acceleration_xaxis;
-// Blockly.propc.MX2125_acceleration_yaxis =
-//     Blockly.propc.MX2125_acceleration_xaxis;
-//
-// Blockly.Blocks.MX2125_tilt_xaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
-// Blockly.propc.MX2125_tilt_xaxis = Blockly.propc.MX2125_acceleration_xaxis;
-// Blockly.Blocks.MX2125_tilt_yaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
-// Blockly.propc.MX2125_tilt_yaxis = Blockly.propc.MX2125_acceleration_xaxis;
+/**
+ * Alias MX2125_acceleration_yaxis block to the MX2125_acceleration_xaxis block
+ * @type {{
+ *    init: Blockly.Blocks.MX2125_acceleration_xaxis.init,
+ *    addPinMenu: *,
+ *    mutationToDom: *,
+ *    helpUrl: string,
+ *    setToOther: *,
+ *    domToMutation: *
+ *  }}
+ */
+Blockly.Blocks.MX2125_acceleration_yaxis =
+    Blockly.Blocks.MX2125_acceleration_xaxis;
+
+/**
+ * Alias the MX2125_acceleration_yaxis C code generator to the
+ * MX2125_acceleration_xaxis object
+ * @type {function(): (string|number)[]}
+ */
+Blockly.propc.MX2125_acceleration_yaxis =
+    Blockly.propc.MX2125_acceleration_xaxis;
+
+Blockly.Blocks.MX2125_tilt_xaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
+Blockly.propc.MX2125_tilt_xaxis = Blockly.propc.MX2125_acceleration_xaxis;
+Blockly.Blocks.MX2125_tilt_yaxis = Blockly.Blocks.MX2125_acceleration_xaxis;
+Blockly.propc.MX2125_tilt_yaxis = Blockly.propc.MX2125_acceleration_xaxis;
 
 Blockly.Blocks.MX2125_rotation = {
   helpUrl: Blockly.MSG_MEMSIC_HELPURL,

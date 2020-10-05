@@ -1383,6 +1383,10 @@ Blockly.Blocks.fb360_set = {
   domToMutation: Blockly.Blocks['fb360_setup'].domToMutation,
 };
 
+/**
+ * Alias the fb360_set C Code generator to the fb360_setup object
+ * @type {function(): string}
+ */
 Blockly.propc.fb360_set = Blockly.propc.fb360_setup;
 
 /**

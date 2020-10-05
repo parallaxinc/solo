@@ -165,6 +165,8 @@ Blockly.Blocks.scribbler_simple_wait = {
   },
 };
 
+Blockly.Blocks.scribbler_wait = Blockly.Blocks.scribbler_simple_wait;
+
 /**
  *
  * @return {string}
@@ -193,8 +195,7 @@ Blockly.propc.scribbler_simple_wait = function() {
   }
 };
 
-// Blockly.Blocks.scribbler_wait = Blockly.Blocks.scribbler_simple_wait;
-// Blockly.propc.scribbler_wait = Blockly.propc.scribbler_simple_wait;
+Blockly.propc.scribbler_wait = Blockly.propc.scribbler_simple_wait;
 
 /**
  *
