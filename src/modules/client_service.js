@@ -26,6 +26,12 @@ import {PropTerm} from './prop_term';
 import {getComPort} from './client_connection';
 
 /**
+ * Enable debug console messages in this module
+ * @type {boolean}
+ */
+const debug = false;
+
+/**
  * These are the permitted states of the clientService.type property
  *
  * @type {{
@@ -292,7 +298,9 @@ export const clientService = {
    * @param {string} port
    */
   wsSendLoadProp: function(loadAction, data, terminal, port) {
-    logConsoleMessage(`(wsSLP) Entering`);
+    if (debug) {
+      logConsoleMessage(`(wsSLP) Entering`);
+    }
     const programToSend = {
       type: 'load-prop',
       action: loadAction,
@@ -302,7 +310,6 @@ export const clientService = {
       payload: data.binary,
     };
     // Debugging message
-    const debug = true;
     if (debug) {
       logConsoleMessage(`(wsSLP) Sending message to the web socket:`);
       logConsoleMessage(`(wsSLP) Type: ${programToSend.type}`);
@@ -315,10 +322,13 @@ export const clientService = {
           `(wsSLP) Web socket state is: ` +
           `${clientService.activeConnection.readyState}`);
     }
+
     const payload = JSON.stringify(programToSend);
 
     if (this.activeConnection) {
-      logConsoleMessage(`(wsSLP) Sending payload to socket`);
+      if (debug) {
+        logConsoleMessage(`(wsSLP) Sending payload to socket`);
+      }
       this.activeConnection.send(payload);
     } else {
       logConsoleMessage(

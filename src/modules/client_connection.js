@@ -34,6 +34,12 @@ import {getPropTerminal} from './prop_term';
 
 
 /**
+ * Enable or disable debug-level console logging
+ * @type {boolean}
+ */
+const debug = false;
+
+/**
  * This is the number of milliseconds that can go by between port updates
  * before the active connection state can be tagged as questionable
  * @type {number}
@@ -205,7 +211,9 @@ function establishBPLauncherConnection() {
         clientService.wsSendRequestPortList();
         propToolbarButtonController();
       } else if (wsMessage.type === WS_TYPE_LIST_PORT_MESSAGE) {
-        logConsoleMessage(`(MsgPump) Received port-list message.`);
+        if (debug) {
+          logConsoleMessage(`(MsgPump) Received port-list message.`);
+        }
         wsProcessPortListMessage(wsMessage);
       } else if (wsMessage.type === WS_TYPE_SERIAL_TERMINAL_MESSAGE &&
           (typeof wsMessage.msg === 'string' ||
