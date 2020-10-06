@@ -39,15 +39,13 @@ import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
-import './blockly/generators/propc/aliaes';
 
 import {
   compile, loadInto, initializeBlockly,
   downloadCSV, graphingConsole, configureConnectionPaths,
-  serialConsole, graphPlay,
-  downloadGraph, graphStartStop,
+  graphPlay, downloadGraph, graphStartStop,
 } from './blocklyc';
-
+import {serialConsole} from './serial_console';
 import {findClient} from './client_connection';
 import {clientService, initTerminal} from './client_service';
 import {LOCAL_PROJECT_STORE_NAME} from './constants';
@@ -537,7 +535,13 @@ function initDefaultProject() {
   // window.location.href = 'index.html' + getAllUrlParameters();
   // TODO: New Default Project
   const defaultProject = buildDefaultProject();
-  setProjectInitialState(defaultProject);
+  const myProject = setProjectInitialState(defaultProject);
+
+  // Update the terminal serial port baud rate
+  if (myProject) {
+    clientService.setTerminalBaudRate(myProject.boardType.baudrate);
+  }
+
   // Create a new nudge timer
   const myTime = new NudgeTimer(0);
   // Set the callback
@@ -592,6 +596,11 @@ function setupWorkspace(data, callback) {
     // Something has gone sideways
     throw new Error('Unable to load the project.');
   }
+  // Update the terminal serial port baud rate
+  if (project) {
+    clientService.setTerminalBaudRate(project.boardType.baudrate);
+  }
+
 
   setDefaultProfile(project.boardType);
 
@@ -1059,6 +1068,7 @@ export function uploadHandler(files, elements = null) {
     logConsoleMessage(`File upload filename is missing`);
   };
 
+  // TODO: Refactor this to ES5 for support in Safari and Opera
   // eslint-disable-next-line no-unused-vars
   const textPromise = fileBlob.text();
   fileBlob.text().then((text) => {
@@ -1843,7 +1853,12 @@ export function createNewProject() {
     clearProjectInitialState();
 
     // Update the Blockly core
-    setProjectInitialState(newProject);
+    const myProject = setProjectInitialState(newProject);
+
+    // Update the terminal serial port baud rate
+    if (myProject) {
+      clientService.setTerminalBaudRate(myProject.boardType.baudrate);
+    }
     // Create a new nudge timer
     const myTime = new NudgeTimer(0);
     // Set the callback
@@ -1879,7 +1894,12 @@ export function insertProject(project) {
   try {
     // project.stashProject(LOCAL_PROJECT_STORE_NAME);
     clearProjectInitialState();
-    setProjectInitialState(project);
+    const myProject = setProjectInitialState(project);
+
+    // Update the terminal serial port baud rate
+    if (myProject) {
+      clientService.setTerminalBaudRate(myProject.boardType.baudrate);
+    }
 
     if (!project.isTimerSet()) {
       // Create a new nudge timer

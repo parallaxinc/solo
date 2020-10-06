@@ -1342,15 +1342,5 @@ Blockly.propc.heb_text_to_speech_volume = function() {
       ' a TTS set volume block.\n';
 };
 
-// // Complain if an alias is missing
-// if ( typeof Blockly.Blocks.oled_print_multiple === 'undefined') {
-//   console.log(`Unable to alias heb_print_multiple block.`);
-// } else {
-//   Blockly.Blocks.heb_print_multiple = Blockly.Blocks.oled_print_multiple;
-// }
-// if (typeof Blockly.propc.console_print_multiple === 'undefined') {
-//   console.log(`Unable to alias heb_print_multiple C code emitter.`);
-// } else {
-//   Blockly.propc.heb_print_multiple = Blockly.propc.console_print_multiple;
-// }
-//
+Blockly.Blocks.heb_print_multiple = Blockly.Blocks.oled_print_multiple;
+Blockly.propc.heb_print_multiple = Blockly.propc.console_print_multiple;

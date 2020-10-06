@@ -66,8 +66,9 @@ class NudgeTimer {
   /**
    * Constructor
    * @param {number} nudgeTime
+   * @param {boolean} [enableCallback=false] - Enable the callback
    */
-  constructor(nudgeTime) {
+  constructor(nudgeTime, enableCallback) {
     /**
      * The epoch time when the timer started
      * @type {number}
@@ -88,7 +89,17 @@ class NudgeTimer {
      */
     this.myCallback = null;
 
-    // This is the handle to the timer. This is is used to stop the timer.
+    /**
+     * Enable nudge callback.
+     * @type {boolean}
+     * @description Setting this property to true will cause the nudge timer
+     * to execute the callback function if one is provided to the instance.
+     */
+    this.enableCallback = enableCallback;
+
+    /**
+     * This is the handle to the timer. This is is used to stop the timer.
+     */
     this.timer = null;
   }
 
@@ -144,7 +155,7 @@ class NudgeTimer {
     const elapsedTime = (Date.now() - me.startEpoch);
 
     if (elapsedTime > nudge) {
-      if (me.myCallback) {
+      if (me.myCallback && this.enableCallback) {
         me.myCallback();
       }
     }

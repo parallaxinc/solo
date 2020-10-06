@@ -23,7 +23,13 @@
 
 import {logConsoleMessage} from './utility';
 import {PropTerm} from './prop_term';
-import {baudrate, getComPort} from './client_connection';
+import {getComPort} from './client_connection';
+
+/**
+ * Enable debug console messages in this module
+ * @type {boolean}
+ */
+const debug = false;
 
 /**
  * These are the permitted states of the clientService.type property
@@ -156,6 +162,23 @@ export const clientService = {
   lastPortUpdate_: 0,
 
   /**
+   * The baud rate that will be used to when establishing a terminal session.
+   * @type {number}
+   * @description The default baud rate is compatible with all devices except
+   * the Scribbler series of robots. The Scribbler robots use 9600 baud.
+   */
+  terminalBaudRate: 115200,
+
+  /**
+   * Setter for terminal baud rate
+   * @param {number} baudRate
+   */
+  setTerminalBaudRate: function(baudRate) {
+    logConsoleMessage(`Setting terminal baud rate to: ${baudRate}`);
+    this.terminalBaudRate = baudRate;
+  },
+
+  /**
    * Set a custom URL used to contact the BP Launcher
    * @param {string=} location is the custom URL
    * @param {string=} protocol is one of 'http', 'https', or 'ws'
@@ -221,6 +244,136 @@ export const clientService = {
    */
   getPortLastUpdate: function() {
     return this.lastPortUpdate_;
+  },
+
+  /**
+   * Send a 'hello' message to the BP Launcher
+   */
+  wsSendHello: function() {
+    /**
+     * Web Socket greeting message object
+     * @type WebSocketHelloMessage
+     */
+    const wsMessage = {
+      type: 'hello-browser',
+    };
+
+    const payload = JSON.stringify(wsMessage);
+
+    if (this.activeConnection) {
+      this.activeConnection.send(payload);
+    } else {
+      logConsoleMessage(
+          `Cannot send "hello-browser message. ` +
+          `Connection is closed."`);
+    }
+  },
+
+  /**
+   * Send a request for a list of detected ports from the BP Launcher
+   */
+  wsSendRequestPortList: function() {
+    const message = {
+      type: 'port-list-request',
+      msg: 'port-list-request',
+    };
+    const payload = JSON.stringify(message);
+
+    if (this.activeConnection) {
+      this.activeConnection.send(payload);
+    } else {
+      logConsoleMessage(
+          `Cannot send "port-list-request message. ` +
+          `Connection is closed."`);
+    }
+  },
+
+
+  /**
+   * Send a load-prop message to the BP Launcher
+   *
+   * @param {string} loadAction
+   * @param {object} data
+   * @param {string} terminal
+   * @param {string} port
+   */
+  wsSendLoadProp: function(loadAction, data, terminal, port) {
+    if (debug) {
+      logConsoleMessage(`(wsSLP) Entering`);
+    }
+    const programToSend = {
+      type: 'load-prop',
+      action: loadAction,
+      portPath: port,
+      debug: (terminal) ? terminal : 'none',
+      extension: data.extension,
+      payload: data.binary,
+    };
+    // Debugging message
+    if (debug) {
+      logConsoleMessage(`(wsSLP) Sending message to the web socket:`);
+      logConsoleMessage(`(wsSLP) Type: ${programToSend.type}`);
+      logConsoleMessage(`(wsSLP) Action: ${programToSend.action}`);
+      logConsoleMessage(`(wsSLP) Debug: ${programToSend.debug}`);
+      logConsoleMessage(`(wsSLP) ComPort: ${programToSend.portPath}`);
+
+      // eslint-disable-next-line max-len
+      logConsoleMessage(
+          `(wsSLP) Web socket state is: ` +
+          `${clientService.activeConnection.readyState}`);
+    }
+
+    const payload = JSON.stringify(programToSend);
+
+    if (this.activeConnection) {
+      if (debug) {
+        logConsoleMessage(`(wsSLP) Sending payload to socket`);
+      }
+      this.activeConnection.send(payload);
+    } else {
+      logConsoleMessage(
+          `Cannot send "load-prop:${loadAction} message. ` +
+          `Connection is closed."`);
+    }
+  },
+
+  /**
+   * Send a serial terminal message to the BP Launcher
+   *
+   * @param {string} action
+   * @param {string} port
+   * @param {string} message
+   */
+  wsSendSerialTerminal(action, port, message) {
+    if (!action) {
+      throw new Error('Action was not provided in call to wsSendTerminal');
+    }
+    // Validate the supplied action
+    const actions = ['open', 'close', 'msg'];
+    const requestedAction = action.toLowerCase();
+
+    if (!actions.includes(requestedAction)) {
+      throw new Error(`The supplied action, '${action}', is unsupported.`);
+    }
+
+    const messageToSend = {
+      type: 'serial-terminal',
+      action: requestedAction,
+      outTo: 'terminal',
+      portPath: port,
+      baudrate: this.terminalBaudRate.toString(10),
+      msg: message,
+    };
+
+    const payload = JSON.stringify(messageToSend);
+
+    if (this.activeConnection) {
+      this.activeConnection.send(payload);
+    } else {
+      logConsoleMessage(
+          `Cannot send "serial-terminal message, action: ${requestedAction}. ` +
+          `Connection is closed."`);
+    }
   },
 
   /**
@@ -347,6 +500,7 @@ export const clientService = {
  */
 export function initTerminal() {
   logConsoleMessage(`Init terminal communications`);
+
   new PropTerm(
       document.getElementById('serial_console'),
 
@@ -359,8 +513,7 @@ export function initTerminal() {
             type: 'serial-terminal',
             outTo: 'terminal',
             portPath: getComPort(),
-            // TODO: Correct baudrate reference
-            baudrate: baudrate.toString(10),
+            baudrate: clientService.terminalBaudRate.toString(10),
             msg: (clientService.rxBase64 ?
                 btoa(characterToSend) : characterToSend),
             action: 'msg',

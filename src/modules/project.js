@@ -948,6 +948,7 @@ const ProjectProfiles = {
     description: 'Board type is unknown',
     digital: [['P0', '0']],
     analog: [['A0', '0']],
+    baudrate: 115200,
     saves_to: [],
   },
 };
