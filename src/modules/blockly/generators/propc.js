@@ -630,6 +630,8 @@ Blockly.propc.finish = function(code) {
         }
       }
 
+      // Looking for functions used in cog definitions.
+      // WIP: .indexOf fails on a null methods_[method]
       for (const method in Blockly.propc.cog_methods_) {
         if (Blockly.propc.methods_[method]
             .indexOf(definitions[def]

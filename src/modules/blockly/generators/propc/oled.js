@@ -1370,22 +1370,6 @@ Blockly.propc.oled_bitmap = function() {
   return 'drawBitmap(' + this.myType + ', "' + filename + '.bmp", ' +
       posX + ', ' + posY + ');\n';
 };
-
-// TODO: What in going on here? Is swapping the height & width correct?
-Blockly.Blocks.oled_get_max_width = Blockly.Blocks.oled_get_max_height;
-Blockly.propc.oled_get_max_width = Blockly.propc.oled_get_max_height;
-
-Blockly.propc.oled_print_multiple = Blockly.propc.console_print_multiple;
-
-
-/* E-PAPER */
-
-Blockly.Blocks.epaper_initialize = Blockly.Blocks.oled_initialize;
-Blockly.propc.epaper_initialize = Blockly.propc.oled_initialize;
-
-Blockly.Blocks.epaper_clear_screen = Blockly.Blocks.oled_clear_screen;
-Blockly.propc.epaper_clear_screen = Blockly.propc.oled_clear_screen;
-
 /**
  *
  * @type {{
@@ -1426,46 +1410,61 @@ Blockly.propc.epaper_update = function() {
   }
 };
 
+//
+// // TODO: What in going on here? Is swapping the height & width correct?
+// Blockly.Blocks.oled_get_max_width = Blockly.Blocks.oled_get_max_height;
+// Blockly.propc.oled_get_max_width = Blockly.propc.oled_get_max_height;
+//
+// Blockly.propc.oled_print_multiple = Blockly.propc.console_print_multiple;
+//
+//
+// /* E-PAPER */
+//
+// Blockly.Blocks.epaper_initialize = Blockly.Blocks.oled_initialize;
+// Blockly.propc.epaper_initialize = Blockly.propc.oled_initialize;
+//
+// Blockly.Blocks.epaper_clear_screen = Blockly.Blocks.oled_clear_screen;
+// Blockly.propc.epaper_clear_screen = Blockly.propc.oled_clear_screen;
 
-Blockly.Blocks.epaper_draw_circle = Blockly.Blocks.oled_draw_circle;
-Blockly.propc.epaper_draw_circle = Blockly.propc.oled_draw_circle;
-
-Blockly.Blocks.epaper_draw_line = Blockly.Blocks.oled_draw_line;
-Blockly.propc.epaper_draw_line = Blockly.propc.oled_draw_line;
-
-Blockly.Blocks.epaper_draw_pixel = Blockly.Blocks.oled_draw_pixel;
-Blockly.propc.epaper_draw_pixel = Blockly.propc.oled_draw_pixel;
-
-Blockly.Blocks.epaper_draw_triangle = Blockly.Blocks.oled_draw_triangle;
-Blockly.propc.epaper_draw_triangle = Blockly.propc.oled_draw_triangle;
-
-Blockly.Blocks.epaper_draw_rectangle = Blockly.Blocks.oled_draw_rectangle;
-Blockly.propc.epaper_draw_rectangle = Blockly.propc.oled_draw_rectangle;
-
-Blockly.Blocks.epaper_text_size = Blockly.Blocks.oled_text_size;
-Blockly.propc.epaper_text_size = Blockly.propc.oled_text_size;
-
-Blockly.Blocks.epaper_text_color = Blockly.Blocks.oled_text_color;
-Blockly.propc.epaper_text_color = Blockly.propc.oled_text_color;
-
-// TODO: What in going on here? Is swapping the height & width correct?
-Blockly.Blocks.epaper_get_max_height = Blockly.Blocks.oled_get_max_height;
-Blockly.propc.epaper_get_max_height = Blockly.propc.oled_get_max_height;
-Blockly.Blocks.epaper_get_max_width = Blockly.Blocks.oled_get_max_height;
-Blockly.propc.epaper_get_max_width = Blockly.propc.oled_get_max_height;
-
-Blockly.Blocks.epaper_set_cursor = Blockly.Blocks.oled_set_cursor;
-Blockly.propc.epaper_set_cursor = Blockly.propc.oled_set_cursor;
-
-Blockly.Blocks.epaper_print_text = Blockly.Blocks.oled_print_text;
-Blockly.propc.epaper_print_text = Blockly.propc.oled_print_text;
-
-Blockly.Blocks.epaper_print_number = Blockly.Blocks.oled_print_number;
-Blockly.propc.epaper_print_number = Blockly.propc.oled_print_number;
-
-Blockly.Blocks.epaper_print_multiple = Blockly.Blocks.oled_print_multiple;
-Blockly.propc.epaper_print_multiple = Blockly.propc.console_print_multiple;
-
-Blockly.Blocks.epaper_bitmap = Blockly.Blocks.oled_bitmap;
-Blockly.propc.epaper_bitmap = Blockly.propc.oled_bitmap;
+// Blockly.Blocks.epaper_draw_circle = Blockly.Blocks.oled_draw_circle;
+// Blockly.propc.epaper_draw_circle = Blockly.propc.oled_draw_circle;
+//
+// Blockly.Blocks.epaper_draw_line = Blockly.Blocks.oled_draw_line;
+// Blockly.propc.epaper_draw_line = Blockly.propc.oled_draw_line;
+//
+// Blockly.Blocks.epaper_draw_pixel = Blockly.Blocks.oled_draw_pixel;
+// Blockly.propc.epaper_draw_pixel = Blockly.propc.oled_draw_pixel;
+//
+// Blockly.Blocks.epaper_draw_triangle = Blockly.Blocks.oled_draw_triangle;
+// Blockly.propc.epaper_draw_triangle = Blockly.propc.oled_draw_triangle;
+//
+// Blockly.Blocks.epaper_draw_rectangle = Blockly.Blocks.oled_draw_rectangle;
+// Blockly.propc.epaper_draw_rectangle = Blockly.propc.oled_draw_rectangle;
+//
+// Blockly.Blocks.epaper_text_size = Blockly.Blocks.oled_text_size;
+// Blockly.propc.epaper_text_size = Blockly.propc.oled_text_size;
+//
+// Blockly.Blocks.epaper_text_color = Blockly.Blocks.oled_text_color;
+// Blockly.propc.epaper_text_color = Blockly.propc.oled_text_color;
+//
+// // TODO: What in going on here? Is swapping the height & width correct?
+// Blockly.Blocks.epaper_get_max_height = Blockly.Blocks.oled_get_max_height;
+// Blockly.propc.epaper_get_max_height = Blockly.propc.oled_get_max_height;
+// Blockly.Blocks.epaper_get_max_width = Blockly.Blocks.oled_get_max_height;
+// Blockly.propc.epaper_get_max_width = Blockly.propc.oled_get_max_height;
+//
+// Blockly.Blocks.epaper_set_cursor = Blockly.Blocks.oled_set_cursor;
+// Blockly.propc.epaper_set_cursor = Blockly.propc.oled_set_cursor;
+//
+// Blockly.Blocks.epaper_print_text = Blockly.Blocks.oled_print_text;
+// Blockly.propc.epaper_print_text = Blockly.propc.oled_print_text;
+//
+// Blockly.Blocks.epaper_print_number = Blockly.Blocks.oled_print_number;
+// Blockly.propc.epaper_print_number = Blockly.propc.oled_print_number;
+//
+// Blockly.Blocks.epaper_print_multiple = Blockly.Blocks.oled_print_multiple;
+// Blockly.propc.epaper_print_multiple = Blockly.propc.console_print_multiple;
+//
+// Blockly.Blocks.epaper_bitmap = Blockly.Blocks.oled_bitmap;
+// Blockly.propc.epaper_bitmap = Blockly.propc.oled_bitmap;
 

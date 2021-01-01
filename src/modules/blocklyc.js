@@ -24,7 +24,7 @@ import Blockly from 'blockly/core';
 import * as Chartist from 'chartist';
 import {saveAs} from 'file-saver';
 
-import {baudrate, getComPort} from './client_connection';
+import {getComPort} from './client_connection';
 import {clientService, serviceConnectionTypes} from './client_service';
 import {loadToolbox, prettyCode} from './editor';
 import {CodeEditor} from './code_editor';
@@ -474,8 +474,9 @@ export function serialConsole() {
       connection.onopen = function() {
         connString = '';
         connStrYet = false;
-        connection.send('+++ open port ' + getComPort() +
-            (baudrate ? ' ' + baudrate : ''));
+        const baudRate = clientService.terminalBaudRate > 0 ?
+            ` ${clientService.terminalBaudRate}`: '';
+        connection.send(`+++ open port ${getComPort()} ${baudRate}`);
         clientService.activeConnection = connection;
       };
 
@@ -494,7 +495,8 @@ export function serialConsole() {
           pTerm.display(charBuffer);
         } else {
           connString += charBuffer;
-          if (connString.indexOf(baudrate.toString(10)) > -1) {
+          if (connString.indexOf(
+              clientService.terminalBaudRate.toString(10)) > -1) {
             connStrYet = true;
             displayTerminalConnectionStatus(connString.trim());
           } else {
@@ -539,7 +541,7 @@ export function serialConsole() {
       type: 'serial-terminal',
       outTo: 'terminal',
       portPath: getComPort(),
-      baudrate: baudrate.toString(10),
+      baudrate: clientService.terminalBaudRate.toString(10),
       msg: 'none',
       action: 'open',
     };
@@ -565,7 +567,12 @@ export function serialConsole() {
         // because this is getting called multiple times...?
         messageToSend.action = 'close';
         displayTerminalConnectionStatus(null);
-        clientService.activeConnection.send(JSON.stringify(messageToSend));
+
+        // Solo-484
+        // Send the message if the connection has not closed
+        if (clientService.activeConnection) {
+          clientService.activeConnection.send(JSON.stringify(messageToSend));
+        }
       }
       getPropTerminal().display(null);
     });
@@ -614,8 +621,10 @@ export function graphingConsole() {
 
       // When the connection is open, open com port
       connection.onopen = function() {
-        connection.send('+++ open port ' + getComPort() +
-            (baudrate ? ' ' + baudrate : ''));
+        const baudRate = clientService.terminalBaudRate > 0 ?
+            ` ${clientService.terminalBaudRate}`: '';
+        connection.send(`+++ open port ${getComPort()} ${baudRate}`);
+
         graphStartStop('start');
       };
 
@@ -631,7 +640,8 @@ export function graphingConsole() {
           graphNewData(charBuffer);
         } else {
           connString += charBuffer;
-          if (connString.indexOf(baudrate.toString(10)) > -1) {
+          if (connString.indexOf(
+              clientService.terminalBaudRate.toString(10)) > -1) {
             connStrYet = true;
             displayTerminalConnectionStatus(connString.trim());
           } else {
@@ -654,7 +664,7 @@ export function graphingConsole() {
         type: 'serial-terminal',
         outTo: 'graph',
         portPath: getComPort(),
-        baudrate: baudrate.toString(10),
+        baudrate: clientService.terminalBaudRate.toString(10),
         msg: 'none',
         action: 'open',
       };

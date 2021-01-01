@@ -284,7 +284,14 @@ xmlToolbox += '    </category>';
 
 xmlToolbox += '    <sep include="heb,heb-wx,"></sep>';
 
+/*
+ * Communications
+ */
 xmlToolbox += '    <category key="category_communicate" exclude="s3," colour="340">';
+
+/*
+ * Communications->Badge Display
+ */
 xmlToolbox += '        <category key="category_hackable-electronic-badge_oled" include="heb,heb-wx,">';
 xmlToolbox += '            <block type="heb_print_numeric_var">';
 xmlToolbox += '                <value name="VALUE">';
@@ -422,6 +429,9 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '        </category>';
+/*
+ * Communications->Badge IR Communications
+ */
 xmlToolbox += '        <category key="category_hackable-electronic-badge_ir-communication" include="heb,heb-wx,">';
 xmlToolbox += '            <block type="heb_ir_send_signal">';
 xmlToolbox += '                <value name="MESSAGE">';
@@ -1114,6 +1124,8 @@ xmlToolbox += '            <block type="heb_count_contacts"></block>';
 xmlToolbox += '            <block type="heb_erase_all_contacts"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '        <category key="category_memory_sdcard" include="heb-wx,">';
+// Solo-473 Add SD_Init block to menu for Flip board type
+xmlToolbox += '            <block type="sd_init" exclude="activity-board,"></block>';
 xmlToolbox += '            <block type="sd_open"></block>';
 xmlToolbox += '            <block type="sd_read">';
 xmlToolbox += '                <value name="SIZE">';
@@ -1712,9 +1724,9 @@ xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="scribbler_stop_servo"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
-xmlToolbox += '    <category key="category_system" exclude="s3," colour="320">';
-xmlToolbox += '        <block type="run_as_setup" experimental="true"></block>';
-xmlToolbox += '        <block type="custom_code_multiple"></block>';
+xmlToolbox += '    <category key="category_system" colour="320">';
+xmlToolbox += '        <block type="run_as_setup" exclude="s3," experimental="true"></block>';
+xmlToolbox += '        <block type="custom_code_multiple" include="activity-board,flip,heb,heb-wx,other,s3,"></block>';
 xmlToolbox += '        <block type="waitcnt">';
 xmlToolbox += '            <value name="TARGET">';
 xmlToolbox += '                <block type="math_arithmetic">';
@@ -1724,7 +1736,7 @@ xmlToolbox += '                    </value>';
 xmlToolbox += '                </block>';
 xmlToolbox += '            </value>';
 xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="wait_pin" experimental="true">';
+xmlToolbox += '        <block type="wait_pin" exclude="s3," experimental="true">';
 xmlToolbox += '            <value name="PIN">';
 xmlToolbox += '                <block type="math_number">';
 xmlToolbox += '                    <field name="NUM">0</field>';
@@ -1734,9 +1746,9 @@ xmlToolbox += '            <value name="STATE">';
 xmlToolbox += '                <block type="high_low_value"></block>';
 xmlToolbox += '            </value>';
 xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="register_set"></block>';
-xmlToolbox += '        <block type="register_get"></block>';
-xmlToolbox += '        <block type="system_counter" include="other,"></block>';
+xmlToolbox += '        <block type="register_set" exclude="s3," ></block>';
+xmlToolbox += '        <block type="register_get" exclude="s3," ></block>';
+xmlToolbox += '        <block type="system_counter" exclude="s3," include="other,"></block>';
 xmlToolbox += '    </category>';
 xmlToolbox += '</xml>';
 

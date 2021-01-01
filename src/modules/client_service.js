@@ -23,7 +23,7 @@
 
 import {logConsoleMessage} from './utility';
 import {PropTerm} from './prop_term';
-import {baudrate, getComPort} from './client_connection';
+import {getComPort} from './client_connection';
 
 /**
  * These are the permitted states of the clientService.type property
@@ -156,6 +156,23 @@ export const clientService = {
   lastPortUpdate_: 0,
 
   /**
+   * The baud rate that will be used to when establishing a terminal session.
+   * @type {number}
+   * @description The default baud rate is compatible with all devices except
+   * the Scribbler series of robots. The Scribbler robots use 9600 baud.
+   */
+  terminalBaudRate: 115200,
+
+  /**
+   * Setter for terminal baud rate
+   * @param {number} baudRate
+   */
+  setTerminalBaudRate: function(baudRate) {
+    logConsoleMessage(`Setting terminal baud rate to: ${baudRate}`);
+    this.terminalBaudRate = baudRate;
+  },
+
+  /**
    * Set a custom URL used to contact the BP Launcher
    * @param {string=} location is the custom URL
    * @param {string=} protocol is one of 'http', 'https', or 'ws'
@@ -186,13 +203,16 @@ export const clientService = {
    * @param {string} portName
    */
   setSelectedPort: function(portName) {
-    logConsoleMessage(`Setting preferred port to: ${portName}`);
-    this.selectedPort_ = portName;
-    // Request a port list from the server
-    this.activeConnection.send(JSON.stringify({
-      type: 'pref-port',
-      portPath: portName,
-    }));
+    // Sentry Solo-6T
+    if (this.activeConnection) {
+      logConsoleMessage(`Setting preferred port to: ${portName}`);
+      this.selectedPort_ = portName;
+      // Request a port list from the server
+      this.activeConnection.send(JSON.stringify({
+        type: 'pref-port',
+        portPath: portName,
+      }));
+    }
   },
 
   /**
@@ -344,6 +364,7 @@ export const clientService = {
  */
 export function initTerminal() {
   logConsoleMessage(`Init terminal communications`);
+
   new PropTerm(
       document.getElementById('serial_console'),
 
@@ -356,8 +377,7 @@ export function initTerminal() {
             type: 'serial-terminal',
             outTo: 'terminal',
             portPath: getComPort(),
-            // TODO: Correct baudrate reference
-            baudrate: baudrate.toString(10),
+            baudrate: clientService.terminalBaudRate.toString(10),
             msg: (clientService.rxBase64 ?
                 btoa(characterToSend) : characterToSend),
             action: 'msg',

@@ -408,6 +408,7 @@ Blockly.Blocks.control_repeat_for_loop = {
   init: function() {
     const profile = getDefaultProfile();
     let blockLabel = 'repeat';
+
     if (profile.description === 'Scribbler Robot') {
       this.setHelpUrl(Blockly.MSG_S3_CONTROL_HELPURL);
       this.setTooltip(Blockly.MSG_S3_SCRIBBLER_LIMITED_LOOP_TOOLTIP);
@@ -416,22 +417,30 @@ Blockly.Blocks.control_repeat_for_loop = {
       this.setHelpUrl(Blockly.MSG_CONTROL_HELPURL);
       this.setTooltip(Blockly.MSG_CONTROL_REPEAT_FOR_LOOP_TOOLTIP);
     }
+
     this.setColour(colorPalette.getColor('programming'));
+
     this.appendDummyInput()
         .appendField(blockLabel)
         .appendField(new Blockly.FieldVariable(
             Blockly.LANG_VARIABLES_GET_ITEM), 'VAR');
+
     this.appendValueInput('START')
         .setCheck('Number')
         .appendField('from');
+
     this.appendValueInput('END')
         .setCheck('Number')
-        .appendField(new Blockly.FieldDropdown(
-            [['thru', '= '], ['to', ' ']]),
+        .appendField(new Blockly.FieldDropdown([
+          ['thru', '= '],
+          ['to', ' '],
+        ]),
         'EQ');
+
     this.appendValueInput('STEP')
         .setCheck('Number')
         .appendField('by');
+
     this.appendStatementInput('DO')
         .appendField('do');
 
@@ -439,12 +448,14 @@ Blockly.Blocks.control_repeat_for_loop = {
     this.setNextStatement(true, null);
     this.setInputsInline(true);
   },
+
   onchange: function(event) {
     if (event && (event.type === Blockly.Events.CHANGE)) {
       let warnText = null;
       const blockStart = this.getInput('START').connection.targetBlock();
       const blockEnd = this.getInput('END').connection.targetBlock();
       const blockStep = this.getInput('STEP').connection.targetBlock();
+
       if (blockStart && blockEnd && blockStep &&
                     blockStart.type === 'math_number' &&
                     blockEnd.type === 'math_number' &&
@@ -469,7 +480,7 @@ Blockly.Blocks.control_repeat_for_loop = {
 };
 
 /**
- *
+ * C source code generator for the control_repeat_for_loop block
  * @return {string}
  */
 Blockly.propc.control_repeat_for_loop = function() {

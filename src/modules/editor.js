@@ -33,12 +33,13 @@ import './blockly/generators/propc/base';
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
 import './blockly/generators/propc/gpio';
-import './blockly/generators/propc/heb';
 import './blockly/generators/propc/oled';
+import './blockly/generators/propc/heb';
 import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sensors';
 import './blockly/generators/propc/variables';
+import './blockly/generators/propc/aliaes';
 
 import {
   compile, loadInto, initializeBlockly,
@@ -65,7 +66,7 @@ import {initToolbarIcons} from './toolbar_controller';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
-import {getURLParameter} from './utility';
+import {getAllUrlParameters, getURLParameter} from './utility';
 import {utils, logConsoleMessage, sanitizeFilename} from './utility';
 import {getXmlCode} from './code_editor';
 import {newProjectDialog} from './dialogs/new_project';
@@ -388,6 +389,13 @@ function initEventHandlers() {
     clientService.setSelectedPort(event.target.value);
     propToolbarButtonController();
   });
+
+  // Click event handler for the older BP Clients dialog
+  $('#show-older-clients').on('click', function() {
+    $('.bpc-old').removeClass('hidden');
+    // eslint-disable-next-line no-invalid-this
+    $(this).addClass('hidden');
+  });
 }
 
 /**
@@ -529,7 +537,13 @@ function initDefaultProject() {
   // window.location.href = 'index.html' + getAllUrlParameters();
   // TODO: New Default Project
   const defaultProject = buildDefaultProject();
-  setProjectInitialState(defaultProject);
+  const myProject = setProjectInitialState(defaultProject);
+
+  // Update the terminal serial port baud rate
+  if (myProject) {
+    clientService.setTerminalBaudRate(myProject.boardType.baudrate);
+  }
+
   // Create a new nudge timer
   const myTime = new NudgeTimer(0);
   // Set the callback
@@ -584,6 +598,11 @@ function setupWorkspace(data, callback) {
     // Something has gone sideways
     throw new Error('Unable to load the project.');
   }
+  // Update the terminal serial port baud rate
+  if (project) {
+    clientService.setTerminalBaudRate(project.boardType.baudrate);
+  }
+
 
   setDefaultProfile(project.boardType);
 
@@ -789,7 +808,7 @@ function saveProjectAs(boardType, projectName) {
   };
 
   window.localStorage.setItem(LOCAL_PROJECT_STORE_NAME, JSON.stringify(pd));
-  redirectToEditorPage(window.getAllUrlParameters());
+  redirectToEditorPage(getAllUrlParameters());
 }
 
 /**
@@ -1519,12 +1538,16 @@ function initToolbox(profileName) {
     },
   };
 
-  // Provide configuration options and inject this into the content_blocks div
-  if (document.getElementsByClassName('blocklyToolboxDiv').length === 0) {
-    injectedBlocklyWorkspace = Blockly.inject(
-        'content_blocks',
-        blocklyOptions);
+  // Solo-485 This is a sledgehammer approach to updating the toolbox. If the
+  // toolbox is already defined, destroy the Blockly canvas inner HTML and
+  // rebuild the whole thing from scratch, with the correct toolbox
+  if (document.getElementsByClassName('blocklyToolboxDiv').length !== 0) {
+    document.getElementById('content_blocks').innerHTML = '';
   }
+
+  injectedBlocklyWorkspace = Blockly.inject(
+      'content_blocks',
+      blocklyOptions);
 
   initializeBlockly(Blockly);
 
@@ -1831,7 +1854,12 @@ export function createNewProject() {
     clearProjectInitialState();
 
     // Update the Blockly core
-    setProjectInitialState(newProject);
+    const myProject = setProjectInitialState(newProject);
+
+    // Update the terminal serial port baud rate
+    if (myProject) {
+      clientService.setTerminalBaudRate(myProject.boardType.baudrate);
+    }
     // Create a new nudge timer
     const myTime = new NudgeTimer(0);
     // Set the callback
@@ -1867,7 +1895,12 @@ export function insertProject(project) {
   try {
     // project.stashProject(LOCAL_PROJECT_STORE_NAME);
     clearProjectInitialState();
-    setProjectInitialState(project);
+    const myProject = setProjectInitialState(project);
+
+    // Update the terminal serial port baud rate
+    if (myProject) {
+      clientService.setTerminalBaudRate(myProject.boardType.baudrate);
+    }
 
     if (!project.isTimerSet()) {
       // Create a new nudge timer
