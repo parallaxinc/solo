@@ -1527,45 +1527,59 @@ Blockly.Blocks.serial_receive_text = {
   onchange: Blockly.Blocks['serial_send_text'].onchange,
 };
 
+
 /**
  * Serial Receive Text code generator
  * @return {string}
+ * @description Generate C source code to scan data from a serial port input.
  */
 Blockly.propc.serial_receive_text = function() {
   let p = '';
+
+  /* Is a serial pin defined? */
   if (this.ser_pins.length > 0) {
-    p = this.ser_pins[0].replace(',', '_').replace(/None/g, 'N');
+    p = this.ser_pins[0]
+        .replace(',', '_') // Replace commas with underscores
+        .replace(/None/g, 'N'); // Replace 'None' with 'N' in all occurrences.
   }
+
+  /* Get serial pins in use */
   if (this.getInput('SERPIN')) {
     p = this.getFieldValue('SER_PIN')
         .replace(',', '_')
         .replace(/None/g, 'N');
   }
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-  if (allBlocks.indexOf('Serial initialize') === -1) {
+
+  if (! Blockly.getMainWorkspace()
+      .getBlocksByType('Serial initialize', false)) {
     return '// ERROR: Serial is not initialized!\n';
   } else {
-    const data = Blockly.propc.variableDB_.getName(
-        this.getFieldValue('VALUE'),
-        Blockly.VARIABLE_CATEGORY_NAME);
+    const data = Blockly.propc.variableDB_
+        .getName(this.getFieldValue('VALUE'), Blockly.VARIABLE_CATEGORY_NAME);
 
-    const type = this.getFieldValue('TYPE');
+    switch (this.getFieldValue('TYPE')) {
+      case 'BYTE':
+        return data + ' = fdserial_rxChar(fdser' + p + ');\n';
 
-    if (type === 'BYTE') {
-      return data + ' = fdserial_rxChar(fdser' + p + ');\n';
-    } else if (type === 'INT') {
-      return 'dscan(fdser' + p + ', "%d", &' + data + ');\n';
-    } else if (type === 'BIN') {
-      return 'dscan(fdser' + p + ', "%b", &' + data + ');\n';
-    } else if (type === 'HEX') {
-      return 'dscan(fdser' + p + ', "%x", &' + data + ');\n';
-    } else {
-      Blockly.propc.vartype_[data] = 'char *';
+      case 'INT':
+        return 'dscan(fdser' + p + ', "%d", &' + data + ');\n';
 
-      return 'dscan(fdser' + p + ', "%s", ' + data + ');\n';
+      case 'BIN':
+        return 'dscan(fdser' + p + ', "%b", &' + data + ');\n';
+
+      case 'HEX':
+        return 'dscan(fdser' + p + ', "%x", &' + data + ');\n';
+
+      case 'TEXT':
+      default:
+        Blockly.propc.vartype_[data] = 'char *';
     }
+
+    // This will return a string up to the first whitespace character.
+    return 'dscan(fdser' + p + ', "%s", ' + data + ');\n';
   }
 };
+
 
 /**
  * Serial Status block definition
