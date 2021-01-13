@@ -836,23 +836,23 @@ Blockly.propc.console_print_multiple = function() {
       orIt = '0';
     }
 
+    // Get the resulting code from Blockly core
+    const result = Blockly.propc.valueToCode(
+        this, 'PRINT' + i, Blockly.propc.ORDER_NONE) || orIt;
+
     if (!this.getFieldValue('TYPE' + i).includes('float point  divide by')) {
-      varList += ', ' + (Blockly.propc.valueToCode(
-          this,
-          'PRINT' + i,
-          Blockly.propc.ORDER_NONE).replace(/%/g, '%%') || orIt);
+      varList += ', ' + result;
     } else {
-      varList += ', ((float) ' + (Blockly.propc.valueToCode(
-          this,
-          'PRINT' + i,
-          Blockly.propc.ORDER_NONE) || orIt) +
-                    ') / ' + this.getFieldValue('DIV' + i) + '.0';
+      varList += ', ((float) ' + result + ') / ' +
+          this.getFieldValue('DIV' + i) + '.0';
     }
     i++;
   }
+
   if (this.getFieldValue('ck_nl') === 'TRUE') {
     code += '\\r';
   }
+
   code += '"' + varList + ');\n';
 
   // TODO: Replace .getAllBlocks() with getAllBlocksByType()
