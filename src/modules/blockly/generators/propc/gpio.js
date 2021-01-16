@@ -2249,7 +2249,9 @@ Blockly.propc.wav_stop = function() {
   return 'wav_stop();\n';
 };
 
+// ----------------------------------------------------------------
 // ----------------- SD Card file blocks --------------------------
+// ----------------------------------------------------------------
 
 /**
  * SD Card Initialization
@@ -2378,15 +2380,15 @@ Blockly.propc.sd_open = function() {
   }
 
   if (!this.disabled && !initFound && profile.sd_card) {
-    Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');';
+    Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');\r';
   }
 
-  let code = head + 'fp = fopen("' + fp + '","' + mode + '");';
+  let code = head + 'fp = fopen("' + fp + '","' + mode + '");\r';
   if (project.boardType.name !== 'activity-board' &&
         project.boardType.name !== 'heb-wx' &&
             allBlocks.toString().indexOf('SD initialize') === -1) {
     code = '// WARNING: You must use a SD initialize block at the' +
-        ' beginning of your program!';
+        ' beginning of your program!\r';
   }
   return code;
 };
@@ -2438,8 +2440,9 @@ Blockly.Blocks.sd_read = {
       this.removeInput('VALUE');
     }
     if (mode === 'fwrite') {
+      // Ensure that the field only receives numeric data
       this.appendValueInput('SIZE')
-          .setCheck(null)
+          .setCheck('Number')
           .appendField('SD file')
           .appendField(new Blockly.FieldDropdown([
             ['write', 'fwrite'],
@@ -2505,15 +2508,55 @@ Blockly.Blocks.sd_read = {
 };
 
 /**
- * SD Card Read C code generator
+ * SD Card Read/Write/Close C code generator
+ *
+ * Generate code to read from an sd card, write to an sd card or to close a
+ * connection to the sd card reader.
+ *
  * @return {string}
  */
 Blockly.propc.sd_read = function() {
+  // Identify the block action (fread, fwrite, or fclose)
+  const mode = this.getFieldValue('MODE');
+
+  // Handle close stright away
+  if (mode === 'fclose') {
+    return `  if(fp) ${mode}(fp);`;
+  }
+
+  // Verify the required SD-Open block is in the project
+  const block = Blockly.getMainWorkspace().getBlocksByType(
+      'sd_open', false);
+
+  if ( block.length === 0 || (!block[0].isEnabled())) {
+    return '// WARNING: You must use a SD file open block before reading,' +
+        ' writing, or closing an SD file!';
+  }
+
+  /**
+   *  Verify that for boards that do not have a built-in card reader, there is
+   *  an sd_init block in the project
+   */
   const project = getProjectInitialState();
-  const profile = getDefaultProfile();
+  let initFound = false;
+
+  const initSdBlock = Blockly.getMainWorkspace().getBlocksByType(
+      'sd_init', false);
+  if (initSdBlock.length > 0 && initSdBlock[0].isEnabled()) {
+    initFound = true;
+  }
+
+  if (project.boardType.name !== 'heb-wx' &&
+      project.boardType.name !== 'activity-board' &&
+      ! initFound) {
+    return '// WARNING: You must use a SD initialize block at the' +
+           ' beginning of your program!';
+  }
+
+  // Retreive the number of bytes to read/write. Default to one byte
   const size = Blockly.propc.valueToCode(
       this, 'SIZE', Blockly.propc.ORDER_NONE) || '1';
-  const mode = this.getFieldValue('MODE');
+
   let value = '';
   let code = '';
 
@@ -2521,6 +2564,7 @@ Blockly.propc.sd_read = function() {
     value = Blockly.propc.variableDB_.getName(
         this.getFieldValue('VAR'),
         Blockly.VARIABLE_CATEGORY_NAME);
+
     value = '&' + value;
     Blockly.propc.vartype_[value] = 'char *';
   } else if (mode === 'fwrite') {
@@ -2528,31 +2572,10 @@ Blockly.propc.sd_read = function() {
         this, 'VALUE', Blockly.propc.ORDER_NONE) || '';
   }
 
-  if (mode === 'fclose') {
-    code = mode + '(fp);';
-  } else {
-    code = mode + '(' + value + ', 1, ' + size + ', fp);';
-    // code = mode + '(&' + value + ', 1, ' + size + ', fp);';
-  }
+  code = `  ${mode}(${value}, 1, ${size}, fp);\r`;
 
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-  if (allBlocks.indexOf('SD file open') === -1) {
-    code = '// WARNING: You must use a SD file open block before reading,' +
-        ' writing, or closing an SD file!';
-  } else if (allBlocks.indexOf('SD initialize') === -1 &&
-        project.boardType.name !== 'heb-wx' &&
-        project.boardType.name !== 'activity-board') {
-    code = '// WARNING: You must use a SD initialize block at the' +
-        ' beginning of your program!';
-  }
-
-  let initFound = false;
-  for (let x = 0; x < allBlocks.length; x++) {
-    if (allBlocks[x].type === 'sd_init') {
-      initFound = true;
-    }
-  }
-
+  // Silently mount the embedded sd card device
+  const profile = getDefaultProfile();
   if (!this.disabled && !initFound && profile.sd_card) {
     Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');';
   }
@@ -2603,6 +2626,7 @@ Blockly.Blocks.sd_file_pointer = {
       this.setPreviousStatement(true, 'Block');
       this.setNextStatement(true, null);
     } else {
+      // mode == get
       this.appendDummyInput('FP');
       this.getInput('FP')
           .appendField('SD file')
@@ -2614,7 +2638,8 @@ Blockly.Blocks.sd_file_pointer = {
             this.getSourceBlock().setSdMode(blockMode);
           }), 'MODE')
           .appendField('pointer');
-      this.setPreviousStatement(false, 'Block');
+
+      this.setPreviousStatement(false);
       this.setNextStatement(false, null);
       this.setOutput(true, 'Number');
     }
@@ -2654,7 +2679,7 @@ Blockly.propc.sd_file_pointer = function() {
   } else if (this.getFieldValue('MODE') === 'set') {
     const fp = Blockly.propc.valueToCode(
         this, 'FP', Blockly.propc.ORDER_NONE) || '0';
-    code = 'fp = ' + fp + ';';
+    code = 'fp = ' + fp + ';\r';
   } else {
     code = ['fp', Blockly.propc.ORDER_ATOMIC];
   }
