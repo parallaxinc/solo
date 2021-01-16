@@ -24,10 +24,6 @@ import Blockly from 'blockly/core';
 import {getDefaultProfile, getProjectInitialState} from '../../../project';
 import {colorPalette} from '../propc';
 
-// ----------------------------------------------------------------
-// ----------------- SD Card file blocks --------------------------
-// ----------------------------------------------------------------
-
 
 /**
  * SD Card Initialization
@@ -61,6 +57,8 @@ Blockly.Blocks.sd_init = {
 };
 
 /**
+ * Generate source code for the sd_init block.
+ * This creates a global file pointer.
  *
  * @return {string}
  */
@@ -147,29 +145,22 @@ Blockly.Blocks.sd_open = {
  * @return {string}
  */
 Blockly.propc.sd_open = function() {
-  const filename = this.getFieldValue('FILENAME');
-  const mode = this.getFieldValue('MODE');
-  let initFound = false;
-
   const initSdBlock = Blockly.getMainWorkspace().getBlocksByType(
       'sd_init', false);
-  if (initSdBlock.length > 0 && initSdBlock[0].isEnabled()) {
-    initFound = true;
-  } else {
+  if (initSdBlock.length === 0 || !initSdBlock[0].isEnabled()) {
     const project = getProjectInitialState();
     if (project.boardType.name !== 'activity-board' &&
         project.boardType.name !== 'heb-wx') {
       return '/** WARNING: You must use a SD initialize block at the' +
           ' beginning of your program! **/\r';
+    } else {
+      // Quietly mount the sd card filesystem
+      setupSdCard();
     }
   }
 
-  // Quietly mount the sd card filesystem
-  const profile = getDefaultProfile();
-  if (!this.disabled && !initFound && profile.sd_card) {
-    Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');\r';
-  }
-
+  const filename = this.getFieldValue('FILENAME');
+  const mode = this.getFieldValue('MODE');
   return `fp = fopen("${filename}","${mode}");\r`;
 };
 
@@ -333,13 +324,17 @@ Blockly.propc.sd_read = function() {
         ' beginning of your program! **/\r';
   }
 
+  // Silently mount the embedded sd card device
+  if (!this.disabled && !initFound) {
+    setupSdCard();
+  }
+
   // Retrieve the number of bytes to read/write. Default to one byte
   const size = Blockly.propc.valueToCode(
       this, 'SIZE', Blockly.propc.ORDER_NONE) || '1';
 
+  // Retrieve the data buffer or variable
   let value = '';
-  let code = '';
-
   if (mode === 'fread') {
     value = Blockly.propc.variableDB_.getName(
         this.getFieldValue('VAR'),
@@ -352,15 +347,7 @@ Blockly.propc.sd_read = function() {
         this, 'VALUE', Blockly.propc.ORDER_NONE) || '';
   }
 
-  code = `  ${mode}(${value}, 1, ${size}, fp);\r`;
-
-  // Silently mount the embedded sd card device
-  const profile = getDefaultProfile();
-  if (!this.disabled && !initFound && profile.sd_card) {
-    Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');';
-  }
-
-  return code;
+  return `  ${mode}(${value}, 1, ${size}, fp);\r`;
 };
 
 /**
@@ -432,7 +419,6 @@ Blockly.Blocks.sd_file_pointer = {
  * @return {(string|number)[]|string}
  */
 Blockly.propc.sd_file_pointer = function() {
-  const profile = getDefaultProfile();
   const project = getProjectInitialState();
   // TODO: Refactor getAllBlocks to getAllBlocksByType
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
@@ -444,24 +430,45 @@ Blockly.propc.sd_file_pointer = function() {
     }
   }
 
-  if (!this.disabled && !initFound && profile.sd_card) {
-    Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');';
+  // Quietly install setup code
+  if (!this.disabled && !initFound) {
+    setupSdCard();
   }
 
   if (allBlocks.indexOf('SD file open') === -1) {
-    code = '// WARNING: You must use a SD file open block before' +
-        ' using the file pointer!';
-  } else if (allBlocks.indexOf('SD initialize') === -1 &&
+    return '// WARNING: You must use a SD file open block before' +
+           ' using the file pointer!';
+  }
+  if (allBlocks.indexOf('SD initialize') === -1 &&
       project.boardType.name !== 'heb-wx' &&
       project.boardType.name !== 'activity-board') {
-    code = '// WARNING: You must use a SD initialize block at the' +
-        ' beginning of your program!';
-  } else if (this.getFieldValue('MODE') === 'set') {
+    return '// WARNING: You must use a SD initialize block at the' +
+           ' beginning of your program!';
+  }
+
+  if (this.getFieldValue('MODE') === 'set') {
+    // Set pointer
     const fp = Blockly.propc.valueToCode(
         this, 'FP', Blockly.propc.ORDER_NONE) || '0';
     code = 'fp = ' + fp + ';\r';
+    //  fseek(fp, item, SEEK_CUR)
+    // code = `fp = (FILE*) fseek(${fp}, item, SEEK_CUR);\r`;
   } else {
-    code = ['fp', Blockly.propc.ORDER_ATOMIC];
+    // Get pointer
+    code = ['ftell(fp);', Blockly.propc.ORDER_ATOMIC];
   }
+
   return code;
 };
+
+
+/**
+ * Mount SD Card
+ */
+function setupSdCard() {
+  const profile = getDefaultProfile();
+  if (profile.sd_card) {
+    Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');';
+    Blockly.propc.global_vars_['fpglobal'] = 'FILE *fp;';
+  }
+}
