@@ -24,6 +24,13 @@ import Blockly from 'blockly/core';
 import {getDefaultProfile, getProjectInitialState} from '../../../project';
 import {colorPalette} from '../propc';
 
+const SdInitMissingMessage =
+    '/** WARNING: You must use a SD initialize block at the' +
+    ' beginning of your program! **/\r';
+
+const SdOpenMissingMessage =
+    '/** WARNING: You must use a SD file open block before reading,' +
+    ' writing, or closing an SD file! **/\r';
 
 /**
  * SD Card Initialization
@@ -151,8 +158,7 @@ Blockly.propc.sd_open = function() {
     const project = getProjectInitialState();
     if (project.boardType.name !== 'activity-board' &&
         project.boardType.name !== 'heb-wx') {
-      return '/** WARNING: You must use a SD initialize block at the' +
-          ' beginning of your program! **/\r';
+      return SdOpenMissingMessage;
     } else {
       // Quietly mount the sd card filesystem
       setupSdCard();
@@ -300,8 +306,7 @@ Blockly.propc.sd_read = function() {
       'sd_open', false);
 
   if ( block.length === 0 || (!block[0].isEnabled())) {
-    return '// WARNING: You must use a SD file open block before reading,' +
-        ' writing, or closing an SD file!\r';
+    return SdOpenMissingMessage;
   }
 
   /**
@@ -320,8 +325,7 @@ Blockly.propc.sd_read = function() {
   if (project.boardType.name !== 'heb-wx' &&
       project.boardType.name !== 'activity-board' &&
       ! initFound) {
-    return '/** WARNING: You must use a SD initialize block at the' +
-        ' beginning of your program! **/\r';
+    return SdInitMissingMessage;
   }
 
   // Silently mount the embedded sd card device
@@ -442,8 +446,7 @@ Blockly.propc.sd_file_pointer = function() {
   if (allBlocks.indexOf('SD initialize') === -1 &&
       project.boardType.name !== 'heb-wx' &&
       project.boardType.name !== 'activity-board') {
-    return '// WARNING: You must use a SD initialize block at the' +
-           ' beginning of your program!';
+    return SdInitMissingMessage;
   }
 
   if (this.getFieldValue('MODE') === 'set') {
