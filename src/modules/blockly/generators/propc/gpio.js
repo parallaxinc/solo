@@ -2289,12 +2289,19 @@ Blockly.Blocks.sd_init = {
  * @return {string}
  */
 Blockly.propc.sd_init = function() {
+  // Global variable for SD file processing
+  this.myType = 'fp';
+
   if (!this.disabled) {
     Blockly.propc.setups_['sd_card'] = 'sd_mount(' +
         this.getFieldValue('DO') + ', ' +
         this.getFieldValue('CLK') + ', ' +
         this.getFieldValue('DI') + ', ' +
         this.getFieldValue('CS') + ');';
+
+    // Declare the global variable
+    Blockly.propc.global_vars_[
+        this.myType + 'global'] = 'FILE *' + this.myType + ';';
   }
 
   return '';
@@ -2338,12 +2345,18 @@ Blockly.Blocks.sd_open = {
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
   },
+
+  /**
+   * Check for an active sd_init block in the project. The block must exist
+   * and not be disabled.
+   */
   onchange: function() {
     const project = getProjectInitialState();
     if (project.boardType.name !== 'activity-board' &&
             project.boardType.name !== 'heb-wx') {
-      const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-      if (allBlocks.indexOf('SD initialize') === -1) {
+      const block = Blockly.getMainWorkspace().getBlocksByType(
+          'sd_init', false);
+      if (block.length === 0 || ! block[0].isEnabled()) {
         this.setWarningText('WARNING: You must use a SD' +
             ' initialize\nblock at the beginning of your program!');
       } else {
@@ -2358,39 +2371,30 @@ Blockly.Blocks.sd_open = {
  * @return {string}
  */
 Blockly.propc.sd_open = function() {
-  const profile = getDefaultProfile();
-  const project = getProjectInitialState();
-  const fp = this.getFieldValue('FILENAME');
+  const filename = this.getFieldValue('FILENAME');
   const mode = this.getFieldValue('MODE');
-  let head = '';
-  let i = 0;
   let initFound = false;
 
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-  for (let x = 0; x < allBlocks.length; x++) {
-    if (allBlocks[x].type === 'sd_open') {
-      i++;
-      if (allBlocks[x] === this && i === 1) {
-        head = 'FILE* ';
-      }
-    }
-    if (allBlocks[x].type === 'sd_init') {
-      initFound = true;
+  const initSdBlock = Blockly.getMainWorkspace().getBlocksByType(
+      'sd_init', false);
+  if (initSdBlock.length > 0 && initSdBlock[0].isEnabled()) {
+    initFound = true;
+  } else {
+    const project = getProjectInitialState();
+    if (project.boardType.name !== 'activity-board' &&
+        project.boardType.name !== 'heb-wx') {
+      return '/** WARNING: You must use a SD initialize block at the' +
+          ' beginning of your program! **/\r';
     }
   }
 
+  // Quietly mount the sd card filesystem
+  const profile = getDefaultProfile();
   if (!this.disabled && !initFound && profile.sd_card) {
     Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');\r';
   }
 
-  let code = head + 'fp = fopen("' + fp + '","' + mode + '");\r';
-  if (project.boardType.name !== 'activity-board' &&
-        project.boardType.name !== 'heb-wx' &&
-            allBlocks.toString().indexOf('SD initialize') === -1) {
-    code = '// WARNING: You must use a SD initialize block at the' +
-        ' beginning of your program!\r';
-  }
-  return code;
+  return `fp = fopen("${filename}","${mode}");\r`;
 };
 
 /**
@@ -2521,7 +2525,7 @@ Blockly.propc.sd_read = function() {
 
   // Handle close stright away
   if (mode === 'fclose') {
-    return `  if(fp) ${mode}(fp);`;
+    return `  if(fp) ${mode}(fp);\r`;
   }
 
   // Verify the required SD-Open block is in the project
@@ -2530,7 +2534,7 @@ Blockly.propc.sd_read = function() {
 
   if ( block.length === 0 || (!block[0].isEnabled())) {
     return '// WARNING: You must use a SD file open block before reading,' +
-        ' writing, or closing an SD file!';
+        ' writing, or closing an SD file!\r';
   }
 
   /**
@@ -2549,11 +2553,11 @@ Blockly.propc.sd_read = function() {
   if (project.boardType.name !== 'heb-wx' &&
       project.boardType.name !== 'activity-board' &&
       ! initFound) {
-    return '// WARNING: You must use a SD initialize block at the' +
-           ' beginning of your program!';
+    return '/** WARNING: You must use a SD initialize block at the' +
+           ' beginning of your program! **/\r';
   }
 
-  // Retreive the number of bytes to read/write. Default to one byte
+  // Retrieve the number of bytes to read/write. Default to one byte
   const size = Blockly.propc.valueToCode(
       this, 'SIZE', Blockly.propc.ORDER_NONE) || '1';
 
