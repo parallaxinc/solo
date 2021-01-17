@@ -420,7 +420,16 @@ Blockly.Blocks.sd_file_pointer = {
 
 /**
  * SD Card File Pointer
+ * Retrieves or sets the file pointer of an open file.
+ *
+ *  set - Uses the fseek function to position the file pointer to 'n' bytes
+ *        from the beginning of the file.
+ *
+ *  get - Returns an integer value indicating the current position of the
+ *        file pointer in the file stream.
+ *
  * @return {(string|number)[]|string}
+ *
  */
 Blockly.propc.sd_file_pointer = function() {
   const project = getProjectInitialState();
@@ -443,6 +452,7 @@ Blockly.propc.sd_file_pointer = function() {
     return '// WARNING: You must use a SD file open block before' +
            ' using the file pointer!\n';
   }
+
   if (allBlocks.indexOf('SD initialize') === -1 &&
       project.boardType.name !== 'heb-wx' &&
       project.boardType.name !== 'activity-board') {
@@ -450,10 +460,9 @@ Blockly.propc.sd_file_pointer = function() {
   }
 
   if (this.getFieldValue('MODE') === 'set') {
-    // Set pointer
     const fp = Blockly.propc.valueToCode(
         this, 'FP', Blockly.propc.ORDER_NONE) || '0';
-    code = `fp = (FILE*) fseek(fp, ${fp}, SEEK_CUR);\n`;
+    code = `fseek(fp, ${fp}, SEEK_SET);\n`;
   } else {
     // Get pointer
     code = ['ftell(fp)', Blockly.propc.ORDER_ATOMIC];
