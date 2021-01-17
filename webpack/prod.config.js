@@ -28,81 +28,68 @@ const baseConfig = require('./base.config');
 // const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = merge(baseConfig, {
-    // Use env.<YOUR VARIABLE> here:
-    // console.log('NODE_ENV: ', env.NODE_ENV); // 'local'
-    // console.log('Production: ', env.production); // true
+  // Use env.<YOUR VARIABLE> here:
+  // console.log('NODE_ENV: ', env.NODE_ENV); // 'local'
+  // console.log('Production: ', env.production); // true
 
-    mode: 'production',
-    devtool: 'source-map',
-    output: {
-        path: path.resolve(__dirname, '../dist'),
-        filename: '[name].bundle.[chunkhash].js',
+  mode: 'production',
+  devtool: 'source-map',
+  output: {
+    path: path.resolve(__dirname, '../dist'),
+    filename: '[name].bundle.[chunkhash].js',
 //        chunkFilename: '[id].bundle.js',
 //        pathinfo: true,
-        sourceMapFilename: '[name].bundle.[chunkhash].js.map',
-    },
+    sourceMapFilename: '[name].bundle.[chunkhash].js.map',
+  },
     // optimization: {
     //     splitChunks: {
     //         chunks: 'all',
     //     },
     // },
-    module: {
-        rules: [
-            {
-                test: /\.css$/,
-                use: [
-                    'style-loader',
-                    'css-loader'
-                ]
-            }
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+            'style-loader',
+            'css-loader'
         ]
-    },
-    plugins: [
-        new CopyPlugin([
-            {
-                from: './index.html',
-                to: path.resolve(__dirname, '../dist')
-            },
-            {
-                from: './blocklyc.html',
-                to: path.resolve(__dirname, '../dist')
-            }
-        ]),
-
-        // Copy over media resources from the Blockly package
-        new CopyPlugin([
-            {
-                from: path.resolve(__dirname, '../node_modules/blockly/media'),
-                to: path.resolve(__dirname, '../dist/media')
-            }
-        ]),
-
-        // Copy over media resources from Solo images tree
-        new CopyPlugin([
-            {
-                from: './src/images',
-                to: path.resolve(__dirname, '../dist/images')
-            }
-        ]),
-
-        // Copy over style sheets
-        new CopyPlugin([
-            {
-                from: './src/site.css',
-                to: path.resolve(__dirname, '../dist')
-            },
-            {
-                from: './src/style.css',
-                to: path.resolve(__dirname, '../dist')
-            },
-            {
-                from: './src/style-clientdownload.css',
-                to: path.resolve(__dirname, '../dist')
-            },
-            {
-                from: './src/style-editor.css',
-                to: path.resolve(__dirname, '../dist')
-            },
-        ]),
-    ],
-  });
+      }
+    ]},
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        {
+          from: './index.html',
+          to: path.resolve(__dirname, '../dist')
+        },
+        {
+          from: './blocklyc.html',
+          to: path.resolve(__dirname, '../dist')
+        },
+        {
+          // Copy over media resources from the Blockly package
+          from: path.resolve(__dirname, '../node_modules/blockly/media'),
+          to: path.resolve(__dirname, '../dist/media')
+        },
+        {
+          // Copy over style sheets
+          from: './src/site.css',
+          to: path.resolve(__dirname, '../dist')
+        },
+        {
+          from: './src/style.css',
+          to: path.resolve(__dirname, '../dist')
+        },
+        {
+          from: './src/style-clientdownload.css',
+          to: path.resolve(__dirname, '../dist')
+        },
+        {
+          from: './src/style-editor.css',
+          to: path.resolve(__dirname, '../dist')
+        },
+      ]
+    })
+  ]
+});

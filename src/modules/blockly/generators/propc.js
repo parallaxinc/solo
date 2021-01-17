@@ -400,6 +400,12 @@ Blockly.propc.addReservedWords(
     'ws2812b_open,ws2812b_start');
 
 /**
+ * SD File reserved words
+ */
+Blockly.propc.addReservedWords(
+    'fp,fclose,fopen,fread,fseek,ftell,fwrite,sd_init,sd_mount,');
+
+/**
  * Order of operation ENUMs.
  *
  */
