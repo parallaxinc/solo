@@ -26,11 +26,11 @@ import {colorPalette} from '../propc';
 
 const SdInitMissingMessage =
     '/** WARNING: You must use a SD initialize block at the' +
-    ' beginning of your program! **/\r';
+    ' beginning of your program! **/\n';
 
 const SdOpenMissingMessage =
     '/** WARNING: You must use a SD file open block before reading,' +
-    ' writing, or closing an SD file! **/\r';
+    ' writing, or closing an SD file! **/\n';
 
 /**
  * SD Card Initialization
@@ -167,7 +167,7 @@ Blockly.propc.sd_open = function() {
 
   const filename = this.getFieldValue('FILENAME');
   const mode = this.getFieldValue('MODE');
-  return `fp = fopen("${filename}","${mode}");\r`;
+  return `fp = fopen("${filename}","${mode}");\n`;
 };
 
 /**
@@ -298,7 +298,7 @@ Blockly.propc.sd_read = function() {
 
   // Handle close stright away
   if (mode === 'fclose') {
-    return `  if(fp) ${mode}(fp);\r`;
+    return `if(fp) ${mode}(fp);\n`;
   }
 
   // Verify the required SD-Open block is in the project
@@ -351,7 +351,7 @@ Blockly.propc.sd_read = function() {
         this, 'VALUE', Blockly.propc.ORDER_NONE) || '';
   }
 
-  return `  ${mode}(${value}, 1, ${size}, fp);\r`;
+  return `${mode}(${value}, 1, ${size}, fp);\n`;
 };
 
 /**
@@ -441,7 +441,7 @@ Blockly.propc.sd_file_pointer = function() {
 
   if (allBlocks.indexOf('SD file open') === -1) {
     return '// WARNING: You must use a SD file open block before' +
-           ' using the file pointer!';
+           ' using the file pointer!\n';
   }
   if (allBlocks.indexOf('SD initialize') === -1 &&
       project.boardType.name !== 'heb-wx' &&
@@ -453,12 +453,10 @@ Blockly.propc.sd_file_pointer = function() {
     // Set pointer
     const fp = Blockly.propc.valueToCode(
         this, 'FP', Blockly.propc.ORDER_NONE) || '0';
-    code = 'fp = ' + fp + ';\r';
-    //  fseek(fp, item, SEEK_CUR)
-    // code = `fp = (FILE*) fseek(${fp}, item, SEEK_CUR);\r`;
+    code = `fp = (FILE*) fseek(fp, ${fp}, SEEK_CUR);\n`;
   } else {
     // Get pointer
-    code = ['ftell(fp);', Blockly.propc.ORDER_ATOMIC];
+    code = ['ftell(fp)', Blockly.propc.ORDER_ATOMIC];
   }
 
   return code;
