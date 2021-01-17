@@ -51,7 +51,8 @@ module.exports = merge(baseConfig, {
     poll: 1000,
   },
   plugins: [
-    new CopyPlugin([
+    new CopyPlugin({
+      patterns: [
         {
           from: './index.html',
           to: path.resolve(__dirname, targetPath)
@@ -59,27 +60,15 @@ module.exports = merge(baseConfig, {
         {
           from: './blocklyc.html',
           to: path.resolve(__dirname, targetPath)
-        }
-      ]),
-
-    // Copy over media resources from the Blockly package
-    new CopyPlugin([
+        },
         {
           from: path.resolve(__dirname, '../node_modules/blockly/media'),
           to: path.resolve(__dirname, `${targetPath}/media`)
-        }
-      ]),
-
-    // Copy over media resources from Solo images tree
-    new CopyPlugin([
+        },
         {
           from: './src/images',
           to: path.resolve(__dirname, `${targetPath}/images`)
-        }
-      ]),
-
-    // Copy over style sheets
-    new CopyPlugin([
+        },
         {
           from: './src/site.css',
           to: path.resolve(__dirname, targetPath)
@@ -96,7 +85,7 @@ module.exports = merge(baseConfig, {
           from: './src/style-editor.css',
           to: path.resolve(__dirname, targetPath)
         }
-      ]),
-    ],
-  }
-);
+      ]
+    }
+  )]
+});
