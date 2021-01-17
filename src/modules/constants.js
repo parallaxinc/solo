@@ -24,7 +24,7 @@
  * Global flag to enable/disable the Sentry logger
  * @type {boolean}
  */
-export const EnableSentry = false;
+export const EnableSentry = true;
 
 /**
  * Set the application version string
@@ -44,7 +44,7 @@ export const EnableSentry = false;
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.5.7-a2';
+export const APP_VERSION = '1.5.7';
 
 /**
  * Constant string that represents the base, empty project header
