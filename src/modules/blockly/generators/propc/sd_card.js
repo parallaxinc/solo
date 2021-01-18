@@ -349,6 +349,7 @@ Blockly.propc.sd_read = function() {
   } else if (mode === 'fwrite') {
     value = Blockly.propc.valueToCode(
         this, 'VALUE', Blockly.propc.ORDER_NONE) || '';
+    return `${mode}(&${value}, 1, ${size}, fp);\n`;
   }
 
   return `${mode}(${value}, 1, ${size}, fp);\n`;
