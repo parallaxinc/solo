@@ -31,6 +31,7 @@
 import Blockly from 'blockly/core.js';
 import {getDefaultProfile} from '../../project.js';
 import {isExperimental} from '../../utility';
+import {WarnDeprecatedBlocks} from '../../constants';
 
 Blockly.propc = new Blockly.Generator('propc');
 Blockly.HSV_SATURATION = 0.75;
@@ -42,6 +43,7 @@ Blockly.RTL = false;
  */
 const colorPalette = {
   defaultColors: {
+    'deprecated': 60,
     'input': 140,
     'output': 165,
     'io': 185,
@@ -57,6 +59,7 @@ const colorPalette = {
     'system': 320,
   },
   grayscaleColors: {
+    'deprecated': '#a85c39',
     'input': '#AAAAAA',
     'output': '#222222',
     'io': '#333333',
@@ -1132,5 +1135,8 @@ Blockly.BlockSvg.prototype.bumpNeighbours = function() {
   }
 };
 
+const isDeprecatedBlockWarningEnabled = function() {
+  return WarnDeprecatedBlocks;
+};
 
-export {colorPalette};
+export {colorPalette, isDeprecatedBlockWarningEnabled};

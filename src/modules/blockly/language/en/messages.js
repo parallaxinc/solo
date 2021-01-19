@@ -563,6 +563,7 @@ Blockly.MSG_SD_INIT_TOOLTIP = 'SD card initialize: start the SD card utility.';
 Blockly.MSG_SD_OPEN_TOOLTIP = 'SD card open: open or create the specified file on the SD card';
 Blockly.MSG_SD_READ_TOOLTIP = 'SD card read: read from, write to, or close the current file on the SD card.';
 Blockly.MSG_SD_FILE_POINTER_TOOLTIP = 'SD card file pointer: ';
+Blockly.MSG_SD_CLOSE_TOOLTIP = 'Close SD card file.';
 Blockly.MSG_SERVO_MOVE_TOOLTIP = 'Standard servo: sets the position of a standard servo connected to the I/O pin.';
 Blockly.MSG_SERVO_SPEED_TOOLTIP = 'CR servo speed: sets the speed of a continuous rotation servo connected to the I/O pin.';
 Blockly.MSG_SERVO_SET_RAMP_TOOLTIP = 'CR servo set ramp: sets the amount a servo\'s speed can change each update cycle.';
