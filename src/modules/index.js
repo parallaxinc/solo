@@ -31,7 +31,6 @@ import {
   ApplicationName,
   productBannerHostTrigger,
   TestApplicationName} from './constants';
-import {getURLParameter, getAllUrlParameters} from './utility';
 
 /**
  * Display the application name
@@ -41,7 +40,7 @@ function showAppName() {
   if (window.location.hostname === productBannerHostTrigger) {
     html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
   }
-  $('#nav-logo').html(html);
+  document.getElementById('nav-logo').innerHTML = html;
 }
 
 /**
@@ -49,10 +48,11 @@ function showAppName() {
  * @param {string} appName
  */
 function showAppBannerTitle(appName) {
-  $('#app-banner-title').html('BlocklyProp ' + appName);
+  document.getElementById('app-banner-title').innerText =
+      `BlocklyProp ${appName}`;
   if (window.location.hostname === productBannerHostTrigger) {
-    document.getElementById('nav-logo')
-        .style.backgroundImage = 'url(\'src/images/dev-toolkit.png\')';
+    document.getElementById('nav-logo').style.backgroundImage =
+        'url(\'src/images/dev-toolkit.png\')';
   }
 }
 
@@ -71,21 +71,24 @@ function setCopyrightDate(element) {
  */
 function setClickHandlers() {
   // Display the license in a modal when the link is clicked
-  $('#show_license').on('click', () => $('#licenseModal').modal());
+
+  document.getElementById('show_license').onclick =
+      () => $('#licenseModal').modal();
+  // () => document.getElementById('licenseModal').modal();
 
   // Set a cookie to let blocklyc that we want to open a project
   // then redirect to the blocklyc editor page
-  $('#open-project').on( 'click', () => {
+  document.getElementById('open-project').onclick = () => {
     Cookies.set('action', 'open', {expires: 1});
     window.location = 'blocklyc.html';
-  });
+  };
 
   // Set a cookie to let blocklyc that we want to create a new project
   // then redirect to the blocklyc editor page
-  $('#new-project').on( 'click', () => {
+  document.getElementById('new-project').onclick = () => {
     Cookies.set('action', 'new', {expires: 1});
     window.location = 'blocklyc.html';
-  });
+  };
 }
 
 let appName = ApplicationName;
@@ -101,10 +104,3 @@ setClickHandlers();
 
 // The browser localStorage object should be empty
 window.localStorage.clear();
-
-// Add experimental URL parameter to the open and new project links, if used
-if (getURLParameter('experimental')) {
-  $('.editor-link').attr('href', function() {
-    return document.location.href + getAllUrlParameters().replace('?', '&');
-  });
-}
