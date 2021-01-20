@@ -115,3 +115,13 @@ export const TestApplicationName = 'Solocup';
 // TODO: Enumerate the OS version
 // window.navigator.oscpu
 // - Question: is this referring to the navigator.browserspecs in utils.js?
+
+
+/**
+ * Enable messaging in deprecated blocks.
+ * This enabled the block warning triangle message and inserts an
+ * alert message in the emitted code for the deprecated blocks.
+ *
+ * @type {boolean}
+ */
+export const WarnDeprecatedBlocks = false;
