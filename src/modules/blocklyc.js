@@ -218,17 +218,25 @@ function cloudCompile(text, action, successHandler) {
         'scribbler_serial_cursor_xy',
       ];
 
-      let consoleBlockCount = 0;
-      for (let i = 0; i < consoleBlockList.length; i++) {
-        consoleBlockCount += Blockly.getMainWorkspace()
-            .getBlocksByType(consoleBlockList[i], false).length;
+      for (let index = 0;
+        !terminalNeeded && index < consoleBlockList.length;
+        index++) {
+        const blocks = Blockly.getMainWorkspace().getBlocksByType(
+            consoleBlockList[index],
+            false);
+        if (blocks.length > 0) {
+          for (let idx= 0; !terminalNeeded && idx < blocks.length; idx++) {
+            if (blocks[idx].isEnabled()) {
+              terminalNeeded = 'term';
+            }
+          }
+        }
       }
-
-      if (consoleBlockCount > 0) {
-        terminalNeeded = 'term';
-      } else if (Blockly.getMainWorkspace()
-          .getBlocksByType('graph_settings', false).length > 0) {
-        terminalNeeded = 'graph';
+      if (! terminalNeeded ) {
+        if (Blockly.getMainWorkspace().getBlocksByType(
+            'graph_settings', false).length > 0) {
+          terminalNeeded = 'graph';
+        }
       }
     }
 
