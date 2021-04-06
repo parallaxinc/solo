@@ -452,27 +452,46 @@ function leavePageHandler() {
 function initClientDownloadLinks() {
   const uriRoot = 'http://downloads.parallax.com/blockly';
 
-  // Windows 32-bit
+  // BP Client for Windows 32-bit
   $('.client-win32-link')
-      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-32.exe');
+      .attr('href', `${uriRoot}/clients/BlocklyPropClient-setup-32.exe`);
   $('.client-win32zip-link')
-      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-32.zip');
+      .attr('href', `${uriRoot}/clients/BlocklyPropClient-setup-32.zip`);
 
-  // Windows 64-bit
+  // BP Client for Windows 64-bit
   $('.client-win64-link')
-      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-64.exe');
+      .attr('href',
+          `${uriRoot}/clients/BlocklyPropClient-setup-64.exe`);
   $('.client-win64zip-link')
-      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-64.zip');
-  $('.launcher-win64-link')
-      .attr('href', uriRoot + '/launcher/Setup-BPLauncher-Win.exe');
-  $('.launcher-win64zip-link')
-      .attr('href', uriRoot + '/launcher/Setup-BPLauncher-Win.exe.zip');
+      .attr('href',
+          `${uriRoot}/clients/BlocklyPropClient-setup-64.zip`);
 
-  // MacOS
+  // BP Launcher for Windows
+  $('.launcher-win64-link')
+      .attr('href',
+          `${uriRoot}/launcher/Setup-BPLauncher-Win.exe`);
+  $('.launcher-win64zip-link')
+      .attr('href',
+          `${uriRoot}/launcher/Setup-BPLauncher-Win.exe.zip`);
+
+  // BP Client for MacOS
   $('.client-mac-link')
-      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-MacOS.pkg');
-  $('.launcher-mac-link')
-      .attr('href', uriRoot + '/launcher/Setup-BPLauncher-MacOS.zip');
+      .attr('href',
+          `${uriRoot}/clients/BlocklyPropClient-setup-MacOS.pkg`);
+
+  // BP Launchers for MacOS
+  $('.launcher-mac-link-big-sur')
+      .attr('href',
+          `${uriRoot}/launcher/Setup-BPLauncher-MacOS-Big-Sur.zip`);
+  $('.launcher-mac-link-catalina')
+      .attr('href',
+          `${uriRoot}/launcher/Setup-BPLauncher-MacOS-Catalina.zip`);
+  $('.launcher-mac-link-mojave')
+      .attr('href',
+          `${uriRoot}/launcher/Setup-BPLauncher-MacOS-Mojave.zip`);
+  $('.launcher-mac-link-high_sierra')
+      .attr('href',
+          `${uriRoot}/launcher/Setup-BPLauncher-MacOS-High-Sierra.zip`);
 }
 
 /**
