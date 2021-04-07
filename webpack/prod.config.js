@@ -26,6 +26,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path');
 const baseConfig = require('./base.config');
 // const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = merge(baseConfig, {
   // Use env.<YOUR VARIABLE> here:
@@ -41,11 +42,10 @@ module.exports = merge(baseConfig, {
 //        pathinfo: true,
     sourceMapFilename: '[name].bundle.[chunkhash].js.map',
   },
-    // optimization: {
-    //     splitChunks: {
-    //         chunks: 'all',
-    //     },
-    // },
+    optimization: {
+        minimize: true,
+      minimizer: [new TerserPlugin()],
+    },
   module: {
     rules: [
       {
