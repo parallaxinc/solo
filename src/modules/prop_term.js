@@ -22,6 +22,8 @@
 
 
 // Replacement for the global pTerm variable
+import {logConsoleMessage} from "./utility";
+
 let terminal = null;
 
 /**
@@ -350,44 +352,50 @@ class PropTerm {
      * @description Helper function used to reposition the cursor
      */
   _changeCursor(dx, dy) {
-    if (dy === 1 &&
-        this.buffer.textArray[this.cursor.y].length >= this.cursor.x) {
-      this.buffer.textArray[this.cursor.y] =
-          this.buffer.textArray[this.cursor.y].substr(0, this.cursor.x);
-    }
-
-    this.cursor.x += dx;
-    this.cursor.y += dy;
-
-    if (this.cursor.x > this.size.charactersWide - 1) {
-      this.cursor.x -= this.size.charactersWide;
-      this.cursor.y++;
-      if (!this.buffer.textArray[this.cursor.y]) {
-        this.buffer.textArray[this.cursor.y] = '';
-      }
-    }
-
-    if (this.cursor.x < 0 && this.cursor.y > 0) {
-      this.cursor.y--;
-      this.cursor.x = this.buffer.textArray[this.cursor.y].length;
-      if (this.cursor.x > this.size.charactersWide - 1) {
-        this.cursor.x = this.size.charactersWide - 1;
+    // Trapping possible empty textArray element causing .length to fail
+    try {
+      if (dy === 1 &&
+          this.buffer.textArray[this.cursor.y].length >= this.cursor.x) {
         this.buffer.textArray[this.cursor.y] =
             this.buffer.textArray[this.cursor.y].substr(0, this.cursor.x);
       }
-    } else if (this.cursor.x < 0) {
-      this.cursor.x = 0;
-    }
 
-    if (dy === 1) {
-      this.cursor.x = 0;
-      if (!this.buffer.textArray[this.cursor.y]) {
-        this.buffer.textArray[this.cursor.y] = '';
+      this.cursor.x += dx;
+      this.cursor.y += dy;
+
+      if (this.cursor.x > this.size.charactersWide - 1) {
+        this.cursor.x -= this.size.charactersWide;
+        this.cursor.y++;
+        if (!this.buffer.textArray[this.cursor.y]) {
+          this.buffer.textArray[this.cursor.y] = '';
+        }
       }
-    }
 
-    // since the cursor location has changed, set the scroll to show the cursor.
-    this.cursor.scrolled = 2;
+      if (this.cursor.x < 0 && this.cursor.y > 0) {
+        this.cursor.y--;
+        this.cursor.x = this.buffer.textArray[this.cursor.y].length;
+        if (this.cursor.x > this.size.charactersWide - 1) {
+          this.cursor.x = this.size.charactersWide - 1;
+          this.buffer.textArray[this.cursor.y] =
+              this.buffer.textArray[this.cursor.y].substr(0, this.cursor.x);
+        }
+      } else if (this.cursor.x < 0) {
+        this.cursor.x = 0;
+      }
+
+      if (dy === 1) {
+        this.cursor.x = 0;
+        if (!this.buffer.textArray[this.cursor.y]) {
+          this.buffer.textArray[this.cursor.y] = '';
+        }
+      }
+
+      // since the cursor location has changed, set the scroll
+      // to show the cursor.
+      this.cursor.scrolled = 2;
+    } catch (e) {
+      logConsoleMessage(`_changeCursor: x=${dx}, y=${dy}, ${e.message}`);
+    }
   }
 
   /**
