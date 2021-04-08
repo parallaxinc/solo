@@ -1060,6 +1060,19 @@ function generateSvgFooter( project ) {
 }
 
 /**
+ * Filename object used to open an existing project .SVG file using
+ * a blob object
+ *
+ * @typedef {Object} ProjectFileName
+ * @property {number} lastModified
+ * @property {Date} lastModifiedDate
+ * @property {string} name
+ * @property {number} size
+ * @property {string} type
+ * @property {string} webkitRelativePath
+ */
+
+/**
  *  Retrieve an SVG project file from local storage.
  *
  *  This is the .selectfile.onChange() event handler.
@@ -1067,7 +1080,7 @@ function generateSvgFooter( project ) {
  *  and then stores the verified resulting project into the browser's
  *  localStorage.
  *
- * @param {string []} files is an array of file names
+ * @param {ProjectFileName[]} files
  * @param {Array?} elements contains an array of HTMLElement ids that
  * identify the UI controls to enable when a valid project file has been
  * loaded.
@@ -1078,10 +1091,11 @@ export function uploadHandler(files, elements = null) {
     logConsoleMessage(`UploadHandler: files list is empty`);
     return;
   }
-  const UploadReader = new FileReader();
-  const fileBlob = new Blob(files);
+
+  const fileBlob = new Blob(files, {type: 'text/strings'});
   const filename = files[0].name;
   const fileType = files[0].type;
+  const UploadReader = new FileReader();
 
   // This will fire is something goes sideways
   UploadReader.onerror = function() {
@@ -1090,24 +1104,27 @@ export function uploadHandler(files, elements = null) {
 
   // TODO: Refactor this to ES5 for support in Safari and Opera
   // eslint-disable-next-line no-unused-vars
-  const textPromise = fileBlob.text();
-  fileBlob.text().then((text) => {
-    if (text && text.length > 0) {
-      if (parseProjectFileString(filename, fileType, text)) {
-        // update controls is provided
-        if (elements) {
-          elements.forEach(function(item, index, array) {
-            const element = $(`#${item}`);
-            if (element) {
-              element.removeClass('disabled');
+  const textPromise = fileBlob.text()
+      .then((text) => {
+        if (text && text.length > 0) {
+          if (parseProjectFileString(filename, fileType, text)) {
+            // update controls is provided
+            if (elements) {
+              elements.forEach(function(item, index, array) {
+                const element = $(`#${item}`);
+                if (element) {
+                  element.removeClass('disabled');
+                }
+              });
             }
-          });
+          }
+        } else {
+          logConsoleMessage(`The selected project file appears to be empty`);
         }
-      }
-    } else {
-      logConsoleMessage(`The selected project file appears to be empty`);
-    }
-  });
+      })
+      .catch((err) => {
+        logConsoleMessage(`${err.message}`);
+      });
 }
 
 /**
