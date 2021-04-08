@@ -105,9 +105,9 @@ export const findClient = function() {
   }
 
   // Try to connect to the BP-Launcher (websocket) first
-  // TODO: evaluation is always true, probably not what we want here.
-  logConsoleMessage(`Finding a client`);
+  logConsoleMessage(`Looking for a client`);
 
+  // TODO: evaluation is always true, probably not what we want here.
   if (!clientService.available &&
       clientService.type !== serviceConnectionTypes.HTTP) {
     // Verify that the web socket is alive
@@ -156,7 +156,6 @@ export const findClient = function() {
  *  to make clear what this function is really doing.
  */
 function establishBPLauncherConnection() {
-  logConsoleMessage(`In BPLauncherConnection`);
   if (!clientService.available) {
     let connection;
 
@@ -203,11 +202,10 @@ function establishBPLauncherConnection() {
         checkClientVersionModal(wsMessage.version);
         logConsoleMessage(
             `BlocklyProp Launcher v${wsMessage.version} detected.`);
+
         clientService.rxBase64 = wsMessage.rxBase64 || false;
         clientService.type = serviceConnectionTypes.WS;
         clientService.available = true;
-
-        logConsoleMessage(`Sending request for port list`);
         clientService.wsSendRequestPortList();
         propToolbarButtonController();
       } else if (wsMessage.type === WS_TYPE_LIST_PORT_MESSAGE) {
