@@ -71,7 +71,6 @@ export const importProjectDialog = {
     installFileOnChangeHandler(); // Handle select file onChange
 
     this.isEventHandler = true;
-    logConsoleMessage(`Import Project dialog handlers initialized.`);
   },
 
   /**
@@ -83,7 +82,6 @@ export const importProjectDialog = {
       return;
     }
 
-    logConsoleMessage(`Import Project dialog: show`);
     this.reset();
 
     // Save a copy of the original project in case the page gets reloaded

@@ -162,7 +162,6 @@ class ProjectSaveTimer {
     const timeNow = date.getTime();
 
     if (delay === 0) delay = SAVE_PROJECT_TIMER_DELAY;
-    console.log('SAVEPRJ:Setting project save delay to %f', delay);
 
     // If the proposed delay is less than the delay that's already in
     // process, don't update the delay to a new shorter time.

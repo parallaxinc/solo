@@ -72,8 +72,8 @@ import {newProjectDialog} from './dialogs/new_project';
 import {openProjectDialog} from './dialogs/open_project';
 import {importProjectDialog} from './dialogs/import_project';
 
+// Start up the sentry monitor before we run
 startSentry();
-logConsoleMessage(`Launching the editor`);
 
 /**
  * The call to Blockly.svgResize() requires a reference to the
@@ -143,9 +143,9 @@ $(() => {
     // Load this project
     // Copy the stored temp project to the stored local project
     const project = projectJsonFactory(JSON.parse(backup));
-    const currentProject = getProjectInitialState();
-    logConsoleMessage(`Current project and new project are equal?  ` +
-        `${Project.compare(project, currentProject)}`);
+    // const currentProject = getProjectInitialState();
+    // logConsoleMessage(`Current project and new project are equal?  ` +
+    //     `${Project.compare(project, currentProject)}`);
     insertProject(project);
   } else {
     logConsoleMessage(`Creating default project`);
@@ -170,8 +170,6 @@ $(() => {
  * elements on the editor page once the page has been loaded.
  */
 function initInternationalText() {
-  logConsoleMessage(`Init international messages`);
-
   $('.keyed-lang-string').each(function(key, value) {
     // Locate each HTML element of class 'keyed-lang-string'
     // Set a reference to the current selected element
@@ -211,7 +209,6 @@ function initInternationalText() {
  * Set up event handlers - Attach events to nav/action menus/buttons
  */
 function initEventHandlers() {
-  logConsoleMessage(`Init event handlers`);
   // Leave editor page exit processing
   leavePageHandler();
 
@@ -226,25 +223,6 @@ function initEventHandlers() {
     // TODO: Add correct parameters to the resetToolBoxSizing()
     resetToolBoxSizing(100);
   });
-
-  // ----------------------------------------------------------------------- //
-  // Select file event handlers                                              //
-  // ----------------------------------------------------------------------- //
-
-
-  // Attach handler to process a project file when it is selected in the
-  // Open Project toolbar button
-  // const openFileSelectControl = document.getElementById(
-  //     'open-project-select-file' );
-  // openFileSelectControl.addEventListener('change', (e) => {
-  //   if (e.target.files[0] && e.target.files[0].length > 0) {
-  //     logConsoleMessage(
-  //         `OpenProject onChange event: ${e.target.files[0].name}`);
-  //     // Load project into browser storage and let the modal event handler
-  //     // decide what to do with it
-  //     uploadHandler(e.target.files);
-  //   }
-  // });
 
   // View older BP Client installations button onClick handler
   $('#older-clients').on('click', function() {
@@ -592,7 +570,6 @@ function initDefaultProject() {
  * @return {number} Error code
  */
 function setupWorkspace(data, callback) {
-  logConsoleMessage(`setupWorkspace: Preparing Blockly workspace`);
 
   // TODO: Calling the callback BEFORE the method has completed?
   if (data && typeof(data.boardType.name) === 'undefined') {
@@ -625,7 +602,6 @@ function setupWorkspace(data, callback) {
   setDefaultProfile(project.boardType);
 
   if (!project.isTimerSet()) {
-    logConsoleMessage(`setupWorkSpace: Preparing nudge timer`);
     const myTime = new NudgeTimer(0);
     // Set the callback
     myTime.myCallback = function() {
@@ -646,7 +622,6 @@ function setupWorkspace(data, callback) {
 
   // Set the help link to the ab-blocks, s3 reference, or propc reference
   // TODO: modify blocklyc.html/jsp and use an id or class selector
-  logConsoleMessage(`setupWorkspace: Render content for: ${project.name}`);
   if (project.boardType.name === 's3') {
     initToolbox(project.boardType.name);
     $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
@@ -1370,8 +1345,6 @@ function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
  * TODO: This should be called on the front end before the dialog is opened.
  */
 function clearUploadInfo() {
-  logConsoleMessage(`Clearing upload metadata`);
-
   $('#selectfile').val('');
   $('#selectfile-verify-notvalid').css('display', 'none');
   $('#selectfile-verify-valid').css('display', 'none');
@@ -1646,7 +1619,6 @@ function showOS(os) {
  * Clear the main workspace in the Blockly object
  */
 function clearBlocklyWorkspace() {
-  logConsoleMessage(`Clearing the current Blockly root workspace`);
   const workspace = Blockly.getMainWorkspace();
 
   if (workspace) {
@@ -1926,8 +1898,6 @@ export function createNewProject() {
  * @param {Project} project
  */
 export function insertProject(project) {
-  logConsoleMessage(`Inserting project ${project.name}`);
-
   try {
     // project.stashProject(LOCAL_PROJECT_STORE_NAME);
     clearProjectInitialState();
@@ -1953,7 +1923,6 @@ export function insertProject(project) {
       project.setProjectTimer(myTime);
     }
 
-    logConsoleMessage(`Setting up the workspace in blockly core`);
     setupWorkspace(project);
 
     // Create an instance of the CodeEditor class
@@ -2069,7 +2038,6 @@ function renderContent(id) {
 
   switch (selectedTab) {
     case 'blocks':
-      logConsoleMessage('Displaying project blocks');
       $('.blocklyToolboxDiv').css('display', 'block');
 
       $('#content_xml').css('display', 'none');
@@ -2093,8 +2061,6 @@ function renderContent(id) {
       getWorkspaceSvg().render();
       break;
     case 'propc':
-      logConsoleMessage('Displaying project C source code');
-
       $('.blocklyToolboxDiv').css('display', 'none');
 
       $('#content_xml').css('display', 'none');
@@ -2153,7 +2119,6 @@ function renderContent(id) {
       codeXml.gotoLine(0);
       break;
   }
-  logConsoleMessage(`Content is rendered.`);
 }
 
 /**
