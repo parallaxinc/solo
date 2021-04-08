@@ -31,7 +31,7 @@ import {
   ApplicationName,
   productBannerHostTrigger,
   TestApplicationName} from './constants';
-import {getURLParameter, getAllUrlParameters} from './utility';
+import {getURLParameter, getAllUrlParameters, logConsoleMessage} from './utility';
 
 /**
  * Display the application name
@@ -88,10 +88,77 @@ function setClickHandlers() {
   });
 }
 
+/**
+ * Approximate the browser brand and version
+ *
+ * @return {(string|string)[]} Returns an array containing the browser brand
+ * name and the browser version.
+ */
+const getBrowserAgent = () => {
+  try {
+    const navUserAgent = navigator.userAgent;
+    let browserName = navigator.appName;
+    let browserVersion = ''+parseFloat(navigator.appVersion);
+    let tempNameOffset;
+    let tempVersionOffset;
+    let tempVersion;
+
+    if ((tempVersionOffset=navUserAgent.indexOf('Opera')) !== -1) {
+      browserName = 'Opera';
+      browserVersion = navUserAgent.substring(tempVersionOffset+6);
+      if ((tempVersionOffset=navUserAgent.indexOf('Version')) !== -1) {
+        browserVersion = navUserAgent.substring(tempVersionOffset+8);
+      }
+    } else if ((tempVersionOffset=navUserAgent.indexOf('MSIE')) !== -1) {
+      browserName = 'Microsoft Internet Explorer';
+      browserVersion = navUserAgent.substring(tempVersionOffset+5);
+    } else if ((tempVersionOffset=navUserAgent.indexOf('Chrome')) !== -1) {
+      browserName = (navigator.brave !== undefined) ? 'Brave' : 'Chrome';
+      browserVersion = navUserAgent.substring(tempVersionOffset+7);
+    } else if ((tempVersionOffset=navUserAgent.indexOf('Safari')) !== -1) {
+      browserName = 'Safari';
+      browserVersion = navUserAgent.substring(tempVersionOffset+7);
+      if ((tempVersionOffset=navUserAgent.indexOf('Version')) !== -1) {
+        browserVersion = navUserAgent.substring(tempVersionOffset+8);
+      }
+    } else if ((tempVersionOffset=navUserAgent.indexOf('Firefox')) !== -1) {
+      browserName = 'Firefox';
+      browserVersion = navUserAgent.substring(tempVersionOffset+8);
+    } else if (
+      (tempNameOffset=navUserAgent.lastIndexOf(' ')+1) <
+        (tempVersionOffset=navUserAgent.lastIndexOf('/')) ) {
+      browserName = navUserAgent.substring(tempNameOffset, tempVersionOffset);
+      browserVersion = navUserAgent.substring(tempVersionOffset+1);
+      if (browserName.toLowerCase() === browserName.toUpperCase()) {
+        browserName = navigator.appName;
+      }
+    }
+
+    // trim version
+    if ((tempVersion=browserVersion.indexOf(';')) !== -1) {
+      browserVersion=browserVersion.substring(0, tempVersion);
+    }
+
+    if ((tempVersion=browserVersion.indexOf(' ')) !== -1) {
+      browserVersion=browserVersion.substring(0, tempVersion);
+    }
+
+    return [browserName, browserVersion];
+  } catch (err) {
+    logConsoleMessage(`Cannot determine browser details. ${err.message}`);
+    return ['None', '0'];
+  }
+};
+
 let appName = ApplicationName;
 if (window.location.hostname === productBannerHostTrigger) {
   appName = TestApplicationName;
 }
+
+// Get the browser brand and version.
+// TODO: Warn user if the browser is not supported
+const [brand, version] = getBrowserAgent();
+console.log(`BrowserName = ${brand}, Version = ${version}`);
 
 showAppName();
 showAppBannerTitle(appName);
