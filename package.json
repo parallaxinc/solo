@@ -45,7 +45,6 @@
     "websocket-extensions": ">=0.1.4"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.13.14",
     "@types/ace": "0.0.43",
     "acorn": "^7.1.1",
     "chai": "^4.2.0",
