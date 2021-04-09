@@ -327,7 +327,7 @@ Blockly.propc.sd_read = function() {
 
   // Handle close straight away
   if (mode === 'fclose') {
-    return `if(fp) ${mode}(fp);\n`;
+    return `if(fp) {\n  ${mode}(fp);\n  fp = 0;\n}`;
   }
 
   // Verify the required SD-Open block is in the project
@@ -546,7 +546,7 @@ Blockly.propc.sd_close = function(block) {
     setupSdCard();
   }
 
-  return 'if(fp) {fclose(fp);\nfp = 0;\n';
+  return 'if(fp) {\n  fclose(fp);\n  fp = 0;\n}';
 };
 
 /**
