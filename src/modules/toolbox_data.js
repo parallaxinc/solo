@@ -1125,6 +1125,7 @@ xmlToolbox += '            <block type="heb_erase_all_contacts"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '        <category key="category_memory_sdcard" include="heb-wx,">';
 // Solo-473 Add SD_Init block to menu for Flip board type
+// Solo-537 Add SD_close block
 xmlToolbox += '            <block type="sd_init" exclude="activity-board,"></block>';
 xmlToolbox += '            <block type="sd_open"></block>';
 xmlToolbox += '            <block type="sd_read">';
@@ -1135,6 +1136,7 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="sd_file_pointer"></block>';
+xmlToolbox += '            <block type="sd_close"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
 xmlToolbox += '    <category key="category_sensor-input" exclude="s3,heb,heb-wx," colour="140">';
@@ -1271,6 +1273,7 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="sd_file_pointer"></block>';
+xmlToolbox += '            <block type="sd_close"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
 
