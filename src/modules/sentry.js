@@ -28,7 +28,7 @@ import {APP_VERSION, EnableSentry} from './constants';
 /**
  * Initialize the Sentry logger
  */
-function startSentry() {
+const startSentry = async () => {
   /* Error logging */
   if (EnableSentry) {
     Sentry.init({
@@ -42,10 +42,9 @@ function startSentry() {
       // })],
       // tracesSampleRate: 1.0,
     });
-    console.log('Sentry initialized');
   } else {
     console.log(`WARNING: Sentry is disabled.`);
   }
-}
+};
 
 export {startSentry};

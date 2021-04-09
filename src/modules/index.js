@@ -21,7 +21,10 @@
  */
 
 import {startSentry} from './sentry';
-startSentry();
+// Start up the sentry monitor before we run
+startSentry()
+    .then( (resp) => console.log('Sentry has started.'))
+    .catch((err) => console.log('Sentry failed to start'));
 
 import 'bootstrap';
 import * as Cookies from 'js-cookie';

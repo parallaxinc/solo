@@ -44,21 +44,7 @@ export const EnableSentry = true;
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.5.7.2-a2';
-
-/**
- * Constant string that represents the base, empty project header
- *
- * @type {string}
- *
- * @description Converting the string to a constant because it is referenced
- * in a number of places. The string is sufficiently complex that it could
- * be misspelled without detection.
- *
- * @deprecated This constant is now located in the Project class.
- */
-// eslint-disable-next-line no-unused-vars
-const EMPTY_PROJECT_CODE_HEADER = '<xml xmlns="http://www.w3.org/1999/xhtml">';
+export const APP_VERSION = '1.5.7.2-a3';
 
 /**
  * The name used to store a project that is being loaded from

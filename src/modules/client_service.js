@@ -174,7 +174,6 @@ export const clientService = {
    * @param {number} baudRate
    */
   setTerminalBaudRate: function(baudRate) {
-    logConsoleMessage(`Setting terminal baud rate to: ${baudRate}`);
     this.terminalBaudRate = baudRate;
   },
 
