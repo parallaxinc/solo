@@ -73,7 +73,9 @@ import {openProjectDialog} from './dialogs/open_project';
 import {importProjectDialog} from './dialogs/import_project';
 
 // Start up the sentry monitor before we run
-startSentry();
+startSentry()
+    .then( (resp) => console.log('Sentry has started.'))
+    .catch((err) => console.log('Sentry failed to start'));
 
 /**
  * The call to Blockly.svgResize() requires a reference to the
