@@ -21,8 +21,8 @@ globals:
   tooltip_text: readonly
   utils: readonly
 parserOptions:
-  ecmaVersion: 6
-  sourceType: script
+  ecmaVersion: 8
+  sourceType: module
 rules:
   # This really needs to be an error
   no-prototype-builtins: warn
