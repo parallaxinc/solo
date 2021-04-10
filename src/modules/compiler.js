@@ -20,54 +20,36 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import Blockly from 'blockly/core';
-
-import {getSourceEditor} from './code_editor';
-import {prettyCode} from './editor';
 import {logConsoleMessage} from './utility';
-import {appendCompileConsoleMessage} from './blocklyc';
-import {compileConsoleScrollToBottom} from './blocklyc';
-import {showCannotCompileEmptyProject} from './modals';
+import {
+  appendCompileConsoleMessage,
+  compileConsoleScrollToBottom,
+} from './blocklyc';
 
+// noinspection HttpUrlsUsage
 /**
  * Submit a project's source code to the cloud compiler
  *
- * @param {string} text Dialog window title bar text
  * @param {string} action One of (compile, bin, eeprom).
  *    compile:  compile the project code and display the results.
  *    bin:      compile the project code to a binary image and load that image
  *              to the device RAM
  *    eeprom:   compile the project code to a binary image and load that image
  *              to the device EEPROM
+ * @param {string} sourceCode contains the source code to be compiled
  * @param {function} successHandler Define a callback to be executed upon
  *  successful compilation
  */
-export const cloudCompile = (text, action, successHandler) => {
-  const codePropC = getSourceEditor();
-
-  // if PropC is in edit mode, get it from the editor, otherwise
-  // render it from the blocks.
-  const propcCode = (codePropC.getReadOnly()) ?
-      prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace)) :
-      codePropC.getValue();
-
-  if (propcCode.indexOf('EMPTY_PROJECT') > -1) {
-    showCannotCompileEmptyProject();
-  } else {
-    $('#compile-dialog-title').text(text);
-    $('#compile-console').val('Compile... ');
-    $('#compile-dialog').modal('show');
-  }
-
-  // ------------------------------------------------------------------------
-  // Contact the container running cloud compiler. If the browser is
-  // connected via https, direct the compile request to the same port and let
-  // the load balancer direct the request to the compiler.
-  // When operating from localhost, expect to find the compiler container on
-  // localhost as well. There is no override for this at the moment.
-  // ------------------------------------------------------------------------
+export const cloudCompile = (action, sourceCode, successHandler) => {
+  // Contact the container running cloud compiler. If the browser is connected
+  // via https, direct the compile request to the same port and let the load
+  // balancer direct the request to the compiler.
   let postUrl = `https://${window.location.hostname}:443/single/prop-c/${action}`;
+
+  // If running locally, assume that the compiler is available locally as
+  // well, likely in a Docker container.
   if (window.location.protocol === 'http:') {
+    // noinspection HttpUrlsUsage
     postUrl = `http://${window.location.hostname}:5001/single/prop-c/${action}`;
   }
 
@@ -76,7 +58,7 @@ export const cloudCompile = (text, action, successHandler) => {
   $.ajax({
     'method': 'POST',
     'url': postUrl,
-    'data': {'code': propcCode},
+    'data': {'code': sourceCode},
   }).done(function(data) {
     logConsoleMessage(`Receiving compiler service results`);
     // The compiler will return one of three payloads:
@@ -116,6 +98,7 @@ export const cloudCompile = (text, action, successHandler) => {
       appendCompileConsoleMessage(
           data['compiler-output'] + data['compiler-error'] + loadWaitMsg);
 
+      // Execute the callback if one has been provided.
       if (data.success && successHandler) {
         successHandler(data);
       }

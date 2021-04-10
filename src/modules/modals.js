@@ -180,3 +180,14 @@ export const showCannotCompileEmptyProject = () => {
   utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT,
       Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
 };
+
+
+/**
+ *  Display the compiler status modal window
+ * @param {string} titleBar is the text that will appear in the modal title bar
+ */
+export const showCompilerStatusWindow = (titleBar) => {
+  $('#compile-dialog-title').text(titleBar);
+  $('#compile-console').val('Compile... ');
+  $('#compile-dialog').modal('show');
+};

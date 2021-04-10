@@ -26,13 +26,21 @@ import {saveAs} from 'file-saver';
 
 import {getComPort} from './client_connection';
 import {clientService, serviceConnectionTypes} from './client_service';
-import {loadToolbox} from './editor';
-import {CodeEditor} from './code_editor';
+import {loadToolbox, prettyCode} from './editor';
+import {CodeEditor, getSourceEditor} from './code_editor';
 import {getProjectInitialState} from './project';
-import {logConsoleMessage, getURLParameter, utils} from './utility';
-import {sanitizeFilename} from './utility';
 import {cloudCompile} from './compiler';
 import {serialConsole} from './serial_console';
+import {
+  logConsoleMessage,
+  getURLParameter,
+  sanitizeFilename,
+  utils,
+} from './utility';
+import {
+  showCannotCompileEmptyProject,
+  showCompilerStatusWindow,
+} from './modals';
 
 /**
  * TODO: Identify the purpose of this variable
@@ -178,14 +186,28 @@ const graph_data = {
  * This is the onClick event handler for the compile toolbar button
  */
 export function compile() {
-  cloudCompile('Compile', 'compile', null);
+  const codePropC = getSourceEditor();
+
+  // if PropC is in edit mode, get it from the editor, otherwise
+  // render it from the blocks.
+  const propcCode = (codePropC.getReadOnly()) ?
+      prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace)) :
+      codePropC.getValue();
+
+  if (propcCode.indexOf('EMPTY_PROJECT') > -1) {
+    showCannotCompileEmptyProject();
+    return;
+  }
+
+  showCompilerStatusWindow('Compile');
+  cloudCompile('compile', propcCode, null);
 }
 
 /**
  * The onClick event handler for the Compile to RAM and Compile to EEPROM
  * UI toolbar buttons of the same names.
  *
- * @param {string} modalMessage message shown at the top of the
+ * @param {string} modalTitleBarMessage message shown at the top of the
  *  compile/load modal.
  * @param {string} compileCommand for the cloud compiler (bin/eeprom).
  * @param {string} loadOption command for the loader
@@ -196,108 +218,129 @@ export function compile() {
  *
  * @description: Console logging uses the identifier (LOAI).
  */
-export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
-  if (clientService.portsAvailable) {
-    cloudCompile(modalMessage, compileCommand, function(data) {
-      logConsoleMessage(`Processing cloud compiler callback`);
-      const terminalNeeded = isTerminalWindowRequired();
+export function loadInto(
+    modalTitleBarMessage, compileCommand, loadOption, loadAction) {
+  // Handle potential issues
+  if (! clientService.portsAvailable) {
+    if (clientService.available) {
+      utils.showMessage(
+          Blockly.Msg.DIALOG_NO_DEVICE,
+          Blockly.Msg.DIALOG_NO_DEVICE_TEXT);
+    } else {
+      utils.showMessage(
+          Blockly.Msg.DIALOG_DEVICE_COMM_ERROR,
+          Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT);
+    }
+    return;
+  }
 
-      if (clientService.type === serviceConnectionTypes.WS) {
-        logConsoleMessage(`(LOAI) Device loaded via websocket`);
+  const codePropC = getSourceEditor();
 
-        // Send the compile submission via a web socket
-        clientService.resultLog = '';
-        clientService.loadBinary = false;
-        logConsoleMessage(`Sending Load-Prop message`);
-        clientService.wsSendLoadProp(
-            loadAction, data, terminalNeeded, getComPort());
-      } else {
-        // Send the compile submission via an HTTP post
-        if (clientService.version.isCoded) {
-          // Request load with options from BlocklyProp Client
-          $.post(clientService.url('load.action'), {
-            'option': loadOption,
-            'action': loadAction,
-            'binary': data.binary,
-            'extension': data.extension,
-            'comport': getComPort(),
-          }, function(loadData) {
-            // Callback to report results from client/launcher command
-            logConsoleMessage(
-                `(LOAI) Processing compiler results from server: ` +
+  // if PropC is in edit mode, get it from the editor, otherwise
+  // render it from the blocks.
+  const propcCode = (codePropC.getReadOnly()) ?
+      prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace)) :
+      codePropC.getValue();
+
+  if (propcCode.indexOf('EMPTY_PROJECT') > -1) {
+    showCannotCompileEmptyProject();
+    return;
+  }
+
+  showCompilerStatusWindow(modalTitleBarMessage);
+
+  // Compile the project code
+  cloudCompile(compileCommand, propcCode, function(data) {
+    logConsoleMessage(`Processing cloud compiler callback`);
+    const terminalNeeded = isTerminalWindowRequired();
+
+    if (clientService.type === serviceConnectionTypes.WS) {
+      logConsoleMessage(`(LOAI) Device loaded via websocket`);
+
+      // Send the compile submission via a web socket
+      clientService.resultLog = '';
+      clientService.loadBinary = false;
+      logConsoleMessage(`Sending Load-Prop message`);
+      clientService.wsSendLoadProp(
+          loadAction, data, terminalNeeded, getComPort());
+    } else {
+      // Send the compile submission via an HTTP post
+      if (clientService.version.isCoded) {
+        // Request load with options from BlocklyProp Client
+        $.post(clientService.url('load.action'), {
+          'option': loadOption,
+          'action': loadAction,
+          'binary': data.binary,
+          'extension': data.extension,
+          'comport': getComPort(),
+        }, function(loadData) {
+          // Callback to report results from client/launcher command
+          logConsoleMessage(
+              `(LOAI) Processing compiler results from server: ` +
                 `${loadData.message}`);
-            // Replace response message's consecutive white space with a
-            // new-line, then split at new lines
-            const message =
+          // Replace response message's consecutive white space with a
+          // new-line, then split at new lines
+          const message =
                 loadData.message.replace(/\s{2,}/g, '\n').split('\n');
             // If responses have codes, check for all success codes (< 100)
-            let success = true;
-            const coded =
+          let success = true;
+          const coded =
                 (loadOption === 'CODE' || loadOption === 'CODE_VERBOSE');
-            if (coded) {
-              message.forEach(function(x) {
-                success = success && x.substr(0, 3) < 100;
-              });
-            }
-            // Display results
-            let result = '';
-            if (success && coded) {
-              // Success! Keep it simple
-              result = ' Succeeded.';
-            } else {
-              // Failed (or not coded); Show the details
-              const error = [];
-              message.forEach(function(x) {
-                error.push(x.substr((coded) ? 4 : 0));
-              });
-              result = ((coded) ? ' Failed!' : '') +
+          if (coded) {
+            message.forEach(function(x) {
+              success = success && x.substr(0, 3) < 100;
+            });
+          }
+          // Display results
+          let result;
+          if (success && coded) {
+            // Success! Keep it simple
+            result = ' Succeeded.';
+          } else {
+            // Failed (or not coded); Show the details
+            const error = [];
+            message.forEach(function(x) {
+              error.push(x.substr((coded) ? 4 : 0));
+            });
+            result = ((coded) ? ' Failed!' : '') +
                   '\n\n-------- loader messages --------\n' + error.join('\n');
-            }
+          }
 
-            $('#compile-console').val($('#compile-console').val() + result);
+          $('#compile-console').val($('#compile-console').val() + result);
 
-            // Scroll automatically to the bottom after new data is added
-            document.getElementById('compile-console').scrollTop =
+          // Scroll automatically to the bottom after new data is added
+          document.getElementById('compile-console').scrollTop =
                 document.getElementById('compile-console').scrollHeight;
-            if (terminalNeeded === 'term' && loadData.success) {
-              serialConsole();
-            } else if (terminalNeeded === 'graph' && loadData.success) {
-              graphingConsole();
-            }
-          });// end of .post()
-        } else {
-          // TODO: Remove this once client_min_version is >= minCodedVer
-          // Request load without options from old BlocklyProp Client
-          $.post(clientService.url('load.action'), {
-            'action': loadAction,
-            'binary': data.binary,
-            'extension': data.extension,
-            'comport': getComPort(),
-          }, function(loadData) {
-            $('#compile-console').val($('#compile-console').val() +
+          if (terminalNeeded === 'term' && loadData.success) {
+            serialConsole();
+          } else if (terminalNeeded === 'graph' && loadData.success) {
+            graphingConsole();
+          }
+        });// end of .post()
+      } else {
+        // TODO: Remove this once client_min_version is >= minCodedVer
+        // Request load without options from old BlocklyProp Client
+        $.post(clientService.url('load.action'), {
+          'action': loadAction,
+          'binary': data.binary,
+          'extension': data.extension,
+          'comport': getComPort(),
+        }, function(loadData) {
+          $('#compile-console').val($('#compile-console').val() +
                 loadData.message);
 
-            // Scroll automatically to the bottom after new data is added
-            document.getElementById('compile-console').scrollTop =
+          // Scroll automatically to the bottom after new data is added
+          document.getElementById('compile-console').scrollTop =
                 document.getElementById('compile-console').scrollHeight;
-            if (terminalNeeded === 'term' && loadData.success) {
-              serialConsole();
-            } else if (terminalNeeded === 'graph' && loadData.success) {
-              graphingConsole();
-            }
-          });
-        }
+          if (terminalNeeded === 'term' && loadData.success) {
+            serialConsole();
+          } else if (terminalNeeded === 'graph' && loadData.success) {
+            graphingConsole();
+          }
+        });
       }
-    });
-  } else if (clientService.available) {
-    utils.showMessage(
-        Blockly.Msg.DIALOG_NO_DEVICE,
-        Blockly.Msg.DIALOG_NO_DEVICE_TEXT);
-  } else {
-    utils.showMessage(
-        Blockly.Msg.DIALOG_DEVICE_COMM_ERROR,
-        Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT);
-  }
+    }
+  });
 }
 
 
