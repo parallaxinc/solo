@@ -1737,6 +1737,8 @@ export function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
     // Set the size of the divs
     for (let i = 0; i < 3; i++) {
       blocklyDiv[i].style.left = '0px';
+      // TODO:  This is getting set to a large value on occasion in
+      //  the content_block div. Search and destroy.
       blocklyDiv[i].style.top = navTop + 'px';
       blocklyDiv[i].style.width = navWidth + 'px';
       blocklyDiv[i].style.height = navHeight + 'px';
