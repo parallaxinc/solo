@@ -160,7 +160,7 @@ function establishBPLauncherConnection() {
     let connection;
 
     // Clear the port list
-    clientService.clearPortList();
+    // clientService.clearPortList();
 
     try {
       connection = new WebSocket(clientService.url('', 'ws'));
@@ -370,6 +370,7 @@ function wsCompileMessageProcessor(message) {
 
   if (command === NS_DOWNLOAD_SUCCESSFUL) {
     clientService.loaderResetDetect = false;
+    clientService.loaderIsDone = true;
     appendCompileConsoleMessage('Succeeded.');
   }
 
@@ -378,6 +379,8 @@ function wsCompileMessageProcessor(message) {
       appendCompileConsoleMessage('.');
       break;
     case NE_DOWNLOAD_FAILED:
+      clientService.loaderResetDetect = false;
+      clientService.loaderIsDone = true;
       appendCompileConsoleMessage(
           `Failed!\n\n-------- loader messages --------\n` +
         `${clientService.resultLog}`);
