@@ -191,3 +191,8 @@ export const showCompilerStatusWindow = (titleBar) => {
   $('#compile-console').val('Compile... ');
   $('#compile-dialog').modal('show');
 };
+
+export const hideCompilerStatusWindow = () => {
+  $('#compile-dialog').hide();
+};
+
