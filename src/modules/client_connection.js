@@ -369,16 +369,8 @@ function wsCompileMessageProcessor(message) {
   // logConsoleMessage(`Cmd:${command}: '${text}'`);
 
   if (command === NS_DOWNLOAD_SUCCESSFUL) {
+    clientService.loaderResetDetect = false;
     appendCompileConsoleMessage('Succeeded.');
-  } else {
-    // If the download is still happening and the stream is not binary,
-    // append the received text to the result log
-    if (!clientService.loadBinary) {
-      clientService.resultLog = clientService.resultLog + text + '\n';
-      clientService.loadBinary = command !== NS_DOWNLOADING;
-    } else {
-      clientService.resultLog = clientService.resultLog + text + '\n';
-    }
   }
 
   switch (command) {
@@ -391,13 +383,15 @@ function wsCompileMessageProcessor(message) {
         `${clientService.resultLog}`);
       break;
     default:
-      // Ignore everything else.
+      logConsoleMessage(`Processing launcher cmd:message: ${command}:${text}`);
+      clientService.resultLog = clientService.resultLog + text + '\n';
   }
   compileConsoleScrollToBottom();
 }
 
 /**
  * Split the compiler message into it's component parts
+ *
  * @param {string} message
  * @return {Array}
  * @description The message is formatted as 'nnn-ttttttt...'. Where n is a
@@ -420,6 +414,8 @@ function parseCompileMessage(message) {
 function lostWSConnection() {
   logConsoleMessage(`Lost WS connection`);
   if (clientService.type !== serviceConnectionTypes.HTTP) {
+    clientService.loaderResetDetect = true;
+
     if (clientService.activeConnection) {
       logConsoleMessage(`Closing socket: ReadyState is:
      ${clientService.activeConnection.readyState}`);
@@ -512,18 +508,21 @@ function checkClientVersionModal(rawVersion) {
 }
 
 /**
+ * Type definition for a BlocklyProp Client interface
+ *
  * @typedef {Object} BPClientDataBlock
  * @property {number} version
  * @property {string} version_str
  * @property {string} server
  */
+
 /**
  * Establish a connection to the BlocklyProp-Client (BPC) application
  * Retrieves the BPC's version
  * Sets parameters in the clientService object
  * Calls UI configuration functions
  */
-const establishBPClientConnection = function() {
+function establishBPClientConnection() {
   logConsoleMessage('establishBPConnection: entry');
   // Load data from the server using a HTTP GET request.
   $.get(clientService.url(), function(/* @type BPClientDataBlock */ data) {
