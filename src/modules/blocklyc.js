@@ -267,16 +267,40 @@ export const loadInto = async (
 
             await (async () => {
               const port = getComPort();
+
+              // await delay(400);
+              // if (clientService.loaderResetDetect) {
+              //   // eslint-disable-next-line max-len
+              //   logConsoleMessage(`Connection reset detected during load operation`);
+
+              // for (let loop = 0; loop < 5; loop++) {
+              //   logConsoleMessage(`Waiting for connection... (${loop} of 5)`);
+              //   await delay(800);
+              //   if (clientService.activeConnection !== null) {
+              //     if (clientService.activeConnection.readyState === 1) {
+              //       // run it again.
+              //       // eslint-disable-next-line max-len
+              //       logConsoleMessage(`Resubmitting download, ${clientService.activeConnection.bufferedAmount}`);
+              //       await clientService.wsSendLoadProp(
+              //           loadAction, data, terminalNeeded, port);
+              //       // eslint-disable-next-line max-len
+              //       logConsoleMessage(`Sent ${clientService.activeConnection.bufferedAmount} bytes`);
+              //       break;
+              //     }
+              //   }
+              // }
+
               await clientService.wsSendLoadProp(
                   loadAction, data, terminalNeeded, port);
+              logConsoleMessage(`Sent ${clientService.activeConnection.bufferedAmount} bytes`);
 
-              await delay(200);
-              if (clientService.loaderResetDetect) {
+              for (let loop = 0; loop < 5; loop++) {
                 // eslint-disable-next-line max-len
-                logConsoleMessage(`Connection reset detected during load operation`);
-                for (let loop = 0; loop < 5; loop++) {
-                  logConsoleMessage(`Waiting for connection... (${loop} of 5)`);
-                  await delay(800);
+                await delay(800);
+                if (clientService.loaderIsDone) break;
+
+                if (clientService.loaderResetDetect) {
+                  logConsoleMessage(`Waiting for connection... (${loop+1} of 5)`);
                   if (clientService.activeConnection !== null) {
                     if (clientService.activeConnection.readyState === 1) {
                       // run it again.
@@ -286,7 +310,7 @@ export const loadInto = async (
                           loadAction, data, terminalNeeded, port);
                       // eslint-disable-next-line max-len
                       logConsoleMessage(`Sent ${clientService.activeConnection.bufferedAmount} bytes`);
-                      break;
+                      // break;
                     }
                   }
                 }
