@@ -163,7 +163,9 @@ $(() => {
       newProjectDialog.show();
     }
   }
-  resetToolBoxSizing(250);
+  // This is probably not needed because it is called when a project is loaded
+  // or the default project is loaded.
+  // resetToolBoxSizing(250);
 });
 
 
