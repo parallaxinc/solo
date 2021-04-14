@@ -426,8 +426,8 @@ function lostWSConnection() {
     clientService.available = false;
   }
   // Clear ports list
-  clientService.clearPortList();
-  setPortListUI();
+  // clientService.clearPortList();
+  // setPortListUI();
   propToolbarButtonController();
 }
 

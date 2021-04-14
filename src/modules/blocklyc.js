@@ -266,32 +266,52 @@ export const loadInto = async (
             logConsoleMessage(`Sending Load-Prop message`);
 
             await (async () => {
+              const port = getComPort();
               await clientService.wsSendLoadProp(
-                  loadAction, data, terminalNeeded, getComPort());
+                  loadAction, data, terminalNeeded, port);
 
               await delay(200);
               if (clientService.loaderResetDetect) {
                 // eslint-disable-next-line max-len
                 logConsoleMessage(`Connection reset detected during load operation`);
-              }
-
-              if (! clientService.activeConnection ||
-                  clientService.activeConnection.readyState !== 1) {
-                logConsoleMessage(`Connection has failed after program load`);
-
                 for (let loop = 0; loop < 5; loop++) {
-                  await delay(1000);
+                  logConsoleMessage(`Waiting for connection... (${loop} of 5)`);
+                  await delay(800);
                   if (clientService.activeConnection !== null) {
                     if (clientService.activeConnection.readyState === 1) {
                       // run it again.
-                      logConsoleMessage(`Resubmitting download`);
+                      // eslint-disable-next-line max-len
+                      logConsoleMessage(`Resubmitting download, ${clientService.activeConnection.bufferedAmount}`);
                       await clientService.wsSendLoadProp(
-                          loadAction, data, terminalNeeded, getComPort());
+                          loadAction, data, terminalNeeded, port);
+                      // eslint-disable-next-line max-len
+                      logConsoleMessage(`Sent ${clientService.activeConnection.bufferedAmount} bytes`);
                       break;
                     }
                   }
                 }
               }
+
+              // if (! clientService.activeConnection ||
+              //     clientService.activeConnection.readyState !== 1) {
+              // eslint-disable-next-line max-len
+              //   logConsoleMessage(`Connection has failed after program load`);
+              //
+              //   for (let loop = 0; loop < 5; loop++) {
+              // eslint-disable-next-line max-len
+              //     logConsoleMessage(`Waiting for connection... (${loop} of 5)`);
+              //     await delay(1000);
+              //     if (clientService.activeConnection !== null) {
+              //       if (clientService.activeConnection.readyState === 1) {
+              //         // run it again.
+              //         logConsoleMessage(`Resubmitting download`);
+              //         await clientService.wsSendLoadProp(
+              //             loadAction, data, terminalNeeded, getComPort());
+              //         break;
+              //       }
+              //     }
+              //   }
+              // }
             })();
 
             // await clientService.wsSendLoadProp(
