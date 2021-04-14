@@ -163,7 +163,9 @@ $(() => {
       newProjectDialog.show();
     }
   }
-  resetToolBoxSizing(250);
+  // This is probably not needed because it is called when a project is loaded
+  // or the default project is loaded.
+  // resetToolBoxSizing(250);
 });
 
 
@@ -338,10 +340,10 @@ function initEventHandlers() {
   // popup modal
   $('#save-as-board-btn').on('click', () => saveProjectAs(
       $('#save-as-board-type').val(),
-      $('#save-as-project-name').val()
+      $('#save-as-project-name').val(),
   ));
 
-  $('#btn-graph-play').on('click', () => graphPlay());
+  $('#btn-graph-play').on('click', () => graphPlay(''));
   $('#btn-graph-snapshot').on('click', () => downloadGraph());
   $('#btn-graph-csv').on('click', () => downloadCSV());
   $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
@@ -572,7 +574,6 @@ function initDefaultProject() {
  * @return {number} Error code
  */
 function setupWorkspace(data, callback) {
-
   // TODO: Calling the callback BEFORE the method has completed?
   if (data && typeof(data.boardType.name) === 'undefined') {
     if (callback) {
@@ -1737,8 +1738,6 @@ export function resetToolBoxSizing(resizeDelay, centerBlocks = false) {
     // Set the size of the divs
     for (let i = 0; i < 3; i++) {
       blocklyDiv[i].style.left = '0px';
-      // TODO:  This is getting set to a large value on occasion in
-      //  the content_block div. Search and destroy.
       blocklyDiv[i].style.top = navTop + 'px';
       blocklyDiv[i].style.width = navWidth + 'px';
       blocklyDiv[i].style.height = navHeight + 'px';

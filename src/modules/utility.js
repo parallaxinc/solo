@@ -433,6 +433,7 @@ export function sanitizeFilename(input) {
   return input;
 }
 
+export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export {
   utils, isExperimental, getURLParameter, getAllUrlParameters,

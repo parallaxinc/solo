@@ -170,6 +170,16 @@ export const clientService = {
   terminalBaudRate: 115200,
 
   /**
+   * Flag to indicate that an attempt to load a program is in progress.
+   *
+   * @type {boolean}
+   * @description This flag will be set to true if the connection is lost
+   * or reset while an active attempt is being made to load a program to the
+   * target device.
+   */
+  loaderResetDetect: false,
+
+  /**
    * Setter for terminal baud rate
    * @param {number} baudRate
    */
@@ -296,10 +306,7 @@ export const clientService = {
    * @param {string} terminal
    * @param {string} port
    */
-  wsSendLoadProp: function(loadAction, data, terminal, port) {
-    if (debug) {
-      logConsoleMessage(`(wsSLP) Entering`);
-    }
+  wsSendLoadProp: async function(loadAction, data, terminal, port) {
     const programToSend = {
       type: 'load-prop',
       action: loadAction,
@@ -308,6 +315,7 @@ export const clientService = {
       extension: data.extension,
       payload: data.binary,
     };
+
     // Debugging message
     if (debug) {
       logConsoleMessage(`(wsSLP) Sending message to the web socket:`);
@@ -322,13 +330,28 @@ export const clientService = {
           `${clientService.activeConnection.readyState}`);
     }
 
-    const payload = JSON.stringify(programToSend);
-
     if (this.activeConnection) {
       if (debug) {
         logConsoleMessage(`(wsSLP) Sending payload to socket`);
       }
+
+      const payload = JSON.stringify(programToSend);
+
+      if (debug) {
+        // eslint-disable-next-line max-len
+        logConsoleMessage(`Connection state is: ${this.activeConnection.readyState}`);
+        logConsoleMessage(`Sending ${payload.length} bytes to the Launcher`);
+        // eslint-disable-next-line max-len
+        logConsoleMessage(`WS buffer is ${this.activeConnection.bufferedAmount} bytes before transmit`);
+      }
+
+      this.loaderResetDetect = false;
       this.activeConnection.send(payload);
+
+      if (debug) {
+        // eslint-disable-next-line max-len
+        logConsoleMessage(`WS buffer is ${this.activeConnection.bufferedAmount} bytes after transmit`);
+      }
     } else {
       logConsoleMessage(
           `Cannot send "load-prop:${loadAction} message. ` +
@@ -419,6 +442,9 @@ export const clientService = {
     isRecommended: false,
 
     /**
+     * Is the BlocklyProp Client version above or equal to the minimum
+     * version supported
+     *
      * {boolean} current >= CODED_MINIMUM
      */
     isCoded: false,
@@ -493,7 +519,6 @@ export const clientService = {
   },
 };
 
-
 /**
  * Initialize the terminal object
  */
@@ -520,6 +545,6 @@ export function initTerminal() {
           clientService.activeConnection.send(JSON.stringify(msgToSend));
         }
       },
-      null
+      null,
   );
 }
