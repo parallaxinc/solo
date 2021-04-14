@@ -44,7 +44,15 @@ export const EnableSentry = true;
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.5.7.2-b1';
+export const APP_VERSION = '1.5.8-b4';
+
+/**
+ * Set this to target deployment environment.
+ *
+ * This is a temporary use while environment variables are implemented.
+ * @type {string}
+ */
+export const APP_STAGE = 'TEST';
 
 /**
  * The name used to store a project that is being loaded from

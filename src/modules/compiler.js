@@ -22,6 +22,8 @@
 
 import {logConsoleMessage} from './utility';
 import {appendCompileConsoleMessage} from './blocklyc';
+import {APP_STAGE} from './constants';
+
 
 // noinspection HttpUrlsUsage
 /**
@@ -52,8 +54,13 @@ export const cloudCompile = async (action, sourceCode) => {
     postUrl = `http://${window.location.hostname}:5001/single/prop-c/${action}`;
   }
 
+  if (APP_STAGE === 'TEST') {
+    // noinspection HttpUrlsUsage
+    postUrl = `https://solo.parallax.com/single/prop-c/${action}`;
+  }
+
   // Post the code to the compiler API and await the results
-  logConsoleMessage(`Requesting compiler service`);
+  logConsoleMessage(`Requesting compiler service from ${postUrl}`);
 
   // Try the compile operation
   try {
