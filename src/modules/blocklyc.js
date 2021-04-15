@@ -26,22 +26,14 @@ import {saveAs} from 'file-saver';
 
 import {getComPort} from './client_connection';
 import {clientService, serviceConnectionTypes} from './client_service';
-import {loadToolbox, prettyCode} from './editor';
+import {loadToolbox} from './editor';
 import {CodeEditor, getSourceEditor} from './code_editor';
 import {getProjectInitialState} from './project';
 import {cloudCompile} from './compiler';
 import {serialConsole} from './serial_console';
+import {showCannotCompileEmptyProject, showCompilerStatusWindow} from './modals';
 import {
-  delay,
-  logConsoleMessage,
-  getURLParameter,
-  sanitizeFilename,
-  utils,
-} from './utility';
-import {
-  showCannotCompileEmptyProject,
-  showCompilerStatusWindow,
-} from './modals';
+  delay, logConsoleMessage, getURLParameter, sanitizeFilename, utils, prettyCode} from './utility';
 
 /**
  * TODO: Identify the purpose of this variable
