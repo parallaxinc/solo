@@ -366,18 +366,19 @@ function wsProcessUiCommand(message) {
  */
 function wsCompileMessageProcessor(message) {
   const [command, text] = parseCompileMessage(message.msg);
-  // logConsoleMessage(`Cmd:${command}: '${text}'`);
-
-  if (command === NS_DOWNLOAD_SUCCESSFUL) {
-    clientService.loaderResetDetect = false;
-    clientService.loaderIsDone = true;
-    appendCompileConsoleMessage('Succeeded.');
-  }
 
   switch (command) {
+    case NS_DOWNLOAD_SUCCESSFUL:
+      clientService.loaderResetDetect = false;
+      clientService.loaderIsDone = true;
+      appendCompileConsoleMessage('Succeeded.');
+      logConsoleMessage(`Project loaded successfully`);
+      return;
+
     case NS_DOWNLOADING:
       appendCompileConsoleMessage('.');
       break;
+
     case NE_DOWNLOAD_FAILED:
       clientService.loaderResetDetect = false;
       clientService.loaderIsDone = true;
@@ -385,8 +386,8 @@ function wsCompileMessageProcessor(message) {
           `Failed!\n\n-------- loader messages --------\n` +
         `${clientService.resultLog}`);
       break;
+
     default:
-      logConsoleMessage(`Processing launcher cmd:message: ${command}:${text}`);
       clientService.resultLog = clientService.resultLog + text + '\n';
   }
   compileConsoleScrollToBottom();
