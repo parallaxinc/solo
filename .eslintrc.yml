@@ -54,3 +54,12 @@ overrides:
     rules: {
       max-len: "off"
     }
+  - files: [
+      "src/modules/**/*.js"
+    ]
+    rules: {
+      max-len: [
+          "warn",
+          code: 100
+      ]
+    }

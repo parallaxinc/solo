@@ -85,7 +85,6 @@ export const clientService = {
    */
   port: 6009,
 
-
   /**
    * Connection type: "ws", "http", or ''
    * @type {string}
@@ -173,11 +172,28 @@ export const clientService = {
    * Flag to indicate that an attempt to load a program is in progress.
    *
    * @type {boolean}
+   *
    * @description This flag will be set to true if the connection is lost
    * or reset while an active attempt is being made to load a program to the
    * target device.
    */
   loaderResetDetect: false,
+
+  /**
+   * Flag to indicate that the Launcher has reported a complete load cycle,
+   * regardless of success or failure.
+   *
+   * @type {boolean}
+   *
+   * @description This flag is set false at the beginning of a load to device
+   * cycle. If the cycle is interrupted by a web socket disconnect, this flag
+   * ensures that the application will retry the load process until it receives
+   * a message from the Launcher that the load succeeded or failed. Either of
+   * these states will reset the flag. The code that manages loader retries
+   * relies on this flag and the loaderResetDetect flag to determine if a reload
+   * attempt is necessary.
+   */
+  loaderIsDone: false,
 
   /**
    * Setter for terminal baud rate
@@ -297,7 +313,6 @@ export const clientService = {
     }
   },
 
-
   /**
    * Send a load-prop message to the BP Launcher
    *
@@ -323,10 +338,7 @@ export const clientService = {
       logConsoleMessage(`(wsSLP) Action: ${programToSend.action}`);
       logConsoleMessage(`(wsSLP) Debug: ${programToSend.debug}`);
       logConsoleMessage(`(wsSLP) ComPort: ${programToSend.portPath}`);
-
-      // eslint-disable-next-line max-len
-      logConsoleMessage(
-          `(wsSLP) Web socket state is: ` +
+      logConsoleMessage(`(wsSLP) Web socket state is: ` +
           `${clientService.activeConnection.readyState}`);
     }
 
@@ -346,11 +358,12 @@ export const clientService = {
       }
 
       this.loaderResetDetect = false;
+      this.loaderIsDone = false;
       this.activeConnection.send(payload);
 
       if (debug) {
-        // eslint-disable-next-line max-len
-        logConsoleMessage(`WS buffer is ${this.activeConnection.bufferedAmount} bytes after transmit`);
+        logConsoleMessage(`WS buffer is ${this.activeConnection.bufferedAmount} ` +
+        `bytes after transmit`);
       }
     } else {
       logConsoleMessage(

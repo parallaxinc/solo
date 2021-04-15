@@ -32,7 +32,6 @@ import {logConsoleMessage, utils} from './utility';
 import {propToolbarButtonController} from './toolbar_controller';
 import {getPropTerminal} from './prop_term';
 
-
 /**
  * Enable or disable debug-level console logging
  * @type {boolean}
@@ -54,11 +53,22 @@ const PORT_TIMEOUT = 15000;
  */
 
 /**
+ * Type definition for a Launcher web socket "Hello" message
+ *
  * @typedef WebSocketHelloMessage
  * @type {string} type contains the message text
  * @type {number} baud contains the default baud rate
  * @description This is the format of the object passed into a newly opened
  * WebSocket connection.
+ */
+
+/**
+ * Type definition for a BlocklyProp Client interface
+ *
+ * @typedef {Object} BPClientDataBlock
+ * @property {number} version
+ * @property {string} version_str
+ * @property {string} server
  */
 
 // Status Notice IDs
@@ -143,11 +153,9 @@ export const findClient = function() {
 
   // If connected to the BP-Client, poll for an updated port list
   if (clientService.type === serviceConnectionTypes.HTTP) {
-    logConsoleMessage('From findClient(): looking for com ports');
     checkForComPorts();
   }
 };
-
 
 /**
  * Checks for and, if found, uses a newer WebSockets-only client
@@ -158,9 +166,6 @@ export const findClient = function() {
 function establishBPLauncherConnection() {
   if (!clientService.available) {
     let connection;
-
-    // Clear the port list
-    clientService.clearPortList();
 
     try {
       connection = new WebSocket(clientService.url('', 'ws'));
@@ -220,7 +225,6 @@ function establishBPLauncherConnection() {
         // sometimes some weird stuff comes through...
         // type: 'serial-terminal'
         // msg: [String Base64-encoded message]
-        logConsoleMessage(`Received a Serial Terminal message`);
         let messageText;
         try {
           messageText = atob(wsMessage.msg);
@@ -243,8 +247,6 @@ function establishBPLauncherConnection() {
             // is the graph open?
             graphNewData(messageText);
           }
-        } else {
-          logConsoleMessage(`Unable to send stream to the terminal`);
         }
 
         // --- UI Commands coming from the client
@@ -258,7 +260,7 @@ function establishBPLauncherConnection() {
     };
 
     connection.onclose = function(event) {
-      logConsoleMessage(`Closing WS: ${event.code}, ${event.message}`);
+      logConsoleMessage(`Closing socket. Status code: ${event.code}`);
       lostWSConnection();
     };
   }
@@ -366,24 +368,28 @@ function wsProcessUiCommand(message) {
  */
 function wsCompileMessageProcessor(message) {
   const [command, text] = parseCompileMessage(message.msg);
-  // logConsoleMessage(`Cmd:${command}: '${text}'`);
-
-  if (command === NS_DOWNLOAD_SUCCESSFUL) {
-    clientService.loaderResetDetect = false;
-    appendCompileConsoleMessage('Succeeded.');
-  }
 
   switch (command) {
+    case NS_DOWNLOAD_SUCCESSFUL:
+      clientService.loaderResetDetect = false;
+      clientService.loaderIsDone = true;
+      appendCompileConsoleMessage('Succeeded.');
+      logConsoleMessage(`Project loaded successfully`);
+      return;
+
     case NS_DOWNLOADING:
       appendCompileConsoleMessage('.');
       break;
+
     case NE_DOWNLOAD_FAILED:
+      clientService.loaderResetDetect = false;
+      clientService.loaderIsDone = true;
       appendCompileConsoleMessage(
           `Failed!\n\n-------- loader messages --------\n` +
         `${clientService.resultLog}`);
       break;
+
     default:
-      logConsoleMessage(`Processing launcher cmd:message: ${command}:${text}`);
       clientService.resultLog = clientService.resultLog + text + '\n';
   }
   compileConsoleScrollToBottom();
@@ -407,27 +413,17 @@ function parseCompileMessage(message) {
   return result;
 }
 
-
 /**
  * Lost websocket connection, clean up and restart findClient processing
  */
 function lostWSConnection() {
-  logConsoleMessage(`Lost WS connection`);
   if (clientService.type !== serviceConnectionTypes.HTTP) {
     clientService.loaderResetDetect = true;
-
-    if (clientService.activeConnection) {
-      logConsoleMessage(`Closing socket: ReadyState is:
-     ${clientService.activeConnection.readyState}`);
-    }
-    logConsoleMessage(`Null-ing the active connection`);
     clientService.activeConnection = null;
     clientService.type = serviceConnectionTypes.NONE;
     clientService.available = false;
   }
-  // Clear ports list
-  // clientService.clearPortList();
-  // setPortListUI();
+
   propToolbarButtonController();
 }
 
@@ -506,15 +502,6 @@ function checkClientVersionModal(rawVersion) {
     $('#client-version-modal').modal('show');
   }
 }
-
-/**
- * Type definition for a BlocklyProp Client interface
- *
- * @typedef {Object} BPClientDataBlock
- * @property {number} version
- * @property {string} version_str
- * @property {string} server
- */
 
 /**
  * Establish a connection to the BlocklyProp-Client (BPC) application
@@ -610,7 +597,6 @@ function addComPortDeviceOption(port) {
     $('#comPort').append($('<option>', {text: port}));
   }
 }
-
 
 /**
  * Update the list of serial ports available on the host machine

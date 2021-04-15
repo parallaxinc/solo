@@ -28,6 +28,13 @@ const baseConfig = require('./base.config');
 // const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require("terser-webpack-plugin");
 
+
+/**
+ * The relative path to the distribution directory
+ * @type {string}
+ */
+const targetPath = '../dist';
+
 module.exports = merge(baseConfig, {
   // Use env.<YOUR VARIABLE> here:
   // console.log('NODE_ENV: ', env.NODE_ENV); // 'local'
@@ -36,7 +43,7 @@ module.exports = merge(baseConfig, {
   mode: 'production',
   devtool: 'source-map',
   output: {
-    path: path.resolve(__dirname, '../dist'),
+    path: path.resolve(__dirname, targetPath),
     filename: '[name].bundle.[chunkhash].js',
 //        chunkFilename: '[id].bundle.js',
 //        pathinfo: true,
@@ -61,33 +68,37 @@ module.exports = merge(baseConfig, {
       patterns: [
         {
           from: './index.html',
-          to: path.resolve(__dirname, '../dist')
+          to: path.resolve(__dirname, targetPath)
         },
         {
           from: './blocklyc.html',
-          to: path.resolve(__dirname, '../dist')
+          to: path.resolve(__dirname, targetPath)
         },
         {
           // Copy over media resources from the Blockly package
           from: path.resolve(__dirname, '../node_modules/blockly/media'),
-          to: path.resolve(__dirname, '../dist/media')
+          to: path.resolve(__dirname, `${targetPath}/media`)
+        },
+        {
+          from: './src/images',
+          to: path.resolve(__dirname, `${targetPath}/images`)
         },
         {
           // Copy over style sheets
           from: './src/site.css',
-          to: path.resolve(__dirname, '../dist')
+          to: path.resolve(__dirname, targetPath)
         },
         {
           from: './src/style.css',
-          to: path.resolve(__dirname, '../dist')
+          to: path.resolve(__dirname, targetPath)
         },
         {
           from: './src/style-clientdownload.css',
-          to: path.resolve(__dirname, '../dist')
+          to: path.resolve(__dirname, targetPath)
         },
         {
           from: './src/style-editor.css',
-          to: path.resolve(__dirname, '../dist')
+          to: path.resolve(__dirname, targetPath)
         },
       ]
     })
