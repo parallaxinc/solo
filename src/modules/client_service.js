@@ -313,7 +313,6 @@ export const clientService = {
     }
   },
 
-
   /**
    * Send a load-prop message to the BP Launcher
    *
@@ -339,10 +338,7 @@ export const clientService = {
       logConsoleMessage(`(wsSLP) Action: ${programToSend.action}`);
       logConsoleMessage(`(wsSLP) Debug: ${programToSend.debug}`);
       logConsoleMessage(`(wsSLP) ComPort: ${programToSend.portPath}`);
-
-      // eslint-disable-next-line max-len
-      logConsoleMessage(
-          `(wsSLP) Web socket state is: ` +
+      logConsoleMessage(`(wsSLP) Web socket state is: ` +
           `${clientService.activeConnection.readyState}`);
     }
 
@@ -366,8 +362,8 @@ export const clientService = {
       this.activeConnection.send(payload);
 
       if (debug) {
-        // eslint-disable-next-line max-len
-        logConsoleMessage(`WS buffer is ${this.activeConnection.bufferedAmount} bytes after transmit`);
+        logConsoleMessage(`WS buffer is ${this.activeConnection.bufferedAmount} ` +
+        `bytes after transmit`);
       }
     } else {
       logConsoleMessage(

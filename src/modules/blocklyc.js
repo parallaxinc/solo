@@ -263,39 +263,14 @@ export const loadInto = async (
             // Send the compile submission via a web socket
             clientService.resultLog = '';
             clientService.loadBinary = false;
-            logConsoleMessage(`Sending Load-Prop message`);
 
             await (async () => {
               const port = getComPort();
 
-              // await delay(400);
-              // if (clientService.loaderResetDetect) {
-              //   // eslint-disable-next-line max-len
-              //   logConsoleMessage(`Connection reset detected during load operation`);
-
-              // for (let loop = 0; loop < 5; loop++) {
-              //   logConsoleMessage(`Waiting for connection... (${loop} of 5)`);
-              //   await delay(800);
-              //   if (clientService.activeConnection !== null) {
-              //     if (clientService.activeConnection.readyState === 1) {
-              //       // run it again.
-              //       // eslint-disable-next-line max-len
-              //       logConsoleMessage(`Resubmitting download, ${clientService.activeConnection.bufferedAmount}`);
-              //       await clientService.wsSendLoadProp(
-              //           loadAction, data, terminalNeeded, port);
-              //       // eslint-disable-next-line max-len
-              //       logConsoleMessage(`Sent ${clientService.activeConnection.bufferedAmount} bytes`);
-              //       break;
-              //     }
-              //   }
-              // }
-
               await clientService.wsSendLoadProp(
                   loadAction, data, terminalNeeded, port);
-              logConsoleMessage(`Sent ${clientService.activeConnection.bufferedAmount} bytes`);
 
               for (let loop = 0; loop < 5; loop++) {
-                // eslint-disable-next-line max-len
                 await delay(800);
                 if (clientService.loaderIsDone) break;
 
@@ -303,58 +278,15 @@ export const loadInto = async (
                   logConsoleMessage(`Waiting for connection... (${loop+1} of 5)`);
                   if (clientService.activeConnection !== null) {
                     if (clientService.activeConnection.readyState === 1) {
-                      // run it again.
-                      // eslint-disable-next-line max-len
-                      logConsoleMessage(`Resubmitting download, ${clientService.activeConnection.bufferedAmount}`);
+                      // Resubmit the project to the Launcher
+                      logConsoleMessage(`Resubmitting download`);
                       await clientService.wsSendLoadProp(
                           loadAction, data, terminalNeeded, port);
-                      // eslint-disable-next-line max-len
-                      logConsoleMessage(`Sent ${clientService.activeConnection.bufferedAmount} bytes`);
-                      // break;
                     }
                   }
                 }
               }
-
-              // if (! clientService.activeConnection ||
-              //     clientService.activeConnection.readyState !== 1) {
-              // eslint-disable-next-line max-len
-              //   logConsoleMessage(`Connection has failed after program load`);
-              //
-              //   for (let loop = 0; loop < 5; loop++) {
-              // eslint-disable-next-line max-len
-              //     logConsoleMessage(`Waiting for connection... (${loop} of 5)`);
-              //     await delay(1000);
-              //     if (clientService.activeConnection !== null) {
-              //       if (clientService.activeConnection.readyState === 1) {
-              //         // run it again.
-              //         logConsoleMessage(`Resubmitting download`);
-              //         await clientService.wsSendLoadProp(
-              //             loadAction, data, terminalNeeded, getComPort());
-              //         break;
-              //       }
-              //     }
-              //   }
-              // }
             })();
-
-            // await clientService.wsSendLoadProp(
-            //     loadAction, data, terminalNeeded, getComPort());
-            // await setTimeout( async () => {
-            //   // eslint-disable-next-line max-len
-            //   logConsoleMessage(`Looking for a pulse:`);
-            //   if (clientService.activeConnection !== null &&
-            //           clientService.activeConnection.readyState === 1) {
-            //     logConsoleMessage(`Connection is active after program load`);
-            //   } else {
-            //     logConsoleMessage(`Looking for a do-over`);
-            //     await setTimeout(async () => {
-            //       // run it again.
-            //       await clientService.wsSendLoadProp(
-            //           loadAction, data, terminalNeeded, getComPort());
-            //     }, 1500);
-            //   }
-            // }, 500);
           } else {
           // Send the compile submission via an HTTP post
             if (clientService.version.isCoded) {
@@ -438,7 +370,6 @@ export const loadInto = async (
   }
 };
 
-
 /**
  * Evaluate the project to determine if a terminal or graph window is required
  * when the project is run on the device
@@ -476,7 +407,6 @@ const isTerminalWindowRequired = () => {
   }
   return terminalNeeded;
 };
-
 
 /**
  * Display information about the serial connection to the device
