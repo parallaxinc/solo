@@ -23,3 +23,5 @@ dist
 
 # Library files for IDE autocomplete assistance
 lib
+
+.cache

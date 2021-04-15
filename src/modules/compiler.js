@@ -20,6 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+import * as Sentry from '@sentry/browser';
 import {logConsoleMessage} from './utility';
 import {appendCompileConsoleMessage} from './blocklyc';
 import {APP_STAGE} from './constants';
@@ -71,17 +72,18 @@ export const cloudCompile = async (action, sourceCode) => {
     } else {
       // Something unexpected has happened while calling the compile service
       if (result) {
-        logConsoleMessage(`Compiler service request failed: ${result.state()}`);
+        logConsoleMessage(`Compiler service request failed`);
 
-        const state = result.state();
-        let message = 'Unable to compile the project.\n';
+        const state = result.success;
+        let message = '\nError: Unable to compile the project.\n';
         if (state === 'rejected') {
           message += '\nThe compiler service is temporarily unavailable or';
           message += ' unreachable.\nPlease try again in a few moments.';
         } else {
-          message += 'Error "' + result.status + '" has been detected.';
+          message += `\n${result['compiler-error']}`;
         }
         appendCompileConsoleMessage(message);
+        Sentry.captureMessage(message);
       }
     }
     return result;

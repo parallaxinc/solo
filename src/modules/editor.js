@@ -65,8 +65,10 @@ import {initToolbarIcons} from './toolbar_controller';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
-import {getAllUrlParameters, getURLParameter} from './utility';
-import {utils, logConsoleMessage, sanitizeFilename} from './utility';
+import {
+  getAllUrlParameters, getURLParameter, prettyCode,
+  utils, logConsoleMessage, sanitizeFilename,
+} from './utility';
 import {getXmlCode} from './code_editor';
 import {newProjectDialog} from './dialogs/new_project';
 import {openProjectDialog} from './dialogs/open_project';
@@ -2136,25 +2138,25 @@ const formatWizard = function() {
   codePropC.gotoLine(currentLine);
 };
 
-/**
- * Pretty formatter for C code
- *
- * @param {string} rawCode
- * @return {string}
- */
-export const prettyCode = function(rawCode) {
-  // TODO: The jsBeautifer package is NOT targeted to C source code. Replace
-  //  this functionality with something that understands C source code.
-  // improve the way functions and arrays are rendered
-  rawCode = rawCode.replace(/\)\s*[\n\r]\s*{/g, ') {')
-      .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g,
-          function(str, m1, m2) {
-            m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
-            return '[' + m1 + '] = {' + m2 + '};';
-          });
-
-  return rawCode;
-};
+// /**
+//  * Pretty formatter for C code
+//  *
+//  * @param {string} rawCode
+//  * @return {string}
+//  */
+// export const prettyCode = function(rawCode) {
+//   // TODO: The jsBeautifier package is NOT targeted to C source code. Replace
+//   //  this functionality with something that understands C source code.
+//   // improve the way functions and arrays are rendered
+//   rawCode = rawCode.replace(/\)\s*[\n\r]\s*{/g, ') {')
+//       .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g,
+//           function(str, m1, m2) {
+//             m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
+//             return '[' + m1 + '] = {' + m2 + '};';
+//           });
+//
+//   return rawCode;
+// };
 
 /**
  * Save a project to the local file system
