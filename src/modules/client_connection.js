@@ -143,7 +143,6 @@ export const findClient = function() {
 
   // If connected to the BP-Client, poll for an updated port list
   if (clientService.type === serviceConnectionTypes.HTTP) {
-    logConsoleMessage('From findClient(): looking for com ports');
     checkForComPorts();
   }
 };
@@ -158,9 +157,6 @@ export const findClient = function() {
 function establishBPLauncherConnection() {
   if (!clientService.available) {
     let connection;
-
-    // Clear the port list
-    // clientService.clearPortList();
 
     try {
       connection = new WebSocket(clientService.url('', 'ws'));
