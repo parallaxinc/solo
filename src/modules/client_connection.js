@@ -428,9 +428,7 @@ function lostWSConnection() {
     clientService.type = serviceConnectionTypes.NONE;
     clientService.available = false;
   }
-  // Clear ports list
-  // clientService.clearPortList();
-  // setPortListUI();
+
   propToolbarButtonController();
 }
 
