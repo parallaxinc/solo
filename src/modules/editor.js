@@ -230,12 +230,6 @@ function initEventHandlers() {
     resetToolBoxSizing(100);
   });
 
-  // View older BP Client installations button onClick handler
-  $('#older-clients').on('click', function() {
-    $('.bpc-old').removeClass('hidden');
-    // $(this).addClass('hidden');
-  });
-
   // ----------------------------------------------------------------------- //
   // Left side toolbar event handlers                                        //
   // ----------------------------------------------------------------------- //
@@ -357,27 +351,11 @@ function initEventHandlers() {
   $('.show-os-chr').on('click', () => showOS('ChromeOS'));
   $('.show-os-lnx').on('click', () => showOS('Linux'));
 
-  // Hide these elements of the Open Project File modal when it
-  // receives focus
-  // $('#selectfile').focus(function() {
-  //   logConsoleMessage(`Resetting select file validation messages`);
-  //   $('#selectfile-verify-notvalid').css('display', 'none');
-  //   $('#selectfile-verify-valid').css('display', 'none');
-  //   $('#selectfile-verify-boardtype').css('display', 'none');
-  // });
-
   // Serial port drop down onClick event handler
   $('#comPort').on('change', (event) => {
     logConsoleMessage(`Selecting port: ${event.target.value}`);
     clientService.setSelectedPort(event.target.value);
     propToolbarButtonController();
-  });
-
-  // Click event handler for the older BP Clients dialog
-  $('#show-older-clients').on('click', function() {
-    $('.bpc-old').removeClass('hidden');
-    // eslint-disable-next-line no-invalid-this
-    $(this).addClass('hidden');
   });
 }
 
