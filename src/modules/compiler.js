@@ -67,8 +67,7 @@ export const cloudCompile = async (action, sourceCode) => {
     const result = await postToCompiler(postUrl, sourceCode);
     if (result.success) {
       appendCompileConsoleMessage(
-          `${result['compiler-output']}
-              ${result['compiler-error']}\n`);
+          `${result['compiler-output']}${result['compiler-error']}\n`);
     } else {
       // Something unexpected has happened while calling the compile service
       if (result) {

@@ -247,6 +247,11 @@ export const loadInto = async (
   // Compile the project code
     await cloudCompile(compileCommand, propcCode)
         .then( async (data) => {
+          // Stop here if the compile failed.
+          if (!data.success) {
+            return;
+          }
+
           const terminalNeeded = isTerminalWindowRequired();
 
           if (clientService.type === serviceConnectionTypes.WS) {
