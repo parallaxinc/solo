@@ -28,7 +28,7 @@ import {getComPort} from './client_connection';
 import {clientService, serviceConnectionTypes} from './client_service';
 import {loadToolbox} from './editor';
 import {CodeEditor, getSourceEditor} from './code_editor';
-import {getProjectInitialState} from './project';
+import {getProjectInitialState, Project} from './project';
 import {cloudCompile} from './compiler';
 import {serialConsole} from './serial_console';
 import {showCannotCompileEmptyProject, showCompilerStatusWindow} from './modals';
@@ -1089,3 +1089,23 @@ export function compileConsoleScrollToBottom() {
   compileConsoleObj.scrollTop = compileConsoleObj.scrollHeight;
 }
 
+/**
+ * Are there any blocks in the Blockly workspace
+ * @return {boolean}
+ */
+export const hasCode = () => {
+  let result = false;
+  if (Blockly) {
+    if (Blockly.Xml) {
+      if (Blockly.mainWorkspace) {
+        const xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
+        const text = Blockly.Xml.domToText(xml);
+        const emptyHeader = Project.getTerminatedEmptyProjectCodeHeader();
+        if (text !== emptyHeader) {
+          result = true;
+        }
+      }
+    }
+  }
+  return result;
+};
