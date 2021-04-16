@@ -75,7 +75,7 @@ export function propToolbarButtonController() {
        clientService.type === serviceConnectionTypes.WS )) {
     if (clientService.portsAvailable &&
         clientService.portList.length > 0 &&
-        clientService.portList[0].length > 0) {
+        clientService.getSelectedPort().length > 0) {
       if (isS3boardType) {
         setS3UIButtonGroup();
       } else {
