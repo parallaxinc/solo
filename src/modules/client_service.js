@@ -230,19 +230,24 @@ export const clientService = {
   },
 
   /**
-   * Setter for the selectedPort property
+   * Set the selectedPort property ony if the new setting is different than
+   * the current setting. Any change is reported to the Launcher as the new
+   * preferred com port.
+   *
    * @param {string} portName
    */
   setSelectedPort: function(portName) {
     // Sentry Solo-6T
     if (this.activeConnection) {
-      logConsoleMessage(`Setting preferred port to: ${portName}`);
-      this.selectedPort_ = portName;
-      // Request a port list from the server
-      this.activeConnection.send(JSON.stringify({
-        type: 'pref-port',
-        portPath: portName,
-      }));
+      if (portName !== this.getSelectedPort()) {
+        logConsoleMessage(`Setting preferred port to: ${portName}`);
+        this.selectedPort_ = portName;
+        // Request a port list from the server
+        this.activeConnection.send(JSON.stringify({
+          type: 'pref-port',
+          portPath: portName,
+        }));
+      }
     }
   },
 
