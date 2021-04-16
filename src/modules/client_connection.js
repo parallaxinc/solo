@@ -280,6 +280,9 @@ function establishBPLauncherConnection() {
  *  wsMessage.ports is a array of available ports
  */
 function wsProcessPortListMessage(message) {
+  if (debug) {
+    logConsoleMessage(`Processing port list message: ${message}`);
+  }
   if (clientService.getPortLastUpdate() === 0) {
     logConsoleMessage(`Port list received`);
   }
@@ -289,7 +292,7 @@ function wsProcessPortListMessage(message) {
       clientService.addPort(port);
     });
   }
-  setPortListUI();
+  setPortListUI(null);
   clientService.portListReceiveCountUp = 0;
 }
 
@@ -428,12 +431,15 @@ function lostWSConnection() {
 }
 
 /**
- * Set communication port list. Leave data unspecified when searching
+ * Set comms port list. Leave data unspecified when searching
  *
  * @param {Array | null} data
  */
 const setPortListUI = function(data = null) {
   if (! data) {
+    if (debug) {
+      console.log(`Using internal port list`);
+    }
     data = clientService.portList;
   }
 
@@ -451,6 +457,9 @@ const setPortListUI = function(data = null) {
   if (typeof (data) === 'object' && data.length > 0) {
     let blankPort = false;
     data.forEach(function(port) {
+      if (debug) {
+        console.log(`COM Port: ${port}`);
+      }
       if (port.length === 0) {
         blankPort = true;
       }
@@ -575,6 +584,7 @@ function selectComPort(comPort) {
   // A valid com port has been selected
   if (comPort !== null) {
     uiComPort.val(comPort);
+    clientService.setSelectedPort(comPort);
     return;
   }
 
