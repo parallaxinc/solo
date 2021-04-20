@@ -830,32 +830,18 @@ page_text_label['client_macOS_run_title'] = 'Running the BlocklyProp Launcher on
 page_text_label['client_run_instructions2'] = 'Once the BlocklyProp Launcher is running and connected, you may return to your browser and load programs to your device.';
 page_text_label['client_windows_run_instructions1'] = 'Click the Windows (start) icon in the lower-left corner of your screen. Then look for the BlocklyProp Launcher application inside of the &quot;Parallax Inc&quot; folder:';
 page_text_label['client_windows_run_title'] = 'Running the BlocklyProp Launcher on your Windows PC';
-
-// BP Client installation for Chrome OS
 page_text_label['clientdownload_client_chromeos_alreadyinstalled'] = 'BlocklyProp Launcher is already installed.  Make sure it is open and running.';
 page_text_label['clientdownload_client_chromeos_installer'] = 'Add to Chrome';
-
-// BP Client installation for MacOS
 page_text_label['clientdownload_client_macos_installer'] = 'MacOS client installer';
-
-// BP Client installations for Windows
 page_text_label['clientdownload_client_windows32_installer'] = 'Windows 7/8/8.1/10 (32-bit) client installer';
 page_text_label['clientdownload_client_windows32zip_installer'] = 'Windows 7/8/8.1/10 (32-bit) client installer (zip)';
 page_text_label['clientdownload_client_windows64_installer'] = 'Windows 7/8/8.1/10 (64-bit) client installer';
 page_text_label['clientdownload_client_windows64zip_installer'] = 'Windows 7/8/8.1/10 (64-bit) client installer (zip)';
-
-// MacOS Launcher installations
-page_text_label['client_download_launcher_macos_big_sur_installer'] = 'BP-Launcher installer for MacOS Big Sur';
-page_text_label['client_download_launcher_macos_catalina_installer'] = 'BP-Launcher installer for MacOS Catalina';
-page_text_label['client_download_launcher_macos_mojave_installer'] = 'BP-Launcher installer for MacOS Mojave';
-page_text_label['client_download_launcher_macos_high_sierra_installer'] = 'BP-Launcher installer for MacOS High Sierra';
-
-// Windows Launcher installations
+page_text_label['clientdownload_launcher_macos_installer'] = 'MacOS BP-Launcher installer';
 page_text_label['clientdownload_launcher_windows32_installer'] = 'Windows 7/8/8.1/10 (32-bit) BP-Launcher installer';
 page_text_label['clientdownload_launcher_windows32zip_installer'] = 'Windows 7/8/8.1/10 (32-bit) BP-Launcher installer (zip)';
 page_text_label['clientdownload_launcher_windows64_installer'] = 'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer';
 page_text_label['clientdownload_launcher_windows64zip_installer'] = 'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer (zip)';
-
 page_text_label['clientdownload_download_installer'] = 'Download the installer';
 page_text_label['clientdownload_download_launcher'] = 'Install the Launcher App';
 page_text_label['clientdownload_instructions'] = 'The BlocklyProp Launcher application loads your programs into the Propeller and allows you to have a serial terminal in your browser connected to your Propeller.';
