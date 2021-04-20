@@ -1380,7 +1380,6 @@ Blockly.Blocks.serial_send_text = {
   onchange: function(event) {
     // Filter events for only 'serial_open' blocks or deletion events or
     // changes to the serial_print_multiple block
-    console.log('serial_send_text:Change');
     if (event &&
         (event.type === Blockly.Events.BLOCK_CREATE ||
          event.type === Blockly.Events.BLOCK_DELETE ||
