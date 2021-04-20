@@ -25,6 +25,7 @@ import 'bootstrap/js/modal';
 import 'jquery-validation';
 import {displayProjectName} from './editor.js';
 import {getProjectInitialState} from './project';
+import {utils} from './utility';
 
 /**
  *  Validate the required elements of the edit project form
@@ -130,7 +131,7 @@ function setEditOfflineProjectDetailsContinueHandler() {
 function updateProjectDetails() {
   updateProjectNameDescription(
       $('#edit-project-name').val(),
-      $('#edit-project-description').val()
+      $('#edit-project-description').val(),
   );
 }
 
@@ -170,4 +171,28 @@ function setEditOfflineProjectDetailsCancelHandler() {
     $('#edit-project-dialog').modal('hide');
   });
 }
+
+/**
+ * Display a dialog window that warns of an attempt to compile
+ * an empty project.
+ */
+export const showCannotCompileEmptyProject = () => {
+  utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT,
+      Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
+};
+
+
+/**
+ *  Display the compiler status modal window
+ * @param {string} titleBar is the text that will appear in the modal title bar
+ */
+export const showCompilerStatusWindow = (titleBar) => {
+  $('#compile-dialog-title').text(titleBar);
+  $('#compile-console').val('Compile... ');
+  $('#compile-dialog').modal('show');
+};
+
+export const hideCompilerStatusWindow = () => {
+  $('#compile-dialog').hide();
+};
 

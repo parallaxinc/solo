@@ -21,22 +21,30 @@
  */
 
 import * as Sentry from '@sentry/browser';
+// import {Integrations} from '@sentry/tracing';
+
 import {APP_VERSION, EnableSentry} from './constants';
 
 /**
  * Initialize the Sentry logger
  */
-function startSentry() {
+const startSentry = async () => {
   /* Error logging */
   if (EnableSentry) {
     Sentry.init({
       dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639',
       release: `SoloCup:${APP_VERSION}`,
+      // integrations: [new Integrations.BrowserTracing({
+      //   tracingOrigins: [
+      //     'localhost',
+      //     'solo.parallax.com',
+      //   ],
+      // })],
+      // tracesSampleRate: 1.0,
     });
-    console.log('Sentry initialized');
   } else {
     console.log(`WARNING: Sentry is disabled.`);
   }
-}
+};
 
 export {startSentry};

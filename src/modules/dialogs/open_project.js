@@ -93,7 +93,6 @@ export const openProjectDialog = {
     setSelectedFileOnChange(); // Handle selected file onChange event
 
     this.isEventHandler = true;
-    logConsoleMessage(`Open Project dialog handlers initialized.`);
   },
 
   /**
@@ -165,8 +164,6 @@ function uiDisableOpenButton() {
  * Open a modal dialog to prompt user for the project file name
  */
 function openProjectDialogWindow() {
-  // Open the modal dialog. The event handlers will take it from here.
-  logConsoleMessage(`Open Project dialog is opening`);
   $('#open-project-dialog').modal({
     keyboard: false,
     backdrop: 'static',

@@ -85,7 +85,6 @@ export const clientService = {
    */
   port: 6009,
 
-
   /**
    * Connection type: "ws", "http", or ''
    * @type {string}
@@ -170,11 +169,37 @@ export const clientService = {
   terminalBaudRate: 115200,
 
   /**
+   * Flag to indicate that an attempt to load a program is in progress.
+   *
+   * @type {boolean}
+   *
+   * @description This flag will be set to true if the connection is lost
+   * or reset while an active attempt is being made to load a program to the
+   * target device.
+   */
+  loaderResetDetect: false,
+
+  /**
+   * Flag to indicate that the Launcher has reported a complete load cycle,
+   * regardless of success or failure.
+   *
+   * @type {boolean}
+   *
+   * @description This flag is set false at the beginning of a load to device
+   * cycle. If the cycle is interrupted by a web socket disconnect, this flag
+   * ensures that the application will retry the load process until it receives
+   * a message from the Launcher that the load succeeded or failed. Either of
+   * these states will reset the flag. The code that manages loader retries
+   * relies on this flag and the loaderResetDetect flag to determine if a reload
+   * attempt is necessary.
+   */
+  loaderIsDone: false,
+
+  /**
    * Setter for terminal baud rate
    * @param {number} baudRate
    */
   setTerminalBaudRate: function(baudRate) {
-    logConsoleMessage(`Setting terminal baud rate to: ${baudRate}`);
     this.terminalBaudRate = baudRate;
   },
 
@@ -205,19 +230,24 @@ export const clientService = {
   },
 
   /**
-   * Setter for the selectedPort property
+   * Set the selectedPort property ony if the new setting is different than
+   * the current setting. Any change is reported to the Launcher as the new
+   * preferred com port.
+   *
    * @param {string} portName
    */
   setSelectedPort: function(portName) {
     // Sentry Solo-6T
     if (this.activeConnection) {
-      logConsoleMessage(`Setting preferred port to: ${portName}`);
-      this.selectedPort_ = portName;
-      // Request a port list from the server
-      this.activeConnection.send(JSON.stringify({
-        type: 'pref-port',
-        portPath: portName,
-      }));
+      if (portName !== this.getSelectedPort()) {
+        logConsoleMessage(`Setting preferred port to: ${portName}`);
+        this.selectedPort_ = portName;
+        // Request a port list from the server
+        this.activeConnection.send(JSON.stringify({
+          type: 'pref-port',
+          portPath: portName,
+        }));
+      }
     }
   },
 
@@ -288,7 +318,6 @@ export const clientService = {
     }
   },
 
-
   /**
    * Send a load-prop message to the BP Launcher
    *
@@ -297,10 +326,7 @@ export const clientService = {
    * @param {string} terminal
    * @param {string} port
    */
-  wsSendLoadProp: function(loadAction, data, terminal, port) {
-    if (debug) {
-      logConsoleMessage(`(wsSLP) Entering`);
-    }
+  wsSendLoadProp: async function(loadAction, data, terminal, port) {
     const programToSend = {
       type: 'load-prop',
       action: loadAction,
@@ -309,6 +335,7 @@ export const clientService = {
       extension: data.extension,
       payload: data.binary,
     };
+
     // Debugging message
     if (debug) {
       logConsoleMessage(`(wsSLP) Sending message to the web socket:`);
@@ -316,20 +343,33 @@ export const clientService = {
       logConsoleMessage(`(wsSLP) Action: ${programToSend.action}`);
       logConsoleMessage(`(wsSLP) Debug: ${programToSend.debug}`);
       logConsoleMessage(`(wsSLP) ComPort: ${programToSend.portPath}`);
-
-      // eslint-disable-next-line max-len
-      logConsoleMessage(
-          `(wsSLP) Web socket state is: ` +
+      logConsoleMessage(`(wsSLP) Web socket state is: ` +
           `${clientService.activeConnection.readyState}`);
     }
-
-    const payload = JSON.stringify(programToSend);
 
     if (this.activeConnection) {
       if (debug) {
         logConsoleMessage(`(wsSLP) Sending payload to socket`);
       }
+
+      const payload = JSON.stringify(programToSend);
+
+      if (debug) {
+        // eslint-disable-next-line max-len
+        logConsoleMessage(`Connection state is: ${this.activeConnection.readyState}`);
+        logConsoleMessage(`Sending ${payload.length} bytes to the Launcher`);
+        // eslint-disable-next-line max-len
+        logConsoleMessage(`WS buffer is ${this.activeConnection.bufferedAmount} bytes before transmit`);
+      }
+
+      this.loaderResetDetect = false;
+      this.loaderIsDone = false;
       this.activeConnection.send(payload);
+
+      if (debug) {
+        logConsoleMessage(`WS buffer is ${this.activeConnection.bufferedAmount} ` +
+        `bytes after transmit`);
+      }
     } else {
       logConsoleMessage(
           `Cannot send "load-prop:${loadAction} message. ` +
@@ -420,6 +460,9 @@ export const clientService = {
     isRecommended: false,
 
     /**
+     * Is the BlocklyProp Client version above or equal to the minimum
+     * version supported
+     *
      * {boolean} current >= CODED_MINIMUM
      */
     isCoded: false,
@@ -494,7 +537,6 @@ export const clientService = {
   },
 };
 
-
 /**
  * Initialize the terminal object
  */
@@ -521,6 +563,6 @@ export function initTerminal() {
           clientService.activeConnection.send(JSON.stringify(msgToSend));
         }
       },
-      null
+      null,
   );
 }

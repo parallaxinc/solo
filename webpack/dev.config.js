@@ -32,7 +32,6 @@ const path = require('path');
  */
 const targetPath = '../dist';
 
-
 module.exports = merge(baseConfig, {
   devServer: {
     port: 3000

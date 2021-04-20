@@ -65,15 +65,19 @@ import {initToolbarIcons} from './toolbar_controller';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
-import {getAllUrlParameters, getURLParameter} from './utility';
-import {utils, logConsoleMessage, sanitizeFilename} from './utility';
+import {
+  getAllUrlParameters, getURLParameter, prettyCode,
+  utils, logConsoleMessage, sanitizeFilename,
+} from './utility';
 import {getXmlCode} from './code_editor';
 import {newProjectDialog} from './dialogs/new_project';
 import {openProjectDialog} from './dialogs/open_project';
 import {importProjectDialog} from './dialogs/import_project';
 
-startSentry();
-logConsoleMessage(`Launching the editor`);
+// Start up the sentry monitor before we run
+startSentry()
+    .then( (resp) => console.log('Sentry has started.'))
+    .catch((err) => console.log('Sentry failed to start'));
 
 /**
  * The call to Blockly.svgResize() requires a reference to the
@@ -143,9 +147,9 @@ $(() => {
     // Load this project
     // Copy the stored temp project to the stored local project
     const project = projectJsonFactory(JSON.parse(backup));
-    const currentProject = getProjectInitialState();
-    logConsoleMessage(`Current project and new project are equal?  ` +
-        `${Project.compare(project, currentProject)}`);
+    // const currentProject = getProjectInitialState();
+    // logConsoleMessage(`Current project and new project are equal?  ` +
+    //     `${Project.compare(project, currentProject)}`);
     insertProject(project);
   } else {
     logConsoleMessage(`Creating default project`);
@@ -161,7 +165,9 @@ $(() => {
       newProjectDialog.show();
     }
   }
-  resetToolBoxSizing(250);
+  // This is probably not needed because it is called when a project is loaded
+  // or the default project is loaded.
+  // resetToolBoxSizing(250);
 });
 
 
@@ -170,8 +176,6 @@ $(() => {
  * elements on the editor page once the page has been loaded.
  */
 function initInternationalText() {
-  logConsoleMessage(`Init international messages`);
-
   $('.keyed-lang-string').each(function(key, value) {
     // Locate each HTML element of class 'keyed-lang-string'
     // Set a reference to the current selected element
@@ -211,7 +215,6 @@ function initInternationalText() {
  * Set up event handlers - Attach events to nav/action menus/buttons
  */
 function initEventHandlers() {
-  logConsoleMessage(`Init event handlers`);
   // Leave editor page exit processing
   leavePageHandler();
 
@@ -225,31 +228,6 @@ function initEventHandlers() {
   $(window).on('resize', function() {
     // TODO: Add correct parameters to the resetToolBoxSizing()
     resetToolBoxSizing(100);
-  });
-
-  // ----------------------------------------------------------------------- //
-  // Select file event handlers                                              //
-  // ----------------------------------------------------------------------- //
-
-
-  // Attach handler to process a project file when it is selected in the
-  // Open Project toolbar button
-  // const openFileSelectControl = document.getElementById(
-  //     'open-project-select-file' );
-  // openFileSelectControl.addEventListener('change', (e) => {
-  //   if (e.target.files[0] && e.target.files[0].length > 0) {
-  //     logConsoleMessage(
-  //         `OpenProject onChange event: ${e.target.files[0].name}`);
-  //     // Load project into browser storage and let the modal event handler
-  //     // decide what to do with it
-  //     uploadHandler(e.target.files);
-  //   }
-  // });
-
-  // View older BP Client installations button onClick handler
-  $('#older-clients').on('click', function() {
-    $('.bpc-old').removeClass('hidden');
-    // $(this).addClass('hidden');
   });
 
   // ----------------------------------------------------------------------- //
@@ -358,10 +336,10 @@ function initEventHandlers() {
   // popup modal
   $('#save-as-board-btn').on('click', () => saveProjectAs(
       $('#save-as-board-type').val(),
-      $('#save-as-project-name').val()
+      $('#save-as-project-name').val(),
   ));
 
-  $('#btn-graph-play').on('click', () => graphPlay());
+  $('#btn-graph-play').on('click', () => graphPlay(''));
   $('#btn-graph-snapshot').on('click', () => downloadGraph());
   $('#btn-graph-csv').on('click', () => downloadCSV());
   $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
@@ -373,27 +351,11 @@ function initEventHandlers() {
   $('.show-os-chr').on('click', () => showOS('ChromeOS'));
   $('.show-os-lnx').on('click', () => showOS('Linux'));
 
-  // Hide these elements of the Open Project File modal when it
-  // receives focus
-  // $('#selectfile').focus(function() {
-  //   logConsoleMessage(`Resetting select file validation messages`);
-  //   $('#selectfile-verify-notvalid').css('display', 'none');
-  //   $('#selectfile-verify-valid').css('display', 'none');
-  //   $('#selectfile-verify-boardtype').css('display', 'none');
-  // });
-
   // Serial port drop down onClick event handler
   $('#comPort').on('change', (event) => {
     logConsoleMessage(`Selecting port: ${event.target.value}`);
     clientService.setSelectedPort(event.target.value);
     propToolbarButtonController();
-  });
-
-  // Click event handler for the older BP Clients dialog
-  $('#show-older-clients').on('click', function() {
-    $('.bpc-old').removeClass('hidden');
-    // eslint-disable-next-line no-invalid-this
-    $(this).addClass('hidden');
   });
 }
 
@@ -573,8 +535,6 @@ function initDefaultProject() {
  * @return {number} Error code
  */
 function setupWorkspace(data, callback) {
-  logConsoleMessage(`setupWorkspace: Preparing Blockly workspace`);
-
   // TODO: Calling the callback BEFORE the method has completed?
   if (data && typeof(data.boardType.name) === 'undefined') {
     if (callback) {
@@ -606,7 +566,6 @@ function setupWorkspace(data, callback) {
   setDefaultProfile(project.boardType);
 
   if (!project.isTimerSet()) {
-    logConsoleMessage(`setupWorkSpace: Preparing nudge timer`);
     const myTime = new NudgeTimer(0);
     // Set the callback
     myTime.myCallback = function() {
@@ -627,7 +586,6 @@ function setupWorkspace(data, callback) {
 
   // Set the help link to the ab-blocks, s3 reference, or propc reference
   // TODO: modify blocklyc.html/jsp and use an id or class selector
-  logConsoleMessage(`setupWorkspace: Render content for: ${project.name}`);
   if (project.boardType.name === 's3') {
     initToolbox(project.boardType.name);
     $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
@@ -1041,6 +999,19 @@ function generateSvgFooter( project ) {
 }
 
 /**
+ * Filename object used to open an existing project .SVG file using
+ * a blob object
+ *
+ * @typedef {Object} ProjectFileName
+ * @property {number} lastModified
+ * @property {Date} lastModifiedDate
+ * @property {string} name
+ * @property {number} size
+ * @property {string} type
+ * @property {string} webkitRelativePath
+ */
+
+/**
  *  Retrieve an SVG project file from local storage.
  *
  *  This is the .selectfile.onChange() event handler.
@@ -1048,7 +1019,7 @@ function generateSvgFooter( project ) {
  *  and then stores the verified resulting project into the browser's
  *  localStorage.
  *
- * @param {string []} files is an array of file names
+ * @param {ProjectFileName[]} files
  * @param {Array?} elements contains an array of HTMLElement ids that
  * identify the UI controls to enable when a valid project file has been
  * loaded.
@@ -1059,10 +1030,11 @@ export function uploadHandler(files, elements = null) {
     logConsoleMessage(`UploadHandler: files list is empty`);
     return;
   }
-  const UploadReader = new FileReader();
-  const fileBlob = new Blob(files);
+
+  const fileBlob = new Blob(files, {type: 'text/strings'});
   const filename = files[0].name;
   const fileType = files[0].type;
+  const UploadReader = new FileReader();
 
   // This will fire is something goes sideways
   UploadReader.onerror = function() {
@@ -1071,24 +1043,27 @@ export function uploadHandler(files, elements = null) {
 
   // TODO: Refactor this to ES5 for support in Safari and Opera
   // eslint-disable-next-line no-unused-vars
-  const textPromise = fileBlob.text();
-  fileBlob.text().then((text) => {
-    if (text && text.length > 0) {
-      if (parseProjectFileString(filename, fileType, text)) {
-        // update controls is provided
-        if (elements) {
-          elements.forEach(function(item, index, array) {
-            const element = $(`#${item}`);
-            if (element) {
-              element.removeClass('disabled');
+  const textPromise = fileBlob.text()
+      .then((text) => {
+        if (text && text.length > 0) {
+          if (parseProjectFileString(filename, fileType, text)) {
+            // update controls is provided
+            if (elements) {
+              elements.forEach(function(item, index, array) {
+                const element = $(`#${item}`);
+                if (element) {
+                  element.removeClass('disabled');
+                }
+              });
             }
-          });
+          }
+        } else {
+          logConsoleMessage(`The selected project file appears to be empty`);
         }
-      }
-    } else {
-      logConsoleMessage(`The selected project file appears to be empty`);
-    }
-  });
+      })
+      .catch((err) => {
+        logConsoleMessage(`${err.message}`);
+      });
 }
 
 /**
@@ -1334,8 +1309,6 @@ function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
  * TODO: This should be called on the front end before the dialog is opened.
  */
 function clearUploadInfo() {
-  logConsoleMessage(`Clearing upload metadata`);
-
   $('#selectfile').val('');
   $('#selectfile-verify-notvalid').css('display', 'none');
   $('#selectfile-verify-valid').css('display', 'none');
@@ -1610,7 +1583,6 @@ function showOS(os) {
  * Clear the main workspace in the Blockly object
  */
 function clearBlocklyWorkspace() {
-  logConsoleMessage(`Clearing the current Blockly root workspace`);
   const workspace = Blockly.getMainWorkspace();
 
   if (workspace) {
@@ -1890,8 +1862,6 @@ export function createNewProject() {
  * @param {Project} project
  */
 export function insertProject(project) {
-  logConsoleMessage(`Inserting project ${project.name}`);
-
   try {
     // project.stashProject(LOCAL_PROJECT_STORE_NAME);
     clearProjectInitialState();
@@ -1917,7 +1887,6 @@ export function insertProject(project) {
       project.setProjectTimer(myTime);
     }
 
-    logConsoleMessage(`Setting up the workspace in blockly core`);
     setupWorkspace(project);
 
     // Create an instance of the CodeEditor class
@@ -2033,7 +2002,6 @@ function renderContent(id) {
 
   switch (selectedTab) {
     case 'blocks':
-      logConsoleMessage('Displaying project blocks');
       $('.blocklyToolboxDiv').css('display', 'block');
 
       $('#content_xml').css('display', 'none');
@@ -2057,8 +2025,6 @@ function renderContent(id) {
       getWorkspaceSvg().render();
       break;
     case 'propc':
-      logConsoleMessage('Displaying project C source code');
-
       $('.blocklyToolboxDiv').css('display', 'none');
 
       $('#content_xml').css('display', 'none');
@@ -2117,7 +2083,6 @@ function renderContent(id) {
       codeXml.gotoLine(0);
       break;
   }
-  logConsoleMessage(`Content is rendered.`);
 }
 
 /**
@@ -2132,25 +2097,25 @@ const formatWizard = function() {
   codePropC.gotoLine(currentLine);
 };
 
-/**
- * Pretty formatter for C code
- *
- * @param {string} rawCode
- * @return {string}
- */
-export const prettyCode = function(rawCode) {
-  // TODO: The jsBeautifer package is NOT targeted to C source code. Replace
-  //  this functionality with something that understands C source code.
-  // improve the way functions and arrays are rendered
-  rawCode = rawCode.replace(/\)\s*[\n\r]\s*{/g, ') {')
-      .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g,
-          function(str, m1, m2) {
-            m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
-            return '[' + m1 + '] = {' + m2 + '};';
-          });
-
-  return rawCode;
-};
+// /**
+//  * Pretty formatter for C code
+//  *
+//  * @param {string} rawCode
+//  * @return {string}
+//  */
+// export const prettyCode = function(rawCode) {
+//   // TODO: The jsBeautifier package is NOT targeted to C source code. Replace
+//   //  this functionality with something that understands C source code.
+//   // improve the way functions and arrays are rendered
+//   rawCode = rawCode.replace(/\)\s*[\n\r]\s*{/g, ') {')
+//       .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g,
+//           function(str, m1, m2) {
+//             m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
+//             return '[' + m1 + '] = {' + m2 + '};';
+//           });
+//
+//   return rawCode;
+// };
 
 /**
  * Save a project to the local file system

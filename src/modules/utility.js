@@ -433,6 +433,27 @@ export function sanitizeFilename(input) {
   return input;
 }
 
+export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Pretty formatter for C code
+ *
+ * @param {string} rawCode
+ * @return {string}
+ */
+export const prettyCode = function(rawCode) {
+  // TODO: The jsBeautifier package is NOT targeted to C source code. Replace
+  //  this functionality with something that understands C source code.
+  // improve the way functions and arrays are rendered
+  rawCode = rawCode.replace(/\)\s*[\n\r]\s*{/g, ') {')
+      .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g,
+          function(str, m1, m2) {
+            m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
+            return '[' + m1 + '] = {' + m2 + '};';
+          });
+
+  return rawCode;
+};
 
 export {
   utils, isExperimental, getURLParameter, getAllUrlParameters,

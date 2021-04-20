@@ -22,7 +22,7 @@
 
 import Blockly from 'blockly/core';
 import {getDefaultProfile, getProjectInitialState} from '../../../project';
-import {colorPalette} from '../propc';
+import {colorPalette, isDeprecatedBlockWarningEnabled} from '../propc';
 
 const SdInitMissingMessage =
     '/** WARNING: You must use a SD initialize block at the' +
@@ -34,6 +34,9 @@ const SdOpenMissingMessage =
 
 /**
  * SD Card Initialization
+ *
+ * This block does not appear in the toolbox but is referenced by other blocks.
+ *
  * @type {{
  *  init: Blockly.Blocks.sd_init.init,
  *  helpUrl: string
@@ -98,9 +101,18 @@ Blockly.propc.sd_init = function() {
  */
 Blockly.Blocks.sd_open = {
   helpUrl: Blockly.MSG_SD_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_SD_OPEN_TOOLTIP);
-    this.setColour(colorPalette.getColor('output'));
+
+    // Block is being replaced with newer functionality
+    if (isDeprecatedBlockWarningEnabled()) {
+      this.setColour(colorPalette.getColor('deprecated'));
+      this.setWarningText('A newer version of this block is available.');
+    } else {
+      this.setColour(colorPalette.getColor('output'));
+    }
+
     this.appendDummyInput('MODE')
         .appendField('SD file open')
         .appendField(new Blockly.FieldTextInput(
@@ -149,9 +161,16 @@ Blockly.Blocks.sd_open = {
 
 /**
  * SD Card Open C code generator
+ *
+ * NOTE:
+ * The sd_init block is automatically included when the board profile includes
+ * pin assignments for a board-mounted sd card reader.
+ *
  * @return {string}
  */
 Blockly.propc.sd_open = function() {
+  // Verify that the sd_init is included in the project. For specific board
+  // type, the setting are derived from the board profile.
   const initSdBlock = Blockly.getMainWorkspace().getBlocksByType(
       'sd_init', false);
   if (initSdBlock.length === 0 || !initSdBlock[0].isEnabled()) {
@@ -167,7 +186,13 @@ Blockly.propc.sd_open = function() {
 
   const filename = this.getFieldValue('FILENAME');
   const mode = this.getFieldValue('MODE');
-  return `fp = fopen("${filename}","${mode}");\n`;
+
+  let code = `fp = fopen("${filename}","${mode}");\n`;
+  if (isDeprecatedBlockWarningEnabled()) {
+    code = `\n/** NOTICE **\n  * A newer version of this block ` +
+        `is available.\n  **/\n` + code;
+  }
+  return code;
 };
 
 /**
@@ -183,6 +208,7 @@ Blockly.propc.sd_open = function() {
  */
 Blockly.Blocks.sd_read = {
   helpUrl: Blockly.MSG_SD_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_SD_READ_TOOLTIP);
     this.setColour(colorPalette.getColor('output'));
@@ -203,6 +229,7 @@ Blockly.Blocks.sd_read = {
     }
     this.setSdMode(mode);
   },
+
   setSdMode: function(mode) {
     let connectedBlock = null;
 
@@ -213,9 +240,11 @@ Blockly.Blocks.sd_read = {
       }
       this.removeInput('SIZE');
     }
+
     if (this.getInput('VALUE')) {
       this.removeInput('VALUE');
     }
+
     if (mode === 'fwrite') {
       // Ensure that the field only receives numeric data
       this.appendValueInput('SIZE')
@@ -296,9 +325,9 @@ Blockly.propc.sd_read = function() {
   // Identify the block action (fread, fwrite, or fclose)
   const mode = this.getFieldValue('MODE');
 
-  // Handle close stright away
+  // Handle close straight away
   if (mode === 'fclose') {
-    return `if(fp) ${mode}(fp);\n`;
+    return `if(fp) {\n  ${mode}(fp);\n  fp = 0;\n}`;
   }
 
   // Verify the required SD-Open block is in the project
@@ -349,6 +378,7 @@ Blockly.propc.sd_read = function() {
   } else if (mode === 'fwrite') {
     value = Blockly.propc.valueToCode(
         this, 'VALUE', Blockly.propc.ORDER_NONE) || '';
+    return `${mode}(&${value}, 1, ${size}, fp);\n`;
   }
 
   return `${mode}(${value}, 1, ${size}, fp);\n`;
@@ -471,6 +501,53 @@ Blockly.propc.sd_file_pointer = function() {
   return code;
 };
 
+
+/**
+ * Close an open file on an sd card reader
+ *
+ * @type {{
+ *    init: Blockly.Blocks.sd_close.init,
+ *    helpUrl: string
+ *  }}
+ */
+Blockly.Blocks['sd_close'] = {
+  helpUrl: Blockly.MSG_SD_HELPURL,
+
+  init: function() {
+    this.appendDummyInput()
+        .appendField('SD file close');
+    this.setPreviousStatement(true, 'Block');
+    this.setNextStatement(true, null);
+    this.setColour(165);
+    this.setTooltip(Blockly.MSG_SD_CLOSE_TOOLTIP);
+  },
+};
+
+Blockly.propc.sd_close = function(block) {
+  // Is there an initialization block in the project
+  let initFound = false;
+  const initSdBlock = Blockly.getMainWorkspace().getBlocksByType(
+      'sd_init', false);
+  if (initSdBlock.length > 0 && initSdBlock[0].isEnabled()) {
+    initFound = true;
+  }
+
+  // Is the sd card reader embedded on the device
+  const project = getProjectInitialState();
+
+  if (project.boardType.name !== 'heb-wx' &&
+      project.boardType.name !== 'activity-board' &&
+      ! initFound) {
+    return SdInitMissingMessage;
+  }
+
+  // Silently mount the embedded sd card device
+  if (!this.disabled && !initFound) {
+    setupSdCard();
+  }
+
+  return 'if(fp) {\n  fclose(fp);\n  fp = 0;\n}';
+};
 
 /**
  * Mount SD Card

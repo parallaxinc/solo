@@ -26,13 +26,14 @@ import {saveAs} from 'file-saver';
 
 import {getComPort} from './client_connection';
 import {clientService, serviceConnectionTypes} from './client_service';
-import {loadToolbox, prettyCode} from './editor';
-import {CodeEditor} from './code_editor';
-import {getProjectInitialState} from './project';
-import {getSourceEditor} from './code_editor';
-import {logConsoleMessage, getURLParameter, utils} from './utility';
-import {sanitizeFilename} from './utility';
-
+import {loadToolbox} from './editor';
+import {CodeEditor, getSourceEditor} from './code_editor';
+import {getProjectInitialState, Project} from './project';
+import {cloudCompile} from './compiler';
+import {serialConsole} from './serial_console';
+import {showCannotCompileEmptyProject, showCompilerStatusWindow} from './modals';
+import {
+  delay, logConsoleMessage, getURLParameter, sanitizeFilename, utils, prettyCode} from './utility';
 
 /**
  * TODO: Identify the purpose of this variable
@@ -175,155 +176,32 @@ const graph_data = {
 };
 
 /**
- * Submit a project's source code to the cloud compiler
- *
- * @param {string} text
- * @param {string} action
- * @param {function} successHandler Define a callback to be executed upon
- *  sucessful compilation
+ * This is the onClick event handler for the compile toolbar button
  */
-function cloudCompile(text, action, successHandler) {
+export const compile = async () => {
   const codePropC = getSourceEditor();
-  const project = getProjectInitialState();
+
   // if PropC is in edit mode, get it from the editor, otherwise
   // render it from the blocks.
-  let propcCode = '';
-
-  if (codePropC.getReadOnly()) {
-    propcCode = prettyCode(
-        Blockly.propc.workspaceToCode(Blockly.mainWorkspace));
-  } else {
-    propcCode = codePropC.getValue();
-  }
+  const propcCode = (codePropC.getReadOnly()) ?
+      prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace)) :
+      codePropC.getValue();
 
   if (propcCode.indexOf('EMPTY_PROJECT') > -1) {
-    utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT,
-        Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
-  } else {
-    $('#compile-dialog-title').text(text);
-    $('#compile-console').val('Compile... ');
-    $('#compile-dialog').modal('show');
-
-    let terminalNeeded = null;
-
-    // TODO: propc editor needs UI for settings for terminal and graphing
-    if (project.boardType.name !== 'propcfile') {
-      const consoleBlockList = [
-        'console_print', 'console_print_variables', 'console_print_multiple',
-        'console_scan_text', 'console_scan_number', 'console_newline',
-        'console_clear', 'console_move_to_position', 'oled_font_loader',
-        'activitybot_display_calibration', 'scribbler_serial_send_text',
-        'scribbler_serial_send_char', 'scribbler_serial_send_decimal',
-        'scribbler_serial_send_decimal', 'scribbler_serial_send_ctrl',
-        'scribbler_serial_cursor_xy',
-      ];
-
-      let consoleBlockCount = 0;
-      for (let i = 0; i < consoleBlockList.length; i++) {
-        consoleBlockCount += Blockly.getMainWorkspace()
-            .getBlocksByType(consoleBlockList[i], false).length;
-      }
-
-      if (consoleBlockCount > 0) {
-        terminalNeeded = 'term';
-      } else if (Blockly.getMainWorkspace()
-          .getBlocksByType('graph_settings', false).length > 0) {
-        terminalNeeded = 'graph';
-      }
-    }
-
-    // ------------------------------------------------------------------------
-    // Contact the container running cloud compiler. If the browser is
-    // connected via https, direct the compile request to the same port and let
-    // the load balancer direct the request to the compiler.
-    // When operating from localhost, expect to find the compiler container on
-    // localhost as well. There is no override for this at the moment.
-    // ------------------------------------------------------------------------
-    let postUrl = `https://${window.location.hostname}:443/single/prop-c/${action}`;
-    if (window.location.protocol === 'http:') {
-      postUrl = `http://${window.location.hostname}:5001/single/prop-c/${action}`;
-    }
-
-    // Post the code to the compiler API and await the results
-    logConsoleMessage(`Requesting compiler service`);
-    $.ajax({
-      'method': 'POST',
-      'url': postUrl,
-      'data': {'code': propcCode},
-    }).done(function(data) {
-      logConsoleMessage(`Receiving compiler service results`);
-      // The compiler will return one of three payloads:
-      // Compile-only
-      // data = {
-      //     "success": success,
-      //     "compiler-output": out,
-      //     "compiler-error": err.decode()
-      // }
-      //
-      // Load to RAM/EEPROM
-      // data = {
-      //     "success": success,
-      //     "compiler-output": out,
-      //     "compiler-error": err.decode()
-      //     "binary": base64binary.decode('utf-8')
-      //     "extension": = extension
-      // }
-      //
-      // General error message
-      // data = {
-      //    "success": False,
-      //    "message": "unknown-action",
-      //    "data": action
-      // }
-      // {success: true, compiler-output: "Succeeded.", compiler-error: ""}
-
-      // Check for an error response from the compiler
-      if (!data || data['compiler-error'] != '') {
-        // Get message as a string, or blank if undefined
-        const message = (typeof data['compiler-error'] === 'string') ?
-            data['compiler-error'] : '';
-        appendCompileConsoleMessage(
-            data['compiler-output'] + data['compiler-error'] + message);
-      } else {
-        const loadWaitMsg = (action !== 'compile') ? '\nDownload...' : '';
-        appendCompileConsoleMessage(
-            data['compiler-output'] + data['compiler-error'] + loadWaitMsg);
-
-        if (data.success && successHandler) {
-          successHandler(data, terminalNeeded);
-        }
-        compileConsoleScrollToBottom();
-      }
-    }).fail(function(data) {
-      // Something unexpected has happened while calling the compile service
-      if (data) {
-        logConsoleMessage(`Compiler service request failed: ${data.state()}`);
-
-        const state = data.state();
-        let message = 'Unable to compile the project.\n';
-        if (state === 'rejected') {
-          message += '\nThe compiler service is temporarily unavailable or';
-          message += ' unreachable.\nPlease try again in a few moments.';
-        } else {
-          message += 'Error "' + data.status + '" has been detected.';
-        }
-        appendCompileConsoleMessage(message);
-      }
-    });
+    showCannotCompileEmptyProject();
+    return;
   }
-}
+
+  showCompilerStatusWindow('Compile');
+  await cloudCompile('compile', propcCode)
+      .then(() => compileConsoleScrollToBottom());
+};
 
 /**
- * Stub function to the cloudCompile function
- */
-export function compile() {
-  cloudCompile('Compile', 'compile', null);
-}
-
-/**
- * Begins loading process
+ * The onClick event handler for the Compile to RAM and Compile to EEPROM
+ * UI toolbar buttons of the same names.
  *
- * @param {string} modalMessage message shown at the top of the
+ * @param {string} modalTitleBarMessage message shown at the top of the
  *  compile/load modal.
  * @param {string} compileCommand for the cloud compiler (bin/eeprom).
  * @param {string} loadOption command for the loader
@@ -334,252 +212,199 @@ export function compile() {
  *
  * @description: Console logging uses the identifier (LOAI).
  */
-export function loadInto(modalMessage, compileCommand, loadOption, loadAction) {
-  if (clientService.portsAvailable) {
-    cloudCompile(modalMessage, compileCommand, function(data, terminalNeeded) {
-      logConsoleMessage(`Processing cloud compiler callback`);
-
-      if (clientService.type === serviceConnectionTypes.WS) {
-        logConsoleMessage(`(LOAI) Device loaded via websocket`);
-
-        // Send the compile submission via a web socket
-        clientService.resultLog = '';
-        clientService.loadBinary = false;
-        logConsoleMessage(`Sending Load-Prop message`);
-        clientService.wsSendLoadProp(
-            loadAction, data, terminalNeeded, getComPort());
-      } else {
-        // Send the compile submission via an HTTP post
-        if (clientService.version.isCoded) {
-          // Request load with options from BlocklyProp Client
-          $.post(clientService.url('load.action'), {
-            'option': loadOption,
-            'action': loadAction,
-            'binary': data.binary,
-            'extension': data.extension,
-            'comport': getComPort(),
-          }, function(loadData) {
-            // Callback to report results from client/launcher command
-            logConsoleMessage(
-                `(LOAI) Processing compiler results from server: ` +
-                `${loadData.message}`);
-            // Replace response message's consecutive white space with a
-            // new-line, then split at new lines
-            const message =
-                loadData.message.replace(/\s{2,}/g, '\n').split('\n');
-            // If responses have codes, check for all success codes (< 100)
-            let success = true;
-            const coded =
-                (loadOption === 'CODE' || loadOption === 'CODE_VERBOSE');
-            if (coded) {
-              message.forEach(function(x) {
-                success = success && x.substr(0, 3) < 100;
-              });
-            }
-            // Display results
-            let result = '';
-            if (success && coded) {
-              // Success! Keep it simple
-              result = ' Succeeded.';
-            } else {
-              // Failed (or not coded); Show the details
-              const error = [];
-              message.forEach(function(x) {
-                error.push(x.substr((coded) ? 4 : 0));
-              });
-              result = ((coded) ? ' Failed!' : '') +
-                  '\n\n-------- loader messages --------\n' + error.join('\n');
-            }
-
-            $('#compile-console').val($('#compile-console').val() + result);
-
-            // Scroll automatically to the bottom after new data is added
-            document.getElementById('compile-console').scrollTop =
-                document.getElementById('compile-console').scrollHeight;
-            if (terminalNeeded === 'term' && loadData.success) {
-              serialConsole();
-            } else if (terminalNeeded === 'graph' && loadData.success) {
-              graphingConsole();
-            }
-          });// end of .post()
-        } else {
-          // TODO: Remove this once client_min_version is >= minCodedVer
-          // Request load without options from old BlocklyProp Client
-          $.post(clientService.url('load.action'), {
-            'action': loadAction,
-            'binary': data.binary,
-            'extension': data.extension,
-            'comport': getComPort(),
-          }, function(loadData) {
-            $('#compile-console')
-                .val($('#compile-console')
-                    .val() + loadData.message);
-
-            // Scroll automatically to the bottom after new data is added
-            document.getElementById('compile-console').scrollTop =
-                document.getElementById('compile-console').scrollHeight;
-            if (terminalNeeded === 'term' && loadData.success) {
-              serialConsole();
-            } else if (terminalNeeded === 'graph' && loadData.success) {
-              graphingConsole();
-            }
-          });
-        }
-      }
-    });
-  } else if (clientService.available) {
-    utils.showMessage(
-        Blockly.Msg.DIALOG_NO_DEVICE,
-        Blockly.Msg.DIALOG_NO_DEVICE_TEXT);
-  } else {
-    utils.showMessage(
-        Blockly.Msg.DIALOG_DEVICE_COMM_ERROR,
-        Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT);
+export const loadInto = async (
+  modalTitleBarMessage, compileCommand, loadOption, loadAction) => {
+  // Handle potential issues
+  if (! clientService.portsAvailable) {
+    if (clientService.available) {
+      utils.showMessage(
+          Blockly.Msg.DIALOG_NO_DEVICE,
+          Blockly.Msg.DIALOG_NO_DEVICE_TEXT);
+    } else {
+      utils.showMessage(
+          Blockly.Msg.DIALOG_DEVICE_COMM_ERROR,
+          Blockly.Msg.DIALOG_DEVICE_COMM_ERROR_TEXT);
+    }
+    return;
   }
-}
-//
-// /**
-//  * Serial console support
-//  */
-// export function serialConsole() {
-//   const debug = true;
-//   const dbgs = 'SERC';
-//   clientService.sendCharacterStreamTo = 'term';
-//
-//   // HTTP client
-//   // TODO: Linter claims that this expression is always false
-//   if (clientService.type !== serviceConnectionTypes.WS) {
-//     if (clientService.portsAvailable) {
-//       // Container and flag needed to receive and parse initial connection
-//       // string before serial data begins streaming in.
-//       let connString = '';
-//       let connStrYet = false;
-//
-//       // open a websocket to the BPC for just the serial communications
-//       if (debug) {
-//         logConsoleMessage(`${dbgs}:Opening new web socket`);
-//       }
-//       const connection = new WebSocket(
-//           clientService.url('serial.connect', 'ws'));
-//
-//       // When the connection is open, open com port
-//       connection.onopen = function() {
-//         connString = '';
-//         connStrYet = false;
-//         const baudRate = clientService.terminalBaudRate > 0 ?
-//             ` ${clientService.terminalBaudRate}`: '';
-//         connection.send(`+++ open port ${getComPort()} ${baudRate}`);
-//         clientService.activeConnection = connection;
-//       };
-//
-//       // Log errors
-//       connection.onerror = function(error) {
-//         logConsoleMessage('WebSocket Error');
-//         logConsoleMessage(error.message);
-//       };
-//
-//       // Receive characters
-//       connection.onmessage = function(e) {
-//         const pTerm = getPropTerminal();
-//         // incoming data is base64 encoded
-//         const charBuffer = atob(e.data);
-//         if (connStrYet) {
-//           pTerm.display(charBuffer);
-//         } else {
-//           connString += charBuffer;
-//           if (connString.indexOf(
-//               clientService.terminalBaudRate.toString(10)) > -1) {
-//             connStrYet = true;
-//             displayTerminalConnectionStatus(connString.trim());
-//           } else {
-//             pTerm.display(e.data);
-//           }
-//         }
-//         pTerm.focus();
-//       };
-//
-//       // When the user closed the console, close the serial comms connection
-//       $('#console-dialog').on('hidden.bs.modal', function() {
-//         clientService.sendCharacterStreamTo = null;
-//         logConsoleMessage(`Closing serial console WS connection`);
-//         clientService.activeConnection = null;
-//         connString = '';
-//         connStrYet = false;
-//         connection.close();
-//         displayTerminalConnectionStatus(null);
-//         getPropTerminal().display(null);
-//       });
-//     } else {
-//       // Remove any previous connection
-//       logConsoleMessage(`No ports available so closing the WS connection.`);
-//       clientService.activeConnection = null;
-//
-//       // Display a "No connected devices" message in the terminal
-//       displayTerminalConnectionStatus(
-//           Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
-//       getPropTerminal().display(
-//        Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
-//
-//       // Clear the terminal if the user closes it.
-//       $('#console-dialog').on('hidden.bs.modal', function() {
-//         clientService.sendCharacterStreamTo = null;
-//         displayTerminalConnectionStatus(null);
-//         getPropTerminal().display(null);
-//       });
-//     }
-//   } else if (clientService.type === serviceConnectionTypes.WS) {
-//     // --------------------------------------------------------------
-//     //              Using Websocket-only client
-//     // --------------------------------------------------------------
-//     let action = 'open';
-//     const port = getComPort();
-//     const baudRate = clientService.terminalBaudRate;
-//
-//     // Update a UI element
-//     // if (messageToSend.portPath !== 'none') {
-//     if (port !== 'none') {
-//       displayTerminalConnectionStatus([
-//         Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
-//         port,
-//         Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
-//         baudRate.toString(10),
-//       ].join[' ']);
-//     } else {
-//       displayTerminalConnectionStatus(
-//           Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
-//       getPropTerminal().display(
-//        Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
-//     }
-//
-//     // Open the terminal session
-//     clientService.wsSendSerialTerminal('open', port, 'none');
-//
-//     // Closing terminal console event handler
-//     // TODO: This needs to be initialized only once.
-//     $('#console-dialog').on('hidden.bs.modal', function() {
-//       clientService.sendCharacterStreamTo = null;
-//       logConsoleMessage(`Closing console window. Action is: ${action}`);
-//       // Close the serial terminal
-//       if (action !== 'close') {
-//         action = 'close';
-//         displayTerminalConnectionStatus(null);
-//
-//         // Solo-484
-//         // Send the message if the connection has not closed
-//         // This is actually closing the terminal session.
-//         if (clientService.activeConnection) {
-//           clientService.wsSendSerialTerminal(action, port, 'none');
-//         }
-//       }
-//       logConsoleMessage(`Flushing the terminal buffer`);
-//       // Flush the serial terminal buffer
-//       getPropTerminal().display(null);
-//     });
-//   }
-//
-//   $('#console-dialog').modal('show');
-// }
-//
+
+  const codePropC = getSourceEditor();
+
+  // if PropC is in edit mode, get it from the editor, otherwise
+  // render it from the blocks.
+  const propcCode = (codePropC.getReadOnly()) ?
+      prettyCode(Blockly.propc.workspaceToCode(Blockly.mainWorkspace)) :
+      codePropC.getValue();
+
+  if (propcCode.indexOf('EMPTY_PROJECT') > -1) {
+    showCannotCompileEmptyProject();
+    return;
+  }
+
+  showCompilerStatusWindow(modalTitleBarMessage);
+
+  try {
+  // Compile the project code
+    await cloudCompile(compileCommand, propcCode)
+        .then( async (data) => {
+          // Stop here if the compile failed.
+          if (!data.success) {
+            return;
+          }
+
+          const terminalNeeded = isTerminalWindowRequired();
+
+          if (clientService.type === serviceConnectionTypes.WS) {
+            appendCompileConsoleMessage(`Download...`);
+
+            // Send the compile submission via a web socket
+            clientService.resultLog = '';
+            clientService.loadBinary = false;
+
+            await (async () => {
+              const port = getComPort();
+
+              await clientService.wsSendLoadProp(
+                  loadAction, data, terminalNeeded, port);
+
+              for (let loop = 0; loop < 5; loop++) {
+                await delay(800);
+                if (clientService.loaderIsDone) break;
+
+                if (clientService.loaderResetDetect) {
+                  logConsoleMessage(`Waiting for connection... (${loop+1} of 5)`);
+                  if (clientService.activeConnection !== null) {
+                    if (clientService.activeConnection.readyState === 1) {
+                      // Resubmit the project to the Launcher
+                      logConsoleMessage(`Resubmitting download`);
+                      await clientService.wsSendLoadProp(
+                          loadAction, data, terminalNeeded, port);
+                    }
+                  }
+                }
+              }
+            })();
+          } else {
+          // Send the compile submission via an HTTP post
+            if (clientService.version.isCoded) {
+            // Request load with options from BlocklyProp Client
+              $.post(clientService.url('load.action'), {
+                'option': loadOption,
+                'action': loadAction,
+                'binary': data.binary,
+                'extension': data.extension,
+                'comport': getComPort(),
+              }, function(loadData) {
+              // Callback to report results from client/launcher command
+                logConsoleMessage(
+                    `(LOAI) Processing compiler results from server: ` +
+                `${loadData.message}`);
+                // Replace response message's consecutive white space with a
+                // new-line, then split at new lines
+                const message =
+                loadData.message.replace(/\s{2,}/g, '\n').split('\n');
+                // If responses have codes, check for all success codes (< 100)
+                let success = true;
+                const coded =
+                (loadOption === 'CODE' || loadOption === 'CODE_VERBOSE');
+                if (coded) {
+                  message.forEach(function(x) {
+                    success = success && x.substr(0, 3) < 100;
+                  });
+                }
+                // Display results
+                let result;
+                if (success && coded) {
+                // Success! Keep it simple
+                  result = ' Succeeded.';
+                } else {
+                // Failed (or not coded); Show the details
+                  const error = [];
+                  message.forEach(function(x) {
+                    error.push(x.substr((coded) ? 4 : 0));
+                  });
+                  result = ((coded) ? ' Failed!' : '') +
+                  '\n\n-------- loader messages --------\n' + error.join('\n');
+                }
+
+                $('#compile-console').val($('#compile-console').val() + result);
+
+                // Scroll automatically to the bottom after new data is added
+                document.getElementById('compile-console').scrollTop =
+                document.getElementById('compile-console').scrollHeight;
+                if (terminalNeeded === 'term' && loadData.success) {
+                  serialConsole();
+                } else if (terminalNeeded === 'graph' && loadData.success) {
+                  graphingConsole();
+                }
+              });// end of .post()
+            } else {
+            // TODO: Remove this once client_min_version is >= minCodedVer
+            // Request load without options from old BlocklyProp Client
+              $.post(clientService.url('load.action'), {
+                'action': loadAction,
+                'binary': data.binary,
+                'extension': data.extension,
+                'comport': getComPort(),
+              }, function(loadData) {
+                $('#compile-console').val($('#compile-console').val() +
+                loadData.message);
+
+                // Scroll automatically to the bottom after new data is added
+                document.getElementById('compile-console').scrollTop =
+                document.getElementById('compile-console').scrollHeight;
+                if (terminalNeeded === 'term' && loadData.success) {
+                  serialConsole();
+                } else if (terminalNeeded === 'graph' && loadData.success) {
+                  graphingConsole();
+                }
+              });
+            }
+          }
+        });
+  } catch (e) {
+    logConsoleMessage(`Catching : ${e.message}`);
+  }
+};
+
+/**
+ * Evaluate the project to determine if a terminal or graph window is required
+ * when the project is run on the device
+ *
+ * @return {string}
+ */
+const isTerminalWindowRequired = () => {
+  const project = getProjectInitialState();
+  let terminalNeeded = '';
+
+  // TODO: propc editor needs UI for settings for terminal and graphing
+  if (project.boardType.name !== 'propcfile') {
+    const consoleBlockList = [
+      'console_print', 'console_print_variables', 'console_print_multiple',
+      'console_scan_text', 'console_scan_number', 'console_newline',
+      'console_clear', 'console_move_to_position', 'oled_font_loader',
+      'activitybot_display_calibration', 'scribbler_serial_send_text',
+      'scribbler_serial_send_char', 'scribbler_serial_send_decimal',
+      'scribbler_serial_send_decimal', 'scribbler_serial_send_ctrl',
+      'scribbler_serial_cursor_xy',
+    ];
+
+    let consoleBlockCount = 0;
+    for (let i = 0; i < consoleBlockList.length; i++) {
+      consoleBlockCount += Blockly.getMainWorkspace()
+          .getBlocksByType(consoleBlockList[i], false).length;
+    }
+
+    if (consoleBlockCount > 0) {
+      terminalNeeded = 'term';
+    } else if (Blockly.getMainWorkspace()
+        .getBlocksByType('graph_settings', false).length > 0) {
+      terminalNeeded = 'graph';
+    }
+  }
+  return terminalNeeded;
+};
+
 /**
  * Display information about the serial connection to the device
  * @param {string | null} connectionInfo text to display above
@@ -1263,3 +1088,24 @@ export function compileConsoleScrollToBottom() {
   const compileConsoleObj = document.getElementById('compile-console');
   compileConsoleObj.scrollTop = compileConsoleObj.scrollHeight;
 }
+
+/**
+ * Are there any blocks in the Blockly workspace
+ * @return {boolean}
+ */
+export const hasCode = () => {
+  let result = false;
+  if (Blockly) {
+    if (Blockly.Xml) {
+      if (Blockly.mainWorkspace) {
+        const xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
+        const text = Blockly.Xml.domToText(xml);
+        const emptyHeader = Project.getTerminatedEmptyProjectCodeHeader();
+        if (text !== emptyHeader) {
+          result = true;
+        }
+      }
+    }
+  }
+  return result;
+};

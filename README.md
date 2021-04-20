@@ -7,7 +7,13 @@ Parallax robots and sensors.
 
 *develop* [![Build Status](https://travis-ci.org/parallaxinc/solo.svg?branch=develop)](https://travis-ci.org/parallaxinc/solo)
 
-## Experimental Options
+### Supported Browsers
+Chrome - v84+  
+Edge - v79+  
+Firefox - v69+  
+Safari - 14.0 +
+
+### Experimental Options
 Several experimental options are available and they can be activated using flags in the URL.  To use one or more of the
 experimental features, add `?experimental=` and whichever feature name(s) below, separated by a pipe `|` character.  For
 example, to turn on experimental blocks and the XML editing features, you would use the URL

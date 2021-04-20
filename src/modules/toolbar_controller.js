@@ -20,9 +20,8 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import Blockly from 'blockly/core';
-
-import {Project, getProjectInitialState} from './project.js';
+import {hasCode} from './blocklyc';
+import {getProjectInitialState} from './project.js';
 import {clientService, serviceConnectionTypes} from './client_service';
 
 
@@ -75,7 +74,7 @@ export function propToolbarButtonController() {
        clientService.type === serviceConnectionTypes.WS )) {
     if (clientService.portsAvailable &&
         clientService.portList.length > 0 &&
-        clientService.portList[0].length > 0) {
+        clientService.getSelectedPort().length > 0) {
       if (isS3boardType) {
         setS3UIButtonGroup();
       } else {
@@ -355,25 +354,4 @@ export function initToolbarIcons() {
     // `Init icons: ${key}, ${value.dataset.icon}, icon:${value.dataset.icon}`);
     $(value).html(bpIcons[value.dataset.icon]);
   });
-}
-
-/**
- * Are there any blocks in the Blockly workspace
- * @return {boolean}
- */
-function hasCode() {
-  let result = false;
-  if (Blockly) {
-    if (Blockly.Xml) {
-      if (Blockly.mainWorkspace) {
-        const xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
-        const text = Blockly.Xml.domToText(xml);
-        const emptyHeader = Project.getTerminatedEmptyProjectCodeHeader();
-        if (text !== emptyHeader) {
-          result = true;
-        }
-      }
-    }
-  }
-  return result;
 }
