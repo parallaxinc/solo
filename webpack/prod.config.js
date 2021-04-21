@@ -35,6 +35,13 @@ const TerserPlugin = require("terser-webpack-plugin");
  */
 const targetPath = '../dist';
 
+/**
+ * The relative path to the Blockly package media files
+ * @type {string}
+ */
+const blocklyMedia = '../node_modules/blockly/media';
+
+
 module.exports = merge(baseConfig, {
   // Use env.<YOUR VARIABLE> here:
   // console.log('NODE_ENV: ', env.NODE_ENV); // 'local'
@@ -66,39 +73,14 @@ module.exports = merge(baseConfig, {
   plugins: [
     new CopyPlugin({
       patterns: [
-        {
-          from: './index.html',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          from: './blocklyc.html',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          // Copy over media resources from the Blockly package
-          from: path.resolve(__dirname, '../node_modules/blockly/media'),
-          to: path.resolve(__dirname, `${targetPath}/media`)
-        },
-        {
-          from: './src/images',
-          to: path.resolve(__dirname, `${targetPath}/images`)
-        },
-        {
-          // Copy over style sheets
-          from: './src/site.css',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          from: './src/style.css',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          from: './src/style-clientdownload.css',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          from: './src/style-editor.css',
-          to: path.resolve(__dirname, targetPath)
+        {from: './index.html', to: path.resolve(__dirname, targetPath)},
+        {from: './blocklyc.html', to: path.resolve(__dirname, targetPath)},
+        {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
+        {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
+        {from: './src/site.css', to: path.resolve(__dirname, targetPath)},
+        {from: './src/style.css', to: path.resolve(__dirname, targetPath)},
+        {from: './src/style-clientdownload.css', to: path.resolve(__dirname, targetPath)},
+        {from: './src/style-editor.css', to: path.resolve(__dirname, targetPath)
         },
       ]
     })
