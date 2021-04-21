@@ -23,7 +23,7 @@
 import Blockly from 'blockly/core';
 
 import {displayTerminalConnectionStatus} from './blocklyc';
-import {clientService, serviceConnectionTypes} from './client_service';
+import {clientService} from './client_service';
 import {logConsoleMessage} from './utility';
 import {getComPort} from './client_connection';
 import {getPropTerminal} from './prop_term';
@@ -46,88 +46,6 @@ let initDialogHandler = false;
 export function serialConsole() {
   clientService.sendCharacterStreamTo = 'term';
 
-  // // --------------------------------------------------------
-  // // Process the serial console with the older BP HTTP client
-  // // --------------------------------------------------------
-  // if (clientService.type !== serviceConnectionTypes.WS) {
-  //   if (clientService.portsAvailable) {
-  //     // Container and flag needed to receive and parse initial connection
-  //     // string before serial data begins streaming in.
-  //     let connString = '';
-  //     let connStrYet = false;
-  //
-  //     const connection = new WebSocket(
-  //         clientService.url('serial.connect', 'ws'));
-  //
-  //     // When the connection is open, open com port
-  //     connection.onopen = function() {
-  //       connString = '';
-  //       connStrYet = false;
-  //       const baudRate = clientService.terminalBaudRate > 0 ?
-  //           ` ${clientService.terminalBaudRate}`: '';
-  //       connection.send(`+++ open port ${getComPort()} ${baudRate}`);
-  //       clientService.activeConnection = connection;
-  //     };
-  //
-  //     // Log errors
-  //     connection.onerror = function(error) {
-  //       logConsoleMessage('WebSocket Error');
-  //       logConsoleMessage(error.message);
-  //     };
-  //
-  //     // Receive characters
-  //     connection.onmessage = function(e) {
-  //       const pTerm = getPropTerminal();
-  //       // incoming data is base64 encoded
-  //       const charBuffer = atob(e.data);
-  //       if (connStrYet) {
-  //         pTerm.display(charBuffer);
-  //       } else {
-  //         connString += charBuffer;
-  //         if (connString.indexOf(
-  //             clientService.terminalBaudRate.toString(10)) > -1) {
-  //           connStrYet = true;
-  //           displayTerminalConnectionStatus(connString.trim());
-  //         } else {
-  //           pTerm.display(e.data);
-  //         }
-  //       }
-  //       pTerm.focus();
-  //     };
-  //
-  //     // Set the event handler exactly once.
-  //     if (!initDialogHandler) {
-  //       initDialogHandler = true;
-  //
-  //       $('#console-dialog').on('hidden.bs.modal', function() {
-  //         clientService.sendCharacterStreamTo = null;
-  //         logConsoleMessage(`Closing serial console WS connection`);
-  //         clientService.activeConnection = null;
-  //         connString = '';
-  //         connStrYet = false;
-  //         connection.close();
-  //         displayTerminalConnectionStatus(null);
-  //         getPropTerminal().display(null);
-  //       });
-  //     }
-  //   } else {
-  //     // Remove any previous connection
-  //     logConsoleMessage(`No ports available so closing the WS connection.`);
-  //     clientService.activeConnection = null;
-  //
-  //     // Display a "No connected devices" message in the terminal
-  //     displayTerminalConnectionStatus(
-  //         Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
-  //     getPropTerminal().display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
-  //
-  //     // Clear the terminal if the user closes it.
-  //     $('#console-dialog').on('hidden.bs.modal', function() {
-  //       clientService.sendCharacterStreamTo = null;
-  //       displayTerminalConnectionStatus(null);
-  //       getPropTerminal().display(null);
-  //     });
-  //   }
-  // } else if (clientService.type === serviceConnectionTypes.WS) {
   // --------------------------------------------------------------
   //              Using Websocket-only client
   // --------------------------------------------------------------
@@ -171,7 +89,6 @@ export function serialConsole() {
       getPropTerminal().display(null);
     });
   }
-  // }
 
   // Open the Console window
   $('#console-dialog').modal('show');

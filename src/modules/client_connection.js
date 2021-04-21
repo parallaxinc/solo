@@ -137,19 +137,6 @@ export const findClient = function() {
       propToolbarButtonController();
     }
   }
-
-  // BP-Launcher not found? Try connecting to the BP-Client
-  // setTimeout(function() {
-  //   if (clientService.type !== serviceConnectionTypes.WS) {
-  //     logConsoleMessage('Trying to connect to the BP Client.');
-  //     establishBPClientConnection();
-  //   }
-  // }, 1000);
-
-  // If connected to the BP-Client, poll for an updated port list
-  // if (clientService.type === serviceConnectionTypes.HTTP) {
-  //   checkForComPorts();
-  // }
 };
 
 /**
@@ -509,45 +496,6 @@ function checkClientVersionModal(rawVersion) {
   }
 }
 
-// /**
-//  * Establish a connection to the BlocklyProp-Client (BPC) application
-//  * Retrieves the BPC's version
-//  * Sets parameters in the clientService object
-//  * Calls UI configuration functions
-//  * @deprecated
-//  */
-// function establishBPClientConnection() {
-//   logConsoleMessage('establishBPConnection: entry');
-//   // Load data from the server using a HTTP GET request.
-//   $.get(clientService.url(), function(/* @type BPClientDataBlock */ data) {
-//     // {version: 0.7, version_str: "0.7.5", server: "BlocklyPropHTTP"}
-//     logConsoleMessage(`Connected to client?: ${data.version_str}`);
-//     if (!clientService.available) {
-//       let clientVersionString = (typeof data.version_str !== 'undefined') ?
-//           data.version_str : data.version;
-//       logConsoleMessage(`Client version is: ${clientVersionString}`);
-//
-//       if (!data.server || data.server !== 'BlocklyPropHTTP') {
-//         clientVersionString = '0.0.0';
-//       }
-//       checkClientVersionModal(clientVersionString);
-//       clientService.type = serviceConnectionTypes.HTTP;
-//       // Connected to the Launcher/Client
-//       clientService.available = true;
-//     }
-//   }).fail(function() {
-//     logConsoleMessage('Failed to open client connection');
-//     clientService.type = serviceConnectionTypes.NONE;
-//     // Not connected to the Launcher/Client
-//     clientService.available = false;
-//     clientService.portsAvailable = false;
-//   }).always( function() {
-//     // Update the toolbar no mater what happens
-//     logConsoleMessage('Updating toolbar');
-//     propToolbarButtonController();
-//   });
-// };
-
 /**
  *  Clear the com port drop-down
  *
@@ -605,29 +553,6 @@ function addComPortDeviceOption(port) {
     $('#comPort').append($('<option>', {text: port}));
   }
 }
-
-// /**
-//  * Update the list of serial ports available on the host machine
-//  * NOTE: This function is used by the BP-Client only.
-//  * @deprecated
-//  */
-// const checkForComPorts = function() {
-//   try {
-//     if (clientService.type === serviceConnectionTypes.HTTP) {
-//       $.get(clientService.url('ports.json'), function(data) {
-//         logConsoleMessage('Getting a port list');
-//         setPortListUI(data);
-//       }).fail(function() {
-//         setPortListUI(null);
-//       }).always(function(data) {
-//         logConsoleMessage(`The data is: ${data}`);
-//       });
-//     }
-//   } catch (e) {
-//     logConsoleMessage('Unable to get port list. ' + e.message);
-//     setPortListUI(null);
-//   }
-// };
 
 /**
  * Return the selected com port name

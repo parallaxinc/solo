@@ -513,11 +513,6 @@ export const clientService = {
         this.getNumeric(rawVersion) >=
         this.getNumeric(this.RECOMMENDED)
       );
-      // // remove after MINIMUM_ALLOWED is greater
-      // this.isCoded = (
-      //   this.getNumeric(rawVersion) >=
-      //   this.getNumeric(this.CODED_MINIMUM)
-      // );
     },
   },
 
