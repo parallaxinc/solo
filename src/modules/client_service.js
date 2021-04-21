@@ -41,10 +41,6 @@ const debug = false;
  */
 export const serviceConnectionTypes = {
   // Constants for the type property
-
-  // BP Client is deprecated
-  // HTTP: 'http',
-
   WS: 'ws',
   NONE: '',
 };
@@ -434,14 +430,6 @@ export const clientService = {
      */
     RECOMMENDED: '1.0.1',
 
-    // /**
-    //  * {string} Constant Semantic versioning, Minimum client/launcher version
-    //  * supporting coded/verbose responses.
-    //  * NOTE: (remove after MINIMUM_ALLOWED > this)
-    //  * @deprecated
-    //  */
-    // CODED_MINIMUM: '0.7.5',
-
     /**
       * {string} Semantic versioning, Current version
      *
@@ -547,10 +535,6 @@ export function initTerminal() {
       document.getElementById('serial_console'),
 
       function(characterToSend) {
-        // if (clientService.type === serviceConnectionTypes.HTTP &&
-        //     clientService.activeConnection) {
-        //   clientService.activeConnection.send(btoa(characterToSend));
-        // } else
         if (clientService.type === serviceConnectionTypes.WS) {
           const msgToSend = {
             type: 'serial-terminal',

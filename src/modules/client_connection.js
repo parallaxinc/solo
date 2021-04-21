@@ -402,13 +402,12 @@ function parseCompileMessage(message) {
  * Lost websocket connection, clean up and restart findClient processing
  */
 function lostWSConnection() {
-  // if (clientService.type !== serviceConnectionTypes.HTTP) {
   clientService.loaderResetDetect = true;
   clientService.activeConnection = null;
   clientService.type = serviceConnectionTypes.NONE;
   clientService.available = false;
-  // }
 
+  // Update the toolbar
   propToolbarButtonController();
 }
 
