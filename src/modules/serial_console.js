@@ -23,7 +23,7 @@
 import Blockly from 'blockly/core';
 
 import {displayTerminalConnectionStatus} from './blocklyc';
-import {clientService, serviceConnectionTypes} from './client_service';
+import {clientService} from './client_service';
 import {logConsoleMessage} from './utility';
 import {getComPort} from './client_connection';
 import {getPropTerminal} from './prop_term';
@@ -46,131 +46,48 @@ let initDialogHandler = false;
 export function serialConsole() {
   clientService.sendCharacterStreamTo = 'term';
 
-  // --------------------------------------------------------
-  // Process the serial console with the older BP HTTP client
-  // --------------------------------------------------------
-  if (clientService.type !== serviceConnectionTypes.WS) {
-    if (clientService.portsAvailable) {
-      // Container and flag needed to receive and parse initial connection
-      // string before serial data begins streaming in.
-      let connString = '';
-      let connStrYet = false;
+  // --------------------------------------------------------------
+  //              Using Websocket-only client
+  // --------------------------------------------------------------
+  let action = 'open';
+  const port = getComPort();
+  const baudRate = clientService.terminalBaudRate;
 
-      const connection = new WebSocket(
-          clientService.url('serial.connect', 'ws'));
+  // Update a UI element
+  if (port !== 'none') {
+    displayTerminalConnectionStatus([
+      Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
+      port,
+      Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
+      baudRate.toString(10),
+    ].join[' ']);
+  } else {
+    displayTerminalConnectionStatus(
+        Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
+    getPropTerminal().display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
+  }
 
-      // When the connection is open, open com port
-      connection.onopen = function() {
-        connString = '';
-        connStrYet = false;
-        const baudRate = clientService.terminalBaudRate > 0 ?
-            ` ${clientService.terminalBaudRate}`: '';
-        connection.send(`+++ open port ${getComPort()} ${baudRate}`);
-        clientService.activeConnection = connection;
-      };
+  // Open the terminal session
+  clientService.wsSendSerialTerminal('open', port, 'none');
 
-      // Log errors
-      connection.onerror = function(error) {
-        logConsoleMessage('WebSocket Error');
-        logConsoleMessage(error.message);
-      };
+  // Set the event handler exactly once
+  if (!initDialogHandler) {
+    initDialogHandler = true;
 
-      // Receive characters
-      connection.onmessage = function(e) {
-        const pTerm = getPropTerminal();
-        // incoming data is base64 encoded
-        const charBuffer = atob(e.data);
-        if (connStrYet) {
-          pTerm.display(charBuffer);
-        } else {
-          connString += charBuffer;
-          if (connString.indexOf(
-              clientService.terminalBaudRate.toString(10)) > -1) {
-            connStrYet = true;
-            displayTerminalConnectionStatus(connString.trim());
-          } else {
-            pTerm.display(e.data);
-          }
-        }
-        pTerm.focus();
-      };
-
-      // Set the event handler exactly once.
-      if (!initDialogHandler) {
-        initDialogHandler = true;
-
-        $('#console-dialog').on('hidden.bs.modal', function() {
-          clientService.sendCharacterStreamTo = null;
-          logConsoleMessage(`Closing serial console WS connection`);
-          clientService.activeConnection = null;
-          connString = '';
-          connStrYet = false;
-          connection.close();
-          displayTerminalConnectionStatus(null);
-          getPropTerminal().display(null);
-        });
-      }
-    } else {
-      // Remove any previous connection
-      logConsoleMessage(`No ports available so closing the WS connection.`);
-      clientService.activeConnection = null;
-
-      // Display a "No connected devices" message in the terminal
-      displayTerminalConnectionStatus(
-          Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
-      getPropTerminal().display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
-
-      // Clear the terminal if the user closes it.
-      $('#console-dialog').on('hidden.bs.modal', function() {
-        clientService.sendCharacterStreamTo = null;
+    // Console window is closing
+    $('#console-dialog').on('hidden.bs.modal', function() {
+      clientService.sendCharacterStreamTo = null;
+      logConsoleMessage(`Closing console window. Action is: ${action}`);
+      // Close the serial terminal
+      if (action !== 'close') {
+        action = 'close';
         displayTerminalConnectionStatus(null);
-        getPropTerminal().display(null);
-      });
-    }
-  } else if (clientService.type === serviceConnectionTypes.WS) {
-    // --------------------------------------------------------------
-    //              Using Websocket-only client
-    // --------------------------------------------------------------
-    let action = 'open';
-    const port = getComPort();
-    const baudRate = clientService.terminalBaudRate;
-
-    // Update a UI element
-    if (port !== 'none') {
-      displayTerminalConnectionStatus([
-        Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
-        port,
-        Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
-        baudRate.toString(10),
-      ].join[' ']);
-    } else {
-      displayTerminalConnectionStatus(
-          Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
-      getPropTerminal().display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
-    }
-
-    // Open the terminal session
-    clientService.wsSendSerialTerminal('open', port, 'none');
-
-    // Set the event handler exactly once
-    if (!initDialogHandler) {
-      initDialogHandler = true;
-
-      // Console window is closing
-      $('#console-dialog').on('hidden.bs.modal', function() {
-        clientService.sendCharacterStreamTo = null;
-        logConsoleMessage(`Closing console window. Action is: ${action}`);
-        // Close the serial terminal
-        if (action !== 'close') {
-          action = 'close';
-          displayTerminalConnectionStatus(null);
-          clientService.wsSendSerialTerminal(action, port, 'none');
-        }
-        logConsoleMessage(`Flushing the terminal buffer`);
-        // Flush the serial terminal buffer
-        getPropTerminal().display(null);
-      });
-    }
+        clientService.wsSendSerialTerminal(action, port, 'none');
+      }
+      logConsoleMessage(`Flushing the terminal buffer`);
+      // Flush the serial terminal buffer
+      getPropTerminal().display(null);
+    });
   }
 
   // Open the Console window
