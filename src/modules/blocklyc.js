@@ -30,7 +30,6 @@ import {loadToolbox} from './editor';
 import {CodeEditor, getSourceEditor} from './code_editor';
 import {getProjectInitialState, Project} from './project';
 import {cloudCompile} from './compiler';
-import {serialConsole} from './serial_console';
 import {showCannotCompileEmptyProject, showCompilerStatusWindow} from './modals';
 import {
   delay, logConsoleMessage, getURLParameter, sanitizeFilename, utils, prettyCode} from './utility';
@@ -284,83 +283,84 @@ export const loadInto = async (
                 }
               }
             })();
-          } else {
-          // Send the compile submission via an HTTP post
-            if (clientService.version.isCoded) {
-            // Request load with options from BlocklyProp Client
-              $.post(clientService.url('load.action'), {
-                'option': loadOption,
-                'action': loadAction,
-                'binary': data.binary,
-                'extension': data.extension,
-                'comport': getComPort(),
-              }, function(loadData) {
-              // Callback to report results from client/launcher command
-                logConsoleMessage(
-                    `(LOAI) Processing compiler results from server: ` +
-                `${loadData.message}`);
-                // Replace response message's consecutive white space with a
-                // new-line, then split at new lines
-                const message =
-                loadData.message.replace(/\s{2,}/g, '\n').split('\n');
-                // If responses have codes, check for all success codes (< 100)
-                let success = true;
-                const coded =
-                (loadOption === 'CODE' || loadOption === 'CODE_VERBOSE');
-                if (coded) {
-                  message.forEach(function(x) {
-                    success = success && x.substr(0, 3) < 100;
-                  });
-                }
-                // Display results
-                let result;
-                if (success && coded) {
-                // Success! Keep it simple
-                  result = ' Succeeded.';
-                } else {
-                // Failed (or not coded); Show the details
-                  const error = [];
-                  message.forEach(function(x) {
-                    error.push(x.substr((coded) ? 4 : 0));
-                  });
-                  result = ((coded) ? ' Failed!' : '') +
-                  '\n\n-------- loader messages --------\n' + error.join('\n');
-                }
-
-                $('#compile-console').val($('#compile-console').val() + result);
-
-                // Scroll automatically to the bottom after new data is added
-                document.getElementById('compile-console').scrollTop =
-                document.getElementById('compile-console').scrollHeight;
-                if (terminalNeeded === 'term' && loadData.success) {
-                  serialConsole();
-                } else if (terminalNeeded === 'graph' && loadData.success) {
-                  graphingConsole();
-                }
-              });// end of .post()
-            } else {
-            // TODO: Remove this once client_min_version is >= minCodedVer
-            // Request load without options from old BlocklyProp Client
-              $.post(clientService.url('load.action'), {
-                'action': loadAction,
-                'binary': data.binary,
-                'extension': data.extension,
-                'comport': getComPort(),
-              }, function(loadData) {
-                $('#compile-console').val($('#compile-console').val() +
-                loadData.message);
-
-                // Scroll automatically to the bottom after new data is added
-                document.getElementById('compile-console').scrollTop =
-                document.getElementById('compile-console').scrollHeight;
-                if (terminalNeeded === 'term' && loadData.success) {
-                  serialConsole();
-                } else if (terminalNeeded === 'graph' && loadData.success) {
-                  graphingConsole();
-                }
-              });
-            }
           }
+          // else {
+          // // Send the compile submission via an HTTP post
+          //   if (clientService.version.isCoded) {
+          //   // Request load with options from BlocklyProp Client
+          //     $.post(clientService.url('load.action'), {
+          //       'option': loadOption,
+          //       'action': loadAction,
+          //       'binary': data.binary,
+          //       'extension': data.extension,
+          //       'comport': getComPort(),
+          //     }, function(loadData) {
+          //     // Callback to report results from client/launcher command
+          //       logConsoleMessage(
+          //           `(LOAI) Processing compiler results from server: ` +
+          //       `${loadData.message}`);
+          //       // Replace response message's consecutive white space with a
+          //       // new-line, then split at new lines
+          //       const message =
+          //       loadData.message.replace(/\s{2,}/g, '\n').split('\n');
+          //       // If responses have codes, check for all success codes (< 100)
+          //       let success = true;
+          //       const coded =
+          //       (loadOption === 'CODE' || loadOption === 'CODE_VERBOSE');
+          //       if (coded) {
+          //         message.forEach(function(x) {
+          //           success = success && x.substr(0, 3) < 100;
+          //         });
+          //       }
+          //       // Display results
+          //       let result;
+          //       if (success && coded) {
+          //       // Success! Keep it simple
+          //         result = ' Succeeded.';
+          //       } else {
+          //       // Failed (or not coded); Show the details
+          //         const error = [];
+          //         message.forEach(function(x) {
+          //           error.push(x.substr((coded) ? 4 : 0));
+          //         });
+          //         result = ((coded) ? ' Failed!' : '') +
+          //         '\n\n-------- loader messages --------\n' + error.join('\n');
+          //       }
+          //
+          //       $('#compile-console').val($('#compile-console').val() + result);
+          //
+          //       // Scroll automatically to the bottom after new data is added
+          //       document.getElementById('compile-console').scrollTop =
+          //       document.getElementById('compile-console').scrollHeight;
+          //       if (terminalNeeded === 'term' && loadData.success) {
+          //         serialConsole();
+          //       } else if (terminalNeeded === 'graph' && loadData.success) {
+          //         graphingConsole();
+          //       }
+          //     });// end of .post()
+          //   } else {
+          //   // TODO: Remove this once client_min_version is >= minCodedVer
+          //   // Request load without options from old BlocklyProp Client
+          //     $.post(clientService.url('load.action'), {
+          //       'action': loadAction,
+          //       'binary': data.binary,
+          //       'extension': data.extension,
+          //       'comport': getComPort(),
+          //     }, function(loadData) {
+          //       $('#compile-console').val($('#compile-console').val() +
+          //       loadData.message);
+          //
+          //       // Scroll automatically to the bottom after new data is added
+          //       document.getElementById('compile-console').scrollTop =
+          //       document.getElementById('compile-console').scrollHeight;
+          //       if (terminalNeeded === 'term' && loadData.success) {
+          //         serialConsole();
+          //       } else if (terminalNeeded === 'graph' && loadData.success) {
+          //         graphingConsole();
+          //       }
+          //     });
+          //   }
+          // }
         });
   } catch (e) {
     logConsoleMessage(`Catching : ${e.message}`);
@@ -433,56 +433,57 @@ export function graphingConsole() {
       graph.update(graph_data, graph_options);
     }
 
-    // TODO: Condition is always null warning
-    if (clientService.type === serviceConnectionTypes.HTTP &&
-        clientService.portsAvailable) {
-      // Container and flag needed to receive and parse initial connection
-      // string before serial data begins streaming in.
-      let connString = '';
-      let connStrYet = false;
-      const connection = new WebSocket(
-          clientService.url('serial.connect', 'ws'));
+    // if (clientService.type === serviceConnectionTypes.HTTP &&
+    //     clientService.portsAvailable) {
+    //   // Container and flag needed to receive and parse initial connection
+    //   // string before serial data begins streaming in.
+    //   let connString = '';
+    //   let connStrYet = false;
+    //   const connection = new WebSocket(
+    //       clientService.url('serial.connect', 'ws'));
+    //
+    //   // When the connection is open, open com port
+    //   connection.onopen = function() {
+    //     const baudRate = clientService.terminalBaudRate > 0 ?
+    //         ` ${clientService.terminalBaudRate}`: '';
+    //     connection.send(`+++ open port ${getComPort()} ${baudRate}`);
+    //
+    //     graphStartStop('start');
+    //   };
+    //
+    //   // Log errors
+    //   connection.onerror = function(error) {
+    //     logConsoleMessage('WebSocket Error');
+    //     logConsoleMessage(error.message);
+    //   };
+    //
+    //   connection.onmessage = function(e) {
+    //     const charBuffer = atob(e.data);
+    //     if (connStrYet) {
+    //       graphNewData(charBuffer);
+    //     } else {
+    //       connString += charBuffer;
+    //       if (connString.indexOf(
+    //           clientService.terminalBaudRate.toString(10)) > -1) {
+    //         connStrYet = true;
+    //         displayTerminalConnectionStatus(connString.trim());
+    //       } else {
+    //         graphNewData(charBuffer);
+    //       }
+    //     }
+    //   };
+    //
+    //   $('#graphing-dialog').on('hidden.bs.modal', function() {
+    //     clientService.sendCharacterStreamTo = null;
+    //     connection.close();
+    //     graphStartStop('stop');
+    //     connString = '';
+    //     connStrYet = false;
+    //     displayTerminalConnectionStatus(null);
+    //   });
+    // } else
 
-      // When the connection is open, open com port
-      connection.onopen = function() {
-        const baudRate = clientService.terminalBaudRate > 0 ?
-            ` ${clientService.terminalBaudRate}`: '';
-        connection.send(`+++ open port ${getComPort()} ${baudRate}`);
-
-        graphStartStop('start');
-      };
-
-      // Log errors
-      connection.onerror = function(error) {
-        logConsoleMessage('WebSocket Error');
-        logConsoleMessage(error.message);
-      };
-
-      connection.onmessage = function(e) {
-        const charBuffer = atob(e.data);
-        if (connStrYet) {
-          graphNewData(charBuffer);
-        } else {
-          connString += charBuffer;
-          if (connString.indexOf(
-              clientService.terminalBaudRate.toString(10)) > -1) {
-            connStrYet = true;
-            displayTerminalConnectionStatus(connString.trim());
-          } else {
-            graphNewData(charBuffer);
-          }
-        }
-      };
-
-      $('#graphing-dialog').on('hidden.bs.modal', function() {
-        clientService.sendCharacterStreamTo = null;
-        connection.close();
-        graphStartStop('stop');
-        connString = '';
-        connStrYet = false;
-        displayTerminalConnectionStatus(null);
-      });
-    } else if (clientService.type === serviceConnectionTypes.WS &&
+    if (clientService.type === serviceConnectionTypes.WS &&
         clientService.portsAvailable) {
       const messageToSend = {
         type: 'serial-terminal',
@@ -530,6 +531,7 @@ export function graphingConsole() {
 
     $('#graphing-dialog').modal('show');
     if (document.getElementById('btn-graph-play')) {
+      // eslint-disable-next-line max-len
       document.getElementById('btn-graph-play').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="15"><path d="M5.5,2 L4,2 4,11 5.5,11 Z M8.5,2 L10,2 10,11 8.5,11 Z" style="stroke:#fff;stroke-width:1;fill:#fff;"/></svg>';
     }
   } else {
