@@ -470,11 +470,11 @@ export const clientService = {
     /**
      * Returns integer calculated from passed in string representation
      * of version
-     * @param {number} rawVersion
+     * @param {string} rawVersion
      * @return {number}
      */
     getNumeric: function(rawVersion) {
-      let tempVersion = rawVersion.toString().split('.');
+      let tempVersion = rawVersion.split('.');
       tempVersion.push('0');
 
       if (tempVersion.length < 3) {
@@ -495,7 +495,7 @@ export const clientService = {
 
     /**
      * Sets self-knowledge of current client/launcher version.
-     * @param {number} rawVersion
+     * @param {string} rawVersion
      */
     set: function(rawVersion) {
       this.current = rawVersion;
