@@ -22,7 +22,7 @@
 
 
 // Replacement for the global pTerm variable
-import {logConsoleMessage} from "./utility";
+import {logConsoleMessage} from './utility';
 
 let terminal = null;
 
@@ -405,8 +405,9 @@ class PropTerm {
    * @description Processes an ASCII character and calls the appropriate
    *    helpers based on the character entered
    */
-  _updateTermBox(c) {
+  async _updateTermBox(c) {
     let j;
+    const beepElement = document.getElementById('term-beep_');
 
     if (this.echo.trap) {
       for (let i = 0; i < this.echo.buffer.length; i++) {
@@ -509,7 +510,9 @@ class PropTerm {
           case 7: // Beep
             this.element.classList.remove('visual-beep_');
             this.element.classList.add('visual-beep_');
-            document.getElementById('term-beep_').play();
+            // play() is asynchronous
+            await beepElement.play();
+            // document.getElementById('term-beep_').play();
             break;
           case 11: // Clear to end of line
             // eslint-disable-next-line max-len
