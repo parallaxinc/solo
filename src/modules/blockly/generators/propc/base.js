@@ -800,7 +800,7 @@ Blockly.Blocks.music_note = {
 Blockly.propc.music_note = function() {
   const note = (Math.round(
       parseFloat(this.getFieldValue('NOTE')) *
-            parseFloat(this.getFieldValue('OCTAVE'))
+            parseFloat(this.getFieldValue('OCTAVE')),
   )).toString(10);
   return [note, Blockly.propc.ORDER_NONE];
 };
@@ -1938,65 +1938,6 @@ Blockly.propc.logic_boolean = function() {
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
-/**
- *
- * @type {{
- *  init: Blockly.Blocks.cog_new.init,
- *  helpUrl: string,
- *  onchange: Blockly.Blocks.cog_new.onchange
- * }}
- */
-Blockly.Blocks.cog_new = {
-  helpUrl: Blockly.MSG_CONTROL_HELPURL,
-  init: function() {
-    this.setTooltip(Blockly.MSG_COG_NEW_TOOLTIP);
-    this.setColour(colorPalette.getColor('programming'));
-    this.appendDummyInput()
-        .appendField('new processor');
-    this.appendStatementInput('METHOD')
-        .setCheck('Function')
-        .appendField('function');
-
-    this.setInputsInline(true);
-    this.setPreviousStatement(true, 'Block');
-    this.setNextStatement(true, null);
-  },
-  onchange: function(event) {
-    if (event &&
-        (event.type === Blockly.Events.CHANGE ||
-         event.type === Blockly.Events.MOVE)) {
-      let repeatWarningText = null;
-      const myRootBlock = this.getRootBlock();
-      if (myRootBlock && myRootBlock.type.indexOf('repeat') > -1 ) {
-        repeatWarningText = 'Warning: This block can only start up to 7' +
-            ' additional cores - using this block in a repeat loop may cause' +
-            ' unexpected errors!';
-      }
-      this.setWarningText(repeatWarningText);
-    }
-  },
-};
-
-/**
- *
- * @return {string}
- */
-Blockly.propc.cog_new = function() {
-  const method = Blockly.propc.statementToCode(this, 'METHOD');
-  const methodName = method
-      .replace('  ', '')
-      .replace('\n', '')
-      .replace('()', '')
-      .replace(';', '');
-  let code = '';
-
-  if (method.length > 2) {
-    Blockly.propc.cog_methods_[methodName] = method;
-
-    code = 'cog_run(' + methodName + ', 128);\n';
-  }
-  return code;
-};
 
 /**
  *
@@ -3366,7 +3307,7 @@ Blockly.Blocks.custom_code_multiple = {
           // source code field
           .appendField(
               new Blockly.FieldTextInput(''),
-              value[1].toUpperCase()
+              value[1].toUpperCase(),
 
           //     new Blockly.FieldAceEditor(
           //     `${value[1]} code`,
