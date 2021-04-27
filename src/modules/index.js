@@ -23,17 +23,18 @@
 import {startSentry} from './sentry';
 // Start up the sentry monitor before we run
 startSentry()
-    .then( (resp) => console.log('Sentry has started.'))
+    .then( (resp) => {
+      if (EnableSentry) console.log('Sentry has started.');
+    })
     .catch((err) => console.log('Sentry failed to start'));
 
 import 'bootstrap';
 import * as Cookies from 'js-cookie';
 
 import {
-  APP_VERSION,
-  ApplicationName,
-  productBannerHostTrigger,
-  TestApplicationName} from './constants';
+  APP_VERSION, ApplicationName, EnableSentry,
+  productBannerHostTrigger, TestApplicationName,
+} from './constants';
 import {getURLParameter, getAllUrlParameters, logConsoleMessage} from './utility';
 
 /**
