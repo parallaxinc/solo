@@ -46,10 +46,101 @@ page_text_label['client_update_danger'] =
     ' your device until you upgrade your BlocklyProp Launcher.<br>Please use the link below to' +
     ' download the newest version.';
 
+// eslint-disable-next-line max-len
 page_text_label['editor_client_available'] = '<strong>Select the correct port,</strong> then click <svg xmlns="http://www.w3.org/2000/svg" width="12" height="15" style="vertical-align: middle;"><path d="M4.4,0 L6.8,0 6.8,7.2 10,7.2 5.6,11.6 1.2,7.2 4.4,7.2 Z" style="stroke:#000;stroke-width:1;fill:#000;"/></svg> or <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" style="vertical-align: middle;"><path d="M4.4,0 L6.8,0 6.8,4.8 10,4.8 5.6,9.2 1.2,4.8 4.4,4.8 Z M0.4,9.6 L10.8,9.6 10.8,11.6 0.4,11.6 Z" style="stroke:#000;stroke-width:1;fill:#000;"/></svg>.';
+// eslint-disable-next-line max-len
 page_text_label['editor_client_available_short'] = '<strong>Select the correct port,</strong> then click <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" style="vertical-align: middle;"><path d="M4.4,0 L6.8,0 6.8,4.8 10,4.8 5.6,9.2 1.2,4.8 4.4,4.8 Z M0.4,9.6 L10.8,9.6 10.8,11.6 0.4,11.6 Z" style="stroke:#000;stroke-width:1;fill:#000;"/></svg>.';
+// eslint-disable-next-line max-len
 page_text_label['editor_client_not-available'] = 'Unable to contact the BlocklyProp Launcher. Click for more information.';
+
 page_text_label['editor_client_title'] = 'BlocklyProp Launcher';
+
+page_text_label['menu_code'] = 'Code';
+page_text_label['menu_blocks'] = 'Blocks';
+page_text_label['editor_view_xml'] = 'XML';
+page_text_label['editor_new_button'] = 'New';
+page_text_label['editor_open_button'] = 'Open';
+page_text_label['editor_save'] = 'Save';
+page_text_label['editor_edit-details'] = 'Edit Project Details';
+page_text_label['menu_help_reference'] = 'Help & Reference';
+page_text_label['menu_download_simpleide'] = 'Download SimpleIDE files';
+page_text_label['editor_upload'] = 'Import Project';
+page_text_label['editor_run_configure'] = 'Configure client';
+page_text_label['editor_upload_selectfile'] = 'Select File';
+page_text_label['editor_upload_valid'] = 'The selected file appears valid.';
+page_text_label['editor_upload_notvalid'] = 'The selected file is not valid.';
+page_text_label['editor_upload_boardtype_warning'] =
+    '<strong>Warning!</strong> You are about to upload a blocks file from a different' +
+    ' board/device than you are currently using.  If the blocks you are trying to upload' +
+    ' are not available for your current board, uploading this blocks file into your project' +
+    ' may <strong>break your project</strong>.  If your project does break after uploading this' +
+    ' file - do not save it! Click your browser\'s refresh button to reload your project.';
+page_text_label['editor_button_cancel'] = 'Cancel';
+page_text_label['editor_button_open'] = 'Open';
+page_text_label['editor_button_replace'] = 'Replace';
+page_text_label['editor_button_append'] = 'Append';
+page_text_label['editor_save-check'] = 'Save project reminder';
+page_text_label['editor_button_close'] = 'Close';
+page_text_label['project_saveaslink'] = 'Save As';
+page_text_label['project_savelink'] = 'Save';
+page_text_label['editor_run_compile'] = 'Compile';
+page_text_label['editor_title_result'] = 'Result';
+page_text_label['editor_title_terminal'] = 'Terminal';
+page_text_label['editor_title_graphing'] = 'Graphing';
+page_text_label['editor_graph_time_label'] = 'Time (seconds)';
+page_text_label['editor_save-as'] = 'Save project as';
+page_text_label['project_create_project_name'] = 'Project name';
+page_text_label['project_create_board_type'] = 'Board/Device/Project type';
+page_text_label['project_create_board_type_select'] = '- board/device/project type -';
+page_text_label['editor_saveas_boardtype_warning'] =
+    '<strong>Warning!</strong> You are about to save the blocks from your current project into' +
+    ' a project that is for a different board/device.  If the blocks that are in your project' +
+    ' are not available for the board/device you selected, the new project may <strong>not' +
+    ' work!</strong>';
+page_text_label['editor_new_project_title'] = 'New project';
+page_text_label['project_name'] = 'Project Name';
+page_text_label['project_created'] = 'Created On';
+page_text_label['project_modified'] = 'Last Modified';
+page_text_label['project_create_description'] = 'Description';
+page_text_label['editor_button_continue'] = 'Continue';
+page_text_label['client_macOS_run_title'] = 'Running the BlocklyProp Launcher on your Mac';
+page_text_label['client_macOS_run_instructions1'] =
+    'Find the BlocklyProp Launcher application by opening a Finder window and clicking' +
+    ' &quot;Applications&quot; on the left. Then look for the BlocklyProp Launcher application' +
+    ' and double-click it:';
+page_text_label['client_run_instructions2'] =
+    'Once the BlocklyProp Launcher is running and connected, you may return to your browser' +
+    ' and load programs to your device.';
+page_text_label['client_windows_run_title'] = 'Running the BlocklyProp Launcher on your Windows PC';
+page_text_label['client_windows_run_instructions1'] =
+    'Click the Windows (start) icon in the lower-left corner of your screen. Then look for' +
+    ' the BlocklyProp Launcher application inside of the &quot;Parallax Inc&quot; folder:';
+page_text_label['client_chrome_run_title'] = 'Running the BlocklyProp Launcher on your Chromebook';
+page_text_label['client_chrome_run_instructions1'] =
+    'Click the App icon (circle) in the bottom-left corner of the screen. Find the BlocklyProp' +
+    ' Launcher app and double-click it:';
+page_text_label['os_name_win'] = 'Windows';
+page_text_label['os_name_mac'] = 'Mac OS';
+page_text_label['os_name_chr'] = 'Chrome OS';
+page_text_label['clientdownload_download_installer'] = 'Download the installer';
+
+// MacOS Launcher installations
+page_text_label['client_download_launcher_macos_big_sur_installer'] =
+    'BP-Launcher installer for MacOS Big Sur';
+page_text_label['client_download_launcher_macos_catalina_installer'] =
+    'BP-Launcher installer for MacOS Catalina';
+page_text_label['client_download_launcher_macos_mojave_installer'] =
+    'BP-Launcher installer for MacOS Mojave';
+page_text_label['client_download_launcher_macos_high_sierra_installer'] =
+    'BP-Launcher installer for MacOS High Sierra';
+page_text_label['clientdownload_launcher_windows64_installer'] =
+    'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer';
+page_text_label['clientdownload_launcher_windows64zip_installer'] =
+    'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer (zip)';
+page_text_label['clientdownload_download_launcher'] = 'Install the Launcher App';
+page_text_label['clientdownload_client_chromeos_installer'] = 'Add to Chrome';
+page_text_label['clientdownload_os_menu'] = 'Choose a different operating system';
+
 
 // ----------------------------------------------------------------------------
 //  *** These elements have not been verified as still being used in Solo  ****
@@ -61,27 +152,9 @@ page_text_label['browser_detection_ms_warning'] =
     ' BlocklyProp is not currently compatible with these browsers. Please use Chrome or' +
     ' Firefox instead.';
 page_text_label['cancel'] = 'Cancel';
-page_text_label['client_chrome_run_instructions1'] =
-    'Click the App icon (circle) in the bottom-left corner of the screen. Find the BlocklyProp' +
-    ' Launcher app and double-click it:';
-page_text_label['client_chrome_run_title'] = 'Running the BlocklyProp Launcher on your Chromebook';
-page_text_label['client_macOS_run_instructions1'] =
-    'Find the BlocklyProp Launcher application by opening a Finder window and clicking' +
-    ' &quot;Applications&quot; on the left. Then look for the BlocklyProp Launcher application' +
-    ' and double-click it:';
-page_text_label['client_macOS_run_title'] = 'Running the BlocklyProp Launcher on your Mac';
-page_text_label['client_run_instructions2'] =
-    'Once the BlocklyProp Launcher is running and connected, you may return to your browser' +
-    ' and load programs to your device.';
-page_text_label['client_windows_run_instructions1'] =
-    'Click the Windows (start) icon in the lower-left corner of your screen. Then look for' +
-    ' the BlocklyProp Launcher application inside of the &quot;Parallax Inc&quot; folder:';
-page_text_label['client_windows_run_title'] = 'Running the BlocklyProp Launcher on your Windows PC';
-
 // BP Client installation for Chrome OS
 page_text_label['clientdownload_client_chromeos_alreadyinstalled'] =
     'BlocklyProp Launcher is already installed.  Make sure it is open and running.';
-page_text_label['clientdownload_client_chromeos_installer'] = 'Add to Chrome';
 
 // BP Client installation for MacOS
 page_text_label['clientdownload_client_macos_installer'] = 'MacOS client installer';
@@ -96,32 +169,16 @@ page_text_label['clientdownload_client_windows64_installer'] =
 page_text_label['clientdownload_client_windows64zip_installer'] =
     'Windows 7/8/8.1/10 (64-bit) client installer (zip)';
 
-// MacOS Launcher installations
-page_text_label['client_download_launcher_macos_big_sur_installer'] =
-    'BP-Launcher installer for MacOS Big Sur';
-page_text_label['client_download_launcher_macos_catalina_installer'] =
-    'BP-Launcher installer for MacOS Catalina';
-page_text_label['client_download_launcher_macos_mojave_installer'] =
-    'BP-Launcher installer for MacOS Mojave';
-page_text_label['client_download_launcher_macos_high_sierra_installer'] =
-    'BP-Launcher installer for MacOS High Sierra';
 
 // Windows Launcher installations
 page_text_label['clientdownload_launcher_windows32_installer'] =
     'Windows 7/8/8.1/10 (32-bit) BP-Launcher installer';
 page_text_label['clientdownload_launcher_windows32zip_installer'] =
     'Windows 7/8/8.1/10 (32-bit) BP-Launcher installer (zip)';
-page_text_label['clientdownload_launcher_windows64_installer'] =
-    'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer';
-page_text_label['clientdownload_launcher_windows64zip_installer'] =
-    'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer (zip)';
 
-page_text_label['clientdownload_download_installer'] = 'Download the installer';
-page_text_label['clientdownload_download_launcher'] = 'Install the Launcher App';
 page_text_label['clientdownload_instructions'] =
     'The BlocklyProp Launcher application loads your programs into the Propeller and' +
     ' allows you to have a serial terminal in your browser connected to your Propeller.';
-page_text_label['clientdownload_os_menu'] = 'Choose a different operating system';
 page_text_label['clientdownload_showall'] = 'Show clients for all operating systems';
 page_text_label['clientdownload_title'] = 'BlocklyProp Launcher';
 
@@ -139,12 +196,6 @@ page_text_label['confirm_request_title'] = 'Email confirm request';
 page_text_label['confirm_requested'] = 'Please check your email';
 
 // Editor canvas messages
-page_text_label['editor_button_append'] = 'Append';
-page_text_label['editor_button_cancel'] = 'Cancel';
-page_text_label['editor_button_open'] = 'Open';
-page_text_label['editor_button_close'] = 'Close';
-page_text_label['editor_button_continue'] = 'Continue';
-page_text_label['editor_button_replace'] = 'Replace';
 page_text_label['editor_clear-workspace'] = 'Clear workspace';
 page_text_label['editor_offline_title'] = 'Offline Expermiental Version';
 page_text_label['editor_demo_dialog_continue'] = 'Continue demo';
@@ -156,8 +207,6 @@ page_text_label['editor_demo_dialog_title'] = 'You are not logged in';
 page_text_label['editor_demonstration_mode_info'] = '<strong>Demo mode:</strong> Log in to use all of BlocklyProp\'s features.';
 page_text_label['editor_demonstration_mode_instructions'] = 'Click here to log in or sign up';
 page_text_label['editor_download'] = 'Download blocks file';
-page_text_label['editor_edit-details'] = 'Edit Project Details';
-page_text_label['editor_graph_time_label'] = 'Time (seconds)';
 page_text_label['editor_view-details'] = 'View Project details';
 page_text_label['editor_find_next'] = 'Find Next';
 page_text_label['editor_replace'] = 'Replace';
@@ -165,40 +214,22 @@ page_text_label['editor_find_label'] = 'Find: ';
 page_text_label['editor_replace_label'] = 'Replace: ';
 page_text_label['editor_newproject_c'] = 'Propeller C';
 page_text_label['editor_newproject_spin'] = 'Scribbler Robot';
-page_text_label['editor_new_project_title'] = 'New project';
 page_text_label['editor_open'] = 'Open project file';
 page_text_label['editor_import'] = 'Import project file';
 page_text_label['editor_project'] = 'Project';
 page_text_label['editor_projects_title'] = 'Projects';
-page_text_label['editor_run_compile'] = 'Compile';
-page_text_label['editor_run_configure'] = 'Configure client';
 page_text_label['editor_run_eeprom'] = 'Load EEPROM';
 page_text_label['editor_run_ram'] = 'Load RAM';
 page_text_label['editor_run_terminal'] = 'Serial terminal';
 page_text_label['editor_run_title'] = 'Run';
-page_text_label['editor_new_button'] = 'New';
-page_text_label['editor_open_button'] = 'Open';
-page_text_label['editor_save'] = 'Save';
-page_text_label['editor_save-as'] = 'Save project as';
-page_text_label['editor_save-check'] = 'Save project reminder';
 page_text_label['editor_save-check_warning-1'] = 'It has been ';
 page_text_label['editor_save-check_warning-2'] = ' minutes since you last saved your project. Save now?';
-page_text_label['editor_saveas_boardtype_warning'] = '<strong>Warning!</strong> You are about to save the blocks from your current project into a project that is for a different board/device.  If the blocks that are in your project are not available for the board/device you selected, the new project may <strong>not work!</strong>';
 page_text_label['editor_term_graph_setup'] = 'Terminal &amp; Graph setup';
-page_text_label['editor_title_graphing'] = 'Graphing';
-page_text_label['editor_title_result'] = 'Result';
-page_text_label['editor_title_terminal'] = 'Terminal';
-page_text_label['editor_upload'] = 'Import Project';
-page_text_label['editor_upload_boardtype_warning'] = '<strong>Warning!</strong> You are about to upload a blocks file from a different board/device than you are currently using.  If the blocks you are trying to upload are not available for your current board, uploading this blocks file into your project may <strong>break your project</strong>.  If your project does break after uploading this file - do not save it! Click your browser\'s refresh button to reload your project.';
-page_text_label['editor_upload_notvalid'] = 'The selected file is not valid.';
-page_text_label['editor_upload_selectfile'] = 'Select File';
-page_text_label['editor_upload_valid'] = 'The selected file appears valid.';
 page_text_label['editor_view_blocks'] = 'Blocks';
 page_text_label['editor_view_c'] = 'Propeller C';
 page_text_label['editor_view_code'] = 'Code';
 page_text_label['editor_view_spin'] = 'Spin';
 page_text_label['editor_view_title'] = 'View';
-page_text_label['editor_view_xml'] = 'XML';
 page_text_label['error_generic'] = 'A problem occurred';
 page_text_label['error_unknownemail'] = 'Unknown email';
 
@@ -272,11 +303,7 @@ page_text_label['login_submit'] = 'Login';
 page_text_label['login_title'] = 'Please Log in';
 page_text_label['logout'] = 'Logout';
 page_text_label['menu_community_projects'] = 'Community projects';
-page_text_label['menu_download_simpleide'] = 'Download SimpleIDE files';
 page_text_label['menu_help'] = 'Help';
-page_text_label['menu_code'] = 'Code';
-page_text_label['menu_blocks'] = 'Blocks';
-page_text_label['menu_help_reference'] = 'Help & Reference';
 page_text_label['menu_login_and_register'] = 'Login/Register';
 page_text_label['menu_my_projects'] = 'My projects';
 page_text_label['menu_newproject_c'] = 'Propeller C';
@@ -300,9 +327,6 @@ page_text_label['oauth_new-user_do_submit'] = 'Save';
 page_text_label['oauth_new-user_error_screenname'] = 'Screen Name already in use';
 page_text_label['oauth_new-user_screenname'] = 'Screen Name';
 page_text_label['oauth_success'] = 'User logged in';
-page_text_label['os_name_win'] = 'Windows';
-page_text_label['os_name_mac'] = 'Mac OS';
-page_text_label['os_name_chr'] = 'Chrome OS';
 page_text_label['os_name_lnx'] = 'Linux';
 page_text_label['password_complexity'] = 'The password should be at least 8 characters long';
 page_text_label['password_complexity_error'] = 'Password is not complex enough';
@@ -349,17 +373,12 @@ page_text_label['project_changed'] = 'Project changes have been saved';
 page_text_label['project_clonelink'] = 'Clone';
 page_text_label['project_create_basic'] = 'Basic info';
 page_text_label['project_create_basic_title'] = 'Basic project info';
-page_text_label['project_create_board_type'] = 'Board/Device/Project type';
-page_text_label['project_create_board_type_select'] = '- board/device/project type -';
-page_text_label['project_create_description'] = 'Description';
 page_text_label['project_create_finishlink'] = 'Finish';
 page_text_label['project_create_nextlink'] = 'Next';
 page_text_label['project_create_previouslink'] = 'Previous';
-page_text_label['project_create_project_name'] = 'Project name';
 page_text_label['project_create_sharing'] = 'Sharing';
 page_text_label['project_create_sharing_title'] = 'Project sharing';
 page_text_label['project_create_title'] = 'New project';
-page_text_label['project_created'] = 'Created On';
 page_text_label['project_delete_confirm'] = 'Are you sure you want to delete this project?';
 page_text_label['project_delete_confirm_shared'] = 'Are you sure you want to delete this project? You have it currently shared using a link.';
 page_text_label['project_delete_confirm_title'] = 'Confirm delete';
@@ -367,10 +386,6 @@ page_text_label['project_deletelink'] = 'Delete';
 page_text_label['project_description'] = 'Description';
 page_text_label['project_details_title'] = 'Project details';
 page_text_label['project_list_title'] = 'Community projects';
-page_text_label['project_modified'] = 'Last Modified';
-page_text_label['project_name'] = 'Project Name';
-page_text_label['project_saveaslink'] = 'Save As';
-page_text_label['project_savelink'] = 'Save';
 page_text_label['project_share-link'] = 'Share project using link';
 page_text_label['project_sharing'] = 'Sharing';
 page_text_label['project_sharing_private'] = 'Private';
