@@ -24,7 +24,7 @@ import * as Cookies from 'js-cookie';
 import {createNewProject, resetToolBoxSizing} from '../editor';
 import {getProjectInitialState, ProjectProfiles} from '../project';
 // eslint-disable-next-line camelcase
-import {page_text_label} from '../blockly/language/en/messages';
+import {page_text_label} from '../blockly/language/en/page_text_labels';
 import {logConsoleMessage} from '../utility';
 import {isExperimental} from '../url_parameters';
 

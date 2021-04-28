@@ -23,7 +23,7 @@
 
 import * as Cookies from 'js-cookie';
 // eslint-disable-next-line camelcase
-import {page_text_label} from '../blockly/language/en/messages';
+import {page_text_label} from '../blockly/language/en/page_text_labels';
 import {LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME} from '../constants';
 import {insertProject, isProjectChanged, uploadHandler} from '../editor';
 import {getProjectInitialState, projectJsonFactory} from '../project';

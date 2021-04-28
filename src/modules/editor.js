@@ -27,7 +27,9 @@ import * as Cookies from 'js-cookie';
 import * as saveAs from 'file-saver';
 import * as JSZip from 'jszip';
 // eslint-disable-next-line camelcase
-import {page_text_label, tooltip_text} from './blockly/language/en/messages';
+import {page_text_label} from './blockly/language/en/page_text_labels';
+// eslint-disable-next-line camelcase
+import {tooltip_text} from './blockly/language/en/messages';
 import './blockly/generators/propc';
 import './blockly/generators/propc/base';
 import './blockly/generators/propc/communicate';
