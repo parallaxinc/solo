@@ -100,7 +100,7 @@ export const openProjectDialog = {
    */
   show: function() {
     if (!this.isEventHandler) {
-      logConsoleMessage(`Initialize dialog event handlers first.`);
+      console.log(`Initialize "Open Project" dialog event handlers first.`);
       return;
     }
 

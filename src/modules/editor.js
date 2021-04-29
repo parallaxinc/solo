@@ -105,6 +105,8 @@ const CDN_URL = $('meta[name=cdn]').attr('content');
  */
 let codeEditor = null;
 
+// eslint-disable-next-line no-unused-vars
+const connectionWatchDogTimer = setInterval(findClient, 2000);
 
 /**
  * Getter for the current WorkspaceSvg object
@@ -123,6 +125,9 @@ $(() => {
   const result = initializePage();
   result.catch((err) => console.log(err));
 
+  // Set up all of the UI event handlers before we call UI stuff
+  initEventHandlers();
+
   // Set the compile toolbar buttons to unavailable
   // setPropToolbarButtons();
   propToolbarButtonController();
@@ -135,13 +140,13 @@ $(() => {
 
   // This is setting the URIs for images referenced in the html page
   initCdnImageUrls();
-  showAppName();
 
   // Connect to the BP Launcher
   // TODO: Finding the client and then look again every 3.5 seconds? There
   //  must be a better way to handle this in the clientService object.
   findClient();
-  setInterval(findClient, 2000);
+
+  // TODO: This should be lazy-loaded when a terminal is first requested.
   initTerminal();
 
   const backup = window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME);
@@ -178,12 +183,11 @@ $(() => {
  */
 async function initializePage() {
   await initInternationalText();
-  await initEventHandlers();
   await initToolbarIcons();
-  await initClientDownloadLinks();
 
   // Set up the URLs to download new Launchers and BP Clients
   await initClientDownloadLinks();
+  await showAppName();
 }
 
 /**
@@ -206,7 +210,7 @@ async function initInternationalText() {
 /**
  * Set up event handlers - Attach events to nav/action menus/buttons
  */
-async function initEventHandlers() {
+function initEventHandlers() {
   // Leave editor page exit processing
   leavePageHandler();
 
@@ -1917,7 +1921,7 @@ export function insertProject(project) {
 /**
  *Display the application name
  */
-function showAppName() {
+async function showAppName() {
   const html = 'BlocklyProp<br><strong>Solo</strong>';
   $('#nav-logo').html(html);
 }
