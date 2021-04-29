@@ -71,6 +71,10 @@ module.exports = merge(baseConfig, {
       }
     ]},
   plugins: [
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: 'development',
+      DEBUG: false,
+    }),
     new CopyPlugin({
       patterns: [
         {from: './index.html', to: path.resolve(__dirname, targetPath)},
