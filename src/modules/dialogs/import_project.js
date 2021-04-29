@@ -21,7 +21,6 @@
  */
 
 // eslint-disable-next-line camelcase
-import {page_text_label} from '../blockly/language/en/page_text_labels';
 import {LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME} from '../constants';
 import {insertProject, isProjectChanged} from '../editor';
 import {uploadHandler, appendProjectCode} from '../editor';
@@ -117,9 +116,9 @@ export const importProjectDialog = {
    */
   reset: function() {
     logConsoleMessage(`Setting dialog labels`);
-    $('#import-project-dialog-title').html(page_text_label['editor_import']);
-    $('#import-project-dialog span').html(`Span import project`);
-    // page_text_label['editor_import']);
+    // $('#import-project-dialog-title').html(PageTextLabels['editor_import']);
+    $('#import-project-dialog-title').html(getHtmlText('editor_import'));
+    $('#import-project-dialog span').html(getHtmlText('editor_append'));
 
     // Disable the import dialog Append and Replace buttons
     uiDisableButtons();
@@ -322,7 +321,7 @@ function installFileOnChangeHandler() {
  */
 // function resetUploadImportDialog() {
 //   // reset the title of the modal
-//   $('import-project-dialog-title').html(page_text_label['editor_import']);
+//   $('import-project-dialog-title').html(PageTextLabels['editor_import']);
 //
 //   // hide "append" button
 //   $('#selectfile-append').removeClass('hidden');
@@ -331,7 +330,7 @@ function installFileOnChangeHandler() {
 //   $('#selectfile-replace')
 //       .removeClass('btn-primary')
 //       .addClass('btn-danger')
-//       .html(page_text_label['editor_button_replace']);
+//       .html(PageTextLabels['editor_button_replace']);
 //
 //   // reset the blockly toolbox sizing to ensure it renders correctly:
 //   // eslint-disable-next-line no-undef

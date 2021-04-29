@@ -179,7 +179,7 @@ class ProjectSaveTimer {
    * if it is time to prompt the user to save their project code.
    *
    * The <span> tag is introduced as part of a message, located in the
-   * messages.js file, page_text_label['editor_save-check_warning'].
+   * messages.js file, PageTextLabels['editor_save-check_warning'].
    */
   static checkLastSavedTime() {
     console.log('SAVEPRJ:Checking the last time project was saved.');

@@ -24,7 +24,7 @@ import * as Cookies from 'js-cookie';
 import {createNewProject, resetToolBoxSizing} from '../editor';
 import {getProjectInitialState, ProjectProfiles} from '../project';
 // eslint-disable-next-line camelcase
-import {page_text_label} from '../blockly/language/en/page_text_labels';
+import {getHtmlText} from '../blockly/language/en/page_text_labels';
 import {logConsoleMessage} from '../utility';
 import {isExperimental} from '../url_parameters';
 
@@ -100,8 +100,7 @@ export const newProjectDialog = {
     // Reset the values in the form to defaults
     $('#new-project-name').val('');
     $('#new-project-description').val('');
-    $('#new-project-dialog-title')
-        .html(page_text_label['editor_new_project_title']);
+    $('#new-project-dialog-title').html(getHtmlText('editor_new_project_title'));
   },
 };
 
@@ -233,9 +232,9 @@ function populateProjectBoardTypesUIElement() {
   // Populate the board type dropdown menu with a header first,
   element.append($('<option />')
       .val('')
-      .text(page_text_label['project_create_board_type_select'])
+      .text(getHtmlText('project_create_board_type_select'))
       .attr('disabled', 'disabled')
-      .attr('selected', 'selected')
+      .attr('selected', 'selected'),
   );
 
   // then populate the dropdown with the board types

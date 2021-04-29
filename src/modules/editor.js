@@ -27,7 +27,7 @@ import * as Cookies from 'js-cookie';
 import * as saveAs from 'file-saver';
 import * as JSZip from 'jszip';
 // eslint-disable-next-line camelcase
-import {page_text_label} from './blockly/language/en/page_text_labels';
+import {initHtmlLabels, getHtmlText} from './blockly/language/en/page_text_labels';
 // eslint-disable-next-line camelcase
 import {tooltip_text} from './blockly/language/en/messages';
 import './blockly/generators/propc';
@@ -643,7 +643,9 @@ function setupWorkspace(data, callback) {
   // Edit project details menu item
   // if (projectData) {
   if (getProjectInitialState()) {
-    $('#edit-project-details').html(page_text_label['editor_edit-details']);
+    // $('#edit-project-details').html(PageTextLabels['editor_edit-details']);
+    $('#edit-project-details').html(getHtmlText('editor_edit-details'));
+
   }
 
   resetToolBoxSizing(0, true);
@@ -1667,9 +1669,10 @@ function showProjectTimerModalDialog() {
     logConsoleMessage(`Nudge timer is likely no longer working`);
     return;
   }
+
   const message = [
-    page_text_label['editor_save-check_warning-1'],
-    page_text_label['editor_save-check_warning-2'],
+    getHtmlText('editor_save-check_warning-1'),
+    getHtmlText('editor_save-check_warning-2'),
   ];
 
   // The embedded anonymous function builds the message string
@@ -1814,7 +1817,7 @@ export function createNewProject() {
   // if (project &&
   //     typeof(project.boardType.name) !== 'undefined' &&
   //     $('#new-project-dialog-title')
-  //         .html() === page_text_label['editor_edit-details']) {
+  //         .html() === PageTextLabels['editor_edit-details']) {
   //   code = getXml();
   // }
 
