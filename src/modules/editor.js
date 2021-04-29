@@ -52,7 +52,7 @@ import {
 import {serialConsole} from './serial_console';
 import {findClient} from './client_connection';
 import {clientService, initTerminal} from './client_service';
-import {LOCAL_PROJECT_STORE_NAME} from './constants';
+import {EnableSentry, LOCAL_PROJECT_STORE_NAME} from './constants';
 import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
@@ -79,7 +79,9 @@ import {importProjectDialog} from './dialogs/import_project';
 
 // Start up the sentry monitor before we run
 startSentry()
-    .then( (resp) => console.log('Sentry has started.'))
+    .then( (resp) => {
+      if (EnableSentry) console.log('Sentry has started.');
+    })
     .catch((err) => console.log('Sentry failed to start'));
 
 /**
