@@ -117,12 +117,12 @@ function getWorkspaceSvg() {
  * Replaces the old document.ready() construct
  */
 $(() => {
-  initInternationalText();
-  initEventHandlers();
+  // This will initiate a number of async calls to set up the page
+  const result = initializePage();
+  result.catch((err) => console.log(err));
 
   // Set the compile toolbar buttons to unavailable
   // setPropToolbarButtons();
-  initToolbarIcons();
   propToolbarButtonController();
 
   // The BASE_URL is deprecated since it is always the empty string
@@ -133,9 +133,6 @@ $(() => {
 
   // This is setting the URIs for images referenced in the html page
   initCdnImageUrls();
-
-  // Set up the URLs to download new Launchers and BP Clients
-  initClientDownloadLinks();
   showAppName();
 
   // Connect to the BP Launcher
@@ -173,37 +170,28 @@ $(() => {
   // resetToolBoxSizing(250);
 });
 
+/**
+ * Init page elements
+ * @return {Promise<void>}
+ */
+async function initializePage() {
+  await initInternationalText();
+  await initEventHandlers();
+  await initToolbarIcons();
+  await initClientDownloadLinks();
+
+  // Set up the URLs to download new Launchers and BP Clients
+  await initClientDownloadLinks();
+}
 
 /**
  * Insert the text strings (internationalization) for all of the UI
  * elements on the editor page once the page has been loaded.
  */
-function initInternationalText() {
-  $('.keyed-lang-string').each(function(key, value) {
-    // Locate each HTML element of class 'keyed-lang-string'
-    // Set a reference to the current selected element
-    // eslint-disable-next-line no-invalid-this
-    const spanTag = $(this);
-
-    // Get the associated key value that will be used to locate
-    // the text string in the page_text_label array. This array
-    // is declared in messages.js
-    const pageLabel = spanTag.attr('data-key');
-
-    // If there is a key value
-    if (pageLabel) {
-      if (spanTag.is('a')) {
-        // if the html element is an anchor, add a link
-        spanTag.attr('href', page_text_label[pageLabel]);
-      } else if (spanTag.is('input')) {
-        // if the html element is a form input, set the
-        // default value for the element
-        spanTag.attr('value', page_text_label[pageLabel]);
-      } else {
-        // otherwise, assume that we're inserting html
-        spanTag.html(page_text_label[pageLabel]);
-      }
-    }
+async function initInternationalText() {
+  console.log(`Init International Text`);
+  $('.keyed-lang-string').each(async function(key, value) {
+    await initHtmlLabels(value);
   });
 
   // insert text strings (internationalization) into button/link tooltips
@@ -217,7 +205,7 @@ function initInternationalText() {
 /**
  * Set up event handlers - Attach events to nav/action menus/buttons
  */
-function initEventHandlers() {
+async function initEventHandlers() {
   // Leave editor page exit processing
   leavePageHandler();
 
@@ -414,7 +402,7 @@ function leavePageHandler() {
  * available on the downloads.parallax.com S3 site. The URL is stored in a
  * HTML meta tag.
  */
-function initClientDownloadLinks() {
+async function initClientDownloadLinks() {
   const uriRoot = 'http://downloads.parallax.com/blockly';
 
   // BP Client for Windows 32-bit
