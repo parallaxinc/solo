@@ -189,7 +189,6 @@ async function initializePage() {
  * elements on the editor page once the page has been loaded.
  */
 async function initInternationalText() {
-  console.log(`Init International Text`);
   $('.keyed-lang-string').each(async function(key, value) {
     await initHtmlLabels(value);
   });
