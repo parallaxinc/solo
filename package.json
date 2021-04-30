@@ -67,9 +67,11 @@
     "urijs": "^1.19.6",
     "watchpack-chokidar2": "^2.0.1",
     "webpack": "^4.46.0",
-    "webpack-cli": "^4.6.0",
-    "webpack-dev-server": "^3.11.2",
-    "webpack-merge": "^4.2.2"
+
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0",
+    "webpack-merge": "^4.2.2",
+    "webpack-split-chunks": "^0.2.1"
   },
   "optionalDependencies": {
     "fsevents": "^2.1.3"

@@ -27,11 +27,14 @@ import * as Cookies from 'js-cookie';
 import * as saveAs from 'file-saver';
 import * as JSZip from 'jszip';
 // eslint-disable-next-line camelcase
-import {page_text_label, tooltip_text} from './blockly/language/en/messages';
+import {initHtmlLabels, getHtmlText} from './blockly/language/en/page_text_labels';
+// eslint-disable-next-line camelcase
+import {tooltip_text} from './blockly/language/en/messages';
 import './blockly/generators/propc';
 import './blockly/generators/propc/base';
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
+import './blockly/generators/propc/cogs';
 import './blockly/generators/propc/gpio';
 import './blockly/generators/propc/oled';
 import './blockly/generators/propc/heb';
@@ -49,7 +52,7 @@ import {
 import {serialConsole} from './serial_console';
 import {findClient} from './client_connection';
 import {clientService, initTerminal} from './client_service';
-import {LOCAL_PROJECT_STORE_NAME} from './constants';
+import {EnableSentry, LOCAL_PROJECT_STORE_NAME} from './constants';
 import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
@@ -76,7 +79,9 @@ import {importProjectDialog} from './dialogs/import_project';
 
 // Start up the sentry monitor before we run
 startSentry()
-    .then( (resp) => console.log('Sentry has started.'))
+    .then( (resp) => {
+      if (EnableSentry) console.log('Sentry has started.');
+    })
     .catch((err) => console.log('Sentry failed to start'));
 
 /**
@@ -100,6 +105,8 @@ const CDN_URL = $('meta[name=cdn]').attr('content');
  */
 let codeEditor = null;
 
+// eslint-disable-next-line no-unused-vars
+const connectionWatchDogTimer = setInterval(findClient, 2000);
 
 /**
  * Getter for the current WorkspaceSvg object
@@ -114,12 +121,15 @@ function getWorkspaceSvg() {
  * Replaces the old document.ready() construct
  */
 $(() => {
-  initInternationalText();
+  // This will initiate a number of async calls to set up the page
+  const result = initializePage();
+  result.catch((err) => console.log(err));
+
+  // Set up all of the UI event handlers before we call UI stuff
   initEventHandlers();
 
   // Set the compile toolbar buttons to unavailable
   // setPropToolbarButtons();
-  initToolbarIcons();
   propToolbarButtonController();
 
   // The BASE_URL is deprecated since it is always the empty string
@@ -131,15 +141,12 @@ $(() => {
   // This is setting the URIs for images referenced in the html page
   initCdnImageUrls();
 
-  // Set up the URLs to download new Launchers and BP Clients
-  initClientDownloadLinks();
-  showAppName();
-
   // Connect to the BP Launcher
   // TODO: Finding the client and then look again every 3.5 seconds? There
   //  must be a better way to handle this in the clientService object.
   findClient();
-  setInterval(findClient, 2000);
+
+  // TODO: This should be lazy-loaded when a terminal is first requested.
   initTerminal();
 
   const backup = window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME);
@@ -170,37 +177,26 @@ $(() => {
   // resetToolBoxSizing(250);
 });
 
+/**
+ * Init page elements
+ * @return {Promise<void>}
+ */
+async function initializePage() {
+  await initInternationalText();
+  await initToolbarIcons();
+
+  // Set up the URLs to download new Launchers and BP Clients
+  await initClientDownloadLinks();
+  await showAppName();
+}
 
 /**
  * Insert the text strings (internationalization) for all of the UI
  * elements on the editor page once the page has been loaded.
  */
-function initInternationalText() {
-  $('.keyed-lang-string').each(function(key, value) {
-    // Locate each HTML element of class 'keyed-lang-string'
-    // Set a reference to the current selected element
-    // eslint-disable-next-line no-invalid-this
-    const spanTag = $(this);
-
-    // Get the associated key value that will be used to locate
-    // the text string in the page_text_label array. This array
-    // is declared in messages.js
-    const pageLabel = spanTag.attr('data-key');
-
-    // If there is a key value
-    if (pageLabel) {
-      if (spanTag.is('a')) {
-        // if the html element is an anchor, add a link
-        spanTag.attr('href', page_text_label[pageLabel]);
-      } else if (spanTag.is('input')) {
-        // if the html element is a form input, set the
-        // default value for the element
-        spanTag.attr('value', page_text_label[pageLabel]);
-      } else {
-        // otherwise, assume that we're inserting html
-        spanTag.html(page_text_label[pageLabel]);
-      }
-    }
+async function initInternationalText() {
+  $('.keyed-lang-string').each(async function(key, value) {
+    await initHtmlLabels(value);
   });
 
   // insert text strings (internationalization) into button/link tooltips
@@ -411,7 +407,7 @@ function leavePageHandler() {
  * available on the downloads.parallax.com S3 site. The URL is stored in a
  * HTML meta tag.
  */
-function initClientDownloadLinks() {
+async function initClientDownloadLinks() {
   const uriRoot = 'http://downloads.parallax.com/blockly';
 
   // BP Client for Windows 32-bit
@@ -640,7 +636,9 @@ function setupWorkspace(data, callback) {
   // Edit project details menu item
   // if (projectData) {
   if (getProjectInitialState()) {
-    $('#edit-project-details').html(page_text_label['editor_edit-details']);
+    // $('#edit-project-details').html(PageTextLabels['editor_edit-details']);
+    $('#edit-project-details').html(getHtmlText('editor_edit-details'));
+
   }
 
   resetToolBoxSizing(0, true);
@@ -1664,9 +1662,10 @@ function showProjectTimerModalDialog() {
     logConsoleMessage(`Nudge timer is likely no longer working`);
     return;
   }
+
   const message = [
-    page_text_label['editor_save-check_warning-1'],
-    page_text_label['editor_save-check_warning-2'],
+    getHtmlText('editor_save-check_warning-1'),
+    getHtmlText('editor_save-check_warning-2'),
   ];
 
   // The embedded anonymous function builds the message string
@@ -1811,7 +1810,7 @@ export function createNewProject() {
   // if (project &&
   //     typeof(project.boardType.name) !== 'undefined' &&
   //     $('#new-project-dialog-title')
-  //         .html() === page_text_label['editor_edit-details']) {
+  //         .html() === PageTextLabels['editor_edit-details']) {
   //   code = getXml();
   // }
 
@@ -1922,7 +1921,7 @@ export function insertProject(project) {
 /**
  *Display the application name
  */
-function showAppName() {
+async function showAppName() {
   const html = 'BlocklyProp<br><strong>Solo</strong>';
   $('#nav-logo').html(html);
 }

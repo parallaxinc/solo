@@ -23,7 +23,7 @@
 
 import * as Cookies from 'js-cookie';
 // eslint-disable-next-line camelcase
-import {page_text_label} from '../blockly/language/en/messages';
+import {getHtmlText} from '../blockly/language/en/page_text_labels';
 import {LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME} from '../constants';
 import {insertProject, isProjectChanged, uploadHandler} from '../editor';
 import {getProjectInitialState, projectJsonFactory} from '../project';
@@ -100,7 +100,7 @@ export const openProjectDialog = {
    */
   show: function() {
     if (!this.isEventHandler) {
-      logConsoleMessage(`Initialize dialog event handlers first.`);
+      console.log(`Initialize "Open Project" dialog event handlers first.`);
       return;
     }
 
@@ -138,7 +138,7 @@ export const openProjectDialog = {
    */
   reset: function() {
     // set title to Open file
-    $('#open-project-dialog-title').html(page_text_label['editor_open']);
+    $('#open-project-dialog-title').html(getHtmlText('editor_open'));
     uiDisableOpenButton();
 
     // Clear any previous filename

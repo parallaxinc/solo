@@ -236,12 +236,16 @@ export const clientService = {
    * @param {string} portName
    */
   setSelectedPort: function(portName) {
-    // Sentry Solo-6T
+    // Do not select the 'Searching...' as a port
+    if (portName.startsWith('Search')) {
+      console.log(`Selecting a port while searching.`);
+      return;
+    }
+
     if (this.activeConnection) {
       if (portName !== this.getSelectedPort()) {
-        logConsoleMessage(`Setting preferred port to: ${portName}`);
         this.selectedPort_ = portName;
-        // Request a port list from the server
+        // Notify Launcher of the selected port
         this.activeConnection.send(JSON.stringify({
           type: 'pref-port',
           portPath: portName,

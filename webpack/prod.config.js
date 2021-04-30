@@ -20,13 +20,12 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-const webpack = require('webpack');
-const merge = require('webpack-merge');
-const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path');
-const baseConfig = require('./base.config');
+const merge = require('webpack-merge');
 // const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require("terser-webpack-plugin");
+const baseConfig = require('./base.config');
 
 
 /**
@@ -56,10 +55,30 @@ module.exports = merge(baseConfig, {
 //        pathinfo: true,
     sourceMapFilename: '[name].bundle.[chunkhash].js.map',
   },
-    optimization: {
-        minimize: true,
-      minimizer: [new TerserPlugin()],
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+    splitChunks: {
+      chunks: 'async',
+      minSize: 20000,
+      minChunks: 1,
+      maxAsyncRequests: 30,
+      maxInitialRequests: 30,
+      enforceSizeThreshold: 50000,
+      cacheGroups: {
+        defaultVendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          reuseExistingChunk: true,
+        },
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true,
+        },
+      },
     },
+  },
   module: {
     rules: [
       {
@@ -71,6 +90,11 @@ module.exports = merge(baseConfig, {
       }
     ]},
   plugins: [
+    // new HtmlWebpackPlugin({
+    //   title: 'Custom template',
+    //   // Load a custom template (lodash by default)
+    //   template: 'index.html'
+    // }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
       DEBUG: false,

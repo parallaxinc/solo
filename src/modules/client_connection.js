@@ -265,9 +265,11 @@ function wsProcessPortListMessage(message) {
   if (debug) {
     logConsoleMessage(`Processing port list message: ${message}`);
   }
-  if (clientService.getPortLastUpdate() === 0) {
+
+  if (debug && clientService.getPortLastUpdate() === 0) {
     logConsoleMessage(`Port list received`);
   }
+
   clientService.clearPortList();
   if (message.ports.length > 0) {
     message.ports.forEach(function(port) {
@@ -359,7 +361,7 @@ function wsCompileMessageProcessor(message) {
       clientService.loaderResetDetect = false;
       clientService.loaderIsDone = true;
       appendCompileConsoleMessage('Succeeded.');
-      logConsoleMessage(`Project loaded successfully`);
+      logConsoleMessage(`Project downloaded successfully`);
       return;
 
     case NS_DOWNLOADING:
@@ -455,7 +457,11 @@ const setPortListUI = function(data = null) {
         Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
     clientService.portsAvailable = false;
   }
-  selectComPort(selectedPort);
+  // Reset the selected com port if one was defined.
+  if (selectedPort) {
+    selectComPort(selectedPort);
+  }
+
   propToolbarButtonController();
 };
 
@@ -526,7 +532,7 @@ function clearComPortUI() {
 // eslint-disable-next-line no-unused-vars,require-jsdoc
 function selectComPort(comPort) {
   const uiComPort = $('#comPort');
-  // A valid com port has been selected
+
   if (comPort !== null) {
     uiComPort.val(comPort);
     clientService.setSelectedPort(comPort);
