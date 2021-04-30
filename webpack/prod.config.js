@@ -95,6 +95,10 @@ module.exports = merge(baseConfig, {
     //   // Load a custom template (lodash by default)
     //   template: 'index.html'
     // }),
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: 'development',
+      DEBUG: false,
+    }),
     new CopyPlugin({
       patterns: [
         {from: './index.html', to: path.resolve(__dirname, targetPath)},
