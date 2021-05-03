@@ -26,7 +26,7 @@ import {insertProject, isProjectChanged} from '../editor';
 import {uploadHandler, appendProjectCode} from '../editor';
 import {getProjectInitialState, projectJsonFactory} from '../project';
 import {logConsoleMessage, utils} from '../utility';
-
+import {getHtmlText} from '../blockly/language/en/page_text_labels';
 
 /**
  * Import Project dialog window
