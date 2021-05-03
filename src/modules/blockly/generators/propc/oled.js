@@ -148,7 +148,7 @@ Blockly.propc.oled_initialize = function() {
       if (myRootBlock.type === 'procedures_defnoreturn') {
         myRootBlockName = Blockly.propc.variableDB_.getName(
             myRootBlock.getFieldValue('NAME'),
-            Blockly.Procedures.NAME_TYPE
+            Blockly.Procedures.NAME_TYPE,
         );
 
         // TODO: Refactor with getBlocksByTye

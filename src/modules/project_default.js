@@ -41,7 +41,7 @@ function buildDefaultProject() {
       Project.getEmptyProjectCodeHeader(),
       date,
       date,
-      date.getTime()
+      date.getTime(),
   );
 
   project.setCodeWithNamespace('');

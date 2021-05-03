@@ -256,6 +256,8 @@ xmlToolbox += '        <block type="array_clear"></block>';
 xmlToolbox += '    </category>';
 xmlToolbox += '    <category key="category_variables" custom="VARIABLE" colour="250"></category>';
 xmlToolbox += '    <category key="category_functions" custom="PROCEDURE" colour="225"></category>';
+
+// eslint-disable-next-line max-len
 xmlToolbox += '    <category key="category_input-output_pin-states" exclude="s3,heb,heb-wx," colour="185">';
 xmlToolbox += '        <block type="make_pin"></block>';
 xmlToolbox += '        <block type="make_pin_input">';
@@ -292,6 +294,7 @@ xmlToolbox += '    <category key="category_communicate" exclude="s3," colour="34
 /*
  * Communications->Badge Display
  */
+// eslint-disable-next-line max-len
 xmlToolbox += '        <category key="category_hackable-electronic-badge_oled" include="heb,heb-wx,">';
 xmlToolbox += '            <block type="heb_print_numeric_var">';
 xmlToolbox += '                <value name="VALUE">';
@@ -432,6 +435,7 @@ xmlToolbox += '        </category>';
 /*
  * Communications->Badge IR Communications
  */
+// eslint-disable-next-line max-len
 xmlToolbox += '        <category key="category_hackable-electronic-badge_ir-communication" include="heb,heb-wx,">';
 xmlToolbox += '            <block type="heb_ir_send_signal">';
 xmlToolbox += '                <value name="MESSAGE">';
@@ -449,6 +453,8 @@ xmlToolbox += '                <field name="XAXIS">40,S</field>';
 xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="graph_output"></block>';
 xmlToolbox += '        </category>';
+
+// eslint-disable-next-line max-len
 xmlToolbox += '        <category key="category_hackable-electronic-badge_led_control" include="heb,heb-wx,">';
 xmlToolbox += '            <block type="ws2812b_init" include="heb-wx,"></block>';
 xmlToolbox += '            <block type="ws2812b_set" include="heb-wx,">';
@@ -943,6 +949,8 @@ xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="debug_lcd_music_note"></block>';
 xmlToolbox += '        </category>';
+
+// eslint-disable-next-line max-len
 xmlToolbox += '        <category key="category_communicate_parallel-lcd" exclude="heb,heb-wx," experimental="true">';
 xmlToolbox += '            <block type="parallel_lcd_init"></block>';
 xmlToolbox += '            <block type="parallel_lcd_print">';
@@ -1140,6 +1148,8 @@ xmlToolbox += '            <block type="sd_close"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
 xmlToolbox += '    <category key="category_sensor-input" exclude="s3,heb,heb-wx," colour="140">';
+
+// eslint-disable-next-line max-len
 xmlToolbox += '        <category key="category_sensor-input_2axis-joystick" include="activity-board,">';
 xmlToolbox += '            <block type="joystick_input_xaxis"></block>';
 xmlToolbox += '            <block type="joystick_input_yaxis"></block>';
@@ -1245,6 +1255,7 @@ xmlToolbox += '    </category>';
 /*
  * MEMORY blocks
  */
+// eslint-disable-next-line max-len
 xmlToolbox += '    <category key="category_memory" include="activity-board,flip,other," colour="165">';
 xmlToolbox += '        <category key="category_memory_eeprom" >';
 xmlToolbox += '            <block type="eeprom_read">';
@@ -1466,6 +1477,8 @@ xmlToolbox += '        <block type="activitybot_calibrate"></block>';
 xmlToolbox += '        <block type="activitybot_display_calibration"></block>';
 xmlToolbox += '        <block type="activitybot_parallaxy_load"></block>';
 xmlToolbox += '    </category>';
+
+// eslint-disable-next-line max-len
 xmlToolbox += '    <category key="category_robot" include="flip," colour="295" experimental="true">';
 xmlToolbox += '        <block type="ab_drive_init"></block>';
 xmlToolbox += '        <block type="ab_drive_ramping">';
@@ -1729,6 +1742,8 @@ xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
 xmlToolbox += '    <category key="category_system" colour="320">';
 xmlToolbox += '        <block type="run_as_setup" exclude="s3," experimental="true"></block>';
+
+// eslint-disable-next-line max-len
 xmlToolbox += '        <block type="custom_code_multiple" include="activity-board,flip,heb,heb-wx,other,s3,"></block>';
 xmlToolbox += '        <block type="waitcnt">';
 xmlToolbox += '            <value name="TARGET">';
