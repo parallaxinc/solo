@@ -44,7 +44,7 @@ class PropTerm {
   /**
    * @param {HTMLElement} terminalElement HTML element to populate the
    *    terminal into.
-   * @param {object} outputCallback function to call and send characters
+   * @param {function} outputCallback function to call and send characters
    *    typed into the terminal.
    * @param {TerminalOptions} options for configuring the terminal.
    */

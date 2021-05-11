@@ -101,41 +101,44 @@ const WS_ACTION_CONSOLE_LOG = 'console-log';
 const WS_ACTION_CLOSE_WEBSOCKET = 'websocket-close';
 
 /**
- *  Connect to the BP-Launcher or BlocklyProp Client
+ *  Connect to the BP-Launcher
  */
 export const findClient = function() {
-  // TODO: Why isn't this port_update code in the clientService module?
+  // if (clientService.activeConnection) {
+  //   if (clientService.getPortLastUpdate() > (Date.now() - PORT_TIMEOUT)) {
+  //     return;
+  //   } else {
+  //     clientService.portListReceiveCountUp++;
+  //
+  //     if (!clientService.isPortListTimeOut()) {
+  //       logConsoleMessage(`WARNING: Expecting a port list from client.`);
+  //     } else {
+  //       logConsoleMessage('Timeout waiting for client port list!');
+  //       propToolbarButtonController();
+  //     }
+  //     return;
+  //   }
+  // }
+
   if (clientService.activeConnection) {
-    if (clientService.getPortLastUpdate() > Date.now() - PORT_TIMEOUT) {
-      // All good if we received a port update in the past 10 seconds
-      return;
-    } else {
-      // Send a warning
-      logConsoleMessage(`WARNING: Expecting a port list from client.`);
+    if (clientService.getPortLastUpdate() <= (Date.now() - PORT_TIMEOUT)) {
+      clientService.portListReceiveCountUp++;
+      if (!clientService.isPortListTimeOut()) {
+        logConsoleMessage(`WARNING: Expecting a port list from client.`);
+      } else {
+        logConsoleMessage('Timeout waiting for client port list!');
+        propToolbarButtonController();
+      }
     }
+    return;
   }
 
   // Try to connect to the BP-Launcher (websocket) first
   logConsoleMessage(`Looking for a client`);
 
-  if ( ! clientService.available) {
-    // Verify that the web socket is alive
+  if (!clientService.available) {
     logConsoleMessage('Connecting to BP Launcher client');
     establishBPLauncherConnection();
-  }
-
-  // Check how much time has passed since the port list was received
-  // from the BP-Launcher
-  if (clientService.type === serviceConnectionTypes.WS) {
-    clientService.portListReceiveCountUp++;
-    // Is the BP-Launcher taking to long to respond?  If so,
-    // close the connection
-    if (clientService.isPortListTimeOut()) {
-      logConsoleMessage('Timeout waiting for client port list!');
-      clientService.closeConnection();
-      // Update the toolbar
-      propToolbarButtonController();
-    }
   }
 };
 
@@ -167,12 +170,11 @@ function establishBPLauncherConnection() {
     // Log errors
     connection.onerror = function(error) {
       // Only display a message on the first attempt
-      if (clientService.type !== serviceConnectionTypes.NONE) {
-        logConsoleMessage('Unable to find websocket client');
+      if (clientService.type === serviceConnectionTypes.WS) {
+        logConsoleMessage('Unable to find client');
         connection.close();
       } else {
-        logConsoleMessage('Websocket Communication Error');
-        logConsoleMessage(error.message);
+        logConsoleMessage('Communication Error');
       }
     };
 
