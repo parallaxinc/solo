@@ -161,10 +161,17 @@ export const initHtmlLabels = async (value) => {
   }
 };
 
+/**
+ * Find a message string
+ *
+ * @param {string} key
+ * @return {string}
+ */
 export const getHtmlText = (key) => {
   try {
     return PageTextLabels[key];
   } catch (e) {
     logConsoleMessage(`Unable to find ${key} in text labels`);
+    return '';
   }
 };
