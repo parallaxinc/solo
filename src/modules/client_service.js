@@ -539,7 +539,7 @@ export function initTerminal() {
       document.getElementById('serial_console'),
 
       function(characterToSend) {
-        if (clientService.type === serviceConnectionTypes.WS) {
+        if (clientService.type === serviceConnectionTypes.WS && clientService.activeConnection) {
           const msgToSend = {
             type: 'serial-terminal',
             outTo: 'terminal',
