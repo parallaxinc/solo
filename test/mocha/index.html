@@ -1,0 +1,81 @@
+<!--
+  ~   TERMS OF USE: MIT License
+  ~
+  ~   Permission is hereby granted, free of charge, to any person obtaining a
+  ~   copy of this software and associated documentation files (the "Software"),
+  ~   to deal in the Software without restriction, including without limitation
+  ~   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+  ~   and/or sell copies of the Software, and to permit persons to whom the
+  ~   Software is furnished to do so, subject to the following conditions:
+  ~
+  ~   The above copyright notice and this permission notice shall be included in
+  ~   all copies or substantial portions of the Software.
+  ~
+  ~   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~   FITNESS FOR A PARTICULAR PURPOSE AND NONINFINGEMENT. IN NO EVENT SHALL
+  ~   THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  ~   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+  ~   DEALINGS IN THE SOFTWARE.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests for Solo</title>
+  <link href="https://unpkg.com/mocha@8.3.2/mocha.css" rel="stylesheet" />
+  <script src="https://unpkg.com/blockly@3.20191014.4/blockly.min.js"></script>
+</head>
+<body>
+
+<div id="mocha"></div>
+<div id="failureCount" style="display:none" tests_failed="unset"></div>
+
+<script src="https://unpkg.com/chai/chai.js"></script>
+<script src="https://unpkg.com/mocha@8.3.2/mocha.js"></script>
+<script src="https://unpkg.com/sinon/pkg/sinon.js"></script>
+<script>
+  mocha.setup({
+    ui: 'tdd'
+  });
+</script>
+
+<!-- Test scripts start here -->
+<script src="test_helpers.js"></script>
+<script src="block_test.js"></script>
+
+<div id="blocklyDiv"></div>
+<xml xmlns="https://developers.google.com/blockly/xml" id="toolbox-minimal" style="display: none">
+  <block type="basic_block"></block>
+</xml>
+
+<xml xmlns="https://developers.google.com/blockly/xml" id="toolbox-categories" style="display: none">
+  <category name="First">
+    <block type="basic_block">
+      <field name="TEXT">FirstCategory-FirstBlock</field>
+    </block>
+    <block type="basic_block">
+      <field name="TEXT">FirstCategory-SecondBlock</field>
+    </block>
+  </category>
+  <category name="Second">
+    <block type="basic_block">
+      <field name="TEXT">SecondCategory-FirstBlock</field>
+    </block>
+  </category>
+</xml>
+<xml xmlns="https://developers.google.com/blockly/xml" id="toolbox-connections" style="display: none">
+  <block type="stack_block"></block>
+  <block type="row_block"></block>
+</xml>
+
+<script>
+  mocha.run(function(failures) {
+    const failureDiv = document.getElementById('failureCount');
+    failureDiv.setAttribute('tests_failed',  failures.toString());
+  });
+</script>
+</body>
+</html>
