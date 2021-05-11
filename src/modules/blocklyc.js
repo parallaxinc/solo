@@ -187,7 +187,8 @@ export const compile = async () => {
       codePropC.getValue();
 
   if (propcCode.indexOf('EMPTY_PROJECT') > -1) {
-    showCannotCompileEmptyProject();
+    showCannotCompileEmptyProject(
+        Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
     return;
   }
 
@@ -236,7 +237,8 @@ export const loadInto = async (
       codePropC.getValue();
 
   if (propcCode.indexOf('EMPTY_PROJECT') > -1) {
-    showCannotCompileEmptyProject();
+    showCannotCompileEmptyProject(
+        Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
     return;
   }
 
@@ -658,6 +660,7 @@ export function graphNewData(stream) {
               });
               // TODO: if this slows performance too much - explore changing
               //  the stylesheet
+              // eslint-disable-next-line max-len
               //  (https://stackoverflow.com/questions/50036922/change-a-css-stylesheets-selectors-properties/50036923#50036923)
               $('.ct_line').css('stroke-width', '2.5px');
               if (graph_temp_data[row][0] > graph_options.sampleTotal) {
@@ -731,12 +734,14 @@ export function graphPlay(setTo) {
         (play_state.indexOf('pause') > -1 ||
             play_state.indexOf('<!--p') === -1)) {
       document.getElementById('btn-graph-play')
+          // eslint-disable-next-line max-len
           .innerHTML = '<!--play--><svg xmlns="http://www.w3.org/2000/svg" width="14" height="15"><path d="M4,3 L4,11 10,7 Z" style="stroke:#fff;stroke-width:1;fill:#fff;"/></svg>';
       if (!setTo) {
         graphStartStop('pause');
       }
     } else {
       document.getElementById('btn-graph-play')
+          // eslint-disable-next-line max-len
           .innerHTML = '<!--pause--><svg xmlns="http://www.w3.org/2000/svg" width="14" height="15"><path d="M5.5,2 L4,2 4,11 5.5,11 Z M8.5,2 L10,2 10,11 8.5,11 Z" style="stroke:#fff;stroke-width:1;fill:#fff;"/></svg>';
       // eslint-disable-next-line camelcase
       if (!graph_interval_id && !setTo) {

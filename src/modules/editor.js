@@ -638,7 +638,6 @@ function setupWorkspace(data, callback) {
   if (getProjectInitialState()) {
     // $('#edit-project-details').html(PageTextLabels['editor_edit-details']);
     $('#edit-project-details').html(getHtmlText('editor_edit-details'));
-
   }
 
   resetToolBoxSizing(0, true);
@@ -936,6 +935,8 @@ function generateSvgHeader( width, height ) {
   let svgHeader = '';
 
   svgHeader += '<svg blocklyprop="blocklypropproject" xmlns="http://www.w3.org/2000/svg" ';
+
+  // eslint-disable-next-line max-len
   svgHeader += 'xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink" ';
   // eslint-disable-next-line max-len
   svgHeader += 'version="1.1" class="blocklySvg"><style>.blocklySvg { background-color: #fff; ';

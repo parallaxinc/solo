@@ -614,7 +614,7 @@ function projectJsonFactory(json) {
       json.code,
       Date.parse(json.created),
       Date.parse(json.modified),
-      date.getTime()
+      date.getTime(),
   );
 }
 

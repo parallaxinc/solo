@@ -533,6 +533,7 @@ Blockly.propc.scrub_ = function(block, code) {
 };
 
 // Provides backward compatibility for some older browsers:
+// eslint-disable-next-line max-len
 // From: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
 // TODO: Remove this statement once we decide what browser
 //  revisions we are going to support
@@ -622,12 +623,10 @@ Blockly.FieldVariable.dropdownCreate = function() {
   // Prevents user from deleting the default "item" variable
   if (Blockly.Msg['DELETE_VARIABLE'] &&
       name !== Blockly.LANG_VARIABLES_SET_ITEM) {
-    options.push(
-        [
-          Blockly.Msg['DELETE_VARIABLE'].replace('%1', name),
-          Blockly.DELETE_VARIABLE_ID,
-        ]
-    );
+    options.push([
+      Blockly.Msg['DELETE_VARIABLE'].replace('%1', name),
+      Blockly.DELETE_VARIABLE_ID,
+    ]);
   }
 
   return options;
