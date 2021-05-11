@@ -187,7 +187,8 @@ export const compile = async () => {
       codePropC.getValue();
 
   if (propcCode.indexOf('EMPTY_PROJECT') > -1) {
-    showCannotCompileEmptyProject();
+    showCannotCompileEmptyProject(
+        Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
     return;
   }
 
@@ -236,7 +237,8 @@ export const loadInto = async (
       codePropC.getValue();
 
   if (propcCode.indexOf('EMPTY_PROJECT') > -1) {
-    showCannotCompileEmptyProject();
+    showCannotCompileEmptyProject(
+        Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
     return;
   }
 
