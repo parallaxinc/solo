@@ -29,8 +29,10 @@ fi
 
 echo "Running lint tests."
 ./node_modules/.bin/eslint src/modules
+echo "End lint tests."
 
 echo "Running unit tests"
-mocha
+node test/mocha/run_mocha_tests_in_browser.js
 
-echo "End lint tests."
+
+# "jsunit" "node tests/jsunit/run_jsunit_tests_in_browser.js"

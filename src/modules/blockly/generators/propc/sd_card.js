@@ -232,6 +232,8 @@ Blockly.Blocks.sd_read = {
 
   setSdMode: function(mode) {
     let connectedBlock = null;
+    // Assign 'this' to a variable for use in the tooltip closure below.
+    const thisBlock = this;
 
     if (this.getInput('SIZE')) {
       const valueConnection = this.getInput('SIZE').connection;
@@ -255,8 +257,8 @@ Blockly.Blocks.sd_read = {
             ['read', 'fread'],
             ['close', 'fclose'],
           ], function(mode) {
-            // eslint-disable-next-line no-invalid-this
-            this.getSourceBlock().setSdMode(mode);
+            // this.getSourceBlock().setSdMode(mode);
+            thisBlock.getSourceBlock().setSdMode(mode);
           }), 'MODE');
       this.appendValueInput('VALUE')
           .setCheck('String')
@@ -270,8 +272,8 @@ Blockly.Blocks.sd_read = {
             ['write', 'fwrite'],
             ['close', 'fclose'],
           ], function(mode) {
-            // eslint-disable-next-line no-invalid-this
-            this.getSourceBlock().setSdMode(mode);
+            // this.getSourceBlock().setSdMode(mode);
+            thisBlock.getSourceBlock().setSdMode(mode);
           }), 'MODE');
       this.appendDummyInput('VALUE')
           .appendField('bytes  store in')
@@ -285,8 +287,8 @@ Blockly.Blocks.sd_read = {
             ['read', 'fread'],
             ['write', 'fwrite'],
           ], function(mode) {
-            // eslint-disable-next-line no-invalid-this
-            this.getSourceBlock().setSdMode(mode);
+            // this.getSourceBlock().setSdMode(mode);
+            thisBlock.getSourceBlock().setSdMode(mode);
           }), 'MODE');
     }
     if (connectedBlock) {
