@@ -50,7 +50,7 @@
     "acorn": "^7.1.1",
     "chai": "^4.3.4",
     "copy-webpack-plugin": "^6.2.0",
-    "css-loader": "^3.4.2",
+    "css-loader": "^5.2.4",
     "elliptic": "^6.5.4",
     "eslint": "^6.6.0",
     "eslint-config-google": "^0.14.0",
