@@ -232,8 +232,6 @@ Blockly.Blocks.sd_read = {
 
   setSdMode: function(mode) {
     let connectedBlock = null;
-    // Assign 'this' to a variable for use in the tooltip closure below.
-    const thisBlock = this;
 
     if (this.getInput('SIZE')) {
       const valueConnection = this.getInput('SIZE').connection;
@@ -256,10 +254,12 @@ Blockly.Blocks.sd_read = {
             ['write', 'fwrite'],
             ['read', 'fread'],
             ['close', 'fclose'],
-          ], function(mode) {
-            // this.getSourceBlock().setSdMode(mode);
-            thisBlock.getSourceBlock().setSdMode(mode);
-          }), 'MODE');
+          ],
+          function(mode) {
+            this.getSourceBlock().setSdMode(mode);
+          }),
+          'MODE');
+
       this.appendValueInput('VALUE')
           .setCheck('String')
           .appendField('bytes of');
@@ -271,10 +271,12 @@ Blockly.Blocks.sd_read = {
             ['read', 'fread'],
             ['write', 'fwrite'],
             ['close', 'fclose'],
-          ], function(mode) {
-            // this.getSourceBlock().setSdMode(mode);
-            thisBlock.getSourceBlock().setSdMode(mode);
-          }), 'MODE');
+          ],
+          function(mode) {
+            this.getSourceBlock().setSdMode(mode);
+          }),
+          'MODE');
+
       this.appendDummyInput('VALUE')
           .appendField('bytes  store in')
           .appendField(new Blockly.FieldVariable(
@@ -286,10 +288,11 @@ Blockly.Blocks.sd_read = {
             ['close', 'fclose'],
             ['read', 'fread'],
             ['write', 'fwrite'],
-          ], function(mode) {
-            // this.getSourceBlock().setSdMode(mode);
-            thisBlock.getSourceBlock().setSdMode(mode);
-          }), 'MODE');
+          ],
+          function(mode) {
+            this.getSourceBlock().setSdMode(mode);
+          }),
+          'MODE');
     }
     if (connectedBlock) {
       connectedBlock.outputConnection.connect(this.getInput('SIZE').connection);
@@ -329,7 +332,7 @@ Blockly.propc.sd_read = function() {
 
   // Handle close straight away
   if (mode === 'fclose') {
-    return `if(fp) {\n  ${mode}(fp);\n  fp = 0;\n}`;
+    return `if(fp) {\n  ${mode}(fp);\n  fp = 0;\n}\n`;
   }
 
   // Verify the required SD-Open block is in the project
@@ -548,7 +551,7 @@ Blockly.propc.sd_close = function(block) {
     setupSdCard();
   }
 
-  return 'if(fp) {\n  fclose(fp);\n  fp = 0;\n}';
+  return 'if(fp) {\n  fclose(fp);\n  fp = 0;\n}\n';
 };
 
 /**
