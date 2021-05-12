@@ -35,6 +35,7 @@ import './blockly/generators/propc/base';
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
 import './blockly/generators/propc/cogs';
+import './blockly/generators/propc/custom_code';
 import './blockly/generators/propc/gpio';
 import './blockly/generators/propc/oled';
 import './blockly/generators/propc/heb';
