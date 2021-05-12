@@ -470,16 +470,19 @@ function initCdnImageUrls() {
 
 /**
  * Initialize the event handlers for the C source editor buttons
+ *
+ * @deprecated
+ * The XML editor will be removed soon
  */
 function initCSourceEditorButtonEvenHandlers() {
   // Clean up C source code
-  $('#prop-btn-pretty').on('click', () => formatWizard());
+  // $('#prop-btn-pretty').on('click', () => formatWizard());
 
   // C source editor Undo button
-  $('#prop-btn-undo').on('click', () => getSourceEditor().undo());
+  // $('#prop-btn-undo').on('click', () => getSourceEditor().undo());
 
   // C source editor Redo button
-  $('#prop-btn-redo').on('click', () => getSourceEditor().redo());
+  // $('#prop-btn-redo').on('click', () => getSourceEditor().redo());
 
   // C source Find button
   $('#propc-find-btn').on('click', () => {
@@ -2107,6 +2110,9 @@ function renderContent(id) {
 /**
  * Formats code in editor and sets cursor to the line is was on
  * Used by the code formatter button in the editor UI
+ *
+ * @deprecated
+ * Feature will be removed soon.
  */
 const formatWizard = function() {
   const codePropC = getSourceEditor();

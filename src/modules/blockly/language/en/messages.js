@@ -48,9 +48,12 @@ const tooltip_text = [
   ['prop-btn-eeprom', 'Load and run (save code to EEPROM)'],
   ['prop-btn-term', 'Open Serial Terminal'],
   ['prop-btn-graph', 'Open Graphing Output'],
-  ['prop-btn-pretty', 'Beautify Code'],
-  ['prop-btn-undo', 'Undo'],
-  ['prop-btn-redo', 'Redo'],
+
+  // Deprecated on 5/12/2021
+  // ['prop-btn-pretty', 'Beautify Code'],
+  // ['prop-btn-undo', 'Undo'],
+  // ['prop-btn-redo', 'Redo'],
+
   ['btn-graph-play', 'Pause/Resume the graph'],
   ['btn-graph-snapshot', 'Download a snapshot of the graph'],
   ['btn-graph-csv', 'Download graph data as CSV'],

@@ -29,7 +29,6 @@ import 'ace-builds/src-min-noconflict/ace';
 import 'ace-builds/src-min-noconflict/theme-chrome';
 import 'ace-builds/src-min-noconflict/mode-javascript';
 
-import {isExperimental} from './url_parameters';
 import {Project} from './project';
 
 /**
@@ -76,12 +75,12 @@ export class CodeEditor {
       cSourceCode = code;
     }
 
-    if (!cXmlCode && isExperimental.indexOf('xedit') > -1) {
-      const xmlCode = ace.edit('code-xml');
-      xmlCode.setTheme('ace/theme/chrome');
-      xmlCode.getSession().setMode('ace/mode/xml');
-      cXmlCode = xmlCode;
-    }
+    // if (!cXmlCode && isExperimental.indexOf('xedit') > -1) {
+    //   const xmlCode = ace.edit('code-xml');
+    //   xmlCode.setTheme('ace/theme/chrome');
+    //   xmlCode.getSession().setMode('ace/mode/xml');
+    //   cXmlCode = xmlCode;
+    // }
   }
 
   /**
