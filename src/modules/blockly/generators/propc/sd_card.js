@@ -256,6 +256,7 @@ Blockly.Blocks.sd_read = {
             ['close', 'fclose'],
           ],
           function(mode) {
+            // eslint-disable-next-line no-invalid-this
             this.getSourceBlock().setSdMode(mode);
           }),
           'MODE');
@@ -273,6 +274,7 @@ Blockly.Blocks.sd_read = {
             ['close', 'fclose'],
           ],
           function(mode) {
+            // eslint-disable-next-line no-invalid-this
             this.getSourceBlock().setSdMode(mode);
           }),
           'MODE');
@@ -290,6 +292,7 @@ Blockly.Blocks.sd_read = {
             ['write', 'fwrite'],
           ],
           function(mode) {
+            // eslint-disable-next-line no-invalid-this
             this.getSourceBlock().setSdMode(mode);
           }),
           'MODE');

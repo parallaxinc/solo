@@ -2115,13 +2115,14 @@ function renderContent(id) {
  * @deprecated
  * Feature will be removed soon.
  */
-const formatWizard = function() {
+// eslint-disable-next-line no-unused-vars,require-jsdoc
+function formatWizard() {
   const codePropC = getSourceEditor();
   const currentLine = codePropC.getCursorPosition()['row'] + 1;
   codePropC.setValue(prettyCode(codePropC.getValue()));
   codePropC.focus();
   codePropC.gotoLine(currentLine);
-};
+}
 
 /**
  * Save a project to the local file system
