@@ -56,9 +56,10 @@ function showAppName() {
  */
 function showAppBannerTitle(appName) {
   $('#app-banner-title').html('BlocklyProp ' + appName);
-  if (window.location.hostname === productBannerHostTrigger) {
+  if (window.location.hostname === productBannerHostTrigger ||
+      window.location.hostname === 'localhost') {
     document.getElementById('nav-logo')
-        .style.backgroundImage = 'url(\'src/images/dev-toolkit.png\')';
+        .style.backgroundImage = 'url(\'dist/images/dev-toolkit.png\')';
   }
 }
 
