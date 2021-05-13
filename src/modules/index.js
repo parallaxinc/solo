@@ -70,7 +70,7 @@ function setCopyrightDate(element) {
   const d = new Date();
   const year = d.getFullYear().toString();
   let applicationVersion = `v${APP_VERSION}`;
-  if (document.location.hostname.toLowerCase().indexOf('solocup') > 0) {
+  if (document.location.hostname.toLowerCase().indexOf('solocup') >= 0) {
     applicationVersion += `.${APP_BUILD}-${APP_QA}`;
   }
 
