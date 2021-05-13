@@ -32,6 +32,8 @@ import 'bootstrap';
 import * as Cookies from 'js-cookie';
 
 import {
+  APP_BUILD,
+  APP_QA,
   APP_VERSION, ApplicationName, EnableSentry,
   productBannerHostTrigger, TestApplicationName,
 } from './constants';
@@ -67,8 +69,14 @@ function showAppBannerTitle(appName) {
 function setCopyrightDate(element) {
   const d = new Date();
   const year = d.getFullYear().toString();
-  element.innerHTML = `v${APP_VERSION} &copy; 2015 - ${year}, Parallax Inc.`;
+  let applicationVersion = `v${APP_VERSION}`;
+  if (document.location.hostname.toLowerCase().indexOf('solocup') > 0) {
+    applicationVersion += `.${APP_BUILD}-${APP_QA}`;
+  }
+
+  element.innerHTML = `${applicationVersion} &copy; 2015 - ${year}, Parallax Inc.`;
 }
+
 
 /**
  * Set link onClick handlers

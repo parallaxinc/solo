@@ -41,7 +41,7 @@ let cSourceCode = null;
  * Ace Editor XML code representation
  * @type {AceAjax.Editor | null}
  */
-let cXmlCode = null;
+const cXmlCode = null;
 
 /**
  * Prop c code editor implementing the Ace package
