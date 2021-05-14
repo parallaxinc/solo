@@ -25,12 +25,14 @@ import 'bootstrap';
 import Blockly from 'blockly/core';
 import * as Cookies from 'js-cookie';
 import * as saveAs from 'file-saver';
+
 import * as JSZip from 'jszip';
+
 // eslint-disable-next-line camelcase
 import {initHtmlLabels, getHtmlText} from './blockly/language/en/page_text_labels';
 // eslint-disable-next-line camelcase
 import {tooltip_text} from './blockly/language/en/messages';
-import './blockly/generators/propc';
+import /* webpackPrefetch: true */ './blockly/generators/propc';
 import './blockly/generators/propc/base';
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
@@ -2124,6 +2126,7 @@ function formatWizard() {
   codePropC.gotoLine(currentLine);
 }
 
+
 /**
  * Save a project to the local file system
  */
@@ -2155,13 +2158,14 @@ function downloadPropC() {
     sideFolder.file(value + '.side', fileSIDEblob);
 
     // Generate the zip file
-    sideFolder.generateAsync({type: 'blob'}).then(function(blob) {
-      // Trigger the download
-      saveAs(blob, value + '.zip');
-    }, function(err) {
-      utils.showMessage(
-          Blockly.Msg.DIALOG_ERROR,
-          Blockly.Msg.DIALOG_SIDE_FILES_ERROR + err);
-    });
+    sideFolder.generateAsync({type: 'blob'})
+        .then(function(blob) {
+          // Trigger the download
+          saveAs(blob, value + '.zip');
+        }, function(err) {
+          utils.showMessage(
+              Blockly.Msg.DIALOG_ERROR,
+              Blockly.Msg.DIALOG_SIDE_FILES_ERROR + err);
+        });
   }
 }
