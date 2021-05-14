@@ -36,25 +36,29 @@
         <meta name="application-name" content="BlocklyProp"/>
         <meta name="description" content="BlocklyProp Solo is a stand-alone Blockly implementation designed to support Parallax robots and sensor kits.">
         <meta name="msapplication-TileColor" content="#FFFFFF"/>
-        <meta name="msapplication-TileImage" content="dist/images/mstile-144x144.png"/>
+        <meta name="msapplication-TileImage" content="images/mstile-144x144.png"/>
         <meta name="base" content="">
-        <meta name="cdn" content="dist/">
+        <meta name="cdn" content="/">
         <meta name="whoami" content="root">
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <link type="text/css" rel="stylesheet" href="dist/style.css"/>
+        <link type="text/css" rel="stylesheet" href="style.css"/>
 
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="57x57" href="dist/images/apple-touch-icon-57x57.png"/>
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="114x114" href="dist/images/apple-touch-icon-114x114.png"/>
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="72x72" href="dist/images/apple-touch-icon-72x72.png"/>
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="144x144" href="dist/images/apple-touch-icon-144x144.png"/>
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="120x120" href="dist/images/apple-touch-icon-120x120.png"/>
-        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="152x152" href="dist/images/apple-touch-icon-152x152.png"/>
-        <link type="image/png" rel="icon" sizes="32x32" href="dist/images/favicon-32x32.png"/>
-        <link type="image/png" rel="icon" sizes="16x16" href="dist/images/favicon-16x16.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="57x57" href="images/apple-touch-icon-57x57.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="114x114" href="images/apple-touch-icon-114x114.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="72x72" href="images/apple-touch-icon-72x72.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="144x144" href="images/apple-touch-icon-144x144.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="120x120" href="images/apple-touch-icon-120x120.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="152x152" href="images/apple-touch-icon-152x152.png"/>
+        <link type="image/png" rel="icon" sizes="32x32" href="images/favicon-32x32.png"/>
+        <link type="image/png" rel="icon" sizes="16x16" href="images/favicon-16x16.png"/>
+
+        <!-- This line should get updated by webpack
+        <script type="module" src="{{index.js}}" defer></script>
+         -->
 
         <title>BlocklyProp Solo</title>
-        <script type="module" src="./dist/index.bundle.js" defer></script>
+
     </head>
 
     <body>
@@ -94,7 +98,7 @@
                 </div>
                 <p><strong>Blockly for Propeller Multicore:</strong>&nbsp;Making amazing projects and learning to code just became easier</p>
                 <p>
-                    <img class="cdn full-width" src="dist/images/home-banner.png"
+                    <img class="cdn full-width" src="images/home-banner.png"
                          style="border: 0" alt="Home page banner image">
                 </p>
             </div>
