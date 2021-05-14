@@ -130,9 +130,6 @@ module.exports = (opts) => {
       ignored: '/node_modules',
       poll: 1000,
     },
-    devServer: {
-      port: 3000
-    },
     devtool: "source-map"
   }
 };
