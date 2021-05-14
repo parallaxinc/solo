@@ -45,8 +45,8 @@ export const EnableSentry = true;
  *     {rc#} is the release candidate number.
  */
 export const APP_VERSION = '1.5.10';
-export const APP_BUILD = '202';
-export const APP_QA = 'a2';
+export const APP_BUILD = '205';
+export const APP_QA = 'a3';
 
 /**
  * Set this to target deployment environment.
@@ -94,7 +94,7 @@ export const PROJECT_NAME_DISPLAY_MAX_LENGTH = 20;
  *
  * @type {string}
  */
-export const productBannerHostTrigger = 'solocup.parallax.com';
+export const productBannerHostTrigger = 'solocup';
 
 /**
  * The application brand name in the production system

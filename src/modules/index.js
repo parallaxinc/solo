@@ -32,11 +32,10 @@ import 'bootstrap';
 import * as Cookies from 'js-cookie';
 
 import {
-  APP_BUILD,
-  APP_QA,
-  APP_VERSION, ApplicationName, EnableSentry,
+  APP_BUILD, APP_QA, APP_VERSION, ApplicationName, EnableSentry,
   productBannerHostTrigger, TestApplicationName,
 } from './constants';
+
 import {getURLParameter, getAllUrlParameters, logConsoleMessage} from './utility';
 
 /**
@@ -44,7 +43,7 @@ import {getURLParameter, getAllUrlParameters, logConsoleMessage} from './utility
  */
 function showAppName() {
   let html = 'BlocklyProp<br><strong>Solo</strong>';
-  if (window.location.hostname === productBannerHostTrigger) {
+  if (isDevBuild()) {
     html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
   }
   $('#nav-logo').html(html);
@@ -56,10 +55,9 @@ function showAppName() {
  */
 function showAppBannerTitle(appName) {
   $('#app-banner-title').html('BlocklyProp ' + appName);
-  if (window.location.hostname === productBannerHostTrigger ||
-      window.location.hostname === 'localhost') {
+  if (isDevBuild()) {
     document.getElementById('nav-logo')
-        .style.backgroundImage = 'url(\'dist/images/dev-toolkit.png\')';
+        .style.backgroundImage = 'url(\'images/dev-toolkit.png\')';
   }
 }
 
@@ -71,7 +69,7 @@ function setCopyrightDate(element) {
   const d = new Date();
   const year = d.getFullYear().toString();
   let applicationVersion = `v${APP_VERSION}`;
-  if (document.location.hostname.toLowerCase().indexOf('solocup') >= 0) {
+  if (isDevBuild()) {
     applicationVersion += `.${APP_BUILD}-${APP_QA}`;
   }
 
@@ -99,6 +97,17 @@ function setClickHandlers() {
     Cookies.set('action', 'new', {expires: 1});
     window.location = 'blocklyc.html';
   });
+}
+
+
+/**
+ * Determine if this is deployed in a test or local dev environment
+ *
+ * @return {boolean}
+ */
+function isDevBuild() {
+  return (window.location.hostname.indexOf(productBannerHostTrigger) >= 0 ||
+      window.location.hostname.indexOf('localhost') >= 0);
 }
 
 /**

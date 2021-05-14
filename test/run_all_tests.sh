@@ -28,7 +28,14 @@ if [ -n "$TRAVIS" ]; then
 fi
 
 echo "Running lint tests."
-./node_modules/.bin/eslint src/modules
+if  ./node_modules/.bin/eslint src/modules ; then
+  echo "Lint succeeded."
+else
+    echo "Lint detected issues. Exiting"
+    exit 1;
+fi
+
+
 echo "End lint tests."
 
 echo "Running unit tests"
