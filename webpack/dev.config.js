@@ -20,12 +20,10 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-const webpack = require('webpack');
-const merge = require('webpack-merge');
-const baseConfig = require('./base.config');
-const CopyPlugin = require('copy-webpack-plugin');
-// const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
+const webpack = require('webpack');
+const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpack = require('html-webpack-plugin');
 
 /**
  * The relative path to the distribution directory
@@ -33,63 +31,108 @@ const path = require('path');
  */
 const targetPath = '../dist';
 
-module.exports = merge(baseConfig, {
-  devServer: {
-    port: 3000
-  },
-  mode: 'development',
-  devtool: 'source-map',
-  output: {
-    path: path.resolve(__dirname, targetPath),
-    filename: '[name].bundle.js',
-    chunkFilename: '[id].bundle.js',
-    pathinfo: true,
-    sourceMapFilename: '[name].bundle.js.map',
-  },
-  watchOptions: {
-    ignored: '/node_modules',
-    poll: 1000,
-  },
-  plugins: [
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: 'development',
-      DEBUG: false,
-    }),
-    new CopyPlugin({
-      patterns: [
+
+/**
+ * The relative path to the Blockly package media files
+ * @type {string}
+ */
+const blocklyMedia = '../node_modules/blockly/media';
+
+module.exports = (opts) => {
+  opts = Object.assign({
+    env: 'dev',
+    analyze: false
+  }, opts);
+
+  const isDev = (opts.env === 'dev');
+  if (isDev) console.log(`DEVELOPMENT`);
+
+  return {
+    mode: 'development',
+    entry: { // Bundle entry points
+      index: 'index.js',
+      editor: 'editor.js',
+    },
+    output: {
+      path: path.resolve(__dirname, targetPath),
+      filename: '[name].bundle.[chunkhash].js',
+      sourceMapFilename: '[name].bundle.js.map',
+    },
+    target: 'web',
+    resolve: {
+      // Places to look for application files
+      modules: [
+        './src/modules',
+        './node_modules',
+      ],
+      extensions: ['.js']
+    },
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+        name: false
+      },
+    },
+    module: {
+      rules: [
         {
-          from: './index.html',
-          to: path.resolve(__dirname, targetPath)
+          test: /\.css$/,
+          use: [
+            'style-loader',
+            'css-loader'
+          ]
         },
         {
-          from: './blocklyc.html',
-          to: path.resolve(__dirname, targetPath)
+          test: /\.html$/,
+          use: [
+            'html-loader'
+          ]
         },
-        {
-          from: path.resolve(__dirname, '../node_modules/blockly/media'),
-          to: path.resolve(__dirname, `${targetPath}/media`)
-        },
-        {
-          from: './src/images',
-          to: path.resolve(__dirname, `${targetPath}/images`)
-        },
-        {
-          from: './src/site.css',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          from: './src/style.css',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          from: './src/style-clientdownload.css',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          from: './src/style-editor.css',
-          to: path.resolve(__dirname, targetPath)
-        }
       ]
-    }
-  )]
-});
+    },
+    plugins: [
+      new webpack.EnvironmentPlugin({
+        NODE_ENV: 'production',
+        DEBUG: false,
+      }),
+      new webpack.ProvidePlugin({
+        $: 'jquery',
+        jQuery: 'jquery'
+      }),
+      new HtmlWebpack({
+        template: './src/templates/index.template',
+        chunks: ["index"],
+        filename: 'index.html',
+      }),
+      new HtmlWebpack({
+        template: './src/templates/editor.template',
+        chunks: ["editor"],
+        filename: 'blocklyc.html',
+      }),
+      new CopyPlugin({
+        patterns: [
+          {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
+          {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
+          {from: './src/site.css', to: path.resolve(__dirname, targetPath)},
+          {from: './src/style.css', to: path.resolve(__dirname, targetPath)},
+          {from: './src/style-clientdownload.css', to: path.resolve(__dirname, targetPath)},
+          {
+            from: './src/style-editor.css', to: path.resolve(__dirname, targetPath)
+          },
+        ]
+      })
+    ],
+    stats: {
+      children: true,
+      errorDetails: true
+    },
+    watchOptions: {
+      ignored: '/node_modules',
+      poll: 1000,
+    },
+    devServer: {
+      port: 3000
+    },
+    devtool: "source-map"
+  }
+};
