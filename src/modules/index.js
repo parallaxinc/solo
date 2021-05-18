@@ -215,10 +215,3 @@ setClickHandlers();
 
 // The browser localStorage object should be empty
 window.localStorage.clear();
-
-// Add experimental URL parameter to the open and new project links, if used
-// if (getURLParameter('experimental')) {
-//   $('.editor-link').attr('href', function() {
-//     return document.location.href + getAllUrlParameters().replace('?', '&');
-//   });
-// }
