@@ -23,10 +23,10 @@
 import {startSentry} from './sentry';
 // Start up the sentry monitor before we run
 startSentry()
-    .then( (resp) => {
+    .then( () => {
       if (EnableSentry) console.log('Sentry has started.');
     })
-    .catch((err) => console.log('Sentry failed to start'));
+    .catch((err) => console.log(`Sentry failed to start. Error: ${err.message}`));
 
 import 'bootstrap';
 import * as Cookies from 'js-cookie';
@@ -36,17 +36,17 @@ import {
   productBannerHostTrigger, TestApplicationName,
 } from './constants';
 
-import {getURLParameter, getAllUrlParameters, logConsoleMessage} from './utility';
+import {logConsoleMessage} from './utility';
 
 /**
  * Display the application name
  */
 function showAppName() {
-  let html = 'BlocklyProp<br><strong>Solo</strong>';
-  if (isDevBuild()) {
-    html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
+  const html = `BlocklyProp<br><strong>${isDevBuild() ? TestApplicationName : 'Solo'}</strong>`;
+  const navLogo = document.getElementById('nav-logo');
+  if (navLogo) {
+    navLogo.innerHTML = html;
   }
-  $('#nav-logo').html(html);
 }
 
 /**
@@ -54,7 +54,12 @@ function showAppName() {
  * @param {string} appName
  */
 function showAppBannerTitle(appName) {
-  $('#app-banner-title').html('BlocklyProp ' + appName);
+  const element = document.getElementById('app-banner-title');
+  if (element) {
+    element.innerHTML = `BlocklyProp ${appName}`;
+  }
+
+  // Set special logo for dev and QA systems
   if (isDevBuild()) {
     document.getElementById('nav-logo')
         .style.backgroundImage = 'url(\'images/dev-toolkit.png\')';
@@ -82,21 +87,41 @@ function setCopyrightDate(element) {
  */
 function setClickHandlers() {
   // Display the license in a modal when the link is clicked
-  $('#show_license').on('click', () => $('#licenseModal').modal());
+  document.getElementById('show_license')
+      .addEventListener('click', showLicenseEventHandler, false);
 
   // Set a cookie to let blocklyc that we want to open a project
   // then redirect to the blocklyc editor page
-  $('#open-project').on( 'click', () => {
-    Cookies.set('action', 'open', {expires: 1});
-    window.location = 'blocklyc.html';
-  });
+  document.getElementById('open-project')
+      .addEventListener('click', openProjectEventHandler, false);
 
   // Set a cookie to let blocklyc that we want to create a new project
   // then redirect to the blocklyc editor page
-  $('#new-project').on( 'click', () => {
-    Cookies.set('action', 'new', {expires: 1});
-    window.location = 'blocklyc.html';
-  });
+  document.getElementById('new-project')
+      .addEventListener('click', newProjectEventHandler, false);
+}
+
+/**
+ * Display the Solo license
+ */
+function showLicenseEventHandler() {
+  $('#licenseModal').modal();
+}
+
+/**
+ * Handle the 'Open Project' click event
+ */
+function openProjectEventHandler() {
+  Cookies.set('action', 'open', {expires: 1});
+  window.location = 'blocklyc.html';
+}
+
+/**
+ * Handle the 'New Project' click event
+ */
+function newProjectEventHandler() {
+  Cookies.set('action', 'new', {expires: 1});
+  window.location = 'blocklyc.html';
 }
 
 
@@ -190,10 +215,3 @@ setClickHandlers();
 
 // The browser localStorage object should be empty
 window.localStorage.clear();
-
-// Add experimental URL parameter to the open and new project links, if used
-if (getURLParameter('experimental')) {
-  $('.editor-link').attr('href', function() {
-    return document.location.href + getAllUrlParameters().replace('?', '&');
-  });
-}
