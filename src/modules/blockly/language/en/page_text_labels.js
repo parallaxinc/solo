@@ -48,6 +48,18 @@ PageTextLabels['client_update_danger'] =
     ' your device until you upgrade your BlocklyProp Launcher.<br>Please use the link below to' +
     ' download the newest version.';
 
+// Editor hamburger menu items
+PageTextLabels['editor_edit-details'] = 'Edit Project Details';
+PageTextLabels['menu_help_reference'] = 'Help & Reference';
+PageTextLabels['menu_download_simpleide'] = 'Download SimpleIDE files';
+PageTextLabels['editor_upload'] = 'Import Project';
+PageTextLabels['editor_run_configure'] = 'Configure client';
+PageTextLabels['editor_about_solo'] = 'About Solo';
+PageTextLabels['editor_license'] = 'License';
+
+PageTextLabels['editor_license_dialog_title'] = 'BlocklyProp Solo License';
+PageTextLabels['editor_about_solo_dialog_title'] = 'About BlocklyProp Solo';
+
 PageTextLabels['editor_client_available'] = '<strong>Select the correct port,</strong> then click <svg xmlns="http://www.w3.org/2000/svg" width="12" height="15" style="vertical-align: middle;"><path d="M4.4,0 L6.8,0 6.8,7.2 10,7.2 5.6,11.6 1.2,7.2 4.4,7.2 Z" style="stroke:#000;stroke-width:1;fill:#000;"/></svg> or <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" style="vertical-align: middle;"><path d="M4.4,0 L6.8,0 6.8,4.8 10,4.8 5.6,9.2 1.2,4.8 4.4,4.8 Z M0.4,9.6 L10.8,9.6 10.8,11.6 0.4,11.6 Z" style="stroke:#000;stroke-width:1;fill:#000;"/></svg>.';
 PageTextLabels['editor_client_available_short'] = '<strong>Select the correct port,</strong> then click <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" style="vertical-align: middle;"><path d="M4.4,0 L6.8,0 6.8,4.8 10,4.8 5.6,9.2 1.2,4.8 4.4,4.8 Z M0.4,9.6 L10.8,9.6 10.8,11.6 0.4,11.6 Z" style="stroke:#000;stroke-width:1;fill:#000;"/></svg>.';
 PageTextLabels['editor_client_not-available'] = 'Unable to contact the BlocklyProp Launcher. Click for more information.';
@@ -58,9 +70,6 @@ PageTextLabels['editor_view_xml'] = 'XML';
 PageTextLabels['editor_new_button'] = 'New';
 PageTextLabels['editor_open_button'] = 'Open';
 PageTextLabels['editor_save'] = 'Save';
-PageTextLabels['editor_edit-details'] = 'Edit Project Details';
-PageTextLabels['editor_upload'] = 'Import Project';
-PageTextLabels['editor_run_configure'] = 'Configure client';
 PageTextLabels['editor_upload_selectfile'] = 'Select File';
 PageTextLabels['editor_upload_valid'] = 'The selected file appears valid.';
 PageTextLabels['editor_upload_notvalid'] = 'The selected file is not valid.';
@@ -122,8 +131,6 @@ PageTextLabels['clientdownload_os_menu'] = 'Choose a different operating system'
 
 PageTextLabels['menu_code'] = 'Code';
 PageTextLabels['menu_blocks'] = 'Blocks';
-PageTextLabels['menu_help_reference'] = 'Help & Reference';
-PageTextLabels['menu_download_simpleide'] = 'Download SimpleIDE files';
 
 PageTextLabels['os_name_win'] = 'Windows';
 PageTextLabels['os_name_mac'] = 'Mac OS';
