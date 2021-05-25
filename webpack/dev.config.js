@@ -50,8 +50,7 @@ module.exports = (opts) => {
   return {
     mode: 'development',
     entry: { // Bundle entry points
-      index: 'index.js',
-      editor: 'editor.js',
+      index: 'editor.js',
     },
     output: {
       path: path.resolve(__dirname, targetPath),
@@ -105,11 +104,11 @@ module.exports = (opts) => {
         chunks: ["index"],
         filename: 'index.html',
       }),
-      new HtmlWebpack({
-        template: './src/templates/editor.html',
-        chunks: ["editor"],
-        filename: 'blocklyc.html',
-      }),
+      // new HtmlWebpack({
+      //   template: './src/templates/editor.html',
+      //   chunks: ["editor"],
+      //   filename: 'blocklyc.html',
+      // }),
       new CopyPlugin({
         patterns: [
           {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},

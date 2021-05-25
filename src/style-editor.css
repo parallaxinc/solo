@@ -50,7 +50,16 @@ html, body {
   flex-grow: 1;
 }
 
+#editor {
+    background-color: #f8f8f8;
+    padding-top: 0;
+    padding-bottom: 5px;
+}
 
+#branding {
+    position: relative;
+    top: 2px;
+}
 .blocklyWidgetDiv .goog-menuitem-content, .blocklyContextMenu, .blocklyDropdownMenu {
     font: normal 14px Arimo, sans-serif !important;
     max-height: 110% !important;
@@ -234,7 +243,7 @@ nav .nav > li > a:first-child {
 }
 
 ul > hr {
-    line-height: 5px; 
+    line-height: 5px;
     margin: 5px;
 }
 
@@ -276,7 +285,7 @@ ul > hr {
 }
 
 .btn-view-blocks {
-    padding:5px 10px 5px 10px; 
+    padding:5px 10px 5px 10px;
     font-size: 12px;
     line-height: 1.5;
     color: #fff;
@@ -293,14 +302,14 @@ ul > hr {
 }
 
 .btn-find-replace {
-    height: 19px; 
+    height: 19px;
     padding: 0px 3px 1px 3px;
 }
 
 .input-find-replace {
-    display: inline; 
-    font-size: 14px; 
-    line-height: 20px; 
+    display: inline;
+    font-size: 14px;
+    line-height: 20px;
     padding: 1px;
     color: #555;
     background-color: #fff;
@@ -310,7 +319,7 @@ ul > hr {
 }
 
 .btn-view-code {
-    padding:5px 10px 5px 10px; 
+    padding:5px 10px 5px 10px;
     font-size: 12px;
     line-height: 1.5;
     color: #333;
@@ -437,7 +446,7 @@ ul > hr {
 }
 
 .project-icon {
-    float: left; 
+    float: left;
     padding-right: 5px
 }
 
@@ -459,7 +468,7 @@ ul > hr {
 }
 
 .client-searching-link {
-    color:#8a6d3b !important; 
+    color:#8a6d3b !important;
 }
 
 .bp-client-warning {
@@ -480,7 +489,7 @@ ul > hr {
 }
 
 .client-unavailable-link {
-    color:rgb(169, 68, 66) !important;   
+    color:rgb(169, 68, 66) !important;
 }
 
 .bp-client-danger {

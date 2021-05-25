@@ -2,7 +2,7 @@
   "name": "blocklyprop-solo",
   "version": "1.5.6",
   "description": "A simplified implementation of Google's Blockly project configured to support Parallax robots and sensors.",
-  "main": "index.js",
+  "main": "editor.js",
   "scripts": {
     "dev": "webpack --config webpack/dev.config.js --node-env development --watch",
     "dev:analyze": "npm run dev -- --env.addons=bundleanalyzer",
