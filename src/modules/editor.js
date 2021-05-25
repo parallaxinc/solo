@@ -55,7 +55,7 @@ import {
 import {serialConsole} from './serial_console';
 import {findClient} from './client_connection';
 import {clientService, initTerminal} from './client_service';
-import {EnableSentry, LOCAL_PROJECT_STORE_NAME} from './constants';
+import {APP_BUILD, APP_QA, APP_VERSION, EnableSentry, LOCAL_PROJECT_STORE_NAME} from './constants';
 import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
@@ -317,7 +317,17 @@ function initEventHandlers() {
   // BlocklyProp Client. The BlocklyProp Launcher does not require
   // a configuration dialog
   // TODO: Client configuration is deprecated. No needed for Launcher
-  $('#client-setup').on('click', () => configureConnectionPaths());
+  document.getElementById('client-setup')
+      .addEventListener('click', configureConnectionPaths, false);
+
+  // #editor-about
+  document.getElementById('editor-about')
+      .addEventListener('click', showEditorAbout, false);
+
+  // Display the license in a modal when the link is clicked
+  document.getElementById('editor-license')
+      .addEventListener('click', showLicenseEventHandler, false);
+
 
   // --------------------------------
   // End of hamburger menu items
@@ -356,6 +366,31 @@ function initEventHandlers() {
     clientService.setSelectedPort(event.target.value);
     propToolbarButtonController();
   });
+}
+
+/**
+ * Display the Solo license
+ */
+function showLicenseEventHandler() {
+  $('#licenseModal').modal();
+}
+
+/**
+ * Display the Solo About dialog
+ */
+function showEditorAbout() {
+  const d = new Date();
+  const year = d.getFullYear().toString();
+
+  // Populate the UI with application details
+  const version = document.getElementById('about-solo-version');
+  version.innerHTML = `BlocklyProp Solo v${getFullVersion()}, ` +
+      `Copyright &copy; 2015, ${year}, Parallax Inc.`;
+
+  const launcher = document.getElementById('about-solo-launcher-version');
+  launcher.innerHTML = `BlocklyProp Launcher v${clientService.version.current}, ` +
+      `Copyright &copy; ${year}, Parallax Inc.`;
+  $('#about-solo-dialog').modal();
 }
 
 /**
@@ -2168,4 +2203,30 @@ function downloadPropC() {
               Blockly.Msg.DIALOG_SIDE_FILES_ERROR + err);
         });
   }
+}
+
+
+/**
+ * Determine if this is deployed in a test or local dev environment
+ *
+ * @return {boolean}
+ */
+function isDevBuild() {
+  return (window.location.hostname.indexOf(productBannerHostTrigger) >= 0 ||
+      window.location.hostname.indexOf('localhost') >= 0);
+}
+
+
+/**
+ * Return a full application version string
+ *
+ * @return {string}
+ */
+function getFullVersion() {
+  let applicationVersion = `v${APP_VERSION}`;
+  if (isDevBuild()) {
+    applicationVersion += `.${APP_BUILD}-${APP_QA}`;
+  }
+
+  return applicationVersion;
 }

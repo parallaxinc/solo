@@ -89,12 +89,6 @@ module.exports = (opts) => {
             'css-loader'
           ]
         },
-        {
-          test: /\.html$/,
-          use: [
-            'html-loader'
-          ]
-        },
       ]
     },
     plugins: [
@@ -107,12 +101,12 @@ module.exports = (opts) => {
         jQuery: 'jquery'
       }),
       new HtmlWebpack({
-        template: './src/templates/index.template',
+        template: './src/templates/index.html',
         chunks: ["index"],
         filename: 'index.html',
       }),
       new HtmlWebpack({
-        template: './src/templates/editor.template',
+        template: './src/templates/editor.html',
         chunks: ["editor"],
         filename: 'blocklyc.html',
       }),
