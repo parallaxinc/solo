@@ -384,7 +384,7 @@ function showEditorAbout() {
 
   // Populate the UI with application details
   const version = document.getElementById('about-solo-version');
-  version.innerHTML = `BlocklyProp Solo v${getFullVersion()}, ` +
+  version.innerHTML = `BlocklyProp Solo ${getFullVersion()}, ` +
       `Copyright &copy; 2015, ${year}, Parallax Inc.`;
 
   const launcher = document.getElementById('about-solo-launcher-version');
@@ -2161,7 +2161,6 @@ function formatWizard() {
   codePropC.gotoLine(currentLine);
 }
 
-
 /**
  * Save a project to the local file system
  */
@@ -2205,7 +2204,6 @@ function downloadPropC() {
   }
 }
 
-
 /**
  * Determine if this is deployed in a test or local dev environment
  *
@@ -2215,7 +2213,6 @@ function isDevBuild() {
   return (window.location.hostname.indexOf(productBannerHostTrigger) >= 0 ||
       window.location.hostname.indexOf('localhost') >= 0);
 }
-
 
 /**
  * Return a full application version string
