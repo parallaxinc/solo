@@ -25,3 +25,7 @@ dist
 lib
 
 .cache
+
+# SASS outputs
+sass/*.css
+sass/*.map
