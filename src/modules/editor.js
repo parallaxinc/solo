@@ -388,7 +388,14 @@ function showEditorAbout() {
       `Copyright &copy; 2015, ${year}, Parallax Inc.`;
 
   const launcher = document.getElementById('about-solo-launcher-version');
-  launcher.innerHTML = `BlocklyProp Launcher v${clientService.version.current}, ` +
+  let versionString;
+  if (clientService.getLauncherVersion().length > 0) {
+    versionString = `v${clientService.getLauncherVersion()}, `;
+  } else {
+    versionString = '';
+  }
+
+  launcher.innerHTML = `BlocklyProp Launcher ${versionString} ` +
       `Copyright &copy; ${year}, Parallax Inc.`;
   $('#about-solo-dialog').modal();
 }

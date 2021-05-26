@@ -193,6 +193,34 @@ export const clientService = {
    */
   loaderIsDone: false,
 
+  launcherVersionDetected: '',
+
+  /**
+   * Reset the launcher version string
+   */
+  clearLauncherVersion: function() {
+    this.launcherVersionDetected = '';
+  },
+
+  /**
+   * Getter for the launch version
+   * @return {string}
+   */
+  getLauncherVersion: function() {
+    return this.launcherVersionDetected;
+  },
+
+  /**
+   * Setter for the launcher version
+   * @param {string} version
+   */
+  setLauncherVersion: function(version) {
+    if (version.length > 0) {
+      this.launcherVersionDetected = version;
+    }
+  },
+
+
   /**
    * Setter for terminal baud rate
    * @param {number} baudRate
@@ -497,14 +525,18 @@ export const clientService = {
     set: function(rawVersion) {
       this.current = rawVersion;
       this.currentAsNumber = this.getNumeric(rawVersion);
+
       this.isValid = (
         this.getNumeric(rawVersion) >=
         this.getNumeric(this.MINIMUM_ALLOWED)
       );
+
       this.isRecommended = (
         this.getNumeric(rawVersion) >=
         this.getNumeric(this.RECOMMENDED)
       );
+
+      clientService.setLauncherVersion(rawVersion);
     },
   },
 
@@ -526,6 +558,7 @@ export const clientService = {
     this.portsAvailable = false;
     this.selectedPort_ = '';
     this.lastPortUpdate_ = 0;
+    this.clearLauncherVersion();
   },
 };
 
