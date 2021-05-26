@@ -23,6 +23,7 @@
 import {hasCode} from './blocklyc';
 import {getProjectInitialState} from './project.js';
 import {clientService, serviceConnectionTypes} from './client_service';
+import {logConsoleMessage} from "./utility";
 
 
 /**
@@ -54,6 +55,9 @@ export function propToolbarButtonController() {
       // There is a project without any blocks defined
       disableButtons(false, isS3boardType);
       return;
+    }
+    else {
+      console.log(`Project has code`);
     }
   }
   // The compile button should always be available when a project
