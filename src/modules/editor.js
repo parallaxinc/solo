@@ -1686,8 +1686,8 @@ function renderPageBrandingElements() {
       window.location.hostname === 'localhost') {
     appName = TestApplicationName;
     html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
-    document.getElementById('nav-logo').style.backgroundImage =
-        'url(\'images/dev-toolkit.png\')';
+    // document.getElementById('nav-logo').style.backgroundImage =
+    //     'url(\'images/dev-toolkit.png\')';
   }
 
   $('#nav-logo').html(html);
