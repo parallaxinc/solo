@@ -248,71 +248,31 @@ ul > hr {
 }
 
 /* New Nav Scheme */
-
-.btn-circle {
-  margin: 1px;
-  width: 30px;
-/*  height: 30px; */
-  text-align: center;
-  padding: 6px 0;
-  font-size: 14px;
-  line-height: 1.3;
-  border-radius: 15px;
-}
-
-.btn-circle:hover {
-  box-shadow: 2px 2px 5px #89a;
+#board-action-buttons {
+  padding-left: 10px;
+  float: left;
 }
 
 /* Editor toolbar New, Open, and Save buttons */
-.btn-view-blocks:hover {
-  box-shadow: 2px 2px 5px #89a;
-  color: #fff;
-  text-decoration: none;
-  background-color: #286090;
-  border-color: rgb(32, 77, 116);
+.bpIcon {
+  margin: 2px;
+  padding: 6px 0;
+  box-sizing: border-box;
 }
 
-.btn-view-code:hover {
-  box-shadow: 2px 2px 5px #89a;
-  color: #333;
-  text-decoration: none;
-  background-color: #eee;
-  border-color: #adadad;
-}
-
-.btn-view-blocks {
-  padding:5px 10px 5px 10px;
-  font-size: 12px;
-  line-height: 1.5;
-  color: #fff;
-  background-color: #337ab7;
-  display: inline-block;
-  margin: 1px 1px 0;
+.btn-circle {
   text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  cursor: pointer;
-  border: 1px solid #2e6da4;
-  border-radius: 4px;
-  text-decoration: none;
+
+  &:hover {
+    box-shadow: 2px 2px 5px #89a;
+  }
 }
 
-.btn-find-replace {
-  height: 19px;
-  padding: 0px 3px 1px 3px;
-}
-
-.input-find-replace {
-  display: inline;
-  font-size: 14px;
-  line-height: 20px;
-  padding: 1px;
-  color: #555;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: inset 0 1px 1px rgba(0,0,0,0.0);
+.btn-circle.btn-sm {
+  width: 30px;
+  padding: 6px 0;
+  border-radius: 15px;
+  font-size: 8px;
 }
 
 .btn-view-code {
@@ -330,7 +290,58 @@ ul > hr {
   border: 1px solid #ccc;
   border-radius: 4px;
   text-decoration: none;
+
+  &:hover {
+    box-shadow: 2px 2px 5px #89a;
+    color: #333;
+    text-decoration: none;
+    background-color: #eee;
+    border-color: #adadad;
+  }
 }
+
+.btn-view-blocks {
+  padding:5px 10px 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #fff;
+  background-color: #337ab7;
+  display: inline-block;
+  margin: 1px 1px 0;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid #2e6da4;
+  border-radius: 4px;
+  text-decoration: none;
+
+  &:hover {
+    box-shadow: 2px 2px 5px #89a;
+    color: #fff;
+    text-decoration: none;
+    background-color: #286090;
+    border-color: rgb(32, 77, 116);
+  }
+}
+
+.btn-find-replace {
+  height: 19px;
+  padding: 0 3px 1px 3px;
+}
+
+.input-find-replace {
+  display: inline;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 1px;
+  color: #555;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.0);
+}
+
 
 #comPort {
   display: inline-block;
@@ -351,25 +362,26 @@ ul > hr {
   background-repeat: no-repeat, repeat;
   background-position: right 7px top 50%, 0 0;
   background-size: 8px auto, 100%;
+
+  &:focus {
+    border-color: #adadad;
+    //box-shadow: 0 0 1px 3px rgba(59, 153, 252, 0.7);
+    box-shadow: 0 0 0 3px -moz-mac-focusring;
+    color: #222;
+    outline: none;
+  }
+
+  &:hover {
+    background-color: #eee;
+    border-color: #adadad;
+    box-shadow: 2px 2px 5px #89a;
+  }
+
+  &::-ms-expand {
+    display: none;
+  }
 }
 
-#comPort::-ms-expand {
-  display: none;
-}
-
-#comPort:hover {
-  background-color: #eee;
-  border-color: #adadad;
-  box-shadow: 2px 2px 5px #89a;
-}
-
-#comPort:focus {
-  border-color: #adadad;
-  box-shadow: 0 0 1px 3px rgba(59, 153, 252, 0.7);
-  box-shadow: 0 0 0 3px -moz-mac-focusring;
-  color: #222;
-  outline: none;
-}
 
 .example-propc-code {
   color: #000;
@@ -400,14 +412,6 @@ ul > hr {
   margin-left: 30px;
 }
 
-/*
-@media screen and (min-width: 0\0) {
-    select {
-        background: none;
-        padding: 5px;
-    }
-}
-*/
 
 #options-menu:hover {
   background-color: #eee;
@@ -438,7 +442,7 @@ ul > hr {
 .project-name-editable {
   border: 1px solid #2b669a;
   border-radius: 5px;
-  padding: 0px 5px;
+  padding: 0 5px;
   background-color: white;
 }
 
@@ -457,7 +461,7 @@ ul > hr {
   font-size:14px;
   height:auto;
   line-height:20px;
-  padding: 4px 4px 4px 0px;
+  padding: 4px 4px 4px 0;
   text-decoration:none;
   text-size-adjust:100%;
   width:auto;
