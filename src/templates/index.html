@@ -58,8 +58,7 @@
         href="images/apple-touch-icon-152x152.png" />
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link href="style-editor.css" rel="stylesheet" type="text/css" />
-    <link href="style-clientdownload.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="main.css" class="rel">
 
     <title>BlocklyProp Solo</title>
 <!--    <script type="module" src="{{editor.js}}" defer></script>  -->
@@ -79,7 +78,7 @@
         </div>
 
 
-        <div>
+        <div id="editor-status">
             <!-- Above toolbar -->
             <div style="overflow:auto;">
 
@@ -112,7 +111,7 @@
             </div>
 
             <!-- Toolbars and hamburger menu -->
-            <div>
+            <div id="editor-tools">
                 <!-- Left Toolbar buttons -->
                 <div id="board-action-buttons" style="padding-left: 10px; float: left;">
                     <!-- Compile program -->
@@ -406,7 +405,7 @@
                 </div>
                 <div class="modal-body">
                     <label for="compile-console" class="keyed-lang-string" data-key="editor_title_result"></label>
-                    <textarea class="form-control" rows="15" id="compile-console"></textarea>
+                    <textarea class="form-control form-control-size" rows="15" id="compile-console"></textarea>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-default keyed-lang-string" data-dismiss="modal"
@@ -490,12 +489,12 @@
                     <div class="form-group">
                         <label for="save-as-project-name" class="keyed-lang-string"
                             data-key="project_create_project_name"></label>
-                        <input type="text" class="form-control" id="save-as-project-name" name="save-as-project-name" />
+                        <input type="text" class="form-control form-control-size" id="save-as-project-name" name="save-as-project-name" />
                     </div>
                     <div class="form-group">
                         <label for="save-as-board-type" class="keyed-lang-string"
                             data-key="project_create_board_type"></label>
-                        <select id="save-as-board-type" class="form-control" name="save-as-board-type">
+                        <select id="save-as-board-type" class="form-control form-control-size" name="save-as-board-type">
                             <option disabled selected class="keyed-lang-string"
                                 data-key="project_create_board_type_select">&nbsp;</option>
                         </select>
@@ -534,13 +533,13 @@
                             <!-- project name -->
                             <div class="form-group">
                                 <label for="new-project-name" class="keyed-lang-string" data-key="project_name"></label>
-                                <input id="new-project-name" class="form-control" type="text" name="new-project-name" />
+                                <input id="new-project-name" class="form-control form-control-size" type="text" name="new-project-name" />
                             </div>
                             <!-- project board type -->
                             <div id="new-project-board-dropdown" class="form-group">
                                 <label for="new-project-board-type" class="keyed-lang-string"
                                        data-key="project_create_board_type"></label>
-                                <select id="new-project-board-type" class="form-control"
+                                <select id="new-project-board-type" class="form-control form-control-size"
                                         name="new-project-board-type"></select>
                             </div>
                             <!-- project meta data display -->
@@ -556,7 +555,7 @@
                             <div class="form-group">
                                 <label for="new-project-description" class="keyed-lang-string"
                                        data-key="project_create_description"></label>
-                                <textarea id="new-project-description" class="form-control" rows="7"
+                                <textarea id="new-project-description" class="form-control form-control-size" rows="7"
                                           name="new-project-description"></textarea>
                             </div>
                         </fieldset>
@@ -592,7 +591,7 @@
                         <!-- project name. Default is derived from projectData object -->
                         <div class="form-group">
                             <label for="edit-project-name" class="keyed-lang-string" data-key="project_name"></label>
-                            <input type="text" class="form-control" id="edit-project-name" name="edit-project-name" />
+                            <input type="text" class="form-control form-control-size" id="edit-project-name" name="edit-project-name" />
                         </div>
                         <!-- project meta data display -->
                         <div id="edit-project-details-ro" class="form-group">
@@ -608,7 +607,7 @@
                             <label for="new-project-description" class="keyed-lang-string"
                                    data-key="project_create_description"></label>
                             <!-- TODO: match textarea with correct label -->
-                            <textarea id="edit-project-description" class="form-control" rows="7"
+                            <textarea id="edit-project-description" class="form-control form-control-size" rows="7"
                                       name="new-project-description"></textarea>
                         </div>
                     </form>
@@ -624,29 +623,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Compile program modal dialog -->
-<!--    <div id="editor-license-dialog" class="modal fade">-->
-<!--        <div class="modal-dialog">-->
-<!--            <div class="modal-content">-->
-<!--                <div class="modal-header">-->
-<!--                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
-<!--                    <h4 id="editor-license-dialog-title" class="modal-title keyed-lang-string"-->
-<!--                        data-key="editor_license_dialog_title">nbsp;-->
-<!--                    </h4>-->
-<!--                </div>-->
-<!--                <div class="modal-body">-->
-<!--                    <label for="compile-console" class="keyed-lang-string" data-key="editor_title_result"></label>-->
-<!--                    <textarea class="form-control" rows="15" id="compile-console"></textarea>-->
-<!--                </div>-->
-<!--                <div class="modal-footer">-->
-<!--                    <button class="btn btn-default keyed-lang-string" data-dismiss="modal"-->
-<!--                        data-key="editor_button_close"></button>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-
 
     <!-- Application license modal dialog -->
     <div id="licenseModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
