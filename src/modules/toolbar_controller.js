@@ -56,9 +56,6 @@ export function propToolbarButtonController() {
       disableButtons(false, isS3boardType);
       return;
     }
-    else {
-      console.log(`Project has code`);
-    }
   }
   // The compile button should always be available when a project
   // is loaded and there is at least one block defined in the project
