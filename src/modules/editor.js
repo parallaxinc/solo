@@ -185,6 +185,7 @@ $(() => {
  * @return {Promise<void>}
  */
 async function initializePage() {
+  renderPageBrandingElements();
   await initInternationalText();
   await initToolbarIcons();
 
@@ -1677,16 +1678,16 @@ function configureTermGraph() {
 /**
  * Render the branding logo and related text.
  */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-function RenderPageBrandingElements() {
+function renderPageBrandingElements() {
   let appName = ApplicationName;
   let html = 'BlocklyProp<br><strong>' + ApplicationName + '</strong>';
 
-  if (window.location.hostname === productBannerHostTrigger) {
+  if (window.location.hostname === productBannerHostTrigger ||
+      window.location.hostname === 'localhost') {
     appName = TestApplicationName;
     html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
     document.getElementById('nav-logo').style.backgroundImage =
-        'url(\'src/images/dev-toolkit.png\')';
+        'url(\'images/dev-toolkit.png\')';
   }
 
   $('#nav-logo').html(html);
