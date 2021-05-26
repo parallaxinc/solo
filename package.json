@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "webpack --config webpack/dev.config.js --node-env development --watch",
     "dev:analyze": "npm run dev -- --env.addons=bundleanalyzer",
-    "build": "rm -r ./dist/*; webpack --config webpack/prod.config.js --node-env production --stats",
+    "build": "rm -rdf ./dist/*; webpack --config webpack/prod.config.js --node-env production --stats",
     "build:analyze": "npm run build -- --env.addons=bundleanalyzer",
+    "build:test": "ls ./dist/*",
     "lint": "eslint \"src/modules/**/*.js\"",
     "profile": "webpack --profile --json --config webpack/dev.config.js > stats.json",
     "test": "test/run_all_tests.sh",
@@ -61,6 +62,7 @@
     "minimist": "^1.2.5",
     "mocha": "^8.3.2",
     "node-env-webpack-plugin": "^1.1.0",
+    "node-sass": "^6.0.0",
     "selenium-standalone": "^6.23.0",
     "selenium-webdriver": "^4.0.0-alpha.7",
     "selfsigned": "^1.10.8",
