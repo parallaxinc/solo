@@ -96,12 +96,6 @@ startSentry()
 let injectedBlocklyWorkspace = null;
 
 /**
- * Images need a home
- * @type {string}
- */
-const CDN_URL = $('meta[name=cdn]').attr('content');
-
-/**
  * This is replacing the references to the codePropC variable.
  * @type {CodeEditor | null}
  */
@@ -1526,7 +1520,7 @@ function initToolbox(profileName) {
   const blocklyOptions = {
     toolbox: filterToolbox(profileName),
     trashcan: true,
-    media: CDN_URL + 'images/blockly/',
+    media: 'images/blockly/',
     readOnly: (profileName === 'propcfile'),
     comments: false,
 
