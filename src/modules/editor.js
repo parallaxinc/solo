@@ -140,9 +140,6 @@ $(() => {
     return cur;
   });
 
-  // This is setting the URIs for images referenced in the html page
-  initCdnImageUrls();
-
   // Connect to the BP Launcher
   // TODO: Finding the client and then look again every 3.5 seconds? There
   //  must be a better way to handle this in the clientService object.
@@ -485,22 +482,6 @@ async function initClientDownloadLinks() {
 }
 
 /**
- * Set the base path for CDN-sourced images
- */
-function initCdnImageUrls() {
-  $('img').each(function() {
-    // eslint-disable-next-line no-invalid-this
-    const imgTag = $(this);
-
-    // Set the source of the image
-    const imgSource = imgTag.attr('data-src');
-    if (imgSource) {
-      imgTag.attr('src', CDN_URL + imgSource);
-    }
-  });
-}
-
-/**
  * Initialize the event handlers for the C source editor buttons
  *
  * @deprecated
@@ -715,9 +696,11 @@ function displayProjectBoardIcon(boardType) {
   };
 
   // Set the project icon to the correct board type
-  $('.project-icon')
-      .html('<img src="' +
-          CDN_URL + projectBoardIcon[boardType] + '" alt="Board icon"/>');
+  const element = document.getElementById('project-icon');
+  if (element) {
+    element.innerHTML =
+        `<img src="${projectBoardIcon[boardType]}"  alt="Board icon"/>`;
+  }
 }
 
 /**
