@@ -23,7 +23,6 @@
 import {startSentry} from './sentry';
 import 'bootstrap';
 import Blockly from 'blockly/core';
-import * as Cookies from 'js-cookie';
 import * as saveAs from 'file-saver';
 
 import * as JSZip from 'jszip';
@@ -165,19 +164,6 @@ $(() => {
     logConsoleMessage(`Creating default project`);
     initDefaultProject();
   }
-
-  const state = Cookies.get('action');
-  if (state !== undefined) {
-    if (state === 'open') {
-      openProjectDialog.show();
-    }
-    if (state === 'new') {
-      newProjectDialog.show();
-    }
-  }
-  // This is probably not needed because it is called when a project is loaded
-  // or the default project is loaded.
-  // resetToolBoxSizing(250);
 });
 
 /**
