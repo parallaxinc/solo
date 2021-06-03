@@ -1521,7 +1521,7 @@ Blockly.Blocks.lis3dh_init = {
                   '0',
                   null,
                   null,
-                  1
+                  1,
               ), 'VSS_VOLTAGE')
           .appendField(' 3.3V ')
           .appendField(
@@ -1529,7 +1529,7 @@ Blockly.Blocks.lis3dh_init = {
                   '0',
                   null,
                   null,
-                  1
+                  1,
               ), 'VDD_VOLTAGE');
 
       this.setFieldValue(vssVoltField || '0', 'VSS_VOLTAGE');

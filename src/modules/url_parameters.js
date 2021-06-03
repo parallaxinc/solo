@@ -32,6 +32,7 @@ function getKeyValue(key) {
   return window.getURLParameter(key);
 }
 
+// eslint-disable-next-line max-len
 // http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
 if (!window.getURLParameter) {
   Object.defineProperty(window, 'getURLParameter', {

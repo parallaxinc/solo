@@ -31,7 +31,7 @@ import {APP_VERSION, EnableSentry} from './constants';
 const startSentry = async () => {
   /* Error logging */
   if (EnableSentry) {
-    Sentry.init({
+    await Sentry.init({
       dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639',
       release: `SoloCup:${APP_VERSION}`,
       // integrations: [new Integrations.BrowserTracing({

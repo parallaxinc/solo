@@ -23,6 +23,7 @@
 import {hasCode} from './blocklyc';
 import {getProjectInitialState} from './project.js';
 import {clientService, serviceConnectionTypes} from './client_service';
+import {logConsoleMessage} from "./utility";
 
 
 /**
@@ -275,7 +276,7 @@ function setUIControlState(element, visible, enabled) {
  * 'data-icon' attribute. Iterate through each match and draw the custom
  * icons into the specified element.
  */
-export function initToolbarIcons() {
+export async function initToolbarIcons() {
   /**
    * WIP - TODO: generate svg icons and inject them (search for glyphicon
    *          and font-awesome and replace them).

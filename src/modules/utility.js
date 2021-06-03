@@ -131,54 +131,27 @@ const utils = {
   },
 };
 
-
-// POLYFILLS
-/*
-if (!String.prototype.endsWith) {
-  String.prototype.endsWith = function (searchString, position) {
-    var subjectString = this.toString();
-    if (typeof position !== 'number' || !isFinite(position) ||
-     Math.floor(position) !== position || position > subjectString.length) {
-      position = subjectString.length;
-    }
-    position -= searchString.length;
-    var lastIndex = subjectString.indexOf(searchString, position);
-    return lastIndex !== -1 && lastIndex === position;
-  };
-}
-*/
-/*
-if (!String.prototype.startsWith) {
-  String.prototype.startsWith = function (searchString, position) {
-    position = position || 0;
-    return this.substr(position, searchString.length) === searchString;
-  };
-}
-*/
-
-// http://stackoverflow.com/questions/16312528/check-if-an-array-contains-any-elements-in-another-array-in-javascript
-/**
- * @description determine if an array contains one or more items from
- * another array.
- * @param {array} haystack the array to search.
- * @param {array} arr the array providing items to check for in the haystack.
- * @return {boolean} true|false if haystack contains at least one item from arr.
- */
-/*
-if (!Array.prototype.sharesElementWith) {
-  Object.defineProperty(Array.prototype, 'sharesElementWith', {
-    value: function (isInArray) {
-      return isInArray.some(function (v) {
-        return this.indexOf(v) >= 0;
-      });
-    },
-    enumerable: false
-  });
-}
-*/
-
 // polyfill that removes duplicates from an array and sorts it
 // From: https://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array
+/**
+ * @description
+ *
+  function sort_unique(arr) {
+    if (arr.length === 0) return arr;
+    arr = arr.sort(function (a, b) { return a*1 - b*1; });
+    var ret = [arr[0]];
+    for (var i = 1; i < arr.length; i++) { //Start loop at 1: arr[0] can never be a duplicate
+       if (arr[i-1] !== arr[i]) {
+         ret.push(arr[i]);
+       }
+     }
+     return ret;
+   }
+
+ console.log(sort_unique(['237','124','255','124','366','255']));
+    ["124", "237", "255", "366"]
+ *
+ */
 if (!Array.prototype.sortedUnique) {
   // eslint-disable-next-line no-extend-native
   Object.defineProperty(Array.prototype, 'sortedUnique', {
@@ -218,42 +191,6 @@ if (!Array.prototype.sortedUnique) {
     enumerable: false,
   });
 }
-
-// http://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript/11582513#11582513
-// if (!window.getURLParameter) {
-//   Object.defineProperty(window, 'getURLParameter', {
-//     value: function(name) {
-//       return decodeURIComponent(
-//           (new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)')
-//               .exec(window.location.search) || [null, ''])[1]
-//               .replace(/\+/g, '%20')) || null;
-//     },
-//     enumerable: false,
-//   });
-// }
-
-
-/**
- * Helper function for passing on URL parameters between page
- * reloads and changes.
- * @param keepNewOpen {boolean} if true, keep the newProject and openFile
- * parameters, otherwise filter them out.
- * @returns {string} all or filtered URL parameters
- */
-// if (!window.getAllURLParameters) {
-//   Object.defineProperty(window, 'getAllURLParameters', {
-//     value: function(keepNewOpen) {
-//       if (keepNewOpen) {
-//         return window.location.search;
-//       } else {
-//         return window.location.search
-//           .replace(/newProject=[a-zA-Z0-9]*&*|openFile=[a-zA-Z0-9]*&*/g, '');
-//       }
-//     },
-//     enumerable: false,
-//   });
-// }
-
 
 /**
  * Return URL querystring parameters

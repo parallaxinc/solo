@@ -29,7 +29,6 @@
  *         kgracey@parallax.com      (Ken Gracey)
  *         carsongracey@gmail.com    (Carson Gracey)
  */
-'use strict';
 
 import Blockly from 'blockly/core';
 

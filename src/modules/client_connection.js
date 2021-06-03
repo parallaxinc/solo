@@ -101,61 +101,31 @@ const WS_ACTION_CONSOLE_LOG = 'console-log';
 const WS_ACTION_CLOSE_WEBSOCKET = 'websocket-close';
 
 /**
- *  Connect to the BP-Launcher or BlocklyProp Client
+ *  Connect to the BP-Launcher
  */
 export const findClient = function() {
   if (clientService.activeConnection) {
-    if (clientService.getPortLastUpdate() > Date.now() - PORT_TIMEOUT) {
-      // All good if we received a port update in the past 10 seconds
-      return;
-    } else {
-      // Send a warning
-      logConsoleMessage(`WARNING: Expecting a port list from client.`);
+    if (clientService.getPortLastUpdate() <= (Date.now() - PORT_TIMEOUT)) {
+      clientService.portListReceiveCountUp++;
+      if (!clientService.isPortListTimeOut()) {
+        logConsoleMessage(`WARNING: Expecting a port list from client.`);
+      } else {
+        logConsoleMessage('Timeout waiting for client port list!');
+        propToolbarButtonController();
+      }
     }
+    return;
   }
 
   // Try to connect to the BP-Launcher (websocket) first
-  logConsoleMessage(`Looking for a client`);
+  logConsoleMessage(`Looking for the BlocklyProp Launcher`);
+  clientService.clearLauncherVersion();
 
-  // TODO: evaluation is always true, probably not what we want here.
-  if (!clientService.available &&
-      clientService.type !== serviceConnectionTypes.HTTP) {
-    // Verify that the web socket is alive
+  if (!clientService.available) {
     logConsoleMessage('Connecting to BP Launcher client');
     establishBPLauncherConnection();
   }
-
-  // Check how much time has passed since the port list was received
-  // from the BP-Launcher
-  if (clientService.type === serviceConnectionTypes.WS) {
-    clientService.portListReceiveCountUp++;
-    // Is the BP-Launcher taking to long to respond?  If so,
-    // close the connection
-    if (clientService.isPortListTimeOut()) {
-      logConsoleMessage('Timeout waiting for client port list!');
-      clientService.closeConnection();
-      // Update the toolbar
-      propToolbarButtonController();
-
-      // TODO: check to see if this is really necessary - it gets
-      //  called by the WS onclose handler
-      lostWSConnection();
-    }
-  }
-
-  // BP-Launcher not found? Try connecting to the BP-Client
-  setTimeout(function() {
-    if (clientService.type !== serviceConnectionTypes.WS) {
-      logConsoleMessage('Trying to connect to the BP Client.');
-      establishBPClientConnection();
-    }
-  }, 1000);
-
-  // If connected to the BP-Client, poll for an updated port list
-  if (clientService.type === serviceConnectionTypes.HTTP) {
-    checkForComPorts();
-  }
-};
+}
 
 /**
  * Checks for and, if found, uses a newer WebSockets-only client
@@ -185,12 +155,11 @@ function establishBPLauncherConnection() {
     // Log errors
     connection.onerror = function(error) {
       // Only display a message on the first attempt
-      if (clientService.type !== serviceConnectionTypes.NONE) {
-        logConsoleMessage('Unable to find websocket client');
+      if (clientService.type === serviceConnectionTypes.WS) {
+        logConsoleMessage('Unable to find client');
         connection.close();
       } else {
-        logConsoleMessage('Websocket Communication Error');
-        logConsoleMessage(error.message);
+        logConsoleMessage('Communication Error');
       }
     };
 
@@ -283,9 +252,11 @@ function wsProcessPortListMessage(message) {
   if (debug) {
     logConsoleMessage(`Processing port list message: ${message}`);
   }
-  if (clientService.getPortLastUpdate() === 0) {
+
+  if (debug && clientService.getPortLastUpdate() === 0) {
     logConsoleMessage(`Port list received`);
   }
+
   clientService.clearPortList();
   if (message.ports.length > 0) {
     message.ports.forEach(function(port) {
@@ -377,7 +348,7 @@ function wsCompileMessageProcessor(message) {
       clientService.loaderResetDetect = false;
       clientService.loaderIsDone = true;
       appendCompileConsoleMessage('Succeeded.');
-      logConsoleMessage(`Project loaded successfully`);
+      logConsoleMessage(`Project downloaded successfully`);
       return;
 
     case NS_DOWNLOADING:
@@ -420,13 +391,12 @@ function parseCompileMessage(message) {
  * Lost websocket connection, clean up and restart findClient processing
  */
 function lostWSConnection() {
-  if (clientService.type !== serviceConnectionTypes.HTTP) {
-    clientService.loaderResetDetect = true;
-    clientService.activeConnection = null;
-    clientService.type = serviceConnectionTypes.NONE;
-    clientService.available = false;
-  }
+  clientService.loaderResetDetect = true;
+  clientService.activeConnection = null;
+  clientService.type = serviceConnectionTypes.NONE;
+  clientService.available = false;
 
+  // Update the toolbar
   propToolbarButtonController();
 }
 
@@ -474,7 +444,11 @@ const setPortListUI = function(data = null) {
         Blockly.Msg.DIALOG_PORT_SEARCHING : Blockly.Msg.DIALOG_NO_DEVICE);
     clientService.portsAvailable = false;
   }
-  selectComPort(selectedPort);
+  // Reset the selected com port if one was defined.
+  if (selectedPort) {
+    selectComPort(selectedPort);
+  }
+
   propToolbarButtonController();
 };
 
@@ -489,8 +463,10 @@ const setPortListUI = function(data = null) {
 function checkClientVersionModal(rawVersion) {
   // Record the version reported by the client
   if (rawVersion) {
+    logConsoleMessage(`Checking client version: "${rawVersion}"`);
     clientService.version.set(rawVersion);
   }
+
   if (!clientService.version.isRecommended) {
     $('.bpc-version').addClass('hidden');
 
@@ -511,44 +487,6 @@ function checkClientVersionModal(rawVersion) {
     $('#client-version-modal').modal('show');
   }
 }
-
-/**
- * Establish a connection to the BlocklyProp-Client (BPC) application
- * Retrieves the BPC's version
- * Sets parameters in the clientService object
- * Calls UI configuration functions
- */
-function establishBPClientConnection() {
-  logConsoleMessage('establishBPConnection: entry');
-  // Load data from the server using a HTTP GET request.
-  $.get(clientService.url(), function(/* @type BPClientDataBlock */ data) {
-    // {version: 0.7, version_str: "0.7.5", server: "BlocklyPropHTTP"}
-    logConsoleMessage(`Connected to client?: ${data.version_str}`);
-    if (!clientService.available) {
-      let clientVersionString = (typeof data.version_str !== 'undefined') ?
-          data.version_str : data.version;
-      logConsoleMessage(`Client version is: ${clientVersionString}`);
-
-      if (!data.server || data.server !== 'BlocklyPropHTTP') {
-        clientVersionString = '0.0.0';
-      }
-      checkClientVersionModal(clientVersionString);
-      clientService.type = serviceConnectionTypes.HTTP;
-      // Connected to the Launcher/Client
-      clientService.available = true;
-    }
-  }).fail(function() {
-    logConsoleMessage('Failed to open client connection');
-    clientService.type = serviceConnectionTypes.NONE;
-    // Not connected to the Launcher/Client
-    clientService.available = false;
-    clientService.portsAvailable = false;
-  }).always( function() {
-    // Update the toolbar no mater what happens
-    logConsoleMessage('Updating toolbar');
-    propToolbarButtonController();
-  });
-};
 
 /**
  *  Clear the com port drop-down
@@ -581,7 +519,7 @@ function clearComPortUI() {
 // eslint-disable-next-line no-unused-vars,require-jsdoc
 function selectComPort(comPort) {
   const uiComPort = $('#comPort');
-  // A valid com port has been selected
+
   if (comPort !== null) {
     uiComPort.val(comPort);
     clientService.setSelectedPort(comPort);
@@ -607,28 +545,6 @@ function addComPortDeviceOption(port) {
     $('#comPort').append($('<option>', {text: port}));
   }
 }
-
-/**
- * Update the list of serial ports available on the host machine
- * NOTE: This function is used by the BP-Client only.
- */
-const checkForComPorts = function() {
-  try {
-    if (clientService.type === serviceConnectionTypes.HTTP) {
-      $.get(clientService.url('ports.json'), function(data) {
-        logConsoleMessage('Getting a port list');
-        setPortListUI(data);
-      }).fail(function() {
-        setPortListUI(null);
-      }).always(function(data) {
-        logConsoleMessage(`The data is: ${data}`);
-      });
-    }
-  } catch (e) {
-    logConsoleMessage('Unable to get port list. ' + e.message);
-    setPortListUI(null);
-  }
-};
 
 /**
  * Return the selected com port name

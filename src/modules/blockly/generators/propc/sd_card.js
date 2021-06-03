@@ -254,10 +254,13 @@ Blockly.Blocks.sd_read = {
             ['write', 'fwrite'],
             ['read', 'fread'],
             ['close', 'fclose'],
-          ], function(mode) {
+          ],
+          function(mode) {
             // eslint-disable-next-line no-invalid-this
             this.getSourceBlock().setSdMode(mode);
-          }), 'MODE');
+          }),
+          'MODE');
+
       this.appendValueInput('VALUE')
           .setCheck('String')
           .appendField('bytes of');
@@ -269,10 +272,13 @@ Blockly.Blocks.sd_read = {
             ['read', 'fread'],
             ['write', 'fwrite'],
             ['close', 'fclose'],
-          ], function(mode) {
+          ],
+          function(mode) {
             // eslint-disable-next-line no-invalid-this
             this.getSourceBlock().setSdMode(mode);
-          }), 'MODE');
+          }),
+          'MODE');
+
       this.appendDummyInput('VALUE')
           .appendField('bytes  store in')
           .appendField(new Blockly.FieldVariable(
@@ -284,10 +290,12 @@ Blockly.Blocks.sd_read = {
             ['close', 'fclose'],
             ['read', 'fread'],
             ['write', 'fwrite'],
-          ], function(mode) {
+          ],
+          function(mode) {
             // eslint-disable-next-line no-invalid-this
             this.getSourceBlock().setSdMode(mode);
-          }), 'MODE');
+          }),
+          'MODE');
     }
     if (connectedBlock) {
       connectedBlock.outputConnection.connect(this.getInput('SIZE').connection);
@@ -327,7 +335,7 @@ Blockly.propc.sd_read = function() {
 
   // Handle close straight away
   if (mode === 'fclose') {
-    return `if(fp) {\n  ${mode}(fp);\n  fp = 0;\n}`;
+    return `if(fp) {\n  ${mode}(fp);\n  fp = 0;\n}\n`;
   }
 
   // Verify the required SD-Open block is in the project
@@ -546,7 +554,7 @@ Blockly.propc.sd_close = function(block) {
     setupSdCard();
   }
 
-  return 'if(fp) {\n  fclose(fp);\n  fp = 0;\n}';
+  return 'if(fp) {\n  fclose(fp);\n  fp = 0;\n}\n';
 };
 
 /**

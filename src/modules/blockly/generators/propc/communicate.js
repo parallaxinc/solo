@@ -1420,6 +1420,7 @@ Blockly.Blocks.serial_send_text = {
       serialPinList = serialPinList.sortedUnique();
 
       // determine if anything has changed in the list of serial pins
+      // eslint-disable-next-line max-len
       // https://stackoverflow.com/questions/1187518/how-to-get-the-difference-between-two-arrays-in-javascript
       const oldValue =
             this.ser_pins.filter((x) => !serialPinList.includes(x));
