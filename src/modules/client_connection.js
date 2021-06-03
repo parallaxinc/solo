@@ -104,22 +104,6 @@ const WS_ACTION_CLOSE_WEBSOCKET = 'websocket-close';
  *  Connect to the BP-Launcher
  */
 export const findClient = function() {
-  // if (clientService.activeConnection) {
-  //   if (clientService.getPortLastUpdate() > (Date.now() - PORT_TIMEOUT)) {
-  //     return;
-  //   } else {
-  //     clientService.portListReceiveCountUp++;
-  //
-  //     if (!clientService.isPortListTimeOut()) {
-  //       logConsoleMessage(`WARNING: Expecting a port list from client.`);
-  //     } else {
-  //       logConsoleMessage('Timeout waiting for client port list!');
-  //       propToolbarButtonController();
-  //     }
-  //     return;
-  //   }
-  // }
-
   if (clientService.activeConnection) {
     if (clientService.getPortLastUpdate() <= (Date.now() - PORT_TIMEOUT)) {
       clientService.portListReceiveCountUp++;
@@ -134,13 +118,14 @@ export const findClient = function() {
   }
 
   // Try to connect to the BP-Launcher (websocket) first
-  logConsoleMessage(`Looking for a client`);
+  logConsoleMessage(`Looking for the BlocklyProp Launcher`);
+  clientService.clearLauncherVersion();
 
   if (!clientService.available) {
     logConsoleMessage('Connecting to BP Launcher client');
     establishBPLauncherConnection();
   }
-};
+}
 
 /**
  * Checks for and, if found, uses a newer WebSockets-only client

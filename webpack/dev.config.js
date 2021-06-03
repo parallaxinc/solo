@@ -50,8 +50,7 @@ module.exports = (opts) => {
   return {
     mode: 'development',
     entry: { // Bundle entry points
-      index: 'index.js',
-      editor: 'editor.js',
+      index: 'editor.js',
     },
     output: {
       path: path.resolve(__dirname, targetPath),
@@ -84,6 +83,9 @@ module.exports = (opts) => {
       rules: [
         {
           test: /\.css$/,
+          include: [
+              path.resolve(__dirname, '../sass')
+          ],
           use: [
             'style-loader',
             'css-loader'
@@ -105,21 +107,16 @@ module.exports = (opts) => {
         chunks: ["index"],
         filename: 'index.html',
       }),
-      new HtmlWebpack({
-        template: './src/templates/editor.html',
-        chunks: ["editor"],
-        filename: 'blocklyc.html',
-      }),
+      // new HtmlWebpack({
+      //   template: './src/templates/editor.html',
+      //   chunks: ["editor"],
+      //   filename: 'blocklyc.html',
+      // }),
       new CopyPlugin({
         patterns: [
           {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
           {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
-          {from: './src/site.css', to: path.resolve(__dirname, targetPath)},
-          {from: './src/style.css', to: path.resolve(__dirname, targetPath)},
-          {from: './src/style-clientdownload.css', to: path.resolve(__dirname, targetPath)},
-          {
-            from: './src/style-editor.css', to: path.resolve(__dirname, targetPath)
-          },
+          {from: './sass/main.css', to: path.resolve(__dirname, targetPath)},
         ]
       })
     ],

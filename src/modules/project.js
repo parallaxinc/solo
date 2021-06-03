@@ -35,6 +35,7 @@ import {logConsoleMessage} from './utility';
  */
 const EmptyProjectCodeHeader = '<xml xmlns="https://developers.google.com/blockly/xml">';
 const TerminatedEmptyProjectCodeHeader = '<xml xmlns="https://developers.google.com/blockly/xml"/>';
+const TerminatedEmptyProjectCodeHeaderV2 = `<xml xmlns=\"https://developers.google.com/blockly/xml\"></xml>`;
 
 /**
  * Preserve the initial state of the project
@@ -384,6 +385,14 @@ class Project {
    */
   static getTerminatedEmptyProjectCodeHeader() {
     return TerminatedEmptyProjectCodeHeader;
+  }
+
+  /**
+   * Version 2 empty project string
+   * @return {string}
+   */
+  static getTerminatedEmptyProjectCodeHeaderV2() {
+    return TerminatedEmptyProjectCodeHeaderV2;
   }
 
   /**

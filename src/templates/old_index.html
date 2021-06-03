@@ -1,0 +1,163 @@
+<!--
+  ~   TERMS OF USE: MIT License
+  ~
+  ~   Permission is hereby granted, free of charge, to any person obtaining a
+  ~   copy of this software and associated documentation files (the "Software"),
+  ~   to deal in the Software without restriction, including without limitation
+  ~   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+  ~   and/or sell copies of the Software, and to permit persons to whom the
+  ~   Software is furnished to do so, subject to the following conditions:
+  ~
+  ~   The above copyright notice and this permission notice shall be included in
+  ~   all copies or substantial portions of the Software.
+  ~
+  ~   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~   FITNESS FOR A PARTICULAR PURPOSE AND NONINFINGEMENT. IN NO EVENT SHALL
+  ~   THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  ~   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+  ~   DEALINGS IN THE SOFTWARE.
+  -->
+<!DOCTYPE html>
+<html lang="EN">
+    <head>
+        <noscript>
+            <style>
+                #noScript {
+                    margin-top: 10px;
+                    margin-left: 5px;
+                    background-color: #B94A48;
+                    color: #FFFFFF;
+                    font-size: large;
+                }
+            </style>
+        </noscript>
+        <meta name="application-name" content="BlocklyProp"/>
+        <meta name="description" content="BlocklyProp Solo is a stand-alone Blockly implementation designed to support Parallax robots and sensor kits.">
+        <meta name="msapplication-TileColor" content="#FFFFFF"/>
+        <meta name="msapplication-TileImage" content="images/mstile-144x144.png"/>
+        <meta name="base" content="">
+        <meta name="cdn" content="/">
+        <meta name="whoami" content="root">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <link type="text/css" rel="stylesheet" href="style.css"/>
+
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="57x57" href="images/apple-touch-icon-57x57.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="114x114" href="images/apple-touch-icon-114x114.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="72x72" href="images/apple-touch-icon-72x72.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="144x144" href="images/apple-touch-icon-144x144.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="120x120" href="images/apple-touch-icon-120x120.png"/>
+        <link type="image/png" rel="apple-touch-icon-precomposed" sizes="152x152" href="images/apple-touch-icon-152x152.png"/>
+        <link type="image/png" rel="icon" sizes="32x32" href="images/favicon-32x32.png"/>
+        <link type="image/png" rel="icon" sizes="16x16" href="images/favicon-16x16.png"/>
+
+        <!-- This line should get updated by webpack
+        <script type="module" src="{{index.js}}" defer></script>
+         -->
+
+        <title>BlocklyProp Solo</title>
+
+    </head>
+
+    <body>
+        <div class="navbar navbar-default">
+            <div class="container">
+                <div id="nav-logo" class="navbar-header">
+                    <!-- Branding logo -->
+                </div>
+                <!-- Projects -->
+                <div class="collapse navbar-collapse" id="navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a id="open-project" class="editor-link" href="#">Open Project</a></li>
+                        <li><a id="new-project" class="editor-link" href="#">New Project</a></li>
+                        <li id="noScript">
+                            <noscript>
+                                <p>This site works best if JavaScript is enabled in your browser.</p>
+                            </noscript>
+                        </li>
+                    </ul>
+                    <!-- Online help -->
+                    <ul class="nav navbar-nav navbar-right">
+                        <!-- Help link to the Learn reference section -->
+                        <li><a href="https://learn.parallax.com/ab-blocks" target="_blank">Help</a></li>
+                    </ul>
+                    <ul>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- page body -->
+        <div class="container">
+            <!-- Splash image -->
+            <div class="jumbotron">
+                <div class="logo">
+                    <h2 id="app-banner-title"></h2>
+                </div>
+                <p><strong>Blockly for Propeller Multicore:</strong>&nbsp;Making amazing projects and learning to code just became easier</p>
+                <p>
+                    <img class="cdn full-width" src="images/home-banner.png"
+                         style="border: 0" alt="Home page banner image">
+                </p>
+            </div>
+            <!-- license -->
+            <div class="container-fluid">
+                <!-- License modal window -->
+                <div id="licenseModal" class="modal fade" tabindex="-1" role="dialog"
+                     aria-labelledby="myModalLabel" aria-hidden="true">
+                    <!-- Change class .modal-sm to change the size of the modal -->
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title w-100" id="licenseLabel">BlocklyProp Solo License</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>The MIT License (MIT)</p>
+                                <p>Copyright © <span id="license-copyright-date"></span> Parallax Inc.</p>
+                                <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+                                    associated documentation files (the “Software”), to deal in the Software without restriction,
+                                    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+                                    and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+                                    subject to the following conditions:</p>
+                                <p>The above copyright notice and this permission notice shall be included in all copies or substantial
+                                    portions of the Software.</p>
+                                <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+                                    LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFINGEMENT.
+                                    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+                                    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,OUT OF OR IN CONNECTION WITH THE
+                                    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- end of license window -->
+            </div>
+        </div>
+        <!-- page footer -->
+        <div class="footer">
+            <div class="navbar">
+                <div class="container">
+                    <div>
+                        <ul class="nav navbar-nav navbar-right">
+                            <!--
+                            <li><a id="show_license" onclick="showLicense()">License</a></li>
+                            -->
+                            <li><a id="show_license">License</a></li>
+                            <li>
+                                <a href="http://www.parallax.com" target="_blank">
+                                <span id="footer_copyright"></span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

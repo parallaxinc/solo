@@ -45,8 +45,8 @@ export const EnableSentry = true;
  *     {rc#} is the release candidate number.
  */
 export const APP_VERSION = '1.5.10';
-export const APP_BUILD = '205';
-export const APP_QA = 'a3';
+export const APP_BUILD = '212';
+export const APP_QA = 'release';
 
 /**
  * Set this to target deployment environment.

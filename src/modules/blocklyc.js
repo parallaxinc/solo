@@ -981,7 +981,8 @@ export const hasCode = () => {
         const xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
         const text = Blockly.Xml.domToText(xml);
         const emptyHeader = Project.getTerminatedEmptyProjectCodeHeader();
-        if (text !== emptyHeader) {
+        const emptyHeaderV2 = Project.getTerminatedEmptyProjectCodeHeaderV2();
+        if (! (text === emptyHeader || text === emptyHeaderV2)) {
           result = true;
         }
       }

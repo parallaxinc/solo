@@ -49,10 +49,9 @@ module.exports = (opts) => {
   if (isDev) console.log(`DEVELOPMENT`);
 
   return {
-    // mode: isDev ? 'development' : 'production',
+    mode: 'production',
     entry: { // Bundle entry points
-      index: 'index.js',
-      editor: 'editor.js',
+      index: 'editor.js',
     },
     output: {
       path: path.resolve(__dirname, targetPath),
@@ -70,27 +69,31 @@ module.exports = (opts) => {
     },
     optimization: {
       splitChunks: {
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          }
+        },
         chunks: 'all',
         name: false
       },
-      // minimize: (isProduction ? true : false),
-      // minimizer: [
-      //   (isProduction) ? new TerserPlugin() : null,
-      // ],
+      minimize: true,
+      minimizer: [
+        new TerserPlugin(),
+      ],
     },
     module: {
       rules: [
         {
           test: /\.css$/,
+          include: [
+            path.resolve(__dirname, '../sass')
+          ],
           use: [
             'style-loader',
             'css-loader'
-          ]
-        },
-        {
-          test: /\.html$/,
-          use: [
-            'html-loader'
           ]
         },
       ]
@@ -105,25 +108,20 @@ module.exports = (opts) => {
         jQuery: 'jquery'
       }),
       new HtmlWebpack({
-        template: './src/templates/index.template',
+        template: './src/templates/index.html',
         chunks: ["index"],
         filename: 'index.html',
       }),
-      new HtmlWebpack({
-        template: './src/templates/editor.template',
-        chunks: ["editor"],
-        filename: 'blocklyc.html',
-      }),
+      // new HtmlWebpack({
+      //   template: './src/templates/editor.html',
+      //   chunks: ["editor"],
+      //   filename: 'blocklyc.html',
+      // }),
       new CopyPlugin({
         patterns: [
           {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
           {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
-          {from: './src/site.css', to: path.resolve(__dirname, targetPath)},
-          {from: './src/style.css', to: path.resolve(__dirname, targetPath)},
-          {from: './src/style-clientdownload.css', to: path.resolve(__dirname, targetPath)},
-          {
-            from: './src/style-editor.css', to: path.resolve(__dirname, targetPath)
-          },
+          {from: './sass/main.css', to: path.resolve(__dirname, targetPath)},
         ]
       })
     ],
@@ -131,13 +129,5 @@ module.exports = (opts) => {
       children: true,
       errorDetails: true
     },
-    watchOptions: {
-      ignored: '/node_modules',
-      poll: 1000,
-    },
-    devServer: {
-      port: 3000
-    },
-    devtool: "source-map"
   }
 };

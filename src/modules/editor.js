@@ -23,7 +23,6 @@
 import {startSentry} from './sentry';
 import 'bootstrap';
 import Blockly from 'blockly/core';
-import * as Cookies from 'js-cookie';
 import * as saveAs from 'file-saver';
 
 import * as JSZip from 'jszip';
@@ -97,12 +96,6 @@ startSentry()
 let injectedBlocklyWorkspace = null;
 
 /**
- * Images need a home
- * @type {string}
- */
-const CDN_URL = $('meta[name=cdn]').attr('content');
-
-/**
  * This is replacing the references to the codePropC variable.
  * @type {CodeEditor | null}
  */
@@ -141,9 +134,6 @@ $(() => {
     return cur;
   });
 
-  // This is setting the URIs for images referenced in the html page
-  initCdnImageUrls();
-
   // Connect to the BP Launcher
   // TODO: Finding the client and then look again every 3.5 seconds? There
   //  must be a better way to handle this in the clientService object.
@@ -165,19 +155,6 @@ $(() => {
     logConsoleMessage(`Creating default project`);
     initDefaultProject();
   }
-
-  const state = Cookies.get('action');
-  if (state !== undefined) {
-    if (state === 'open') {
-      openProjectDialog.show();
-    }
-    if (state === 'new') {
-      newProjectDialog.show();
-    }
-  }
-  // This is probably not needed because it is called when a project is loaded
-  // or the default project is loaded.
-  // resetToolBoxSizing(250);
 });
 
 /**
@@ -185,6 +162,7 @@ $(() => {
  * @return {Promise<void>}
  */
 async function initializePage() {
+  renderPageBrandingElements();
   await initInternationalText();
   await initToolbarIcons();
 
@@ -384,11 +362,18 @@ function showEditorAbout() {
 
   // Populate the UI with application details
   const version = document.getElementById('about-solo-version');
-  version.innerHTML = `BlocklyProp Solo v${getFullVersion()}, ` +
+  version.innerHTML = `BlocklyProp Solo ${getFullVersion()}, ` +
       `Copyright &copy; 2015, ${year}, Parallax Inc.`;
 
   const launcher = document.getElementById('about-solo-launcher-version');
-  launcher.innerHTML = `BlocklyProp Launcher v${clientService.version.current}, ` +
+  let versionString;
+  if (clientService.getLauncherVersion().length > 0) {
+    versionString = `v${clientService.getLauncherVersion()}, `;
+  } else {
+    versionString = '';
+  }
+
+  launcher.innerHTML = `BlocklyProp Launcher ${versionString} ` +
       `Copyright &copy; ${year}, Parallax Inc.`;
   $('#about-solo-dialog').modal();
 }
@@ -488,22 +473,6 @@ async function initClientDownloadLinks() {
   $('.launcher-mac-link-high_sierra')
       .attr('href',
           `${uriRoot}/launcher/Setup-BPLauncher-MacOS-High-Sierra.zip`);
-}
-
-/**
- * Set the base path for CDN-sourced images
- */
-function initCdnImageUrls() {
-  $('img').each(function() {
-    // eslint-disable-next-line no-invalid-this
-    const imgTag = $(this);
-
-    // Set the source of the image
-    const imgSource = imgTag.attr('data-src');
-    if (imgSource) {
-      imgTag.attr('src', CDN_URL + imgSource);
-    }
-  });
 }
 
 /**
@@ -721,9 +690,11 @@ function displayProjectBoardIcon(boardType) {
   };
 
   // Set the project icon to the correct board type
-  $('.project-icon')
-      .html('<img src="' +
-          CDN_URL + projectBoardIcon[boardType] + '" alt="Board icon"/>');
+  const element = document.getElementById('project-icon');
+  if (element) {
+    element.innerHTML =
+        `<img src="${projectBoardIcon[boardType]}"  alt="Board icon"/>`;
+  }
 }
 
 /**
@@ -1549,7 +1520,7 @@ function initToolbox(profileName) {
   const blocklyOptions = {
     toolbox: filterToolbox(profileName),
     trashcan: true,
-    media: CDN_URL + 'images/blockly/',
+    media: 'images/blockly/',
     readOnly: (profileName === 'propcfile'),
     comments: false,
 
@@ -1670,16 +1641,16 @@ function configureTermGraph() {
 /**
  * Render the branding logo and related text.
  */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-function RenderPageBrandingElements() {
+function renderPageBrandingElements() {
   let appName = ApplicationName;
   let html = 'BlocklyProp<br><strong>' + ApplicationName + '</strong>';
 
-  if (window.location.hostname === productBannerHostTrigger) {
+  if (window.location.hostname === productBannerHostTrigger ||
+      window.location.hostname === 'localhost') {
     appName = TestApplicationName;
     html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
-    document.getElementById('nav-logo').style.backgroundImage =
-        'url(\'src/images/dev-toolkit.png\')';
+    // document.getElementById('nav-logo').style.backgroundImage =
+    //     'url(\'images/dev-toolkit.png\')';
   }
 
   $('#nav-logo').html(html);
@@ -2161,7 +2132,6 @@ function formatWizard() {
   codePropC.gotoLine(currentLine);
 }
 
-
 /**
  * Save a project to the local file system
  */
@@ -2205,7 +2175,6 @@ function downloadPropC() {
   }
 }
 
-
 /**
  * Determine if this is deployed in a test or local dev environment
  *
@@ -2215,7 +2184,6 @@ function isDevBuild() {
   return (window.location.hostname.indexOf(productBannerHostTrigger) >= 0 ||
       window.location.hostname.indexOf('localhost') >= 0);
 }
-
 
 /**
  * Return a full application version string
