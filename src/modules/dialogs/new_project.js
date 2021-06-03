@@ -20,7 +20,6 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import * as Cookies from 'js-cookie';
 import {createNewProject, resetToolBoxSizing} from '../editor';
 import {getProjectInitialState, ProjectProfiles} from '../project';
 // eslint-disable-next-line camelcase
@@ -123,8 +122,6 @@ function newProjectModalEnterClick() {
         $(this).trigger('submit');
       } else {
         $('#new-project-dialog').modal('hide');
-        // Clear the action cookie
-        Cookies.remove('action');
         createNewProject();
       }
     }
@@ -142,8 +139,6 @@ function newProjectModalAcceptClick() {
     // verify that the project contains a valid board type and project name
     if (validateNewProjectForm()) {
       $('#new-project-dialog').modal('hide');
-      // Clear the action cookie
-      Cookies.remove('action');
       createNewProject();
     }
     // TODO: Add test for existing project before resizing
@@ -168,8 +163,6 @@ function newProjectModalCancelClick() {
   $('#new-project-cancel').on('click', () => {
     // Dismiss the modal in the UX
     $('#new-project-dialog').modal('hide');
-    // Clear the action cookie
-    Cookies.remove('action');
 
     if (! getProjectInitialState() ||
         typeof(getProjectInitialState().board) === 'undefined' ) {
