@@ -21,7 +21,6 @@
  */
 
 
-import * as Cookies from 'js-cookie';
 // eslint-disable-next-line camelcase
 import {getHtmlText} from '../blockly/language/en/page_text_labels';
 import {LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME} from '../constants';
@@ -216,7 +215,6 @@ function openProjectModalOpenClick() {
     logConsoleMessage(`User elected to open the project`);
     logConsoleMessage(`Closing the 'Open Project' dialog`);
     $('#open-project-dialog').modal('hide');
-    clearCookie();
 
     // Copy the stored temp project to the stored local project
     const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
@@ -239,33 +237,6 @@ function openProjectModalOpenClick() {
 }
 
 /**
- * Handle the <enter> keypress in the modal form
- */
-// function openProjectModalEnterClick() {
-//   // Ignore <enter> key pressed in a form field
-//   $('#new-project-dialog').on('keydown', function(e) {
-//     // Let it go if the user is in the description textarea
-//     if (document.activeElement.id === 'new-project-description') {
-//       return;
-//     }
-//
-//     // The Enter key was pressed
-//     if (e.key === 'Enter') {
-//       if (!validateNewProjectForm()) {
-//         e.preventDefault();
-//         // eslint-disable-next-line no-invalid-this
-//         $(this).trigger('submit');
-//       } else {
-//         $('#new-project-dialog').modal('hide');
-//         // Clear the action cookie
-//         Cookies.remove('action');
-//         createNewProject();
-//       }
-//     }
-//   });
-// }
-
-/**
  * Open project cancel button clicked event handler
  */
 function openProjectModalCancelClick() {
@@ -273,7 +244,6 @@ function openProjectModalCancelClick() {
     logConsoleMessage(`Open Dialog: cancelled`);
     // Dismiss the modal in the UX
     $('#open-project-dialog').modal('hide');
-    clearCookie();
 
     const project = getProjectInitialState();
     if (!project) {
@@ -294,15 +264,6 @@ function openProjectModalCancelClick() {
  */
 function openProjectModalEscapeClick() {
   $('#open-project-dialog').on('hidden.bs.modal', () => {
-    clearCookie();
+    // Do nothing
   });
-}
-
-/**
- * Clear the action cookie
- */
-function clearCookie() {
-  if (Cookies.get('action')) {
-    Cookies.remove('action');
-  }
 }
