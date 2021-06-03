@@ -36,13 +36,11 @@ const debug = false;
  *
  * @type {{
  *    NONE: string,
- *    HTTP: string,
  *    WS: string
  *  }}
  */
 export const serviceConnectionTypes = {
   // Constants for the type property
-  HTTP: 'http',
   WS: 'ws',
   NONE: '',
 };
@@ -195,6 +193,34 @@ export const clientService = {
    */
   loaderIsDone: false,
 
+  launcherVersionDetected: '',
+
+  /**
+   * Reset the launcher version string
+   */
+  clearLauncherVersion: function() {
+    this.launcherVersionDetected = '';
+  },
+
+  /**
+   * Getter for the launch version
+   * @return {string}
+   */
+  getLauncherVersion: function() {
+    return this.launcherVersionDetected;
+  },
+
+  /**
+   * Setter for the launcher version
+   * @param {string} version
+   */
+  setLauncherVersion: function(version) {
+    if (version.length > 0) {
+      this.launcherVersionDetected = version;
+    }
+  },
+
+
   /**
    * Setter for terminal baud rate
    * @param {number} baudRate
@@ -210,7 +236,8 @@ export const clientService = {
    * @return {string}
    */
   url: function(location, protocol) {
-    return (protocol || window.location.protocol.replace(':', '')) + '://' + this.path + ':' + this.port + '/' + (location || '');
+    return (protocol || window.location.protocol.replace(':', '')) +
+        '://' + this.path + ':' + this.port + '/' + (location || '');
   },
 
   /**
@@ -237,12 +264,16 @@ export const clientService = {
    * @param {string} portName
    */
   setSelectedPort: function(portName) {
-    // Sentry Solo-6T
+    // Do not select the 'Searching...' as a port
+    if (portName.startsWith('Search')) {
+      console.log(`Selecting a port while searching.`);
+      return;
+    }
+
     if (this.activeConnection) {
       if (portName !== this.getSelectedPort()) {
-        logConsoleMessage(`Setting preferred port to: ${portName}`);
         this.selectedPort_ = portName;
-        // Request a port list from the server
+        // Notify Launcher of the selected port
         this.activeConnection.send(JSON.stringify({
           type: 'pref-port',
           portPath: portName,
@@ -423,7 +454,7 @@ export const clientService = {
     /**
      * {string} Constant Semantic versioning, minimum client (BPL/BPC) allowed
      */
-    MINIMUM_ALLOWED: '0.7.0',
+    MINIMUM_ALLOWED: '1.0.1',
 
     /**
      * {string} Constant Semantic versioning, minimum recommended
@@ -432,17 +463,10 @@ export const clientService = {
     RECOMMENDED: '1.0.1',
 
     /**
-     * {string} Constant Semantic versioning, Minimum client/launcher version
-     * supporting coded/verbose responses.
-     * NOTE: (remove after MINIMUM_ALLOWED > this)
-     */
-    CODED_MINIMUM: '0.7.5',
-
-    /**
       * {string} Semantic versioning, Current version
      *
      */
-    current: '0.0.0',
+    current: '1.0.4',
 
     /**
      * {number} Version as an integer calulated from string representation
@@ -464,17 +488,18 @@ export const clientService = {
      * version supported
      *
      * {boolean} current >= CODED_MINIMUM
+     * @deprecated
      */
     isCoded: false,
 
     /**
      * Returns integer calculated from passed in string representation
      * of version
-     * @param {number} rawVersion
+     * @param {string} rawVersion
      * @return {number}
      */
     getNumeric: function(rawVersion) {
-      let tempVersion = rawVersion.toString().split('.');
+      let tempVersion = rawVersion.split('.');
       tempVersion.push('0');
 
       if (tempVersion.length < 3) {
@@ -495,24 +520,23 @@ export const clientService = {
 
     /**
      * Sets self-knowledge of current client/launcher version.
-     * @param {number} rawVersion
+     * @param {string} rawVersion
      */
     set: function(rawVersion) {
       this.current = rawVersion;
       this.currentAsNumber = this.getNumeric(rawVersion);
+
       this.isValid = (
         this.getNumeric(rawVersion) >=
         this.getNumeric(this.MINIMUM_ALLOWED)
       );
+
       this.isRecommended = (
         this.getNumeric(rawVersion) >=
         this.getNumeric(this.RECOMMENDED)
       );
-      // remove after MINIMUM_ALLOWED is greater
-      this.isCoded = (
-        this.getNumeric(rawVersion) >=
-        this.getNumeric(this.CODED_MINIMUM)
-      );
+
+      clientService.setLauncherVersion(rawVersion);
     },
   },
 
@@ -534,6 +558,7 @@ export const clientService = {
     this.portsAvailable = false;
     this.selectedPort_ = '';
     this.lastPortUpdate_ = 0;
+    this.clearLauncherVersion();
   },
 };
 
@@ -547,10 +572,7 @@ export function initTerminal() {
       document.getElementById('serial_console'),
 
       function(characterToSend) {
-        if (clientService.type === serviceConnectionTypes.HTTP &&
-            clientService.activeConnection) {
-          clientService.activeConnection.send(btoa(characterToSend));
-        } else if (clientService.type === serviceConnectionTypes.WS) {
+        if (clientService.type === serviceConnectionTypes.WS && clientService.activeConnection) {
           const msgToSend = {
             type: 'serial-terminal',
             outTo: 'terminal',

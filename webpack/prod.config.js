@@ -20,14 +20,11 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-const webpack = require('webpack');
-const merge = require('webpack-merge');
-const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path');
-const baseConfig = require('./base.config');
-// const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require("terser-webpack-plugin");
-
+const HtmlWebpack = require('html-webpack-plugin');
 
 /**
  * The relative path to the distribution directory
@@ -35,72 +32,102 @@ const TerserPlugin = require("terser-webpack-plugin");
  */
 const targetPath = '../dist';
 
-module.exports = merge(baseConfig, {
-  // Use env.<YOUR VARIABLE> here:
-  // console.log('NODE_ENV: ', env.NODE_ENV); // 'local'
-  // console.log('Production: ', env.production); // true
 
-  mode: 'production',
-  devtool: 'source-map',
-  output: {
-    path: path.resolve(__dirname, targetPath),
-    filename: '[name].bundle.[chunkhash].js',
-//        chunkFilename: '[id].bundle.js',
-//        pathinfo: true,
-    sourceMapFilename: '[name].bundle.[chunkhash].js.map',
-  },
-    optimization: {
-        minimize: true,
-      minimizer: [new TerserPlugin()],
+/**
+ * The relative path to the Blockly package media files
+ * @type {string}
+ */
+const blocklyMedia = '../node_modules/blockly/media';
+
+module.exports = (opts) => {
+  opts = Object.assign({
+    env: 'dev',
+    analyze: false
+  }, opts);
+
+  const isDev = (opts.env === 'dev');
+  if (isDev) console.log(`DEVELOPMENT`);
+
+  return {
+    mode: 'production',
+    entry: { // Bundle entry points
+      index: 'editor.js',
     },
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: [
+    output: {
+      path: path.resolve(__dirname, targetPath),
+      filename: '[name].bundle.[chunkhash].js',
+      sourceMapFilename: '[name].bundle.js.map',
+    },
+    target: 'web',
+    resolve: {
+      // Places to look for application files
+      modules: [
+        './src/modules',
+        './node_modules',
+      ],
+      extensions: ['.js']
+    },
+    optimization: {
+      splitChunks: {
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          }
+        },
+        chunks: 'all',
+        name: false
+      },
+      minimize: true,
+      minimizer: [
+        new TerserPlugin(),
+      ],
+    },
+    module: {
+      rules: [
+        {
+          test: /\.css$/,
+          include: [
+            path.resolve(__dirname, '../sass')
+          ],
+          use: [
             'style-loader',
             'css-loader'
-        ]
-      }
-    ]},
-  plugins: [
-    new CopyPlugin({
-      patterns: [
-        {
-          from: './index.html',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          from: './blocklyc.html',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          // Copy over media resources from the Blockly package
-          from: path.resolve(__dirname, '../node_modules/blockly/media'),
-          to: path.resolve(__dirname, `${targetPath}/media`)
-        },
-        {
-          from: './src/images',
-          to: path.resolve(__dirname, `${targetPath}/images`)
-        },
-        {
-          // Copy over style sheets
-          from: './src/site.css',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          from: './src/style.css',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          from: './src/style-clientdownload.css',
-          to: path.resolve(__dirname, targetPath)
-        },
-        {
-          from: './src/style-editor.css',
-          to: path.resolve(__dirname, targetPath)
+          ]
         },
       ]
-    })
-  ]
-});
+    },
+    plugins: [
+      new webpack.EnvironmentPlugin({
+        NODE_ENV: 'production',
+        DEBUG: false,
+      }),
+      new webpack.ProvidePlugin({
+        $: 'jquery',
+        jQuery: 'jquery'
+      }),
+      new HtmlWebpack({
+        template: './src/templates/index.html',
+        chunks: ["index"],
+        filename: 'index.html',
+      }),
+      // new HtmlWebpack({
+      //   template: './src/templates/editor.html',
+      //   chunks: ["editor"],
+      //   filename: 'blocklyc.html',
+      // }),
+      new CopyPlugin({
+        patterns: [
+          {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
+          {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
+          {from: './sass/main.css', to: path.resolve(__dirname, targetPath)},
+        ]
+      })
+    ],
+    stats: {
+      children: true,
+      errorDetails: true
+    },
+  }
+};

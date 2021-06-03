@@ -81,7 +81,10 @@ export function editProjectDetails() {
   $('#edit-project-last-modified-ro').html(modifiedDate.toLocaleDateString());
 
   // Show the dialog
-  $('#edit-project-dialog').modal({keyboard: false, backdrop: 'static'});
+  $('#edit-project-dialog').modal({
+    keyboard: false,
+    backdrop: 'static',
+  });
 }
 
 /**
@@ -175,10 +178,12 @@ function setEditOfflineProjectDetailsCancelHandler() {
 /**
  * Display a dialog window that warns of an attempt to compile
  * an empty project.
+ *
+ * @param {string} title is the text to include in the dialog title bar
+ * @param {string} body is the text that is displayed in the body of the dialog
  */
-export const showCannotCompileEmptyProject = () => {
-  utils.showMessage(Blockly.Msg.DIALOG_EMPTY_PROJECT,
-      Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
+export const showCannotCompileEmptyProject = (title, body) => {
+  utils.showMessage(title, body);
 };
 
 

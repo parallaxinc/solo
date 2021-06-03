@@ -23,15 +23,20 @@
 import {startSentry} from './sentry';
 import 'bootstrap';
 import Blockly from 'blockly/core';
-import * as Cookies from 'js-cookie';
 import * as saveAs from 'file-saver';
+
 import * as JSZip from 'jszip';
+
 // eslint-disable-next-line camelcase
-import {page_text_label, tooltip_text} from './blockly/language/en/messages';
-import './blockly/generators/propc';
+import {initHtmlLabels, getHtmlText} from './blockly/language/en/page_text_labels';
+// eslint-disable-next-line camelcase
+import {tooltip_text} from './blockly/language/en/messages';
+import /* webpackPrefetch: true */ './blockly/generators/propc';
 import './blockly/generators/propc/base';
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
+import './blockly/generators/propc/cogs';
+import './blockly/generators/propc/custom_code';
 import './blockly/generators/propc/gpio';
 import './blockly/generators/propc/oled';
 import './blockly/generators/propc/heb';
@@ -49,7 +54,7 @@ import {
 import {serialConsole} from './serial_console';
 import {findClient} from './client_connection';
 import {clientService, initTerminal} from './client_service';
-import {LOCAL_PROJECT_STORE_NAME} from './constants';
+import {APP_BUILD, APP_QA, APP_VERSION, EnableSentry, LOCAL_PROJECT_STORE_NAME} from './constants';
 import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
@@ -76,7 +81,9 @@ import {importProjectDialog} from './dialogs/import_project';
 
 // Start up the sentry monitor before we run
 startSentry()
-    .then( (resp) => console.log('Sentry has started.'))
+    .then( (resp) => {
+      if (EnableSentry) console.log('Sentry has started.');
+    })
     .catch((err) => console.log('Sentry failed to start'));
 
 /**
@@ -89,17 +96,13 @@ startSentry()
 let injectedBlocklyWorkspace = null;
 
 /**
- * Images need a home
- * @type {string}
- */
-const CDN_URL = $('meta[name=cdn]').attr('content');
-
-/**
  * This is replacing the references to the codePropC variable.
  * @type {CodeEditor | null}
  */
 let codeEditor = null;
 
+// eslint-disable-next-line no-unused-vars
+const connectionWatchDogTimer = setInterval(findClient, 2000);
 
 /**
  * Getter for the current WorkspaceSvg object
@@ -114,12 +117,15 @@ function getWorkspaceSvg() {
  * Replaces the old document.ready() construct
  */
 $(() => {
-  initInternationalText();
+  // This will initiate a number of async calls to set up the page
+  const result = initializePage();
+  result.catch((err) => console.log(err));
+
+  // Set up all of the UI event handlers before we call UI stuff
   initEventHandlers();
 
   // Set the compile toolbar buttons to unavailable
   // setPropToolbarButtons();
-  initToolbarIcons();
   propToolbarButtonController();
 
   // The BASE_URL is deprecated since it is always the empty string
@@ -128,18 +134,12 @@ $(() => {
     return cur;
   });
 
-  // This is setting the URIs for images referenced in the html page
-  initCdnImageUrls();
-
-  // Set up the URLs to download new Launchers and BP Clients
-  initClientDownloadLinks();
-  showAppName();
-
   // Connect to the BP Launcher
   // TODO: Finding the client and then look again every 3.5 seconds? There
   //  must be a better way to handle this in the clientService object.
   findClient();
-  setInterval(findClient, 2000);
+
+  // TODO: This should be lazy-loaded when a terminal is first requested.
   initTerminal();
 
   const backup = window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME);
@@ -155,52 +155,29 @@ $(() => {
     logConsoleMessage(`Creating default project`);
     initDefaultProject();
   }
-
-  const state = Cookies.get('action');
-  if (state !== undefined) {
-    if (state === 'open') {
-      openProjectDialog.show();
-    }
-    if (state === 'new') {
-      newProjectDialog.show();
-    }
-  }
-  // This is probably not needed because it is called when a project is loaded
-  // or the default project is loaded.
-  // resetToolBoxSizing(250);
 });
 
+/**
+ * Init page elements
+ * @return {Promise<void>}
+ */
+async function initializePage() {
+  renderPageBrandingElements();
+  await initInternationalText();
+  await initToolbarIcons();
+
+  // Set up the URLs to download new Launchers and BP Clients
+  await initClientDownloadLinks();
+  await showAppName();
+}
 
 /**
  * Insert the text strings (internationalization) for all of the UI
  * elements on the editor page once the page has been loaded.
  */
-function initInternationalText() {
-  $('.keyed-lang-string').each(function(key, value) {
-    // Locate each HTML element of class 'keyed-lang-string'
-    // Set a reference to the current selected element
-    // eslint-disable-next-line no-invalid-this
-    const spanTag = $(this);
-
-    // Get the associated key value that will be used to locate
-    // the text string in the page_text_label array. This array
-    // is declared in messages.js
-    const pageLabel = spanTag.attr('data-key');
-
-    // If there is a key value
-    if (pageLabel) {
-      if (spanTag.is('a')) {
-        // if the html element is an anchor, add a link
-        spanTag.attr('href', page_text_label[pageLabel]);
-      } else if (spanTag.is('input')) {
-        // if the html element is a form input, set the
-        // default value for the element
-        spanTag.attr('value', page_text_label[pageLabel]);
-      } else {
-        // otherwise, assume that we're inserting html
-        spanTag.html(page_text_label[pageLabel]);
-      }
-    }
+async function initInternationalText() {
+  $('.keyed-lang-string').each(async function(key, value) {
+    await initHtmlLabels(value);
   });
 
   // insert text strings (internationalization) into button/link tooltips
@@ -318,7 +295,17 @@ function initEventHandlers() {
   // BlocklyProp Client. The BlocklyProp Launcher does not require
   // a configuration dialog
   // TODO: Client configuration is deprecated. No needed for Launcher
-  $('#client-setup').on('click', () => configureConnectionPaths());
+  document.getElementById('client-setup')
+      .addEventListener('click', configureConnectionPaths, false);
+
+  // #editor-about
+  document.getElementById('editor-about')
+      .addEventListener('click', showEditorAbout, false);
+
+  // Display the license in a modal when the link is clicked
+  document.getElementById('editor-license')
+      .addEventListener('click', showLicenseEventHandler, false);
+
 
   // --------------------------------
   // End of hamburger menu items
@@ -357,6 +344,38 @@ function initEventHandlers() {
     clientService.setSelectedPort(event.target.value);
     propToolbarButtonController();
   });
+}
+
+/**
+ * Display the Solo license
+ */
+function showLicenseEventHandler() {
+  $('#licenseModal').modal();
+}
+
+/**
+ * Display the Solo About dialog
+ */
+function showEditorAbout() {
+  const d = new Date();
+  const year = d.getFullYear().toString();
+
+  // Populate the UI with application details
+  const version = document.getElementById('about-solo-version');
+  version.innerHTML = `BlocklyProp Solo ${getFullVersion()}, ` +
+      `Copyright &copy; 2015, ${year}, Parallax Inc.`;
+
+  const launcher = document.getElementById('about-solo-launcher-version');
+  let versionString;
+  if (clientService.getLauncherVersion().length > 0) {
+    versionString = `v${clientService.getLauncherVersion()}, `;
+  } else {
+    versionString = '';
+  }
+
+  launcher.innerHTML = `BlocklyProp Launcher ${versionString} ` +
+      `Copyright &copy; ${year}, Parallax Inc.`;
+  $('#about-solo-dialog').modal();
 }
 
 /**
@@ -411,7 +430,7 @@ function leavePageHandler() {
  * available on the downloads.parallax.com S3 site. The URL is stored in a
  * HTML meta tag.
  */
-function initClientDownloadLinks() {
+async function initClientDownloadLinks() {
   const uriRoot = 'http://downloads.parallax.com/blockly';
 
   // Windows 32-bit
@@ -438,33 +457,20 @@ function initClientDownloadLinks() {
 }
 
 /**
- * Set the base path for CDN-sourced images
- */
-function initCdnImageUrls() {
-  $('img').each(function() {
-    // eslint-disable-next-line no-invalid-this
-    const imgTag = $(this);
-
-    // Set the source of the image
-    const imgSource = imgTag.attr('data-src');
-    if (imgSource) {
-      imgTag.attr('src', CDN_URL + imgSource);
-    }
-  });
-}
-
-/**
  * Initialize the event handlers for the C source editor buttons
+ *
+ * @deprecated
+ * The XML editor will be removed soon
  */
 function initCSourceEditorButtonEvenHandlers() {
   // Clean up C source code
-  $('#prop-btn-pretty').on('click', () => formatWizard());
+  // $('#prop-btn-pretty').on('click', () => formatWizard());
 
   // C source editor Undo button
-  $('#prop-btn-undo').on('click', () => getSourceEditor().undo());
+  // $('#prop-btn-undo').on('click', () => getSourceEditor().undo());
 
   // C source editor Redo button
-  $('#prop-btn-redo').on('click', () => getSourceEditor().redo());
+  // $('#prop-btn-redo').on('click', () => getSourceEditor().redo());
 
   // C source Find button
   $('#propc-find-btn').on('click', () => {
@@ -621,7 +627,8 @@ function setupWorkspace(data, callback) {
   // Edit project details menu item
   // if (projectData) {
   if (getProjectInitialState()) {
-    $('#edit-project-details').html(page_text_label['editor_edit-details']);
+    // $('#edit-project-details').html(PageTextLabels['editor_edit-details']);
+    $('#edit-project-details').html(getHtmlText('editor_edit-details'));
   }
 
   resetToolBoxSizing(0, true);
@@ -664,9 +671,11 @@ function displayProjectBoardIcon(boardType) {
   };
 
   // Set the project icon to the correct board type
-  $('.project-icon')
-      .html('<img src="' +
-          CDN_URL + projectBoardIcon[boardType] + '" alt="Board icon"/>');
+  const element = document.getElementById('project-icon');
+  if (element) {
+    element.innerHTML =
+        `<img src="${projectBoardIcon[boardType]}"  alt="Board icon"/>`;
+  }
 }
 
 /**
@@ -919,6 +928,8 @@ function generateSvgHeader( width, height ) {
   let svgHeader = '';
 
   svgHeader += '<svg blocklyprop="blocklypropproject" xmlns="http://www.w3.org/2000/svg" ';
+
+  // eslint-disable-next-line max-len
   svgHeader += 'xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink" ';
   // eslint-disable-next-line max-len
   svgHeader += 'version="1.1" class="blocklySvg"><style>.blocklySvg { background-color: #fff; ';
@@ -1490,7 +1501,7 @@ function initToolbox(profileName) {
   const blocklyOptions = {
     toolbox: filterToolbox(profileName),
     trashcan: true,
-    media: CDN_URL + 'images/blockly/',
+    media: 'images/blockly/',
     readOnly: (profileName === 'propcfile'),
     comments: false,
 
@@ -1611,16 +1622,16 @@ function configureTermGraph() {
 /**
  * Render the branding logo and related text.
  */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-function RenderPageBrandingElements() {
+function renderPageBrandingElements() {
   let appName = ApplicationName;
   let html = 'BlocklyProp<br><strong>' + ApplicationName + '</strong>';
 
-  if (window.location.hostname === productBannerHostTrigger) {
+  if (window.location.hostname === productBannerHostTrigger ||
+      window.location.hostname === 'localhost') {
     appName = TestApplicationName;
     html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
-    document.getElementById('nav-logo').style.backgroundImage =
-        'url(\'src/images/dev-toolkit.png\')';
+    // document.getElementById('nav-logo').style.backgroundImage =
+    //     'url(\'images/dev-toolkit.png\')';
   }
 
   $('#nav-logo').html(html);
@@ -1645,9 +1656,10 @@ function showProjectTimerModalDialog() {
     logConsoleMessage(`Nudge timer is likely no longer working`);
     return;
   }
+
   const message = [
-    page_text_label['editor_save-check_warning-1'],
-    page_text_label['editor_save-check_warning-2'],
+    getHtmlText('editor_save-check_warning-1'),
+    getHtmlText('editor_save-check_warning-2'),
   ];
 
   // The embedded anonymous function builds the message string
@@ -1792,7 +1804,7 @@ export function createNewProject() {
   // if (project &&
   //     typeof(project.boardType.name) !== 'undefined' &&
   //     $('#new-project-dialog-title')
-  //         .html() === page_text_label['editor_edit-details']) {
+  //         .html() === PageTextLabels['editor_edit-details']) {
   //   code = getXml();
   // }
 
@@ -1903,7 +1915,7 @@ export function insertProject(project) {
 /**
  *Display the application name
  */
-function showAppName() {
+async function showAppName() {
   const html = 'BlocklyProp<br><strong>Solo</strong>';
   $('#nav-logo').html(html);
 }
@@ -2088,34 +2100,18 @@ function renderContent(id) {
 /**
  * Formats code in editor and sets cursor to the line is was on
  * Used by the code formatter button in the editor UI
+ *
+ * @deprecated
+ * Feature will be removed soon.
  */
-const formatWizard = function() {
+// eslint-disable-next-line no-unused-vars,require-jsdoc
+function formatWizard() {
   const codePropC = getSourceEditor();
   const currentLine = codePropC.getCursorPosition()['row'] + 1;
   codePropC.setValue(prettyCode(codePropC.getValue()));
   codePropC.focus();
   codePropC.gotoLine(currentLine);
-};
-
-// /**
-//  * Pretty formatter for C code
-//  *
-//  * @param {string} rawCode
-//  * @return {string}
-//  */
-// export const prettyCode = function(rawCode) {
-//   // TODO: The jsBeautifier package is NOT targeted to C source code. Replace
-//   //  this functionality with something that understands C source code.
-//   // improve the way functions and arrays are rendered
-//   rawCode = rawCode.replace(/\)\s*[\n\r]\s*{/g, ') {')
-//       .replace(/\[([0-9]*)\]\s*=\s*{\s*([0-9xXbBA-F,\s]*)\s*};/g,
-//           function(str, m1, m2) {
-//             m2 = m2.replace(/\s/g, '').replace(/,/g, ', ');
-//             return '[' + m1 + '] = {' + m2 + '};';
-//           });
-//
-//   return rawCode;
-// };
+}
 
 /**
  * Save a project to the local file system
@@ -2148,13 +2144,38 @@ function downloadPropC() {
     sideFolder.file(value + '.side', fileSIDEblob);
 
     // Generate the zip file
-    sideFolder.generateAsync({type: 'blob'}).then(function(blob) {
-      // Trigger the download
-      saveAs(blob, value + '.zip');
-    }, function(err) {
-      utils.showMessage(
-          Blockly.Msg.DIALOG_ERROR,
-          Blockly.Msg.DIALOG_SIDE_FILES_ERROR + err);
-    });
+    sideFolder.generateAsync({type: 'blob'})
+        .then(function(blob) {
+          // Trigger the download
+          saveAs(blob, value + '.zip');
+        }, function(err) {
+          utils.showMessage(
+              Blockly.Msg.DIALOG_ERROR,
+              Blockly.Msg.DIALOG_SIDE_FILES_ERROR + err);
+        });
   }
+}
+
+/**
+ * Determine if this is deployed in a test or local dev environment
+ *
+ * @return {boolean}
+ */
+function isDevBuild() {
+  return (window.location.hostname.indexOf(productBannerHostTrigger) >= 0 ||
+      window.location.hostname.indexOf('localhost') >= 0);
+}
+
+/**
+ * Return a full application version string
+ *
+ * @return {string}
+ */
+function getFullVersion() {
+  let applicationVersion = `v${APP_VERSION}`;
+  if (isDevBuild()) {
+    applicationVersion += `.${APP_BUILD}-${APP_QA}`;
+  }
+
+  return applicationVersion;
 }

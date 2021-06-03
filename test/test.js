@@ -19,54 +19,12 @@
  *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *   DEALINGS IN THE SOFTWARE.
  */
+const assert = require('assert');
 
-
-.clients .client {
-    display: none;
-    border-radius: 6px;
-    padding: 5px 0 5px 14px;
-    background: #f5f5f5;
-    margin-bottom: 15px
-}
-
-.clients .client-instructions {
-    display: none;
-}
-
-.clients .client img {
-    display: inline;
-    height: 32px;
-    width: 32px;
-}
-
-body.all-clients .clients .client, 
-body.all-clients .clients .client-instructions,
-body.unknown-client .clients .client,
-body.unknown-client .clients .client-instructions {
-    display: block;
-}
-
-body.Windows .clients .client.Windows, 
-body.Windows .clients .client-instructions.Windows {
-    display: block;
-}
-
-body.MacOS .clients .client.MacOS, 
-body.MacOS .clients .client-instructions.MacOS {
-    display: block;
-}
-
-body.ChromeOS .clients .client.ChromeOS, 
-body.ChromeOS .clients .client-instructions.ChromeOS {
-    display: block;
-}
-
-body.Linux .clients .client.Linux, 
-body.Linux .clients .client-instructions.Linux {
-    display: block;
-}
-
-body.all-clients .show-all, 
-body.unkown-client .show-all {
-    display: none;
-}
+describe('Array', function() {
+  describe('#indexOf()', function() {
+    it('should return -1 when the value is not present', function() {
+      assert.strictEqual([1, 2, 3].indexOf(4), -1);
+    });
+  });
+});

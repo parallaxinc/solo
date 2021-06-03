@@ -35,6 +35,7 @@ import {logConsoleMessage} from './utility';
  */
 const EmptyProjectCodeHeader = '<xml xmlns="https://developers.google.com/blockly/xml">';
 const TerminatedEmptyProjectCodeHeader = '<xml xmlns="https://developers.google.com/blockly/xml"/>';
+const TerminatedEmptyProjectCodeHeaderV2 = `<xml xmlns=\"https://developers.google.com/blockly/xml\"></xml>`;
 
 /**
  * Preserve the initial state of the project
@@ -387,6 +388,14 @@ class Project {
   }
 
   /**
+   * Version 2 empty project string
+   * @return {string}
+   */
+  static getTerminatedEmptyProjectCodeHeaderV2() {
+    return TerminatedEmptyProjectCodeHeaderV2;
+  }
+
+  /**
      * Convert a string project board type
      * @param {string} board
      * @return {object}
@@ -614,7 +623,7 @@ function projectJsonFactory(json) {
       json.code,
       Date.parse(json.created),
       Date.parse(json.modified),
-      date.getTime()
+      date.getTime(),
   );
 }
 

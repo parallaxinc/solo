@@ -34,42 +34,41 @@
         </style>
     </noscript>
     <meta charset="utf-8">
-    <meta name="cdn" content="dist/">
+    <meta name="cdn" content="/">
     <meta name="projectlink" content="">
     <meta name="isOffline" content="true">
     <meta name="docker" content="true">
     <meta name="application-name" content="BlocklyProp Solo" />
     <meta name="msapplication-TileColor" content="#FFFFFF" />
-    <meta name="msapplication-TileImage" content="dist/images/mstile-144x144.png" />
+    <meta name="msapplication-TileImage" content="images/mstile-144x144.png" />
 
-    <link type="image/png" rel="icon" sizes="32x32" href="dist/images/favicon-32x32.png" />
-    <link type="image/png" rel="icon" sizes="16x16" href="dist/images/favicon-16x16.png" />
+    <link type="image/png" rel="icon" sizes="32x32" href="images/favicon-32x32.png" />
+    <link type="image/png" rel="icon" sizes="16x16" href="images/favicon-16x16.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="57x57"
-        href="dist/images/apple-touch-icon-57x57.png" />
+        href="images/apple-touch-icon-57x57.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="114x114"
-        href="dist/images/apple-touch-icon-114x114.png" />
+        href="images/apple-touch-icon-114x114.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="72x72"
-        href="dist/images/apple-touch-icon-72x72.png" />
+        href="images/apple-touch-icon-72x72.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="144x144"
-        href="dist/images/apple-touch-icon-144x144.png" />
+        href="images/apple-touch-icon-144x144.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="120x120"
-        href="dist/images/apple-touch-icon-120x120.png" />
+        href="images/apple-touch-icon-120x120.png" />
     <link type="image/png" rel="apple-touch-icon-precomposed" sizes="152x152"
-        href="dist/images/apple-touch-icon-152x152.png" />
+        href="images/apple-touch-icon-152x152.png" />
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link href="dist/style-editor.css" rel="stylesheet" type="text/css" />
-    <link href="dist/style-clientdownload.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="main.css" class="rel">
 
     <title>BlocklyProp Solo</title>
-    <script type="module" src="dist/editor.bundle.js" defer></script>
 </head>
 
 <body>
-    <div id="editor" style="background-color:#f8f8f8; padding-top:0; padding-bottom:5px;">
+    <div id="editor">
         <!-- Branding logo -->
-        <div id="branding" style="position: relative; top: 2px;">
-            <a id="nav-logo" href="/" class="url-prefix"></a>
+        <div id="branding">
+            <span id="nav-logo" class="url-prefix"></span>
+<!--            <a id="nav-logo" href="/" class="url-prefix"></a>-->
         </div>
 
         <div id="noScript">
@@ -79,7 +78,7 @@
         </div>
 
 
-        <div>
+        <div id="editor-status">
             <!-- Above toolbar -->
             <div style="overflow:auto;">
 
@@ -105,61 +104,43 @@
                 <!-- Display current project name -->
                 <div id="project-details" class="project-name-wrapper"
                     style="float:right; position: relative; top: 2px;">
-                    <div class="project-icon"></div>
+                    <div id="project-icon" class="project-icon"></div>
                     <div class="project-name" spellcheck="false"></div>
                     <div class="project-owner" style="display: none;"></div>
                 </div>
             </div>
 
             <!-- Toolbars and hamburger menu -->
-            <div>
+            <div id="editor-tools">
                 <!-- Left Toolbar buttons -->
-                <div id="board-action-buttons" style="padding-left: 10px; float: left;">
+                <div id="board-action-buttons">
                     <!-- Compile program -->
-                    <a id="prop-btn-comp" class="btn btn-success btn-circle" title=""
+                    <a id="prop-btn-comp" class="btn btn-success btn-circle btn-sm" title=""
                     data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="checkMarkWhite">&#x2713;</span>
                     </a>
 
                     <!-- Load to RAM -->
-                    <a id="prop-btn-ram" class="btn btn-success btn-circle disabled" title=""
+                    <a id="prop-btn-ram" class="btn btn-success btn-circle btn-sm disabled" title=""
                     data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="downArrowWhite"></span>
                     </a>
 
                     <!-- Load to EEPROM -->
-                    <a id="prop-btn-eeprom" class="btn btn-success btn-circle disabled" title=""
+                    <a id="prop-btn-eeprom" class="btn btn-success btn-circle btn-sm disabled" title=""
                     data-toggle="tooltip" data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="downArrowBoxWhite">&gt;&gt;</span></a>
 
                     <!-- Open a terminal -->
-                    <a id="prop-btn-term" class="btn btn-primary btn-circle disabled" title=""
+                    <a id="prop-btn-term" class="btn btn-primary btn-circle btn-sm disabled" title=""
                     data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="terminalWhite">#</span>
                     </a>
 
                     <!-- Open a graphing window -->
-                    <a id="prop-btn-graph" class="btn btn-primary btn-circle disabled" title=""
+                    <a id="prop-btn-graph" class="btn btn-primary btn-circle btn-sm disabled" title=""
                     data-toggle="tooltip"  data-placement="bottom" data-displayas="inline-block">
                         <span class="bpIcon" data-icon="graphWhite">~</span>
-                    </a>
-
-                    <!-- Clean up source code -->
-                    <a id="prop-btn-pretty" class="btn btn-info btn-circle propc-only hidden" title=""
-                    data-toggle="tooltip" data-placement="bottom">
-                        <span class="bpIcon" data-icon="magicWandWhite">&#x2728;</span>
-                    </a>
-
-                    <!-- Undo edits - propc project type -->
-                    <a id="prop-btn-undo" class="btn btn-info btn-circle propc-only hidden" title=""
-                    data-toggle="tooltip" data-placement="bottom">
-                        <span class="bpIcon" data-icon="undoWhite">&#x293A;</span>
-                    </a>
-
-                    <!-- Redo edits - propc project type -->
-                    <a id="prop-btn-redo" class="btn btn-info btn-circle propc-only hidden" title=""
-                    data-toggle="tooltip" data-placement="bottom">
-                        <span class="bpIcon" data-icon="redoWhite">&#x293B;</span>
                     </a>
 
                     <!-- Drop-down hardware port select -->
@@ -247,6 +228,21 @@
                             <li data-displayas="list-item">
                                 <a id="client-setup">
                                     <span class="keyed-lang-string" data-key="editor_run_configure"></span>
+                                </a>
+                            </li>
+
+                            <li class="divider" data-displayas="list-item"></li>
+                            <!-- About Solo menu item -->
+                            <li data-displayas="list-item">
+                                <a id="editor-about">
+                                    <span class="keyed-lang-string" data-key="editor_about_solo"></span>
+                                </a>
+                            </li>
+
+                            <!-- License menu item -->
+                            <li data-displayas="list-item">
+                                <a id="editor-license">
+                                    <span class="keyed-lang-string" data-key="editor_license"></span>
                                 </a>
                             </li>
                         </ul>
@@ -383,11 +379,6 @@
                     <div id="save-check-warning">
                         <span class="bpIcon" data-icon="dangerTriangleBlack">!!</span>
                         <span id="save-check-warning-message" class="keyed-lang-string"></span>
-
-                        <!--
-                        <span id="save-check-warning-message" class="keyed-lang-string"
-                              data-key="editor_save-check_warning"></span>
-                        -->
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -414,7 +405,7 @@
                 </div>
                 <div class="modal-body">
                     <label for="compile-console" class="keyed-lang-string" data-key="editor_title_result"></label>
-                    <textarea class="form-control" rows="15" id="compile-console"></textarea>
+                    <textarea class="form-control form-control-size" rows="15" id="compile-console"></textarea>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-default keyed-lang-string" data-dismiss="modal"
@@ -498,12 +489,12 @@
                     <div class="form-group">
                         <label for="save-as-project-name" class="keyed-lang-string"
                             data-key="project_create_project_name"></label>
-                        <input type="text" class="form-control" id="save-as-project-name" name="save-as-project-name" />
+                        <input type="text" class="form-control form-control-size" id="save-as-project-name" name="save-as-project-name" />
                     </div>
                     <div class="form-group">
                         <label for="save-as-board-type" class="keyed-lang-string"
                             data-key="project_create_board_type"></label>
-                        <select id="save-as-board-type" class="form-control" name="save-as-board-type">
+                        <select id="save-as-board-type" class="form-control form-control-size" name="save-as-board-type">
                             <option disabled selected class="keyed-lang-string"
                                 data-key="project_create_board_type_select">&nbsp;</option>
                         </select>
@@ -542,13 +533,13 @@
                             <!-- project name -->
                             <div class="form-group">
                                 <label for="new-project-name" class="keyed-lang-string" data-key="project_name"></label>
-                                <input id="new-project-name" class="form-control" type="text" name="new-project-name" />
+                                <input id="new-project-name" class="form-control form-control-size" type="text" name="new-project-name" />
                             </div>
                             <!-- project board type -->
                             <div id="new-project-board-dropdown" class="form-group">
                                 <label for="new-project-board-type" class="keyed-lang-string"
                                        data-key="project_create_board_type"></label>
-                                <select id="new-project-board-type" class="form-control"
+                                <select id="new-project-board-type" class="form-control form-control-size"
                                         name="new-project-board-type"></select>
                             </div>
                             <!-- project meta data display -->
@@ -564,7 +555,7 @@
                             <div class="form-group">
                                 <label for="new-project-description" class="keyed-lang-string"
                                        data-key="project_create_description"></label>
-                                <textarea id="new-project-description" class="form-control" rows="7"
+                                <textarea id="new-project-description" class="form-control form-control-size" rows="7"
                                           name="new-project-description"></textarea>
                             </div>
                         </fieldset>
@@ -600,7 +591,7 @@
                         <!-- project name. Default is derived from projectData object -->
                         <div class="form-group">
                             <label for="edit-project-name" class="keyed-lang-string" data-key="project_name"></label>
-                            <input type="text" class="form-control" id="edit-project-name" name="edit-project-name" />
+                            <input type="text" class="form-control form-control-size" id="edit-project-name" name="edit-project-name" />
                         </div>
                         <!-- project meta data display -->
                         <div id="edit-project-details-ro" class="form-group">
@@ -615,12 +606,8 @@
                         <div class="form-group">
                             <label for="new-project-description" class="keyed-lang-string"
                                    data-key="project_create_description"></label>
-<!--
-                            <label for="edit-project-description"  class="keyed-lang-string"
-                                   data-key="project_edit_description"></label>
--->
                             <!-- TODO: match textarea with correct label -->
-                            <textarea id="edit-project-description" class="form-control" rows="7"
+                            <textarea id="edit-project-description" class="form-control form-control-size" rows="7"
                                       name="new-project-description"></textarea>
                         </div>
                     </form>
@@ -636,6 +623,71 @@
             </div>
         </div>
     </div>
+
+    <!-- Application license modal dialog -->
+    <div id="licenseModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <!-- Change class .modal-sm to change the size of the modal -->
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title w-100" id="licenseLabel">BlocklyProp Solo License</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <p>The MIT License (MIT)</p>
+                    <p>Copyright © <span id="license-copyright-date"></span> Parallax Inc.</p>
+                    <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+                       associated documentation files (the “Software”), to deal in the Software without restriction,
+                       including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+                       and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+                       subject to the following conditions:</p>
+                    <p>The above copyright notice and this permission notice shall be included in all copies or substantial
+                       portions of the Software.</p>
+                    <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+                       LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFINGEMENT.
+                       IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+                       WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,OUT OF OR IN CONNECTION WITH THE
+                       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div> <!-- end of license window -->
+
+
+    <!-- About Solo dialog -->
+    <div id="about-solo-dialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <!-- Change class .modal-sm to change the size of the modal -->
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title w-100 keyed-lang-string" id="about-solo-header" data-key="editor_about_solo_dialog_title"></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <p id="about-solo-version"></p>
+                    <p id="about-solo-launcher-version"></p>
+                    <p style="margin-top: 20px;">Documentation and tutorials are available at
+                        <a href="https://learn.parallax.com/support/reference/propeller-blocklyprop-block-reference" target="_blank">learn.parallax.com</a>
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of About Solo window -->
 
     <!-- BlocklyProp Client download instructions -->
     <div class="modal fade" id="client-download-modal">
@@ -662,8 +714,7 @@
                                                 <p class="keyed-lang-string" data-key="client_run_instructions2"></p>
                                             </td>
                                             <td>
-                                                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                                        data-src="images/client-run/mac_os.png"
+                                                <img src="images/client-run/mac_os.png"
                                                         alt="Instructions to launch the client"
                                                         style="padding:10px"/>
                                             </td>
@@ -685,8 +736,7 @@
                                                 <p class="keyed-lang-string" data-key="client_run_instructions2"></p>
                                             </td>
                                             <td>
-                                                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                                        data-src="images/client-run/windows.png"
+                                                <img src="images/client-run/windows.png"
                                                         alt="Instructions to launch the client"
                                                         style="padding:10px"/>
                                             </td>
@@ -708,8 +758,7 @@
                                                 <p class="keyed-lang-string" data-key="client_run_instructions2"></p>
                                             </td>
                                             <td>
-                                                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                                        data-src="images/client-run/chrome.png"
+                                                <img src="images/client-run/chrome.png"
                                                         alt="Instructions to launch the client"
                                                         style="padding:10px"/>
                                             </td>
@@ -780,10 +829,28 @@
 
                         <!-- MacOS Launcher download link -->
                         <div class="client MacOS">
-                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="images/os-icons/mac_os.png" alt="Mac OS icon" />
-                            <a href="#" class="launcher-mac-link">
+                            <img src="images/os-icons/mac_os.png" alt="Mac OS icon" />
+                            <a href="#" class="launcher-mac-link-big-sur">
                                 <span class="keyed-lang-string"
-                                    data-key="clientdownload_launcher_macos_installer"></span></a>
+                                      data-key="client_download_launcher_macos_big_sur_installer"></span></a>
+                        </div>
+                        <div class="client MacOS">
+                            <img src="images/os-icons/mac_os.png" alt="Mac OS icon" />
+                            <a href="#" class="launcher-mac-link-catalina">
+                                <span class="keyed-lang-string"
+                                      data-key="client_download_launcher_macos_catalina_installer"></span></a>
+                        </div>
+                        <div class="client MacOS">
+                            <img src="images/os-icons/mac_os.png" alt="Mac OS icon" />
+                            <a href="#" class="launcher-mac-link-mojave">
+                                <span class="keyed-lang-string"
+                                      data-key="client_download_launcher_macos_mojave_installer"></span></a>
+                        </div>
+                        <div class="client MacOS">
+                            <img src="images/os-icons/mac_os.png" alt="Mac OS icon" />
+                            <a href="#" class="launcher-mac-link-high_sierra">
+                                <span class="keyed-lang-string"
+                                      data-key="client_download_launcher_macos_high_sierra_installer"></span></a>
                         </div>
 
                         <!-- Windows clients -->
@@ -793,8 +860,7 @@
 
                         <!-- Windows x64 Launcher -->
                         <div class="client Windows">
-                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                data-src="images/os-icons/windows.png" alt="Windows OS icon" />
+                            <img src="images/os-icons/windows.png" alt="Windows OS icon" />
                             <a href="#" class="launcher-win64-link">
                                 <span class="keyed-lang-string"
                                     data-key="clientdownload_launcher_windows64_installer"></span>
@@ -804,8 +870,7 @@
 
                         <!-- Windows x64 Launcher -->
                         <div class="client Windows">
-                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                 data-src="images/os-icons/windows.png" alt="Windows OS icon" />
+                            <img src="images/os-icons/windows.png" alt="Windows OS icon" />
                             <a href="#" class="launcher-win64zip-link">
                                 <span class="keyed-lang-string"
                                       data-key="clientdownload_launcher_windows64zip_installer"></span>
@@ -819,8 +884,7 @@
 
                         <!-- Get client from the Google App Store -->
                         <div class="client ChromeOS">
-                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                                data-src="images/os-icons/chrome_os.png" alt="Chrome OS icon" />
+                            <img src="images/os-icons/chrome_os.png" alt="Chrome OS icon" />
                             <a href="https://chrome.google.com/webstore/detail/iddpgcclgepllhnhlkkinbmmafpbnddb"
                                 target="_blank">
                                 <span class="keyed-lang-string" data-key="clientdownload_client_chromeos_installer"></span>
