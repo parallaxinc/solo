@@ -81,7 +81,10 @@ export function editProjectDetails() {
   $('#edit-project-last-modified-ro').html(modifiedDate.toLocaleDateString());
 
   // Show the dialog
-  $('#edit-project-dialog').modal({keyboard: false, backdrop: 'static'});
+  $('#edit-project-dialog').modal({
+    keyboard: false,
+    backdrop: 'static',
+  });
 }
 
 /**
