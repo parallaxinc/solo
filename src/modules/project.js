@@ -34,8 +34,10 @@ import {logConsoleMessage} from './utility';
  * be misspelled without detection.
  */
 const EmptyProjectCodeHeader = '<xml xmlns="https://developers.google.com/blockly/xml">';
-const TerminatedEmptyProjectCodeHeader = '<xml xmlns="https://developers.google.com/blockly/xml"/>';
-const TerminatedEmptyProjectCodeHeaderV2 = `<xml xmlns=\"https://developers.google.com/blockly/xml\"></xml>`;
+const TerminatedEmptyProjectCodeHeader =
+    '<xml xmlns="https://developers.google.com/blockly/xml"/>';
+const TerminatedEmptyProjectCodeHeaderV2 =
+    `<xml xmlns="https://developers.google.com/blockly/xml"></xml>`;
 
 /**
  * Preserve the initial state of the project
