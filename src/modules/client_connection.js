@@ -125,7 +125,7 @@ export const findClient = function() {
     logConsoleMessage('Connecting to BP Launcher client');
     establishBPLauncherConnection();
   }
-}
+};
 
 /**
  * Checks for and, if found, uses a newer WebSockets-only client
