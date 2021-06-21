@@ -270,7 +270,9 @@ function installFileOnChangeHandler() {
       uploadHandler(event.target.files, [
         'selectfile-replace',
         'selectfile-append',
-      ]);
+      ]).catch( (err) => {
+        uiDisableButtons();
+      });
     } else {
       uiDisableButtons();
     }
