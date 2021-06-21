@@ -24,9 +24,11 @@
 // eslint-disable-next-line camelcase
 import {getHtmlText} from '../blockly/language/en/page_text_labels';
 import {LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME} from '../constants';
-import {insertProject, isProjectChanged, uploadHandler} from '../editor';
+import {insertProject, isProjectChanged} from '../editor';
 import {getProjectInitialState, projectJsonFactory} from '../project';
 import {logConsoleMessage, utils} from '../utility';
+import {loadProjectFile} from '../project/project_io';
+import {importProjectDialog} from './import_project';
 
 
 /**
@@ -152,6 +154,14 @@ export const openProjectDialog = {
 };
 
 /**
+ * Enable the dialog's Open button
+ */
+export function uiEnableOpenButton() {
+  // Disable the Open button until we have a file to open
+  $('#open-project-select-file-open').removeClass('disabled');
+}
+
+/**
  * Disable the dialog's Open button
  */
 function uiDisableOpenButton() {
@@ -176,18 +186,123 @@ function openProjectDialogWindow() {
 function setSelectedFileOnChange() {
   $('#open-project-select-file').on('change', function(event) {
     logConsoleMessage(`File selector has changed`);
-    if (event.target.files[0] && event.target.files[0].name.length > 0) {
-      logConsoleMessage(
-          `OpenProject onChange event: ${event.target.files[0].name}`);
-      // Load project into browser storage and let the modal event handler
-      // decide what to do with it
-      uploadHandler(event.target.files, ['open-project-select-file-open']);
-    } else {
-      // Disable the Open button
-      uiDisableOpenButton();
-    }
+    selectProjectFile()
+        .then( (res) => {
+          console.log(`Resolved: ${res}`);
+        })
+        .catch( (reject) => {
+          console.log(`Rejected: ${reject}`);
+          // $('#open-project-select-file').modal('toggle');
+          $('#open-project-dialog').modal('hide');
+          utils.showMessage('Project Load Error', reject, () => {
+            console.log(`Project load error acknowledged.`);
+          });
+        });
   });
+  //
+  // const input = document.getElementById('open-project-select-file');
+  // const currentFile = input.files;
+  // if (currentFile.length === 0) {
+  //   logConsoleMessage(`No file selected`);
+  //   uiDisableOpenButton();
+  //   return;
+  // }
+  //
+  // if (event.target.files[0] && event.target.files[0].name.length > 0) {
+  //   logConsoleMessage(
+  //       `OpenProject onChange event: ${event.target.files[0].name}`);
+  //   // Load project into browser storage and let the modal event handler
+  //   // decide what to do with it
+  //   const result = await loadProjectFile(event.target.files);
+  //   console.log(`Returning: Status: ${result.status}, Message: ${result.message}`);
+  //   if (result.status !== 0) {
+  //     return false;
+  //   }
+  //
+  //   if (result) {
+  //     // Save the project to the browser store
+  //     window.localStorage.setItem(
+  //         TEMP_PROJECT_STORE_NAME,
+  //         JSON.stringify(result.getDetails()));
+  //
+  //     // These may no longer be necessary
+  //     importProjectDialog.isProjectFileValid = true;
+  //     openProjectDialog.isProjectFileValid = true;
+  //
+  //     logConsoleMessage(
+  //         `Project conversion successful. A copy is in local storage`);
+  //     uiEnableOpenButton();
+  //     return true;
+  //   }
+  //     uploadHandler(event.target.files, ['open-project-select-file-open'])
+  //         .then( (value) => {
+  //           logConsoleMessage(`Project loading complete`);
+  //           uiEnableOpenButton();
+  //         })
+  //         .catch( (err) => {
+  //           logConsoleMessage(`Project load failed: ${err}`);
+  //         });
+  //   } else {
+  //     // Disable the Open button
+  //     uiDisableOpenButton();
+  //   }
+  // });
 }
+
+/**
+ * Process the selected project file
+ *
+ * @return {Promise<boolean>}
+ */
+async function selectProjectFile() {
+  const input = document.getElementById('open-project-select-file');
+  const currentFile = input.files;
+  if (currentFile.length === 0) {
+    logConsoleMessage(`No file selected`);
+    uiDisableOpenButton();
+    return false;
+  }
+
+  if (event.target.files[0] && event.target.files[0].name.length > 0) {
+    logConsoleMessage(
+        `OpenProject onChange event: ${event.target.files[0].name}`);
+    // Load project into browser storage and let the modal event handler
+    // decide what to do with it
+    const result = await loadProjectFile(event.target.files);
+    if ((! result) || (result.status !== 0)) {
+      return Promise.reject(result.message);
+    }
+
+    console.log(`Returning: Status: ${result.status}, Message: ${result.message}`);
+
+    // Save the project to the browser store
+    window.localStorage.setItem(
+        TEMP_PROJECT_STORE_NAME,
+        JSON.stringify(result.project.getDetails()));
+
+    // These may no longer be necessary
+    importProjectDialog.isProjectFileValid = true;
+    openProjectDialog.isProjectFileValid = true;
+
+    logConsoleMessage(`Project conversion successful. A copy is in local storage`);
+    uiEnableOpenButton();
+  }
+  //     uploadHandler(event.target.files, ['open-project-select-file-open'])
+  //         .then( (value) => {
+  //           logConsoleMessage(`Project loading complete`);
+  //           uiEnableOpenButton();
+  //         })
+  //         .catch( (err) => {
+  //           logConsoleMessage(`Project load failed: ${err}`);
+  //         });
+  //   } else {
+  //     // Disable the Open button
+  //     uiDisableOpenButton();
+  //   }
+  // });
+  return true;
+}
+
 
 /**
  * Connect an event handler to the 'Open' button in the Open
