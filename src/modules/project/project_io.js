@@ -21,17 +21,25 @@
  */
 
 import {Project, ProjectTypes} from '../project';
-import {logConsoleMessage} from '../utility';
+
+/**
+ * @module project_io
+ */
+
+/**
+ * @typedef module:project_io.ProjectLoadResult
+ * @type {Object}
+ * @property {number} status
+ * @property {string} message
+ * @property {Project} project
+ */
+
 
 /**
  * Load a project .sgv or .svge file from the filesystem
  *
  * @param {FileList} files
- * @return {{
- *  status: number,
- *  message: string,
- *  project: Project
- *  }}
+ * @return {module:project_io.ProjectLoadResult}
  *
  * @description
  *   Status Codes:
@@ -41,7 +49,6 @@ import {logConsoleMessage} from '../utility';
  *   -3   Unknown file format or corrupt project file
  */
 export async function loadProjectFile(files) {
-  // Sanity checks
   if (!files || files.length === 0) {
     return formatResult(-2, 'No files were selected', null);
   }
@@ -321,7 +328,7 @@ async function parseProjectFileString(filename, fileType, xmlString) {
  *  This function looks for the Device preamble and the computes an offset
  *  to reach the actual board type string.
  */
-function getProjectBoardTypeName(xmlString) {
+export function getProjectBoardTypeName(xmlString) {
   const boardIndex = xmlString.indexOf('transform="translate(-225,-23)">Device: ');
   if (boardIndex === -1) return '';
   return xmlString.substring(

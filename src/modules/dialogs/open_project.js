@@ -30,6 +30,9 @@ import {logConsoleMessage, utils} from '../utility';
 import {loadProjectFile} from '../project/project_io';
 import {importProjectDialog} from './import_project';
 
+/**
+ * @module open_project
+ */
 
 /**
  * New Project dialog window
@@ -268,7 +271,9 @@ async function selectProjectFile() {
         `OpenProject onChange event: ${event.target.files[0].name}`);
     // Load project into browser storage and let the modal event handler
     // decide what to do with it
-    const result = await loadProjectFile(event.target.files);
+
+    const /** @type module:project_io.ProjectLoadResult */ result =
+        await loadProjectFile(event.target.files);
     if ((! result) || (result.status !== 0)) {
       return Promise.reject(result.message);
     }
