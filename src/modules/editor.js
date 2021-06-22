@@ -66,6 +66,7 @@ import {setProjectInitialState, setDefaultProfile} from './project';
 import {ProjectTypes, clearProjectInitialState} from './project';
 import {projectJsonFactory} from './project';
 import {buildDefaultProject} from './project_default';
+import {filestreamToProject, getProjectBoardTypeName} from './project/project_io';
 import {initToolbarIcons} from './toolbar_controller';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
@@ -1163,7 +1164,7 @@ function parseProjectFileString(filename, fileType, xmlString) {
     // into a new Project object and persist it into the browser's
     // localStorage
     // ----------------------------------------------------------------------
-    const tmpProject = fileToProject(
+    const tmpProject = filestreamToProject(
         projectName, xmlString, uploadBoardType);
 
     if (tmpProject) {
