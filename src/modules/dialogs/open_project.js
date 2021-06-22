@@ -159,7 +159,7 @@ export const openProjectDialog = {
 /**
  * Enable the dialog's Open button
  */
-export function uiEnableOpenButton() {
+function uiEnableOpenButton() {
   // Disable the Open button until we have a file to open
   $('#open-project-select-file-open').removeClass('disabled');
 }
@@ -190,66 +190,14 @@ function setSelectedFileOnChange() {
   $('#open-project-select-file').on('change', function(event) {
     logConsoleMessage(`File selector has changed`);
     selectProjectFile()
-        .then( (res) => {
-          console.log(`Resolved: ${res}`);
-        })
         .catch( (reject) => {
-          console.log(`Rejected: ${reject}`);
-          // $('#open-project-select-file').modal('toggle');
+          logConsoleMessage(`Select project file rejected: ${reject}`);
           $('#open-project-dialog').modal('hide');
-          utils.showMessage('Project Load Error', reject, () => {
-            console.log(`Project load error acknowledged.`);
-          });
+          const message =
+              `Unable to load the selected project file. The error reported is: "${reject}."`;
+          utils.showMessage('Project Load Error', message);
         });
   });
-  //
-  // const input = document.getElementById('open-project-select-file');
-  // const currentFile = input.files;
-  // if (currentFile.length === 0) {
-  //   logConsoleMessage(`No file selected`);
-  //   uiDisableOpenButton();
-  //   return;
-  // }
-  //
-  // if (event.target.files[0] && event.target.files[0].name.length > 0) {
-  //   logConsoleMessage(
-  //       `OpenProject onChange event: ${event.target.files[0].name}`);
-  //   // Load project into browser storage and let the modal event handler
-  //   // decide what to do with it
-  //   const result = await loadProjectFile(event.target.files);
-  //   console.log(`Returning: Status: ${result.status}, Message: ${result.message}`);
-  //   if (result.status !== 0) {
-  //     return false;
-  //   }
-  //
-  //   if (result) {
-  //     // Save the project to the browser store
-  //     window.localStorage.setItem(
-  //         TEMP_PROJECT_STORE_NAME,
-  //         JSON.stringify(result.getDetails()));
-  //
-  //     // These may no longer be necessary
-  //     importProjectDialog.isProjectFileValid = true;
-  //     openProjectDialog.isProjectFileValid = true;
-  //
-  //     logConsoleMessage(
-  //         `Project conversion successful. A copy is in local storage`);
-  //     uiEnableOpenButton();
-  //     return true;
-  //   }
-  //     uploadHandler(event.target.files, ['open-project-select-file-open'])
-  //         .then( (value) => {
-  //           logConsoleMessage(`Project loading complete`);
-  //           uiEnableOpenButton();
-  //         })
-  //         .catch( (err) => {
-  //           logConsoleMessage(`Project load failed: ${err}`);
-  //         });
-  //   } else {
-  //     // Disable the Open button
-  //     uiDisableOpenButton();
-  //   }
-  // });
 }
 
 /**
@@ -269,8 +217,6 @@ async function selectProjectFile() {
   if (event.target.files[0] && event.target.files[0].name.length > 0) {
     logConsoleMessage(
         `OpenProject onChange event: ${event.target.files[0].name}`);
-    // Load project into browser storage and let the modal event handler
-    // decide what to do with it
 
     const /** @type module:project_io.ProjectLoadResult */ result =
         await loadProjectFile(event.target.files);
@@ -278,36 +224,21 @@ async function selectProjectFile() {
       return Promise.reject(result.message);
     }
 
-    console.log(`Returning: Status: ${result.status}, Message: ${result.message}`);
-
-    // Save the project to the browser store
+    // Copy the project into browser local storage and let the modal event handler
+    // decide what to do with it
     window.localStorage.setItem(
         TEMP_PROJECT_STORE_NAME,
         JSON.stringify(result.project.getDetails()));
 
-    // These may no longer be necessary
+    // TODO: These may no longer be necessary
     importProjectDialog.isProjectFileValid = true;
     openProjectDialog.isProjectFileValid = true;
 
     logConsoleMessage(`Project conversion successful. A copy is in local storage`);
     uiEnableOpenButton();
   }
-  //     uploadHandler(event.target.files, ['open-project-select-file-open'])
-  //         .then( (value) => {
-  //           logConsoleMessage(`Project loading complete`);
-  //           uiEnableOpenButton();
-  //         })
-  //         .catch( (err) => {
-  //           logConsoleMessage(`Project load failed: ${err}`);
-  //         });
-  //   } else {
-  //     // Disable the Open button
-  //     uiDisableOpenButton();
-  //   }
-  // });
   return true;
 }
-
 
 /**
  * Connect an event handler to the 'Open' button in the Open
