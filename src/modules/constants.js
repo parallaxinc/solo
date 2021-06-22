@@ -44,9 +44,20 @@ export const EnableSentry = true;
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.5.10';
-export const APP_BUILD = '213';
-export const APP_QA = 'release';
+export const APP_VERSION = '1.5.11';
+
+/**
+ * Incremental build number. This gets updated before any release
+ * to QA or production.
+ * @type {string}
+ */
+export const APP_BUILD = '214';
+
+/**
+ * Development build stage designator
+ * @type {string}
+ */
+export const APP_QA = 'test';
 
 /**
  * Set this to target deployment environment.
