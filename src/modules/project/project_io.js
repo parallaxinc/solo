@@ -21,6 +21,7 @@
  */
 
 import {Project, ProjectTypes} from '../project';
+import {logConsoleMessage} from '../utility';
 
 /**
  * @module project_io
@@ -73,7 +74,7 @@ export async function loadProjectFile(files) {
       return formatResult(0, 'success', project);
     }
   } catch (err) {
-    console.log(`Error: ${err.message}`);
+    logConsoleMessage(`Error in loadProjectFile: ${err.message}`);
     return formatResult(-1, err.message, null);
   }
 
