@@ -34,7 +34,6 @@ import {Project, ProjectTypes} from '../project';
  * @property {Project} project
  */
 
-
 /**
  * Load a project .sgv or .svge file from the filesystem
  *
@@ -109,8 +108,14 @@ export const filestreamToProject = (projectName, rawCode, boardType) => {
 
   const date = new Date();
   const projectDesc = getProjectDescriptionFromXML(rawCode);
-  const projectCreated = getProjectCreatedDateFromXML(rawCode, date);
   const projectModified = getProjectModifiedDateFromXML(rawCode, date);
+
+  // Project create date can be missing in some projects. Set it to the
+  // last modify date as a last-ditch default
+  let projectCreated = getProjectCreatedDateFromXML(rawCode, date);
+  if (! projectCreated) {
+    projectCreated = projectModified;
+  }
 
   try {
     const tmpBoardType = Project.convertBoardType(boardType);
