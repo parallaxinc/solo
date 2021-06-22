@@ -23,10 +23,12 @@
 // eslint-disable-next-line camelcase
 import {LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME} from '../constants';
 import {insertProject, isProjectChanged} from '../editor';
-import {uploadHandler, appendProjectCode} from '../editor';
+import {appendProjectCode} from '../editor';
 import {getProjectInitialState, projectJsonFactory} from '../project';
 import {logConsoleMessage, utils} from '../utility';
 import {getHtmlText} from '../blockly/language/en/page_text_labels';
+import {filestreamToProject, getProjectBoardTypeName} from '../project/project_io';
+// import {openProjectDialog} from './open_project';
 
 /**
  * Import Project dialog window
@@ -155,19 +157,6 @@ function installAppendClickHandler() {
     logConsoleMessage(`Import Append project button clicked`);
     $('#import-project-dialog').modal('hide');
     appendProjectCode();
-
-    // Set the status message in the modal dialog
-    // This only happens after the import project dialog has fired
-    // if (importProjectDialog.isProjectFileValid === true) {
-    //   $('#selectfile-verify-valid').css('display', 'block');
-    //   document.getElementById('selectfile-replace').disabled = false;
-    //   document.getElementById('selectfile-append').disabled = false;
-    //   // uploadedXML = xmlString;
-    // } else {
-    //   $('#selectfile-verify-notvalid').css('display', 'block');
-    //   document.getElementById('selectfile-replace').disabled = true;
-    //   document.getElementById('selectfile-append').disabled = true;
-    // }
   });
 }
 
@@ -233,31 +222,6 @@ function installOnFocusHandler() {
 }
 
 /**
- * Import project file from disk
- */
-// export function importProjectFromStorage() {
-//   logConsoleMessage(`Launching Import Project dialog process.`);
-//
-//   // Reject import request if the current project has
-//   // not been persisted to storage
-//   if (isProjectChanged()) {
-//     logConsoleMessage(`Project change detected before import`);
-//     utils.showMessage(
-//         Blockly.Msg.DIALOG_UNSAVED_PROJECT,
-//         Blockly.Msg.DIALOG_SAVE_BEFORE_ADD_BLOCKS);
-//   } else {
-//     // Reset the import/append modal to its default state when closed
-//     const dialog = $('#import-project-dialog');
-//     dialog.on('hidden.bs.modal', () => {
-//       resetUploadImportDialog();
-//     });
-//     importProjectSetCallbacks();
-//     window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
-//     dialog.modal({keyboard: false, backdrop: 'static'});
-//   }
-// }
-
-/**
  * Handle Select File onChange event
  */
 function installFileOnChangeHandler() {
@@ -278,74 +242,6 @@ function installFileOnChangeHandler() {
     }
   });
 }
-/**
- * Set up the dialog "Choose File" onChange handler
- */
-// function importProjectSetCallbacks() {
-//   logConsoleMessage(`Setting Import Project callbacks`);
-//   // Attach handler to process a project file when it is selected in the
-//   // Import Project File hamburger menu item.
-//   const selectControl = document.getElementById('selectfile');
-//   selectControl.addEventListener('change', (e) => {
-//     logConsoleMessage(`SelectFile onChange event: ${e.message}`);
-//     uploadHandler(e.target.files);
-//     logConsoleMessage(`We should expect to eventually see a project file.`);
-//     // const localProject = projectJsonFactory(
-//     //     JSON.parse(
-//     //         window.localStorage.getItem(LOCAL_PROJECT_STORE_NAME)));
-//     // setupWorkspace(localProject, function() {
-//     //   window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
-//     // });
-//     //
-//     // // Create an instance of the CodeEditor class
-//     // codeEditor = new CodeEditor(localProject.boardType.name);
-//     // if (!codeEditor) {
-//     //   console.log('Error allocating CodeEditor object');
-//     // }
-//     //
-//     // // Set the compile toolbar buttons to unavailable
-//     // propToolbarButtonController();
-//   });
-//   // Clear the select project file dialog event handler
-//   $('#selectfile-cancel-button').on('click', () => {
-//     cancelImportProjectHandler();
-//   });
-//
-//   // Import project modal dialog Replace Project button onClick event handler
-//   $('#selectfile-replace').on('click', () => appendProjectCode(false));
-//
-//   // Import project modal dialog Append Project button onClick event handler
-//   $('#selectfile-append').on('click', () => appendProjectCode(true));
-// }
-
-/**
- * Reset the upload/import modal window to defaults after use
- */
-// function resetUploadImportDialog() {
-//   // reset the title of the modal
-//   $('import-project-dialog-title').html(PageTextLabels['editor_import']);
-//
-//   // hide "append" button
-//   $('#selectfile-append').removeClass('hidden');
-//
-//   // change color of the "replace" button to blue and change text to "Open"
-//   $('#selectfile-replace')
-//       .removeClass('btn-primary')
-//       .addClass('btn-danger')
-//       .html(PageTextLabels['editor_button_replace']);
-//
-//   // reset the blockly toolbox sizing to ensure it renders correctly:
-//   // eslint-disable-next-line no-undef
-//   resetToolBoxSizing(100);
-// }
-
-/**
- * Import Project Cancel button click event handler
- */
-// function cancelImportProjectHandler() {
-//   logConsoleMessage(`The import has been cancelled.`);
-//   window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
-// }
 
 /**
  * Clear the file name from the select file Input control
@@ -359,4 +255,148 @@ function clearInputFileName() {
       filenameInput[0].value = '';
     }
   }
+}
+
+
+/**
+ *  Retrieve an SVG project file from local storage.
+ *
+ *  This is the .selectfile.onChange() event handler.
+ *  This function loads an .svg file, parses it for reasonable values
+ *  and then stores the verified resulting project into the browser's
+ *  localStorage.
+ *
+ * @param {FileList} files
+ * @param {Array?} elements contains an array of HTMLElement ids that
+ * identify the UI controls to enable when a valid project file has been
+ * loaded.
+ */
+async function uploadHandler(files, elements = null) {
+  // const result = await loadProjectFile(files);
+  // console.log(`Returning: Status: ${result.status}, Message: ${result.message}`);
+  // if (result.status !== 0) {
+  //   return false;
+  // }
+
+
+  // Sanity checks
+  if (!files || files.length === 0) {
+    logConsoleMessage(`UploadHandler: files list is empty`);
+    return;
+  }
+
+  const fileBlob = new Blob(files, {type: 'text/strings'});
+  const filename = files[0].name;
+  const fileType = files[0].type;
+  const UploadReader = new FileReader();
+
+  // This will fire is something goes sideways
+  UploadReader.onerror = function() {
+    logConsoleMessage(`File upload filename is missing`);
+  };
+
+  // TODO: Refactor this to ES5 for support in Safari and Opera
+  // eslint-disable-next-line no-unused-vars
+  const textPromise = fileBlob.text()
+      .then((xml) => {
+        if (xml && xml.length > 0) {
+          if (parseProjectFileString(filename, fileType, xml)) {
+            // Enable all buttons in the UI dialog
+            if (elements) {
+              elements.forEach(function(item, index, array) {
+                const element = $(`#${item}`);
+                if (element) {
+                  element.removeClass('disabled');
+                }
+              });
+            }
+          } else {
+            logConsoleMessage(`Project file "${filename}" is Invalid`);
+          }
+        } else {
+          // TODO: Add message to the open dialog window
+          logConsoleMessage(`The selected project file appears to be empty`);
+        }
+      })
+      .catch((err) => {
+        logConsoleMessage(`${err.message}`);
+      });
+}
+
+/**
+ * Convert the project string into a JSON object and store that the results in
+ * the browser's localStorage temporary project store.
+ * @param {string} filename
+ * @param {string} fileType
+ * @param {string} xmlString
+ * @return {boolean} true if the file is converted to a project, otherwise false
+ */
+function parseProjectFileString(filename, fileType, xmlString) {
+  // The project board type string
+  const uploadBoardType = getProjectBoardTypeName(xmlString);
+
+  // The text name of the project
+  const projectName = filename.substring(0, filename.lastIndexOf('.'));
+  logConsoleMessage(`Loading project :=> ${projectName}`);
+
+  // TODO: Solo #261
+  // Loop through blocks to verify blocks are supported for the project
+  // board type
+  // validateProjectBlockList(this.result);
+
+  // Flag to indicate that we are importing a file that
+  // was exported from the blockly.parallax.com site
+  let isSvgeFile = false;
+
+  // We need to support our rouge .svge type
+  if (fileType === '') {
+    const name = filename;
+    if (name.slice(name.length - 4) === 'svge') {
+      isSvgeFile = true;
+    }
+  }
+
+  // validate file, screen for potentially malicious code.
+  if ((fileType === 'image/svg+xml' || isSvgeFile) &&
+      xmlString.indexOf('<svg blocklyprop="blocklypropproject"') === 0 &&
+      xmlString.indexOf('<!ENTITY') === -1 &&
+      xmlString.indexOf('CDATA') === -1 &&
+      xmlString.indexOf('<!--') === -1) {
+    // Check to see if there is a project already loaded. If there is, check
+    // the existing project's board type to verify that the new project is
+    // of the same type
+    // ----------------------------------------------------------------------
+    // if (getProjectInitialState() &&
+    //     uploadBoardType !== getProjectInitialState().boardType.name) {
+    //   // Display a modal?
+    //   $('#selectfile-verify-boardtype').css('display', 'block');
+    // } else {
+    //   $('#selectfile-verify-boardtype').css('display', 'none');
+    // }
+
+    // ----------------------------------------------------------------------
+    // File processing is done. The projectXmlCode variable holds the
+    // XML string for the project that was just loaded. Convert the code
+    // into a new Project object and persist it into the browser's
+    // localStorage
+    // ----------------------------------------------------------------------
+    const tmpProject = filestreamToProject(
+        projectName, xmlString, uploadBoardType);
+
+    if (tmpProject) {
+      // Save the project to the browser store
+      window.localStorage.setItem(
+          TEMP_PROJECT_STORE_NAME,
+          JSON.stringify(tmpProject.getDetails()));
+
+      // These may no longer be necessary
+      importProjectDialog.isProjectFileValid = true;
+      // openProjectDialog.isProjectFileValid = true;
+
+      logConsoleMessage(
+          `Project conversion successful. A copy is in local storage`);
+      return true;
+    }
+  }
+  return false;
 }

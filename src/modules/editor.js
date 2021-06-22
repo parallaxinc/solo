@@ -66,7 +66,6 @@ import {setProjectInitialState, setDefaultProfile} from './project';
 import {ProjectTypes, clearProjectInitialState} from './project';
 import {projectJsonFactory} from './project';
 import {buildDefaultProject} from './project_default';
-import {filestreamToProject, getProjectBoardTypeName} from './project/project_io';
 import {initToolbarIcons} from './toolbar_controller';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
@@ -263,6 +262,7 @@ function initEventHandlers() {
   $('#save-btn, #save-project').on('click', () => saveProject());
 
   // Save project nudge dialog onclose event handler
+  // Not implemented
   $('#save-check-dialog').on('hidden.bs.modal', () => {
     logConsoleMessage('Closing the project save timer dialog.');
   });
@@ -284,9 +284,9 @@ function initEventHandlers() {
   $('#download-side').on('click', () => downloadPropC());
 
   // Import project file menu selector
-  // Import (upload) project from storage. This is designed to
-  // merge code from an existing project into the current project.
-  // merge code from an existing project into the current project.
+  // Import (upload) project from storage. This is designed to merge code from an existing
+  // project into the current project or to simply replace the contents of the current
+  // project with the contents of the imported project.
   $('#upload-project').on('click', () => importProjectDialog.show());
 
   // ---- Hamburger drop down horizontal line ----
@@ -299,7 +299,9 @@ function initEventHandlers() {
   document.getElementById('client-setup')
       .addEventListener('click', configureConnectionPaths, false);
 
-  // #editor-about
+  // ---- Hamburger drop down horizontal line ----
+
+  // About Solo
   document.getElementById('editor-about')
       .addEventListener('click', showEditorAbout, false);
 
@@ -307,10 +309,10 @@ function initEventHandlers() {
   document.getElementById('editor-license')
       .addEventListener('click', showLicenseEventHandler, false);
 
-
   // --------------------------------
   // End of hamburger menu items
   // --------------------------------
+
 
   // Save As button
   $('#save-as-btn').on('click', () => saveAsDialog());
@@ -1042,308 +1044,6 @@ function generateSvgFooter( project ) {
  * @property {string} webkitRelativePath
  */
 
-/**
- *  Retrieve an SVG project file from local storage.
- *
- *  This is the .selectfile.onChange() event handler.
- *  This function loads an .svg file, parses it for reasonable values
- *  and then stores the verified resulting project into the browser's
- *  localStorage.
- *
- * @param {FileList} files
- * @param {Array?} elements contains an array of HTMLElement ids that
- * identify the UI controls to enable when a valid project file has been
- * loaded.
- */
-export async function uploadHandler(files, elements = null) {
-  // const result = await loadProjectFile(files);
-  // console.log(`Returning: Status: ${result.status}, Message: ${result.message}`);
-  // if (result.status !== 0) {
-  //   return false;
-  // }
-
-
-  // Sanity checks
-  if (!files || files.length === 0) {
-    logConsoleMessage(`UploadHandler: files list is empty`);
-    return;
-  }
-
-  const fileBlob = new Blob(files, {type: 'text/strings'});
-  const filename = files[0].name;
-  const fileType = files[0].type;
-  const UploadReader = new FileReader();
-
-  // This will fire is something goes sideways
-  UploadReader.onerror = function() {
-    logConsoleMessage(`File upload filename is missing`);
-  };
-
-  // TODO: Refactor this to ES5 for support in Safari and Opera
-  // eslint-disable-next-line no-unused-vars
-  const textPromise = fileBlob.text()
-      .then((xml) => {
-        if (xml && xml.length > 0) {
-          if (parseProjectFileString(filename, fileType, xml)) {
-            // Enable all buttons in the UI dialog
-            if (elements) {
-              elements.forEach(function(item, index, array) {
-                const element = $(`#${item}`);
-                if (element) {
-                  element.removeClass('disabled');
-                }
-              });
-            }
-          } else {
-            logConsoleMessage(`Project file "${filename}" is Invalid`);
-          }
-        } else {
-          // TODO: Add message to the open dialog window
-          logConsoleMessage(`The selected project file appears to be empty`);
-        }
-      })
-      .catch((err) => {
-        logConsoleMessage(`${err.message}`);
-      });
-}
-
-/**
- * Convert the project string into a JSON object and store that the results in
- * the browser's localStorage temporary project store.
- * @param {string} filename
- * @param {string} fileType
- * @param {string} xmlString
- * @return {boolean} true if the file is converted to a project, otherwise false
- */
-function parseProjectFileString(filename, fileType, xmlString) {
-  // The project board type string
-  const uploadBoardType = getProjectBoardTypeName(xmlString);
-
-  // The text name of the project
-  const projectName = filename.substring(0, filename.lastIndexOf('.'));
-  logConsoleMessage(`Loading project :=> ${projectName}`);
-
-  // TODO: Solo #261
-  // Loop through blocks to verify blocks are supported for the project
-  // board type
-  // validateProjectBlockList(this.result);
-
-  // Flag to indicate that we are importing a file that
-  // was exported from the blockly.parallax.com site
-  let isSvgeFile = false;
-
-  // We need to support our rouge .svge type
-  if (fileType === '') {
-    const name = filename;
-    if (name.slice(name.length - 4) === 'svge') {
-      isSvgeFile = true;
-    }
-  }
-
-  // validate file, screen for potentially malicious code.
-  if ((fileType === 'image/svg+xml' || isSvgeFile) &&
-      xmlString.indexOf('<svg blocklyprop="blocklypropproject"') === 0 &&
-      xmlString.indexOf('<!ENTITY') === -1 &&
-      xmlString.indexOf('CDATA') === -1 &&
-      xmlString.indexOf('<!--') === -1) {
-    // Check to see if there is a project already loaded. If there is, check
-    // the existing project's board type to verify that the new project is
-    // of the same type
-    // ----------------------------------------------------------------------
-    // if (getProjectInitialState() &&
-    //     uploadBoardType !== getProjectInitialState().boardType.name) {
-    //   // Display a modal?
-    //   $('#selectfile-verify-boardtype').css('display', 'block');
-    // } else {
-    //   $('#selectfile-verify-boardtype').css('display', 'none');
-    // }
-
-    // ----------------------------------------------------------------------
-    // File processing is done. The projectXmlCode variable holds the
-    // XML string for the project that was just loaded. Convert the code
-    // into a new Project object and persist it into the browser's
-    // localStorage
-    // ----------------------------------------------------------------------
-    const tmpProject = filestreamToProject(
-        projectName, xmlString, uploadBoardType);
-
-    if (tmpProject) {
-      // Save the project to the browser store
-      window.localStorage.setItem(
-          TEMP_PROJECT_STORE_NAME,
-          JSON.stringify(tmpProject.getDetails()));
-
-      // These may no longer be necessary
-      importProjectDialog.isProjectFileValid = true;
-      openProjectDialog.isProjectFileValid = true;
-
-      logConsoleMessage(
-          `Project conversion successful. A copy is in local storage`);
-      return true;
-    }
-  }
-  return false;
-}
-
-// /**
-//  * Convert an svg project file content to a Project object
-//  * @param {string} projectName is the text name of the project
-//  * @param {string} rawCode This is the raw XML code from the project file
-//  *  without a namespace
-//  * @param {string} boardType This is the board type for the new project
-//  * @return {Project}
-//  */
-// const fileToProject = (projectName, rawCode, boardType) => {
-//   // TODO: Solo #261
-//   // validateProjectBlockList(this.result);
-//
-//   // Search the project file for the first variable or block
-//   const codeStartIndex =
-//       (rawCode.indexOf('<variables') > -1) ? '<variables' : '<block';
-//
-//   // Extract everything from the first variable or block tag to the
-//   // beginning of the checksum block. This is the project code
-//   const blockCode = rawCode.substring(
-//       rawCode.indexOf(codeStartIndex),
-//       rawCode.indexOf('<ckm>'));
-//
-//   const projectXmlCode = (blockCode.length > 0) ?
-//       Project.getEmptyProjectCodeHeader() + blockCode + '</xml>' :
-//       Project.getEmptyProjectCodeHeader() + '</xml>';
-//
-//   const date = new Date();
-//   const projectDesc = getProjectDescriptionFromXML(rawCode);
-//   const projectCreated = getProjectCreatedDateFromXML(rawCode, date);
-//   const projectModified = getProjectModifiedDateFromXML(rawCode, date);
-//
-//   try {
-//     const tmpBoardType = Project.convertBoardType(boardType);
-//     if (tmpBoardType === undefined) {
-//       console.log('Unknown board type: %s', boardType);
-//     }
-//
-//     return new Project(
-//         projectName,
-//         decodeFromValidXml(projectDesc),
-//         tmpBoardType,
-//         ProjectTypes.PROPC,
-//         projectXmlCode,
-//         projectCreated,
-//         projectModified,
-//         date.getTime(),
-//         true);
-//   } catch (e) {
-//     console.log('Error while creating project object. %s', e.message);
-//   }
-//
-//   return null;
-// };
-
-/**
- * Append supplied code to the existing project.
- */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-function fileAppendToProject() {
-  console.log('Appending new code to existing project');
-  // TODO: Add method to Project object to support this
-}
-
-// /**
-//  * Parse the xml string to locate and return the project board type
-//  *
-//  * @param {string} xmlString
-//  * @return {string}
-//  *
-//  * @description
-//  *  The xmlString parameter contains the raw text from the project .svg file.
-//  *  This function looks for the Device preamble and the computes an offset
-//  *  to reach the actual board type string.
-//  */
-// function getProjectBoardTypeName(xmlString) {
-//   const boardIndex = xmlString.indexOf(
-//       'transform="translate(-225,-23)">Device: ');
-//
-//   return xmlString.substring(
-//       (boardIndex + 40),
-//       xmlString.indexOf('</text>', (boardIndex + 41)));
-// }
-
-/**
- * Parse the xml string to locate and return the project title
- *
- * @param {string} xmlString
- * @return {string}
- */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-function getProjectTitleFromXML(xmlString) {
-  const titleIndex = xmlString.indexOf(
-      'transform="translate(-225,-53)">Title: ');
-
-  if (titleIndex > -1) {
-    return xmlString.substring(
-        (titleIndex + 39),
-        xmlString.indexOf('</text>', (titleIndex + 39)));
-  } else {
-    return 'New Project';
-  }
-}
-
-// /**
-//  * Parse the xml string to locate and return the text of the project description
-//  *
-//  * @param {string} xmlString
-//  * @return {string}
-//  */
-// function getProjectDescriptionFromXML(xmlString) {
-//   const titleIndex = xmlString.indexOf(
-//       'transform="translate(-225,-8)">Description: ');
-//
-//   if (titleIndex > -1) {
-//     return xmlString.substring(
-//         (titleIndex + 44),
-//         xmlString.indexOf('</text>', (titleIndex + 44)));
-//   }
-//
-//   return '';
-// }
-//
-// /**
-//  * Parse the xml string to locate and return the project created timestamp
-//  *
-//  * @param {string} xmlString
-//  * @param {Date} defaultTimestamp
-//  * @return {string|*}
-//  */
-// function getProjectCreatedDateFromXML(xmlString, defaultTimestamp) {
-//   const titleIndex = xmlString.indexOf('data-createdon="');
-//
-//   if (titleIndex > -1) {
-//     return xmlString.substring(
-//         (titleIndex + 16),
-//         xmlString.indexOf('"', (titleIndex + 17)));
-//   }
-//
-//   return defaultTimestamp;
-// }
-//
-// /**
-//  * Parse the xml string to locate and return the project last modified timestamp
-//  *
-//  * @param {string} xmlString
-//  * @param {Date} defaultTimestamp
-//  * @return {string|*}
-//  */
-// function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
-//   const titleIndex = xmlString.indexOf('data-lastmodified="');
-//
-//   if (titleIndex > -1) {
-//     return xmlString.substring(
-//         (titleIndex + 19),
-//         xmlString.indexOf('"', (titleIndex + 20)));
-//   } else {
-//     return defaultTimestamp;
-//   }
-// }
 
 /**
  * Reset the dialog prompts
