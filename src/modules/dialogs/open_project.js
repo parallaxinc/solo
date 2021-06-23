@@ -22,8 +22,8 @@
 
 
 // eslint-disable-next-line camelcase
-import {getHtmlText} from '../blockly/language/en/page_text_labels';
 import {LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME} from '../constants';
+import {getHtmlText} from '../blockly/language/en/page_text_labels';
 import {insertProject, isProjectChanged} from '../editor';
 import {getProjectInitialState, projectJsonFactory} from '../project';
 import {logConsoleMessage, utils} from '../utility';
@@ -141,7 +141,7 @@ export const openProjectDialog = {
    * Reset the Open Project dialog filename field
    */
   reset: function() {
-    // set title to Open file
+    // Set title to Open file
     $('#open-project-dialog-title').html(getHtmlText('editor_open'));
     uiDisableOpenButton();
 
@@ -160,16 +160,20 @@ export const openProjectDialog = {
  * Enable the dialog's Open button
  */
 function uiEnableOpenButton() {
-  // Disable the Open button until we have a file to open
-  $('#open-project-select-file-open').removeClass('disabled');
+  const element = document.getElementById('open-project-select-file-open');
+  if (element) {
+    element.classList.remove('disabled');
+  }
 }
 
 /**
  * Disable the dialog's Open button
  */
 function uiDisableOpenButton() {
-  // Disable the Open button until we have a file to open
-  $('#open-project-select-file-open').addClass('disabled');
+  const element = document.getElementById('open-project-select-file-open');
+  if (element) {
+    element.classList.add('disabled');
+  }
 }
 
 /**
