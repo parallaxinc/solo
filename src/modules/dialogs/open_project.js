@@ -44,10 +44,9 @@ import {importProjectDialog} from './import_project';
  *    reset: openProjectDialog.reset
  *  }}
  *
- * @description
- * The Open Project dialog event handlers are set in a single call to the
- * initEventHandlers() method. This should be invoked during the editor page
- * load event.
+ * @description The Open Project dialog event handlers are set in a single
+ * call to the initEventHandlers() method. This should be invoked during the
+ * editor page load event.
  *
  * The dialog is opened when the show() method is invoked. Currently, this
  * triggers a number of asynchronous events that ultimately culminate with
@@ -90,12 +89,14 @@ export const openProjectDialog = {
     }
 
     // Set up element event handlers
-    openProjectModalOpenClick(); // Handle a click on the Open button
-    // openProjectModalEnterClick(); // Handle the user pressing the Enter key
-    openProjectModalCancelClick(); // Handle a click on the Cancel button
-    openProjectModalEscapeClick(); // Handle user clicking on the 'x' icon
-    setSelectedFileOnChange(); // Handle selected file onChange event
+    installOpenProjectModalOpenClick(); // Handle a click on the Open button
+    installOpenProjectModalCancelClick(); // Handle a click on the Cancel button
+    installOpenProjectModalEscapeClick(); // Handle user clicking on the 'x' icon
+    installOpenProjectSelectedFileOnChange(); // Handle selected file onChange event
 
+    // Record that the event handlers have been installed so subsequent attempts to
+    // do this again will not cause multiple handlers for the same event from being
+    // installed.
     this.isEventHandler = true;
   },
 
@@ -190,10 +191,9 @@ function openProjectDialogWindow() {
 /**
  * Handle the onChange event for the file selection dialog
  */
-function setSelectedFileOnChange() {
+function installOpenProjectSelectedFileOnChange() {
   $('#open-project-select-file').on('change', function(event) {
-    logConsoleMessage(`File selector has changed`);
-    selectProjectFile()
+    selectProjectFile(event)
         .catch( (reject) => {
           logConsoleMessage(`Select project file rejected: ${reject}`);
           $('#open-project-dialog').modal('hide');
@@ -207,9 +207,13 @@ function setSelectedFileOnChange() {
 /**
  * Process the selected project file
  *
+ * @param {Event} event
  * @return {Promise<boolean>}
  */
-async function selectProjectFile() {
+async function selectProjectFile(event) {
+  // This code detects the sequence where the user has selected a project file, clicks
+  // on the 'Choose File' button again and the selects the 'Cancel' button in the file
+  // chooser dialog window.
   const input = document.getElementById('open-project-select-file');
   const currentFile = input.files;
   if (currentFile.length === 0) {
@@ -219,8 +223,7 @@ async function selectProjectFile() {
   }
 
   if (event.target.files[0] && event.target.files[0].name.length > 0) {
-    logConsoleMessage(
-        `OpenProject onChange event: ${event.target.files[0].name}`);
+    logConsoleMessage(`User selected project: ${event.target.files[0].name}`);
 
     const /** @type module:project_io.ProjectLoadResult */ result =
         await loadProjectFile(event.target.files);
@@ -265,7 +268,7 @@ async function selectProjectFile() {
  * under the LOCAL_PROJECT_STORE_NAME key and load it into the editor canvas
  * if a project is found there.
  */
-function openProjectModalOpenClick() {
+function installOpenProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
     logConsoleMessage(`User elected to open the project`);
     logConsoleMessage(`Closing the 'Open Project' dialog`);
@@ -294,7 +297,7 @@ function openProjectModalOpenClick() {
 /**
  * Open project cancel button clicked event handler
  */
-function openProjectModalCancelClick() {
+function installOpenProjectModalCancelClick() {
   $('#open-project-select-file-cancel').on('click', () => {
     logConsoleMessage(`Open Dialog: cancelled`);
     // Dismiss the modal in the UX
@@ -317,7 +320,7 @@ function openProjectModalCancelClick() {
  * @description  Trap the modal event that fires when the modal
  * window is closed when the user clicks on the 'x' icon.
  */
-function openProjectModalEscapeClick() {
+function installOpenProjectModalEscapeClick() {
   $('#open-project-dialog').on('hidden.bs.modal', () => {
     // Do nothing
   });
