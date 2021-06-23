@@ -1614,20 +1614,20 @@ export function insertProject(project) {
       clientService.setTerminalBaudRate(myProject.boardType.baudrate);
     }
 
-    if (!project.isTimerSet()) {
-      // Create a new nudge timer
-      const myTime = new NudgeTimer(0);
-      // Set the callback
-      myTime.myCallback = function() {
-        if (isProjectChanged) {
-          showProjectTimerModalDialog();
-        }
-      };
-
-      // Start the timer and save it to the project object
-      myTime.start(10);
-      project.setProjectTimer(myTime);
-    }
+    // if (!project.isTimerSet()) {
+    //   // Create a new nudge timer
+    //   const myTime = new NudgeTimer(0);
+    //   // Set the callback
+    //   myTime.myCallback = function() {
+    //     if (isProjectChanged) {
+    //       showProjectTimerModalDialog();
+    //     }
+    //   };
+    //
+    //   // Start the timer and save it to the project object
+    //   myTime.start(10);
+    //   project.setProjectTimer(myTime);
+    // }
 
     setupWorkspace(project);
 
