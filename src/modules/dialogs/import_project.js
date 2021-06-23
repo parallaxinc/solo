@@ -23,12 +23,11 @@
 // eslint-disable-next-line camelcase
 import {LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME} from '../constants';
 import {insertProject, isProjectChanged} from '../editor';
-import {appendProjectCode} from '../editor';
 import {getProjectInitialState, projectJsonFactory} from '../project';
+import {appendProjectCode} from '../project/project_controller';
 import {logConsoleMessage, utils} from '../utility';
 import {getHtmlText} from '../blockly/language/en/page_text_labels';
-import {filestreamToProject, getProjectBoardTypeName} from '../project/project_io';
-// import {openProjectDialog} from './open_project';
+import {loadProjectFile} from '../project/project_io';
 
 /**
  * Import Project dialog window
@@ -117,8 +116,7 @@ export const importProjectDialog = {
    * Reset the Open Project dialog filename field
    */
   reset: function() {
-    logConsoleMessage(`Setting dialog labels`);
-    // $('#import-project-dialog-title').html(PageTextLabels['editor_import']);
+    logConsoleMessage(`Project import - setting dialog labels`);
     $('#import-project-dialog-title').html(getHtmlText('editor_import'));
     $('#import-project-dialog span').html(getHtmlText('editor_append'));
 
@@ -130,6 +128,7 @@ export const importProjectDialog = {
 
     // Empty the temp browser storage bucket
     window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
+    logConsoleMessage(`LocalStorage:Temp project removed`);
   },
 };
 
@@ -137,16 +136,46 @@ export const importProjectDialog = {
  * Disable the dialog's Append and Replace buttons
  */
 function uiDisableButtons() {
-  // Disable the Open button until we have a file to open
-  $('#selectfile-append').addClass('disabled');
-  $('#selectfile-replace').addClass('disabled');
+  const appendButtonElement = document.getElementById('selectfile-append');
+  if (appendButtonElement) {
+    appendButtonElement.classList.add('disabled');
+  }
+  const replaceButtonElement = document.getElementById('selectfile-replace');
+  if (replaceButtonElement) {
+    replaceButtonElement.classList.add('disabled');
+  }
+}
+
+/**
+ * Enable the dialog's Append and Replace buttons
+ */
+function uiEnableButtons() {
+  const appendButtonElement = document.getElementById('selectfile-append');
+  if (appendButtonElement) {
+    appendButtonElement.classList.remove('disabled');
+  }
+  const replaceButtonElement = document.getElementById('selectfile-replace');
+  if (replaceButtonElement) {
+    replaceButtonElement.classList.remove('disabled');
+  }
 }
 
 /**
  * Import a project to append to or replace the current project
  */
 function openImportProjectDialog() {
-  $('#import-project-dialog').modal({keyboard: false, backdrop: 'static'});
+  $('#import-project-dialog').modal({
+    keyboard: false,
+    backdrop: 'static',
+  });
+}
+
+/**
+ * Close the Import Project modal dialog window
+ */
+function closeImportProjectDialog() {
+  $('#import-project-dialog').modal('hide');
+  importProjectDialog.reset();
 }
 
 /**
@@ -155,8 +184,8 @@ function openImportProjectDialog() {
 function installAppendClickHandler() {
   $('#selectfile-append').on('click', function() {
     logConsoleMessage(`Import Append project button clicked`);
-    $('#import-project-dialog').modal('hide');
     appendProjectCode();
+    closeImportProjectDialog();
   });
 }
 
@@ -166,7 +195,7 @@ function installAppendClickHandler() {
 function installReplaceClickHandler() {
   $('#selectfile-replace').on('click', function() {
     logConsoleMessage(`Import Replace project button clicked`);
-    $('#import-project-dialog').modal('hide');
+    closeImportProjectDialog();
     // Replace the existing project. This is the same as loading a new project
     // Copy the stored temp project to the stored local project
     const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
@@ -193,8 +222,8 @@ function installReplaceClickHandler() {
  */
 function installCancelClickHandler() {
   $('#selectfile-cancel-button').on('click', function() {
-    logConsoleMessage(`Import Cancel project import button clicked`);
-    clearInputFileName();
+    logConsoleMessage(`Import Project - Cancel button selected`);
+    closeImportProjectDialog();
   });
 }
 
@@ -205,6 +234,7 @@ function installCancelClickHandler() {
  */
 function installEscapeClickHandler() {
   $('#open-project-dialog').on('hidden.bs.modal', () => {
+    logConsoleMessage(`Import Project - Escape button selected`);
     clearInputFileName();
   });
 }
@@ -222,25 +252,79 @@ function installOnFocusHandler() {
 }
 
 /**
- * Handle Select File onChange event
+ * Handle Select File onChange event, triggered when a filename has
+ * been selected from the UI file selector
  */
 function installFileOnChangeHandler() {
   // Attach handler to process a project file when it is selected in the
   // Import Project File hamburger menu item.
   const selectControl = document.getElementById('selectfile');
   selectControl.addEventListener('change', (event) => {
-    logConsoleMessage(`SelectFile onChange event: ${event.message}`);
-    if (event.target.files[0] && event.target.files[0].name.length > 0) {
-      uploadHandler(event.target.files, [
-        'selectfile-replace',
-        'selectfile-append',
-      ]).catch( (err) => {
-        uiDisableButtons();
-      });
-    } else {
-      uiDisableButtons();
-    }
+  //   if (event.target.files[0] && event.target.files[0].name.length > 0) {
+  //     uploadHandler(event.target.files, [
+  //       'selectfile-replace',
+  //       'selectfile-append',
+  //     ]).catch( (err) => {
+  //       uiDisableButtons();
+  //     });
+  //   } else {
+  //     uiDisableButtons();
+  //   }
+  // });
+    selectProjectFile(event)
+        .catch( (reject) => {
+          logConsoleMessage(`Select project file rejected: ${reject}`);
+          closeImportProjectDialog();
+          const message =
+              `Unable to load the selected project file. The error reported is: "${reject}."`;
+          utils.showMessage('Project Load Error', message);
+        });
   });
+}
+
+
+/**
+ * Process the selected project file
+ *
+ * @param {Event} event
+ * @return {Promise<boolean>}
+ */
+async function selectProjectFile(event) {
+  // This code detects the sequence where the user has selected a project file, clicks
+  // on the 'Choose File' button again and the selects the 'Cancel' button in the file
+  // chooser dialog window.
+  const input = document.getElementById('selectfile');
+  const currentFile = input.files;
+  if (currentFile.length === 0) {
+    logConsoleMessage(`No file selected`);
+    uiDisableButtons();
+    return false;
+  }
+
+  /** WORKING HERE **/
+
+  if (event.target.files[0] && event.target.files[0].name.length > 0) {
+    logConsoleMessage(`User selected project: ${event.target.files[0].name}`);
+
+    const /** @type module:project_io.ProjectLoadResult */ result =
+        await loadProjectFile(event.target.files);
+    if ((! result) || (result.status !== 0)) {
+      return Promise.reject(result.message);
+    }
+
+    // Copy the project into browser local storage and let the modal event handler
+    // decide what to do with it
+    window.localStorage.setItem(
+        TEMP_PROJECT_STORE_NAME,
+        JSON.stringify(result.project.getDetails()));
+
+    // TODO: These may no longer be necessary
+    importProjectDialog.isProjectFileValid = true;
+
+    logConsoleMessage(`Project conversion successful. A copy is in local storage`);
+    uiEnableButtons();
+  }
+  return true;
 }
 
 /**
@@ -257,7 +341,6 @@ function clearInputFileName() {
   }
 }
 
-
 /**
  *  Retrieve an SVG project file from local storage.
  *
@@ -271,57 +354,57 @@ function clearInputFileName() {
  * identify the UI controls to enable when a valid project file has been
  * loaded.
  */
-async function uploadHandler(files, elements = null) {
-  // const result = await loadProjectFile(files);
-  // console.log(`Returning: Status: ${result.status}, Message: ${result.message}`);
-  // if (result.status !== 0) {
-  //   return false;
-  // }
-
-
-  // Sanity checks
-  if (!files || files.length === 0) {
-    logConsoleMessage(`UploadHandler: files list is empty`);
-    return;
-  }
-
-  const fileBlob = new Blob(files, {type: 'text/strings'});
-  const filename = files[0].name;
-  const fileType = files[0].type;
-  const UploadReader = new FileReader();
-
-  // This will fire is something goes sideways
-  UploadReader.onerror = function() {
-    logConsoleMessage(`File upload filename is missing`);
-  };
-
-  // TODO: Refactor this to ES5 for support in Safari and Opera
-  // eslint-disable-next-line no-unused-vars
-  const textPromise = fileBlob.text()
-      .then((xml) => {
-        if (xml && xml.length > 0) {
-          if (parseProjectFileString(filename, fileType, xml)) {
-            // Enable all buttons in the UI dialog
-            if (elements) {
-              elements.forEach(function(item, index, array) {
-                const element = $(`#${item}`);
-                if (element) {
-                  element.removeClass('disabled');
-                }
-              });
-            }
-          } else {
-            logConsoleMessage(`Project file "${filename}" is Invalid`);
-          }
-        } else {
-          // TODO: Add message to the open dialog window
-          logConsoleMessage(`The selected project file appears to be empty`);
-        }
-      })
-      .catch((err) => {
-        logConsoleMessage(`${err.message}`);
-      });
-}
+// async function uploadHandler(files, elements = null) {
+//   // const result = await loadProjectFile(files);
+//   // console.log(`Returning: Status: ${result.status}, Message: ${result.message}`);
+//   // if (result.status !== 0) {
+//   //   return false;
+//   // }
+//
+//
+//   // Sanity checks
+//   if (!files || files.length === 0) {
+//     logConsoleMessage(`UploadHandler: files list is empty`);
+//     return;
+//   }
+//
+//   const fileBlob = new Blob(files, {type: 'text/strings'});
+//   const filename = files[0].name;
+//   const fileType = files[0].type;
+//   const UploadReader = new FileReader();
+//
+//   // This will fire is something goes sideways
+//   UploadReader.onerror = function() {
+//     logConsoleMessage(`File upload filename is missing`);
+//   };
+//
+//   // TODO: Refactor this to ES5 for support in Safari and Opera
+//   // eslint-disable-next-line no-unused-vars
+//   const textPromise = fileBlob.text()
+//       .then((xml) => {
+//         if (xml && xml.length > 0) {
+//           if (parseProjectFileString(filename, fileType, xml)) {
+//             // Enable all buttons in the UI dialog
+//             if (elements) {
+//               elements.forEach(function(item, index, array) {
+//                 const element = $(`#${item}`);
+//                 if (element) {
+//                   element.removeClass('disabled');
+//                 }
+//               });
+//             }
+//           } else {
+//             logConsoleMessage(`Project file "${filename}" is Invalid`);
+//           }
+//         } else {
+//           // TODO: Add message to the open dialog window
+//           logConsoleMessage(`The selected project file appears to be empty`);
+//         }
+//       })
+//       .catch((err) => {
+//         logConsoleMessage(`${err.message}`);
+//       });
+// }
 
 /**
  * Convert the project string into a JSON object and store that the results in
@@ -331,72 +414,72 @@ async function uploadHandler(files, elements = null) {
  * @param {string} xmlString
  * @return {boolean} true if the file is converted to a project, otherwise false
  */
-function parseProjectFileString(filename, fileType, xmlString) {
-  // The project board type string
-  const uploadBoardType = getProjectBoardTypeName(xmlString);
-
-  // The text name of the project
-  const projectName = filename.substring(0, filename.lastIndexOf('.'));
-  logConsoleMessage(`Loading project :=> ${projectName}`);
-
-  // TODO: Solo #261
-  // Loop through blocks to verify blocks are supported for the project
-  // board type
-  // validateProjectBlockList(this.result);
-
-  // Flag to indicate that we are importing a file that
-  // was exported from the blockly.parallax.com site
-  let isSvgeFile = false;
-
-  // We need to support our rouge .svge type
-  if (fileType === '') {
-    const name = filename;
-    if (name.slice(name.length - 4) === 'svge') {
-      isSvgeFile = true;
-    }
-  }
-
-  // validate file, screen for potentially malicious code.
-  if ((fileType === 'image/svg+xml' || isSvgeFile) &&
-      xmlString.indexOf('<svg blocklyprop="blocklypropproject"') === 0 &&
-      xmlString.indexOf('<!ENTITY') === -1 &&
-      xmlString.indexOf('CDATA') === -1 &&
-      xmlString.indexOf('<!--') === -1) {
-    // Check to see if there is a project already loaded. If there is, check
-    // the existing project's board type to verify that the new project is
-    // of the same type
-    // ----------------------------------------------------------------------
-    // if (getProjectInitialState() &&
-    //     uploadBoardType !== getProjectInitialState().boardType.name) {
-    //   // Display a modal?
-    //   $('#selectfile-verify-boardtype').css('display', 'block');
-    // } else {
-    //   $('#selectfile-verify-boardtype').css('display', 'none');
-    // }
-
-    // ----------------------------------------------------------------------
-    // File processing is done. The projectXmlCode variable holds the
-    // XML string for the project that was just loaded. Convert the code
-    // into a new Project object and persist it into the browser's
-    // localStorage
-    // ----------------------------------------------------------------------
-    const tmpProject = filestreamToProject(
-        projectName, xmlString, uploadBoardType);
-
-    if (tmpProject) {
-      // Save the project to the browser store
-      window.localStorage.setItem(
-          TEMP_PROJECT_STORE_NAME,
-          JSON.stringify(tmpProject.getDetails()));
-
-      // These may no longer be necessary
-      importProjectDialog.isProjectFileValid = true;
-      // openProjectDialog.isProjectFileValid = true;
-
-      logConsoleMessage(
-          `Project conversion successful. A copy is in local storage`);
-      return true;
-    }
-  }
-  return false;
-}
+// function parseProjectFileString(filename, fileType, xmlString) {
+//   // The project board type string
+//   const uploadBoardType = getProjectBoardTypeName(xmlString);
+//
+//   // The text name of the project
+//   const projectName = filename.substring(0, filename.lastIndexOf('.'));
+//   logConsoleMessage(`Loading project :=> ${projectName}`);
+//
+//   // TODO: Solo #261
+//   // Loop through blocks to verify blocks are supported for the project
+//   // board type
+//   // validateProjectBlockList(this.result);
+//
+//   // Flag to indicate that we are importing a file that
+//   // was exported from the blockly.parallax.com site
+//   let isSvgeFile = false;
+//
+//   // We need to support our rouge .svge type
+//   if (fileType === '') {
+//     const name = filename;
+//     if (name.slice(name.length - 4) === 'svge') {
+//       isSvgeFile = true;
+//     }
+//   }
+//
+//   // validate file, screen for potentially malicious code.
+//   if ((fileType === 'image/svg+xml' || isSvgeFile) &&
+//       xmlString.indexOf('<svg blocklyprop="blocklypropproject"') === 0 &&
+//       xmlString.indexOf('<!ENTITY') === -1 &&
+//       xmlString.indexOf('CDATA') === -1 &&
+//       xmlString.indexOf('<!--') === -1) {
+//     // Check to see if there is a project already loaded. If there is, check
+//     // the existing project's board type to verify that the new project is
+//     // of the same type
+//     // ----------------------------------------------------------------------
+//     // if (getProjectInitialState() &&
+//     //     uploadBoardType !== getProjectInitialState().boardType.name) {
+//     //   // Display a modal?
+//     //   $('#selectfile-verify-boardtype').css('display', 'block');
+//     // } else {
+//     //   $('#selectfile-verify-boardtype').css('display', 'none');
+//     // }
+//
+//     // ----------------------------------------------------------------------
+//     // File processing is done. The projectXmlCode variable holds the
+//     // XML string for the project that was just loaded. Convert the code
+//     // into a new Project object and persist it into the browser's
+//     // localStorage
+//     // ----------------------------------------------------------------------
+//     const tmpProject = filestreamToProject(
+//         projectName, xmlString, uploadBoardType);
+//
+//     if (tmpProject) {
+//       // Save the project to the browser store
+//       window.localStorage.setItem(
+//           TEMP_PROJECT_STORE_NAME,
+//           JSON.stringify(tmpProject.getDetails()));
+//
+//       // These may no longer be necessary
+//       importProjectDialog.isProjectFileValid = true;
+//       // openProjectDialog.isProjectFileValid = true;
+//
+//       logConsoleMessage(
+//           `Project conversion successful. A copy is in local storage`);
+//       return true;
+//     }
+//   }
+//   return false;
+// }
