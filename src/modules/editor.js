@@ -55,7 +55,7 @@ import {serialConsole} from './serial_console';
 import {findClient} from './client_connection';
 import {clientService, initTerminal} from './client_service';
 import {APP_BUILD, APP_QA, APP_VERSION, EnableSentry, LOCAL_PROJECT_STORE_NAME} from './constants';
-import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
+import {PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
@@ -1060,115 +1060,10 @@ function clearUploadInfo() {
 }
 
 /**
- * Append a project to the current project or replace the current project
- * with the specified project.
- *
- * @description
- * This code looks for the code that will be appended to the current project
- * in the browser's localStorage temp project location.
- */
-export function appendProjectCode() {
-  const xmlTagLength = '</xml>'.length;
-  let projectData = '';
-  const currentProject = getProjectInitialState();
-  const project = projectJsonFactory(
-      JSON.parse(window.localStorage.getItem(TEMP_PROJECT_STORE_NAME)));
-  const uploadedXML = project.code;
-  if (!uploadedXML || uploadedXML.length === 0) {
-    logConsoleMessage(`Imported project contains no code segment`);
-    return;
-  }
-
-  console.log(`Initial project name: ${currentProject.name}.`);
-  console.log(`Imported project name is ${project.name}.`);
-
-  let projCode = '';
-  let newCode = uploadedXML;
-  if (newCode.indexOf('<variables>') === -1) {
-    newCode = newCode.substring(
-        uploadedXML.indexOf('<block'),
-        newCode.length - xmlTagLength);
-  } else {
-    newCode = newCode.substring(
-        uploadedXML.indexOf('<variables'),
-        newCode.length - xmlTagLength);
-  }
-
-  // check for newer blockly XML code (contains a list of variables)
-  if (newCode.indexOf('<variables') > -1 &&
-        projCode.indexOf('<variables') > -1) {
-    const findVarRegExp = /type="(\w*)" id="(.{20})">(\w+)</g;
-    const newBPCvars = [];
-    const oldBPCvars = [];
-
-    let varCodeTemp = newCode.split('</variables>');
-    newCode = varCodeTemp[1];
-    // use a regex to match the id, name, and type of the variables in both
-    // the old and new code.
-    let tmpv = varCodeTemp[0]
-        .split('<variables')[1]
-        .replace(findVarRegExp,
-            // type, id, name
-            function(p, m1, m2, m3) {
-              newBPCvars.push([m3, m2, m1]); // name, id, type
-              return p;
-            });
-    varCodeTemp = projCode.split('</variables>');
-    projCode = varCodeTemp[1];
-    // type, id, name
-    tmpv = varCodeTemp[0].replace(
-        findVarRegExp,
-        function(p, m1, m2, m3) {
-          oldBPCvars.push([m3, m2, m1]); // name, id, type
-          return p;
-        });
-    // record how many variables are in the original and new code
-    tmpv = [oldBPCvars.length, newBPCvars.length];
-    // iterate through the captured variables to detemine if any overlap
-    for (let j = 0; j < tmpv[0]; j++) {
-      for (let k = 0; k < tmpv[1]; k++) {
-        // see if var is a match
-        if (newBPCvars[k][0] === oldBPCvars[j][0]) {
-          // replace old variable IDs with new ones
-          const tmpVars = newCode.split(newBPCvars[k][1]);
-          newCode = tmpVars.join(oldBPCvars[j][1]);
-          // null the ID to mark that it's a duplicate and
-          // should not be included in the combined list
-          newBPCvars[k][1] = null;
-        }
-      }
-    }
-    for (let k = 0; k < tmpv[1]; k++) {
-      if (newBPCvars[k][1]) {
-        // Add var from uploaded xml to the project code
-        oldBPCvars.push(newBPCvars[k]);
-      }
-    }
-
-    // rebuild vars from both new/old
-    tmpv = '<variables>';
-    oldBPCvars.forEach(function(vi) {
-      tmpv += '<variable id="' + vi[1] + '" type="' + vi[2] + '">' +
-            vi[0] + '</variable>';
-    });
-    tmpv += '</variables>';
-    // add everything back together
-    projectData = tmpv + projCode + newCode;
-  } else if (newCode.indexOf('<variables') > -1 &&
-        projCode.indexOf('<variables') === -1) {
-    projectData = newCode + projCode;
-  } else {
-    projectData = projCode + newCode;
-  }
-  currentProject.setCodeWithNamespace(projectData);
-  refreshEditorCanvas(currentProject);
-}
-
-/**
  * Update the editor canvas with the current project blocks
  * @param {Project} project is the project object to use for the refresh
  */
-function refreshEditorCanvas(project) {
+export function refreshEditorCanvas(project) {
   logConsoleMessage(`Refreshing editor canvas`);
   initializeBlockly(Blockly);
   renderContent('blocks');
