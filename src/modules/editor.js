@@ -819,26 +819,6 @@ function encodeToValidXml(str) {
   );
 }
 
-// /**
-//  * Decode a string from an XML-safe string by replacing HTML
-//  * entities with their standard characters
-//  *
-//  * @param {string} str
-//  * @return {string}
-//  */
-// function decodeFromValidXml(str) {
-//   return (str
-//       .replace(/&amp;/g, '&')
-//       .replace(/&quot;/g, '"')
-//       .replace(/&#39;/g, '\'')
-//       .replace(/&lt;/g, '<')
-//       .replace(/&gt;/g, '>')
-//       .replace(/&#x9;/g, '\t')
-//       .replace(/&#xA;/g, '\n')
-//       .replace(/&#xD;/g, '\r')
-//   );
-// }
-
 /**
  * Retrieve the project blocks from the Blockly workspace
  * @return {Document | XMLDocument}
@@ -1419,20 +1399,6 @@ function getXml() {
  */
 export function createNewProject() {
   logConsoleMessage(`Creating a new project`);
-  // let code = '';
-  // const project = getProjectInitialState();
-
-  // If editing details, preserve the code, otherwise start over
-  // This should no longer be handled here.
-  // TODO: Refactor this into a separate function to handled editing
-  //  project details.
-  // if (project &&
-  //     typeof(project.boardType.name) !== 'undefined' &&
-  //     $('#new-project-dialog-title')
-  //         .html() === PageTextLabels['editor_edit-details']) {
-  //   code = getXml();
-  // }
-
   // Save the form fields into the projectData object
   // The projectData variable is defined in globals.js
   const projectName = $('#new-project-name').val();
@@ -1483,11 +1449,6 @@ export function createNewProject() {
     newProject.setProjectTimer(myTime);
     setupWorkspace(newProject);
 
-    // Create an instance of the CodeEditor class
-    // codeEditor = new CodeEditor(newProject.boardType.name);
-    // if (!codeEditor) {
-    //   console.log('Error allocating CodeEditor object');
-    // }
     propToolbarButtonController();
   } catch (e) {
     logConsoleMessage(`Error while creating project object. ${e.message}.`);
