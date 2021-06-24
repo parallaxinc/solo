@@ -22,12 +22,17 @@
 
 
 // eslint-disable-next-line camelcase
-import {getHtmlText} from '../blockly/language/en/page_text_labels';
 import {LOCAL_PROJECT_STORE_NAME, TEMP_PROJECT_STORE_NAME} from '../constants';
-import {insertProject, isProjectChanged, uploadHandler} from '../editor';
+import {getHtmlText} from '../blockly/language/en/page_text_labels';
+import {insertProject, isProjectChanged} from '../editor';
 import {getProjectInitialState, projectJsonFactory} from '../project';
 import {logConsoleMessage, utils} from '../utility';
+import {loadProjectFile} from '../project/project_io';
+import {importProjectDialog} from './import_project';
 
+/**
+ * @module open_project
+ */
 
 /**
  * New Project dialog window
@@ -39,10 +44,9 @@ import {logConsoleMessage, utils} from '../utility';
  *    reset: openProjectDialog.reset
  *  }}
  *
- * @description
- * The Open Project dialog event handlers are set in a single call to the
- * initEventHandlers() method. This should be invoked during the editor page
- * load event.
+ * @description The Open Project dialog event handlers are set in a single
+ * call to the initEventHandlers() method. This should be invoked during the
+ * editor page load event.
  *
  * The dialog is opened when the show() method is invoked. Currently, this
  * triggers a number of asynchronous events that ultimately culminate with
@@ -85,12 +89,14 @@ export const openProjectDialog = {
     }
 
     // Set up element event handlers
-    openProjectModalOpenClick(); // Handle a click on the Open button
-    // openProjectModalEnterClick(); // Handle the user pressing the Enter key
-    openProjectModalCancelClick(); // Handle a click on the Cancel button
-    openProjectModalEscapeClick(); // Handle user clicking on the 'x' icon
-    setSelectedFileOnChange(); // Handle selected file onChange event
+    installOpenProjectModalOpenClick(); // Handle a click on the Open button
+    installOpenProjectModalCancelClick(); // Handle a click on the Cancel button
+    installOpenProjectModalEscapeClick(); // Handle user clicking on the 'x' icon
+    installOpenProjectSelectedFileOnChange(); // Handle selected file onChange event
 
+    // Record that the event handlers have been installed so subsequent attempts to
+    // do this again will not cause multiple handlers for the same event from being
+    // installed.
     this.isEventHandler = true;
   },
 
@@ -136,11 +142,17 @@ export const openProjectDialog = {
    * Reset the Open Project dialog filename field
    */
   reset: function() {
-    // set title to Open file
+    // Set title to Open file
     $('#open-project-dialog-title').html(getHtmlText('editor_open'));
     uiDisableOpenButton();
+    this.clearFilename();
+    window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
+  },
 
-    // Clear any previous filename
+  /**
+   * Clear the file name from the select file Input control
+   */
+  clearFilename: function() {
     const filenameInput = $('#open-project-select-file');
     if (filenameInput.length > 0) {
       const filename = filenameInput[0].value;
@@ -152,11 +164,23 @@ export const openProjectDialog = {
 };
 
 /**
+ * Enable the dialog's Open button
+ */
+function uiEnableOpenButton() {
+  const element = document.getElementById('open-project-select-file-open');
+  if (element) {
+    element.classList.remove('disabled');
+  }
+}
+
+/**
  * Disable the dialog's Open button
  */
 function uiDisableOpenButton() {
-  // Disable the Open button until we have a file to open
-  $('#open-project-select-file-open').addClass('disabled');
+  const element = document.getElementById('open-project-select-file-open');
+  if (element) {
+    element.classList.add('disabled');
+  }
 }
 
 /**
@@ -171,22 +195,70 @@ function openProjectDialogWindow() {
 }
 
 /**
+ * Close the Open Project dialog window
+ * @description This function wraps the jQuery call into Bootstrap
+ */
+function closeDialogWindow() {
+  $('#open-project-dialog').modal('hide');
+  logConsoleMessage(`Closing the 'Open Project' dialog`);
+}
+
+/**
  * Handle the onChange event for the file selection dialog
  */
-function setSelectedFileOnChange() {
+function installOpenProjectSelectedFileOnChange() {
   $('#open-project-select-file').on('change', function(event) {
-    logConsoleMessage(`File selector has changed`);
-    if (event.target.files[0] && event.target.files[0].name.length > 0) {
-      logConsoleMessage(
-          `OpenProject onChange event: ${event.target.files[0].name}`);
-      // Load project into browser storage and let the modal event handler
-      // decide what to do with it
-      uploadHandler(event.target.files, ['open-project-select-file-open']);
-    } else {
-      // Disable the Open button
-      uiDisableOpenButton();
-    }
+    selectProjectFile(event)
+        .catch( (reject) => {
+          closeDialogWindow();
+          const message =
+              `Unable to load the selected project file. The error reported is: "${reject}."`;
+          utils.showMessage('Project Load Error', message);
+        });
   });
+}
+
+/**
+ * Process the selected project file
+ *
+ * @param {Event} event
+ * @return {Promise<boolean>}
+ */
+async function selectProjectFile(event) {
+  // This code detects the sequence where the user has selected a project file, clicks
+  // on the 'Choose File' button again and the selects the 'Cancel' button in the file
+  // chooser dialog window.
+  const input = document.getElementById('open-project-select-file');
+  const currentFile = input.files;
+  if (currentFile.length === 0) {
+    logConsoleMessage(`No file selected`);
+    uiDisableOpenButton();
+    return false;
+  }
+
+  if (event.target.files[0] && event.target.files[0].name.length > 0) {
+    logConsoleMessage(`User selected project: ${event.target.files[0].name}`);
+
+    const /** @type module:project_io.ProjectLoadResult */ result =
+        await loadProjectFile(event.target.files);
+    if ((! result) || (result.status !== 0)) {
+      return Promise.reject(result.message);
+    }
+
+    // Copy the project into browser local storage and let the modal event handler
+    // decide what to do with it
+    window.localStorage.setItem(
+        TEMP_PROJECT_STORE_NAME,
+        JSON.stringify(result.project.getDetails()));
+
+    // TODO: These may no longer be necessary
+    importProjectDialog.isProjectFileValid = true;
+    openProjectDialog.isProjectFileValid = true;
+
+    logConsoleMessage(`Project conversion successful. A copy is in local storage`);
+    uiEnableOpenButton();
+  }
+  return true;
 }
 
 /**
@@ -210,11 +282,10 @@ function setSelectedFileOnChange() {
  * under the LOCAL_PROJECT_STORE_NAME key and load it into the editor canvas
  * if a project is found there.
  */
-function openProjectModalOpenClick() {
+function installOpenProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
     logConsoleMessage(`User elected to open the project`);
-    logConsoleMessage(`Closing the 'Open Project' dialog`);
-    $('#open-project-dialog').modal('hide');
+    closeDialogWindow();
 
     // Copy the stored temp project to the stored local project
     const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
@@ -239,11 +310,10 @@ function openProjectModalOpenClick() {
 /**
  * Open project cancel button clicked event handler
  */
-function openProjectModalCancelClick() {
+function installOpenProjectModalCancelClick() {
   $('#open-project-select-file-cancel').on('click', () => {
     logConsoleMessage(`Open Dialog: cancelled`);
-    // Dismiss the modal in the UX
-    $('#open-project-dialog').modal('hide');
+    closeDialogWindow();
 
     const project = getProjectInitialState();
     if (!project) {
@@ -262,8 +332,8 @@ function openProjectModalCancelClick() {
  * @description  Trap the modal event that fires when the modal
  * window is closed when the user clicks on the 'x' icon.
  */
-function openProjectModalEscapeClick() {
+function installOpenProjectModalEscapeClick() {
   $('#open-project-dialog').on('hidden.bs.modal', () => {
-    // Do nothing
+    openProjectDialog.clearFilename();
   });
 }
