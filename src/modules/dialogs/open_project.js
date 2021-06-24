@@ -28,7 +28,6 @@ import {insertProject, isProjectChanged} from '../editor';
 import {getProjectInitialState, projectJsonFactory} from '../project';
 import {logConsoleMessage, utils} from '../utility';
 import {loadProjectFile} from '../project/project_io';
-import {importProjectDialog} from './import_project';
 
 /**
  * @module open_project
@@ -68,8 +67,9 @@ import {importProjectDialog} from './import_project';
 export const openProjectDialog = {
   /**
    * Indicator for the validity of the imported project
-   * @type {boolean} is true if the impoted project has been loaded into the
+   * @type {boolean} is true if the imported project has been loaded into the
    * localStorage temporary project buffer
+   * @deprecated This field is not longer used.
    */
   isProjectFileValid: false,
 
@@ -146,7 +146,7 @@ export const openProjectDialog = {
     $('#open-project-dialog-title').html(getHtmlText('editor_open'));
     uiDisableOpenButton();
     this.clearFilename();
-    window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
+    this.clearLocalTempStorage();
   },
 
   /**
@@ -160,6 +160,14 @@ export const openProjectDialog = {
         filenameInput[0].value = '';
       }
     }
+  },
+
+  /**
+   * Clear the project that is loaded into the temporary localstorage bucket
+   */
+  clearLocalTempStorage: function() {
+    logConsoleMessage(`Clearing temporary project from local storage`);
+    window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
   },
 };
 
@@ -251,8 +259,6 @@ async function selectProjectFile(event) {
         TEMP_PROJECT_STORE_NAME,
         JSON.stringify(result.project.getDetails()));
 
-    // TODO: These may no longer be necessary
-    importProjectDialog.isProjectFileValid = true;
     openProjectDialog.isProjectFileValid = true;
 
     logConsoleMessage(`Project conversion successful. A copy is in local storage`);
@@ -314,6 +320,7 @@ function installOpenProjectModalCancelClick() {
   $('#open-project-select-file-cancel').on('click', () => {
     logConsoleMessage(`Open Dialog: cancelled`);
     closeDialogWindow();
+    openProjectDialog.clearLocalTempStorage();
 
     const project = getProjectInitialState();
     if (!project) {

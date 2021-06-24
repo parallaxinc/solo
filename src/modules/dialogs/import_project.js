@@ -138,6 +138,14 @@ export const importProjectDialog = {
       }
     }
   },
+
+  /**
+   * Clear the project that is loaded into the temporary localstorage bucket
+   */
+  clearLocalTempStorage: function() {
+    logConsoleMessage(`Clearing temporary project from local storage`);
+    window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
+  },
 };
 
 /**
@@ -237,6 +245,7 @@ function installReplaceClickHandler() {
 function installCancelClickHandler() {
   $('#selectfile-cancel-button').on('click', function() {
     logConsoleMessage(`Import Project - Cancel button selected`);
+    importProjectDialog.clearLocalTempStorage();
     closeImportProjectDialog();
   });
 }
