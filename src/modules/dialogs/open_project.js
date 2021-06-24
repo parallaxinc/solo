@@ -145,8 +145,14 @@ export const openProjectDialog = {
     // Set title to Open file
     $('#open-project-dialog-title').html(getHtmlText('editor_open'));
     uiDisableOpenButton();
+    this.clearFilename();
+    window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
+  },
 
-    // Clear any previous filename
+  /**
+   * Clear the file name from the select file Input control
+   */
+  clearFilename: function() {
     const filenameInput = $('#open-project-select-file');
     if (filenameInput.length > 0) {
       const filename = filenameInput[0].value;
@@ -194,6 +200,7 @@ function openProjectDialogWindow() {
  */
 function closeDialogWindow() {
   $('#open-project-dialog').modal('hide');
+  logConsoleMessage(`Closing the 'Open Project' dialog`);
 }
 
 /**
@@ -278,7 +285,6 @@ async function selectProjectFile(event) {
 function installOpenProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
     logConsoleMessage(`User elected to open the project`);
-    logConsoleMessage(`Closing the 'Open Project' dialog`);
     closeDialogWindow();
 
     // Copy the stored temp project to the stored local project
@@ -328,6 +334,6 @@ function installOpenProjectModalCancelClick() {
  */
 function installOpenProjectModalEscapeClick() {
   $('#open-project-dialog').on('hidden.bs.modal', () => {
-    logConsoleMessage(`Closing Open Project dialog`);
+    openProjectDialog.clearFilename();
   });
 }

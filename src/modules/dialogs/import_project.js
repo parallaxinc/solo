@@ -122,13 +122,21 @@ export const importProjectDialog = {
 
     // Disable the import dialog Append and Replace buttons
     uiDisableButtons();
-
-    // Clear any previous filename from the Input control
-    clearInputFileName();
-
-    // Empty the temp browser storage bucket
+    this.clearFileName();
     window.localStorage.removeItem(TEMP_PROJECT_STORE_NAME);
-    logConsoleMessage(`LocalStorage:Temp project removed`);
+  },
+
+  /**
+   * Clear any previous filename from the Input control
+   */
+  clearFileName: function() {
+    const filenameInput = $('#selectfile');
+    if (filenameInput.length > 0) {
+      const filename = filenameInput[0].value;
+      if (filename.length > 0) {
+        filenameInput[0].value = '';
+      }
+    }
   },
 };
 
@@ -175,7 +183,7 @@ function openImportProjectDialog() {
  */
 function closeImportProjectDialog() {
   $('#import-project-dialog').modal('hide');
-  importProjectDialog.reset();
+  logConsoleMessage(`Closing the 'Import Project' dialog`);
 }
 
 /**
@@ -239,9 +247,8 @@ function installCancelClickHandler() {
  * window is closed when the user clicks on the 'x' icon.
  */
 function installEscapeClickHandler() {
-  $('#open-project-dialog').on('hidden.bs.modal', () => {
-    logConsoleMessage(`Import Project - Escape button selected`);
-    clearInputFileName();
+  $('#import-project-dialog').on('hidden.bs.modal', () => {
+    importProjectDialog.clearFileName();
   });
 }
 
@@ -295,8 +302,6 @@ async function selectProjectFile(event) {
     return false;
   }
 
-  /** WORKING HERE **/
-
   if (event.target.files[0] && event.target.files[0].name.length > 0) {
     logConsoleMessage(`User selected project: ${event.target.files[0].name}`);
 
@@ -319,18 +324,4 @@ async function selectProjectFile(event) {
     uiEnableButtons();
   }
   return true;
-}
-
-/**
- * Clear the file name from the select file Input control
- */
-function clearInputFileName() {
-  // Clear any previous filename from the Input control
-  const filenameInput = $('#selectfile');
-  if (filenameInput.length > 0) {
-    const filename = filenameInput[0].value;
-    if (filename.length > 0) {
-      filenameInput[0].value = '';
-    }
-  }
 }
