@@ -194,26 +194,32 @@ function installAppendClickHandler() {
  */
 function installReplaceClickHandler() {
   $('#selectfile-replace').on('click', function() {
+    let errorMessage = '';
     logConsoleMessage(`Import Replace project button clicked`);
-    closeImportProjectDialog();
     // Replace the existing project. This is the same as loading a new project
     // Copy the stored temp project to the stored local project
     const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
-    if (projectJson) {
+    if (!projectJson) {
+      errorMessage = 'The imported project cannot be found in storage.';
+    } else {
       const project = projectJsonFactory(JSON.parse(projectJson));
-      if (project) {
+      if (!project) {
+        errorMessage = 'The imported project cannot be found in storage.';
+      } else {
         insertProject(project);
-        return;
       }
     }
 
-    logConsoleMessage('The imported project cannot be found in storage.');
-    utils.showMessage(
-        `Project Load Error`,
-        `Unable to import the project`,
-        () => {
-          logConsoleMessage(`Possible project load failure`);
-        });
+    closeImportProjectDialog();
+
+    if (errorMessage.length > 0) {
+      utils.showMessage(
+          `Project Load Error`,
+          `Unable to import the project`,
+          () => {
+            logConsoleMessage(`Possible project load failure`);
+          });
+    }
   });
 }
 
@@ -260,17 +266,6 @@ function installFileOnChangeHandler() {
   // Import Project File hamburger menu item.
   const selectControl = document.getElementById('selectfile');
   selectControl.addEventListener('change', (event) => {
-  //   if (event.target.files[0] && event.target.files[0].name.length > 0) {
-  //     uploadHandler(event.target.files, [
-  //       'selectfile-replace',
-  //       'selectfile-append',
-  //     ]).catch( (err) => {
-  //       uiDisableButtons();
-  //     });
-  //   } else {
-  //     uiDisableButtons();
-  //   }
-  // });
     selectProjectFile(event)
         .catch( (reject) => {
           logConsoleMessage(`Select project file rejected: ${reject}`);
@@ -281,7 +276,6 @@ function installFileOnChangeHandler() {
         });
   });
 }
-
 
 /**
  * Process the selected project file
@@ -340,146 +334,3 @@ function clearInputFileName() {
     }
   }
 }
-
-/**
- *  Retrieve an SVG project file from local storage.
- *
- *  This is the .selectfile.onChange() event handler.
- *  This function loads an .svg file, parses it for reasonable values
- *  and then stores the verified resulting project into the browser's
- *  localStorage.
- *
- * @param {FileList} files
- * @param {Array?} elements contains an array of HTMLElement ids that
- * identify the UI controls to enable when a valid project file has been
- * loaded.
- */
-// async function uploadHandler(files, elements = null) {
-//   // const result = await loadProjectFile(files);
-//   // console.log(`Returning: Status: ${result.status}, Message: ${result.message}`);
-//   // if (result.status !== 0) {
-//   //   return false;
-//   // }
-//
-//
-//   // Sanity checks
-//   if (!files || files.length === 0) {
-//     logConsoleMessage(`UploadHandler: files list is empty`);
-//     return;
-//   }
-//
-//   const fileBlob = new Blob(files, {type: 'text/strings'});
-//   const filename = files[0].name;
-//   const fileType = files[0].type;
-//   const UploadReader = new FileReader();
-//
-//   // This will fire is something goes sideways
-//   UploadReader.onerror = function() {
-//     logConsoleMessage(`File upload filename is missing`);
-//   };
-//
-//   // TODO: Refactor this to ES5 for support in Safari and Opera
-//   // eslint-disable-next-line no-unused-vars
-//   const textPromise = fileBlob.text()
-//       .then((xml) => {
-//         if (xml && xml.length > 0) {
-//           if (parseProjectFileString(filename, fileType, xml)) {
-//             // Enable all buttons in the UI dialog
-//             if (elements) {
-//               elements.forEach(function(item, index, array) {
-//                 const element = $(`#${item}`);
-//                 if (element) {
-//                   element.removeClass('disabled');
-//                 }
-//               });
-//             }
-//           } else {
-//             logConsoleMessage(`Project file "${filename}" is Invalid`);
-//           }
-//         } else {
-//           // TODO: Add message to the open dialog window
-//           logConsoleMessage(`The selected project file appears to be empty`);
-//         }
-//       })
-//       .catch((err) => {
-//         logConsoleMessage(`${err.message}`);
-//       });
-// }
-
-/**
- * Convert the project string into a JSON object and store that the results in
- * the browser's localStorage temporary project store.
- * @param {string} filename
- * @param {string} fileType
- * @param {string} xmlString
- * @return {boolean} true if the file is converted to a project, otherwise false
- */
-// function parseProjectFileString(filename, fileType, xmlString) {
-//   // The project board type string
-//   const uploadBoardType = getProjectBoardTypeName(xmlString);
-//
-//   // The text name of the project
-//   const projectName = filename.substring(0, filename.lastIndexOf('.'));
-//   logConsoleMessage(`Loading project :=> ${projectName}`);
-//
-//   // TODO: Solo #261
-//   // Loop through blocks to verify blocks are supported for the project
-//   // board type
-//   // validateProjectBlockList(this.result);
-//
-//   // Flag to indicate that we are importing a file that
-//   // was exported from the blockly.parallax.com site
-//   let isSvgeFile = false;
-//
-//   // We need to support our rouge .svge type
-//   if (fileType === '') {
-//     const name = filename;
-//     if (name.slice(name.length - 4) === 'svge') {
-//       isSvgeFile = true;
-//     }
-//   }
-//
-//   // validate file, screen for potentially malicious code.
-//   if ((fileType === 'image/svg+xml' || isSvgeFile) &&
-//       xmlString.indexOf('<svg blocklyprop="blocklypropproject"') === 0 &&
-//       xmlString.indexOf('<!ENTITY') === -1 &&
-//       xmlString.indexOf('CDATA') === -1 &&
-//       xmlString.indexOf('<!--') === -1) {
-//     // Check to see if there is a project already loaded. If there is, check
-//     // the existing project's board type to verify that the new project is
-//     // of the same type
-//     // ----------------------------------------------------------------------
-//     // if (getProjectInitialState() &&
-//     //     uploadBoardType !== getProjectInitialState().boardType.name) {
-//     //   // Display a modal?
-//     //   $('#selectfile-verify-boardtype').css('display', 'block');
-//     // } else {
-//     //   $('#selectfile-verify-boardtype').css('display', 'none');
-//     // }
-//
-//     // ----------------------------------------------------------------------
-//     // File processing is done. The projectXmlCode variable holds the
-//     // XML string for the project that was just loaded. Convert the code
-//     // into a new Project object and persist it into the browser's
-//     // localStorage
-//     // ----------------------------------------------------------------------
-//     const tmpProject = filestreamToProject(
-//         projectName, xmlString, uploadBoardType);
-//
-//     if (tmpProject) {
-//       // Save the project to the browser store
-//       window.localStorage.setItem(
-//           TEMP_PROJECT_STORE_NAME,
-//           JSON.stringify(tmpProject.getDetails()));
-//
-//       // These may no longer be necessary
-//       importProjectDialog.isProjectFileValid = true;
-//       // openProjectDialog.isProjectFileValid = true;
-//
-//       logConsoleMessage(
-//           `Project conversion successful. A copy is in local storage`);
-//       return true;
-//     }
-//   }
-//   return false;
-// }
