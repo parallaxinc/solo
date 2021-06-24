@@ -189,14 +189,21 @@ function openProjectDialogWindow() {
 }
 
 /**
+ * Close the Open Project dialog window
+ * @description This function wraps the jQuery call into Bootstrap
+ */
+function closeDialogWindow() {
+  $('#open-project-dialog').modal('hide');
+}
+
+/**
  * Handle the onChange event for the file selection dialog
  */
 function installOpenProjectSelectedFileOnChange() {
   $('#open-project-select-file').on('change', function(event) {
     selectProjectFile(event)
         .catch( (reject) => {
-          logConsoleMessage(`Select project file rejected: ${reject}`);
-          $('#open-project-dialog').modal('hide');
+          closeDialogWindow();
           const message =
               `Unable to load the selected project file. The error reported is: "${reject}."`;
           utils.showMessage('Project Load Error', message);
@@ -272,7 +279,7 @@ function installOpenProjectModalOpenClick() {
   $('#open-project-select-file-open').on('click', () => {
     logConsoleMessage(`User elected to open the project`);
     logConsoleMessage(`Closing the 'Open Project' dialog`);
-    $('#open-project-dialog').modal('hide');
+    closeDialogWindow();
 
     // Copy the stored temp project to the stored local project
     const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
@@ -300,8 +307,7 @@ function installOpenProjectModalOpenClick() {
 function installOpenProjectModalCancelClick() {
   $('#open-project-select-file-cancel').on('click', () => {
     logConsoleMessage(`Open Dialog: cancelled`);
-    // Dismiss the modal in the UX
-    $('#open-project-dialog').modal('hide');
+    closeDialogWindow();
 
     const project = getProjectInitialState();
     if (!project) {
@@ -322,6 +328,6 @@ function installOpenProjectModalCancelClick() {
  */
 function installOpenProjectModalEscapeClick() {
   $('#open-project-dialog').on('hidden.bs.modal', () => {
-    // Do nothing
+    logConsoleMessage(`Closing Open Project dialog`);
   });
 }
