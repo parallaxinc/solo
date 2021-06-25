@@ -75,6 +75,7 @@ import {
   utils, logConsoleMessage, sanitizeFilename,
 } from './utility';
 import {getXmlCode} from './code_editor';
+
 import {newProjectDialog} from './dialogs/new_project';
 import {openProjectDialog} from './dialogs/open_project';
 import {importProjectDialog} from './dialogs/import_project';
@@ -253,10 +254,11 @@ function initEventHandlers() {
 
   // New Project toolbar button
   // TODO: New Project should be treated the same way as Open Project.
-  $('#new-project-button').on('click', () => newProjectDialog.show());
+  $('#new-project-button').on('click', () => newProjectEvent());
 
   // Open Project toolbar button
-  $('#open-project-button').on('click', () => openProjectDialog.show());
+  // $('#open-project-button').on('click', () => openProjectDialog.show());
+  $('#open-project-button').on('click', () => openProjectEvent());
 
   // Save Project toolbar button
   $('#save-btn, #save-project').on('click', () => saveProject());
@@ -347,6 +349,21 @@ function initEventHandlers() {
     clientService.setSelectedPort(event.target.value);
     propToolbarButtonController();
   });
+}
+
+/**
+ * Stub function to open the Open Project dialog
+ */
+function newProjectEvent() {
+  newProjectDialog.show();
+}
+
+
+/**
+ * Stub function to open the Open Project dialog
+ */
+function openProjectEvent() {
+  openProjectDialog.show();
 }
 
 /**
