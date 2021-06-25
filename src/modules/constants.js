@@ -57,7 +57,7 @@ export const APP_BUILD = '217';
  * Development build stage designator
  * @type {string}
  */
-export const APP_QA = 'rc1';
+export const APP_QA = 'release';
 
 /**
  * Set this to target deployment environment.
