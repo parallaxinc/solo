@@ -116,7 +116,6 @@ export const importProjectDialog = {
    * Reset the Open Project dialog filename field
    */
   reset: function() {
-    logConsoleMessage(`Project import - setting dialog labels`);
     $('#import-project-dialog-title').html(getHtmlText('editor_import'));
     $('#import-project-dialog span').html(getHtmlText('editor_append'));
 
@@ -191,7 +190,6 @@ function openImportProjectDialog() {
  */
 function closeImportProjectDialog() {
   $('#import-project-dialog').modal('hide');
-  logConsoleMessage(`Closing the 'Import Project' dialog`);
 }
 
 /**
@@ -199,7 +197,6 @@ function closeImportProjectDialog() {
  */
 function installAppendClickHandler() {
   $('#selectfile-append').on('click', function() {
-    logConsoleMessage(`Import Append project button clicked`);
     appendProjectCode();
     closeImportProjectDialog();
   });
@@ -211,7 +208,6 @@ function installAppendClickHandler() {
 function installReplaceClickHandler() {
   $('#selectfile-replace').on('click', function() {
     let errorMessage = '';
-    logConsoleMessage(`Import Replace project button clicked`);
     // Replace the existing project. This is the same as loading a new project
     // Copy the stored temp project to the stored local project
     const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
@@ -244,7 +240,6 @@ function installReplaceClickHandler() {
  */
 function installCancelClickHandler() {
   $('#selectfile-cancel-button').on('click', function() {
-    logConsoleMessage(`Import Project - Cancel button selected`);
     importProjectDialog.clearLocalTempStorage();
     closeImportProjectDialog();
   });
@@ -266,7 +261,6 @@ function installEscapeClickHandler() {
  */
 function installOnFocusHandler() {
   $('#selectfile').focus(function() {
-    logConsoleMessage(`Resetting select file validation messages`);
     $('#selectfile-verify-notvalid').css('display', 'none');
     $('#selectfile-verify-valid').css('display', 'none');
     $('#selectfile-verify-boardtype').css('display', 'none');
