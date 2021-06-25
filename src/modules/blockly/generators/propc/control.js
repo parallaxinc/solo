@@ -532,6 +532,7 @@ Blockly.propc.control_repeat_for_loop = function() {
 };
 
 /**
+ * Return from function call block
  *
  * @type {{
  *  init: Blockly.Blocks.controls_return.init,
@@ -555,7 +556,7 @@ Blockly.Blocks.controls_return = {
  * @return {string}
  */
 Blockly.propc.controls_return = function() {
-  return 'return;';
+  return 'return;\n';
 };
 
 /**

@@ -23,7 +23,6 @@
 import {hasCode} from './blocklyc';
 import {getProjectInitialState} from './project.js';
 import {clientService, serviceConnectionTypes} from './client_service';
-import {logConsoleMessage} from "./utility";
 
 
 /**

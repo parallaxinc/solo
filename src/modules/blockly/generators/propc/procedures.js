@@ -31,6 +31,9 @@ import Blockly from 'blockly/core';
 import {getDefaultProfile} from '../../../project';
 import {colorPalette} from '../propc';
 
+const leftDblQuoteMark = '\u201C';
+const rightDblQuoteMark = '\u201D';
+
 /**
  *  Block for defining a procedure with no return value.
  *    Procedures DefNoReturn
@@ -436,7 +439,8 @@ Blockly.Blocks['procedures_defnoreturn'] = {
 };
 
 /**
- * Procedure Call No Return
+ * Block Run Function
+ * Procedure Call block that has no return value
  *
  * @type {{
  *    init: Blockly.Blocks.procedures_callnoreturn.init,
@@ -462,26 +466,51 @@ Blockly.Blocks['procedures_callnoreturn'] = {
    * @this Blockly.Block
    */
   init: function() {
+    // Look into the current profile
     const profile = getDefaultProfile();
-    if (profile.description === 'Scribbler Robot') {
-      this.setHelpUrl(Blockly.MSG_S3_FUNCTIONS_HELPURL);
-    } else {
-      this.setHelpUrl(Blockly.MSG_FUNCTIONS_HELPURL);
-    }
+    this.setHelpUrl( (profile.name === 's3') ?
+        Blockly.MSG_S3_FUNCTIONS_HELPURL:Blockly.MSG_FUNCTIONS_HELPURL);
     this.setTooltip(Blockly.MSG_PROCEDURES_CALLNORETURN_TOOLTIP);
     this.setColour(colorPalette.getColor('functions'));
+
     this.appendDummyInput('TOPROW')
-        .appendField('run function  \u201C' + this.id + '\u201D', 'NAME');
+        .appendField(
+            `run function ${leftDblQuoteMark}${this.id}${rightDblQuoteMark}`,
+            'NAME');
+
     this.setPreviousStatement(true);
     this.setNextStatement(true);
+
+    /**
+     * Function parameters array
+     * @type {*[]}
+     * @private
+     */
     this.arguments_ = [];
+
+    /**
+     * Function parameter data types
+     * @type {*[]}
+     * @private
+     */
     this.argumentVarModels_ = [];
+
+    /**
+     * No idea what a quark connection is or what it does
+     * @type {{}}
+     * @private
+     */
     this.quarkConnections_ = {};
+
+    /**
+     * More quarkness but now with ID fields
+     * @type {null}
+     * @private
+     */
     this.quarkIds_ = null;
 
     /**
      * Set the previous disabled state to false (off)
-     *
      * @type {boolean}
      * @private
      */
@@ -489,15 +518,15 @@ Blockly.Blocks['procedures_callnoreturn'] = {
   },
 
   /**
-   * Returns the name of the procedure this block calls.
+   * Returns the name of the function block that this block calls.
    * @return {string} Procedure name.
    * @this Blockly.Block
+   * @description The NAME field is guaranteed to exist, null will never be returned.
    */
   getProcedureCall: function() {
-    // The NAME field is guaranteed to exist, null will never be returned.
-    return /** @type {string} */ (
-      (this.getFieldValue('NAME'))
-          .split('\u201C'))[1].slice(0, -1);
+    return /** @type {string} */ ((this.getFieldValue('NAME'))
+        .split(leftDblQuoteMark))[1]
+        .slice(0, -1);
   },
 
   /**
@@ -509,7 +538,9 @@ Blockly.Blocks['procedures_callnoreturn'] = {
    */
   renameProcedure: function(oldName, newName) {
     if (Blockly.Names.equals(oldName, this.getProcedureCall())) {
-      this.setFieldValue('run function \u201C' + newName + '\u201D', 'NAME');
+      this.setFieldValue(
+          `run function ${leftDblQuoteMark}${newName}${rightDblQuoteMark}`,
+          'NAME');
     }
   },
 
@@ -533,8 +564,10 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     //     Existing param IDs.
     // Note that quarkConnections_ may include IDs that no longer exist, but
     // which might reappear if a param is reattached in the mutator.
-    const defBlock = Blockly.Procedures.getDefinition(this.getProcedureCall(),
+    const defBlock = Blockly.Procedures.getDefinition(
+        this.getProcedureCall(),
         this.workspace);
+
     const mutatorOpen = defBlock && defBlock.mutator &&
         defBlock.mutator.isVisible();
     if (!mutatorOpen) {
@@ -547,12 +580,12 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     }
     // Test arguments (arrays of strings) for changes. '\n' is not a valid
     // argument name character, so it is a valid delimiter here.
-    if (paramNames.join('\n') == this.arguments_.join('\n')) {
+    if (paramNames.join('\n') === this.arguments_.join('\n')) {
       // No change.
       this.quarkIds_ = paramIds;
       return;
     }
-    if (paramIds.length != paramNames.length) {
+    if (paramIds.length !== paramNames.length) {
       throw new RangeError('paramNames and paramIds must be the same length.');
     }
     this.setCollapsed(false);
@@ -712,50 +745,73 @@ Blockly.Blocks['procedures_callnoreturn'] = {
    * @this Blockly.Block
    */
   onchange: function(event) {
+    console.log(`Event: ${event.type}`);
+
+    if (event.type === Blockly.Events.BLOCK_MOVE) {
+      try {
+        console.log(`Block is moving`);
+      } catch (err) {
+        console.log(`Block move error: ${err.message}`);
+      }
+    }
+
+    // Get the block attached to the top of this block
     const tBlock = this.previousConnection.targetBlock();
-    if (tBlock) {
-      if (tBlock.toString().indexOf('new processor ') === 0) {
-        // Solo-497
-        // Cannot set nextStatement to false if there is a block attached
-        // below the current block. Detach the block first.
-        const nextBlock = this.getNextBlock();
-        if (nextBlock !== null) {
-          console.log(`NextBlock: ${nextBlock.type.toString()}`);
-          // nextBlock.nextConnection.disconnect();
-        }
-        try {
+
+    try {
+    // If a block is attached, and it is a new processor block, disconnect
+    // the block attached to the bottom of this block, if one is attached.
+    // The new processor block supports a single function call and that
+    // function call cannot chain to any other blocks.
+      if (tBlock) {
+        if (tBlock.toString().indexOf('new processor ') === 0) {
+          // Solo-497
+          // Cannot set nextStatement to false if there is a block attached
+          // below the current block. Detach the block first.
+          const nextBlock = this.getNextBlock();
+          console.log(`RunFunction: Bottom block attachment is: ${nextBlock}`);
+
+          if (nextBlock !== null) {
+            console.log(`NextBlock: ${nextBlock.type.toString()}`);
+            this.nextConnection.disconnect();
+          }
           this.setNextStatement(false);
-        } catch (event) {
-          console.log(event.message);
-          this.nextConnection.disconnect();
-          this.setNextStatement(false);
+        } else {
+          this.setNextStatement(true);
         }
       } else {
         this.setNextStatement(true);
       }
-    } else {
-      this.setNextStatement(true);
+    } catch (event) {
+      console.log(event.message);
+      this.nextConnection.disconnect();
+      this.setNextStatement(false);
     }
+
     if (!this.workspace || this.workspace.isFlyout) {
       // Block is deleted or is in a flyout.
       return;
     }
+
     if (!event.recordUndo) {
       // Events not generated by user. Skip handling.
       return;
     }
-    if (event.type == Blockly.Events.BLOCK_CREATE &&
-        event.ids.indexOf(this.id) != -1) {
+
+    if (event.type === Blockly.Events.BLOCK_CREATE &&
+        event.ids.indexOf(this.id) !== -1) {
       // Look for the case where a procedure call was created (usually through
       // paste) and there is no matching definition.  In this case, create
       // an empty definition block with the correct signature.
       const name = this.getProcedureCall();
       let def = Blockly.Procedures.getDefinition(name, this.workspace);
-      if (def && (def.type != this.defType_ ||
-          JSON.stringify(def.arguments_) != JSON.stringify(this.arguments_))) {
+      if (def &&
+          (def.type !== this.defType_ ||
+          JSON.stringify(def.arguments_) !== JSON.stringify(this.arguments_))) {
         // The signatures don't match.
         def = null;
       }
+
       if (!def) {
         Blockly.Events.setGroup(event.group);
         /**
@@ -787,7 +843,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
         Blockly.Xml.domToWorkspace(xml, this.workspace);
         Blockly.Events.setGroup(false);
       }
-    } else if (event.type == Blockly.Events.BLOCK_DELETE) {
+    } else if (event.type === Blockly.Events.BLOCK_DELETE) {
       // Look for the case where a procedure definition has been deleted,
       // leaving this block (a procedure call) orphaned.  In this case, delete
       // the orphan.
@@ -798,11 +854,11 @@ Blockly.Blocks['procedures_callnoreturn'] = {
         this.dispose(true, false);
         Blockly.Events.setGroup(false);
       }
-    } else if (event.type == Blockly.Events.CHANGE &&
-               event.element == 'disabled') {
+    } else if (event.type === Blockly.Events.CHANGE &&
+               event.element === 'disabled') {
       const name = this.getProcedureCall();
       const def = Blockly.Procedures.getDefinition(name, this.workspace);
-      if (def && def.id == event.blockId) {
+      if (def && def.id === event.blockId) {
         // in most cases the old group should be ''
         const oldGroup = Blockly.Events.getGroup();
         if (oldGroup) {
@@ -900,8 +956,11 @@ Blockly.propc.procedures_defnoreturn = Blockly.propc.procedures_defreturn;
 Blockly.propc.procedures_callreturn = function() {
   // Call a procedure with a return value.
   const funcName = Blockly.propc.variableDB_.getName(
-      ((this.getFieldValue('NAME')).split('\u201C'))[1].slice(0, -1),
-      Blockly.Procedures.NAME_TYPE);
+      ((this.getFieldValue('NAME'))
+          .split(leftDblQuoteMark))[1]
+          .slice(0, -1),
+      // Blockly.Procedures.NAME_TYPE);
+      Blockly.PROCEDURE_CATEGORY_NAME);
   const args = [];
   for (let x = 0; x < this.arguments_.length; x++) {
     args[x] = Blockly.propc.valueToCode(this, 'ARG' + x,

@@ -55,7 +55,7 @@ import {serialConsole} from './serial_console';
 import {findClient} from './client_connection';
 import {clientService, initTerminal} from './client_service';
 import {APP_BUILD, APP_QA, APP_VERSION, EnableSentry, LOCAL_PROJECT_STORE_NAME} from './constants';
-import {TEMP_PROJECT_STORE_NAME, PROJECT_NAME_MAX_LENGTH} from './constants';
+import {PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
@@ -75,6 +75,7 @@ import {
   utils, logConsoleMessage, sanitizeFilename,
 } from './utility';
 import {getXmlCode} from './code_editor';
+
 import {newProjectDialog} from './dialogs/new_project';
 import {openProjectDialog} from './dialogs/open_project';
 import {importProjectDialog} from './dialogs/import_project';
@@ -253,15 +254,17 @@ function initEventHandlers() {
 
   // New Project toolbar button
   // TODO: New Project should be treated the same way as Open Project.
-  $('#new-project-button').on('click', () => newProjectDialog.show());
+  $('#new-project-button').on('click', () => newProjectEvent());
 
   // Open Project toolbar button
-  $('#open-project-button').on('click', () => openProjectDialog.show());
+  // $('#open-project-button').on('click', () => openProjectDialog.show());
+  $('#open-project-button').on('click', () => openProjectEvent());
 
   // Save Project toolbar button
   $('#save-btn, #save-project').on('click', () => saveProject());
 
   // Save project nudge dialog onclose event handler
+  // Not implemented
   $('#save-check-dialog').on('hidden.bs.modal', () => {
     logConsoleMessage('Closing the project save timer dialog.');
   });
@@ -283,9 +286,9 @@ function initEventHandlers() {
   $('#download-side').on('click', () => downloadPropC());
 
   // Import project file menu selector
-  // Import (upload) project from storage. This is designed to
-  // merge code from an existing project into the current project.
-  // merge code from an existing project into the current project.
+  // Import (upload) project from storage. This is designed to merge code from an existing
+  // project into the current project or to simply replace the contents of the current
+  // project with the contents of the imported project.
   $('#upload-project').on('click', () => importProjectDialog.show());
 
   // ---- Hamburger drop down horizontal line ----
@@ -298,7 +301,9 @@ function initEventHandlers() {
   document.getElementById('client-setup')
       .addEventListener('click', configureConnectionPaths, false);
 
-  // #editor-about
+  // ---- Hamburger drop down horizontal line ----
+
+  // About Solo
   document.getElementById('editor-about')
       .addEventListener('click', showEditorAbout, false);
 
@@ -306,10 +311,10 @@ function initEventHandlers() {
   document.getElementById('editor-license')
       .addEventListener('click', showLicenseEventHandler, false);
 
-
   // --------------------------------
   // End of hamburger menu items
   // --------------------------------
+
 
   // Save As button
   $('#save-as-btn').on('click', () => saveAsDialog());
@@ -344,6 +349,21 @@ function initEventHandlers() {
     clientService.setSelectedPort(event.target.value);
     propToolbarButtonController();
   });
+}
+
+/**
+ * Stub function to open the Open Project dialog
+ */
+function newProjectEvent() {
+  newProjectDialog.show();
+}
+
+
+/**
+ * Stub function to open the Open Project dialog
+ */
+function openProjectEvent() {
+  openProjectDialog.show();
 }
 
 /**
@@ -798,26 +818,6 @@ function encodeToValidXml(str) {
 }
 
 /**
- * Decode a string from an XML-safe string by replacing HTML
- * entities with their standard characters
- *
- * @param {string} str
- * @return {string}
- */
-function decodeFromValidXml(str) {
-  return (str
-      .replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, '\'')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&#x9;/g, '\t')
-      .replace(/&#xA;/g, '\n')
-      .replace(/&#xD;/g, '\r')
-  );
-}
-
-/**
  * Retrieve the project blocks from the Blockly workspace
  * @return {Document | XMLDocument}
  */
@@ -1022,298 +1022,6 @@ function generateSvgFooter( project ) {
  * @property {string} webkitRelativePath
  */
 
-/**
- *  Retrieve an SVG project file from local storage.
- *
- *  This is the .selectfile.onChange() event handler.
- *  This function loads an .svg file, parses it for reasonable values
- *  and then stores the verified resulting project into the browser's
- *  localStorage.
- *
- * @param {ProjectFileName[]} files
- * @param {Array?} elements contains an array of HTMLElement ids that
- * identify the UI controls to enable when a valid project file has been
- * loaded.
- */
-export function uploadHandler(files, elements = null) {
-  // Sanity checks
-  if (!files || files.length === 0) {
-    logConsoleMessage(`UploadHandler: files list is empty`);
-    return;
-  }
-
-  const fileBlob = new Blob(files, {type: 'text/strings'});
-  const filename = files[0].name;
-  const fileType = files[0].type;
-  const UploadReader = new FileReader();
-
-  // This will fire is something goes sideways
-  UploadReader.onerror = function() {
-    logConsoleMessage(`File upload filename is missing`);
-  };
-
-  // TODO: Refactor this to ES5 for support in Safari and Opera
-  // eslint-disable-next-line no-unused-vars
-  const textPromise = fileBlob.text()
-      .then((text) => {
-        if (text && text.length > 0) {
-          if (parseProjectFileString(filename, fileType, text)) {
-            // update controls is provided
-            if (elements) {
-              elements.forEach(function(item, index, array) {
-                const element = $(`#${item}`);
-                if (element) {
-                  element.removeClass('disabled');
-                }
-              });
-            }
-          }
-        } else {
-          logConsoleMessage(`The selected project file appears to be empty`);
-        }
-      })
-      .catch((err) => {
-        logConsoleMessage(`${err.message}`);
-      });
-}
-
-/**
- * Convert the project string into a JSON object and store that the results in
- * the browser's localStorage temporary project store.
- * @param {string} filename
- * @param {string} fileType
- * @param {string} xmlString
- * @return {boolean} true if the file is converted to a project, otherwise false
- */
-function parseProjectFileString(filename, fileType, xmlString) {
-  // The project board type string
-  const uploadBoardType = getProjectBoardTypeName(xmlString);
-
-  // The text name of the project
-  const projectName = filename.substring(0, filename.lastIndexOf('.'));
-  logConsoleMessage(`Loading project :=> ${projectName}`);
-
-  // TODO: Solo #261
-  // Loop through blocks to verify blocks are supported for the project
-  // board type
-  // validateProjectBlockList(this.result);
-
-  // Flag to indicate that we are importing a file that
-  // was exported from the blockly.parallax.com site
-  let isSvgeFile = false;
-
-  // We need to support our rouge .svge type
-  if (fileType === '') {
-    const name = filename;
-    if (name.slice(name.length - 4) === 'svge') {
-      isSvgeFile = true;
-    }
-  }
-
-  // validate file, screen for potentially malicious code.
-  if ((fileType === 'image/svg+xml' || isSvgeFile) &&
-      xmlString.indexOf('<svg blocklyprop="blocklypropproject"') === 0 &&
-      xmlString.indexOf('<!ENTITY') === -1 &&
-      xmlString.indexOf('CDATA') === -1 &&
-      xmlString.indexOf('<!--') === -1) {
-    // Check to see if there is a project already loaded. If there is, check
-    // the existing project's board type to verify that the new project is
-    // of the same type
-    // ----------------------------------------------------------------------
-    // if (getProjectInitialState() &&
-    //     uploadBoardType !== getProjectInitialState().boardType.name) {
-    //   // Display a modal?
-    //   $('#selectfile-verify-boardtype').css('display', 'block');
-    // } else {
-    //   $('#selectfile-verify-boardtype').css('display', 'none');
-    // }
-
-    // ----------------------------------------------------------------------
-    // File processing is done. The projectXmlCode variable holds the
-    // XML string for the project that was just loaded. Convert the code
-    // into a new Project object and persist it into the browser's
-    // localStorage
-    // ----------------------------------------------------------------------
-    const tmpProject = fileToProject(
-        projectName, xmlString, uploadBoardType);
-
-    if (tmpProject) {
-      // Save the project to the browser store
-      window.localStorage.setItem(
-          TEMP_PROJECT_STORE_NAME,
-          JSON.stringify(tmpProject.getDetails()));
-
-      // These may no longer be necessary
-      importProjectDialog.isProjectFileValid = true;
-      openProjectDialog.isProjectFileValid = true;
-
-      logConsoleMessage(
-          `Project conversion successful. A copy is in local storage`);
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * Convert an svg project file content to a Project object
- * @param {string} projectName is the text name of the project
- * @param {string} rawCode This is the raw XML code from the project file
- *  without a namespace
- * @param {string} boardType This is the board type for the new project
- * @return {Project}
- */
-const fileToProject = (projectName, rawCode, boardType) => {
-  // TODO: Solo #261
-  // validateProjectBlockList(this.result);
-
-  // Search the project file for the first variable or block
-  const codeStartIndex =
-      (rawCode.indexOf('<variables') > -1) ? '<variables' : '<block';
-
-  // Extract everything from the first variable or block tag to the
-  // beginning of the checksum block. This is the project code
-  const blockCode = rawCode.substring(
-      rawCode.indexOf(codeStartIndex),
-      rawCode.indexOf('<ckm>'));
-
-  const projectXmlCode = (blockCode.length > 0) ?
-      Project.getEmptyProjectCodeHeader() + blockCode + '</xml>' :
-      Project.getEmptyProjectCodeHeader() + '</xml>';
-
-  const date = new Date();
-  const projectDesc = getProjectDescriptionFromXML(rawCode);
-  const projectCreated = getProjectCreatedDateFromXML(rawCode, date);
-  const projectModified = getProjectModifiedDateFromXML(rawCode, date);
-
-  try {
-    const tmpBoardType = Project.convertBoardType(boardType);
-    if (tmpBoardType === undefined) {
-      console.log('Unknown board type: %s', boardType);
-    }
-
-    return new Project(
-        projectName,
-        decodeFromValidXml(projectDesc),
-        tmpBoardType,
-        ProjectTypes.PROPC,
-        projectXmlCode,
-        projectCreated,
-        projectModified,
-        date.getTime(),
-        true);
-  } catch (e) {
-    console.log('Error while creating project object. %s', e.message);
-  }
-
-  return null;
-};
-
-/**
- * Append supplied code to the existing project.
- */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-function fileAppendToProject() {
-  console.log('Appending new code to existing project');
-  // TODO: Add method to Project object to support this
-}
-
-/**
- * Parse the xml string to locate and return the project board type
- *
- * @param {string} xmlString
- * @return {string}
- *
- * @description
- *  The xmlString parameter contains the raw text from the project .svg file.
- *  This function looks for the Device preamble and the computes an offset
- *  to reach the actual board type string.
- */
-function getProjectBoardTypeName(xmlString) {
-  const boardIndex = xmlString.indexOf(
-      'transform="translate(-225,-23)">Device: ');
-
-  return xmlString.substring(
-      (boardIndex + 40),
-      xmlString.indexOf('</text>', (boardIndex + 41)));
-}
-
-/**
- * Parse the xml string to locate and return the project title
- *
- * @param {string} xmlString
- * @return {string}
- */
-// eslint-disable-next-line no-unused-vars,require-jsdoc
-function getProjectTitleFromXML(xmlString) {
-  const titleIndex = xmlString.indexOf(
-      'transform="translate(-225,-53)">Title: ');
-
-  if (titleIndex > -1) {
-    return xmlString.substring(
-        (titleIndex + 39),
-        xmlString.indexOf('</text>', (titleIndex + 39)));
-  } else {
-    return 'New Project';
-  }
-}
-
-/**
- * Parse the xml string to locate and return the text of the project description
- *
- * @param {string} xmlString
- * @return {string}
- */
-function getProjectDescriptionFromXML(xmlString) {
-  const titleIndex = xmlString.indexOf(
-      'transform="translate(-225,-8)">Description: ');
-
-  if (titleIndex > -1) {
-    return xmlString.substring(
-        (titleIndex + 44),
-        xmlString.indexOf('</text>', (titleIndex + 44)));
-  }
-
-  return '';
-}
-
-/**
- * Parse the xml string to locate and return the project created timestamp
- *
- * @param {string} xmlString
- * @param {Date} defaultTimestamp
- * @return {string|*}
- */
-function getProjectCreatedDateFromXML(xmlString, defaultTimestamp) {
-  const titleIndex = xmlString.indexOf('data-createdon="');
-
-  if (titleIndex > -1) {
-    return xmlString.substring(
-        (titleIndex + 16),
-        xmlString.indexOf('"', (titleIndex + 17)));
-  }
-
-  return defaultTimestamp;
-}
-
-/**
- * Parse the xml string to locate and return the project last modified timestamp
- *
- * @param {string} xmlString
- * @param {Date} defaultTimestamp
- * @return {string|*}
- */
-function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
-  const titleIndex = xmlString.indexOf('data-lastmodified="');
-
-  if (titleIndex > -1) {
-    return xmlString.substring(
-        (titleIndex + 19),
-        xmlString.indexOf('"', (titleIndex + 20)));
-  } else {
-    return defaultTimestamp;
-  }
-}
 
 /**
  * Reset the dialog prompts
@@ -1330,115 +1038,10 @@ function clearUploadInfo() {
 }
 
 /**
- * Append a project to the current project or replace the current project
- * with the specified project.
- *
- * @description
- * This code looks for the code that will be appended to the current project
- * in the browser's localStorage temp project location.
- */
-export function appendProjectCode() {
-  const xmlTagLength = '</xml>'.length;
-  let projectData = '';
-  const currentProject = getProjectInitialState();
-  const project = projectJsonFactory(
-      JSON.parse(window.localStorage.getItem(TEMP_PROJECT_STORE_NAME)));
-  const uploadedXML = project.code;
-  if (!uploadedXML || uploadedXML.length === 0) {
-    logConsoleMessage(`Imported project contains no code segment`);
-    return;
-  }
-
-  console.log(`Initial project name: ${currentProject.name}.`);
-  console.log(`Imported project name is ${project.name}.`);
-
-  let projCode = '';
-  let newCode = uploadedXML;
-  if (newCode.indexOf('<variables>') === -1) {
-    newCode = newCode.substring(
-        uploadedXML.indexOf('<block'),
-        newCode.length - xmlTagLength);
-  } else {
-    newCode = newCode.substring(
-        uploadedXML.indexOf('<variables'),
-        newCode.length - xmlTagLength);
-  }
-
-  // check for newer blockly XML code (contains a list of variables)
-  if (newCode.indexOf('<variables') > -1 &&
-        projCode.indexOf('<variables') > -1) {
-    const findVarRegExp = /type="(\w*)" id="(.{20})">(\w+)</g;
-    const newBPCvars = [];
-    const oldBPCvars = [];
-
-    let varCodeTemp = newCode.split('</variables>');
-    newCode = varCodeTemp[1];
-    // use a regex to match the id, name, and type of the variables in both
-    // the old and new code.
-    let tmpv = varCodeTemp[0]
-        .split('<variables')[1]
-        .replace(findVarRegExp,
-            // type, id, name
-            function(p, m1, m2, m3) {
-              newBPCvars.push([m3, m2, m1]); // name, id, type
-              return p;
-            });
-    varCodeTemp = projCode.split('</variables>');
-    projCode = varCodeTemp[1];
-    // type, id, name
-    tmpv = varCodeTemp[0].replace(
-        findVarRegExp,
-        function(p, m1, m2, m3) {
-          oldBPCvars.push([m3, m2, m1]); // name, id, type
-          return p;
-        });
-    // record how many variables are in the original and new code
-    tmpv = [oldBPCvars.length, newBPCvars.length];
-    // iterate through the captured variables to detemine if any overlap
-    for (let j = 0; j < tmpv[0]; j++) {
-      for (let k = 0; k < tmpv[1]; k++) {
-        // see if var is a match
-        if (newBPCvars[k][0] === oldBPCvars[j][0]) {
-          // replace old variable IDs with new ones
-          const tmpVars = newCode.split(newBPCvars[k][1]);
-          newCode = tmpVars.join(oldBPCvars[j][1]);
-          // null the ID to mark that it's a duplicate and
-          // should not be included in the combined list
-          newBPCvars[k][1] = null;
-        }
-      }
-    }
-    for (let k = 0; k < tmpv[1]; k++) {
-      if (newBPCvars[k][1]) {
-        // Add var from uploaded xml to the project code
-        oldBPCvars.push(newBPCvars[k]);
-      }
-    }
-
-    // rebuild vars from both new/old
-    tmpv = '<variables>';
-    oldBPCvars.forEach(function(vi) {
-      tmpv += '<variable id="' + vi[1] + '" type="' + vi[2] + '">' +
-            vi[0] + '</variable>';
-    });
-    tmpv += '</variables>';
-    // add everything back together
-    projectData = tmpv + projCode + newCode;
-  } else if (newCode.indexOf('<variables') > -1 &&
-        projCode.indexOf('<variables') === -1) {
-    projectData = newCode + projCode;
-  } else {
-    projectData = projCode + newCode;
-  }
-  currentProject.setCodeWithNamespace(projectData);
-  refreshEditorCanvas(currentProject);
-}
-
-/**
  * Update the editor canvas with the current project blocks
  * @param {Project} project is the project object to use for the refresh
  */
-function refreshEditorCanvas(project) {
+export function refreshEditorCanvas(project) {
   logConsoleMessage(`Refreshing editor canvas`);
   initializeBlockly(Blockly);
   renderContent('blocks');
@@ -1794,20 +1397,6 @@ function getXml() {
  */
 export function createNewProject() {
   logConsoleMessage(`Creating a new project`);
-  // let code = '';
-  // const project = getProjectInitialState();
-
-  // If editing details, preserve the code, otherwise start over
-  // This should no longer be handled here.
-  // TODO: Refactor this into a separate function to handled editing
-  //  project details.
-  // if (project &&
-  //     typeof(project.boardType.name) !== 'undefined' &&
-  //     $('#new-project-dialog-title')
-  //         .html() === PageTextLabels['editor_edit-details']) {
-  //   code = getXml();
-  // }
-
   // Save the form fields into the projectData object
   // The projectData variable is defined in globals.js
   const projectName = $('#new-project-name').val();
@@ -1858,11 +1447,6 @@ export function createNewProject() {
     newProject.setProjectTimer(myTime);
     setupWorkspace(newProject);
 
-    // Create an instance of the CodeEditor class
-    // codeEditor = new CodeEditor(newProject.boardType.name);
-    // if (!codeEditor) {
-    //   console.log('Error allocating CodeEditor object');
-    // }
     propToolbarButtonController();
   } catch (e) {
     logConsoleMessage(`Error while creating project object. ${e.message}.`);
@@ -1884,20 +1468,20 @@ export function insertProject(project) {
       clientService.setTerminalBaudRate(myProject.boardType.baudrate);
     }
 
-    if (!project.isTimerSet()) {
-      // Create a new nudge timer
-      const myTime = new NudgeTimer(0);
-      // Set the callback
-      myTime.myCallback = function() {
-        if (isProjectChanged) {
-          showProjectTimerModalDialog();
-        }
-      };
-
-      // Start the timer and save it to the project object
-      myTime.start(10);
-      project.setProjectTimer(myTime);
-    }
+    // if (!project.isTimerSet()) {
+    //   // Create a new nudge timer
+    //   const myTime = new NudgeTimer(0);
+    //   // Set the callback
+    //   myTime.myCallback = function() {
+    //     if (isProjectChanged) {
+    //       showProjectTimerModalDialog();
+    //     }
+    //   };
+    //
+    //   // Start the timer and save it to the project object
+    //   myTime.start(10);
+    //   project.setProjectTimer(myTime);
+    // }
 
     setupWorkspace(project);
 
