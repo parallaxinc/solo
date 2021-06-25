@@ -30,7 +30,7 @@ import {logConsoleMessage, utils} from '../utility';
 import {loadProjectFile} from '../project/project_io';
 
 /**
- * @module open_project
+ * @module openProject
  */
 
 /**
