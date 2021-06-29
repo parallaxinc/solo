@@ -26,6 +26,7 @@ import 'jquery-validation';
 import {displayProjectName} from './editor.js';
 import {getProjectInitialState} from './project';
 import {utils} from './utility';
+import {populateProjectBoardTypesUIElement} from './dialogs/new_project';
 
 /**
  *  Validate the required elements of the edit project form
@@ -73,6 +74,10 @@ export function editProjectDetails() {
   // Display project board type.
   const elementProjectBoardType = $('#edit-project-board-type-ro');
   elementProjectBoardType.html(project.boardType.name.toUpperCase());
+
+  populateProjectBoardTypesUIElement(
+      $('#edit-board-type'),
+      project.boardType.name.toUpperCase());
 
   // Display the project create and last modified time stamps
   const createDate = new Date(project.created);
@@ -136,6 +141,7 @@ function updateProjectDetails() {
       $('#edit-project-name').val(),
       $('#edit-project-description').val(),
   );
+  updateProjectBoardType($('#edit-board-type').val());
 }
 
 /**
@@ -153,6 +159,19 @@ function updateProjectNameDescription(newName, newDescription) {
 
   if (!(project.description === newDescription)) {
     project.description = newDescription;
+  }
+}
+
+/**
+ * Change the project board type if the passed value is different than the current board type
+ *
+ * @param {string} board
+ */
+function updateProjectBoardType(board) {
+  const project = getProjectInitialState();
+  if (project.getBoardName() !== board) {
+    // Change the board type
+    project.setBoardType(board);
   }
 }
 

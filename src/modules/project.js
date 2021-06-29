@@ -300,6 +300,14 @@ class Project {
   } // End of constructor
 
   /**
+   * Return the name of the current project board type
+   * @return {string}
+   */
+  getBoardName() {
+    return this.boardType.name;
+  }
+
+  /**
      * Get all of the project details in one function call. This is
      * a direct replacement for the code that is converted to JSON
      * to persist the project to storage.
@@ -355,6 +363,9 @@ class Project {
     this.code = newCode;
   }
 
+  setBoardType(name) {
+    this.boardType = Project.convertBoardType(name);
+  }
   /**
    * Setting for code field with namespaced added automatically
    * @param {string} newCode
