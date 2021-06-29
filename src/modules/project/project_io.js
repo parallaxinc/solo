@@ -110,6 +110,11 @@ export const filestreamToProject = (projectName, rawCode) => {
   const projectDesc = getProjectDescriptionFromXML(rawCode);
   const projectModified = getProjectModifiedDateFromXML(rawCode, date);
   const projectBoardType = getProjectBoardTypeFromXML(rawCode);
+  let projectNameString = getProjectTitleFromXML(rawCode);
+  console.log(`Project Title: ${projectNameString}`);
+  if (projectNameString === '') {
+    projectNameString = projectName;
+  }
 
   // Project create date can be missing in some projects. Set it to the
   // last modify date as a last-ditch default
@@ -125,7 +130,7 @@ export const filestreamToProject = (projectName, rawCode) => {
     }
 
     return new Project(
-        projectName,
+        projectNameString,
         decodeFromValidXml(projectDesc),
         tmpBoardType,
         ProjectTypes.PROPC,
@@ -180,6 +185,40 @@ function getProjectBoardTypeFromXML(xml) {
       xml.indexOf('</text>', (index + searchString.length)));
 }
 
+
+
+/**
+ * Retrieve the project board type from the raw project XML
+ * @param {string} xml
+ * @return {string}
+ */
+function getProjectTitleFromXML(xml) {
+  const searchString = `transform="translate(-225,-53)">Title: `;
+  const index = xml.indexOf(searchString);
+
+  if (index === -1) {
+    return '';
+  }
+
+  const title = xml.substring(
+      (index + searchString.length),
+      xml.indexOf('</text>', (index + searchString.length)));
+
+  if (! title) {
+    return '';
+  }
+
+  if (title.endsWith('.svg')) {
+    return title.substr(0,title.length - 4);
+  }
+
+  if (title.endsWith('.svge')) {
+    return title.substr(0,title.length - 5);
+  }
+
+  return title;
+
+}
 
 /**
  * Parse the xml string to locate and return the project created timestamp

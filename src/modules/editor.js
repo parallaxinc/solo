@@ -918,7 +918,7 @@ function downloadCode(project) {
   // dialog box will happen at some point after this function is executed.
   // We also will never know if the save was truly successful, so we
   // operate as if it was.
-  saveAs(blob, projectFilename + '.svg');
+  saveAs(blob, `${projectFilename}.svg`);
 
   // Save the project into localStorage with a timestamp - if the page is
   // simply refreshed, this will allow the project to be reloaded.
