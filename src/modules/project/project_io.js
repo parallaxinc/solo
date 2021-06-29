@@ -69,7 +69,7 @@ export async function loadProjectFile(files) {
     await parseProjectFileString(fileList[0].name, fileType, resData);
 
     // Convert project XML string to a Project object
-    const project = filestreamToProject(fileList[0].name, resData, 'flip');
+    const project = filestreamToProject(fileList[0].name, resData);
     if (project) {
       return formatResult(0, 'success', project);
     }
@@ -86,10 +86,9 @@ export async function loadProjectFile(files) {
  * @param {string} projectName is the text name of the project
  * @param {string} rawCode This is the raw XML code from the project file
  *  without a namespace
- * @param {string} boardType This is the board type for the new project
  * @return {Project}
  */
-export const filestreamToProject = (projectName, rawCode, boardType) => {
+export const filestreamToProject = (projectName, rawCode) => {
   // TODO: Solo #261
   // validateProjectBlockList(this.result);
 
@@ -110,6 +109,7 @@ export const filestreamToProject = (projectName, rawCode, boardType) => {
   const date = new Date();
   const projectDesc = getProjectDescriptionFromXML(rawCode);
   const projectModified = getProjectModifiedDateFromXML(rawCode, date);
+  const projectBoardType = getProjectBoardTypeFromXML(rawCode);
 
   // Project create date can be missing in some projects. Set it to the
   // last modify date as a last-ditch default
@@ -119,9 +119,9 @@ export const filestreamToProject = (projectName, rawCode, boardType) => {
   }
 
   try {
-    const tmpBoardType = Project.convertBoardType(boardType);
+    const tmpBoardType = Project.convertBoardType(projectBoardType);
     if (tmpBoardType === undefined) {
-      console.log('Unknown board type: %s', boardType);
+      console.log(`Unknown board type: ${projectBoardType}`);
     }
 
     return new Project(
@@ -159,6 +159,27 @@ function getProjectDescriptionFromXML(xmlString) {
 
   return '';
 }
+
+
+/**
+ * Retrieve the project board type from the raw project XML
+ * @param {string} xml
+ * @return {string}
+ */
+function getProjectBoardTypeFromXML(xml) {
+  //  transform=\"translate(-225,-23)\">Device: activity-board</text>
+  const searchString = `transform="translate(-225,-23)">Device: `;
+  const index = xml.indexOf(searchString);
+
+  if (index === -1) {
+    return '';
+  }
+
+  return xml.substring(
+      (index + searchString.length),
+      xml.indexOf('</text>', (index + searchString.length)));
+}
+
 
 /**
  * Parse the xml string to locate and return the project created timestamp
