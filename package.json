@@ -41,7 +41,7 @@
     "canvas": "^2.5.0",
     "chartist": "^0.11.4",
     "dotenv": "^8.2.0",
-    "file-saver": "^2.0.2",
+    "file-saver": "^2.0.5",
     "jquery": "^3.5.1",
     "jquery-validation": "^1.19.3",
     "jszip": "^3.3.0",
