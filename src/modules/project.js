@@ -363,8 +363,14 @@ class Project {
     this.code = newCode;
   }
 
+  /**
+   * Change the project board type
+   * @param {string} name
+   */
   setBoardType(name) {
-    this.boardType = Project.convertBoardType(name);
+    if (name && (this.boardType.name.toUpperCase() !== name.toUpperCase())) {
+      this.boardType = Project.convertBoardType(name);
+    }
   }
   /**
    * Setting for code field with namespaced added automatically
