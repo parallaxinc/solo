@@ -55,6 +55,7 @@
     "chai": "^4.3.4",
     "copy-webpack-plugin": "^7.0.0",
     "css-loader": "^5.2.4",
+    "cypress": "^7.7.0",
     "elliptic": "^6.5.4",
     "eslint": "^6.6.0",
     "eslint-config-google": "^0.14.0",
