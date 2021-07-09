@@ -5,6 +5,7 @@
   "main": "editor.js",
   "scripts": {
     "compile:sass": "sass sass/main.scss dist/main.css -w",
+    "cypress": "cypress open",
     "dev": "webpack --config webpack/dev.config.js --node-env development --watch",
     "dev:analyze": "npm run dev -- --env.addons=bundleanalyzer",
     "build": "rm -rdf ./dist/*; webpack --config webpack/prod.config.js --node-env production --stats",
