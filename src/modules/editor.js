@@ -696,7 +696,7 @@ export function displayProjectName(name) {
  * Display an icon representing the selected board type.
  * @param {string} boardType
  */
-function displayProjectBoardIcon(boardType) {
+export function displayProjectBoardIcon(boardType) {
   // Create an array of board type icons
   const projectBoardIcon = {
     'activity-board': 'images/board-icons/IconActivityBoard.png',
@@ -711,8 +711,10 @@ function displayProjectBoardIcon(boardType) {
   // Set the project icon to the correct board type
   const element = document.getElementById('project-icon');
   if (element) {
-    element.innerHTML =
-        `<img src="${projectBoardIcon[boardType]}" title="Project board type is: ${boardType}"  alt="${boardType}"/>`;
+    element.innerHTML = `
+        <img src="${projectBoardIcon[boardType]}"
+             title="Project board type is: ${boardType}"
+             alt="${boardType}"/>`;
   }
 }
 
