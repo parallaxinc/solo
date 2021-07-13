@@ -23,7 +23,7 @@
 
 import 'bootstrap/js/modal';
 import 'jquery-validation';
-import {displayProjectName} from './editor.js';
+import {displayProjectName, displayProjectBoardIcon} from './editor.js';
 import {getProjectInitialState} from './project';
 import {utils} from './utility';
 import {populateProjectBoardTypesUIElement} from './dialogs/new_project';
@@ -172,6 +172,7 @@ function updateProjectBoardType(board) {
   if (project.getBoardName() !== board) {
     // Change the board type
     project.setBoardType(board);
+    displayProjectBoardIcon(board);
   }
 }
 
