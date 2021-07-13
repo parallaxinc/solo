@@ -198,25 +198,28 @@ button:hover {
 }
 
 #nav-logo {
-  background-image: url('images/logo_small.png');
-  background-repeat: no-repeat;
-  background-size: 50px 50px;
-  padding-left: 55px;
-  margin-left: 5px;
-  margin-top: 5px;
-  height: 50px;
+  margin-left: 7px;
+  margin-top: 7px;
   font-size: 22px;
   line-height: 25px;
   display: inline;
   float: left;
 }
 
+.branding-logo {
+  margin-top: 5px;
+  margin-left: 5px;
+  display: inline;
+  float:left;
+  height: 55px;
+}
 .url-prefix {
   color: #337ab7;
 }
 
 #nav-title {
   color: #BCD0E4;
+  padding-top: 5px;
   height: 50px;
   font-size: 25px;
   position: absolute;
@@ -347,6 +350,10 @@ ul > hr {
   box-shadow: inset 0 1px 1px rgba(0,0,0,0.0);
 }
 
+#right-menus {
+  float:right;
+  padding-right: 15px;
+}
 
 #comPort {
   display: inline-block;

@@ -24,7 +24,6 @@ import {startSentry} from './sentry';
 import 'bootstrap';
 import Blockly from 'blockly/core';
 import * as saveAs from 'file-saver';
-
 import * as JSZip from 'jszip';
 
 // eslint-disable-next-line camelcase
@@ -66,7 +65,6 @@ import {setProjectInitialState, setDefaultProfile} from './project';
 import {ProjectTypes, clearProjectInitialState} from './project';
 import {projectJsonFactory} from './project';
 import {buildDefaultProject} from './project_default';
-import {initToolbarIcons} from './toolbar_controller';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
@@ -127,6 +125,8 @@ $(() => {
 
   // Set the compile toolbar buttons to unavailable
   // setPropToolbarButtons();
+  // Hide the loading... message
+  document.getElementById('client-loading').classList.add('hidden');
   propToolbarButtonController();
 
   // The BASE_URL is deprecated since it is always the empty string
@@ -165,7 +165,6 @@ $(() => {
 async function initializePage() {
   renderPageBrandingElements();
   await initInternationalText();
-  await initToolbarIcons();
 
   // Set up the URLs to download new Launchers and BP Clients
   await initClientDownloadLinks();
