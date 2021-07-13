@@ -111,7 +111,7 @@ export const filestreamToProject = (projectName, rawCode) => {
   const projectModified = getProjectModifiedDateFromXML(rawCode, date);
   const projectBoardType = getProjectBoardTypeFromXML(rawCode);
   let projectNameString = getProjectTitleFromXML(rawCode);
-  console.log(`Project Title: ${projectNameString}`);
+
   if (projectNameString === '') {
     projectNameString = projectName;
   }
@@ -186,7 +186,6 @@ function getProjectBoardTypeFromXML(xml) {
 }
 
 
-
 /**
  * Retrieve the project board type from the raw project XML
  * @param {string} xml
@@ -209,15 +208,16 @@ function getProjectTitleFromXML(xml) {
   }
 
   if (title.endsWith('.svg')) {
-    return title.substr(0,title.length - 4);
+    logConsoleMessage(`Stripping ".svg" from project title`);
+    return title.substr(0, title.length - 4);
   }
 
   if (title.endsWith('.svge')) {
-    return title.substr(0,title.length - 5);
+    logConsoleMessage(`Stripping ".svge" from project title`);
+    return title.substr(0, title.length - 5);
   }
 
   return title;
-
 }
 
 /**

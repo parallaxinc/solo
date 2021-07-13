@@ -80,7 +80,7 @@ export const newProjectDialog = {
     }
 
     this.reset();
-    populateProjectBoardTypesUIElement();
+    populateProjectBoardTypesUIElement($('#new-project-board-type'), null);
 
     // Show the New Project modal dialog box
     $('#new-project-dialog').modal({keyboard: false, backdrop: 'static'});
@@ -201,6 +201,8 @@ function newProjectModalEscapeClick() {
 
 /**
  * Populate the UI Project board type drop-down list
+ * @param {HTMLElement} element
+ * @param {string | null} selected
  * @description
  * element is the <select> HTML element that will be populated with a
  * collection of possible board types
@@ -209,26 +211,29 @@ function newProjectModalEscapeClick() {
  * containing the board type in the list that should be designated as the
  * selected board type.
  */
-function populateProjectBoardTypesUIElement() {
-  const element = $('#new-project-board-type');
+export function populateProjectBoardTypesUIElement(element, selected) {
   if (!element) {
     logConsoleMessage(`Unable to find Board Type UI element.`);
     return;
   }
 
+  logConsoleMessage(`Current board type is "${selected}`);
+
   // Clear out the board type dropdown menu
   const length = element[0].options.length;
-  for (let i = length-1; i >= 0; i--) {
+  for (let i = length - 1; i >= 0; i--) {
     element[0].options[i].remove();
   }
 
   // Populate the board type dropdown menu with a header first,
-  element.append($('<option />')
-      .val('')
-      .text(getHtmlText('project_create_board_type_select'))
-      .attr('disabled', 'disabled')
-      .attr('selected', 'selected'),
-  );
+  if (!selected) {
+    element.append($('<option />')
+        .val('')
+        .text(getHtmlText('project_create_board_type_select'))
+        .attr('disabled', 'disabled')
+        .attr('selected', 'selected'),
+    );
+  }
 
   // then populate the dropdown with the board types
   // defined in propc.js in the 'profile' object
@@ -243,9 +248,18 @@ function populateProjectBoardTypesUIElement() {
           if (board !== 'unknown') {
             // Exclude the 'unknown' board type. It is used only when
             // something has gone wrong during a project load operation
-            element.append($('<option />')
-                .val(ProjectProfiles[board].name)
-                .text(ProjectProfiles[board].description));
+            const value = ProjectProfiles[board].name;
+            const description = ProjectProfiles[board].description;
+            if (selected && (value.toUpperCase() === selected.toUpperCase())) {
+              element.append($('<option />')
+                  .attr('selected', 'selected')
+                  .val(value)
+                  .text(description));
+            } else {
+              element.append($('<option />')
+                  .val(value)
+                  .text(description));
+            }
           }
         }
       }
