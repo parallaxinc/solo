@@ -712,7 +712,7 @@ function displayProjectBoardIcon(boardType) {
   const element = document.getElementById('project-icon');
   if (element) {
     element.innerHTML =
-        `<img src="${projectBoardIcon[boardType]}"  alt="Board icon"/>`;
+        `<img src="${projectBoardIcon[boardType]}" title="Project board type is: ${boardType}"  alt="${boardType}"/>`;
   }
 }
 
