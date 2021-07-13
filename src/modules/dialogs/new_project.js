@@ -213,11 +213,13 @@ function newProjectModalEscapeClick() {
  */
 export function populateProjectBoardTypesUIElement(element, selected) {
   if (!element) {
-    logConsoleMessage(`Unable to find Board Type UI element.`);
+    logConsoleMessage(`Board Type UI element was not provided.`);
     return;
   }
 
-  logConsoleMessage(`Current board type is "${selected}`);
+  if (selected) {
+    logConsoleMessage(`Current board type is "${selected}`);
+  }
 
   // Clear out the board type dropdown menu
   const length = element[0].options.length;
@@ -248,23 +250,52 @@ export function populateProjectBoardTypesUIElement(element, selected) {
           if (board !== 'unknown') {
             // Exclude the 'unknown' board type. It is used only when
             // something has gone wrong during a project load operation
-            const value = ProjectProfiles[board].name;
+            const name = ProjectProfiles[board].name;
             const description = ProjectProfiles[board].description;
-            if (selected && (value.toUpperCase() === selected.toUpperCase())) {
-              element.append($('<option />')
-                  .attr('selected', 'selected')
-                  .val(value)
-                  .text(description));
+            if (selected) {
+              if (name.toUpperCase() === selected.toUpperCase()) {
+                // The board type is the current project board type
+                element.append($('<option />')
+                    .attr('selected', 'selected')
+                    .val(name)
+                    .text(description));
+              } else {
+                // Implement conversion matrix
+                switch (selected.toUpperCase()) {
+                  case 'FLIP':
+                    // Flip can convert to all other types
+                    buildBoardTypeElement(element, name, description);
+                    break;
+
+                  case 'ACTIVITY-BOARD':
+                  case 'HEB':
+                  case 'HEB-WX':
+                    if (name === 'other') {
+                      buildBoardTypeElement(element, name, description);
+                    }
+                    break;
+                }
+              }
             } else {
-              element.append($('<option />')
-                  .val(value)
-                  .text(description));
+              buildBoardTypeElement(element, name, description);
             }
           }
         }
       }
     }
   }
+}
+
+/**
+ * Add a board-type element to the selection list
+ * @param {HTMLElement} element
+ * @param {string} name
+ * @param {string} description
+ */
+function buildBoardTypeElement(element, name, description) {
+  element.append($('<option />')
+      .val(name)
+      .text(description));
 }
 
 /**
