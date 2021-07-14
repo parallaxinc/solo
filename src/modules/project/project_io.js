@@ -227,8 +227,6 @@ function getProjectCreatedDate(xmlString, defaultTimestamp) {
   const titleIndex = xmlString.indexOf('data-createdon="');
 
   if (titleIndex > -1) {
-    console.log(`Found project created on date at offset ${titleIndex}`);
-    console.log(`Project Created Date string: ${xmlString.substr(titleIndex, 50)}`);
     const result = xmlString.substring(
         (titleIndex + 16),
         xmlString.indexOf('"', (titleIndex + 17)));
@@ -237,7 +235,6 @@ function getProjectCreatedDate(xmlString, defaultTimestamp) {
     }
   }
 
-  console.log('Setting project create date to now.');
   return defaultTimestamp.toString();
 }
 
