@@ -549,20 +549,6 @@ function initDefaultProject() {
     clientService.setTerminalBaudRate(myProject.boardType.baudrate);
   }
 
-  // Create a new nudge timer
-  const myTime = new NudgeTimer(0);
-  // Set the callback
-  myTime.myCallback = function() {
-    if (isProjectChanged) {
-      showProjectTimerModalDialog();
-    }
-  };
-
-  // Start the timer and save it to the project object
-  myTime.start(10);
-  defaultProject.setProjectTimer(myTime);
-  setupWorkspace(defaultProject);
-
   // Create an instance of the CodeEditor class
   codeEditor = new CodeEditor(defaultProject.boardType.name);
   if (!codeEditor) {
