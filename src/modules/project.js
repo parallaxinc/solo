@@ -230,11 +230,33 @@ class Project {
 
     // This should be a timestamp but is received as a string
     // TODO: Convert timestamp string to numeric values
+
+    /**
+     * The date stamp for when the project was created.
+     * @type {Date}
+     * @private
+     * @description If the value is null, use the date modified time stamp.
+     *  If both are null, set them both to Date,Now.
+     */
     this.created = created;
+
+    /**
+     * The data stamp for when the project was last modified
+     * @type {Date}
+     * @description If this value is null, set it to Date.Now.
+     */
     this.modified = modified;
+
+    /**
+     * Timestamp set when the project is loaded from storage
+     * @type {number}
+     */
     this.timestamp = timestamp;
 
-    // instance properties that are deprecated
+    // --------------------------------------- //
+    // instance properties that are deprecated //
+    // --------------------------------------- //
+
     /**
      * The unique project ID, used in the BlocklyProp server implementation.
      * @type {number}
@@ -298,6 +320,24 @@ class Project {
       this.projectData = this.getDetails();
     }
   } // End of constructor
+
+  /**
+   * Project created date getter
+   * @return {Date}
+   */
+  getCreated() {
+    return this.created;
+  }
+
+  /**
+   * Project created date setter
+   * @param {Date} value
+   */
+  setCreated(value) {
+    if (typeof value == Date) {
+      this.created = value;
+    }
+  }
 
   /**
    * Return the name of the current project board type

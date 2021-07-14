@@ -80,7 +80,7 @@ export function editProjectDetails() {
       project.boardType.name.toUpperCase());
 
   // Display the project create and last modified time stamps
-  const createDate = new Date(project.created);
+  const createDate = new Date(project.getCreated());
   const modifiedDate = new Date(project.modified);
   $('#edit-project-created-date-ro').html(createDate.toLocaleDateString());
   $('#edit-project-last-modified-ro').html(modifiedDate.toLocaleDateString());
