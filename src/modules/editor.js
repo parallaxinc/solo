@@ -64,7 +64,7 @@ import {Project, getProjectInitialState, getDefaultProfile} from './project';
 import {setProjectInitialState, setDefaultProfile} from './project';
 import {ProjectTypes, clearProjectInitialState} from './project';
 import {projectJsonFactory} from './project';
-import {buildDefaultProject} from './project_default';
+import {buildDefaultProject} from './project/project_default';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
@@ -554,6 +554,7 @@ function initDefaultProject() {
   if (!codeEditor) {
     console.log('Error allocating CodeEditor object');
   }
+  setupWorkspace(defaultProject);
   propToolbarButtonController();
 }
 
