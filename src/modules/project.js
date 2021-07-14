@@ -233,10 +233,14 @@ class Project {
 
     /**
      * The date stamp for when the project was created.
-     * @type {Date}
+     * @type {Date} Records the date the project was created.
      * @private
-     * @description If the value is null, use the date modified time stamp.
-     *  If both are null, set them both to Date,Now.
+     * @description This field hold a date value that is persisted in Epoc format. It is stored
+     * as a date value here and it is the responsibility of the project writer to ensure that
+     * the date value is persisted a date value expressed as an Epoc string.
+     *
+     * If the value is null, use the date modified time stamp. If both are null, set
+     * them both to Date.Now.
      */
     this.created = created;
 
