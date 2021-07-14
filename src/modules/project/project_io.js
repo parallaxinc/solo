@@ -65,11 +65,12 @@ export async function loadProjectFile(files) {
     // Load the project file into a Blob and return as an XML string
     const resData = await blobToData(new Blob(fileList, {type: 'text/strings'}));
 
-    // Parse the XML string to validate content as a valid project
-    await parseProjectFileString(fileList[0].name, fileType, resData);
+    // Parse the XML string to validate content as a valid project. This method will
+    // throw an exception if anything it examines is incorrect or missing
+    await validateProjectFileXml(fileList[0].name, fileType, resData);
 
     // Convert project XML string to a Project object
-    const project = filestreamToProject(fileList[0].name, resData);
+    const project = convertFilestreamToProject(fileList[0].name, resData);
     if (project) {
       return formatResult(0, 'success', project);
     }
@@ -88,7 +89,7 @@ export async function loadProjectFile(files) {
  *  without a namespace
  * @return {Project}
  */
-export const filestreamToProject = (projectName, rawCode) => {
+const convertFilestreamToProject = (projectName, rawCode) => {
   // TODO: Solo #261
   // validateProjectBlockList(this.result);
 
@@ -108,19 +109,20 @@ export const filestreamToProject = (projectName, rawCode) => {
 
   const date = new Date();
   const projectDesc = getProjectDescriptionFromXML(rawCode);
+
+  // Get the project's last modified date. Use the supplied default if
+  // the last modified date in the project is not found or is invalid
   const projectModified = getProjectModifiedDateFromXML(rawCode, date);
+
+  // Project create date can be missing in some projects. Set it to the
+  // last modify date as a last-ditch default
+  const projectCreated = getProjectCreatedDate(rawCode, projectModified);
+
   const projectBoardType = getProjectBoardTypeFromXML(rawCode);
   let projectNameString = getProjectTitleFromXML(rawCode);
 
   if (projectNameString === '') {
     projectNameString = projectName;
-  }
-
-  // Project create date can be missing in some projects. Set it to the
-  // last modify date as a last-ditch default
-  let projectCreated = getProjectCreatedDateFromXML(rawCode, date);
-  if (! projectCreated) {
-    projectCreated = projectModified;
   }
 
   try {
@@ -131,7 +133,7 @@ export const filestreamToProject = (projectName, rawCode) => {
 
     return new Project(
         projectNameString,
-        decodeFromValidXml(projectDesc),
+        projectDesc,
         tmpBoardType,
         ProjectTypes.PROPC,
         projectXmlCode,
@@ -157,9 +159,10 @@ function getProjectDescriptionFromXML(xmlString) {
       'transform="translate(-225,-8)">Description: ');
 
   if (titleIndex > -1) {
-    return xmlString.substring(
-        (titleIndex + 44),
-        xmlString.indexOf('</text>', (titleIndex + 44)));
+    return decodeFromValidXml(
+        xmlString.substring(
+            (titleIndex + 44),
+            xmlString.indexOf('</text>', (titleIndex + 44))));
   }
 
   return '';
@@ -223,20 +226,27 @@ function getProjectTitleFromXML(xml) {
 /**
  * Parse the xml string to locate and return the project created timestamp
  *
- * @param {string} xmlString
- * @param {Date} defaultTimestamp
+ * @param {string} xmlString Contains the raw project xml.
+ * @param {Date} defaultTimestamp This value is returned if the xml does not
+ *  contain a "created_on" element.
  * @return {string|*}
  */
-function getProjectCreatedDateFromXML(xmlString, defaultTimestamp) {
+function getProjectCreatedDate(xmlString, defaultTimestamp) {
   const titleIndex = xmlString.indexOf('data-createdon="');
 
   if (titleIndex > -1) {
-    return xmlString.substring(
+    console.log(`Found project created on date at offset ${titleIndex}`);
+    console.log(`Project Created Date string: ${xmlString.substr(titleIndex, 50)}`);
+    const result = xmlString.substring(
         (titleIndex + 16),
         xmlString.indexOf('"', (titleIndex + 17)));
+    if (result !== 'NaN') {
+      return result;
+    }
   }
 
-  return defaultTimestamp;
+  console.log('Setting project create date to now.');
+  return defaultTimestamp.toString();
 }
 
 /**
@@ -254,6 +264,7 @@ function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
         (titleIndex + 19),
         xmlString.indexOf('"', (titleIndex + 20)));
   } else {
+    console.log('Setting project last modified date to now.');
     return defaultTimestamp;
   }
 }
@@ -319,7 +330,7 @@ function formatResult(status, message, project) {
  * @param {string} xmlString
  * @throws StringException
  */
-async function parseProjectFileString(filename, fileType, xmlString) {
+async function validateProjectFileXml(filename, fileType, xmlString) {
   // The project board type string
   const uploadBoardType = getProjectBoardTypeName(xmlString);
   if (uploadBoardType.length === 0) {
@@ -327,10 +338,6 @@ async function parseProjectFileString(filename, fileType, xmlString) {
         uploadBoardType,
         'Project board type was not found');
   }
-
-  // The text name of the project
-  // const projectName = filename.substring(0, filename.lastIndexOf('.'));
-  // logConsoleMessage(`Loading project :=> ${projectName}`);
 
   // TODO: Solo #261
   // Loop through blocks to verify blocks are supported for the project
