@@ -31,6 +31,7 @@ import {serialConsole} from './serial_console';
 import {logConsoleMessage, utils} from './utility';
 import {propToolbarButtonController} from './toolbar_controller';
 import {getPropTerminal} from './prop_term';
+import {hideCompilerStatusWindow} from './modals';
 
 /**
  * Enable or disable debug-level console logging
@@ -313,7 +314,7 @@ function wsProcessUiCommand(message) {
       break;
 
     case WS_ACTION_CLOSE_COMPILE:
-      $('#compile-dialog').modal('hide');
+      hideCompilerStatusWindow();
       $('#compile-console').val('');
       break;
 
