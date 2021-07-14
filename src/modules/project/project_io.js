@@ -90,9 +90,6 @@ export async function loadProjectFile(files) {
  * @return {Project}
  */
 const convertFilestreamToProject = (projectName, rawCode) => {
-  // TODO: Solo #261
-  // validateProjectBlockList(this.result);
-
   // Search the project file for the first variable or block
   const codeStartIndex =
       (rawCode.indexOf('<variables') > -1) ? '<variables' : '<block';
@@ -108,18 +105,11 @@ const convertFilestreamToProject = (projectName, rawCode) => {
       Project.getEmptyProjectCodeHeader() + '</xml>';
 
   const date = new Date();
-  const projectDesc = getProjectDescriptionFromXML(rawCode);
-
-  // Get the project's last modified date. Use the supplied default if
-  // the last modified date in the project is not found or is invalid
-  const projectModified = getProjectModifiedDateFromXML(rawCode, date);
-
-  // Project create date can be missing in some projects. Set it to the
-  // last modify date as a last-ditch default
+  const projectDesc = getProjectDescription(rawCode);
+  const projectModified = getProjectModifiedDate(rawCode, date);
   const projectCreated = getProjectCreatedDate(rawCode, projectModified);
-
-  const projectBoardType = getProjectBoardTypeFromXML(rawCode);
-  let projectNameString = getProjectTitleFromXML(rawCode);
+  const projectBoardType = getProjectBoardType(rawCode);
+  let projectNameString = getProjectTitle(rawCode);
 
   if (projectNameString === '') {
     projectNameString = projectName;
@@ -154,7 +144,7 @@ const convertFilestreamToProject = (projectName, rawCode) => {
  * @param {string} xmlString
  * @return {string}
  */
-function getProjectDescriptionFromXML(xmlString) {
+function getProjectDescription(xmlString) {
   const titleIndex = xmlString.indexOf(
       'transform="translate(-225,-8)">Description: ');
 
@@ -174,7 +164,7 @@ function getProjectDescriptionFromXML(xmlString) {
  * @param {string} xml
  * @return {string}
  */
-function getProjectBoardTypeFromXML(xml) {
+function getProjectBoardType(xml) {
   //  transform=\"translate(-225,-23)\">Device: activity-board</text>
   const searchString = `transform="translate(-225,-23)">Device: `;
   const index = xml.indexOf(searchString);
@@ -194,7 +184,7 @@ function getProjectBoardTypeFromXML(xml) {
  * @param {string} xml
  * @return {string}
  */
-function getProjectTitleFromXML(xml) {
+function getProjectTitle(xml) {
   const searchString = `transform="translate(-225,-53)">Title: `;
   const index = xml.indexOf(searchString);
 
@@ -224,7 +214,9 @@ function getProjectTitleFromXML(xml) {
 }
 
 /**
- * Parse the xml string to locate and return the project created timestamp
+ * Parse the xml string to locate and return the project created timestamp. The project created
+ * date can be missing in some projects. Set the date to the provided value if one is not found
+ * within the project.
  *
  * @param {string} xmlString Contains the raw project xml.
  * @param {Date} defaultTimestamp This value is returned if the xml does not
@@ -250,13 +242,14 @@ function getProjectCreatedDate(xmlString, defaultTimestamp) {
 }
 
 /**
- * Parse the xml string to locate and return the project last modified timestamp
+ * Parse the xml string to locate and return the project last modified timestamp. Use the provided
+ * default value if the last modified date in the project is not found or is invalid.
  *
  * @param {string} xmlString
  * @param {Date} defaultTimestamp
  * @return {string|*}
  */
-function getProjectModifiedDateFromXML(xmlString, defaultTimestamp) {
+function getProjectModifiedDate(xmlString, defaultTimestamp) {
   const titleIndex = xmlString.indexOf('data-lastmodified="');
 
   if (titleIndex > -1) {
