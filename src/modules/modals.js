@@ -218,6 +218,9 @@ export const showCompilerStatusWindow = (titleBar) => {
 };
 
 export const hideCompilerStatusWindow = () => {
-  $('#compile-dialog').hide();
+  // $('#compile-dialog').modal('hide');
+  console.log('Hide Compiler dialog window.');
+  const dialog = document.getElementById('compile-dialog');
+  dialog.modal('hide');
 };
 
