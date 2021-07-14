@@ -680,8 +680,8 @@ function projectJsonFactory(json) {
       tmpBoardType,
       ProjectTypes.PROPC,
       json.code,
-      Date.parse(json.created),
-      Date.parse(json.modified),
+      (json.created && json.created.length > 0) ? Date.parse(json.created) : date,
+      (json.modified && json.modified.length > 0) ? Date.parse(json.modified) : date,
       date.getTime(),
   );
 }
