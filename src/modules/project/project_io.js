@@ -332,11 +332,6 @@ async function validateProjectFileXml(filename, fileType, xmlString) {
         'Project board type was not found');
   }
 
-  // TODO: Solo #261
-  // Loop through blocks to verify blocks are supported for the project
-  // board type
-  // validateProjectBlockList(this.result);
-
   const isSvgFile = (fileType === 'image/svg+xml');
 
   // Flag to indicate that we are importing a file that was exported from the
