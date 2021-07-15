@@ -236,8 +236,10 @@ class Project {
      * @type {Date} Records the date the project was created.
      * @private
      */
+    if (!(created instanceof Date)) {
+      throw Error(`Project created on parameter must be a Date object`);
+    }
     this.created = created;
-    console.log(`Project created on: ${created.getDate()}`);
 
     /**
      * The data stamp for when the project was last modified
@@ -682,10 +684,16 @@ function projectJsonFactory(json) {
   }
 
   // Check the created on time stamp
+  logConsoleMessage(`Project->Created_On datatype is: ${typeof json.created}`);
   let createdOnDate = date;
-  if (json.created && json.created.length > 0) {
-    createdOnDate = Date.parse(json.created);
+  if (typeof json.created == 'number') {
+    createdOnDate.setTime(json.created);
+  } else if (typeof json.created == 'object' && json.created instanceof Date) {
+    createdOnDate = json.created;
+  } else {
+    console.log(`Created on date is a string: ${json.created}`);
   }
+
   return new Project(
       json.name,
       json.description,
