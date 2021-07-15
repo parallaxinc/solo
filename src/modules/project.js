@@ -235,14 +235,9 @@ class Project {
      * The date stamp for when the project was created.
      * @type {Date} Records the date the project was created.
      * @private
-     * @description This field hold a date value that is persisted in Epoc format. It is stored
-     * as a date value here and it is the responsibility of the project writer to ensure that
-     * the date value is persisted a date value expressed as an Epoc string.
-     *
-     * If the value is null, use the date modified time stamp. If both are null, set
-     * them both to Date.Now.
      */
     this.created = created;
+    console.log(`Project created on: ${created.getDate()}`);
 
     /**
      * The data stamp for when the project was last modified
@@ -330,17 +325,25 @@ class Project {
    * @return {Date}
    */
   getCreated() {
+    if (typeof this.created === 'number') {
+      logConsoleMessage(`Warning: Converting project created date (number->date)`);
+      return new Date(this.created);
+    }
     return this.created;
   }
 
   /**
    * Project created date setter
    * @param {Date} value
+   * @return {Date}
    */
   setCreated(value) {
-    if (typeof value == Date) {
+    logConsoleMessage(`Setting project created date with type: ${typeof value}`);
+    if (typeof value === 'object') {
+      logConsoleMessage(`New project created date setting is ${value.getDate()}`);
       this.created = value;
     }
+    return value;
   }
 
   /**
@@ -678,13 +681,18 @@ function projectJsonFactory(json) {
     console.log('Unknown board type: %s', json.boardType.name);
   }
 
+  // Check the created on time stamp
+  let createdOnDate = date;
+  if (json.created && json.created.length > 0) {
+    createdOnDate = Date.parse(json.created);
+  }
   return new Project(
       json.name,
       json.description,
       tmpBoardType,
       ProjectTypes.PROPC,
       json.code,
-      (json.created && json.created.length > 0) ? Date.parse(json.created) : date,
+      createdOnDate,
       (json.modified && json.modified.length > 0) ? Date.parse(json.modified) : date,
       date.getTime(),
   );

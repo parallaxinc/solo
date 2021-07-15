@@ -221,21 +221,40 @@ function getProjectTitle(xml) {
  * @param {string} xmlString Contains the raw project xml.
  * @param {Date} defaultTimestamp This value is returned if the xml does not
  *  contain a "created_on" element.
- * @return {string|*}
+ * @return {Date|*}
  */
 function getProjectCreatedDate(xmlString, defaultTimestamp) {
   const titleIndex = xmlString.indexOf('data-createdon="');
 
-  if (titleIndex > -1) {
-    const result = xmlString.substring(
-        (titleIndex + 16),
-        xmlString.indexOf('"', (titleIndex + 17)));
-    if (result !== 'NaN') {
-      return result;
-    }
+  if (titleIndex === -1) {
+    logConsoleMessage(`Project created date is missing. Setting default`);
+    return defaultTimestamp;
   }
 
-  return defaultTimestamp.toString();
+  const start = titleIndex + 16;
+  const end = titleIndex + 17;
+  const index = xmlString.indexOf('"', end);
+  if (index === -1) {
+    return defaultTimestamp;
+  }
+
+  const result = xmlString.substring(start, index);
+  if (result === 'NaN') {
+    return defaultTimestamp;
+  }
+
+  logConsoleMessage(`Created on timestamp: ${result}`);
+  let convertedDate;
+
+  if (result.length !== 13) {
+    convertedDate = new Date(result);
+  } else {
+    convertedDate = new Date(0);
+    const numDate = parseInt(result, 10);
+    convertedDate.setTime(numDate);
+  }
+
+  return convertedDate.getTime();
 }
 
 /**

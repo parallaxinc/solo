@@ -249,9 +249,13 @@ async function selectProjectFile(event) {
 
     const /** @type module:project_io.ProjectLoadResult */ result =
         await loadProjectFile(event.target.files);
+
     if ((! result) || (result.status !== 0)) {
+      console.log(`SelectProjectFile: Load project failed.`);
       return Promise.reject(result.message);
     }
+
+    console.log(`Project Created on: ${result.project.getCreated()}`);
 
     // Copy the project into browser local storage and let the modal event handler
     // decide what to do with it
