@@ -19,8 +19,8 @@
  *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *   DEALINGS IN THE SOFTWARE.
  */
-
-import {logConsoleMessage, utils} from '../utility';
+import 'jquery-validation';
+import {logConsoleMessage} from '../utility';
 import {getProjectInitialState} from '../project';
 import {populateProjectBoardTypesUIElement} from './new_project';
 import {displayProjectBoardIcon, displayProjectName} from '../editor';
@@ -30,7 +30,6 @@ import {displayProjectBoardIcon, displayProjectName} from '../editor';
  * @type {{isEventHandler: boolean}}
  */
 export const editProjectDialog = {
-
   /**
    * Are the dialog event handlers initialized
    * @type {boolean} is true if the initializer has been called otherwise false
@@ -47,9 +46,9 @@ export const editProjectDialog = {
     }
 
     // Set up element event handlers
-    this.setEditOfflineProjectDetailsContinueHandler();
-    this.setEditOfflineProjectDetailsCancelHandler();
-    this.setEditOfflineProjectDetailsEnterHandler();
+    this.setContinueHandler();
+    this.setCancelHandler();
+    this.setEnterHandler();
 
     // Record that the event handlers have been installed so subsequent attempts to
     // do this again will not cause multiple handlers for the same event from being
@@ -61,61 +60,67 @@ export const editProjectDialog = {
   /**
    *  Edit Project Details - Continue button onClick event handler
    */
-  setEditOfflineProjectDetailsContinueHandler: function() {
-    $('#edit-project-continue').on('click', function() {
-      // verify that the project contains a valid board type and project name
-      if (editProjectDialog.validateEditProjectForm()) {
-        // Hide the Edit Project modal dialog
-        $('#edit-project-dialog').modal('hide');
+  setContinueHandler: function() {
+    if (! this.isEventHandler) {
+      document.getElementById('edit-project-continue').addEventListener('click', function() {
+        // verify that the project contains a valid board type and project name
+        if (editProjectDialog.validateEditProjectForm()) {
+          // Hide the Edit Project modal dialog
+          $('#edit-project-dialog').modal('hide');
 
-        editProjectDialog.updateProjectDetails();
-      }
-    });
+          editProjectDialog.updateProjectDetails();
+        }
+      });
+    }
   },
 
   /**
    *  Handle the Enter key press when processing a form
    */
-  setEditOfflineProjectDetailsEnterHandler: () => {
-    // Ignore <enter> key pressed in a form field
-    $('#edit-project-dialog').on('keydown', (e) => {
-      // Let it go if the user is in the description textarea
-      if (document.activeElement.id === 'edit-project-description') {
-        return;
-      }
-
-      if (e.key === 'Enter') {
-        if (!editProjectDialog.validateEditProjectForm()) {
-          e.preventDefault();
-          // eslint-disable-next-line no-invalid-this
-          $(this).trigger('submit');
-        } else {
-          $('#new-project-dialog').modal('hide');
-          // Update project details.
-          editProjectDialog.updateProjectDetails();
+  setEnterHandler: function() {
+    if (! this.isEventHandler) {
+      // Ignore <enter> key pressed in a form field
+      document.getElementById('edit-project-dialog').addEventListener('keydown', (e) => {
+        // Let it go if the user is in the description textarea
+        if (document.activeElement.id === 'edit-project-description') {
+          return;
         }
-      }
-    });
+
+        if (e.key === 'Enter') {
+          if (!editProjectDialog.validateEditProjectForm()) {
+            e.preventDefault();
+            // eslint-disable-next-line no-invalid-this
+            $(this).trigger('submit');
+          } else {
+            $('#new-project-dialog').modal('hide');
+            // Update project details.
+            editProjectDialog.updateProjectDetails();
+          }
+        }
+      });
+    }
   },
 
 
   /**
    *  Edit Project Details - Cancel button onClick event handler
    */
-  setEditOfflineProjectDetailsCancelHandler: () => {
-    $('#edit-project-cancel').on('click', () => {
-      // if the project is being edited, clear the fields and close the modal
-      $('#edit-project-board-dropdown').removeClass('hidden');
-      $('#edit-project-details-ro').addClass('hidden');
-      $('#edit-project-board-type-select').val('');
+  setCancelHandler: function() {
+    if (! this.isEventHandler) {
+      $('#edit-project-cancel').on('click', () => {
+        // if the project is being edited, clear the fields and close the modal
+        $('#edit-project-board-dropdown').removeClass('hidden');
+        $('#edit-project-details-ro').addClass('hidden');
+        $('#edit-project-board-type-select').val('');
 
-      $('#edit-project-board-type-ro').html('');
-      $('#edit-project-created-date-ro').html('');
-      $('#edit-project-last-modified-ro').html('');
+        $('#edit-project-board-type-ro').html('');
+        $('#edit-project-created-date-ro').html('');
+        $('#edit-project-last-modified-ro').html('');
 
-      // Hide the Edit Project modal dialog
-      $('#edit-project-dialog').modal('hide');
-    });
+        // Hide the Edit Project modal dialog
+        $('#edit-project-dialog').modal('hide');
+      });
+    }
   },
 
   /**
@@ -158,7 +163,7 @@ export const editProjectDialog = {
    *
    * @return {boolean}
    */
-  validateEditProjectForm: () => {
+  validateEditProjectForm: function() {
     // Select the form element
     const projectElement = $('#edit-project-form');
 
