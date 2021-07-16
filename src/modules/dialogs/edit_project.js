@@ -223,33 +223,4 @@ export const editProjectDialog = {
       displayProjectBoardIcon(board);
     }
   },
-
-  /**
-   * Display a dialog window that warns of an attempt to compile
-   * an empty project.
-   *
-   * @param {string} title is the text to include in the dialog title bar
-   * @param {string} body is the text that is displayed in the body of the dialog
-   */
-  showCannotCompileEmptyProject: (title, body) => {
-    utils.showMessage(title, body);
-  },
-
-
-  /**
-   *  Display the compiler status modal window
-   * @param {string} titleBar is the text that will appear in the modal title bar
-   */
-  showCompilerStatusWindow: (titleBar) => {
-    $('#compile-dialog-title').text(titleBar);
-    $('#compile-console').val('Compile... ');
-    $('#compile-dialog').modal('show');
-  },
-
-  hideCompilerStatusWindow: () => {
-    // $('#compile-dialog').modal('hide');
-    console.log('Hide Compiler dialog window.');
-    const dialog = document.getElementById('compile-dialog');
-    dialog.modal('hide');
-  },
 };

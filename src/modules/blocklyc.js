@@ -30,7 +30,6 @@ import {loadToolbox} from './editor';
 import {CodeEditor, getSourceEditor} from './code_editor';
 import {getProjectInitialState, Project} from './project';
 import {cloudCompile} from './compiler';
-import {showCannotCompileEmptyProject, showCompilerStatusWindow} from './modals';
 import {
   delay, logConsoleMessage, getURLParameter, sanitizeFilename, utils, prettyCode} from './utility';
 
@@ -173,6 +172,37 @@ const graph_data = {
     [], [], [], [], [], [], [], [], [], [],
   ],
 };
+
+
+/**
+ * Display a dialog window that warns of an attempt to compile
+ * an empty project.
+ *
+ * @param {string} title is the text to include in the dialog title bar
+ * @param {string} body is the text that is displayed in the body of the dialog
+ */
+const showCannotCompileEmptyProject = (title, body) => {
+  utils.showMessage(title, body);
+};
+
+
+/**
+ *  Display the compiler status modal window
+ * @param {string} titleBar is the text that will appear in the modal title bar
+ */
+const showCompilerStatusWindow = (titleBar) => {
+  $('#compile-dialog-title').text(titleBar);
+  $('#compile-console').val('Compile... ');
+  $('#compile-dialog').modal('show');
+};
+
+const hideCompilerStatusWindow = () => {
+  // $('#compile-dialog').modal('hide');
+  console.log('Hide Compiler dialog window.');
+  const dialog = document.getElementById('compile-dialog');
+  dialog.modal('hide');
+};
+
 
 /**
  * This is the onClick event handler for the compile toolbar button
