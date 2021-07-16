@@ -31,7 +31,6 @@ import {serialConsole} from './serial_console';
 import {logConsoleMessage, utils} from './utility';
 import {propToolbarButtonController} from './toolbar_controller';
 import {getPropTerminal} from './prop_term';
-import {hideCompilerStatusWindow} from './modals';
 
 /**
  * Enable or disable debug-level console logging
@@ -561,3 +560,13 @@ export const getComPort = function() {
     return commPortSelection;
   }
 };
+
+/**
+ * Close the compile progress window
+ */
+const hideCompilerStatusWindow = () => {
+  console.log('Hide Compiler dialog window.');
+  const dialog = document.getElementById('compile-dialog');
+  dialog.modal('hide');
+};
+

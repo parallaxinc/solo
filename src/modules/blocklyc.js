@@ -196,14 +196,6 @@ const showCompilerStatusWindow = (titleBar) => {
   $('#compile-dialog').modal('show');
 };
 
-const hideCompilerStatusWindow = () => {
-  // $('#compile-dialog').modal('hide');
-  console.log('Hide Compiler dialog window.');
-  const dialog = document.getElementById('compile-dialog');
-  dialog.modal('hide');
-};
-
-
 /**
  * This is the onClick event handler for the compile toolbar button
  */
