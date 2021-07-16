@@ -56,7 +56,6 @@ export const editProjectDialog = {
     this.isEventHandler = true;
   },
 
-
   /**
    *  Edit Project Details - Continue button onClick event handler
    */
@@ -134,22 +133,26 @@ export const editProjectDialog = {
     this.initEventHandlers();
 
     // Load the current project details into the html form data
-    $('#edit-project-name').val(project.name);
-    $('#edit-project-description').val(project.description);
-
-    // Display project board type.
-    const elementProjectBoardType = $('#edit-project-board-type-ro');
-    elementProjectBoardType.html(project.boardType.name.toUpperCase());
+    document.getElementById('edit-project-name').value = project.name;
+    document.getElementById('edit-project-description').value = project.description;
 
     populateProjectBoardTypesUIElement(
+        // document.getElementById('edit-board-type'),
         $('#edit-board-type'),
         project.boardType.name.toUpperCase());
 
     // Display the project create and last modified time stamps
     const createDate = project.getCreated();
     const modifiedDate = new Date(project.modified);
-    $('#edit-project-created-date-ro').html(createDate.toLocaleDateString());
-    $('#edit-project-last-modified-ro').html(modifiedDate.toLocaleDateString());
+
+    document.getElementById('edit-project-created-date-ro')
+        .innerHTML = createDate.toLocaleDateString();
+
+    document.getElementById('edit-project-last-modified-ro')
+        .innerHTML = modifiedDate.toLocaleDateString();
+
+    // Reveal the read-only elements
+    document.getElementById('edit-project-details-ro').classList.remove('hidden');
 
     // Show the dialog
     $('#edit-project-dialog').modal({
