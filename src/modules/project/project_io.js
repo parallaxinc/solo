@@ -104,10 +104,13 @@ const convertFilestreamToProject = (projectName, rawCode) => {
       Project.getEmptyProjectCodeHeader() + blockCode + '</xml>' :
       Project.getEmptyProjectCodeHeader() + '</xml>';
 
+  // Load the created on and last modified dates. If either date is invalid,
+  // use a known valid date in it's place to keep everything happy.
   const date = new Date();
-  const projectDesc = getProjectDescription(rawCode);
   const projectModified = getProjectModifiedDate(rawCode, date);
   const projectCreated = getProjectCreatedDate(rawCode, new Date(projectModified));
+
+  const projectDesc = getProjectDescription(rawCode);
   const projectBoardType = getProjectBoardType(rawCode);
   let projectNameString = getProjectTitle(rawCode);
 
