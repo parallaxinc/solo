@@ -58,7 +58,8 @@ import {PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
-import {editProjectDetails} from './modals';
+import {editProjectDialog} from './dialogs/edit_project';
+// import {editProjectDetails} from './modals';
 import {NudgeTimer} from './nudge_timer';
 import {Project, getProjectInitialState, getDefaultProfile} from './project';
 import {setProjectInitialState, setDefaultProfile} from './project';
@@ -273,7 +274,13 @@ function initEventHandlers() {
   // --------------------------------
 
   // Edit project details
-  $('#edit-project-details').on('click', () => editProjectDetails());
+  document.getElementById('edit-project-details').addEventListener('click', () => {
+    editProjectDialog.editProjectDetails();
+  });
+
+  // $('#edit-project-details').on('click', () => {
+  //   editProjectDialog.editProjectDetails();
+  // });
 
   // Help and Reference - online help web pages
   // Implemented as an href in the menu
