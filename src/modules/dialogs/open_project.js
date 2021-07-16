@@ -255,8 +255,6 @@ async function selectProjectFile(event) {
       return Promise.reject(result.message);
     }
 
-    console.log(`Project Created on: ${result.project.getCreated()}`);
-
     // Copy the project into browser local storage and let the modal event handler
     // decide what to do with it
     window.localStorage.setItem(
