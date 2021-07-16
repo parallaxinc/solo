@@ -1018,7 +1018,7 @@ function generateSvgFooter( project ) {
 
   svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
             'transform="translate(-225,13)" data-createdon="' +
-            project.created + '" data-lastmodified="' + dt + '"></text>';
+            project.getCreated() + '" data-lastmodified="' + dt + '"></text>';
 
   return svgFooter;
 }

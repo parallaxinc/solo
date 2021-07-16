@@ -235,6 +235,9 @@ class Project {
      * The date stamp for when the project was created.
      * @type {Date} Records the date the project was created.
      * @private
+     * @description The created on date is implemented as a Date
+     * object. It is the callers responsibility to ensure a date
+     * string or an epoch number is not used here.
      */
     if (!(created instanceof Date)) {
       throw Error(`Project created on parameter must be a Date object`);
@@ -327,10 +330,6 @@ class Project {
    * @return {Date}
    */
   getCreated() {
-    if (typeof this.created === 'number') {
-      logConsoleMessage(`Warning: Converting project created date (number->date)`);
-      return new Date(this.created);
-    }
     return this.created;
   }
 
@@ -340,11 +339,10 @@ class Project {
    * @return {Date}
    */
   setCreated(value) {
-    logConsoleMessage(`Setting project created date with type: ${typeof value}`);
-    if (typeof value === 'object') {
-      logConsoleMessage(`New project created date setting is ${value.getDate()}`);
-      this.created = value;
+    if ( ! (value instanceof Date)) {
+      throw Error(`Cannot set Project created on date with "${value}`);
     }
+    this.created = value;
     return value;
   }
 
@@ -684,14 +682,14 @@ function projectJsonFactory(json) {
   }
 
   // Check the created on time stamp
-  logConsoleMessage(`Project->Created_On datatype is: ${typeof json.created}`);
   let createdOnDate = date;
   if (typeof json.created == 'number') {
     createdOnDate.setTime(json.created);
-  } else if (typeof json.created == 'object' && json.created instanceof Date) {
+  } else if (json.created instanceof Date) {
     createdOnDate = json.created;
   } else {
-    console.log(`Created on date is a string: ${json.created}`);
+    // Assuming that the value is a string
+    createdOnDate = new Date(json.created);
   }
 
   return new Project(

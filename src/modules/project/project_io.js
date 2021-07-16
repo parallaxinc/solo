@@ -107,7 +107,7 @@ const convertFilestreamToProject = (projectName, rawCode) => {
   const date = new Date();
   const projectDesc = getProjectDescription(rawCode);
   const projectModified = getProjectModifiedDate(rawCode, date);
-  const projectCreated = getProjectCreatedDate(rawCode, projectModified);
+  const projectCreated = getProjectCreatedDate(rawCode, new Date(projectModified));
   const projectBoardType = getProjectBoardType(rawCode);
   let projectNameString = getProjectTitle(rawCode);
 
@@ -132,7 +132,7 @@ const convertFilestreamToProject = (projectName, rawCode) => {
         date.getTime(),
         true);
   } catch (e) {
-    console.log('Error while creating project object. %s', e.message);
+    console.log('Error while converting project file stream: %s', e.message);
   }
 
   return null;
@@ -243,9 +243,7 @@ function getProjectCreatedDate(xmlString, defaultTimestamp) {
     return defaultTimestamp;
   }
 
-  logConsoleMessage(`Created on timestamp: ${result}`);
   let convertedDate;
-
   if (result.length !== 13) {
     convertedDate = new Date(result);
   } else {
@@ -254,7 +252,7 @@ function getProjectCreatedDate(xmlString, defaultTimestamp) {
     convertedDate.setTime(numDate);
   }
 
-  return convertedDate.getTime();
+  return convertedDate;
 }
 
 /**
