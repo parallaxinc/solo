@@ -296,13 +296,22 @@ function installOpenProjectModalOpenClick() {
     closeDialogWindow();
 
     // Copy the stored temp project to the stored local project
-    const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
-    if (projectJson) {
-      const project = projectJsonFactory(JSON.parse(projectJson));
-      if (project) {
-        insertProject(project);
-        return;
+    try {
+      const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
+      if (projectJson) {
+        const project = projectJsonFactory(JSON.parse(projectJson));
+        if (project) {
+          insertProject(project);
+          return;
+        }
       }
+    } catch (error) {
+      utils.showMessage(
+          `Project Load Error`,
+          `Unable to load the project`,
+          () => {
+            logConsoleMessage(`${error.message}`);
+          });
     }
 
     logConsoleMessage('The opened project cannot be found in storage.');
