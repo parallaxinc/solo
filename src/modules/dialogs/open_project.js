@@ -249,7 +249,9 @@ async function selectProjectFile(event) {
 
     const /** @type module:project_io.ProjectLoadResult */ result =
         await loadProjectFile(event.target.files);
+
     if ((! result) || (result.status !== 0)) {
+      console.log(`SelectProjectFile: Load project failed.`);
       return Promise.reject(result.message);
     }
 
@@ -294,13 +296,22 @@ function installOpenProjectModalOpenClick() {
     closeDialogWindow();
 
     // Copy the stored temp project to the stored local project
-    const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
-    if (projectJson) {
-      const project = projectJsonFactory(JSON.parse(projectJson));
-      if (project) {
-        insertProject(project);
-        return;
+    try {
+      const projectJson = window.localStorage.getItem(TEMP_PROJECT_STORE_NAME);
+      if (projectJson) {
+        const project = projectJsonFactory(JSON.parse(projectJson));
+        if (project) {
+          insertProject(project);
+          return;
+        }
       }
+    } catch (error) {
+      utils.showMessage(
+          `Project Load Error`,
+          `Unable to load the project`,
+          () => {
+            logConsoleMessage(`${error.message}`);
+          });
     }
 
     logConsoleMessage('The opened project cannot be found in storage.');

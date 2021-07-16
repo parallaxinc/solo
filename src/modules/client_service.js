@@ -265,12 +265,7 @@ export const clientService = {
    */
   setSelectedPort: function(portName) {
     // Do not select the 'Searching...' as a port
-    if (portName.startsWith('Search')) {
-      console.log(`Selecting a port while searching.`);
-      return;
-    }
-
-    if (this.activeConnection) {
+    if (!portName.startsWith('Search') && this.activeConnection) {
       if (portName !== this.getSelectedPort()) {
         this.selectedPort_ = portName;
         // Notify Launcher of the selected port

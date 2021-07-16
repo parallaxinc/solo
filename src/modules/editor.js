@@ -58,13 +58,14 @@ import {PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
-import {editProjectDetails} from './modals';
+import {editProjectDialog} from './dialogs/edit_project';
+// import {editProjectDetails} from './modals';
 import {NudgeTimer} from './nudge_timer';
 import {Project, getProjectInitialState, getDefaultProfile} from './project';
 import {setProjectInitialState, setDefaultProfile} from './project';
 import {ProjectTypes, clearProjectInitialState} from './project';
 import {projectJsonFactory} from './project';
-import {buildDefaultProject} from './project_default';
+import {buildDefaultProject} from './project/project_default';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
 import {isExperimental} from './url_parameters';
@@ -273,7 +274,13 @@ function initEventHandlers() {
   // --------------------------------
 
   // Edit project details
-  $('#edit-project-details').on('click', () => editProjectDetails());
+  document.getElementById('edit-project-details').addEventListener('click', () => {
+    editProjectDialog.editProjectDetails();
+  });
+
+  // $('#edit-project-details').on('click', () => {
+  //   editProjectDialog.editProjectDetails();
+  // });
 
   // Help and Reference - online help web pages
   // Implemented as an href in the menu
@@ -549,25 +556,12 @@ function initDefaultProject() {
     clientService.setTerminalBaudRate(myProject.boardType.baudrate);
   }
 
-  // Create a new nudge timer
-  const myTime = new NudgeTimer(0);
-  // Set the callback
-  myTime.myCallback = function() {
-    if (isProjectChanged) {
-      showProjectTimerModalDialog();
-    }
-  };
-
-  // Start the timer and save it to the project object
-  myTime.start(10);
-  defaultProject.setProjectTimer(myTime);
-  setupWorkspace(defaultProject);
-
   // Create an instance of the CodeEditor class
   codeEditor = new CodeEditor(defaultProject.boardType.name);
   if (!codeEditor) {
     console.log('Error allocating CodeEditor object');
   }
+  setupWorkspace(defaultProject);
   propToolbarButtonController();
 }
 
@@ -1024,7 +1018,7 @@ function generateSvgFooter( project ) {
 
   svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
             'transform="translate(-225,13)" data-createdon="' +
-            project.created + '" data-lastmodified="' + dt + '"></text>';
+            project.getCreated() + '" data-lastmodified="' + dt + '"></text>';
 
   return svgFooter;
 }

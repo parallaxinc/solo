@@ -217,10 +217,6 @@ export function populateProjectBoardTypesUIElement(element, selected) {
     return;
   }
 
-  if (selected) {
-    logConsoleMessage(`Current board type is "${selected}`);
-  }
-
   // Clear out the board type dropdown menu
   const length = element[0].options.length;
   for (let i = length - 1; i >= 0; i--) {
