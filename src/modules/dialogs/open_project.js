@@ -83,21 +83,18 @@ export const openProjectDialog = {
    * Set up the event callbacks for the open project dialog
    */
   initEventHandlers: function() {
-    if (this.isEventHandler) {
-      logConsoleMessage(`Open Project dialog handlers already initialized`);
-      return;
+    if (! this.isEventHandler) {
+      // Set up element event handlers
+      installOpenProjectModalOpenClick(); // Handle a click on the Open button
+      installOpenProjectModalCancelClick(); // Handle a click on the Cancel button
+      installOpenProjectModalEscapeClick(); // Handle user clicking on the 'x' icon
+      installOpenProjectSelectedFileOnChange(); // Handle selected file onChange event
+
+      // Record that the event handlers have been installed so subsequent attempts to
+      // do this again will not cause multiple handlers for the same event from being
+      // installed.
+      this.isEventHandler = true;
     }
-
-    // Set up element event handlers
-    installOpenProjectModalOpenClick(); // Handle a click on the Open button
-    installOpenProjectModalCancelClick(); // Handle a click on the Cancel button
-    installOpenProjectModalEscapeClick(); // Handle user clicking on the 'x' icon
-    installOpenProjectSelectedFileOnChange(); // Handle selected file onChange event
-
-    // Record that the event handlers have been installed so subsequent attempts to
-    // do this again will not cause multiple handlers for the same event from being
-    // installed.
-    this.isEventHandler = true;
   },
 
   /**
