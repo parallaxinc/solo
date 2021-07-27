@@ -1,6 +1,6 @@
 {
   "name": "blocklyprop-solo",
-  "version": "1.5.6",
+  "version": "1.6.0",
   "description": "A simplified implementation of Google's Blockly project configured to support Parallax robots and sensors.",
   "main": "load_images.js",
   "scripts": {
