@@ -1020,8 +1020,10 @@ function generateSvgFooter( project ) {
             'transform="translate(-225,-8)">' +
             'Description: ' + encodeToValidXml(project.description) + '</text>';
 
+  // This transform places the dates outside of the display box and are,
+  // therefore, not visible in the watermark.
   svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
-            'transform="translate(-225,13)" data-createdon="' +
+            'transform="translate(-225,13)">data-createdon="' +
             project.getCreated() + '" data-lastmodified="' + dt + '"></text>';
 
   return svgFooter;
