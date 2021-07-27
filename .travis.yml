@@ -4,7 +4,7 @@ dist: bionic
 addons:
   snaps:
     - name: node
-      channel: 10/stable
+      channel: 16/stable
       confinement: classic
 
 # The minimal image contains:
@@ -17,7 +17,7 @@ addons:
 language: minimal
 
 node_js:
-  - 12
+  - 16
 
 env:
   - TRAVIS_CI=true
