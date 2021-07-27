@@ -889,9 +889,8 @@ function downloadCode(project) {
   // and hold project metadata.
   const svgHeader = generateSvgHeader( projectWidth, projectHeight );
 
-  // a footer to generate a watermark with the project's information at
-  // the bottom-right corner of the SVG
-  // and hold project metadata.
+  // Generate a watermark with the project's metadate at the bottom-right
+  // corner of the SVG.
   const svgFooter = generateSvgFooter(project);
 
   // Deprecating project checksum. Install a dummy checksum to keep
@@ -996,22 +995,27 @@ function generateSvgFooter( project ) {
             'transform="translate(-225,-83)" style="font-weight:bold;">'+
             'Parallax BlocklyProp Project</text>';
 
-  svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
-            'transform="translate(-225,-68)">' +
-            'User: ' + encodeToValidXml(project.user) + '</text>';
+  // The name of the project owner (deprecated)
+  // svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
+  //           'transform="translate(-225,-68)">' +
+  //           'User: ' + encodeToValidXml(project.user) + '</text>';
 
+  // The project name
   svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
             'transform="translate(-225,-53)">' +
             'Title: ' + encodeToValidXml(project.name) + '</text>';
 
-  svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
-            'transform="translate(-225,-38)">' +
-            'Project ID: 0</text>';
+  // Project ID (deprecated)
+  // svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
+  //           'transform="translate(-225,-38)">' +
+  //           'Project ID: 0</text>';
 
+  // Propeller device attached to the project
   svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
             'transform="translate(-225,-23)">' +
             'Device: ' + project.boardType.name + '</text>';
 
+  // Project description
   svgFooter += '<text class="bkginfo" x="100%" y="100%" '+
             'transform="translate(-225,-8)">' +
             'Description: ' + encodeToValidXml(project.description) + '</text>';
