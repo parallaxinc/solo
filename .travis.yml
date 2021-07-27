@@ -1,6 +1,6 @@
 version: ~> 1.0
 os: linux
-dist: bionic
+dist: focal
 addons:
   snaps:
     - name: node
