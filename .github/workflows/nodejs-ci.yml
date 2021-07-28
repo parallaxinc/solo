@@ -1,14 +1,14 @@
-name: Node.js CI
+name: Solo Test
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, main ]
   pull_request:
     branches: [ develop ]
 
 jobs:
-  build:
-
+  test:
+    name: Run Solo Tests
     runs-on: ubuntu-latest
 
     strategy:
@@ -16,30 +16,19 @@ jobs:
         node-version: [16.x]
 
     steps:
-      - uses: actions/checkout@v2
-        name: Use Node.js ${{ matrix.node-version }}
+      - name: Checkout source code
+        uses: actions/checkout@v2
 
-      - run: sudo apt-get update -y
-        name: Install apt updates
-        shell: bash
-      - run: sudo apt-get install -y node-pre-gyp
-        name: Install package node-pre-gyp
-        shell: bash
-      - run: sudo npm cache clean -f
-        name: Clear npm cache
-        shell: bash
-      - run: npm install -g n
-        name: Install npm n package
-        shell: bash
-      - run: n stable
-        shell: bash
-      - run: npm install --unsafe-perm=true --allow-root
-        shell: bash
-
-      - uses: actions/setup-node@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-        name: Setup node
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
+
+      - name: Run npm install
+        run: npm ci
+
+      - name: Run build process
+        run: npm run build --if-present
+
+      - name: Run embedded tests
+        run: npm test
