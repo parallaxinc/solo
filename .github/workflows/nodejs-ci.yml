@@ -16,15 +16,14 @@ jobs:
         node-version: [16.x]
 
     steps:
-      - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-
+        uses: actions/checkout@v2
+      - name: Install package node-pre-gyp
       - run: sudo apt-get update -y
         shell: bash
       - run: sudo apt-get install -y node-pre-gyp
         shell: bash
-      - name: Install package node-pre-gyp
-
+      - name: Setup node
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
