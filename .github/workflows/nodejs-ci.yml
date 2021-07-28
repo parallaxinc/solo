@@ -25,7 +25,7 @@ jobs:
 
       - run: sudo apt-get install -y node-pre-gyp
         shell: bash
-      - run: sudo npm cache clean -f; sudo npm install -g n; sudo n stable; sudo npm install --unsafe-perm=true --allow-root
+      - run: npm cache clean -f; npm install -g n; n stable; npm install --unsafe-perm=true --allow-root
         shell: bash
 
       - uses: actions/setup-node@v2
