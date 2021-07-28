@@ -5,7 +5,7 @@ Parallax robots and sensors.
 
 [https://solo.parallax.com/](https://solo.parallax.com)
 
-*develop* [![Build Status](https://travis-ci.com/parallaxinc/solo.svg?branch=develop)](https://travis-ci.com/parallaxinc/solo)
+![develop branch](https://github.com/parallaxinc/solo/actions/workflows/solo-develop-ci.yml/badge.svg)
 
 ### Supported Browsers
 Chrome - v84+  
