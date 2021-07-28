@@ -24,13 +24,12 @@ const path = require('path');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpack = require('html-webpack-plugin');
-
+// const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 /**
  * The relative path to the distribution directory
  * @type {string}
  */
 const targetPath = '../dist';
-
 
 /**
  * The relative path to the Blockly package media files
@@ -64,7 +63,7 @@ module.exports = (opts) => {
         './src/modules',
         './node_modules',
       ],
-      extensions: ['.js']
+      extensions: ['.js','.scss']
     },
     optimization: {
       splitChunks: {
@@ -81,20 +80,35 @@ module.exports = (opts) => {
     },
     module: {
       rules: [
+        // {
+        //   test: /\.(css)$/,
+        //   use: [MiniCssExtractPlugin.loader,'css-loader']
+        // },
         {
-          test: /\.s[ac]ss$/i,
+          test: /src\.s[ac]ss$/i,
           use: [
             // Creates `style` nodes from JS strings
-            "style-loader",
+            'style-loader',
             // Translates CSS into CommonJS
-            "css-loader",
+            'css-loader',
+
+            // Post=CSS processing
+            // 'postcss-loader',
+
             // Compiles Sass to CSS
-            "sass-loader",
-          ],
+            // 'sass-loader',
+            {
+              loader: "sass-loader",
+              options: {
+                // Prefer `dart-sass`
+                implementation: require("sass"),
+              },
+            },          ],
         },
       ]
     },
     plugins: [
+      // new MiniCssExtractPlugin(),
       new webpack.EnvironmentPlugin({
         NODE_ENV: 'production',
         DEBUG: false,
@@ -118,16 +132,17 @@ module.exports = (opts) => {
             from: './src/images',
             to: path.resolve(__dirname, `${targetPath}/images`)
           },
+          // {
+          //   from: './src/sass/main.css.map',
+          //   to: path.resolve(__dirname, `${targetPath}/`),
+          //   noErrorOnMissing: true
+          // },
+          // {
+          //   from: './src/sass/main.css',
+          //   to: path.resolve(__dirname, `${targetPath}/`),
+          //   noErrorOnMissing: true
+          // },
           {
-            from: './src/sass/main.css.map',
-            to: path.resolve(__dirname, `${targetPath}/`),
-            noErrorOnMissing: true
-          },
-          {
-            from: './src/sass/main.css',
-            to: path.resolve(__dirname, `${targetPath}/`),
-            noErrorOnMissing: true
-          },          {
             from: './src/load_images.js',
             to: path.resolve(__dirname, targetPath)
           },
