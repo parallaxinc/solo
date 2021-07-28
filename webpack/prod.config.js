@@ -87,15 +87,27 @@ module.exports = (opts) => {
     module: {
       rules: [
         {
-          test: /\.css$/,
-          include: [
-            path.resolve(__dirname, '../sass')
-          ],
+          test: /\.s[ac]ss$/i,
           use: [
-            'style-loader',
-            'css-loader'
-          ]
+            // Creates `style` nodes from JS strings
+            "style-loader",
+            // Translates CSS into CommonJS
+            "css-loader",
+            // Compiles Sass to CSS
+            "sass-loader",
+          ],
         },
+        //
+        // {
+        //   test: /\.css$/,
+        //   include: [
+        //     path.resolve(__dirname, '../sass')
+        //   ],
+        //   use: [
+        //     'style-loader',
+        //     'css-loader'
+        //   ]
+        // },
       ]
     },
     plugins: [
@@ -112,16 +124,11 @@ module.exports = (opts) => {
         chunks: ["index"],
         filename: 'index.html',
       }),
-      // new HtmlWebpack({
-      //   template: './src/templates/editor.html',
-      //   chunks: ["editor"],
-      //   filename: 'blocklyc.html',
-      // }),
       new CopyPlugin({
         patterns: [
           {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
           {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
-          {from: './sass/main.css', to: path.resolve(__dirname, targetPath)},
+          // {from: './sass/main.css', to: path.resolve(__dirname, targetPath)},
           {from: './src/load_images.js', to: path.resolve(__dirname, targetPath)},
         ]
       })
