@@ -110,10 +110,27 @@ module.exports = (opts) => {
       }),
       new CopyPlugin({
         patterns: [
-          {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
-          {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
-          {from: './src/sass/main.css', to: path.resolve(__dirname, targetPath), noErrorOnMissing: true},
-          {from: './src/load_images.js', to: path.resolve(__dirname, targetPath)},
+          {
+            from: path.resolve(__dirname, blocklyMedia),
+            to: path.resolve(__dirname, `${targetPath}/media`)
+          },
+          {
+            from: './src/images',
+            to: path.resolve(__dirname, `${targetPath}/images`)
+          },
+          {
+            from: './src/sass/main.css.map',
+            to: path.resolve(__dirname, `${targetPath}/`),
+            noErrorOnMissing: true
+          },
+          {
+            from: './src/sass/main.css',
+            to: path.resolve(__dirname, `${targetPath}/`),
+            noErrorOnMissing: true
+          },          {
+            from: './src/load_images.js',
+            to: path.resolve(__dirname, targetPath)
+          },
         ]
       })
     ],
