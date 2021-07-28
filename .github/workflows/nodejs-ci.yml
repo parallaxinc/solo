@@ -36,7 +36,7 @@ jobs:
       - run: npm install --unsafe-perm=true --allow-root
         shell: bash
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
         name: Setup node
