@@ -20,12 +20,20 @@ jobs:
         name: Use Node.js ${{ matrix.node-version }}
 
       - run: sudo apt-get update -y
+        name: Install apt updates
+        shell: bash
+      - run: sudo apt-get install -y node-pre-gyp
         name: Install package node-pre-gyp
         shell: bash
-
-      - run: sudo apt-get install -y node-pre-gyp
+      - run: sudo npm cache clean -f
+        name: Clear npm cache
         shell: bash
-      - run: npm cache clean -f; npm install -g n; n stable; npm install --unsafe-perm=true --allow-root
+      - run: npm install -g n
+        name: Install npm n package
+        shell: bash
+      - run: n stable
+        shell: bash
+      - run: npm install --unsafe-perm=true --allow-root
         shell: bash
 
       - uses: actions/setup-node@v2
