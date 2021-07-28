@@ -18,10 +18,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
+
+      - run: |
+        sudo apt-get update -y
+        sudo apt-get install -y node-pre-gyp
       - name: Install package node-pre-gyp
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y node-pre-gyp
 
         uses: actions/setup-node@v2
         with:
