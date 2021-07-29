@@ -745,11 +745,11 @@ Blockly.Blocks['procedures_callnoreturn'] = {
    * @this Blockly.Block
    */
   onchange: function(event) {
-    console.log(`Event: ${event.type}`);
+    // console.log(`Event: ${event.type}`);
 
     if (event.type === Blockly.Events.BLOCK_MOVE) {
       try {
-        console.log(`Block is moving`);
+        // console.log(`Block is moving`);
       } catch (err) {
         console.log(`Block move error: ${err.message}`);
       }
@@ -769,10 +769,10 @@ Blockly.Blocks['procedures_callnoreturn'] = {
           // Cannot set nextStatement to false if there is a block attached
           // below the current block. Detach the block first.
           const nextBlock = this.getNextBlock();
-          console.log(`RunFunction: Bottom block attachment is: ${nextBlock}`);
+          // console.log(`RunFunction: Bottom block attachment is: ${nextBlock}`);
 
           if (nextBlock !== null) {
-            console.log(`NextBlock: ${nextBlock.type.toString()}`);
+            // console.log(`NextBlock: ${nextBlock.type.toString()}`);
             this.nextConnection.disconnect();
           }
           this.setNextStatement(false);
@@ -783,7 +783,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
         this.setNextStatement(true);
       }
     } catch (event) {
-      console.log(event.message);
+      // console.log(event.message);
       this.nextConnection.disconnect();
       this.setNextStatement(false);
     }

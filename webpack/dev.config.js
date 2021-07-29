@@ -24,14 +24,13 @@ const path = require('path');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpack = require('html-webpack-plugin');
-
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 /**
  * The relative path to the distribution directory
  * @type {string}
  */
 const targetPath = '../dist';
-
-
+const isDevelopment = true;
 /**
  * The relative path to the Blockly package media files
  * @type {string}
@@ -46,6 +45,7 @@ module.exports = (opts) => {
 
   const isDev = (opts.env === 'dev');
   if (isDev) console.log(`DEVELOPMENT`);
+  if (isDevelopment) console.log(`Hardcoded development is off`);
 
   return {
     mode: 'development',
@@ -62,9 +62,10 @@ module.exports = (opts) => {
       // Places to look for application files
       modules: [
         './src/modules',
+        './src/scss',
         './node_modules',
       ],
-      extensions: ['.js']
+      extensions: ['.js', '.scss']
     },
     optimization: {
       splitChunks: {
@@ -82,18 +83,40 @@ module.exports = (opts) => {
     module: {
       rules: [
         {
-          test: /\.css$/,
-          include: [
-              path.resolve(__dirname, '../sass')
-          ],
+          test:  /\.scss/,
           use: [
-            'style-loader',
-            'css-loader'
-          ]
+            {
+              // Creates `style` nodes from JS strings
+              // loader: isDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader,
+              loader: MiniCssExtractPlugin.loader,
+            },
+            {
+              // Translates CSS into CommonJS
+              loader: 'css-loader',
+              options: {
+                modules: true,
+                sourceMap: isDevelopment
+              }
+            },
+
+            {
+              loader: 'sass-loader',
+              options: {
+                sourceMap: isDevelopment,
+                // Prefer `dart-sass`
+                implementation: require("sass"),
+              },
+            },
+          ],
         },
+
       ]
     },
     plugins: [
+      new MiniCssExtractPlugin({
+        filename: isDevelopment ? '[name].css' : '[name].[hash].css',
+        chunkFilename: isDevelopment ? '[id].css' : '[id].[hash].css'
+      }),
       new webpack.EnvironmentPlugin({
         NODE_ENV: 'production',
         DEBUG: false,
@@ -107,16 +130,20 @@ module.exports = (opts) => {
         chunks: ["index"],
         filename: 'index.html',
       }),
-      // new HtmlWebpack({
-      //   template: './src/templates/editor.html',
-      //   chunks: ["editor"],
-      //   filename: 'blocklyc.html',
-      // }),
       new CopyPlugin({
         patterns: [
-          {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
-          {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
-          {from: './sass/main.css', to: path.resolve(__dirname, targetPath)},
+          {
+            from: path.resolve(__dirname, blocklyMedia),
+            to: path.resolve(__dirname, `${targetPath}/media`)
+          },
+          {
+            from: './src/images',
+            to: path.resolve(__dirname, `${targetPath}/images`)
+          },
+          {
+            from: './src/load_images.js',
+            to: path.resolve(__dirname, targetPath)
+          },
         ]
       })
     ],

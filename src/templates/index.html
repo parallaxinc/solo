@@ -67,8 +67,10 @@
     <div id="editor">
         <!-- Branding logo -->
         <div id="branding">
-            <span id="nav-logo" class="url-prefix"></span>
-<!--            <a id="nav-logo" href="/" class="url-prefix"></a>-->
+            <img src="images/logo_small.png" class="branding-logo" alt="BP Solo">
+            <span id="nav-logo" class="url-prefix">
+                BlocklyProp<br><strong>Solo</strong>
+            </span>
         </div>
 
         <div id="noScript">
@@ -77,7 +79,6 @@
             </noscript>
         </div>
 
-
         <div id="editor-status">
             <!-- Above toolbar -->
             <div style="overflow:auto;">
@@ -85,13 +86,16 @@
                 <!-- BlocklyProp Client or Loader UI -->
                 <div id="client-status-alerts" style="float: left;">
                     <span style="padding-left: 10px; line-height: 30px;">
-                        <span id="client-unavailable" class="bp-client-danger">
-                            <a class="client-unavailable-link" data-toggle="modal" data-target="#client-download-modal"
-                                href="#">
+                        <span id="client-loading" class="bp-client-available">Loading...</span>
+
+                        <span id="client-unavailable" class="bp-client-danger hidden">
+                            <a class="client-unavailable-link" data-toggle="modal"
+                               data-target="#client-download-modal" href="#">
                                 <span class="bpIcon" data-icon="dangerTriangle">!!</span>
                                 <span class="keyed-lang-string" data-key="editor_client_not-available"></span>
                             </a>
                         </span>
+
                         <span id="client-available" class="bp-client-available keyed-lang-string hidden"
                             data-key="editor_client_available">
                         </span>
@@ -150,41 +154,39 @@
                 </div>
 
                 <!-- Right Toolbar buttons and menu -->
-                <div id="right-menus" style="float:right; padding-right: 15px;">
+                <div id="right-menus">
                     <!-- View C source code -->
-                    <a class="btn-view-blocks" id="btn-view-propc" style="display: none;">
-                            <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
-                            &nbsp;
-                            <span class="keyed-lang-string" data-key="menu_code"></span>
-                        </a>
+                    <a class="btn-view-blocks" id="btn-view-propc" style="display: inline;">
+                        <span class="bpIcon" data-icon="eyeWhite">&#x1F441;&nbsp;Code</span>
+                        <span>Code</span>
+                    </a>
 
                     <!-- View project blocks layout -->
                     <a class="btn-view-blocks" id="btn-view-blocks" style="display: none;">
-                            <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
-                            &nbsp;
-                            <span class="keyed-lang-string" data-key="menu_blocks"></span>
+                        <span class="bpIcon" data-icon="eyeWhite">&#x1F441;&nbsp;</span>
+                        <span>Blocks</span>
                         </a>
 
                     <!-- View project XML code -->
                     <a class="btn-view-blocks" id="btn-view-xml" style="display: none;">
-                            <span class="bpIcon" data-icon="eyeWhite">&#x1F441;</span>
-                            &nbsp;&nbsp;
-                            <span class="keyed-lang-string" data-key="editor_view_xml"></span>
-                        </a>
-
-                    <!-- New Project button -->
-                    <a id="new-project-button" class="demo-function btn-view-blocks" style="display: inline-block;" data-displayas="inline-block">
-                        <span class="keyed-lang-string" data-key="editor_new_button"></span>
+                        <span class="bpIcon" data-icon="eyeWhite">&#x1F441;&nbsp;</span>
+                        <span>XML</span>
                     </a>
 
+                    <!-- New Project button -->
+                    <a id="new-project-button" class="demo-function btn-view-blocks"
+                       style="display: inline-block;" data-displayas="inline-block">New</a>
+
                     <!-- Open Project button -->
-                    <a id="open-project-button" class="demo-function btn-view-blocks" style="display: inline-block;" data-displayas="inline-block">
-                        <span class="keyed-lang-string" data-key="editor_open_button"></span>
+                    <a id="open-project-button" class="demo-function btn-view-blocks"
+                       style="display: inline-block;" data-displayas="inline-block">
+                        <span>Open</span>
                     </a>
 
                     <!-- Save project button -->
-                    <a class="demo-function btn-view-blocks" id="save-project" style="display: inline-block;" data-displayas="inline-block">
-                        <span class="keyed-lang-string" data-key="editor_save"></span>
+                    <a id="save-project" class="demo-function btn-view-blocks"
+                       style="display: inline-block;" data-displayas="inline-block">
+                        <span>Save</span>
                     </a>
 
                     <!-- Drop-down hamburger menu -->
@@ -595,10 +597,18 @@
                             <label for="edit-project-name" class="keyed-lang-string" data-key="project_name"></label>
                             <input type="text" class="form-control form-control-size" id="edit-project-name" name="edit-project-name" />
                         </div>
+
+                        <!-- Edit project board type -->
+                        <div id="edit-project-board-dropdown" class="form-group">
+                            <label for="edit-board-type" class="keyed-lang-string"
+                                   data-key="project_create_board_type"></label>
+                            <select id="edit-board-type" class="form-control form-control-size"
+                                    name="new-project-board-type"></select>
+                        </div>
+
+
                         <!-- project meta data display -->
                         <div id="edit-project-details-ro" class="form-group">
-                            <strong class="keyed-lang-string" data-key="project_create_board_type"></strong>:&nbsp;<span
-                                id="edit-project-board-type-ro"></span><br>
                             <strong class="keyed-lang-string" data-key="project_created"></strong>:&nbsp;<span
                                 id="edit-project-created-date-ro"></span><br>
                             <strong class="keyed-lang-string" data-key="project_modified"></strong>:&nbsp;<span
@@ -929,6 +939,9 @@
             </div>
         </div>
     </div>
-
+    <script defer>
+      console.log('Loading images...');
+    </script>
+    <script src="load_images.js"></script>
 </body>
 </html>

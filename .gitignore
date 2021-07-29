@@ -27,5 +27,5 @@ lib
 .cache
 
 # SASS outputs
-sass/*.css
-sass/*.map
+src/scss/*.css
+src/scss/*.map

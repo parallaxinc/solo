@@ -20,6 +20,8 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+/* Global Colors */
+$color-error: #a94442;
 $color-white: #fff;
 $color-grey: #777;
 
@@ -61,7 +63,6 @@ html, body {
   max-height: 110% !important;
 }
 
-
 /* Solo-50 Keep mouse pointer from changing to an i-bar */
 .dropdown-menu>li>a {
   cursor: pointer;
@@ -70,7 +71,7 @@ html, body {
 
 /* Style form validation error message */
 .error {
-  color: #a94442;
+  color: $color-error;
   background-color: #f2dede;
   border-color: #ebccd1;
   padding:1px 20px 1px 20px;
@@ -198,25 +199,28 @@ button:hover {
 }
 
 #nav-logo {
-  background-image: url('images/logo_small.png');
-  background-repeat: no-repeat;
-  background-size: 50px 50px;
-  padding-left: 55px;
-  margin-left: 5px;
-  margin-top: 5px;
-  height: 50px;
+  margin-left: 7px;
+  margin-top: 7px;
   font-size: 22px;
   line-height: 25px;
   display: inline;
   float: left;
 }
 
+.branding-logo {
+  margin-top: 5px;
+  margin-left: 5px;
+  display: inline;
+  float:left;
+  height: 55px;
+}
 .url-prefix {
   color: #337ab7;
 }
 
 #nav-title {
   color: #BCD0E4;
+  padding-top: 5px;
   height: 50px;
   font-size: 25px;
   position: absolute;
@@ -347,6 +351,10 @@ ul > hr {
   box-shadow: inset 0 1px 1px rgba(0,0,0,0.0);
 }
 
+#right-menus {
+  float:right;
+  padding-right: 15px;
+}
 
 #comPort {
   display: inline-block;
@@ -468,7 +476,7 @@ ul > hr {
   line-height:20px;
   padding: 4px 4px 4px 0;
   text-decoration:none;
-  text-size-adjust:100%;
+/*   text-size-adjust:100%;  */
   width:auto;
   -webkit-tap-highlight-color:rgba(0, 0, 0, 0);
 }
@@ -489,7 +497,7 @@ ul > hr {
   line-height:20px;
   padding:4px;
   text-decoration:none;
-  text-size-adjust:100%;
+/*   text-size-adjust:100%;  */
   width:auto;
   -webkit-tap-highlight-color:rgba(0, 0, 0, 0);
 }
@@ -510,7 +518,7 @@ ul > hr {
   line-height:20px;
   padding:4px;
   text-decoration:none;
-  text-size-adjust:100%;
+/*  text-size-adjust:100%;  */
   width:auto;
   -webkit-tap-highlight-color:rgba(0, 0, 0, 0);
 }

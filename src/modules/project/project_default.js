@@ -25,7 +25,7 @@
  */
 
 
-import {Project, ProjectProfiles, ProjectTypes} from './project.js';
+import {Project, ProjectProfiles, ProjectTypes} from '../project.js';
 
 /**
  * Generate an empty default project

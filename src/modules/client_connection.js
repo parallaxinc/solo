@@ -313,7 +313,7 @@ function wsProcessUiCommand(message) {
       break;
 
     case WS_ACTION_CLOSE_COMPILE:
-      $('#compile-dialog').modal('hide');
+      hideCompilerStatusWindow();
       $('#compile-console').val('');
       break;
 
@@ -560,3 +560,13 @@ export const getComPort = function() {
     return commPortSelection;
   }
 };
+
+/**
+ * Close the compile progress window
+ */
+const hideCompilerStatusWindow = () => {
+  console.log('Hide Compiler dialog window.');
+  const dialog = document.getElementById('compile-dialog');
+  dialog.modal('hide');
+};
+

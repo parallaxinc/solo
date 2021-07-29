@@ -230,11 +230,37 @@ class Project {
 
     // This should be a timestamp but is received as a string
     // TODO: Convert timestamp string to numeric values
+
+    /**
+     * The date stamp for when the project was created.
+     * @type {Date} Records the date the project was created.
+     * @private
+     * @description The created on date is implemented as a Date
+     * object. It is the callers responsibility to ensure a date
+     * string or an epoch number is not used here.
+     */
+    if (!(created instanceof Date)) {
+      throw Error(`Project created on parameter must be a Date object`);
+    }
     this.created = created;
+
+    /**
+     * The data stamp for when the project was last modified
+     * @type {Date}
+     * @description If this value is null, set it to Date.Now.
+     */
     this.modified = modified;
+
+    /**
+     * Timestamp set when the project is loaded from storage
+     * @type {number}
+     */
     this.timestamp = timestamp;
 
-    // instance properties that are deprecated
+    // --------------------------------------- //
+    // instance properties that are deprecated //
+    // --------------------------------------- //
+
     /**
      * The unique project ID, used in the BlocklyProp server implementation.
      * @type {number}
@@ -300,6 +326,35 @@ class Project {
   } // End of constructor
 
   /**
+   * Project created date getter
+   * @return {Date}
+   */
+  getCreated() {
+    return this.created;
+  }
+
+  /**
+   * Project created date setter
+   * @param {Date} value
+   * @return {Date}
+   */
+  setCreated(value) {
+    if ( ! (value instanceof Date)) {
+      throw Error(`Cannot set Project created on date with "${value}`);
+    }
+    this.created = value;
+    return value;
+  }
+
+  /**
+   * Return the name of the current project board type
+   * @return {string}
+   */
+  getBoardName() {
+    return this.boardType.name;
+  }
+
+  /**
      * Get all of the project details in one function call. This is
      * a direct replacement for the code that is converted to JSON
      * to persist the project to storage.
@@ -355,6 +410,15 @@ class Project {
     this.code = newCode;
   }
 
+  /**
+   * Change the project board type
+   * @param {string} name
+   */
+  setBoardType(name) {
+    if (name && (this.boardType.name.toUpperCase() !== name.toUpperCase())) {
+      this.boardType = Project.convertBoardType(name);
+    }
+  }
   /**
    * Setting for code field with namespaced added automatically
    * @param {string} newCode
@@ -617,14 +681,25 @@ function projectJsonFactory(json) {
     console.log('Unknown board type: %s', json.boardType.name);
   }
 
+  // Check the created on time stamp
+  let createdOnDate = date;
+  if (typeof json.created == 'number') {
+    createdOnDate.setTime(json.created);
+  } else if (json.created instanceof Date) {
+    createdOnDate = json.created;
+  } else {
+    // Assuming that the value is a string
+    createdOnDate = new Date(json.created);
+  }
+
   return new Project(
       json.name,
       json.description,
       tmpBoardType,
       ProjectTypes.PROPC,
       json.code,
-      Date.parse(json.created),
-      Date.parse(json.modified),
+      createdOnDate,
+      (json.modified && json.modified.length > 0) ? Date.parse(json.modified) : date,
       date.getTime(),
   );
 }
