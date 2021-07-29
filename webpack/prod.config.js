@@ -85,18 +85,21 @@ module.exports = (opts) => {
       ],
     },
     module: {
-      rules: [
-        {
-          test: /\.s[ac]ss$/i,
-          use: [
-            // Creates `style` nodes from JS strings
-            "style-loader",
-            // Translates CSS into CommonJS
-            "css-loader",
-            // Compiles Sass to CSS
-            "sass-loader",
-          ],
-        },
+      // rules: [
+      //   {
+      //     test: /\.s[ac]ss$/i,
+      //       include: [
+      //         path.resolve(__dirname, './src/sass')
+      //       ],
+      //     use: [
+      //       // Creates `style` nodes from JS strings
+      //       "style-loader",
+      //       // Translates CSS into CommonJS
+      //       "css-loader",
+      //       // Compiles Sass to CSS
+      //       "sass-loader",
+      //     ],
+      //   },
         //
         // {
         //   test: /\.css$/,
@@ -108,7 +111,7 @@ module.exports = (opts) => {
         //     'css-loader'
         //   ]
         // },
-      ]
+      // ]
     },
     plugins: [
       new webpack.EnvironmentPlugin({
@@ -128,7 +131,7 @@ module.exports = (opts) => {
         patterns: [
           {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
           {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
-          // {from: './sass/main.css', to: path.resolve(__dirname, targetPath)},
+          // {from: './src/scss/main.css', to: path.resolve(__dirname, targetPath)},
           {from: './src/load_images.js', to: path.resolve(__dirname, targetPath)},
         ]
       })

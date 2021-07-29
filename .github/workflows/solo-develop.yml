@@ -28,7 +28,7 @@ jobs:
         run: npm ci
 
       - name: Build SCSS
-        run: npx sass src/sass/main.scss dist/main.css
+        run: npx sass src/scss/main.scss dist/main.css
 
       - name: Run build process
         run: npm run build --if-present
