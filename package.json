@@ -10,7 +10,7 @@
     "build": "webpack --config webpack/prod.config.js --node-env production --stats",
     "build:deploy": "rm -rdf ./dist/*; npm run build:sass;  webpack --config webpack/prod.config.js --node-env production --stats",
     "build:analyze": "npm run build -- --env.addons=bundleanalyzer",
-    "build:sass": "npx sass src/sass/main.scss dist/main.css",
+    "build:sass": "npx sass src/scss/main.scss dist/main.css",
     "build:test": "ls ./dist/*",
     "lint": "eslint \"src/modules/**/*.js\"",
     "profile": "webpack --profile --json --config webpack/dev.config.js > stats.json",
