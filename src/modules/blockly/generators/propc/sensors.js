@@ -253,10 +253,79 @@ Blockly.Blocks.PIR_Sensor = {
     this.setPreviousStatement(false, null);
     this.setOutput(true, 'Number');
   },
-  mutationToDom: Blockly.Blocks['sensor_ping'].mutationToDom,
-  domToMutation: Blockly.Blocks['sensor_ping'].domToMutation,
-  addPinMenu: Blockly.Blocks['sensor_ping'].addPinMenu,
-  setToOther: Blockly.Blocks['sensor_ping'].setToOther,
+
+  // mutationToDom: Blockly.Blocks['sensor_ping'].mutationToDom,
+  mutationToDom: function() {
+    const container = document.createElement('mutation');
+    for (let pinOpt = 0; pinOpt < this.pinChoices.length; pinOpt++) {
+      // TODO: verify that otherPin is in fact a boolean
+      container.setAttribute('otherpin' +
+          pinOpt, this.otherPin[pinOpt].toString());
+    }
+    return container;
+  },
+
+  // domToMutation: Blockly.Blocks['sensor_ping'].domToMutation,
+  domToMutation: function(xmlElement) {
+    for (let pinOpt = 0; pinOpt < this.pinChoices.length; pinOpt++) {
+      const op = xmlElement.getAttribute('otherpin' + pinOpt);
+      if (op === 'true') {
+        this.setToOther('other', this.moveBefore, pinOpt);
+      }
+    }
+  },
+
+  // addPinMenu: Blockly.Blocks['sensor_ping'].addPinMenu,
+  /**
+   * Add a pin to the block configuration
+   * @param {string} label
+   * @param {boolean} moveBefore
+   * @param {number} pinOpt is an index into the pins array
+   */
+  addPinMenu: function(label, moveBefore, pinOpt) {
+    const profile = getDefaultProfile();
+    this.appendDummyInput('SET_PIN')
+        .appendField(label, 'LABEL')
+        .appendField(new Blockly.FieldDropdown(
+            profile.digital.concat([['other', 'other']]),
+            function(op) {
+              // eslint-disable-next-line no-invalid-this
+              this.getSourceBlock().setToOther(op, moveBefore, pinOpt);
+            }), this.pinChoices[pinOpt]);
+    this.moveBefore = moveBefore;
+    this.otherPin[pinOpt] = false;
+  },
+
+  // setToOther: Blockly.Blocks['sensor_ping'].setToOther,
+  /**
+   * Set the pin to default 'other' as defined in the board type profile
+   * @param {string} op
+   * @param {boolean} moveBefore
+   * @param {number} pinOpt
+   */
+  setToOther: function(op, moveBefore, pinOpt) {
+    if (op === 'other') {
+      const profile = getDefaultProfile();
+      this.otherPin[pinOpt] = true;
+      const label = this.getFieldValue('LABEL');
+      if (this.getInput('SET_PIN')) {
+        this.removeInput('SET_PIN');
+      }
+      this.appendValueInput(this.pinChoices[pinOpt])
+          .appendField(label)
+          .setCheck('Number')
+          .appendRange('A,' + profile.digital.toString());
+      if (moveBefore) {
+        this.moveInputBefore(this.pinChoices[pinOpt], moveBefore);
+      } else {
+        const currBlockTimeout = this;
+        setTimeout(function() {
+          currBlockTimeout.render();
+        }, 200);
+      }
+    }
+  },
+
 };
 
 /**
