@@ -43,6 +43,7 @@ import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sd_card';
 import './blockly/generators/propc/sensors';
+import './blockly/generators/propc/sensors/mx2125';
 import './blockly/generators/propc/sensors/pir';
 import './blockly/generators/propc/variables';
 
