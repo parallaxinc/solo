@@ -566,7 +566,6 @@ export const getComPort = function() {
  */
 const hideCompilerStatusWindow = () => {
   console.log('Hide Compiler dialog window.');
-  const dialog = document.getElementById('compile-dialog');
-  dialog.modal('hide');
+  $('#compile-dialog').modal('hide');
 };
 
