@@ -2908,66 +2908,6 @@ Blockly.propc.rfid_close = function() {
   }
 };
 
-// ---------- Sony TV Remote (Using 40 kHz IR sensor) Blocks -----------
-
-/**
- *
- * @type {{
- *  init: Blockly.Blocks.sirc_get.init,
- *  addPinMenu: *,
- *  mutationToDom: *,
- *  helpUrl: string,
- *  setToOther: *,
- *  domToMutation: *
- *  }}
- */
-Blockly.Blocks.sirc_get = {
-  helpUrl: Blockly.MSG_SONY_REMOTE_HELPURL,
-  init: function() {
-    const project = getProjectInitialState();
-    this.setTooltip(Blockly.MSG_SIRC_GET_TOOLTIP);
-    this.setColour(colorPalette.getColor('input'));
-    this.pinChoices = ['PIN'];
-    this.otherPin = [false];
-    if (project.boardType.name === 'heb-wx') {
-      this.appendDummyInput()
-          .appendField('Sony Remote value received');
-    } else {
-      this.addPinMenu('Sony Remote value received from PIN', null, 0);
-    }
-    this.setInputsInline(true);
-    this.setPreviousStatement(false, null);
-    this.setNextStatement(false, null);
-    this.setOutput(true, 'Number');
-  },
-  mutationToDom: Blockly.Blocks['sensor_ping'].mutationToDom,
-  domToMutation: Blockly.Blocks['sensor_ping'].domToMutation,
-  addPinMenu: Blockly.Blocks['sensor_ping'].addPinMenu,
-  setToOther: Blockly.Blocks['sensor_ping'].setToOther,
-};
-
-/**
- *
- * @return {[string, number]}
- */
-Blockly.propc.sirc_get = function() {
-  const project = getProjectInitialState();
-  let pin = '0';
-  if (project.boardType.name === 'heb-wx') {
-    pin = '23';
-  } else if (this.otherPin[0]) {
-    pin = Blockly.propc.valueToCode(
-        this, 'PIN', Blockly.propc.ORDER_ATOMIC) || '0';
-  } else {
-    pin = this.getFieldValue('PIN');
-  }
-  if (!this.disabled) {
-    Blockly.propc.definitions_['sirc'] = '#include "sirc.h"';
-    Blockly.propc.setups_['sirc'] = 'sirc_setTimeout(70);';
-  }
-  const code = 'sirc_button(' + pin + ')';
-  return [code, Blockly.propc.ORDER_NONE];
-};
 
 // ------------------ 4x4 Keypad Blocks ----------------------------------------
 /**
@@ -2990,7 +2930,9 @@ Blockly.Blocks.keypad_initialize = {
     this.setNextStatement(true, null);
     this.updateConstMenu();
   },
+
   updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
+
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m = [];
