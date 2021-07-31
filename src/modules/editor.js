@@ -46,6 +46,7 @@ import './blockly/generators/propc/sensors';
 
 import './blockly/generators/propc/sensors/color_pal';
 import './blockly/generators/propc/sensors/dht22';
+import './blockly/generators/propc/sensors/gps';
 import './blockly/generators/propc/sensors/mma7455';
 import './blockly/generators/propc/sensors/mx2125';
 import './blockly/generators/propc/sensors/ping';
