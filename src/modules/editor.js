@@ -1420,7 +1420,6 @@ export function createNewProject() {
   // Save the form fields into the projectData object
   // The projectData variable is defined in globals.js
   const projectName = $('#new-project-name').val();
-  const createdDateHtml = $('#edit-project-created-date').html();
   const description = $('#new-project-description').val();
   const boardType = $('#new-project-board-type').val();
 
@@ -1438,8 +1437,8 @@ export function createNewProject() {
         tmpBoardType,
         ProjectTypes.PROPC,
         '',
-        createdDateHtml,
-        createdDateHtml,
+        date,
+        date,
         timestamp,
         true);
 
