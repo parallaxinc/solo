@@ -32,72 +32,118 @@
 'use strict';
 
 import Blockly from 'blockly/core';
-import * as Sentry from '@sentry/browser';
-
-import {getDefaultProfile, getProjectInitialState} from '../../../project';
 import {colorPalette} from '../propc.js';
-
-// ---------------- 2-axis Joystick Blocks -----------------------------------
-
-/**
- * Joystick Y Axis Input
- * @type {{
- *  init: Blockly.Blocks.joystick_input_yaxis.init,
- *  helpUrl: string
- *  }}
- */
-Blockly.Blocks.joystick_input_yaxis = {
-  helpUrl: Blockly.MSG_JOYSTICK_HELPURL,
-  init: function() {
-    let profile = getDefaultProfile();
-
-    if (profile.analog.length === 0) {
-      const project = getProjectInitialState();
-      const message = `JoystickInputYAxis: ` +
-          `Empty profile analog list detected for board type ` +
-          `'${project.boardType.name}'.`;
-
-      Sentry.captureMessage(message);
-      console.log(message);
-      profile = ['A0', '0'];
-    }
-
-    this.chan = ['x', 'X'];
-
-    if (this.type === 'joystick_input_yaxis') {
-      this.chan = ['y', 'Y'];
-    }
-
-    this.setTooltip(Blockly.MSG_JOYSTICK_INPUT_TOOLTIP);
-    this.setColour(colorPalette.getColor('input'));
-    this.appendDummyInput()
-        .appendField('Joystick ' + this.chan[0] + '-axis A/D')
-        .appendField(new Blockly.FieldDropdown(
-            profile.analog), 'PIN' + this.chan[1]);
-    this.setOutput(true, 'Number');
-    this.setPreviousStatement(false, null);
-    this.setNextStatement(false, null);
-  },
-};
-
-/**
- *
- * @return {[string, number]}
- */
-Blockly.propc.joystick_input_yaxis = function() {
-  const pinNumber = this.getFieldValue('PIN' + this.chan[1]);
-
-  if (!this.disabled) {
-    Blockly.propc.definitions_['include abvolts'] = '#include "abvolts.h"';
-  }
-
-  const code = 'ad_in(' + pinNumber + ') * 100 / 4096';
-  return [code, Blockly.propc.ORDER_ATOMIC];
-};
-
-Blockly.Blocks.joystick_input_xaxis = Blockly.Blocks.joystick_input_yaxis;
-Blockly.propc.joystick_input_xaxis = Blockly.propc.joystick_input_yaxis;
-
+//
+// // ---------------- 2-axis Joystick Blocks -----------------------------------
+//
+// /**
+//  * Joystick X Axis Input
+//  * @type {{
+//  *  init: Blockly.Blocks.joystick_input_yaxis.init,
+//  *  helpUrl: string
+//  *  }}
+//  */
+// Blockly.Blocks.joystick_input_xaxis = {
+//   helpUrl: Blockly.MSG_JOYSTICK_HELPURL,
+//
+//   init: function() {
+//     let profile = getDefaultProfile();
+//
+//     // Trap case where profile does not define default analog pins
+//     if (profile.analog.length === 0) {
+//       const project = getProjectInitialState();
+//       const message = `JoystickInputYAxis: ` +
+//           `Empty profile analog list detected for board type ` +
+//           `'${project.boardType.name}'.`;
+//
+//       Sentry.captureMessage(message);
+//       console.log(message);
+//       profile = ['A0', '0'];
+//     }
+//
+//     this.chan = this.type === 'joystick_input_yaxis' ? ['y', 'Y'] : ['x', 'X'];
+//
+//     this.setTooltip(Blockly.MSG_JOYSTICK_INPUT_TOOLTIP);
+//     this.setColour(colorPalette.getColor('input'));
+//     this.appendDummyInput()
+//         .appendField('Joystick ' + this.chan[0] + '-axis A/D')
+//         .appendField(new Blockly.FieldDropdown(
+//             profile.analog), 'PIN' + this.chan[1]);
+//     this.setOutput(true, 'Number');
+//     this.setPreviousStatement(false, null);
+//     this.setNextStatement(false, null);
+//   },
+// };
+//
+// /**
+//  * Generate C source code for the joystick input x-axis block
+//  * @return {[string, number]}
+//  */
+// Blockly.propc.joystick_input_xaxis = function() {
+//   const pinNumber = this.getFieldValue('PIN' + this.chan[1]);
+//
+//   if (!this.disabled) {
+//     Blockly.propc.definitions_['include abvolts'] = '#include "abvolts.h"';
+//   }
+//
+//   const code = 'ad_in(' + pinNumber + ') * 100 / 4096';
+//   return [code, Blockly.propc.ORDER_ATOMIC];
+// };
+//
+// /**
+//  * Joystick Y Axis Input
+//  * @type {{
+//  *  init: Blockly.Blocks.joystick_input_yaxis.init,
+//  *  helpUrl: string
+//  *  }}
+//  */
+// Blockly.Blocks.joystick_input_yaxis = {
+//   helpUrl: Blockly.MSG_JOYSTICK_HELPURL,
+//
+//   init: function() {
+//     let profile = getDefaultProfile();
+//
+//     // Trap case where profile does not define default analog pins
+//     if (profile.analog.length === 0) {
+//       const project = getProjectInitialState();
+//       const message = `JoystickInputYAxis: ` +
+//           `Empty profile analog list detected for board type ` +
+//           `'${project.boardType.name}'.`;
+//
+//       Sentry.captureMessage(message);
+//       console.log(message);
+//       profile = ['A0', '0'];
+//     }
+//
+//     this.chan = this.type === 'joystick_input_yaxis' ? ['y', 'Y'] : ['x', 'X'];
+//
+//     this.setTooltip(Blockly.MSG_JOYSTICK_INPUT_TOOLTIP);
+//     this.setColour(colorPalette.getColor('input'));
+//     this.appendDummyInput()
+//         .appendField('Joystick ' + this.chan[0] + '-axis A/D')
+//         .appendField(new Blockly.FieldDropdown(
+//             profile.analog), 'PIN' + this.chan[1]);
+//     this.setOutput(true, 'Number');
+//     this.setPreviousStatement(false, null);
+//     this.setNextStatement(false, null);
+//   },
+// };
+//
+// /**
+//  * Generate C source code for the joystick input y-axis block
+//  * @return {[string, number]}
+//  */
+// Blockly.propc.joystick_input_yaxis = function() {
+//   const pinNumber = this.getFieldValue('PIN' + this.chan[1]);
+//
+//   if (!this.disabled) {
+//     Blockly.propc.definitions_['include abvolts'] = '#include "abvolts.h"';
+//   }
+//
+//   const code = 'ad_in(' + pinNumber + ') * 100 / 4096';
+//   return [code, Blockly.propc.ORDER_ATOMIC];
+// };
+//
 
 // ---------------- Sound Impact Sensor Blocks -----------------------
 
@@ -121,9 +167,10 @@ Blockly.Blocks.sound_impact_run = {
     this.setPreviousStatement(true, 'Block');
     this.updateConstMenu();
   },
+
   updateConstMenu: function(oldValue, newValue) {
     this.userDefinedConstantsList_ = [];
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+    const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
     for (let x = 0; x < allBlocks.length; x++) {
       if (allBlocks[x].type === 'constant_define') {
         let vName = allBlocks[x].getFieldValue('CONSTANT_NAME');
@@ -139,6 +186,7 @@ Blockly.Blocks.sound_impact_run = {
         this.userDefinedConstantsList_.sortedUnique();
     this.setPinMenus(oldValue, newValue);
   },
+
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m1 = this.getFieldValue('PIN');
@@ -151,7 +199,8 @@ Blockly.Blocks.sound_impact_run = {
             profile.digital.concat(
                 this.userDefinedConstantsList_.map(function(value) {
                   return [value, value];
-                }))), 'PIN');
+                }))),
+        'PIN');
     if (m1 && m1 === oldValue && newValue) {
       this.setFieldValue(newValue, 'PIN');
     } else if (m1) {
@@ -167,6 +216,7 @@ Blockly.Blocks.sound_impact_run = {
 Blockly.propc.sound_impact_run = function() {
   if (!this.disabled) {
     const profile = getDefaultProfile();
+
     let pin = this.getFieldValue('PIN');
     if (profile.digital.toString().indexOf(pin + ',' + pin) === -1) {
       pin = 'MY_' + pin;
@@ -287,6 +337,7 @@ Blockly.Blocks.fp_scanner_init = {
     this.updateConstMenu();
   },
   updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
+
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m1 = this.getFieldValue('RXPIN');
@@ -1828,6 +1879,16 @@ Blockly.Blocks.keypad_initialize = {
 
   updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
 
+  /**
+   * This is a called from within the updateConstMenu method.
+   *
+   * @description This method is called as a finalizer in the updateConstMenu() call. This
+   * call is by reference to the method defined in the 'sound_impact_run' block. That method
+   * calls setPinMenus with no parameters, which basically renders this method useless.
+   *
+   * @param {string} oldValue
+   * @param {string} newValue
+   */
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m = [];
@@ -1933,7 +1994,15 @@ Blockly.propc.keypad_read = function() {
 // ------------------ BME680 Air Quality Sensor -----------------------------
 
 /**
- * bme680 Initialization
+ * BME680 gas sensor Initialization
+ *
+ * @description This block sets the pin assignments for the sensor and calls an
+ * SPI init function in the library.
+ *
+ * NOTE: The block is a SINGLETON but is not implemented as one. If there are
+ * multiple init blocks in the project, the last one declared will be the one
+ * that provides the pin settings.
+ *
  * @type {{
  *  init: Blockly.Blocks.bme680_init.init,
  *  setPinMenus: Blockly.Blocks.bme680_init.setPinMenus,
@@ -1943,6 +2012,7 @@ Blockly.propc.keypad_read = function() {
  */
 Blockly.Blocks.bme680_init = {
   helpUrl: Blockly.MSG_BME680_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_BME680_INIT_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
@@ -1952,22 +2022,44 @@ Blockly.Blocks.bme680_init = {
     this.setPreviousStatement(true, 'Block');
     this.updateConstMenu();
   },
+
+  /**
+   * Update the Constants menu
+   *
+   * This currently uses the updateConstMenu method in an unrelated block and should
+   * be refactored to remove the dependency.
+   */
   updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
+
+  /**
+   * Set the pin dropdown menu elements
+   *
+   * @param {string} oldValue
+   * @param {string} newValue
+   */
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
-    const mv = ['PIN_CLK', 'PIN_SDI', 'PIN_SDO', 'PIN_CS'];
+    const mv = [
+      'PIN_CLK',
+      'PIN_SDI',
+      'PIN_SDO',
+      'PIN_CS',
+    ];
     const m = [
       this.getFieldValue('PIN_CLK'),
       this.getFieldValue('PIN_SDI'),
       this.getFieldValue('PIN_SDO'),
       this.getFieldValue('PIN_CS'),
     ];
+
     if (this.getInput('PINS')) {
       this.removeInput('PINS');
     }
+
     const pinConstantList = this.userDefinedConstantsList_.map(function(value) {
       return [value, value];
     });
+
     this.appendDummyInput('PINS')
         .appendField('Air Quality initialize SCK')
         .appendField(new Blockly.FieldDropdown(
@@ -1981,7 +2073,11 @@ Blockly.Blocks.bme680_init = {
         .appendField('CS')
         .appendField(new Blockly.FieldDropdown(
             profile.digital.concat(pinConstantList)), 'PIN_CS');
+
+    // Loop through the array of pin fields
     for (let i = 0; i < 4; i++) {
+      // If the pin has a value, and the value is equal to the old value, and there is
+      // a new value, then set the pin field to the new value
       if (m[i] && m[i] === oldValue && newValue) {
         this.setFieldValue(newValue, mv[i]);
       } else if (m[i]) {
@@ -2036,6 +2132,7 @@ Blockly.Blocks.bme680_read = {
     this.setNextStatement(true, null);
     this.setPreviousStatement(true, 'Block');
   },
+
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Air Quality initialize') === -1) {
@@ -2085,6 +2182,7 @@ Blockly.Blocks.bme680_heater = {
     this.setNextStatement(true, null);
     this.setPreviousStatement(true, 'Block');
   },
+
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Air Quality initialize') === -1) {
@@ -2177,6 +2275,7 @@ Blockly.Blocks.bme680_get_value = {
     this.setPreviousStatement(false, null);
     this.setOutput(true, 'Number');
   },
+
   setMeasUnit: function(val) {
     this.removeInput('UNITS');
     if (val === 'humidity') {
@@ -2191,17 +2290,20 @@ Blockly.Blocks.bme680_get_value = {
     }
     this.moveInputBefore('UNITS', 'MULTIPLIER');
   },
+
   mutationToDom: function() {
     const container = document.createElement('mutation');
     container.setAttribute('sensor', this.getFieldValue('SENSOR'));
     return container;
   },
+
   domToMutation: function(container) {
     const val = container.getAttribute('sensor');
     if (val) {
       this.setMeasUnit(val);
     }
   },
+
   onchange: function() {
     const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
     if (allBlocks.indexOf('Air Quality initialize') === -1) {
