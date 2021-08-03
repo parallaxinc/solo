@@ -1194,7 +1194,7 @@ xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="fp_scanner_scan"></block>';
 xmlToolbox += '        </category>';
-xmlToolbox += '        <category key="category_sensor-input_hmc5883l" include="other,">';
+xmlToolbox += '        <category key="category_sensor-input_hmc5883l" include="other,activity-board,">';
 xmlToolbox += '            <block type="HMC5883L_init"></block>';
 xmlToolbox += '            <block type="HMC5883L_read"></block>';
 xmlToolbox += '        </category>';
