@@ -34,12 +34,13 @@
 import Blockly from 'blockly/core';
 import {colorPalette} from '../propc.js';
 import {getDefaultProfile} from '../../../project';
-
+import {buildConstantsList, verifyBlockTypeEnabled} from './sensors/sensors_common';
 
 // ---------------- Sound Impact Sensor Blocks -----------------------
 
 /**
  * Sound Impact Run
+ *
  * @type {{
  *  init: Blockly.Blocks.sound_impact_run.init,
  *  setPinMenus: Blockly.Blocks.sound_impact_run.setPinMenus,
@@ -49,6 +50,10 @@ import {getDefaultProfile} from '../../../project';
  */
 Blockly.Blocks.sound_impact_run = {
   helpUrl: Blockly.MSG_SOUND_IMPACT_HELPURL,
+
+  /**
+   * Initialize the Sound Impact block
+   */
   init: function() {
     this.setTooltip(Blockly.MSG_SOUND_IMPACT_RUN_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
@@ -56,34 +61,51 @@ Blockly.Blocks.sound_impact_run = {
     this.setInputsInline(true);
     this.setNextStatement(true, null);
     this.setPreviousStatement(true, 'Block');
-    this.updateConstMenu();
+
+    // Prepare the Pn dropdown list
+    this.userDefinedConstantsList_ = buildConstantsList();
+    this.setPinMenus();
   },
 
-  updateConstMenu: function(oldValue, newValue) {
-    this.userDefinedConstantsList_ = [];
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
-    for (let x = 0; x < allBlocks.length; x++) {
-      if (allBlocks[x].type === 'constant_define') {
-        let vName = allBlocks[x].getFieldValue('CONSTANT_NAME');
-        if (vName === oldValue && newValue) {
-          vName = newValue;
-        }
-        if (vName) {
-          this.userDefinedConstantsList_.push(vName);
+  /**
+   * Handle event where a constant value is changed
+   * @param {Blockly.Events.Abstract} event
+   *
+   * @description
+   * This method reacts to changes in the list of user-defined constants in
+   * the project. When a change to an element in this list occurs, evaluate
+   * the old value to see if it is in this object's list of known constants.
+   * If changing constant is used, reset the pin list to replace the old
+   * constant name with the new one.
+   */
+  onchange: function(event) {
+    if (event.type === 'change' && event.name === 'CONSTANT_NAME') {
+      // Change only if the selected pin is the named constant that is changing
+      if (this.getFieldValue('PIN') === event.oldValue) {
+        const index = this.userDefinedConstantsList_.indexOf(event.oldValue);
+        if (index !== -1) {
+          this.userDefinedConstantsList_[index] = event.newValue;
+          this.setPinMenus(event.oldValue, event.newValue);
         }
       }
     }
-    this.userDefinedConstantsList_ =
-        this.userDefinedConstantsList_.sortedUnique();
-    this.setPinMenus(oldValue, newValue);
   },
 
-  setPinMenus: function(oldValue, newValue) {
+  /**
+   * Reload the Pin dropdown user input
+   * @param {string} oldValue
+   * @param {string} newValue
+   */
+  setPinMenus: function(oldValue = '', newValue = '') {
     const profile = getDefaultProfile();
     const m1 = this.getFieldValue('PIN');
+
+    // Remove Pins dropdown if it is already defined.
     if (this.getInput('PINS')) {
       this.removeInput('PINS');
     }
+
+    // Recreate the Pins dropdown control
     this.appendDummyInput('PINS')
         .appendField('Sound Impact initialize PIN')
         .appendField(new Blockly.FieldDropdown(
@@ -92,11 +114,44 @@ Blockly.Blocks.sound_impact_run = {
                   return [value, value];
                 }))),
         'PIN');
-    if (m1 && m1 === oldValue && newValue) {
+
+    // Restore the selected pin value or use the new value if one is provided
+    if (m1 && m1 === oldValue && newValue.length > 0) {
       this.setFieldValue(newValue, 'PIN');
     } else if (m1) {
       this.setFieldValue(m1, 'PIN');
     }
+  },
+
+  /**
+   * Update the Constants menu
+   *
+   * @param {string} oldValue
+   * @param {string} newValue
+   * @deprecated
+   */
+  updateConstMenu: function(oldValue, newValue) {
+    const BLOCK_TYPE = 'constant_define';
+
+    /**
+     * User-defind constants list
+     * @type {*[]}
+     * @private
+     */
+    this.userDefinedConstantsList_ = [];
+
+    const allBlocks = Blockly.getMainWorkspace().getBlocksByType(BLOCK_TYPE, false);
+    for (let x = 0; x < allBlocks.length; x++) {
+      let vName = allBlocks[x].getFieldValue('CONSTANT_NAME');
+      if (vName === oldValue && newValue) {
+        vName = newValue;
+      }
+      if (vName) {
+        this.userDefinedConstantsList_.push(vName);
+      }
+    }
+    this.userDefinedConstantsList_ = this.userDefinedConstantsList_.sortedUnique();
+    this.setPinMenus(oldValue, newValue);
   },
 };
 
@@ -130,6 +185,7 @@ Blockly.propc.sound_impact_run = function() {
  */
 Blockly.Blocks.sound_impact_get = {
   helpUrl: Blockly.MSG_SOUND_IMPACT_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_SOUND_IMPACT_GET_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
@@ -139,9 +195,9 @@ Blockly.Blocks.sound_impact_get = {
     this.setPreviousStatement(false, null);
     this.setOutput(true, 'Number');
   },
+
   onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-    if (allBlocks.indexOf('Sound Impact initialize') === -1) {
+    if (!verifyBlockTypeEnabled('sound_impact_run')) {
       this.setWarningText('WARNING: You must use a sound impact' +
           ' sensor\ninitialize block at the beginning of your program!');
     } else {
@@ -173,6 +229,7 @@ Blockly.propc.sound_impact_get = function() {
  */
 Blockly.Blocks.sound_impact_end = {
   helpUrl: Blockly.MSG_SOUND_IMPACT_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_SOUND_IMPACT_END_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
@@ -181,9 +238,9 @@ Blockly.Blocks.sound_impact_end = {
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
   },
+
   onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-    if (allBlocks.indexOf('Sound Impact initialize') === -1) {
+    if (!verifyBlockTypeEnabled('sound_impact_run')) {
       this.setWarningText('WARNING: You must use a sound impact' +
           ' sensor\ninitialize block at the beginning of your program!');
     } else {
@@ -197,13 +254,13 @@ Blockly.Blocks.sound_impact_end = {
  * @return {string}
  */
 Blockly.propc.sound_impact_end = function() {
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-  if (allBlocks.indexOf('Sound Impact initialize') === -1) {
+  if (!verifyBlockTypeEnabled('sound_impact_run')) {
     return '// ERROR: Missing sound impact sensor initialize block!';
   } else {
     return 'soundImpact_end(__soundimpactcog);\n';
   }
 };
+
 
 // -------------- Fingerprint Scanner Blocks ------------------------
 
@@ -218,6 +275,7 @@ Blockly.propc.sound_impact_end = function() {
  */
 Blockly.Blocks.fp_scanner_init = {
   helpUrl: Blockly.MSG_FPS_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_FPS_INIT_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
@@ -225,14 +283,43 @@ Blockly.Blocks.fp_scanner_init = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
-    this.updateConstMenu();
+    // this.updateConstMenu();
+    this.userDefinedConstantsList_ = buildConstantsList();
+    this.setPinMenus();
   },
-  updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
+
+
+  /**
+   * Handle event where a constant value is changed
+   * @param {Blockly.Events.Abstract} event
+   *
+   * @description
+   * This method reacts to changes in the list of user-defined constants in
+   * the project. When a change to an element in this list occurs, evaluate
+   * the old value to see if it is in this object's list of known constants.
+   * If changing constant is used, reset the pin list to replace the old
+   * constant name with the new one.
+   */
+  onchange: function(event) {
+    if (event.type === 'change' && event.name === 'CONSTANT_NAME') {
+      // Change only if the selected pin is the named constant that is changing
+      if (this.getFieldValue('PIN') === event.oldValue) {
+        const index = this.userDefinedConstantsList_.indexOf(event.oldValue);
+        if (index !== -1) {
+          this.userDefinedConstantsList_[index] = event.newValue;
+          this.setPinMenus(event.oldValue, event.newValue);
+        }
+      }
+    }
+  },
+
+  // updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
 
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m1 = this.getFieldValue('RXPIN');
     const m2 = this.getFieldValue('TXPIN');
+
     if (this.getInput('PINS')) {
       this.removeInput('PINS');
     }
