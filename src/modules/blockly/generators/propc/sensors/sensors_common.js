@@ -20,3 +20,66 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+
+import Blockly from 'blockly/core';
+
+/**
+ * Build a list of user-defined constant values
+ *
+ * @return {[]}
+ */
+export function buildConstantsList() {
+  const BLOCK_TYPE = 'constant_define';
+  const userDefinedConstantsList = [];
+
+  const allBlocks = Blockly.getMainWorkspace().getBlocksByType(BLOCK_TYPE, false);
+  for (let x = 0; x < allBlocks.length; x++) {
+    const vName = allBlocks[x].getFieldValue('CONSTANT_NAME');
+    if (vName) {
+      userDefinedConstantsList.push(vName);
+    }
+  }
+  return userDefinedConstantsList.sortedUnique();
+}
+
+/**
+ * Gets an array for Blockly blocks that match the parameter 'type'.
+ *
+ * @param {string} type
+ * @return {Blockly.Block[]}
+ */
+export function getBlocksByType( type ) {
+  return Blockly.getMainWorkspace().getBlocksByType(type, false);
+}
+
+/**
+ * Verify that there is at least one block of the specified type defined
+ *
+ * @param {string} type
+ * @return {number}
+ */
+export function verifyBlockTypeExists( type ) {
+  const allBlocks = getBlocksByType(type);
+  return (allBlocks.length > 0 ? 0 : -1);
+}
+
+/**
+ * Ensure that there is at least one block of the specified type that is enabled
+ *
+ * @param {string} type
+ * @return {boolean} True if at least one block of the specified type is enabled.
+ * Otherwise, returns false.
+ */
+export function verifyBlockTypeEnabled( type ) {
+  const allBlocks = getBlocksByType(type);
+  let enabled = false;
+
+  // Look for at least one copy of the block that is enabled
+  allBlocks.forEach((block) => {
+    if (block.isEnabled()) {
+      enabled = true;
+    }
+  });
+
+  return enabled;
+}
