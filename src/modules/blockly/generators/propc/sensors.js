@@ -207,6 +207,7 @@ Blockly.Blocks.sound_impact_get = {
 };
 
 /**
+ * Sound Impact Get C code generator
  *
  * @return {string|[string, number]}
  */
@@ -266,12 +267,6 @@ Blockly.propc.sound_impact_end = function() {
 
 /**
  * FP Scanner Initialization
- * @type {{
- *  init: Blockly.Blocks.fp_scanner_init.init,
- *  setPinMenus: Blockly.Blocks.fp_scanner_init.setPinMenus,
- *  helpUrl: string,
- *  updateConstMenu: *
- *  }}
  */
 Blockly.Blocks.fp_scanner_init = {
   helpUrl: Blockly.MSG_FPS_HELPURL,
@@ -283,11 +278,11 @@ Blockly.Blocks.fp_scanner_init = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
-    // this.updateConstMenu();
+
+    // Populate the drop down pin list
     this.userDefinedConstantsList_ = buildConstantsList();
     this.setPinMenus();
   },
-
 
   /**
    * Handle event where a constant value is changed
@@ -312,8 +307,6 @@ Blockly.Blocks.fp_scanner_init = {
       }
     }
   },
-
-  // updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
 
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
@@ -419,16 +412,19 @@ Blockly.Blocks.fp_scanner_add = {
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
   },
+
   mutationToDom: function() {
     const container = document.createElement('mutation');
     const action = this.getFieldValue('ACTION');
     container.setAttribute('action', action);
     return container;
   },
+
   domToMutation: function(xmlElement) {
     const action = xmlElement.getAttribute('action');
     this.setAction_({'ACTION': action});
   },
+
   setAction_: function(details) {
     const inputIs = this.getInput('USER');
     if (details['ACTION'] !== 'ALL') {
@@ -443,9 +439,9 @@ Blockly.Blocks.fp_scanner_add = {
       }
     }
   },
+
   onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-    if (allBlocks.indexOf('Fingerprint Scanner initialize') === -1) {
+    if (!verifyBlockTypeEnabled('fp_scanner_init')) {
       this.setWarningText('WARNING: You must use a Fingerprint' +
           ' Scanner\ninitialize block at the beginning of your program!');
     } else {
@@ -461,29 +457,28 @@ Blockly.Blocks.fp_scanner_add = {
 Blockly.propc.fp_scanner_add = function() {
   const act = this.getFieldValue('ACTION');
   let usr = '1';
+
   if (act !== 'ALL') {
-    usr = Blockly.propc.valueToCode(
-        this, 'USER', Blockly.propc.ORDER_NONE) || '1';
+    usr = Blockly.propc.valueToCode(this, 'USER', Blockly.propc.ORDER_NONE) || '1';
   }
 
-  let code = '';
-
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-  if (allBlocks.indexOf('Fingerprint Scanner initialize') === -1) {
-    code = '// ERROR: Fingerprint Scanner is not initialized!\n';
-  } else {
-    if (act === 'ADD') {
-      code = 'fingerprint_add(fpScan, ' + usr + ', 3, 0);\n';
-    }
-    if (act === 'DEL') {
-      code = 'fingerprint_deleteUser(fpScan, ' + usr + ');\n';
-    }
-    if (act === 'ALL') {
-      code = 'fingerprint_deleteUser(fpScan, 0);\n';
-    }
+  if (!verifyBlockTypeEnabled('fp_scanner_init')) {
+    return '// ERROR: Fingerprint Scanner is not initialized!\n';
   }
 
-  return code;
+  if (act === 'ADD') {
+    return 'fingerprint_add(fpScan, ' + usr + ', 3, 0);\n';
+  }
+
+  if (act === 'DEL') {
+    return 'fingerprint_deleteUser(fpScan, ' + usr + ');\n';
+  }
+
+  if (act === 'ALL') {
+    return 'fingerprint_deleteUser(fpScan, 0);\n';
+  }
+
+  return `// Finger print scanner add - unknown action.\n `;
 };
 
 /**
@@ -540,8 +535,7 @@ Blockly.Blocks.fp_scanner_scan = {
     }
   },
   onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-    if (allBlocks.indexOf('Fingerprint Scanner initialize') === -1) {
+    if (!verifyBlockTypeEnabled('fp_scanner_init')) {
       this.setWarningText('WARNING: You must use a Fingerprint' +
           ' Scanner\ninitialize block at the beginning of your program!');
     } else {
@@ -555,38 +549,37 @@ Blockly.Blocks.fp_scanner_scan = {
  * @return {string|[string, number]}
  */
 Blockly.propc.fp_scanner_scan = function() {
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-  if (allBlocks.indexOf('Fingerprint Scanner initialize') === -1) {
-    return '// ERROR: Fingerprint Scanner is not initialized!\n';
-  } else {
-    const act = this.getFieldValue('ACTION');
-    let usr = '1';
-    if (act === 'COMP') {
-      usr = Blockly.propc.valueToCode(
-          this, 'USER', Blockly.propc.ORDER_NONE) || '1';
-    }
-
-    let func = 'int fingerScanner(int __u) {';
-    func += 'int r;\nfingerprint_scan(fpScan, __u, &r);\n';
-    func += 'if (__u != 0 && r != 0) return 1;\n else return r;}';
-
-    let code = '0';
-
-    if (Blockly.propc.global_vars_['fpScannerObj'] === 'fpScanner *fpScan;') {
-      if (act === 'SCAN') {
-        Blockly.propc.global_vars_['fpScannerFunc'] = func;
-        code = 'fingerScanner(0)';
-      }
-      if (act === 'COMP') {
-        Blockly.propc.global_vars_['fpScannerFunc'] = func;
-        code = 'fingerScanner(' + usr + ')';
-      }
-      if (act === 'COUNT') {
-        code = 'fingerprint_countUsers(fpScan)';
-      }
-    }
-    return [code, Blockly.propc.ORDER_ATOMIC];
+  const act = this.getFieldValue('ACTION');
+  let usr = '1';
+  if (act === 'COMP') {
+    usr = Blockly.propc.valueToCode(this, 'USER', Blockly.propc.ORDER_NONE) || '1';
   }
+
+  // Embed a function in the emitted code
+  let func = '\n// Scan finger input\nint fingerScanner(int __u) {\n';
+  func += '  int r;\n  fingerprint_scan(fpScan, __u, &r);\n';
+  func += '  return (__u != 0 && r != 0) ? 1 : r;\n}\n';
+
+  let code = '0';
+
+  if (Blockly.propc.global_vars_['fpScannerObj'] === 'fpScanner *fpScan;') {
+    if (act === 'SCAN') {
+      Blockly.propc.global_vars_['fpScannerFunc'] = func;
+      code = 'fingerScanner(0)';
+    }
+    if (act === 'COMP') {
+      Blockly.propc.global_vars_['fpScannerFunc'] = func;
+      code = 'fingerScanner(' + usr + ')';
+    }
+    if (act === 'COUNT') {
+      code = 'fingerprint_countUsers(fpScan)';
+    }
+  }
+  if (!verifyBlockTypeEnabled('fp_scanner_init')) {
+    return ['// ERROR: Fingerprint Scanner is not initialized!\n', Blockly.propc.ORDER_ATOMIC];
+  }
+
+  return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
 
