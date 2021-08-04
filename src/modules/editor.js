@@ -42,7 +42,6 @@ import './blockly/generators/propc/heb';
 import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sd_card';
-import './blockly/generators/propc/sensors';
 
 import './blockly/generators/propc/sensors/bme680_gas';
 import './blockly/generators/propc/sensors/color_pal';
@@ -60,6 +59,7 @@ import './blockly/generators/propc/sensors/ping';
 import './blockly/generators/propc/sensors/pir';
 import './blockly/generators/propc/sensors/rfid_reader';
 import './blockly/generators/propc/sensors/sony_remote';
+import './blockly/generators/propc/sensors/sound_impact';
 
 import './blockly/generators/propc/variables';
 

@@ -20,23 +20,14 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * @fileoverview Generating C for sensor blocks
- * @author michel@creatingfuture.eu  (Michel Lampo)
- *         valetolpegin@gmail.com    (Vale Tolpegin)
- *         jewald@parallax.com       (Jim Ewald)
- *         mmatz@parallax.com        (Matthew Matz)
- *         kgracey@parallax.com      (Ken Gracey)
- *         carsongracey@gmail.com    (Carson Gracey)
- */
-'use strict';
+//
+// ---------------- Sound Impact Sensor Blocks -----------------------
+//
 
 import Blockly from 'blockly/core';
-import {colorPalette} from '../propc.js';
-import {getDefaultProfile} from '../../../project';
-import {buildConstantsList, verifyBlockTypeEnabled} from './sensors/sensors_common';
-
-// ---------------- Sound Impact Sensor Blocks -----------------------
+import {colorPalette} from '../../propc';
+import {buildConstantsList, verifyBlockTypeEnabled} from './sensors_common';
+import {getDefaultProfile} from '../../../../project';
 
 /**
  * Sound Impact Run
