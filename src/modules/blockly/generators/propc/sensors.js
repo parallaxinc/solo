@@ -262,256 +262,16 @@ Blockly.propc.sound_impact_end = function() {
   }
 };
 
-
 //
 //
 //
 //
-// ------------------ RFID Reader Blocks --------------------
-//
-//
-//
-//
-
-/**
- *
- * @type {{
- *  init: Blockly.Blocks.rfid_get.init,
- *  helpUrl: string,
- *  onchange: Blockly.Blocks.rfid_get.onchange
- *  }}
- */
-Blockly.Blocks.rfid_get = {
-  helpUrl: Blockly.MSG_RFID_HELPURL,
-  init: function() {
-    this.setTooltip(Blockly.MSG_RFID_GET_TOOLTIP);
-    this.setColour(colorPalette.getColor('input'));
-    this.appendDummyInput()
-        .appendField('RFID store reading in')
-        .appendField(new Blockly.FieldVariable(
-            Blockly.LANG_VARIABLES_GET_ITEM), 'BUFFER');
-
-    this.setPreviousStatement(true, 'Block');
-    this.setNextStatement(true, null);
-  },
-  onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-    if (allBlocks.indexOf('RFID initialize') === -1) {
-      this.setWarningText('WARNING: You must use an RFID\ninitialize block' +
-          ' at the beginning of your program!');
-    } else {
-      this.setWarningText(null);
-    }
-  },
-};
-
-/**
- *
- * @return {string}
- */
-Blockly.propc.rfid_get = function() {
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-  if (allBlocks.indexOf('RFID initialize') === -1) {
-    return '// ERROR: Missing RFID initalize block!';
-  } else {
-    const saveVariable = Blockly.propc.variableDB_.getName(
-        this.getFieldValue('BUFFER'),
-        Blockly.VARIABLE_CATEGORY_NAME);
-
-    if (!this.disabled) {
-      Blockly.propc.global_vars_['rfid_buffer'] = 'char *rfidBfr;';
-      Blockly.propc.definitions_['rfidser'] = '#include "rfidser.h"';
-    }
-    return 'rfidBfr = rfid_get(rfid, 500);\n\tsscan(&rfidBfr[2], "%x", &' +
-        saveVariable + ');\n\tif(' + saveVariable + ' == 237) ' +
-        saveVariable + ' = 0;';
-  }
-};
-
-/**
- *
- * @type {{
- *  init: Blockly.Blocks.rfid_disable.init,
- *  helpUrl: string,
- *  onchange: Blockly.Blocks.rfid_disable.onchange
- *  }}
- */
-Blockly.Blocks.rfid_disable = {
-  helpUrl: Blockly.MSG_RFID_HELPURL,
-  init: function() {
-    this.setTooltip(Blockly.MSG_RFID_DISABLE_TOOLTIP);
-    this.setColour(colorPalette.getColor('input'));
-    this.appendDummyInput()
-        .appendField('RFID')
-        .appendField(new Blockly.FieldDropdown([
-          ['disable', 'DISABLE'],
-          ['enable', 'ENABLE'],
-        ]), 'ACTION');
-
-    this.setPreviousStatement(true, 'Block');
-    this.setNextStatement(true, null);
-  },
-  onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-    if (allBlocks.indexOf('RFID initialize') === -1) {
-      this.setWarningText('WARNING: You must use an RFID\ninitialize' +
-          ' block at the beginning of your program!');
-    } else {
-      this.setWarningText(null);
-    }
-  },
-};
-
-/**
- *
- * @return {string}
- */
-Blockly.propc.rfid_disable = function() {
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-  if (allBlocks.indexOf('RFID initialize') === -1) {
-    return '// ERROR: Missing RFID initalize block!';
-  } else {
-    const data = this.getFieldValue('ACTION');
-    if (!this.disabled) {
-      Blockly.propc.definitions_['rfidser'] = '#include "rfidser.h"';
-    }
-    if (data === 'ENABLE') {
-      return 'rfid_enable(rfid);';
-    } else {
-      return 'rfid_disable(rfid);';
-    }
-  }
-};
-
-
-/**
- * RFID Enable
- * @type {{
- *  init: Blockly.Blocks.rfid_enable.init,
- *  setPinMenus: Blockly.Blocks.rfid_enable.setPinMenus,
- *  helpUrl: string,
- *  updateConstMenu: *
- *  }}
- */
-Blockly.Blocks.rfid_enable = {
-  helpUrl: Blockly.MSG_RFID_HELPURL,
-  init: function() {
-    this.setTooltip(Blockly.MSG_RFID_ENABLE_TOOLTIP);
-    this.setColour(colorPalette.getColor('input'));
-    this.appendDummyInput('PINS');
-    this.setInputsInline(true);
-    this.setPreviousStatement(true, 'Block');
-    this.setNextStatement(true, null);
-    this.updateConstMenu();
-  },
-  updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
-  setPinMenus: function(oldValue, newValue) {
-    const profile = getDefaultProfile();
-    const m1 = this.getFieldValue('PIN_IN');
-    const m2 = this.getFieldValue('PIN_OUT');
-    if (this.getInput('PINS')) {
-      this.removeInput('PINS');
-    }
-    this.appendDummyInput('PINS')
-        .appendField('RFID initialize EN')
-        .appendField(new Blockly.FieldDropdown(
-            profile.digital.concat(
-                this.userDefinedConstantsList_.map(function(value) {
-                  return [value, value];
-                }))), 'PIN_IN')
-        .appendField('SOUT')
-        .appendField(new Blockly.FieldDropdown(
-            profile.digital.concat(
-                this.userDefinedConstantsList_.map(function(value) {
-                  return [value, value];
-                }))), 'PIN_OUT');
-    if (m1 && m1 === oldValue && newValue) {
-      this.setFieldValue(newValue, 'PIN_IN');
-    } else if (m1) {
-      this.setFieldValue(m1, 'PIN_IN');
-    }
-
-    if (m2 && m2 === oldValue && newValue) {
-      this.setFieldValue(newValue, 'PIN_OUT');
-    } else if (m2) {
-      this.setFieldValue(m2, 'PIN_OUT');
-    }
-  },
-};
-
-/**
- * RFID Enable C code generator
- * @return {string}
- */
-Blockly.propc.rfid_enable = function() {
-  if (!this.disabled) {
-    const profile = getDefaultProfile();
-    let pinIN = this.getFieldValue('PIN_IN');
-    let pinOUT = this.getFieldValue('PIN_OUT');
-
-    if (profile.digital.toString().indexOf(pinIN + ',' + pinIN) === -1) {
-      pinIN = 'MY_' + pinIN;
-    }
-    if (profile.digital.toString().indexOf(pinOUT + ',' + pinOUT) === -1) {
-      pinOUT = 'MY_' + pinOUT;
-    }
-
-    Blockly.propc.definitions_['rfidser'] = '#include "rfidser.h"';
-    Blockly.propc.global_vars_['rfidser'] = 'rfidser *rfid;';
-    Blockly.propc.setups_['rfidser_setup'] = 'rfid = rfid_open(' +
-        pinOUT + ',' + pinIN + ');';
-  }
-  return '';
-};
-
-/**
- *
- * @type {{
- *  init: Blockly.Blocks.rfid_close.init,
- *  helpUrl: string,
- *  onchange: Blockly.Blocks.rfid_close.onchange
- *  }}
- */
-Blockly.Blocks.rfid_close = {
-  helpUrl: Blockly.MSG_RFID_HELPURL,
-  init: function() {
-    this.setTooltip(Blockly.MSG_RFID_CLOSE_TOOLTIP);
-    this.setColour(colorPalette.getColor('input'));
-    this.appendDummyInput()
-        .appendField('RFID close');
-
-    this.setPreviousStatement(true, 'Block');
-    this.setNextStatement(true, null);
-  },
-  onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-    if (allBlocks.indexOf('RFID initialize') === -1) {
-      this.setWarningText('WARNING: You must use an RFID\ninitialize block' +
-          ' at the beginning of your program!');
-    } else {
-      this.setWarningText(null);
-    }
-  },
-};
-
-/**
- *
- * @return {string}
- */
-Blockly.propc.rfid_close = function() {
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-  if (allBlocks.indexOf('RFID initialize') === -1) {
-    return '// ERROR: Missing RFID initalize block!';
-  } else {
-    if (!this.disabled) {
-      Blockly.propc.definitions_['rfidser'] = '#include "rfidser.h"';
-    }
-    return 'rfidser_close(rfid);\n';
-  }
-};
-
-
 // ------------------ 4x4 Keypad Blocks ----------------------------------------
+//
+//
+//
+//
+
 /**
  * Keypad Initialization
  * @type {{
@@ -646,8 +406,15 @@ Blockly.propc.keypad_read = function() {
     return ['keypad_read()', Blockly.propc.ORDER_ATOMIC];
   }
 };
-
+//
+//
+//
+//
 // ------------------ BME680 Air Quality Sensor -----------------------------
+//
+//
+//
+//
 
 /**
  * BME680 gas sensor Initialization

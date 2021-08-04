@@ -56,6 +56,7 @@ import './blockly/generators/propc/sensors/mma7455';
 import './blockly/generators/propc/sensors/mx2125';
 import './blockly/generators/propc/sensors/ping';
 import './blockly/generators/propc/sensors/pir';
+import './blockly/generators/propc/sensors/rfid_reader';
 import './blockly/generators/propc/sensors/sony_remote';
 
 import './blockly/generators/propc/variables';
