@@ -25,6 +25,19 @@ import {colorPalette} from '../../propc';
 import {buildConstantsList, verifyBlockTypeEnabled} from './sensors_common';
 import {getDefaultProfile} from '../../../../project';
 
+
+/**
+ * @fileoverview Blocks to support the BME680 Air Quality (Gas) Sensor.
+ * @link https://www.bosch-sensortec.com/products/environmental-sensors/gas-sensors/bme680/
+ *
+ * @author michel@creatingfuture.eu  (Michel Lampo)
+ *         valetolpegin@gmail.com    (Vale Tolpegin)
+ *         jewald@parallax.com       (Jim Ewald)
+ *         mmatz@parallax.com        (Matthew Matz)
+ *         kgracey@parallax.com      (Ken Gracey)
+ *         carsongracey@gmail.com    (Carson Gracey)
+ */
+
 //
 // ------------------ BME680 Air Quality (Gas) Sensor -----------------------------
 //

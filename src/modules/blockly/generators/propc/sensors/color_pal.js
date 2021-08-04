@@ -20,6 +20,18 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+/**
+ * @fileoverview Blocks to support the ColorPAL color sensor.
+ // eslint-disable-next-line max-len
+ * @link https://learn.parallax.com/support/reference/propeller-blocklyprop-block-reference/sensor/colorpal
+ *
+ * @author michel@creatingfuture.eu  (Michel Lampo)
+ *         valetolpegin@gmail.com    (Vale Tolpegin)
+ *         jewald@parallax.com       (Jim Ewald)
+ *         mmatz@parallax.com        (Matthew Matz)
+ *         kgracey@parallax.com      (Ken Gracey)
+ *         carsongracey@gmail.com    (Carson Gracey)
+ */
 
 import Blockly from 'blockly/core';
 import {getDefaultProfile} from '../../../../project';
