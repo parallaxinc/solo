@@ -71,6 +71,16 @@ let projectInitialState = null;
  */
 let defaultProfile = null;
 
+// const BoardTypes = [
+//   'activity-board',
+//   'flip',
+//   'heb',
+//   'hebwx',
+//   'other',
+//   'propcfile',
+//   's3',
+// ];
+
 
 /**
  * Reset the initial project state to null
