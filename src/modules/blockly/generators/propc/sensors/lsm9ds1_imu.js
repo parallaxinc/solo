@@ -42,14 +42,11 @@ Blockly.Blocks.lsm9ds1_init = {
     this.setInputsInline(false);
     this.setNextStatement(true, null);
     this.setPreviousStatement(true, 'Block');
-    // this.updateConstMenu();
 
     // Prepare the Pn dropdown list
     this.userDefinedConstantsList_ = buildConstantsList();
     this.setPinMenus();
   },
-
-  updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
 
   /**
    * Reconstruct the pin dropdown menus

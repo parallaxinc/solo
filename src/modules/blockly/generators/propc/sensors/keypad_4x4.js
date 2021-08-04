@@ -57,10 +57,6 @@ Blockly.Blocks.keypad_initialize = {
   /**
    * This is a called from within the updateConstMenu method.
    *
-   * @description This method is called as a finalizer in the updateConstMenu() call. This
-   * call is by reference to the method defined in the 'sound_impact_run' block. That method
-   * calls setPinMenus with no parameters, which basically renders this method useless.
-   *
    * @param {string} oldValue
    * @param {string} newValue
    */

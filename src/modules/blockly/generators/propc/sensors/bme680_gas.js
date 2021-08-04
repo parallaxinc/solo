@@ -57,14 +57,6 @@ Blockly.Blocks.bme680_init = {
   },
 
   /**
-   * Update the Constants menu
-   *
-   * This currently uses the updateConstMenu method in an unrelated block and should
-   * be refactored to remove the dependency.
-   */
-  // updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
-
-  /**
    * Set the pin dropdown menu elements
    *
    * @param {string} oldValue
