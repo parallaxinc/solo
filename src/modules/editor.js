@@ -50,6 +50,7 @@ import './blockly/generators/propc/sensors/fingerprint_scanner';
 import './blockly/generators/propc/sensors/gps';
 import './blockly/generators/propc/sensors/hmc5883l_compass';
 import './blockly/generators/propc/sensors/joystick';
+import './blockly/generators/propc/sensors/keypad_4x4';
 import './blockly/generators/propc/sensors/lis3dh_accelerometer';
 import './blockly/generators/propc/sensors/lsm9ds1_imu';
 import './blockly/generators/propc/sensors/mma7455';
