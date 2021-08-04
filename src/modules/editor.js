@@ -44,6 +44,7 @@ import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sd_card';
 import './blockly/generators/propc/sensors';
 
+import './blockly/generators/propc/sensors/bme680_gas';
 import './blockly/generators/propc/sensors/color_pal';
 import './blockly/generators/propc/sensors/dht22';
 import './blockly/generators/propc/sensors/fingerprint_scanner';
