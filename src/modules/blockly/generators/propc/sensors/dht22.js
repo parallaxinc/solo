@@ -20,6 +20,18 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+/**
+ * @fileoverview Blocks to support the DHT22 digital temperature and humidity sensor.
+ *
+ * @link https://cityos-air.readme.io/docs/4-dht22-digital-temperature-humidity-sensor
+ *
+ * @author michel@creatingfuture.eu  (Michel Lampo)
+ *         valetolpegin@gmail.com    (Vale Tolpegin)
+ *         jewald@parallax.com       (Jim Ewald)
+ *         mmatz@parallax.com        (Matthew Matz)
+ *         kgracey@parallax.com      (Ken Gracey)
+ *         carsongracey@gmail.com    (Carson Gracey)
+ */
 
 import Blockly from 'blockly/core';
 import {colorPalette} from '../../propc';
