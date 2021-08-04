@@ -25,6 +25,7 @@
 import Blockly from 'blockly/core';
 import {colorPalette} from '../../propc';
 import {getDefaultProfile} from '../../../../project';
+import {buildConstantsList} from './sensors_common';
 
 /**
  * GPS Initialization
@@ -42,10 +43,18 @@ Blockly.Blocks.GPS_init = {
     this.appendDummyInput('PINS');
     this.setNextStatement(true, null);
     this.setPreviousStatement(true, 'Block');
-    this.updateConstMenu();
+
+    // Prepare the Pin dropdown list
+    this.userDefinedConstantsList_ = buildConstantsList();
+    this.setPinMenus();
   },
-  updateConstMenu: Blockly.Blocks['sound_impact_run'].updateConstMenu,
-  setPinMenus: function(oldValue, newValue) {
+
+  /**
+   * Repopulate the pin drop down menus
+   * @param {string} oldValue
+   * @param {string} newValue
+   */
+  setPinMenus: function(oldValue='', newValue='') {
     const profile = getDefaultProfile();
     const m = this.getFieldValue('TXPIN');
     const b = this.getFieldValue('BAUD');
