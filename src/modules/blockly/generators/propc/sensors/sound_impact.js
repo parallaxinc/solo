@@ -20,6 +20,17 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+/**
+ * @fileoverview Blocks to support the Sound Impact sensor.
+ *
+ * @author michel@creatingfuture.eu  (Michel Lampo)
+ *         valetolpegin@gmail.com    (Vale Tolpegin)
+ *         jewald@parallax.com       (Jim Ewald)
+ *         mmatz@parallax.com        (Matthew Matz)
+ *         kgracey@parallax.com      (Ken Gracey)
+ *         carsongracey@gmail.com    (Carson Gracey)
+ */
+
 //
 // ---------------- Sound Impact Sensor Blocks -----------------------
 //
