@@ -42,7 +42,25 @@ import './blockly/generators/propc/heb';
 import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sd_card';
-import './blockly/generators/propc/sensors';
+
+import './blockly/generators/propc/sensors/bme680_gas';
+import './blockly/generators/propc/sensors/color_pal';
+import './blockly/generators/propc/sensors/dht22';
+import './blockly/generators/propc/sensors/fingerprint_scanner';
+import './blockly/generators/propc/sensors/gps';
+import './blockly/generators/propc/sensors/hmc5883l_compass';
+import './blockly/generators/propc/sensors/joystick';
+import './blockly/generators/propc/sensors/keypad_4x4';
+import './blockly/generators/propc/sensors/lis3dh_accelerometer';
+import './blockly/generators/propc/sensors/lsm9ds1_imu';
+import './blockly/generators/propc/sensors/mma7455';
+import './blockly/generators/propc/sensors/mx2125';
+import './blockly/generators/propc/sensors/ping';
+import './blockly/generators/propc/sensors/pir';
+import './blockly/generators/propc/sensors/rfid_reader';
+import './blockly/generators/propc/sensors/sony_remote';
+import './blockly/generators/propc/sensors/sound_impact';
+
 import './blockly/generators/propc/variables';
 
 import {
