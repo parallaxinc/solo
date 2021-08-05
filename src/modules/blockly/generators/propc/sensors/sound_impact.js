@@ -42,13 +42,14 @@ import {getDefaultProfile} from '../../../../project';
 Blockly.Blocks.sound_impact_run = {
   helpUrl: Blockly.MSG_SOUND_IMPACT_HELPURL,
 
-  // This block supports these board types
-  boardTypes: [
-    'activity-board',
-    'flip',
-    'other',
-    'propcfile',
-  ],
+  meta: {
+    supportedBoardTypes: [
+      'activity-board',
+      'flip',
+      'other',
+      'propcfile',
+    ],
+  },
 
   /**
    * Initialize the Sound Impact block
@@ -185,13 +186,14 @@ Blockly.propc.sound_impact_run = function() {
 Blockly.Blocks.sound_impact_get = {
   helpUrl: Blockly.MSG_SOUND_IMPACT_HELPURL,
 
-  // This block supports these board types
-  boardTypes: [
-    'activity-board',
-    'flip',
-    'other',
-    'propcfile',
-  ],
+  meta: {
+    supportedBoardTypes: [
+      'activity-board',
+      'flip',
+      'other',
+      'propcfile',
+    ],
+  },
 
   init: function() {
     this.setTooltip(Blockly.MSG_SOUND_IMPACT_GET_TOOLTIP);
@@ -234,13 +236,14 @@ Blockly.propc.sound_impact_get = function() {
 Blockly.Blocks.sound_impact_end = {
   helpUrl: Blockly.MSG_SOUND_IMPACT_HELPURL,
 
-  // This block supports these board types
-  boardTypes: [
-    'activity-board',
-    'flip',
-    'other',
-    'propcfile',
-  ],
+  meta: {
+    supportedBoardTypes: [
+      'activity-board',
+      'flip',
+      'other',
+      'propcfile',
+    ],
+  },
 
   init: function() {
     this.setTooltip(Blockly.MSG_SOUND_IMPACT_END_TOOLTIP);
