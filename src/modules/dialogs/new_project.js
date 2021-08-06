@@ -25,8 +25,6 @@ import {getProjectInitialState, ProjectProfiles} from '../project';
 // eslint-disable-next-line camelcase
 import {getHtmlText} from '../blockly/language/en/page_text_labels';
 import {logConsoleMessage} from '../utility';
-import {isExperimental} from '../url_parameters';
-
 
 /**
  * New Project dialog window
@@ -240,9 +238,7 @@ export function populateProjectBoardTypesUIElement(element, selected) {
     if (Object.prototype.hasOwnProperty.call(ProjectProfiles, board)) {
       if (board !== 'default') {
         // Use the experimental tag to show code-only view
-        if (board !== 'propcfile' ||
-            (board === 'propcfile' &&
-                isExperimental.indexOf('propc') > -1)) {
+        if (board !== 'propcfile') {
           if (board !== 'unknown') {
             // Exclude the 'unknown' board type. It is used only when
             // something has gone wrong during a project load operation

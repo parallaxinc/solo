@@ -32,6 +32,9 @@ import {initHtmlLabels, getHtmlText} from './blockly/language/en/page_text_label
 import {tooltip_text} from './blockly/language/en/messages';
 import /* webpackPrefetch: true */ './blockly/generators/propc';
 import './blockly/generators/propc/base';
+
+// import './blockly/generators/propc/comms/wx_simple';
+
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
 import './blockly/generators/propc/cogs';
