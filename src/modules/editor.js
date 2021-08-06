@@ -32,6 +32,9 @@ import {initHtmlLabels, getHtmlText} from './blockly/language/en/page_text_label
 import {tooltip_text} from './blockly/language/en/messages';
 import /* webpackPrefetch: true */ './blockly/generators/propc';
 import './blockly/generators/propc/base';
+
+// import './blockly/generators/propc/comms/wx_simple';
+
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
 import './blockly/generators/propc/cogs';
@@ -42,7 +45,25 @@ import './blockly/generators/propc/heb';
 import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sd_card';
-import './blockly/generators/propc/sensors';
+
+import './blockly/generators/propc/sensors/bme680_gas';
+import './blockly/generators/propc/sensors/color_pal';
+import './blockly/generators/propc/sensors/dht22';
+import './blockly/generators/propc/sensors/fingerprint_scanner';
+import './blockly/generators/propc/sensors/gps';
+import './blockly/generators/propc/sensors/hmc5883l_compass';
+import './blockly/generators/propc/sensors/joystick';
+import './blockly/generators/propc/sensors/keypad_4x4';
+import './blockly/generators/propc/sensors/lis3dh_accelerometer';
+import './blockly/generators/propc/sensors/lsm9ds1_imu';
+import './blockly/generators/propc/sensors/mma7455';
+import './blockly/generators/propc/sensors/mx2125';
+import './blockly/generators/propc/sensors/ping';
+import './blockly/generators/propc/sensors/pir';
+import './blockly/generators/propc/sensors/rfid_reader';
+import './blockly/generators/propc/sensors/sony_remote';
+import './blockly/generators/propc/sensors/sound_impact';
+
 import './blockly/generators/propc/variables';
 
 import {
@@ -68,7 +89,6 @@ import {projectJsonFactory} from './project';
 import {buildDefaultProject} from './project/project_default';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
-import {isExperimental} from './url_parameters';
 import {
   getAllUrlParameters, getURLParameter, prettyCode,
   utils, logConsoleMessage, sanitizeFilename,
@@ -729,14 +749,6 @@ function saveAsDialog() {
   getDefaultProfile().saves_to.forEach(function(bt) {
     saveAsElement.append($('<option />').val(bt[1]).text(bt[0]));
   });
-
-  // Until the propc editor is ready, hide the save as propc option
-  if (isExperimental.indexOf('saveas') > -1) {
-    saveAsElement
-        .append($('<option />')
-            .val('propcfile')
-            .text('Propeller C (code-only)'));
-  }
 
   // Open modal
   $('#save-as-type-dialog').modal({keyboard: false, backdrop: 'static'});
@@ -1401,7 +1413,6 @@ export function createNewProject() {
   // Save the form fields into the projectData object
   // The projectData variable is defined in globals.js
   const projectName = $('#new-project-name').val();
-  const createdDateHtml = $('#edit-project-created-date').html();
   const description = $('#new-project-description').val();
   const boardType = $('#new-project-board-type').val();
 
@@ -1419,8 +1430,8 @@ export function createNewProject() {
         tmpBoardType,
         ProjectTypes.PROPC,
         '',
-        createdDateHtml,
-        createdDateHtml,
+        date,
+        date,
         timestamp,
         true);
 
@@ -1589,9 +1600,6 @@ function renderContent(id) {
   // Is this project a C source code only project?
   const isPropcOnlyProject = (project.boardType.name === 'propcfile');
 
-  // Read the URL for experimental parameters to turn on XML editing
-  const allowXmlEditing = isExperimental.indexOf('xedit') > -1;
-
   if (isPropcOnlyProject) {
     // Show PropC editing UI elements
     $('.propc-only').removeClass('hidden');
@@ -1609,15 +1617,6 @@ function renderContent(id) {
       $('#btn-view-propc').css('display', 'inline-block');
       $('#btn-view-blocks').css('display', 'none');
 
-      if (allowXmlEditing) {
-        logConsoleMessage(`XML editing is permitted.`);
-        if (Blockly && codeXml && codeXml.getValue().length > 40) {
-          Blockly.Xml.clearWorkspaceAndLoadFromXml(
-              Blockly.Xml.textToDom(codeXml.getValue()),
-              Blockly.mainWorkspace);
-        }
-      }
-
       Blockly.svgResize(getWorkspaceSvg());
       getWorkspaceSvg().render();
       break;
@@ -1628,11 +1627,8 @@ function renderContent(id) {
       $('#content_propc').css('display', 'block');
       $('#content_blocks').css('display', 'none');
 
-      $('#btn-view-xml').css(
-          'display', allowXmlEditing ? 'inline-block' : 'none');
-      $('#btn-view-blocks').css('display',
-          (isPropcOnlyProject || allowXmlEditing) ? 'none' : 'inline-block');
-
+      $('#btn-view-xml').css('display', 'none');
+      $('#btn-view-blocks').css('display', (isPropcOnlyProject) ? 'none' : 'inline-block');
       $('#btn-view-propc').css('display', 'none');
 
       if (!isPropcOnlyProject) {

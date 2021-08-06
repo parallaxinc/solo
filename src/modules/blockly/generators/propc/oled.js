@@ -25,7 +25,6 @@
 import Blockly from 'blockly/core';
 import {colorPalette} from '../propc';
 import {getDefaultProfile} from '../../../project';
-import {isExperimental} from '../../../utility';
 
 /**
  * OLED Initialization
@@ -135,48 +134,12 @@ Blockly.propc.oled_initialize = function() {
       }
     }
     if (!this.disabled) {
-      Blockly.propc.global_vars_[
-          this.myType + 'global'] = 'screen *' + this.myType + ';';
-      Blockly.propc.definitions_[
-          this.myType + 'tools'] = '#include "' + devType + '.h"';
-
-      // Determine if this init block is inside of a function being
-      // called by a new processor block
-      const myRootBlock = this.getRootBlock();
-      let myRootBlockName = null;
-      let cogStartBlock = null;
-      if (myRootBlock.type === 'procedures_defnoreturn') {
-        myRootBlockName = Blockly.propc.variableDB_.getName(
-            myRootBlock.getFieldValue('NAME'),
-            Blockly.Procedures.NAME_TYPE,
-        );
-
-        // TODO: Refactor with getBlocksByTye
-        for (let k = 0;
-          k < Blockly.getMainWorkspace().getAllBlocks().length; k++) {
-          const tempBlock = Blockly.getMainWorkspace().getAllBlocks(false)[k];
-          if (tempBlock.type === 'procedures_callnoreturn' &&
-              tempBlock.getRootBlock().type === 'cog_new') {
-            if (Blockly.propc.variableDB_.getName(
-                ((tempBlock.getFieldValue('NAME')).
-                    split('\u201C'))[1].slice(0, -1),
-                Blockly.Procedures.NAME_TYPE) === myRootBlockName) {
-              cogStartBlock = myRootBlockName;
-            }
-          }
-        }
-      }
-
-      // Keep this experimental for now.
-      if (cogStartBlock && isExperimental.indexOf('volatile') > -1) {
-        Blockly.propc.cog_setups_[this.myType] =
-            [cogStartBlock, this.myType + ' = ' +
-            devType + '_init(' + pin.join(', ') + devWidthHeight + ');\n'];
-      } else {
-        Blockly.propc.setups_[this.myType] = this.myType + ' = ' +
-            devType + '_init(' + pin.join(', ') + devWidthHeight + ');\n';
-      }
+      Blockly.propc.global_vars_[this.myType + 'global'] = 'screen *' + this.myType + ';';
+      Blockly.propc.definitions_[this.myType + 'tools'] = '#include "' + devType + '.h"';
     }
+
+    Blockly.propc.setups_[this.myType] = this.myType + ' = ' +
+        devType + '_init(' + pin.join(', ') + devWidthHeight + ');\n';
   }
   return '';
 };

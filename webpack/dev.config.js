@@ -65,7 +65,10 @@ module.exports = (opts) => {
         './src/scss',
         './node_modules',
       ],
-      extensions: ['.js', '.scss']
+      extensions: [
+        '.js',
+        '.scss'
+      ],
     },
     optimization: {
       splitChunks: {
@@ -109,7 +112,14 @@ module.exports = (opts) => {
             },
           ],
         },
-
+        {
+          test: /\.js$/,
+          exclude: [
+            path.resolve(__dirname, './src/modules/blockly/generators/propc/comms/i2c_protocol.js'),
+            path.resolve(__dirname, './src/modules/blockly/generators/propc/comms/lcd_parallel.js'),
+            path.resolve(__dirname, './src/modules/blockly/generators/propc/comms/wx_simple.js'),
+          ]
+        }
       ]
     },
     plugins: [
@@ -142,6 +152,10 @@ module.exports = (opts) => {
           },
           {
             from: './src/load_images.js',
+            to: path.resolve(__dirname, targetPath)
+          },
+          {
+            from: './src/lib/bootstrap.min.css',
             to: path.resolve(__dirname, targetPath)
           },
         ]

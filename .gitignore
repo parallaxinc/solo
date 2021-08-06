@@ -22,7 +22,7 @@ dist
 .env.*
 
 # Library files for IDE autocomplete assistance
-lib
+/lib
 
 .cache
 
