@@ -154,6 +154,10 @@ module.exports = (opts) => {
             from: './src/load_images.js',
             to: path.resolve(__dirname, targetPath)
           },
+          {
+            from: './src/lib/bootstrap.min.css',
+            to: path.resolve(__dirname, targetPath)
+          },
         ]
       })
     ],
