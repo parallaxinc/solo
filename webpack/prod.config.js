@@ -141,7 +141,7 @@ module.exports = (opts) => {
         patterns: [
           {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
           {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
-          // {from: './src/scss/main.css', to: path.resolve(__dirname, targetPath)},
+          {from: './src/lib/bootstrap.min.css', to: path.resolve(__dirname, targetPath)},
           {from: './src/load_images.js', to: path.resolve(__dirname, targetPath)},
         ]
       })
