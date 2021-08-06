@@ -23,7 +23,6 @@
 /**
  * @fileoverview Blocks to support the ColorPAL color sensor.
  // eslint-disable-next-line max-len
- * @link https://learn.parallax.com/support/reference/propeller-blocklyprop-block-reference/sensor/colorpal
  *
  * @author michel@creatingfuture.eu  (Michel Lampo)
  *         valetolpegin@gmail.com    (Vale Tolpegin)
