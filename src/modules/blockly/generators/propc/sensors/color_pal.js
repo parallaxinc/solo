@@ -22,7 +22,6 @@
 
 /**
  * @fileoverview Blocks to support the ColorPAL color sensor.
- // eslint-disable-next-line max-len
  *
  * @author michel@creatingfuture.eu  (Michel Lampo)
  *         valetolpegin@gmail.com    (Vale Tolpegin)
