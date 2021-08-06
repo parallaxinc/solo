@@ -2771,112 +2771,115 @@ Blockly.propc.ab_drive_goto_max_speed = function() {
  * Experimental Block
  *
  */
-// Blockly.Blocks.ab_drive_speed = {
-//   helpUrl: Blockly.MSG_ROBOT_HELPURL,
-//   init: function() {
-//     this.setTooltip(Blockly.MSG_ROBOT_DRIVE_SPEED_TOOLTIP);
-//     this.setColour(colorPalette.getColor('robot'));
-//     this.appendDummyInput()
-//         .appendField('Robot drive speed', 'TITLE');
-//     this.appendValueInput('LEFT')
-//         .setCheck('Number')
-//         .setAlign(Blockly.ALIGN_RIGHT)
-//         .appendRange('R,-128,128,0')
-//         .appendField('left');
-//     this.appendValueInput('RIGHT')
-//         .setCheck('Number')
-//         .setAlign(Blockly.ALIGN_RIGHT)
-//         .appendRange('R,-128,128,0')
-//         .appendField('right');
-//     this.setInputsInline(false);
-//     this.setPreviousStatement(true, 'Block');
-//     this.setNextStatement(true, null);
-//     this.whichBot();
-//   },
-//   whichBot: Blockly.Blocks['ab_drive_ramping'].whichBot,
-//   newRobot: function(robot) {
-//     const connectionRight_ = this.getInput('RIGHT').connection;
-//     const connectionLeft_ = this.getInput('LEFT').connection;
-//     const blockLeft_ = connectionLeft_.targetBlock();
-//     const blockRight_ = connectionRight_.targetBlock();
-//     let warnText = null;
-//     let rangeText = 'R,-128,128,0';
-//
-//     if (blockLeft_) {
-//       blockLeft_.outputConnection.disconnect();
-//     }
-//     if (blockRight_) {
-//       blockRight_.outputConnection.disconnect();
-//     }
-//     if (this.getInput('LEFT')) {
-//       this.removeInput('LEFT');
-//     }
-//     if (this.getInput('RIGHT')) {
-//       this.removeInput('RIGHT');
-//     }
-//
-//     if (robot === 'servodiffdrive.h' || robot === 'arlodrive.h') {
-//       rangeText = 'R,-500,500,0';
-//     } else if (robot === '') {
-//       warnText = 'WARNING: You must use a Robot initialize\nblock at the' +
-//           ' beginning of your program!';
-//       rangeText = 'N,0,0,0';
-//     }
-//
-//     this.appendValueInput('LEFT')
-//         .setCheck('Number')
-//         .setAlign(Blockly.ALIGN_RIGHT)
-//         .appendRange(rangeText)
-//         .appendField('left');
-//     this.appendValueInput('RIGHT')
-//         .setCheck('Number')
-//         .setAlign(Blockly.ALIGN_RIGHT)
-//         .appendRange(rangeText)
-//         .appendField('right');
-//     this.setWarningText(warnText);
-//
-//     if (blockLeft_) {
-//       blockLeft_.outputConnection.connect(this.getInput('LEFT').connection);
-//     }
-//     if (blockRight_) {
-//       blockRight_.outputConnection.connect(this.getInput('RIGHT').connection);
-//     }
-//
-//     if (blockLeft_) {
-//       if (blockLeft_.onchange) {
-//         blockLeft_.onchange.call(blockLeft_);
-//       }
-//     }
-//     if (blockRight_) {
-//       if (blockRight_.onchange) {
-//         blockRight_.onchange.call(blockRight_);
-//       }
-//     }
-//   },
-// };
-//
-// /**
-//  *
-//  * @return {string}
-//  */
-// Blockly.propc.ab_drive_speed = function() {
-//   const left = Blockly.propc.valueToCode(
-//       this, 'LEFT', Blockly.propc.ORDER_NONE) || '0';
-//   const right = Blockly.propc.valueToCode(
-//       this, 'RIGHT', Blockly.propc.ORDER_NONE) || '0';
-//
-//   const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
-//   if (allBlocks.indexOf('Robot ActivityBot initialize') > -1 ||
-//             allBlocks.indexOf('Robot Arlo initialize') > -1 ||
-//             allBlocks.indexOf('Robot ActivityBot 360\u00b0 initialize') > -1) {
-//     return 'drive_speed(' + left + ', ' + right + ');\n';
-//   } else if (allBlocks
-//       .indexOf('Robot Servo Differential Drive initialize') > -1) {
-//     return 'drive_speeds(' + left + ', ' + right + ');\n';
-//   } else {
-//     return '// Robot drive system is not initialized!\n';
-//   }
-// };
+Blockly.Blocks.ab_drive_speed = {
+  helpUrl: Blockly.MSG_ROBOT_HELPURL,
+
+  init: function() {
+    this.setTooltip(Blockly.MSG_ROBOT_DRIVE_SPEED_TOOLTIP);
+    this.setColour(colorPalette.getColor('robot'));
+    this.appendDummyInput()
+        .appendField('Robot drive speed', 'TITLE');
+    this.appendValueInput('LEFT')
+        .setCheck('Number')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendRange('R,-128,128,0')
+        .appendField('left');
+    this.appendValueInput('RIGHT')
+        .setCheck('Number')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendRange('R,-128,128,0')
+        .appendField('right');
+    this.setInputsInline(false);
+    this.setPreviousStatement(true, 'Block');
+    this.setNextStatement(true, null);
+    this.whichBot();
+  },
+
+  whichBot: Blockly.Blocks['ab_drive_ramping'].whichBot,
+
+  newRobot: function(robot) {
+    const connectionRight_ = this.getInput('RIGHT').connection;
+    const connectionLeft_ = this.getInput('LEFT').connection;
+    const blockLeft_ = connectionLeft_.targetBlock();
+    const blockRight_ = connectionRight_.targetBlock();
+    let warnText = null;
+    let rangeText = 'R,-128,128,0';
+
+    if (blockLeft_) {
+      blockLeft_.outputConnection.disconnect();
+    }
+    if (blockRight_) {
+      blockRight_.outputConnection.disconnect();
+    }
+    if (this.getInput('LEFT')) {
+      this.removeInput('LEFT');
+    }
+    if (this.getInput('RIGHT')) {
+      this.removeInput('RIGHT');
+    }
+
+    if (robot === 'servodiffdrive.h' || robot === 'arlodrive.h') {
+      rangeText = 'R,-500,500,0';
+    } else if (robot === '') {
+      warnText = 'WARNING: You must use a Robot initialize\nblock at the' +
+          ' beginning of your program!';
+      rangeText = 'N,0,0,0';
+    }
+
+    this.appendValueInput('LEFT')
+        .setCheck('Number')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendRange(rangeText)
+        .appendField('left');
+    this.appendValueInput('RIGHT')
+        .setCheck('Number')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendRange(rangeText)
+        .appendField('right');
+    this.setWarningText(warnText);
+
+    if (blockLeft_) {
+      blockLeft_.outputConnection.connect(this.getInput('LEFT').connection);
+    }
+    if (blockRight_) {
+      blockRight_.outputConnection.connect(this.getInput('RIGHT').connection);
+    }
+
+    if (blockLeft_) {
+      if (blockLeft_.onchange) {
+        blockLeft_.onchange.call(blockLeft_);
+      }
+    }
+    if (blockRight_) {
+      if (blockRight_.onchange) {
+        blockRight_.onchange.call(blockRight_);
+      }
+    }
+  },
+};
+
+/**
+ *
+ * @return {string}
+ */
+Blockly.propc.ab_drive_speed = function() {
+  const left = Blockly.propc.valueToCode(
+      this, 'LEFT', Blockly.propc.ORDER_NONE) || '0';
+  const right = Blockly.propc.valueToCode(
+      this, 'RIGHT', Blockly.propc.ORDER_NONE) || '0';
+
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  if (allBlocks.indexOf('Robot ActivityBot initialize') > -1 ||
+            allBlocks.indexOf('Robot Arlo initialize') > -1 ||
+            allBlocks.indexOf('Robot ActivityBot 360\u00b0 initialize') > -1) {
+    return 'drive_speed(' + left + ', ' + right + ');\n';
+  } else if (allBlocks
+      .indexOf('Robot Servo Differential Drive initialize') > -1) {
+    return 'drive_speeds(' + left + ', ' + right + ');\n';
+  } else {
+    return '// Robot drive system is not initialized!\n';
+  }
+};
 
 /**
  *
