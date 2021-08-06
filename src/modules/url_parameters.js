@@ -27,7 +27,7 @@
  *
  * @return {null | string}
  */
-function getKeyValue(key) {
+export function getKeyValue(key) {
   if (!key) return null;
   return window.getURLParameter(key);
 }
@@ -48,7 +48,4 @@ if (!window.getURLParameter) {
 }
 
 // Does the 'experimental' URL parameter exist?
-const isExperimental = window.getURLParameter('experimental') || 'false';
-
-
-export {isExperimental, getKeyValue};
+export const isExperimental = window.getURLParameter('experimental') || 'false';
