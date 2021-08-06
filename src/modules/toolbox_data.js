@@ -20,7 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import {getKeyValue, isExperimental} from './url_parameters.js';
+// import {getKeyValue} from './url_parameters.js';
 // eslint-disable-next-line camelcase
 import {toolbox_label} from './blockly/language/en/messages.js';
 
@@ -1753,18 +1753,18 @@ xmlToolbox += '</xml>';
  * @return {string}
  */
 function filterToolbox(profileName) {
-  const colorChanges = {
-    '140': '#AAAAAA',
-    '165': '#222222',
-    '185': '#333333',
-    '205': '#444444',
-    '225': '#555555',
-    '250': '#666666',
-    '275': '#777777',
-    '295': '#888888',
-    '320': '#999999',
-    '340': '#111111',
-  };
+  // const colorChanges = {
+  //   '140': '#AAAAAA',
+  //   '165': '#222222',
+  //   '185': '#333333',
+  //   '205': '#444444',
+  //   '225': '#555555',
+  //   '250': '#666666',
+  //   '275': '#777777',
+  //   '295': '#888888',
+  //   '320': '#999999',
+  //   '340': '#111111',
+  // };
 
   // Set the category's label (internationalization)
   xmlToolbox = xmlToolbox.replace(
@@ -1773,12 +1773,12 @@ function filterToolbox(profileName) {
       });
 
   // Set the palette colors
-  if (getKeyValue('grayscale') === '1') {
-    xmlToolbox = xmlToolbox.replace(
-        /colour="([\S]+)"/g, function(m, p) {
-          return 'colour="' + colorChanges[p] + '"';
-        });
-  }
+  // if (getKeyValue('grayscale') === '1') {
+  //   xmlToolbox = xmlToolbox.replace(
+  //       /colour="([\S]+)"/g, function(m, p) {
+  //         return 'colour="' + colorChanges[p] + '"';
+  //       });
+  // }
 
   // Convert the xmlToolBox string to an XML object
   const parser = new DOMParser();
@@ -1805,10 +1805,6 @@ function filterToolbox(profileName) {
       // excluded from the block under consideration
       const exclude = toolboxEntry.getAttribute('exclude');
 
-      // The experimental attribute is used to declare that the current
-      // menu item is considered experimental
-      const experimental = toolboxEntry.getAttribute('experimental');
-
       if (include && include.indexOf(profileName + ',') === -1) {
         // Place this entry on the removal list if the include attribute is
         // defined and is does not match the board type that is currently
@@ -1818,12 +1814,6 @@ function filterToolbox(profileName) {
         // Place this entry on the removal list if the exclude attribute is
         // defined and does match the board type that is currently defined
         // for the project.
-        toRemove.push(toolboxEntry);
-      } else if (experimental && isExperimental.indexOf('blocks') < 0) {
-        // if the XML element has an experimental attribute and the current
-        // experimental>blocks fuse is not set, exclude the menu entry
-
-        // Remove toolbox categories that are experimental
         toRemove.push(toolboxEntry);
       }
     }

@@ -217,7 +217,7 @@ Blockly.propc.finish = function(code) {
   }
 
   // Set the beginning of the variable definitions
-  const userVariableStart = definitions.length;
+  // const userVariableStart = definitions.length;
 
   for (const name in Blockly.propc.definitions_) {
     if (Object.prototype.hasOwnProperty.call(
@@ -237,7 +237,7 @@ Blockly.propc.finish = function(code) {
   }
 
   // Set the end of the variable definitions
-  const userVariableEnd = definitions.length;
+  // const userVariableEnd = definitions.length;
 
   for (const declaration in Blockly.propc.method_declarations_) {
     if (Object.prototype.hasOwnProperty.call(
