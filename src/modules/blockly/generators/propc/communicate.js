@@ -323,6 +323,7 @@ Blockly.Blocks.console_print_multiple = {
               Blockly.LANG_VARIABLES_GET_ITEM), 'VAR');
     }
   },
+
   decompose: function(workspace) {
     let containerBlock = workspace.newBlock('console_print_container');
     let subBlock = 'console_print_';
@@ -356,6 +357,7 @@ Blockly.Blocks.console_print_multiple = {
     }
     return containerBlock;
   },
+
   compose: function(containerBlock) {
     // Delete everything.
     let i = 0;
@@ -363,6 +365,7 @@ Blockly.Blocks.console_print_multiple = {
     const digits = [];
     const places = [];
     const divs = [];
+
     while (this.getInput('PRINT' + i)) {
       digits[i] = this.getFieldValue('DIGIT' + i);
       places[i] = this.getFieldValue('PLACE' + i);
@@ -370,7 +373,9 @@ Blockly.Blocks.console_print_multiple = {
       this.removeInput('PRINT' + i);
       i++;
     }
+
     const ckNl = this.getFieldValue('ck_nl');
+
     if (this.getInput('NEWLINE')) {
       this.removeInput('NEWLINE');
     }
@@ -382,9 +387,11 @@ Blockly.Blocks.console_print_multiple = {
     this.specDigits_ = containerBlock.getFieldValue('PLACES') === 'TRUE';
     let label = '';
     let chk = '';
+
     while (clauseBlock) {
       chk = 'Number';
       const tCheck = clauseBlock.type.split('_');
+
       if (tCheck[2] === 'dec') {
         this.optionList_.push('dec');
         label = 'decimal number';
@@ -402,6 +409,7 @@ Blockly.Blocks.console_print_multiple = {
         chk = 'String';
         label = 'text';
       }
+
       // Reconnect any child blocks.
       if (tCheck[2] === 'float' && !this.specDigits_) {
         this.optionList_.push('float');
@@ -476,19 +484,19 @@ Blockly.Blocks.console_print_multiple = {
               Blockly.LANG_VARIABLES_GET_ITEM), 'VAR');
     }
   },
+
   saveConnections: function(containerBlock) {
     // Store a pointer to any connected child blocks.
     let clauseBlock = containerBlock.getInputTargetBlock('STACK');
     let i = 0;
     while (clauseBlock) {
       const printInput = this.getInput('PRINT' + i);
-      clauseBlock.valueConnection_ =
-                    printInput && printInput.connection.targetConnection;
-      clauseBlock = clauseBlock.nextConnection &&
-                    clauseBlock.nextConnection.targetBlock();
+      clauseBlock.valueConnection_ = printInput && printInput.connection.targetConnection;
+      clauseBlock = clauseBlock.nextConnection && clauseBlock.nextConnection.targetBlock();
       i++;
     }
   },
+
   onchange: function() {
     let warnTxt = null;
     if (this.workspace && this.optionList_.length < 1) {
@@ -500,7 +508,6 @@ Blockly.Blocks.console_print_multiple = {
 
 /**
  * Console Print Container block definition
- * @type {{init: Blockly.Blocks.console_print_container.init}}
  */
 Blockly.Blocks.console_print_container = {
   init: function() {
@@ -517,7 +524,6 @@ Blockly.Blocks.console_print_container = {
 
 /**
  * Serial Print Container block definition
- * @type {{init: Blockly.Blocks.serial_print_container.init}}
  */
 Blockly.Blocks.serial_print_container = {
   init: function() {
@@ -531,7 +537,6 @@ Blockly.Blocks.serial_print_container = {
 
 /**
  * String Sprint Container block definition
- * @type {{init: Blockly.Blocks.string_sprint_container.init}}
  */
 Blockly.Blocks.string_sprint_container = {
   init: function() {
@@ -548,7 +553,6 @@ Blockly.Blocks.string_sprint_container = {
 
 /**
  * Console Print Decimal block definition
- * @type {{init: Blockly.Blocks.console_print_dec.init}}
  */
 Blockly.Blocks.console_print_dec = {
   init: function() {
@@ -567,7 +571,6 @@ Blockly.Blocks.console_print_dec = {
 
 /**
  * Alias the string_scan_dec block to the console_print_dec block
- * @type {{init: Blockly.Blocks.console_print_dec.init}}
  * @description The console_print_dec will update the block
  * color scheme if it detects the block type as string_scan_dec.
  */
@@ -575,7 +578,6 @@ Blockly.Blocks.string_scan_dec = Blockly.Blocks.console_print_dec;
 
 /**
  * Console Print Hexadecimal block definition
- * @type {{init: Blockly.Blocks.console_print_hex.init}}
  */
 Blockly.Blocks.console_print_hex = {
   init: function() {
@@ -594,15 +596,11 @@ Blockly.Blocks.console_print_hex = {
 
 /**
  * Alias the string_scan_hex block to the console_print_hex block
- * @type {{
- *    init: Blockly.Blocks.console_print_hex.init
- *  }}
  */
 Blockly.Blocks.string_scan_hex = Blockly.Blocks.console_print_hex;
 
 /**
  * Console Print Binary block definition
- * @type {{init: Blockly.Blocks.console_print_bin.init}}
  */
 Blockly.Blocks.console_print_bin = {
   init: function() {
@@ -621,17 +619,11 @@ Blockly.Blocks.console_print_bin = {
 
 /**
  * Alias the string_scan_bin block to the console_print_bin block
- * @type {{
- *    init: Blockly.Blocks.console_print_bin.init
- *  }}
  */
 Blockly.Blocks.string_scan_bin = Blockly.Blocks.console_print_bin;
 
 /**
  * Console Print String block definition
- * @type {{
- *    init: Blockly.Blocks.console_print_str.init
- *  }}
  */
 Blockly.Blocks.console_print_str = {
   init: function() {
@@ -650,7 +642,7 @@ Blockly.Blocks.console_print_str = {
 
 /**
  * Alias the string_scan_str block to the console_print_str
- * @type {{init: Blockly.Blocks.console_print_str.init}}
+ *
  * @description The console_print_str will update the block
  * color scheme if it detects the block type as string_scan_str.
  */
@@ -658,7 +650,6 @@ Blockly.Blocks.string_scan_str = Blockly.Blocks.console_print_str;
 
 /**
  * Console Print Character block definition
- * @type {{init: Blockly.Blocks.console_print_char.init}}
  */
 Blockly.Blocks.console_print_char = {
   init: function() {
@@ -677,15 +668,11 @@ Blockly.Blocks.console_print_char = {
 
 /**
  * Alias the string_scan_char to the console_print_char block
- * @type {{
- *    init: Blockly.Blocks.console_print_char.init
- *  }}
  */
 Blockly.Blocks.string_scan_char = Blockly.Blocks.console_print_char;
 
 /**
  * Console Print Float block definition
- * @type {{init: Blockly.Blocks.console_print_float.init}}
  */
 Blockly.Blocks.console_print_float = {
   init: function() {
@@ -704,9 +691,6 @@ Blockly.Blocks.console_print_float = {
 
 /**
  * Alias the string_scan_float to the console_print_float block
- * @type {{
- *    init: Blockly.Blocks.console_print_float.init
- *  }}
  */
 Blockly.Blocks.string_scan_float = Blockly.Blocks.console_print_float;
 
@@ -2945,15 +2929,10 @@ Blockly.propc.debug_lcd_print_multiple = Blockly.propc.console_print_multiple;
 
 /**
  * XBee setup
- * @type {{
- *  init: Blockly.Blocks.xbee_setup.init,
- *  setPinMenus: Blockly.Blocks.xbee_setup.setPinMenus,
- *  helpUrl: string,
- *  updateConstMenu: *
- *  }}
  */
 Blockly.Blocks.xbee_setup = {
   helpUrl: Blockly.MSG_XBEE_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_XBEE_SETUP_TOOLTIP);
     this.setColour(colorPalette.getColor('protocols'));
@@ -2963,15 +2942,19 @@ Blockly.Blocks.xbee_setup = {
     this.setNextStatement(true, null);
     this.updateConstMenu();
   },
+
   updateConstMenu: Blockly.Blocks['shift_in'].updateConstMenu,
+
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m1 = this.getFieldValue('DO_PIN');
     const m2 = this.getFieldValue('DI_PIN');
     const b = this.getFieldValue('BAUD');
+
     if (this.getInput('PINS')) {
       this.removeInput('PINS');
     }
+
     this.appendDummyInput('PINS')
         .appendField('XBee initialize DI')
         .appendField(new Blockly.FieldDropdown(
@@ -2995,11 +2978,13 @@ Blockly.Blocks.xbee_setup = {
           ['115200', '115200'],
         ]), 'BAUD');
     this.setFieldValue(b, 'BAUD');
+
     if (m1 && m1 === oldValue && newValue) {
       this.setFieldValue(newValue, 'DO_PIN');
     } else if (m1) {
       this.setFieldValue(m1, 'DO_PIN');
     }
+
     if (m2 && m2 === oldValue && newValue) {
       this.setFieldValue(newValue, 'DI_PIN');
     } else if (m2) {
@@ -3037,14 +3022,10 @@ Blockly.propc.xbee_setup = function() {
 
 /**
  *
- * @type {{
- *  init: Blockly.Blocks.xbee_transmit.init,
- *  helpUrl: string,
- *  onchange: Blockly.Blocks.xbee_transmit.onchange
- * }}
  */
 Blockly.Blocks.xbee_transmit = {
   helpUrl: Blockly.MSG_XBEE_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_XBEE_TRANSMIT_TOOLTIP);
     this.setColour(colorPalette.getColor('protocols'));
@@ -3066,8 +3047,9 @@ Blockly.Blocks.xbee_transmit = {
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
   },
+
   onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+    const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
     if (allBlocks.indexOf('XBee initialize') === -1) {
       this.setWarningText('WARNING: You must use an XBee\ninitialize block' +
           ' at the beginning of your program!');
@@ -3082,7 +3064,7 @@ Blockly.Blocks.xbee_transmit = {
  * @return {string}
  */
 Blockly.propc.xbee_transmit = function() {
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf('XBee initialize') === -1) {
     return '// ERROR: XBee is not initialized!\n';
   } else {
@@ -3125,14 +3107,10 @@ Blockly.propc.xbee_transmit = function() {
 
 /**
  *
- * @type {{
- *  init: Blockly.Blocks.xbee_receive.init,
- *  helpUrl: string,
- *  onchange: Blockly.Blocks.xbee_receive.onchange
- * }}
  */
 Blockly.Blocks.xbee_receive = {
   helpUrl: Blockly.MSG_XBEE_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_XBEE_RECEIVE_TOOLTIP);
     this.setColour(colorPalette.getColor('protocols'));
@@ -3153,8 +3131,9 @@ Blockly.Blocks.xbee_receive = {
     this.setNextStatement(true, null);
     this.setWarningText(null);
   },
+
   onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+    const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
     if (allBlocks.indexOf('XBee initialize') === -1) {
       this.setWarningText('WARNING: You must use an XBee\ninitialize block' +
           ' at the beginning of your program!');
@@ -3169,7 +3148,7 @@ Blockly.Blocks.xbee_receive = {
  * @return {string}
  */
 Blockly.propc.xbee_receive = function() {
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf('XBee initialize') === -1) {
     return '// ERROR: XBee is not initialized!\n';
   } else {
@@ -3196,19 +3175,10 @@ Blockly.propc.xbee_receive = function() {
 
 /**
  *
- * @type {{
- *  init: Blockly.Blocks.xbee_print_multiple.init,
- *  saveConnections: *,
- *  compose: *,
- *  mutationToDom: *,
- *  decompose: *,
- *  helpUrl: string,
- *  onchange: Blockly.Blocks.xbee_print_multiple.onchange,
- *  domToMutation: *
- * }}
  */
 Blockly.Blocks.xbee_print_multiple = {
   helpUrl: Blockly.MSG_XBEE_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_XBEE_PRINT_MULTIPLE_TOOLTIP);
     this.setColour(colorPalette.getColor('protocols'));
@@ -3239,13 +3209,19 @@ Blockly.Blocks.xbee_print_multiple = {
     this.optionList_ = ['str', 'dec'];
     this.setWarningText(null);
   },
+
   mutationToDom: Blockly.Blocks['console_print_multiple'].mutationToDom,
+
   domToMutation: Blockly.Blocks['console_print_multiple'].domToMutation,
+
   decompose: Blockly.Blocks['console_print_multiple'].decompose,
+
   compose: Blockly.Blocks['console_print_multiple'].compose,
+
   saveConnections: Blockly.Blocks['console_print_multiple'].saveConnections,
+
   onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+    const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
     if (allBlocks.indexOf('XBee initialize') === -1) {
       this.setWarningText('WARNING: You must use a XBee\ninitialize block' +
           ' at the beginning of your program!');
@@ -3268,21 +3244,10 @@ Blockly.propc.xbee_print_multiple = Blockly.propc.console_print_multiple;
 
 /**
  *
- * @type {{
- *  init: Blockly.Blocks.xbee_scan_multiple.init,
- *  saveConnections: *,
- *  updateShape_: *,
- *  compose: *,
- *  mutationToDom: *,
- *  decompose: *,
- *  helpUrl: string,
- *  onchange: Blockly.Blocks.xbee_scan_multiple.onchange,
- *  domToMutation: *,
- *  updateSerPin: Blockly.Blocks.xbee_scan_multiple.updateSerPin
- * }}
  */
 Blockly.Blocks.xbee_scan_multiple = {
   helpUrl: Blockly.MSG_XBEE_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_XBEE_SCAN_MULTIPLE_TOOLTIP);
     this.setColour(colorPalette.getColor('protocols'));
@@ -3305,15 +3270,23 @@ Blockly.Blocks.xbee_scan_multiple = {
     // serial_scan_multiple block
     this.ser_pins = [];
   },
+
   mutationToDom: Blockly.Blocks['serial_scan_multiple'].mutationToDom,
+
   domToMutation: Blockly.Blocks['serial_scan_multiple'].domToMutation,
+
   decompose: Blockly.Blocks['serial_scan_multiple'].decompose,
+
   compose: Blockly.Blocks['serial_scan_multiple'].compose,
+
   saveConnections: Blockly.Blocks['serial_scan_multiple'].saveConnections,
+
   updateShape_: Blockly.Blocks['serial_scan_multiple'].updateShape_,
+
   updateSerPin: function() {},
+
   onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+    const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
     let warnTxt = null;
     if (allBlocks.toString().indexOf('XBee initialize') === -1) {
       warnTxt = 'WARNING: You must use an XBee\ninitialize block at the' +
@@ -3378,7 +3351,11 @@ Blockly.propc.xbee_scan_multiple = function() {
   }
 };
 
+//
+//
 // -------------- RGB LEDs (WS2812B module) blocks -----------------------------
+//
+//
 
 /**
  * WS2821b Initialization
