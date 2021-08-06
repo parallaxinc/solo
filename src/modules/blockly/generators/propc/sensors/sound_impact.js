@@ -37,8 +37,7 @@
 
 import Blockly from 'blockly/core';
 import {colorPalette} from '../../propc';
-import {buildConstantsList, verifyBlockTypeEnabled} from './sensors_common';
-import {getDefaultProfile} from '../../../../project';
+import {buildConstantsList, getProfileDigital, verifyBlockTypeEnabled} from './sensors_common';
 
 /**
  * Sound Impact Run
@@ -90,13 +89,46 @@ Blockly.Blocks.sound_impact_run = {
    * constant name with the new one.
    */
   onchange: function(event) {
-    if (event.type === 'change' && event.name === 'CONSTANT_NAME') {
+    const BLOCK_TYPE = 'CONSTANT_NAME';
+    if (event.type === 'change' && event.name === BLOCK_TYPE) {
       // Change only if the selected pin is the named constant that is changing
       if (this.getFieldValue('PIN') === event.oldValue) {
         const index = this.userDefinedConstantsList_.indexOf(event.oldValue);
         if (index !== -1) {
           this.userDefinedConstantsList_[index] = event.newValue;
           this.setPinMenus(event.oldValue, event.newValue);
+        }
+      }
+    }
+
+    if (event.type === 'delete') {
+      let fieldValue = '';
+      const fields = event.oldXml.getElementsByTagName('field');
+      for (let index = 0; index < fields.length; index++) {
+        if (BLOCK_TYPE === fields[index].attributes.name.nodeValue) {
+          fieldValue = fields[index].innerHTML;
+          const udcIndex = this.userDefinedConstantsList_.indexOf(fieldValue);
+          if (udcIndex !== -1) {
+            // TODO: Warn user that the constant used here has been deleted
+            this.userDefinedConstantsList_.splice(udcIndex, 1);
+            this.setPinMenus();
+          }
+          break;
+        }
+      }
+    }
+
+    if (event.type === 'create') {
+      const fields = event.xml.getElementsByTagName('field');
+      for (let index = 0; index < fields.length; index++) {
+        if (BLOCK_TYPE === fields[index].attributes.name.nodeValue) {
+          const fieldValue = fields[index].innerHTML;
+          const udcIndex = this.userDefinedConstantsList_.indexOf(fieldValue);
+          if (udcIndex < 0) {
+            console.log(`Constant block created. Adding ${fieldValue} to pin list`);
+            this.userDefinedConstantsList_.push(fieldValue);
+            this.setPinMenus();
+          }
         }
       }
     }
@@ -108,7 +140,6 @@ Blockly.Blocks.sound_impact_run = {
    * @param {string} newValue
    */
   setPinMenus: function(oldValue = '', newValue = '') {
-    const profile = getDefaultProfile();
     const m1 = this.getFieldValue('PIN');
 
     // Remove Pins dropdown if it is already defined.
@@ -120,7 +151,7 @@ Blockly.Blocks.sound_impact_run = {
     this.appendDummyInput('PINS')
         .appendField('Sound Impact initialize PIN')
         .appendField(new Blockly.FieldDropdown(
-            profile.digital.concat(
+            getProfileDigital().concat(
                 this.userDefinedConstantsList_.map(function(value) {
                   return [value, value];
                 }))),
@@ -130,7 +161,19 @@ Blockly.Blocks.sound_impact_run = {
     if (m1 && m1 === oldValue && newValue.length > 0) {
       this.setFieldValue(newValue, 'PIN');
     } else if (m1) {
-      this.setFieldValue(m1, 'PIN');
+      // Verify that the selected pin remains in the pin list
+      const options = this.getField('PIN').getOptions(false);
+      const optIndex = options.findIndex((element) => {
+        if (element[0] === m1) return true;
+      }, m1);
+
+      if (optIndex !== -1) {
+        this.setFieldValue(m1, 'PIN');
+      } else {
+        // The selected pin was removed. Default to the first pin in the list.
+        this.setFieldValue(options[0], 'PIN');
+        console.log(`WARNING: Resetting pin selection to "${options[0][0]}"`);
+      }
     }
   },
 
@@ -172,15 +215,14 @@ Blockly.Blocks.sound_impact_run = {
  */
 Blockly.propc.sound_impact_run = function() {
   if (!this.disabled) {
-    const profile = getDefaultProfile();
-
     let pin = this.getFieldValue('PIN');
-    if (profile.digital.toString().indexOf(pin + ',' + pin) === -1) {
+
+    if (getProfileDigital().toString().indexOf(pin + ',' + pin) === -1) {
       pin = 'MY_' + pin;
     }
+
     Blockly.propc.definitions_['sound_impact'] = '#include "soundimpact.h"';
-    Blockly.propc.setups_['sound_impact'] =
-        'int *__soundimpactcog = soundImpact_run(' + pin + ');';
+    Blockly.propc.setups_['sound_impact'] = `int *__soundimpactcog = soundImpact_run(${pin});`;
   }
 
   return '';

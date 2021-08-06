@@ -22,6 +22,7 @@
 
 
 import Blockly from 'blockly/core';
+import {getDefaultProfile} from '../../../../project';
 
 /**
  * Build a list of user-defined constant values
@@ -82,4 +83,13 @@ export function verifyBlockTypeEnabled( type ) {
   });
 
   return enabled;
+}
+
+// eslint-disable-next-line valid-jsdoc
+/**
+ * Retrieve the digital array of the project board type.
+ * @return {string[][] | *}
+ */
+export function getProfileDigital() {
+  return getDefaultProfile().digital;
 }
