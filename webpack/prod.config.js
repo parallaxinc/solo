@@ -85,6 +85,16 @@ module.exports = (opts) => {
       ],
     },
     module: {
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: [
+            path.resolve(__dirname, './src/modules/blockly/generators/propc/comms/i2c_protocol.js'),
+            path.resolve(__dirname, './src/modules/blockly/generators/propc/comms/lcd_parallel.js'),
+            path.resolve(__dirname, './src/modules/blockly/generators/propc/comms/wx_simple.js'),
+          ]
+        }
+      ]
       // rules: [
       //   {
       //     test: /\.s[ac]ss$/i,

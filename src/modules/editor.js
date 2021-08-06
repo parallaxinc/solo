@@ -32,6 +32,9 @@ import {initHtmlLabels, getHtmlText} from './blockly/language/en/page_text_label
 import {tooltip_text} from './blockly/language/en/messages';
 import /* webpackPrefetch: true */ './blockly/generators/propc';
 import './blockly/generators/propc/base';
+
+// import './blockly/generators/propc/comms/wx_simple';
+
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
 import './blockly/generators/propc/cogs';
@@ -86,7 +89,6 @@ import {projectJsonFactory} from './project';
 import {buildDefaultProject} from './project/project_default';
 import {propToolbarButtonController} from './toolbar_controller';
 import {filterToolbox} from './toolbox_data';
-import {isExperimental} from './url_parameters';
 import {
   getAllUrlParameters, getURLParameter, prettyCode,
   utils, logConsoleMessage, sanitizeFilename,
@@ -766,14 +768,6 @@ function saveAsDialog() {
   getDefaultProfile().saves_to.forEach(function(bt) {
     saveAsElement.append($('<option />').val(bt[1]).text(bt[0]));
   });
-
-  // Until the propc editor is ready, hide the save as propc option
-  if (isExperimental.indexOf('saveas') > -1) {
-    saveAsElement
-        .append($('<option />')
-            .val('propcfile')
-            .text('Propeller C (code-only)'));
-  }
 
   // Open modal
   $('#save-as-type-dialog').modal({keyboard: false, backdrop: 'static'});
@@ -1625,9 +1619,6 @@ function renderContent(id) {
   // Is this project a C source code only project?
   const isPropcOnlyProject = (project.boardType.name === 'propcfile');
 
-  // Read the URL for experimental parameters to turn on XML editing
-  const allowXmlEditing = isExperimental.indexOf('xedit') > -1;
-
   if (isPropcOnlyProject) {
     // Show PropC editing UI elements
     $('.propc-only').removeClass('hidden');
@@ -1645,15 +1636,6 @@ function renderContent(id) {
       $('#btn-view-propc').css('display', 'inline-block');
       $('#btn-view-blocks').css('display', 'none');
 
-      if (allowXmlEditing) {
-        logConsoleMessage(`XML editing is permitted.`);
-        if (Blockly && codeXml && codeXml.getValue().length > 40) {
-          Blockly.Xml.clearWorkspaceAndLoadFromXml(
-              Blockly.Xml.textToDom(codeXml.getValue()),
-              Blockly.mainWorkspace);
-        }
-      }
-
       Blockly.svgResize(getWorkspaceSvg());
       getWorkspaceSvg().render();
       break;
@@ -1664,11 +1646,8 @@ function renderContent(id) {
       $('#content_propc').css('display', 'block');
       $('#content_blocks').css('display', 'none');
 
-      $('#btn-view-xml').css(
-          'display', allowXmlEditing ? 'inline-block' : 'none');
-      $('#btn-view-blocks').css('display',
-          (isPropcOnlyProject || allowXmlEditing) ? 'none' : 'inline-block');
-
+      $('#btn-view-xml').css('display', 'none');
+      $('#btn-view-blocks').css('display', (isPropcOnlyProject) ? 'none' : 'inline-block');
       $('#btn-view-propc').css('display', 'none');
 
       if (!isPropcOnlyProject) {

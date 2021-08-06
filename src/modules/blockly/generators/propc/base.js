@@ -952,54 +952,54 @@ Blockly.propc.register_get = function() {
 };
 
 /**
- *
+ * Experimental Block
  * @type {{init: Blockly.Blocks.wait_pin.init, helpUrl: string}}
  */
-Blockly.Blocks.wait_pin = {
-  helpUrl: Blockly.MSG_SYSTEM_HELPURL,
-  init: function() {
-    this.setTooltip(Blockly.MSG_WAIT_PIN_TOOLTIP);
-    this.setColour(colorPalette.getColor('system'));
-    this.appendValueInput('PIN')
-        .setCheck('Number')
-        .appendField('wait until')
-        .appendField(new Blockly.FieldDropdown([
-          ['PIN', '(1 << x)'],
-          ['pin mask', 'x'],
-        ]), 'PINTYPE');
-    this.appendValueInput('STATE')
-        .setCheck('Number')
-        .appendField(new Blockly.FieldDropdown([
-          ['is', 'waitpeq'],
-          ['is not', 'waitpne'],
-        ]), 'FUNC');
-    this.setInputsInline(true);
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, 'Block');
-  },
-};
+// Blockly.Blocks.wait_pin = {
+//   helpUrl: Blockly.MSG_SYSTEM_HELPURL,
+//   init: function() {
+//     this.setTooltip(Blockly.MSG_WAIT_PIN_TOOLTIP);
+//     this.setColour(colorPalette.getColor('system'));
+//     this.appendValueInput('PIN')
+//         .setCheck('Number')
+//         .appendField('wait until')
+//         .appendField(new Blockly.FieldDropdown([
+//           ['PIN', '(1 << x)'],
+//           ['pin mask', 'x'],
+//         ]), 'PINTYPE');
+//     this.appendValueInput('STATE')
+//         .setCheck('Number')
+//         .appendField(new Blockly.FieldDropdown([
+//           ['is', 'waitpeq'],
+//           ['is not', 'waitpne'],
+//         ]), 'FUNC');
+//     this.setInputsInline(true);
+//     this.setPreviousStatement(true, null);
+//     this.setNextStatement(true, 'Block');
+//   },
+// };
 
 /**
- *
+ * Experimental Block
  * @return {string}
  */
-Blockly.propc.wait_pin = function() {
-  const pinValue = Blockly.propc.valueToCode(
-      this,
-      'PIN',
-      Blockly.propc.ORDER_NONE) || '0';
-  const pinState = Blockly.propc.valueToCode(
-      this,
-      'STATE',
-      Blockly.propc.ORDER_NONE) || '0';
-  const pinType = this.getFieldValue('PINTYPE');
-  const pinFunction = this.getFieldValue('FUNC');
-
-  return pinFunction + '(' + pinType
-      .replace('1', pinState)
-      .replace('x', pinValue) + ', ' +
-      pinType.replace('x', pinValue) + ');\n';
-};
+// Blockly.propc.wait_pin = function() {
+//   const pinValue = Blockly.propc.valueToCode(
+//       this,
+//       'PIN',
+//       Blockly.propc.ORDER_NONE) || '0';
+//   const pinState = Blockly.propc.valueToCode(
+//       this,
+//       'STATE',
+//       Blockly.propc.ORDER_NONE) || '0';
+//   const pinType = this.getFieldValue('PINTYPE');
+//   const pinFunction = this.getFieldValue('FUNC');
+//
+//   return pinFunction + '(' + pinType
+//       .replace('1', pinState)
+//       .replace('x', pinValue) + ', ' +
+//       pinType.replace('x', pinValue) + ');\n';
+// };
 
 /**
  *
@@ -3189,31 +3189,3 @@ Blockly.propc.propc_file = function() {
   return '// RAW PROPC CODE\n//{{||}}\n' + filename + '//{{||}}\n' + code;
 };
 
-/**
- * TODO: Need a description of what this method does.
- * @type {{init: Blockly.Blocks.run_as_setup.init, helpUrl: string}}
- */
-Blockly.Blocks.run_as_setup = {
-  helpUrl: Blockly.MSG_SYSTEM_HELPURL,
-  init: function() {
-    this.setTooltip(Blockly.MSG_SYSTEM_RUN_AS_SETUP_TOOLTIP);
-    this.setColour(colorPalette.getColor('system'));
-    this.appendDummyInput().appendField('Run as setup');
-    this.appendStatementInput('CODE');
-    this.setPreviousStatement(true, 'Block');
-    this.setNextStatement(true);
-  },
-};
-
-/**
- * TODO: Need a description for what this method does.
- * @return {string}
- */
-Blockly.propc.run_as_setup = function() {
-  if (!this.disabled) {
-    const code = Blockly.propc.statementToCode(this, 'CODE');
-    const myId = 'runAsSetup_' + btoa(code).substring(0, 19);
-    Blockly.propc.setups_[myId] = code;
-  }
-  return '';
-};

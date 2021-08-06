@@ -29,7 +29,6 @@
 
 import Blockly from 'blockly/core.js';
 import {getDefaultProfile} from '../../project.js';
-import {isExperimental} from '../../utility';
 import {WarnDeprecatedBlocks} from '../../constants';
 import {loadReservedWords} from './propc_reserved_words';
 
@@ -218,7 +217,7 @@ Blockly.propc.finish = function(code) {
   }
 
   // Set the beginning of the variable definitions
-  const userVariableStart = definitions.length;
+  // const userVariableStart = definitions.length;
 
   for (const name in Blockly.propc.definitions_) {
     if (Object.prototype.hasOwnProperty.call(
@@ -238,7 +237,7 @@ Blockly.propc.finish = function(code) {
   }
 
   // Set the end of the variable definitions
-  const userVariableEnd = definitions.length;
+  // const userVariableEnd = definitions.length;
 
   for (const declaration in Blockly.propc.method_declarations_) {
     if (Object.prototype.hasOwnProperty.call(
@@ -349,14 +348,6 @@ Blockly.propc.finish = function(code) {
             functionVariables.push(definitions[def]);
           }
         }
-
-
-        // TODO: Remove this code when the regEx above has been verified.
-        // if (Blockly.propc.methods_[method]
-        //     .indexOf(definitions[def]
-        //         .replace(/[charint]* (\w+)[\[\]0-9]*;/g, '$1')) > -1) {
-        //   functionVariables.push(definitions[def]);
-        // }
       }
     }
   }
@@ -385,19 +376,19 @@ Blockly.propc.finish = function(code) {
   }
 
   // Add volatile to variable declarations in cogs
-  for (let idx = userVariableStart; idx < userVariableEnd; idx++) {
-    for (const idk in functionVariables) {
-      if (definitions[idx] === functionVariables[idk] &&
-          definitions[idx].indexOf('volatile') === -1) {
-        // TODO: uncomment this when optimization is utilized!
-        if (isExperimental.indexOf('volatile' > -1)) {
-          definitions[idx] = 'volatile ' + definitions[idx];
-        }
-
-        // TODO: Apply 'volatile' to array definitions as well!
-      }
-    }
-  }
+  // for (let idx = userVariableStart; idx < userVariableEnd; idx++) {
+  //   for (const idk in functionVariables) {
+  //     if (definitions[idx] === functionVariables[idk] &&
+  //         definitions[idx].indexOf('volatile') === -1) {
+  //       // TODO: uncomment this when optimization is utilized!
+  //       // if (isExperimental.indexOf('volatile' > -1)) {
+  //       //   definitions[idx] = 'volatile ' + definitions[idx];
+  //       // }
+  //
+  //       // TODO: Apply 'volatile' to array definitions as well!
+  //     }
+  //   }
+  // }
 
   let spacerDefinitions = '\n\n';
   if (definitions.toString().trim().length > 0) {

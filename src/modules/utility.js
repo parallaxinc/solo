@@ -313,7 +313,7 @@ navigator.browserSpecs = (function() {
 })();
 
 // Does the 'experimental' URL parameter exist?
-const isExperimental = getURLParameter('experimental') || 'false';
+// const isExperimental = getURLParameter('experimental') || 'false';
 
 
 /**
@@ -391,6 +391,4 @@ export const prettyCode = function(rawCode) {
   return rawCode;
 };
 
-export {
-  utils, isExperimental, getURLParameter, getAllUrlParameters,
-  logConsoleMessage};
+export {utils, getURLParameter, getAllUrlParameters, logConsoleMessage};
