@@ -45,56 +45,9 @@ let xmlToolbox = '<xml id="toolbox">';
 
 xmlToolbox += menuControl();
 xmlToolbox += menuOperators();
-
 xmlToolbox += '<sep></sep>';
+xmlToolbox += menuValues();
 
-xmlToolbox += '    <category key="category_values" exclude="s3," colour="205">';
-xmlToolbox += '        <block type="math_number"></block>';
-xmlToolbox += '        <block type="string_type_block"></block>';
-xmlToolbox += '        <block type="char_type_block"></block>';
-xmlToolbox += '        <block type="music_note">';
-xmlToolbox += '            <field name="OCTAVE">0.125</field>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="number_binary"></block>';
-xmlToolbox += '        <block type="number_hex"></block>';
-xmlToolbox += '        <block type="logic_boolean"></block>';
-xmlToolbox += '        <block type="high_low_value"></block>';
-xmlToolbox += '        <block type="constant_define"></block>';
-xmlToolbox += '        <block type="constant_value"></block>';
-xmlToolbox += '        <block type="color_picker" exclude="heb,"></block>';
-xmlToolbox += '        <block type="color_value_from" exclude="heb,">';
-xmlToolbox += '            <value name="RED_VALUE">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">0</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '            <value name="GREEN_VALUE">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">0</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '            <value name="BLUE_VALUE">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">0</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="get_channel_from" exclude="heb,">';
-xmlToolbox += '            <value name="COLOR">';
-xmlToolbox += '                <block type="color_picker"></block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="compare_colors" exclude="heb,">';
-xmlToolbox += '            <value name="COLOR1">';
-xmlToolbox += '                <block type="color_picker"></block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '            <value name="COLOR2">';
-xmlToolbox += '                <block type="color_picker"></block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="heb_color_val" include="heb,"></block>';
-xmlToolbox += '        <block type="system_counter" exclude="other,"></block>';
-xmlToolbox += '    </category>';
 xmlToolbox += '    <category key="category_operators_arrays" colour="250">';
 xmlToolbox += '        <block type="array_init"></block>';
 xmlToolbox += '        <block type="array_fill"></block>';
@@ -119,6 +72,7 @@ xmlToolbox += '            </value>';
 xmlToolbox += '        </block>';
 xmlToolbox += '        <block type="array_clear"></block>';
 xmlToolbox += '    </category>';
+
 xmlToolbox += '    <category key="category_variables" custom="VARIABLE" colour="250"></category>';
 xmlToolbox += '    <category key="category_functions" custom="PROCEDURE" colour="225"></category>';
 
@@ -1787,6 +1741,63 @@ function menuOperatorStrings() {
       <block type="string_null"></block>
       <block type="string_sprint_multiple"></block>
       <block type="string_scan_multiple"></block>
+    </category>
+  `;
+}
+
+/**
+ * Menu items for the Values category
+ *
+ * @return {string}
+ */
+function menuValues() {
+  return `
+    <category key="category_values" exclude="s3," colour="205">
+      <block type="math_number"></block>
+      <block type="string_type_block"></block>
+      <block type="char_type_block"></block>
+      <block type="music_note">
+        <field name="OCTAVE">0.125</field>
+      </block>
+      <block type="number_binary"></block>
+      <block type="number_hex"></block>
+      <block type="logic_boolean"></block>
+      <block type="high_low_value"></block>
+      <block type="constant_define"></block>
+      <block type="constant_value"></block>
+      <block type="color_picker" exclude="heb,"></block>
+      <block type="color_value_from" exclude="heb,">
+        <value name="RED_VALUE">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+        <value name="GREEN_VALUE">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+        <value name="BLUE_VALUE">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+      </block>
+      <block type="get_channel_from" exclude="heb,">
+        <value name="COLOR">
+          <block type="color_picker"></block>
+        </value>
+      </block>
+      <block type="compare_colors" exclude="heb,">
+        <value name="COLOR1">
+          <block type="color_picker"></block>
+        </value>
+        <value name="COLOR2">
+          <block type="color_picker"></block>
+        </value>
+      </block>
+      <block type="heb_color_val" include="heb,"></block>
+      <block type="system_counter" exclude="other,"></block>
     </category>
   `;
 }
