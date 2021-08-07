@@ -43,146 +43,11 @@ import {toolbox_label} from './blockly/language/en/messages.js';
 // eslint-disable-next-line no-unused-vars
 let xmlToolbox = '<xml id="toolbox">';
 
-xmlToolbox += '    <category key="category_control" colour="205">';
-xmlToolbox += '        <block type="comment"></block>';
-xmlToolbox += '        <block type="controls_if"></block>';
-xmlToolbox += '        <block type="controls_repeat">';
-xmlToolbox += '            <mutation TYPE="FOREVER"></mutation>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="controls_repeat" include="s3,">';
-xmlToolbox += '            <mutation type="TIMES"></mutation>';
-xmlToolbox += '            <field name="TYPE">TIMES</field>';
-xmlToolbox += '            <value name="TIMES">';
-xmlToolbox += '                 <block type="math_number">';
-xmlToolbox += '                     <field name="NUM">10</field>';
-xmlToolbox += '                 </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="control_repeat_for_loop">';
-xmlToolbox += '            <value name="START">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">1</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '            <value name="END">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">10</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '            <value name="STEP">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">1</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="scribbler_exit_loop" include="s3,"></block>';
-xmlToolbox += '        <block type="controls_select">';
-xmlToolbox += '            <value name="SWITCH">';
-xmlToolbox += '                <block type="variables_get"></block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="controls_break" exclude="s3,"></block>';
-xmlToolbox += '        <block type="base_delay" exclude="s3,">';
-xmlToolbox += '            <value name="DELAY_TIME">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">1000</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="scribbler_wait" include="s3,">';
-xmlToolbox += '            <value name="WAITTIME">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">500</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '            <field name="TIMESCALE">1</field>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="cog_new" exclude="s3,"></block>';
-xmlToolbox += '        <block type="controls_return" exclude="s3,"></block>';
-xmlToolbox += '    </category>';
-xmlToolbox += '    <category key="category_operators" exclude="s3," colour="275">';
-xmlToolbox += '        <category key="category_operators_numbers" >';
-xmlToolbox += '            <block type="math_arithmetic"></block>';
-xmlToolbox += '            <block type="math_limit"></block>';
-xmlToolbox += '            <block type="constrain_value"></block>';
-xmlToolbox += '            <block type="math_crement"></block>';
-xmlToolbox += '            <block type="math_random">';
-xmlToolbox += '                <value name="A">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">1</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="B">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">100</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="math_bitwise"></block>';
-xmlToolbox += '            <block type="logic_operation"></block>';
-xmlToolbox += '            <block type="logic_negate"></block>';
-xmlToolbox += '            <block type="parens"></block>';
-xmlToolbox += '            <block type="logic_compare"></block>';
-xmlToolbox += '            <block type="map_value"></block>';
-xmlToolbox += '            <block type="math_advanced"></block>';
-xmlToolbox += '            <block type="math_inv_trig">';
-xmlToolbox += '                <value name="ARG3">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">1</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '        <category key="category_operators_strings" >';
-xmlToolbox += '            <block type="string_var_length"></block>';
-xmlToolbox += '            <block type="string_compare"></block>';
-xmlToolbox += '            <block type="string_length"></block>';
-xmlToolbox += '            <block type="combine_strings"></block>';
-xmlToolbox += '            <block type="find_substring_zero">';
-xmlToolbox += '                <value name="LOC">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="get_char_at_position_zero">';
-xmlToolbox += '                <value name="POSITION">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="set_char_at_position_zero">';
-xmlToolbox += '                <value name="POSITION">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="get_substring_zero">';
-xmlToolbox += '                <value name="START">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="END">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">2</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="string_split">';
-xmlToolbox += '                <value name="CHAR">';
-xmlToolbox += '                    <block type="char_type_block"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="string_trim"></block>';
-xmlToolbox += '            <block type="string_null"></block>';
-xmlToolbox += '            <block type="string_sprint_multiple"></block>';
-xmlToolbox += '            <block type="string_scan_multiple"></block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '    </category>';
-xmlToolbox += '    <sep></sep>';
+xmlToolbox += menuControl();
+xmlToolbox += menuOperators();
+
+xmlToolbox += '<sep></sep>';
+
 xmlToolbox += '    <category key="category_values" exclude="s3," colour="205">';
 xmlToolbox += '        <block type="math_number"></block>';
 xmlToolbox += '        <block type="string_type_block"></block>';
@@ -1747,38 +1612,199 @@ xmlToolbox += '</xml>';
 
 
 /**
+ * Menu items for the control section
+ * @return {string}
+ */
+function menuControl() {
+  return `
+  <category key="category_control" colour="205">
+    <block type="comment"></block>
+    <block type="controls_if"></block>
+    <block type="controls_repeat">
+      <mutation TYPE="FOREVER"></mutation>
+    </block>
+    <block type="controls_repeat" include="s3,">
+      <mutation type="TIMES"></mutation>
+      <field name="TYPE">TIMES</field>
+        <value name="TIMES">
+          <block type="math_number">
+            <field name="NUM">10</field>
+          </block>
+        </value>
+      </block>
+    <block type="control_repeat_for_loop">
+      <value name="START">
+        <block type="math_number">
+          <field name="NUM">1</field>
+        </block>
+      </value>
+      <value name="END">
+        <block type="math_number">
+          <field name="NUM">10</field>
+        </block>
+      </value>
+      <value name="STEP">
+        <block type="math_number">
+          <field name="NUM">1</field>
+        </block>
+      </value>
+    </block>
+    <block type="scribbler_exit_loop" include="s3,"></block>
+    <block type="controls_select">
+      <value name="SWITCH">
+        <block type="variables_get"></block>
+     </value>
+   </block>
+   <block type="controls_break" exclude="s3,"></block>
+   <block type="base_delay" exclude="s3,">
+     <value name="DELAY_TIME">
+       <block type="math_number">
+         <field name="NUM">1000</field>
+       </block>
+     </value>
+   </block>
+   <block type="scribbler_wait" include="s3,">
+     <value name="WAITTIME">
+       <block type="math_number">
+         <field name="NUM">500</field>
+       </block>
+     </value>
+     <field name="TIMESCALE">1</field>
+   </block>
+   <block type="cog_new" exclude="s3,"></block>
+   <block type="controls_return" exclude="s3,"></block>
+ </category>
+`;
+}
+
+/**
+ * Menu items for the Operators category
+ *
+ * @return {string}
+ */
+function menuOperators() {
+  let menu = `<category key="category_operators" exclude="s3," colour="275">`;
+  menu += menuOperatorNumbers();
+  menu += menuOperatorStrings();
+  menu += `</category>`;
+
+  return menu;
+}
+
+/**
+ * Menu items for the Operators/Numbers category
+ *
+ * @return {string}
+ */
+function menuOperatorNumbers() {
+  return `
+    <category key="category_operators_numbers" >
+      <block type="math_arithmetic"></block>
+      <block type="math_limit"></block>
+      <block type="constrain_value"></block>
+      <block type="math_crement"></block>
+      <block type="math_random">
+        <value name="A">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <value name="B">
+          <block type="math_number">
+            <field name="NUM">100</field>
+          </block>
+        </value>
+      </block>
+      <block type="math_bitwise"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="parens"></block>
+      <block type="logic_compare"></block>
+      <block type="map_value"></block>
+      <block type="math_advanced"></block>
+      <block type="math_inv_trig">
+        <value name="ARG3">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+      </block>
+    </category>
+  `;
+}
+
+/**
+ * Menu items for the Operators/Strings category
+ *
+ * @return {string}
+ */
+function menuOperatorStrings() {
+  return `
+    <category key="category_operators_strings" >
+      <block type="string_var_length"></block>
+      <block type="string_compare"></block>
+      <block type="string_length"></block>
+      <block type="combine_strings"></block>
+      <block type="find_substring_zero">
+        <value name="LOC">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+      </block>
+      <block type="get_char_at_position_zero">
+        <value name="POSITION">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+      </block>
+      <block type="set_char_at_position_zero">
+        <value name="POSITION">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+      </block>
+      <block type="get_substring_zero">
+        <value name="START">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+        <value name="END">
+          <block type="math_number">
+            <field name="NUM">2</field>
+          </block>
+        </value>
+      </block>
+      <block type="string_split">
+        <value name="CHAR">
+          <block type="char_type_block"></block>
+        </value>
+      </block>
+      <block type="string_trim"></block>
+      <block type="string_null"></block>
+      <block type="string_sprint_multiple"></block>
+      <block type="string_scan_multiple"></block>
+    </category>
+  `;
+}
+
+/**
  * Filter the blocks available in the toolbox.
  *
  * @param {string} profileName
  * @return {string}
  */
 function filterToolbox(profileName) {
-  // const colorChanges = {
-  //   '140': '#AAAAAA',
-  //   '165': '#222222',
-  //   '185': '#333333',
-  //   '205': '#444444',
-  //   '225': '#555555',
-  //   '250': '#666666',
-  //   '275': '#777777',
-  //   '295': '#888888',
-  //   '320': '#999999',
-  //   '340': '#111111',
-  // };
+  console.log(`Filtering toolbox`);
 
   // Set the category's label (internationalization)
   xmlToolbox = xmlToolbox.replace(
       /key="([\S]+)"/g, function(m, p) {
         return 'name="' + toolbox_label[p] + '"';
       });
-
-  // Set the palette colors
-  // if (getKeyValue('grayscale') === '1') {
-  //   xmlToolbox = xmlToolbox.replace(
-  //       /colour="([\S]+)"/g, function(m, p) {
-  //         return 'colour="' + colorChanges[p] + '"';
-  //       });
-  // }
 
   // Convert the xmlToolBox string to an XML object
   const parser = new DOMParser();
