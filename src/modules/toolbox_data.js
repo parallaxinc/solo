@@ -47,670 +47,36 @@ xmlToolbox += menuControl();
 xmlToolbox += menuOperators();
 xmlToolbox += '<sep></sep>';
 xmlToolbox += menuValues();
+xmlToolbox += menuOperatorArrays();
 
-xmlToolbox += '    <category key="category_operators_arrays" colour="250">';
-xmlToolbox += '        <block type="array_init"></block>';
-xmlToolbox += '        <block type="array_fill"></block>';
-xmlToolbox += '        <block type="array_get">';
-xmlToolbox += '            <value name="NUM">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">0</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="array_set">';
-xmlToolbox += '            <value name="NUM">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">0</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '            <value name="VALUE">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">0</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="array_clear"></block>';
-xmlToolbox += '    </category>';
+xmlToolbox += '<category key="category_variables" custom="VARIABLE" colour="250"></category>';
+xmlToolbox += '<category key="category_functions" custom="PROCEDURE" colour="225"></category>';
 
-xmlToolbox += '    <category key="category_variables" custom="VARIABLE" colour="250"></category>';
-xmlToolbox += '    <category key="category_functions" custom="PROCEDURE" colour="225"></category>';
+xmlToolbox += menuIOPinStates();
 
-// eslint-disable-next-line max-len
-xmlToolbox += '    <category key="category_input-output_pin-states" exclude="s3,heb,heb-wx," colour="185">';
-xmlToolbox += '        <block type="make_pin"></block>';
-xmlToolbox += '        <block type="make_pin_input">';
-xmlToolbox += '            <value name="PIN">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">0</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="check_pin"></block>';
-xmlToolbox += '        <block type="check_pin_input">';
-xmlToolbox += '            <value name="PIN">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">0</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="set_pins"></block>';
-xmlToolbox += '        <block type="get_pins"></block>';
-xmlToolbox += '        <block type="set_pins_binary">';
-xmlToolbox += '            <value name="VALUE">';
-xmlToolbox += '                <block type="number_binary"></block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '    </category>';
+xmlToolbox += '<sep include="heb,heb-wx,"></sep>';
 
-xmlToolbox += '    <sep include="heb,heb-wx,"></sep>';
+xmlToolbox += menuCommunication();
 
-/*
- * Communications
+/**
+ * Menu items in the Communications category
+ *
+ * @return {string}
  */
-xmlToolbox += '    <category key="category_communicate" exclude="s3," colour="340">';
+function menuCommunication() {
+  let menu =`<category key="category_communicate" exclude="s3," colour="340">`;
+  menu += menuCommunicationBadgeDisplay();
+  menu += menuCommunicationsBadgeIR();
+  menu += menuCommunicationsGraphing();
+  menu += menuCommunicationsLedControl();
+  menu += menuCommunicationsBadgeLock();
+  menu += menuCommunicationsOled();
+  menu += menuCommunicationsEPaper();
+  menu += menuCommunicationsProtocols();
 
-/*
- * Communications->Badge Display
- */
-// eslint-disable-next-line max-len
-xmlToolbox += '        <category key="category_hackable-electronic-badge_oled" include="heb,heb-wx,">';
-xmlToolbox += '            <block type="heb_print_numeric_var">';
-xmlToolbox += '                <value name="VALUE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_print_string_var">';
-xmlToolbox += '                <value name="VALUE">';
-xmlToolbox += '                    <block type="string_type_block">';
-xmlToolbox += '                        <field name="TEXT">Hello</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_print_multiple"></block>';
-xmlToolbox += '            <block type="heb_cursor_position_large"></block>';
-xmlToolbox += '            <block type="heb_cursor_position_small">';
-xmlToolbox += '                <value name="ROWS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_clear_screen"></block>';
-xmlToolbox += '            <block type="heb_rotate"></block>';
-xmlToolbox += '            <block type="heb_oled_point">';
-xmlToolbox += '                <value name="X0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_oled_line">';
-xmlToolbox += '                <value name="X0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="X1">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y1">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_oled_box">';
-xmlToolbox += '                <value name="X0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="W">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="H">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_oled_circle">';
-xmlToolbox += '                <value name="X0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="R">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_oled_triangle">';
-xmlToolbox += '                <value name="X0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="X1">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y1">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="X2">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y2">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-/*
- * Communications->Badge IR Communications
- */
-// eslint-disable-next-line max-len
-xmlToolbox += '        <category key="category_hackable-electronic-badge_ir-communication" include="heb,heb-wx,">';
-xmlToolbox += '            <block type="heb_ir_send_signal">';
-xmlToolbox += '                <value name="MESSAGE">';
-xmlToolbox += '                    <block type="string_type_block">';
-xmlToolbox += '                        <field name="TEXT">Hello</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_ir_read_signal"></block>';
-xmlToolbox += '            <block type="heb_ir_clear_buffer"></block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '        <category key="category_communicate_graphing" exclude="heb-wx,">';
-xmlToolbox += '            <block type="graph_settings">';
-xmlToolbox += '                <field name="XAXIS">40,S</field>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="graph_output"></block>';
-xmlToolbox += '        </category>';
+  return menu;
+}
 
-// eslint-disable-next-line max-len
-xmlToolbox += '        <category key="category_hackable-electronic-badge_led_control" include="heb,heb-wx,">';
-xmlToolbox += '            <block type="ws2812b_init" include="heb-wx,"></block>';
-xmlToolbox += '            <block type="ws2812b_set" include="heb-wx,">';
-xmlToolbox += '                <value name="LED">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">1</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLOR">';
-xmlToolbox += '                    <block type="color_picker"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="ws2812b_set_multiple" include="heb-wx,">';
-xmlToolbox += '                <value name="START">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">1</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="END">';
-xmlToolbox += '                    <block type="math_number" include="heb-wx,">';
-xmlToolbox += '                        <field name="NUM">4</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLOR">';
-xmlToolbox += '                    <block type="color_picker">#000000</block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="ws2812b_update" include="heb-wx,"></block>';
-xmlToolbox += '            <block type="heb_toggle_led" include="heb,"></block>';
-xmlToolbox += '            <block type="heb_toggle_led_open" include="heb,">';
-xmlToolbox += '                <value name="LED_NUM">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="LED_STATE">';
-xmlToolbox += '                    <block type="high_low_value">';
-xmlToolbox += '                        <field name="VALUE">1</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_pwm_led" include="heb-wx,">';
-xmlToolbox += '                <value name="BRIGHTNESS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_set_led_rgb" include="heb,">';
-xmlToolbox += '                <value name="RGB">';
-xmlToolbox += '                    <block type="heb_color_val"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '        <category key="category_communicate_badge_lock" include="heb-wx,">';
-xmlToolbox += '            <block type="heb_wx_lock"></block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '        <category key="category_communicate_oled" exclude="heb,heb-wx,">';
-xmlToolbox += '            <block type="oled_initialize"></block>';
-xmlToolbox += '            <block type="oled_font_loader"></block>';
-xmlToolbox += '            <block type="oled_get_max_height"></block>';
-xmlToolbox += '            <block type="oled_get_max_width"></block>';
-xmlToolbox += '            <block type="oled_clear_screen"></block>';
-xmlToolbox += '            <block type="oled_text_color">';
-xmlToolbox += '                <value name="FONT_COLOR">';
-xmlToolbox += '                    <block type="color_picker"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="BACKGROUND_COLOR">';
-xmlToolbox += '                    <block type="color_picker"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="oled_text_size"></block>';
-xmlToolbox += '            <block type="oled_set_cursor">';
-xmlToolbox += '                <value name="X_POS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y_POS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="oled_print_text">';
-xmlToolbox += '                <value name="MESSAGE">';
-xmlToolbox += '                    <block type="string_type_block"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="oled_print_number">';
-xmlToolbox += '                <value name="NUMIN">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="oled_print_multiple"></block>';
-xmlToolbox += '            <block type="oled_draw_pixel">';
-xmlToolbox += '                <value name="X_AXIS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y_AXIS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLOR">';
-xmlToolbox += '                    <block type="color_picker"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="oled_draw_line">';
-xmlToolbox += '                <value name="X_ONE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y_ONE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="X_TWO">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y_TWO">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLOR">';
-xmlToolbox += '                    <block type="color_picker"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="oled_draw_triangle">';
-xmlToolbox += '                <value name="POINT_X0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_Y0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_X1">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_Y1">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_X2">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_Y2">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLOR">';
-xmlToolbox += '                    <block type="color_picker"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="oled_draw_rectangle">';
-xmlToolbox += '                <value name="POINT_X">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_Y">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="RECT_WIDTH">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="RECT_HEIGHT">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="RECT_ROUND">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLOR">';
-xmlToolbox += '                    <block type="color_picker"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="oled_draw_circle">';
-xmlToolbox += '                <value name="POINT_X">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_Y">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="RADIUS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLOR">';
-xmlToolbox += '                    <block type="color_picker"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="oled_bitmap">';
-xmlToolbox += '                <value name="POS_X">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POS_Y">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '        <category key="category_communicate_epaper" exclude="heb,heb-wx,">';
-xmlToolbox += '            <block type="epaper_initialize"></block>';
-xmlToolbox += '            <block type="oled_font_loader"></block>';
-xmlToolbox += '            <block type="epaper_update"></block>';
-xmlToolbox += '            <block type="epaper_get_max_height"></block>';
-xmlToolbox += '            <block type="epaper_get_max_width"></block>';
-xmlToolbox += '            <block type="epaper_clear_screen"></block>';
-xmlToolbox += '            <block type="epaper_text_color"></block>';
-xmlToolbox += '            <block type="epaper_text_size"></block>';
-xmlToolbox += '            <block type="epaper_set_cursor">';
-xmlToolbox += '                <value name="X_POS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y_POS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="epaper_print_text">';
-xmlToolbox += '                <value name="MESSAGE">';
-xmlToolbox += '                    <block type="string_type_block"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="epaper_print_number">';
-xmlToolbox += '                <value name="NUMIN">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="epaper_print_multiple"></block>';
-xmlToolbox += '            <block type="epaper_draw_pixel">';
-xmlToolbox += '                <value name="X_AXIS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y_AXIS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="epaper_draw_line">';
-xmlToolbox += '                <value name="X_ONE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y_ONE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="X_TWO">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y_TWO">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="epaper_draw_triangle">';
-xmlToolbox += '                <value name="POINT_X0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_Y0">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_X1">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_Y1">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_X2">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_Y2">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="epaper_draw_rectangle">';
-xmlToolbox += '                <value name="POINT_X">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_Y">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="RECT_WIDTH">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="RECT_HEIGHT">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="RECT_ROUND">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="epaper_draw_circle">';
-xmlToolbox += '                <value name="POINT_X">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POINT_Y">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="RADIUS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="epaper_bitmap">';
-xmlToolbox += '                <value name="POS_X">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POS_Y">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '        <category key="category_communicate_protocols" exclude="heb,heb-wx,">';
-xmlToolbox += '            <block type="serial_open"><field name="TXPIN">1</field></block>';
-xmlToolbox += '            <block type="serial_send_text"></block>';
-xmlToolbox += '            <block type="serial_status"></block>';
-xmlToolbox += '            <block type="serial_print_multiple"></block>';
-xmlToolbox += '            <block type="serial_receive_text"></block>';
-xmlToolbox += '            <block type="serial_scan_multiple"></block>';
-
-// xmlToolbox += '            <block type="i2c_send" experimental="true">';
-// xmlToolbox += '                <value name="DATA">';
-// xmlToolbox += '                    <block type="math_number">';
-// xmlToolbox += '                        <field name="NUM">10</field>';
-// xmlToolbox += '                    </block>';
-// xmlToolbox += '                </value>';
-// xmlToolbox += '                <value name="ADDR">';
-// xmlToolbox += '                    <block type="number_hex"></block>';
-// xmlToolbox += '                </value>';
-// xmlToolbox += '                <value name="DEVICE">';
-// xmlToolbox += '                    <block type="number_hex"></block>';
-// xmlToolbox += '                </value>';
-// xmlToolbox += '            </block>';
-// xmlToolbox += '            <block type="i2c_receive" experimental="true">';
-// xmlToolbox += '                <value name="ADDR">';
-// xmlToolbox += '                    <block type="number_hex"></block>';
-// xmlToolbox += '                </value>';
-// xmlToolbox += '                <value name="DEVICE">';
-// xmlToolbox += '                    <block type="number_hex"></block>';
-// xmlToolbox += '                </value>';
-// xmlToolbox += '            </block>';
-// xmlToolbox += '            <block type="i2c_busy" experimental="true">';
-// xmlToolbox += '                <value name="DEVICE">';
-// xmlToolbox += '                    <block type="number_hex"></block>';
-// xmlToolbox += '                </value>';
-// xmlToolbox += '            </block>';
-// xmlToolbox += '            <block type="i2c_mode" experimental="true"></block>';
-
-xmlToolbox += '            <block type="shift_in"></block>';
-xmlToolbox += '            <block type="shift_out">';
-xmlToolbox += '                <value name="VALUE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">10</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
 xmlToolbox += '        <category key="category_communicate_WS2812B" exclude="heb,heb-wx,">';
 xmlToolbox += '            <block type="ws2812b_init"></block>';
 xmlToolbox += '            <block type="ws2812b_set">';
@@ -914,6 +280,10 @@ xmlToolbox += '            <block type="xbee_receive"></block>';
 xmlToolbox += '            <block type="xbee_scan_multiple"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
+
+
+/* END OF THE COMMUNICATIONS CATEGORY */
+
 
 xmlToolbox += '    <category key="category_sensor-input" include="heb,heb-wx," colour="140">';
 xmlToolbox += '        <category key="category_hackable-electronic-badge_accelerometer" >';
@@ -1803,6 +1173,784 @@ function menuValues() {
 }
 
 /**
+ * Menu items for the Arrays category
+ *
+ * @return {string}
+ */
+function menuOperatorArrays() {
+  return `
+    <category key="category_operators_arrays" colour="250">
+      <block type="array_init"></block>
+      <block type="array_fill"></block>';
+      <block type="array_get">
+        <value name="NUM">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+      </block>
+      <block type="array_set">
+        <value name="NUM">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+        <value name="VALUE">
+          <block type="math_number">
+             <field name="NUM">0</field>
+          </block>
+        </value>
+      </block>
+      <block type="array_clear"></block>
+    </category>
+  `;
+}
+
+/**
+ * Menu items for the I/O pin state category
+ *
+ * @return {string}
+ */
+function menuIOPinStates() {
+  return `
+    <category key="category_input-output_pin-states" exclude="s3,heb,heb-wx," colour="185">
+      <block type="make_pin"></block>
+      <block type="make_pin_input">
+        <value name="PIN">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+      </block>
+      <block type="check_pin"></block>
+      <block type="check_pin_input">
+         <value name="PIN">
+           <block type="math_number">
+             <field name="NUM">0</field>
+           </block>
+         </value>
+       </block>
+       <block type="set_pins"></block>
+       <block type="get_pins"></block>
+       <block type="set_pins_binary">
+         <value name="VALUE">
+           <block type="number_binary"></block>
+         </value>
+       </block>
+     </category>
+  `;
+}
+
+/**
+ * Menu items in the Communications/Display Badge category
+ *
+ * @return {string}
+ */
+function menuCommunicationBadgeDisplay() {
+  return `
+  <category key="category_hackable-electronic-badge_oled" include="heb,heb-wx,">
+      <block type="heb_print_numeric_var">
+          <value name="VALUE">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+      </block>
+      <block type="heb_print_string_var">
+          <value name="VALUE">
+              <block type="string_type_block">
+                  <field name="TEXT">Hello</field>
+              </block>
+          </value>
+      </block>
+      <block type="heb_print_multiple"></block>
+      <block type="heb_cursor_position_large"></block>
+      <block type="heb_cursor_position_small">
+          <value name="ROWS">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="COLS">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+      </block>
+      <block type="heb_clear_screen"></block>
+      <block type="heb_rotate"></block>
+      <block type="heb_oled_point">
+          <value name="X0">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="Y0">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+      </block>
+      <block type="heb_oled_line">
+          <value name="X0">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="Y0">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="X1">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="Y1">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+      </block>
+      <block type="heb_oled_box">
+          <value name="X0">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="Y0">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="W">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="H">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+      </block>
+      <block type="heb_oled_circle">
+          <value name="X0">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="Y0">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="R">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+      </block>
+      <block type="heb_oled_triangle">
+          <value name="X0">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="Y0">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="X1">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="Y1">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="X2">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+          <value name="Y2">
+              <block type="math_number">
+                  <field name="NUM">0</field>
+              </block>
+          </value>
+      </block>
+  </category>
+  `;
+}
+
+/**
+ * Menu items in the Communications Badge/IR category
+ *
+ * @return {string}
+ */
+function menuCommunicationsBadgeIR() {
+  return `
+    <category key="category_hackable-electronic-badge_ir-communication" include="heb,heb-wx,">
+        <block type="heb_ir_send_signal">
+            <value name="MESSAGE">
+                <block type="string_type_block">
+                    <field name="TEXT">Hello</field>
+                </block>
+            </value>
+        </block>
+        <block type="heb_ir_read_signal"></block>
+        <block type="heb_ir_clear_buffer"></block>
+    </category>
+  `;
+}
+
+/**
+ * Menu items in the Communications/Graphing category
+ *
+ * @return {string}
+ */
+function menuCommunicationsGraphing() {
+  return `
+    <category key="category_communicate_graphing" exclude="heb-wx,">
+        <block type="graph_settings">
+            <field name="XAXIS">40,S</field>
+        </block>
+        <block type="graph_output"></block>
+    </category>
+  `;
+}
+
+/**
+ * Menu items in the Communications/LED Control category
+ *
+ * @return {string}
+ */
+function menuCommunicationsLedControl() {
+  return `
+    <category key="category_hackable-electronic-badge_led_control" include="heb,heb-wx,">
+        <block type="ws2812b_init" include="heb-wx,"></block>
+        <block type="ws2812b_set" include="heb-wx,">
+            <value name="LED">
+                <block type="math_number">
+                    <field name="NUM">1</field>
+                </block>
+            </value>
+            <value name="COLOR">
+                <block type="color_picker"></block>
+            </value>
+        </block>
+        <block type="ws2812b_set_multiple" include="heb-wx,">
+            <value name="START">
+                <block type="math_number">
+                    <field name="NUM">1</field>
+                </block>
+            </value>
+            <value name="END">
+                <block type="math_number" include="heb-wx,">
+                    <field name="NUM">4</field>
+                </block>
+            </value>
+            <value name="COLOR">
+                <block type="color_picker">#000000</block>
+            </value>
+        </block>
+        <block type="ws2812b_update" include="heb-wx,"></block>
+        <block type="heb_toggle_led" include="heb,"></block>
+        <block type="heb_toggle_led_open" include="heb,">
+            <value name="LED_NUM">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="LED_STATE">
+                <block type="high_low_value">
+                    <field name="VALUE">1</field>
+                </block>
+            </value>
+        </block>
+        <block type="heb_pwm_led" include="heb-wx,">
+            <value name="BRIGHTNESS">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="heb_set_led_rgb" include="heb,">
+            <value name="RGB">
+                <block type="heb_color_val"></block>
+            </value>
+        </block>
+    </category>
+  `;
+}
+
+/**
+ * Menu item(s) in the Communications/Badge category
+ *
+ * @return {string}
+ */
+function menuCommunicationsBadgeLock() {
+  return `
+    <category key="category_communicate_badge_lock" include="heb-wx,">
+        <block type="heb_wx_lock"></block>
+    </category>
+  `;
+}
+
+/**
+ * Menu items in the Communications/OLED category
+ *
+ * @return {string}
+ */
+function menuCommunicationsOled() {
+  return `
+    <category key="category_communicate_oled" exclude="heb,heb-wx,">
+        <block type="oled_initialize"></block>
+        <block type="oled_font_loader"></block>
+        <block type="oled_get_max_height"></block>
+        <block type="oled_get_max_width"></block>
+        <block type="oled_clear_screen"></block>
+        <block type="oled_text_color">
+            <value name="FONT_COLOR">
+                <block type="color_picker"></block>
+            </value>
+            <value name="BACKGROUND_COLOR">
+                <block type="color_picker"></block>
+            </value>
+        </block>
+        <block type="oled_text_size"></block>
+        <block type="oled_set_cursor">
+            <value name="X_POS">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="Y_POS">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="oled_print_text">
+            <value name="MESSAGE">
+                <block type="string_type_block"></block>
+            </value>
+        </block>
+        <block type="oled_print_number">
+            <value name="NUMIN">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="oled_print_multiple"></block>
+        <block type="oled_draw_pixel">
+            <value name="X_AXIS">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="Y_AXIS">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="COLOR">
+                <block type="color_picker"></block>
+            </value>
+        </block>
+        <block type="oled_draw_line">
+            <value name="X_ONE">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="Y_ONE">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="X_TWO">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="Y_TWO">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="COLOR">
+                <block type="color_picker"></block>
+            </value>
+        </block>
+        <block type="oled_draw_triangle">
+            <value name="POINT_X0">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_Y0">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_X1">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_Y1">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_X2">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_Y2">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="COLOR">
+                <block type="color_picker"></block>
+            </value>
+        </block>
+        <block type="oled_draw_rectangle">
+            <value name="POINT_X">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_Y">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="RECT_WIDTH">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="RECT_HEIGHT">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="RECT_ROUND">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="COLOR">
+                <block type="color_picker"></block>
+            </value>
+        </block>
+        <block type="oled_draw_circle">
+            <value name="POINT_X">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_Y">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="RADIUS">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="COLOR">
+                <block type="color_picker"></block>
+            </value>
+        </block>
+        <block type="oled_bitmap">
+            <value name="POS_X">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POS_Y">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+    </category>
+  `;
+}
+
+/**
+ * Menu items in the Communications/E-Paper category
+ *
+ * @return {string}
+ */
+function menuCommunicationsEPaper() {
+  return `
+    <category key="category_communicate_epaper" exclude="heb,heb-wx,">
+        <block type="epaper_initialize"></block>
+        <block type="oled_font_loader"></block>
+        <block type="epaper_update"></block>
+        <block type="epaper_get_max_height"></block>
+        <block type="epaper_get_max_width"></block>
+        <block type="epaper_clear_screen"></block>
+        <block type="epaper_text_color"></block>
+        <block type="epaper_text_size"></block>
+        <block type="epaper_set_cursor">
+            <value name="X_POS">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="Y_POS">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="epaper_print_text">
+            <value name="MESSAGE">
+                <block type="string_type_block"></block>
+            </value>
+        </block>
+        <block type="epaper_print_number">
+            <value name="NUMIN">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="epaper_print_multiple"></block>
+        <block type="epaper_draw_pixel">
+            <value name="X_AXIS">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="Y_AXIS">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="epaper_draw_line">
+            <value name="X_ONE">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="Y_ONE">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="X_TWO">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="Y_TWO">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="epaper_draw_triangle">
+            <value name="POINT_X0">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_Y0">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_X1">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_Y1">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_X2">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_Y2">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="epaper_draw_rectangle">
+            <value name="POINT_X">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_Y">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="RECT_WIDTH">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="RECT_HEIGHT">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="RECT_ROUND">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="epaper_draw_circle">
+            <value name="POINT_X">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POINT_Y">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="RADIUS">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="epaper_bitmap">
+            <value name="POS_X">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="POS_Y">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+    </category>
+  `;
+}
+
+
+/**
+ * Menu items in the Communications/Protocols category
+ *
+ * @return {string}
+ */
+function menuCommunicationsProtocols() {
+  let menu = `<category key="category_communicate_protocols" exclude="heb,heb-wx,">`;
+  menu += menuCommunicationsProtocolsSerial();
+  // menu += menuCommunicationsProtocolIC2();
+  menu += menuCommunicationsProtocolsShift();
+  menu += `</category>`;
+
+  return menu;
+}
+
+/**
+ * Menu items in the Communications/Serial Protocols category
+ *
+ * @return {string}
+ */
+function menuCommunicationsProtocolsSerial() {
+  return `
+    <block type="serial_open"><field name="TXPIN">1</field></block>
+    <block type="serial_send_text"></block>
+    <block type="serial_status"></block>
+    <block type="serial_print_multiple"></block>
+    <block type="serial_receive_text"></block>
+    <block type="serial_scan_multiple"></block>
+  `;
+}
+
+/**
+ * Menu items in the Communications/IC2 protocols category
+ *
+ * @return {string}
+ *
+ * @description
+ * NOTE: The blocks in the menu are considered experimental and are currently
+ * not implamented in the production application.
+ */
+// eslint-disable-next-line no-unused-vars,require-jsdoc
+function menuCommunicationsProtocolIC2() {
+  return `
+    <block type="i2c_send" experimental="true">
+        <value name="DATA">
+            <block type="math_number">
+                <field name="NUM">10</field>
+            </block>
+        </value>
+        <value name="ADDR">
+            <block type="number_hex"></block>
+        </value>
+        <value name="DEVICE">
+            <block type="number_hex"></block>
+        </value>
+    </block>
+    <block type="i2c_receive" experimental="true">
+        <value name="ADDR">
+            <block type="number_hex"></block>
+        </value>
+        <value name="DEVICE">
+            <block type="number_hex"></block>
+        </value>
+    </block>
+    <block type="i2c_busy" experimental="true">
+        <value name="DEVICE">
+            <block type="number_hex"></block>
+        </value>
+    </block>
+    <block type="i2c_mode" experimental="true"></block>
+  `;
+}
+
+/**
+ * Menu items in the Communications/Shift category
+ *
+ * @return {string}
+ */
+function menuCommunicationsProtocolsShift() {
+  return `
+    <block type="shift_in"></block>
+    <block type="shift_out">
+        <value name="VALUE">
+            <block type="math_number">
+                <field name="NUM">10</field>
+            </block>
+        </value>
+    </block>
+  `;
+}
+
+
+/**
  * Filter the blocks available in the toolbox.
  *
  * @param {string} profileName
@@ -1870,6 +2018,5 @@ function filterToolbox(profileName) {
 
   return outStr;
 }
-
 
 export {filterToolbox, xmlToolbox};
