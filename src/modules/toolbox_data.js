@@ -57,250 +57,31 @@ xmlToolbox += menuIOPinStates();
 xmlToolbox += '<sep include="heb,heb-wx,"></sep>';
 
 xmlToolbox += menuCommunication();
-
-/**
- * Menu items in the Communications category
- *
- * @return {string}
- */
-function menuCommunication() {
-  let menu =`<category key="category_communicate" exclude="s3," colour="340">`;
-  menu += menuCommunicationBadgeDisplay();
-  menu += menuCommunicationsBadgeIR();
-  menu += menuCommunicationsGraphing();
-  menu += menuCommunicationsLedControl();
-  menu += menuCommunicationsBadgeLock();
-  menu += menuCommunicationsOled();
-  menu += menuCommunicationsEPaper();
-  menu += menuCommunicationsProtocols();
-
-  return menu;
-}
-
-xmlToolbox += '        <category key="category_communicate_WS2812B" exclude="heb,heb-wx,">';
-xmlToolbox += '            <block type="ws2812b_init"></block>';
-xmlToolbox += '            <block type="ws2812b_set">';
-xmlToolbox += '                <value name="LED">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">1</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLOR">';
-xmlToolbox += '                    <block type="color_picker"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="ws2812b_set_multiple">';
-xmlToolbox += '                <value name="START">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">1</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="END">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">4</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLOR">';
-xmlToolbox += '                    <block type="color_picker">#000000</block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="ws2812b_update"></block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '        <category key="category_communicate_serial-lcd" exclude="heb,heb-wx,">';
-xmlToolbox += '            <block type="debug_lcd_init"></block>';
-xmlToolbox += '            <block type="debug_lcd_print">';
-xmlToolbox += '                <value name="MESSAGE">';
-xmlToolbox += '                    <block type="string_type_block"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="debug_lcd_number">';
-xmlToolbox += '                <value name="VALUE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="debug_lcd_print_multiple"></block>';
-xmlToolbox += '            <block type="debug_lcd_action"></block>';
-xmlToolbox += '            <block type="debug_lcd_set_cursor">';
-xmlToolbox += '                <value name="ROW">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLUMN">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="debug_lcd_music_note"></block>';
-xmlToolbox += '        </category>';
-
-// eslint-disable-next-line max-len
-// xmlToolbox += '        <category key="category_communicate_parallel-lcd" exclude="heb,heb-wx," experimental="true">';
-// xmlToolbox += '            <block type="parallel_lcd_init"></block>';
-// xmlToolbox += '            <block type="parallel_lcd_print">';
-// xmlToolbox += '                <value name="MESSAGE">';
-// xmlToolbox += '                    <block type="string_type_block"></block>';
-// xmlToolbox += '                </value>';
-// xmlToolbox += '            </block>';
-// xmlToolbox += '            <block type="parallel_lcd_number">';
-// xmlToolbox += '                <value name="VALUE">';
-// xmlToolbox += '                    <block type="math_number">';
-// xmlToolbox += '                        <field name="NUM">0</field>';
-// xmlToolbox += '                    </block>';
-// xmlToolbox += '                </value>';
-// xmlToolbox += '            </block>';
-// xmlToolbox += '            <block type="parallel_lcd_print_multiple"></block>';
-// xmlToolbox += '            <block type="parallel_lcd_action"></block>';
-// xmlToolbox += '            <block type="parallel_lcd_set_cursor">';
-// xmlToolbox += '                <value name="ROW">';
-// xmlToolbox += '                    <block type="math_number">';
-// xmlToolbox += '                        <field name="NUM">0</field>';
-// xmlToolbox += '                    </block>';
-// xmlToolbox += '                </value>';
-// xmlToolbox += '                <value name="COLUMN">';
-// xmlToolbox += '                    <block type="math_number">';
-// xmlToolbox += '                        <field name="NUM">0</field>';
-// xmlToolbox += '                    </block>';
-// xmlToolbox += '                </value>';
-// xmlToolbox += '            </block>';
-// xmlToolbox += '        </category>';
-xmlToolbox += '        <category key="category_communicate_serial-terminal" exclude="heb-wx,">';
-xmlToolbox += '            <block type="console_print">';
-xmlToolbox += '                <value name="MESSAGE">';
-xmlToolbox += '                    <block type="string_type_block"></block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="console_print_variables">';
-xmlToolbox += '                <value name="VALUE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="console_print_multiple"></block>';
-xmlToolbox += '            <block type="console_scan_text"></block>';
-xmlToolbox += '            <block type="console_scan_number"></block>';
-xmlToolbox += '            <block type="console_newline"></block>';
-xmlToolbox += '            <block type="console_clear"></block>';
-xmlToolbox += '            <block type="console_move_to_position">';
-xmlToolbox += '                <value name="ROW">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="COLUMN">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="console_close"></block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '        <category name="WX Module" exclude="heb,">';
-
-// ------------------------------------------------------------------------
-// Simple wx blocks are experimental. Leaving these here in case we decide
-// to return to this and finally deploy these blocks.
-// ------------------------------------------------------------------------
-// xmlToolbox += '            <category name="Simple" experimental="true">';
-// xmlToolbox += '                <block type="wx_init" exclude="heb-wx,"></block>';
-// xmlToolbox += '                <block type="wx_config_page"></block>';
-// xmlToolbox += '                <block type="wx_set_widget"></block>';
-// xmlToolbox += '                <block type="wx_send_widget">';
-// xmlToolbox += '                    <value name="NUM">';
-// xmlToolbox += '                        <block type="math_number">';
-// xmlToolbox += '                            <field name="NUM">10</field>';
-// xmlToolbox += '                        </block>';
-// xmlToolbox += '                    </value>';
-// xmlToolbox += '                </block>';
-// xmlToolbox += '                <block type="wx_read_widgets"></block>';
-// xmlToolbox += '                <block type="wx_get_widget"></block>';
-// xmlToolbox += '                <block type="wx_evt_connected"></block>';
-// xmlToolbox += '                <block type="wx_reconnect"></block>';
-// xmlToolbox += '            </category>';
-
-xmlToolbox += '            <category name="Advanced">';
-xmlToolbox += '                <block type="wx_init_adv" exclude="heb-wx,"></block>';
-xmlToolbox += '                <block type="wx_listen">';
-xmlToolbox += '                    <field name="ID">wxConnId1</field>';
-xmlToolbox += '                    <value name="PATH">';
-xmlToolbox += '                        <block type="string_type_block">';
-xmlToolbox += '                            <field name="TEXT">path</field>';
-xmlToolbox += '                        </block>';
-xmlToolbox += '                    </value>';
-xmlToolbox += '                </block>';
-xmlToolbox += '                <block type="wx_poll">';
-xmlToolbox += '                    <field name="EVENT">wxEvent</field>';
-xmlToolbox += '                    <field name="ID">wxId</field>';
-xmlToolbox += '                    <field name="HANDLE">wxHandle</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '                <block type="wx_print_multiple">';
-xmlToolbox += '                    <field name="HANDLE">wxHandle</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '                <block type="wx_send_string">';
-xmlToolbox += '                    <field name="HANDLE">wxHandle</field>';
-xmlToolbox += '                    <value name="DATA">';
-xmlToolbox += '                        <block type="string_type_block"></block>';
-xmlToolbox += '                    </value>';
-xmlToolbox += '                </block>';
-xmlToolbox += '                <block type="wx_scan_multiple">';
-xmlToolbox += '                    <field name="HANDLE">wxHandle</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '                <block type="wx_scan_string">';
-xmlToolbox += '                    <field name="HANDLE">wxHandle</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '                <block type="wx_receive_string">';
-xmlToolbox += '                    <field name="HANDLE">wxHandle</field>';
-xmlToolbox += '                    <value name="MAX">';
-xmlToolbox += '                        <block type="math_number">';
-xmlToolbox += '                            <field name="NUM">64</field>';
-xmlToolbox += '                        </block>';
-xmlToolbox += '                    </value>';
-xmlToolbox += '                </block>';
-xmlToolbox += '                <block type="wx_mode"></block>';
-xmlToolbox += '                <block type="wx_code"></block>';
-xmlToolbox += '                <block type="wx_buffer">';
-xmlToolbox += '                    <field name="BUFFER">wxBuffer</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '                <block type="wx_join"></block>';
-xmlToolbox += '                <block type="wx_disconnect">';
-xmlToolbox += '                    <field name="ID">wxId</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '                <block type="wx_ip"></block>';
-xmlToolbox += '            </category>';
-xmlToolbox += '        </category>';
-xmlToolbox += '        <category key="category_communicate_xbee" exclude="heb,heb-wx,">';
-xmlToolbox += '            <block type="xbee_setup"></block>';
-xmlToolbox += '            <block type="xbee_transmit"></block>';
-xmlToolbox += '            <block type="xbee_print_multiple"></block>';
-xmlToolbox += '            <block type="xbee_receive"></block>';
-xmlToolbox += '            <block type="xbee_scan_multiple"></block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '    </category>';
-
-
 /* END OF THE COMMUNICATIONS CATEGORY */
 
 
 xmlToolbox += '    <category key="category_sensor-input" include="heb,heb-wx," colour="140">';
+
 xmlToolbox += '        <category key="category_hackable-electronic-badge_accelerometer" >';
 xmlToolbox += '            <block type="heb_badge_axis_acceleration"></block>';
 xmlToolbox += '            <block type="heb_badge_was_shaken"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_hackable-electronic-badge_touchpad-control" >';
 xmlToolbox += '            <block type="heb_touchpad_status"></block>';
 xmlToolbox += '            <block type="heb_touchpad_sensitivity" include="heb-wx,">';
 xmlToolbox += '                <field name="LEVEL">7</field>';
 xmlToolbox += '            </block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_sony-remote" >';
 xmlToolbox += '            <block type="sirc_get"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
+
+
 xmlToolbox += '    <category key="category_memory" include="heb,heb-wx," colour="165">';
+
 xmlToolbox += '        <category key="category_memory_contacts">';
 xmlToolbox += '            <block type="heb_badge_eeprom_store">';
 xmlToolbox += '                <value name="CONTACT">';
@@ -326,6 +107,7 @@ xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="heb_count_contacts"></block>';
 xmlToolbox += '            <block type="heb_erase_all_contacts"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_memory_sdcard" include="heb-wx,">';
 // Solo-473 Add SD_Init block to menu for Flip board type
 // Solo-537 Add SD_close block
@@ -341,7 +123,10 @@ xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="sd_file_pointer"></block>';
 xmlToolbox += '            <block type="sd_close"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '    </category>';
+
+
 xmlToolbox += '    <category key="category_sensor-input" exclude="s3,heb,heb-wx," colour="140">';
 
 // eslint-disable-next-line max-len
@@ -349,24 +134,29 @@ xmlToolbox += '        <category key="category_sensor-input_2axis-joystick" incl
 xmlToolbox += '            <block type="joystick_input_xaxis"></block>';
 xmlToolbox += '            <block type="joystick_input_yaxis"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_4x4-keypad" >';
 xmlToolbox += '            <block type="keypad_initialize"></block>';
 xmlToolbox += '            <block type="keypad_read"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_BME680">';
 xmlToolbox += '            <block type="bme680_init"></block>';
 xmlToolbox += '            <block type="bme680_read"></block>';
 xmlToolbox += '            <block type="bme680_get_value"></block>';
 xmlToolbox += '            <block type="bme680_heater"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_colorpal" >';
 xmlToolbox += '            <block type="colorpal_enable"></block>';
 xmlToolbox += '            <block type="colorpal_get_colors_raw"></block>';
 xmlToolbox += '            <block type="colorpal_get_colors"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_ping" >';
 xmlToolbox += '            <block type="sensor_ping"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_gps" >';
 xmlToolbox += '            <block type="GPS_init"></block>';
 xmlToolbox += '            <block type="GPS_hasFix"></block>';
@@ -378,6 +168,7 @@ xmlToolbox += '            <block type="GPS_velocity"></block>';
 xmlToolbox += '            <block type="GPS_satsTracked"></block>';
 xmlToolbox += '            <block type="GPS_date_time"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_fingerprint" >';
 xmlToolbox += '            <block type="fp_scanner_init"></block>';
 xmlToolbox += '            <block type="fp_scanner_add">';
@@ -389,15 +180,18 @@ xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="fp_scanner_scan"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_hmc5883l" include="other,activity-board,">';
 xmlToolbox += '            <block type="HMC5883L_init"></block>';
 xmlToolbox += '            <block type="HMC5883L_read"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_LIS3DH" >';
 xmlToolbox += '            <block type="lis3dh_init"></block>';
 xmlToolbox += '            <block type="lis3dh_read"></block>';
 xmlToolbox += '            <block type="lis3dh_temp"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_LSM9DS1" >';
 xmlToolbox += '            <block type="lsm9ds1_init"></block>';
 xmlToolbox += '            <block type="lsm9ds1_mag_calibrate"></block>';
@@ -405,10 +199,12 @@ xmlToolbox += '            <block type="lsm9ds1_read"></block>';
 xmlToolbox += '            <block type="lsm9ds1_tilt"></block>';
 xmlToolbox += '            <block type="lsm9ds1_heading"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_mma7455" include="other,">';
 xmlToolbox += '            <block type="MMA7455_init"></block>';
 xmlToolbox += '            <block type="MMA7455_acceleration"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_memsic-2axis" >';
 xmlToolbox += '            <block type="MX2125_acceleration_xaxis"></block>';
 xmlToolbox += '            <block type="MX2125_acceleration_yaxis"></block>';
@@ -427,24 +223,29 @@ xmlToolbox += '        </category>';
 xmlToolbox += '        <category key="category_sensor-input_pir" >';
 xmlToolbox += '            <block type="PIR_Sensor"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_rfid" >';
 xmlToolbox += '            <block type="rfid_enable"></block>';
 xmlToolbox += '            <block type="rfid_get"></block>';
 xmlToolbox += '            <block type="rfid_disable"></block>';
 xmlToolbox += '            <block type="rfid_close"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_sony-remote" >';
 xmlToolbox += '            <block type="sirc_get"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_sound-impact-sensor" >';
 xmlToolbox += '            <block type="sound_impact_run"></block>';
 xmlToolbox += '            <block type="sound_impact_get"></block>';
 xmlToolbox += '            <block type="sound_impact_end"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_temperature-humidity" >';
 xmlToolbox += '            <block type="dht22_read"></block>';
 xmlToolbox += '            <block type="dht22_value"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '    </category>';
 
 /*
@@ -452,6 +253,7 @@ xmlToolbox += '    </category>';
  */
 // eslint-disable-next-line max-len
 xmlToolbox += '    <category key="category_memory" include="activity-board,flip,other," colour="165">';
+
 xmlToolbox += '        <category key="category_memory_eeprom" >';
 xmlToolbox += '            <block type="eeprom_read">';
 xmlToolbox += '                <value name="ADDRESS">';
@@ -468,6 +270,7 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_memory_sdcard">';
 xmlToolbox += '            <block type="sd_init" exclude="activity-board,"></block>';
 xmlToolbox += '            <block type="sd_open"></block>';
@@ -481,12 +284,14 @@ xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="sd_file_pointer"></block>';
 xmlToolbox += '            <block type="sd_close"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '    </category>';
 
 /*
  * ANALOG/PULSE blocks
  */
 xmlToolbox += '    <category key="category_analog-pulses" exclude="s3,heb,heb-wx," colour="185">';
+
 xmlToolbox += '        <category key="category_analog-pulses_pulse-in-out" exclude="s3,">';
 xmlToolbox += '            <block type="pulse_in"></block>';
 xmlToolbox += '            <block type="pulse_out">';
@@ -504,6 +309,7 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_analog-pulses_pwm">';
 xmlToolbox += '            <!-- <block type="pwm_start"></block> -->';
 xmlToolbox += '            <block type="pwm_set">';
@@ -515,9 +321,11 @@ xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="pwm_stop"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_analog-pulses_rc">';
 xmlToolbox += '            <block type="rc_charge_discharge"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_analog-pulses_voltage" include="activity-board,">';
 xmlToolbox += '            <block type="ab_volt_in"></block>';
 xmlToolbox += '            <block type="ab_volt_out">';
@@ -528,6 +336,7 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_analog-pulses_voltage" include="flip,other,">';
 xmlToolbox += '            <block type="mcp320x_read"></block>';
 xmlToolbox += '            <block type="mcp320x_set_vref"></block>';
@@ -538,6 +347,7 @@ xmlToolbox += '    </category>';
  * AUDIO blocks
  */
 xmlToolbox += '    <category key="category_audio" exclude="s3," colour="185">';
+
 xmlToolbox += '        <category key="category_audio_freqout" >';
 xmlToolbox += '            <block type="base_freqout">';
 xmlToolbox += '                <value name="DURATION">';
@@ -558,6 +368,7 @@ xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="sound_init" include="flip,other,"></block>';
 xmlToolbox += '            <block type="sound_play"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_hackable-electronic-badge_text-to-speech" >';
 xmlToolbox += '            <block type="heb_text_to_speech_pins"></block>';
 xmlToolbox += '            <block type="heb_text_to_speech_volume"></block>';
@@ -576,6 +387,7 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_audio_audio" exclude="flip,">';
 xmlToolbox += '            <block type="wav_set_pins" include="activity-board,">';
 xmlToolbox += '                <field name="PINL">26</field>';
@@ -593,6 +405,7 @@ xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="wav_stop"></block>';
 xmlToolbox += '        </category>';
 xmlToolbox += '    </category>';
+
 xmlToolbox += '    <category key="category_servo" exclude="s3,heb,heb-wx," colour="165">';
 xmlToolbox += '        <block type="servo_move">';
 xmlToolbox += '            <value name="ANGLE">';
@@ -630,6 +443,7 @@ xmlToolbox += '        <block type="fb360_get"></block>';
 xmlToolbox += '        <block type="fb360_status"></block>';
 xmlToolbox += '        <block type="scribbler_stop_servo"></block>';
 xmlToolbox += '    </category>';
+
 xmlToolbox += '    <category key="category_robot"  include="activity-board," colour="295">';
 xmlToolbox += '        <block type="ab_drive_init"></block>';
 xmlToolbox += '        <block type="ab_drive_ramping">';
@@ -706,39 +520,51 @@ xmlToolbox += '                </block>';
 xmlToolbox += '            </value>';
 xmlToolbox += '        </block>';
 xmlToolbox += '    </category>';
+
 xmlToolbox += '    <category key="category_sensor-input" include="s3," colour="140">';
+
 xmlToolbox += '        <category key="category_sensor-input_s3-line" >';
 xmlToolbox += '            <block type="calibrate_line_sensor"></block>';
 xmlToolbox += '            <!-- <block type="scribbler_if_line"></block> -->';
 xmlToolbox += '            <block type="scribbler_simple_line"></block>';
 xmlToolbox += '            <block type="line_sensor"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_s3-obstacle" >';
 xmlToolbox += '            <!-- <block type="scribbler_if_obstacle"></block>';
 xmlToolbox += '            <block type="obstacle_sensor"></block> -->';
 xmlToolbox += '            <block type="scribbler_simple_obstacle"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_s3-light" >';
 xmlToolbox += '            <!-- <block type="scribbler_if_light"></block> -->';
 xmlToolbox += '            <block type="scribbler_simple_light"></block>';
 xmlToolbox += '            <block type="light_sensor"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_s3-stall" >';
 xmlToolbox += '            <!-- <block type="scribbler_if_stalled"></block> -->';
 xmlToolbox += '            <block type="stall_sensor"></block>';
 xmlToolbox += '            <!-- <block type="spinning_sensor"></block> -->';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_s3-sirc" >';
 xmlToolbox += '            <block type="sirc_s3_get"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_s3-mic" >';
 xmlToolbox += '            <block type="mic_s3_get"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_sensor-input_s3-button" >';
 xmlToolbox += '            <block type="reset_button_presses"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '    </category>';
+
+
 xmlToolbox += '    <category key="category_s3-actions" include="s3," colour="185">';
+
 xmlToolbox += '        <category key="category_s3-actions_motors" >';
 xmlToolbox += '            <block type="scribbler_drive">';
 xmlToolbox += '                <field name="DRIVE_ANGLE">STRAIGHT</field>';
@@ -814,6 +640,7 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_s3-actions_sound" include="s3,">';
 xmlToolbox += '            <block type="scribbler_play">';
 xmlToolbox += '                <field name="NOTE_DURATION">250</field>';
@@ -844,9 +671,11 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_s3-actions_leds" include="s3,">';
 xmlToolbox += '            <block type="scribbler_LED"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_communicate" include="s3,">';
 xmlToolbox += '            <block type="scribbler_serial_send_text"></block>';
 xmlToolbox += '            <block type="scribbler_serial_send_decimal"></block>';
@@ -870,6 +699,7 @@ xmlToolbox += '            <block type="scribbler_serial_send_ctrl"></block>';
 
 xmlToolbox += '            <block type="scribbler_serial_rx_byte"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_memory" include="s3,">';
 xmlToolbox += '            <block type="s3_eeprom_read">';
 xmlToolbox += '                <value name="ADDR">';
@@ -891,19 +721,26 @@ xmlToolbox += '                    </block>';
 xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_s3-actions_reset" include="s3,">';
 xmlToolbox += '            <block type="factory_reset"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '    </category>';
+
+
 xmlToolbox += '    <category key="category_s3-hacker-port" include="s3," colour="295">';
+
 xmlToolbox += '        <category key="category_s3-hacker-port_sensors" >';
 xmlToolbox += '            <block type="scribbler_ping"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_s3-hacker-port_pins" >';
 xmlToolbox += '            <block type="make_pin"></block>';
 xmlToolbox += '            <block type="check_pin"></block>';
 xmlToolbox += '            <block type="analog_input"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '        <category key="category_s3-hacker-port_servo" >';
 xmlToolbox += '            <block type="servo_move">';
 xmlToolbox += '                <value name="ANGLE">';
@@ -914,7 +751,10 @@ xmlToolbox += '                </value>';
 xmlToolbox += '            </block>';
 xmlToolbox += '            <block type="scribbler_stop_servo"></block>';
 xmlToolbox += '        </category>';
+
 xmlToolbox += '    </category>';
+
+
 xmlToolbox += '    <category key="category_system" colour="320">';
 
 // eslint-disable-next-line max-len
@@ -932,6 +772,7 @@ xmlToolbox += '        <block type="register_set" exclude="s3," ></block>';
 xmlToolbox += '        <block type="register_get" exclude="s3," ></block>';
 xmlToolbox += '        <block type="system_counter" exclude="s3," include="other,"></block>';
 xmlToolbox += '    </category>';
+
 xmlToolbox += '</xml>';
 
 
@@ -1949,6 +1790,315 @@ function menuCommunicationsProtocolsShift() {
   `;
 }
 
+/**
+ * Menu items in the Communication category for the WS2812B device
+ *
+ * @return {string}
+ */
+function menuCommunicationWS2812B() {
+  return `
+    <category key="category_communicate_WS2812B" exclude="heb,heb-wx,">
+        <block type="ws2812b_init"></block>
+        <block type="ws2812b_set">
+            <value name="LED">
+                <block type="math_number">
+                    <field name="NUM">1</field>
+                </block>
+            </value>
+            <value name="COLOR">
+                <block type="color_picker"></block>
+            </value>
+        </block>
+        <block type="ws2812b_set_multiple">
+            <value name="START">
+                <block type="math_number">
+                    <field name="NUM">1</field>
+                </block>
+            </value>
+            <value name="END">
+                <block type="math_number">
+                    <field name="NUM">4</field>
+                </block>
+            </value>
+            <value name="COLOR">
+                <block type="color_picker">#000000</block>
+            </value>
+        </block>
+        <block type="ws2812b_update"></block>
+    </category>
+  `;
+}
+
+/**
+ * Menu items in the Communication/Serial LCD category
+ *
+ * @return {string}
+ */
+function menuCommunicationSerialLCD() {
+  return `
+    <category key="category_communicate_serial-lcd" exclude="heb,heb-wx,">
+        <block type="debug_lcd_init"></block>
+        <block type="debug_lcd_print">
+            <value name="MESSAGE">
+                <block type="string_type_block"></block>
+            </value>
+        </block>
+        <block type="debug_lcd_number">
+            <value name="VALUE">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="debug_lcd_print_multiple"></block>
+        <block type="debug_lcd_action"></block>
+        <block type="debug_lcd_set_cursor">
+            <value name="ROW">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="COLUMN">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="debug_lcd_music_note"></block>
+    </category>
+    `;
+}
+
+/**
+ * Menu items in the Communication/Parallel LCD category
+ *
+ * @return {string}
+ *
+ * @description
+ *
+ * NOTE: The parallel LCD blocks are experimental and are not currently
+ * included in the production version of the application.
+ */
+// function menuCommunicationParallelLCD() {
+//   return `
+//     <category key="category_communicate_parallel-lcd" exclude="heb,heb-wx," experimental="true">
+//         <block type="parallel_lcd_init"></block>
+//         <block type="parallel_lcd_print">
+//             <value name="MESSAGE">
+//                 <block type="string_type_block"></block>
+//             </value>
+//         </block>
+//         <block type="parallel_lcd_number">
+//             <value name="VALUE">
+//                 <block type="math_number">
+//                     <field name="NUM">0</field>
+//                 </block>
+//             </value>
+//         </block>
+//         <block type="parallel_lcd_print_multiple"></block>
+//         <block type="parallel_lcd_action"></block>
+//         <block type="parallel_lcd_set_cursor">
+//             <value name="ROW">
+//                 <block type="math_number">
+//                     <field name="NUM">0</field>
+//                 </block>
+//             </value>
+//             <value name="COLUMN">
+//                 <block type="math_number">
+//                     <field name="NUM">0</field>
+//                 </block>
+//             </value>
+//         </block>
+//     </category>
+//     `;
+// }
+
+/**
+ * Menu items in the Communication/Serial Terminal category
+ *
+ * @return {string}
+ */
+function menuCommunicationSerialTerminal() {
+  return `
+    <category key="category_communicate_serial-terminal" exclude="heb-wx,">';
+        <block type="console_print">';
+            <value name="MESSAGE">';
+                <block type="string_type_block"></block>';
+            </value>';
+        </block>';
+        <block type="console_print_variables">';
+            <value name="VALUE">';
+                <block type="math_number">';
+                    <field name="NUM">0</field>';
+                </block>';
+            </value>';
+        </block>';
+        <block type="console_print_multiple"></block>';
+        <block type="console_scan_text"></block>';
+        <block type="console_scan_number"></block>';
+        <block type="console_newline"></block>';
+        <block type="console_clear"></block>';
+        <block type="console_move_to_position">';
+            <value name="ROW">';
+                <block type="math_number">';
+                    <field name="NUM">0</field>';
+                </block>';
+            </value>';
+            <value name="COLUMN">';
+                <block type="math_number">';
+                    <field name="NUM">0</field>';
+                </block>';
+            </value>';
+        </block>';
+        <block type="console_close"></block>';
+    </category>';
+    `;
+}
+
+/**
+ * Menu items in the Communication/WX Module category
+ * @return {string}
+ */
+function menuCommunicationsWX() {
+  let menu = `<category name="WX Module" exclude="heb,">`;
+  // menu += menuCommunicationsWXSimple();
+  menu += menuCommunicationsWXAdvanced();
+  menu += `</category>`;
+  return menu;
+}
+
+/**
+ * Menu items in the Communication/WX Simple Module category
+ *
+ * @return {string}
+ *
+ * @description
+ *
+ * NOTE: The Simple WX Module blocks are experimental. Leaving these here
+ * in case we decide to return to this and finally deploy these blocks.
+ */
+// function menuCommunicationsWXSimple() {
+//   return `
+//     <category name="Simple" experimental="true">
+//         <block type="wx_init" exclude="heb-wx,"></block>
+//         <block type="wx_config_page"></block>
+//         <block type="wx_set_widget"></block>
+//         <block type="wx_send_widget">
+//             <value name="NUM">
+//                 <block type="math_number">
+//                     <field name="NUM">10</field>
+//                 </block>
+//             </value>
+//         </block>
+//         <block type="wx_read_widgets"></block>
+//         <block type="wx_get_widget"></block>
+//         <block type="wx_evt_connected"></block>
+//         <block type="wx_reconnect"></block>
+//     </category>
+//   `;
+// }
+
+/**
+ * Menu items in the Communication/WX Advanced Module category
+ *
+ * @return {string}
+ */
+function menuCommunicationsWXAdvanced() {
+  return `
+    <category name="Advanced">
+        <block type="wx_init_adv" exclude="heb-wx,"></block>
+        <block type="wx_listen">
+            <field name="ID">wxConnId1</field>
+            <value name="PATH">
+                <block type="string_type_block">
+                    <field name="TEXT">path</field>
+                </block>
+            </value>
+        </block>
+        <block type="wx_poll">
+            <field name="EVENT">wxEvent</field>
+            <field name="ID">wxId</field>
+            <field name="HANDLE">wxHandle</field>
+        </block>
+        <block type="wx_print_multiple">
+            <field name="HANDLE">wxHandle</field>
+        </block>
+        <block type="wx_send_string">
+            <field name="HANDLE">wxHandle</field>
+            <value name="DATA">
+                <block type="string_type_block"></block>
+            </value>
+        </block>
+        <block type="wx_scan_multiple">
+            <field name="HANDLE">wxHandle</field>
+        </block>
+        <block type="wx_scan_string">
+            <field name="HANDLE">wxHandle</field>
+        </block>
+        <block type="wx_receive_string">
+            <field name="HANDLE">wxHandle</field>
+            <value name="MAX">
+                <block type="math_number">
+                    <field name="NUM">64</field>
+                </block>
+            </value>
+        </block>
+        <block type="wx_mode"></block>
+        <block type="wx_code"></block>
+        <block type="wx_buffer">
+            <field name="BUFFER">wxBuffer</field>
+        </block>
+        <block type="wx_join"></block>
+        <block type="wx_disconnect">
+            <field name="ID">wxId</field>
+        </block>
+        <block type="wx_ip"></block>
+    </category>
+  `;
+}
+
+
+/**
+ * Menu items in the Communications category
+ *
+ * @return {string}
+ */
+function menuCommunication() {
+  let menu =`<category key="category_communicate" exclude="s3," colour="340">`;
+  menu += menuCommunicationBadgeDisplay();
+  menu += menuCommunicationsBadgeIR();
+  menu += menuCommunicationsGraphing();
+  menu += menuCommunicationsLedControl();
+  menu += menuCommunicationsBadgeLock();
+  menu += menuCommunicationsOled();
+  menu += menuCommunicationsEPaper();
+  menu += menuCommunicationsProtocols();
+  menu += menuCommunicationWS2812B();
+  menu += menuCommunicationSerialLCD();
+  // menu += menuCommunicationParallelLCD();
+  menu += menuCommunicationSerialTerminal();
+  menu += menuCommunicationsWX();
+  menu += menuCommunicationXBee();
+  menu += `</category>`;
+  return menu;
+}
+
+/**
+ * Menu items on the Communications/XBee category
+ *
+ * @return {string}
+ */
+function menuCommunicationXBee() {
+  return `
+    <category key="category_communicate_xbee" exclude="heb,heb-wx,">';
+        <block type="xbee_setup"></block>';
+        <block type="xbee_transmit"></block>';
+        <block type="xbee_print_multiple"></block>';
+        <block type="xbee_receive"></block>';
+        <block type="xbee_scan_multiple"></block>';
+    </category>';
+  `;
+}
 
 /**
  * Filter the blocks available in the toolbox.
