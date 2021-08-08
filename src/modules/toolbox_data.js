@@ -45,404 +45,28 @@ let xmlToolbox = '<xml id="toolbox">';
 
 xmlToolbox += menuControl();
 xmlToolbox += menuOperators();
-xmlToolbox += '<sep></sep>';
+xmlToolbox += menuSeparator();
+
 xmlToolbox += menuValues();
 xmlToolbox += menuOperatorArrays();
-
 xmlToolbox += '<category key="category_variables" custom="VARIABLE" colour="250"></category>';
 xmlToolbox += '<category key="category_functions" custom="PROCEDURE" colour="225"></category>';
-
 xmlToolbox += menuIOPinStates();
-
-xmlToolbox += '<sep include="heb,heb-wx,"></sep>';
+xmlToolbox += menuSeparator(`include="heb,heb-wx,"`);
 
 xmlToolbox += menuCommunication();
-/* END OF THE COMMUNICATIONS CATEGORY */
+xmlToolbox += menuSensorInputHeb();
+xmlToolbox += menuMemoryHeb();
+xmlToolbox += menuSensorInput();
+xmlToolbox += menuMemory();
+xmlToolbox += menuAnalogPulse();
+xmlToolbox += menuAudio();
+xmlToolbox += menuServo();
 
 
-xmlToolbox += '    <category key="category_sensor-input" include="heb,heb-wx," colour="140">';
-
-xmlToolbox += '        <category key="category_hackable-electronic-badge_accelerometer" >';
-xmlToolbox += '            <block type="heb_badge_axis_acceleration"></block>';
-xmlToolbox += '            <block type="heb_badge_was_shaken"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_hackable-electronic-badge_touchpad-control" >';
-xmlToolbox += '            <block type="heb_touchpad_status"></block>';
-xmlToolbox += '            <block type="heb_touchpad_sensitivity" include="heb-wx,">';
-xmlToolbox += '                <field name="LEVEL">7</field>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_sony-remote" >';
-xmlToolbox += '            <block type="sirc_get"></block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '    </category>';
-
-
-xmlToolbox += '    <category key="category_memory" include="heb,heb-wx," colour="165">';
-
-xmlToolbox += '        <category key="category_memory_contacts">';
-xmlToolbox += '            <block type="heb_badge_eeprom_store">';
-xmlToolbox += '                <value name="CONTACT">';
-xmlToolbox += '                    <block type="string_type_block">';
-xmlToolbox += '                        <field name="TEXT">Last, First</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_badge_eeprom_is_stored">';
-xmlToolbox += '                <value name="CONTACT">';
-xmlToolbox += '                    <block type="string_type_block">';
-xmlToolbox += '                        <field name="TEXT">Last, First</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_badge_eeprom_retrieve">';
-xmlToolbox += '                <value name="INDEX">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_count_contacts"></block>';
-xmlToolbox += '            <block type="heb_erase_all_contacts"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_memory_sdcard" include="heb-wx,">';
-// Solo-473 Add SD_Init block to menu for Flip board type
-// Solo-537 Add SD_close block
-xmlToolbox += '            <block type="sd_init" exclude="activity-board,"></block>';
-xmlToolbox += '            <block type="sd_open"></block>';
-xmlToolbox += '            <block type="sd_read">';
-xmlToolbox += '                <value name="SIZE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">10</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="sd_file_pointer"></block>';
-xmlToolbox += '            <block type="sd_close"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '    </category>';
-
-
-xmlToolbox += '    <category key="category_sensor-input" exclude="s3,heb,heb-wx," colour="140">';
-
-// eslint-disable-next-line max-len
-xmlToolbox += '        <category key="category_sensor-input_2axis-joystick" include="activity-board,">';
-xmlToolbox += '            <block type="joystick_input_xaxis"></block>';
-xmlToolbox += '            <block type="joystick_input_yaxis"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_4x4-keypad" >';
-xmlToolbox += '            <block type="keypad_initialize"></block>';
-xmlToolbox += '            <block type="keypad_read"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_BME680">';
-xmlToolbox += '            <block type="bme680_init"></block>';
-xmlToolbox += '            <block type="bme680_read"></block>';
-xmlToolbox += '            <block type="bme680_get_value"></block>';
-xmlToolbox += '            <block type="bme680_heater"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_colorpal" >';
-xmlToolbox += '            <block type="colorpal_enable"></block>';
-xmlToolbox += '            <block type="colorpal_get_colors_raw"></block>';
-xmlToolbox += '            <block type="colorpal_get_colors"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_ping" >';
-xmlToolbox += '            <block type="sensor_ping"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_gps" >';
-xmlToolbox += '            <block type="GPS_init"></block>';
-xmlToolbox += '            <block type="GPS_hasFix"></block>';
-xmlToolbox += '            <block type="GPS_latitude"></block>';
-xmlToolbox += '            <block type="GPS_longitude"></block>';
-xmlToolbox += '            <block type="GPS_heading"></block>';
-xmlToolbox += '            <block type="GPS_altitude"></block>';
-xmlToolbox += '            <block type="GPS_velocity"></block>';
-xmlToolbox += '            <block type="GPS_satsTracked"></block>';
-xmlToolbox += '            <block type="GPS_date_time"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_fingerprint" >';
-xmlToolbox += '            <block type="fp_scanner_init"></block>';
-xmlToolbox += '            <block type="fp_scanner_add">';
-xmlToolbox += '                <value name="USER">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">1</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="fp_scanner_scan"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_hmc5883l" include="other,activity-board,">';
-xmlToolbox += '            <block type="HMC5883L_init"></block>';
-xmlToolbox += '            <block type="HMC5883L_read"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_LIS3DH" >';
-xmlToolbox += '            <block type="lis3dh_init"></block>';
-xmlToolbox += '            <block type="lis3dh_read"></block>';
-xmlToolbox += '            <block type="lis3dh_temp"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_LSM9DS1" >';
-xmlToolbox += '            <block type="lsm9ds1_init"></block>';
-xmlToolbox += '            <block type="lsm9ds1_mag_calibrate"></block>';
-xmlToolbox += '            <block type="lsm9ds1_read"></block>';
-xmlToolbox += '            <block type="lsm9ds1_tilt"></block>';
-xmlToolbox += '            <block type="lsm9ds1_heading"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_mma7455" include="other,">';
-xmlToolbox += '            <block type="MMA7455_init"></block>';
-xmlToolbox += '            <block type="MMA7455_acceleration"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_memsic-2axis" >';
-xmlToolbox += '            <block type="MX2125_acceleration_xaxis"></block>';
-xmlToolbox += '            <block type="MX2125_acceleration_yaxis"></block>';
-xmlToolbox += '            <block type="MX2125_rotation"></block>';
-xmlToolbox += '            <block type="MX2125_tilt_xaxis"></block>';
-xmlToolbox += '            <block type="MX2125_tilt_yaxis"></block>';
-xmlToolbox += '        </category>';
-
-// xmlToolbox += '        <!--';
-// xmlToolbox += '                    <category key="category_sensor-input_mma7455" >';
-// xmlToolbox += '                        <block type="MMA7455_init"></block>';
-// xmlToolbox += '                        <block type="MMA7455_acceleration"></block>';
-// xmlToolbox += '                    </category>';
-// xmlToolbox += '        -->';
-
-xmlToolbox += '        <category key="category_sensor-input_pir" >';
-xmlToolbox += '            <block type="PIR_Sensor"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_rfid" >';
-xmlToolbox += '            <block type="rfid_enable"></block>';
-xmlToolbox += '            <block type="rfid_get"></block>';
-xmlToolbox += '            <block type="rfid_disable"></block>';
-xmlToolbox += '            <block type="rfid_close"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_sony-remote" >';
-xmlToolbox += '            <block type="sirc_get"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_sound-impact-sensor" >';
-xmlToolbox += '            <block type="sound_impact_run"></block>';
-xmlToolbox += '            <block type="sound_impact_get"></block>';
-xmlToolbox += '            <block type="sound_impact_end"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_temperature-humidity" >';
-xmlToolbox += '            <block type="dht22_read"></block>';
-xmlToolbox += '            <block type="dht22_value"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '    </category>';
-
-/*
- * MEMORY blocks
- */
-// eslint-disable-next-line max-len
-xmlToolbox += '    <category key="category_memory" include="activity-board,flip,other," colour="165">';
-
-xmlToolbox += '        <category key="category_memory_eeprom" >';
-xmlToolbox += '            <block type="eeprom_read">';
-xmlToolbox += '                <value name="ADDRESS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="eeprom_write">';
-xmlToolbox += '                <value name="ADDRESS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_memory_sdcard">';
-xmlToolbox += '            <block type="sd_init" exclude="activity-board,"></block>';
-xmlToolbox += '            <block type="sd_open"></block>';
-xmlToolbox += '            <block type="sd_read">';
-xmlToolbox += '                <value name="SIZE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">10</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="sd_file_pointer"></block>';
-xmlToolbox += '            <block type="sd_close"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '    </category>';
-
-/*
- * ANALOG/PULSE blocks
- */
-xmlToolbox += '    <category key="category_analog-pulses" exclude="s3,heb,heb-wx," colour="185">';
-
-xmlToolbox += '        <category key="category_analog-pulses_pulse-in-out" exclude="s3,">';
-xmlToolbox += '            <block type="pulse_in"></block>';
-xmlToolbox += '            <block type="pulse_out">';
-xmlToolbox += '                <value name="PULSE_LENGTH">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="base_count">';
-xmlToolbox += '                <value name="DURATION">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">1</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_analog-pulses_pwm">';
-xmlToolbox += '            <!-- <block type="pwm_start"></block> -->';
-xmlToolbox += '            <block type="pwm_set">';
-xmlToolbox += '                <value name="DUTY_CYCLE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">50</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="pwm_stop"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_analog-pulses_rc">';
-xmlToolbox += '            <block type="rc_charge_discharge"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_analog-pulses_voltage" include="activity-board,">';
-xmlToolbox += '            <block type="ab_volt_in"></block>';
-xmlToolbox += '            <block type="ab_volt_out">';
-xmlToolbox += '                <value name="VALUE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_analog-pulses_voltage" include="flip,other,">';
-xmlToolbox += '            <block type="mcp320x_read"></block>';
-xmlToolbox += '            <block type="mcp320x_set_vref"></block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '    </category>';
-
-/*
- * AUDIO blocks
- */
-xmlToolbox += '    <category key="category_audio" exclude="s3," colour="185">';
-
-xmlToolbox += '        <category key="category_audio_freqout" >';
-xmlToolbox += '            <block type="base_freqout">';
-xmlToolbox += '                <value name="DURATION">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="FREQUENCY">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="sound_init" include="activity-board,">';
-xmlToolbox += '                <field name="PINL">26</field>';
-xmlToolbox += '                <field name="PINR">27</field>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="sound_init" include="flip,other,"></block>';
-xmlToolbox += '            <block type="sound_play"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_hackable-electronic-badge_text-to-speech" >';
-xmlToolbox += '            <block type="heb_text_to_speech_pins"></block>';
-xmlToolbox += '            <block type="heb_text_to_speech_volume"></block>';
-xmlToolbox += '            <block type="heb_text_to_speech_say">';
-xmlToolbox += '                <value name="STRING">';
-xmlToolbox += '                    <block type="string_type_block">';
-xmlToolbox += '                        <field name="TEXT">heloa</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="heb_text_to_speech_spell">';
-xmlToolbox += '                <value name="STRING">';
-xmlToolbox += '                    <block type="string_type_block">';
-xmlToolbox += '                        <field name="TEXT">hello</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_audio_audio" exclude="flip,">';
-xmlToolbox += '            <block type="wav_set_pins" include="activity-board,">';
-xmlToolbox += '                <field name="PINL">26</field>';
-xmlToolbox += '                <field name="PINR">27</field>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="wav_play"></block>';
-xmlToolbox += '            <block type="wav_status"></block>';
-xmlToolbox += '            <block type="wav_volume">';
-xmlToolbox += '                <value name="VOLUME">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="wav_stop"></block>';
-xmlToolbox += '        </category>';
-xmlToolbox += '    </category>';
-
-xmlToolbox += '    <category key="category_servo" exclude="s3,heb,heb-wx," colour="165">';
-xmlToolbox += '        <block type="servo_move">';
-xmlToolbox += '            <value name="ANGLE">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">0</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="servo_speed">';
-xmlToolbox += '            <value name="SPEED">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">0</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="servo_set_ramp">';
-xmlToolbox += '            <value name="RAMPSTEP">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">50</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="fb360_init"></block>';
-xmlToolbox += '        <block type="fb360_setup">';
-xmlToolbox += '            <field name="PARAM">setAcceleration</field>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="fb360_set">';
-xmlToolbox += '            <value name="VALUE">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">0</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="fb360_get"></block>';
-xmlToolbox += '        <block type="fb360_status"></block>';
-xmlToolbox += '        <block type="scribbler_stop_servo"></block>';
-xmlToolbox += '    </category>';
+//
+// ---------------------  ROBOT BLOCKS  -----------------------
+//
 
 xmlToolbox += '    <category key="category_robot"  include="activity-board," colour="295">';
 xmlToolbox += '        <block type="ab_drive_init"></block>';
@@ -487,6 +111,9 @@ xmlToolbox += '        <block type="activitybot_display_calibration"></block>';
 xmlToolbox += '        <block type="activitybot_parallaxy_load"></block>';
 xmlToolbox += '    </category>';
 
+//
+// --------------------  S3 MATH BLOCKS  -------------------------
+
 xmlToolbox += '    <category key="category_s3-math" include="s3," colour="275">';
 xmlToolbox += '        <block type="math_number"></block>';
 xmlToolbox += '        <block type="scribbler_boolean"></block>';
@@ -520,6 +147,10 @@ xmlToolbox += '                </block>';
 xmlToolbox += '            </value>';
 xmlToolbox += '        </block>';
 xmlToolbox += '    </category>';
+
+//
+// ----------------------  S3 SENSOR INPUT BLOCKS  ----------------------
+//
 
 xmlToolbox += '    <category key="category_sensor-input" include="s3," colour="140">';
 
@@ -562,6 +193,9 @@ xmlToolbox += '        </category>';
 
 xmlToolbox += '    </category>';
 
+//
+// ------------------------  S3 ACTION BLOCKS  --------------------------
+//
 
 xmlToolbox += '    <category key="category_s3-actions" include="s3," colour="185">';
 
@@ -728,6 +362,9 @@ xmlToolbox += '        </category>';
 
 xmlToolbox += '    </category>';
 
+//
+// ---------------------  S3 HACKER PORT BLOCKS  ------------------------
+//
 
 xmlToolbox += '    <category key="category_s3-hacker-port" include="s3," colour="295">';
 
@@ -754,6 +391,9 @@ xmlToolbox += '        </category>';
 
 xmlToolbox += '    </category>';
 
+//
+// --------------------  SYSTEM BLOCKS  ----------------------
+//
 
 xmlToolbox += '    <category key="category_system" colour="320">';
 
@@ -775,6 +415,22 @@ xmlToolbox += '    </category>';
 
 xmlToolbox += '</xml>';
 
+/**
+ * Build a menu separator line
+ *
+ * @param {string} attr
+ * @return {string}
+ */
+function menuSeparator( attr = '' ) {
+  console.log(`MenuSep-attr: ${attr}`);
+  if (attr.length > 0) {
+    const result = `<sep ${attr}></sep>`;
+    console.log(`MenuSep result: ${result}`);
+    return result;
+  }
+
+  return `<sep></sep>`;
+}
 
 /**
  * Menu items for the control section
@@ -2097,6 +1753,422 @@ function menuCommunicationXBee() {
         <block type="xbee_receive"></block>';
         <block type="xbee_scan_multiple"></block>';
     </category>';
+  `;
+}
+
+/**
+ * SENSOR INPUT CATEGORY - HEB,HEB-WX
+ *
+ * @return {string}
+ */
+function menuSensorInputHeb() {
+  return `
+    <category key="category_sensor-input" include="heb,heb-wx," colour="140">
+
+        <category key="category_hackable-electronic-badge_accelerometer" >
+            <block type="heb_badge_axis_acceleration"></block>
+            <block type="heb_badge_was_shaken"></block>
+        </category>
+
+        <category key="category_hackable-electronic-badge_touchpad-control" >
+            <block type="heb_touchpad_status"></block>
+            <block type="heb_touchpad_sensitivity" include="heb-wx,">
+                <field name="LEVEL">7</field>
+            </block>
+        </category>
+
+        <category key="category_sensor-input_sony-remote" >
+            <block type="sirc_get"></block>
+        </category>
+    </category>
+  `;
+}
+
+/**
+ * MEMORY CATEGORY - HEB,HEB-WX
+ * @return {string}
+ */
+function menuMemoryHeb() {
+  return `
+    <category key="category_memory" include="heb,heb-wx," colour="165">
+        <category key="category_memory_contacts">
+            <block type="heb_badge_eeprom_store">
+                <value name="CONTACT">
+                    <block type="string_type_block">
+                        <field name="TEXT">Last, First</field>
+                    </block>
+                </value>
+            </block>
+            <block type="heb_badge_eeprom_is_stored">
+                <value name="CONTACT">
+                    <block type="string_type_block">
+                        <field name="TEXT">Last, First</field>
+                    </block>
+                </value>
+            </block>
+            <block type="heb_badge_eeprom_retrieve">
+                <value name="INDEX">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+            <block type="heb_count_contacts"></block>
+            <block type="heb_erase_all_contacts"></block>
+        </category>
+
+        <category key="category_memory_sdcard" include="heb-wx,">
+            <block type="sd_init" exclude="activity-board,"></block>
+            <block type="sd_open"></block>
+            <block type="sd_read">
+                <value name="SIZE">
+                    <block type="math_number">
+                        <field name="NUM">10</field>
+                    </block>
+                </value>
+            </block>
+            <block type="sd_file_pointer"></block>
+            <block type="sd_close"></block>
+        </category>
+    </category>
+  `;
+}
+
+/**
+ * SENSOR INPUT
+ *
+ * @return {string}
+ */
+function menuSensorInput() {
+  return `
+    <category key="category_sensor-input" exclude="s3,heb,heb-wx," colour="140">
+        <category key="category_sensor-input_2axis-joystick" include="activity-board,">
+            <block type="joystick_input_xaxis"></block>
+            <block type="joystick_input_yaxis"></block>
+        </category>
+
+        <category key="category_sensor-input_4x4-keypad">
+            <block type="keypad_initialize"></block>
+            <block type="keypad_read"></block>
+        </category>
+
+        <category key="category_sensor-input_BME680">
+            <block type="bme680_init"></block>
+            <block type="bme680_read"></block>
+            <block type="bme680_get_value"></block>
+            <block type="bme680_heater"></block>
+        </category>
+
+        <category key="category_sensor-input_colorpal" >
+            <block type="colorpal_enable"></block>
+            <block type="colorpal_get_colors_raw"></block>
+            <block type="colorpal_get_colors"></block>
+        </category>
+
+        <category key="category_sensor-input_ping" >
+            <block type="sensor_ping"></block>
+        </category>
+
+        <category key="category_sensor-input_gps" >
+            <block type="GPS_init"></block>
+            <block type="GPS_hasFix"></block>
+            <block type="GPS_latitude"></block>
+            <block type="GPS_longitude"></block>
+            <block type="GPS_heading"></block>
+            <block type="GPS_altitude"></block>
+            <block type="GPS_velocity"></block>
+            <block type="GPS_satsTracked"></block>
+            <block type="GPS_date_time"></block>
+        </category>
+
+        <category key="category_sensor-input_fingerprint" >
+            <block type="fp_scanner_init"></block>
+            <block type="fp_scanner_add">
+                <value name="USER">
+                    <block type="math_number">
+                        <field name="NUM">1</field>
+                    </block>
+                </value>
+            </block>
+            <block type="fp_scanner_scan"></block>
+        </category>
+
+        <category key="category_sensor-input_hmc5883l" include="other,activity-board,">
+            <block type="HMC5883L_init"></block>
+            <block type="HMC5883L_read"></block>
+        </category>
+
+        <category key="category_sensor-input_LIS3DH">
+            <block type="lis3dh_init"></block>
+            <block type="lis3dh_read"></block>
+            <block type="lis3dh_temp"></block>
+        </category>
+
+        <category key="category_sensor-input_LSM9DS1">
+            <block type="lsm9ds1_init"></block>
+            <block type="lsm9ds1_mag_calibrate"></block>
+            <block type="lsm9ds1_read"></block>
+            <block type="lsm9ds1_tilt"></block>
+            <block type="lsm9ds1_heading"></block>
+        </category>
+
+        <category key="category_sensor-input_mma7455" include="other,">
+            <block type="MMA7455_init"></block>
+            <block type="MMA7455_acceleration"></block>
+        </category>
+
+        <category key="category_sensor-input_memsic-2axis">
+            <block type="MX2125_acceleration_xaxis"></block>
+            <block type="MX2125_acceleration_yaxis"></block>
+            <block type="MX2125_rotation"></block>
+            <block type="MX2125_tilt_xaxis"></block>
+            <block type="MX2125_tilt_yaxis"></block>
+        </category>
+
+        <category key="category_sensor-input_pir">
+            <block type="PIR_Sensor"></block>
+        </category>
+
+        <category key="category_sensor-input_rfid">
+            <block type="rfid_enable"></block>
+            <block type="rfid_get"></block>
+            <block type="rfid_disable"></block>
+            <block type="rfid_close"></block>
+        </category>
+
+        <category key="category_sensor-input_sony-remote">
+            <block type="sirc_get"></block>
+        </category>
+
+        <category key="category_sensor-input_sound-impact-sensor">
+            <block type="sound_impact_run"></block>
+            <block type="sound_impact_get"></block>
+            <block type="sound_impact_end"></block>
+        </category>
+
+        <category key="category_sensor-input_temperature-humidity">
+            <block type="dht22_read"></block>
+            <block type="dht22_value"></block>
+        </category>
+    </category>
+  `;
+}
+
+/**
+ * Memory Blocks
+ *
+ * @return {string}
+ */
+function menuMemory() {
+  return `
+    <category key="category_memory" include="activity-board,flip,other," colour="165">
+        <category key="category_memory_eeprom">
+            <block type="eeprom_read">
+                <value name="ADDRESS">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+            <block type="eeprom_write">
+                <value name="ADDRESS">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+        </category>
+
+        <category key="category_memory_sdcard">
+            <block type="sd_init" exclude="activity-board,"></block>
+            <block type="sd_open"></block>
+            <block type="sd_read">
+                <value name="SIZE">
+                    <block type="math_number">';
+                        <field name="NUM">10</field>
+                    </block>
+                </value>
+            </block>
+            <block type="sd_file_pointer"></block>
+            <block type="sd_close"></block>
+        </category>
+    </category>
+  `;
+}
+
+/**
+ * ANALOG/PULSE BLOCKS
+ *
+ * @return {string}
+ */
+function menuAnalogPulse() {
+  return `
+    <category key="category_analog-pulses" exclude="s3,heb,heb-wx," colour="185">
+        <category key="category_analog-pulses_pulse-in-out" exclude="s3,">
+            <block type="pulse_in"></block>
+            <block type="pulse_out">
+                <value name="PULSE_LENGTH">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+            <block type="base_count">
+                <value name="DURATION">
+                    <block type="math_number">
+                        <field name="NUM">1</field>
+                    </block>
+                </value>
+            </block>
+        </category>
+
+        <category key="category_analog-pulses_pwm">
+            <!-- <block type="pwm_start"></block> -->';
+            <block type="pwm_set">
+                <value name="DUTY_CYCLE">
+                    <block type="math_number">
+                        <field name="NUM">50</field>
+                    </block>
+                </value>
+            </block>
+            <block type="pwm_stop"></block>
+        </category>
+
+        <category key="category_analog-pulses_rc">
+            <block type="rc_charge_discharge"></block>
+        </category>
+
+        <category key="category_analog-pulses_voltage" include="activity-board,">
+            <block type="ab_volt_in"></block>
+            <block type="ab_volt_out">
+                <value name="VALUE">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+        </category>
+
+        <category key="category_analog-pulses_voltage" include="flip,other,">
+            <block type="mcp320x_read"></block>
+            <block type="mcp320x_set_vref"></block>
+        </category>
+    </category>
+  `;
+}
+
+/**
+ * Audio Blocks
+ *
+ * @return {string}
+ */
+function menuAudio() {
+  return `
+    <category key="category_audio" exclude="s3," colour="185">
+        <category key="category_audio_freqout">
+            <block type="base_freqout">
+                <value name="DURATION">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="FREQUENCY">
+                    <block type="math_number">
+                        <field name="NUM">0</field>';
+                    </block>
+                </value>
+            </block>
+            <block type="sound_init" include="activity-board,">
+                <field name="PINL">26</field>';
+                <field name="PINR">27</field>';
+            </block>';
+            <block type="sound_init" include="flip,other,"></block>';
+            <block type="sound_play"></block>';
+        </category>';
+
+        <category key="category_hackable-electronic-badge_text-to-speech">
+            <block type="heb_text_to_speech_pins"></block>
+            <block type="heb_text_to_speech_volume"></block>
+            <block type="heb_text_to_speech_say">
+                <value name="STRING">
+                    <block type="string_type_block">
+                        <field name="TEXT">heloa</field>
+                    </block>
+                </value>
+            </block>
+            <block type="heb_text_to_speech_spell">
+                <value name="STRING">
+                    <block type="string_type_block">
+                        <field name="TEXT">hello</field>
+                    </block>
+                </value>
+            </block>
+        </category>
+
+        <category key="category_audio_audio" exclude="flip,">
+            <block type="wav_set_pins" include="activity-board,">
+                <field name="PINL">26</field>
+                <field name="PINR">27</field>
+            </block>
+            <block type="wav_play"></block>
+            <block type="wav_status"></block>
+            <block type="wav_volume">
+                <value name="VOLUME">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+            <block type="wav_stop"></block>
+        </category>
+    </category>
+  `;
+}
+
+/**
+ * Servo Blocks
+ *
+ * @return {string}
+ */
+function menuServo() {
+  return `
+    <category key="category_servo" exclude="s3,heb,heb-wx," colour="165">
+        <block type="servo_move">
+            <value name="ANGLE">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="servo_speed">
+            <value name="SPEED">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="servo_set_ramp">
+            <value name="RAMPSTEP">
+                <block type="math_number">
+                    <field name="NUM">50</field>
+                </block>
+            </value>
+        </block>
+        <block type="fb360_init"></block>
+        <block type="fb360_setup">
+            <field name="PARAM">setAcceleration</field>
+        </block>
+        <block type="fb360_set">
+            <value name="VALUE">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="fb360_get"></block>
+        <block type="fb360_status"></block>
+        <block type="scribbler_stop_servo"></block>
+    </category>
   `;
 }
 
