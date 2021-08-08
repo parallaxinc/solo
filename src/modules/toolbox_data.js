@@ -40,20 +40,16 @@ import {toolbox_label} from './blockly/language/en/messages.js';
  * Note that the code below currently detects that the attribute
  * exists and DOES NOT evaluate the value of the attribute.
  */
-// eslint-disable-next-line no-unused-vars
 let xmlToolbox = '<xml id="toolbox">';
-
 xmlToolbox += menuControl();
 xmlToolbox += menuOperators();
 xmlToolbox += menuSeparator();
-
 xmlToolbox += menuValues();
 xmlToolbox += menuOperatorArrays();
 xmlToolbox += '<category key="category_variables" custom="VARIABLE" colour="250"></category>';
 xmlToolbox += '<category key="category_functions" custom="PROCEDURE" colour="225"></category>';
 xmlToolbox += menuIOPinStates();
 xmlToolbox += menuSeparator(`include="heb,heb-wx,"`);
-
 xmlToolbox += menuCommunication();
 xmlToolbox += menuSensorInputHeb();
 xmlToolbox += menuMemoryHeb();
@@ -62,358 +58,13 @@ xmlToolbox += menuMemory();
 xmlToolbox += menuAnalogPulse();
 xmlToolbox += menuAudio();
 xmlToolbox += menuServo();
-
-
-//
-// ---------------------  ROBOT BLOCKS  -----------------------
-//
-
-xmlToolbox += '    <category key="category_robot"  include="activity-board," colour="295">';
-xmlToolbox += '        <block type="ab_drive_init"></block>';
-xmlToolbox += '        <block type="ab_drive_ramping">';
-xmlToolbox += '            <field name="RAMPING">600</field>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="ab_drive_speed">';
-xmlToolbox += '            <value name="LEFT">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">64</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '            <value name="RIGHT">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">64</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="ab_drive_goto">';
-xmlToolbox += '            <value name="LEFT">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">64</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '            <value name="RIGHT">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">64</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="ab_drive_goto_max_speed">';
-xmlToolbox += '            <value name="SPEED">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">64</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="ab_drive_stop"></block>';
-xmlToolbox += '        <block type="ab_drive_get_ticks"></block>';
-xmlToolbox += '        <block type="activitybot_calibrate"></block>';
-xmlToolbox += '        <block type="activitybot_display_calibration"></block>';
-xmlToolbox += '        <block type="activitybot_parallaxy_load"></block>';
-xmlToolbox += '    </category>';
-
-//
-// --------------------  S3 MATH BLOCKS  -------------------------
-
-xmlToolbox += '    <category key="category_s3-math" include="s3," colour="275">';
-xmlToolbox += '        <block type="math_number"></block>';
-xmlToolbox += '        <block type="scribbler_boolean"></block>';
-xmlToolbox += '        <block type="scribbler_random_boolean"></block>';
-xmlToolbox += '        <block type="math_random">';
-xmlToolbox += '            <value name="A">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">1</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '            <value name="B">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">10</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="math_arithmetic"></block>';
-xmlToolbox += '        <block type="math_limit"></block>';
-xmlToolbox += '        <block type="logic_operation"></block>';
-xmlToolbox += '        <block type="math_crement"></block>';
-xmlToolbox += '        <block type="logic_negate"></block>';
-xmlToolbox += '        <block type="logic_compare"></block>';
-xmlToolbox += '        <block type="constrain_value"></block>';
-xmlToolbox += '        <block type="map_value"></block>';
-xmlToolbox += '        <block type="math_advanced"></block>';
-xmlToolbox += '        <block type="math_inv_trig">';
-xmlToolbox += '            <value name="ARG3">';
-xmlToolbox += '                <block type="math_number">';
-xmlToolbox += '                    <field name="NUM">1</field>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '    </category>';
-
-//
-// ----------------------  S3 SENSOR INPUT BLOCKS  ----------------------
-//
-
-xmlToolbox += '    <category key="category_sensor-input" include="s3," colour="140">';
-
-xmlToolbox += '        <category key="category_sensor-input_s3-line" >';
-xmlToolbox += '            <block type="calibrate_line_sensor"></block>';
-xmlToolbox += '            <!-- <block type="scribbler_if_line"></block> -->';
-xmlToolbox += '            <block type="scribbler_simple_line"></block>';
-xmlToolbox += '            <block type="line_sensor"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_s3-obstacle" >';
-xmlToolbox += '            <!-- <block type="scribbler_if_obstacle"></block>';
-xmlToolbox += '            <block type="obstacle_sensor"></block> -->';
-xmlToolbox += '            <block type="scribbler_simple_obstacle"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_s3-light" >';
-xmlToolbox += '            <!-- <block type="scribbler_if_light"></block> -->';
-xmlToolbox += '            <block type="scribbler_simple_light"></block>';
-xmlToolbox += '            <block type="light_sensor"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_s3-stall" >';
-xmlToolbox += '            <!-- <block type="scribbler_if_stalled"></block> -->';
-xmlToolbox += '            <block type="stall_sensor"></block>';
-xmlToolbox += '            <!-- <block type="spinning_sensor"></block> -->';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_s3-sirc" >';
-xmlToolbox += '            <block type="sirc_s3_get"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_s3-mic" >';
-xmlToolbox += '            <block type="mic_s3_get"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_sensor-input_s3-button" >';
-xmlToolbox += '            <block type="reset_button_presses"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '    </category>';
-
-//
-// ------------------------  S3 ACTION BLOCKS  --------------------------
-//
-
-xmlToolbox += '    <category key="category_s3-actions" include="s3," colour="185">';
-
-xmlToolbox += '        <category key="category_s3-actions_motors" >';
-xmlToolbox += '            <block type="scribbler_drive">';
-xmlToolbox += '                <field name="DRIVE_ANGLE">STRAIGHT</field>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="scribbler_spin"></block>';
-xmlToolbox += '            <block type="scribbler_stop"></block>';
-xmlToolbox += '            <block type="move_motors">';
-xmlToolbox += '                <value name="LEFT_MOTOR_SPEED">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="RIGHT_MOTOR_SPEED">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="MOTOR_DURATION">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="move_motors_distance">';
-xmlToolbox += '                <value name="LEFT_MOTOR_DISTANCE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="RIGHT_MOTOR_DISTANCE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="MOTOR_SPEED">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="move_motors_xy">';
-xmlToolbox += '                <value name="X_DISTANCE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="Y_DISTANCE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="MOTOR_SPEED">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="move_motors_angle">';
-xmlToolbox += '                <value name="ROTATE_ANGLE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="ROTATE_RADIUS">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="ROTATE_SPEED">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_s3-actions_sound" include="s3,">';
-xmlToolbox += '            <block type="scribbler_play">';
-xmlToolbox += '                <field name="NOTE_DURATION">250</field>';
-xmlToolbox += '                <field name="NOTE_OCTAVE">4</field>';
-xmlToolbox += '                <field name="NOTE_FREQUENCY">4186</field>';
-xmlToolbox += '                <field name="NOTE_VOLUME">50</field>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="play_polyphony">';
-xmlToolbox += '                <value name="FREQUENCY_1">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="FREQUENCY_2">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POLYPHONY_DURATION">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="POLYPHONY_VOLUME">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_s3-actions_leds" include="s3,">';
-xmlToolbox += '            <block type="scribbler_LED"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_communicate" include="s3,">';
-xmlToolbox += '            <block type="scribbler_serial_send_text"></block>';
-xmlToolbox += '            <block type="scribbler_serial_send_decimal"></block>';
-xmlToolbox += '            <block type="scribbler_serial_send_char"></block>';
-xmlToolbox += '            <block type="scribbler_serial_send_ctrl"></block>';
-
-// xmlToolbox += '            <!--';
-// xmlToolbox += '                            <block type="scribbler_serial_cursor_xy">';
-// xmlToolbox += '                                <value name="X">';
-// xmlToolbox += '                                    <block type="spin_integer">';
-// xmlToolbox += '                                        <field name="INT_VALUE">0</field>';
-// xmlToolbox += '                                    </block>';
-// xmlToolbox += '                                </value>';
-// xmlToolbox += '                                <value name="Y">';
-// xmlToolbox += '                                    <block type="spin_integer">';
-// xmlToolbox += '                                        <field name="INT_VALUE">0</field>';
-// xmlToolbox += '                                    </block>';
-// xmlToolbox += '                                </value>';
-// xmlToolbox += '                            </block>';
-// xmlToolbox += '            -->';
-
-xmlToolbox += '            <block type="scribbler_serial_rx_byte"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_memory" include="s3,">';
-xmlToolbox += '            <block type="s3_eeprom_read">';
-xmlToolbox += '                <value name="ADDR">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="s3_eeprom_write">';
-xmlToolbox += '                <value name="ADDR">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '                <value name="VALUE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">0</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_s3-actions_reset" include="s3,">';
-xmlToolbox += '            <block type="factory_reset"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '    </category>';
-
-//
-// ---------------------  S3 HACKER PORT BLOCKS  ------------------------
-//
-
-xmlToolbox += '    <category key="category_s3-hacker-port" include="s3," colour="295">';
-
-xmlToolbox += '        <category key="category_s3-hacker-port_sensors" >';
-xmlToolbox += '            <block type="scribbler_ping"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_s3-hacker-port_pins" >';
-xmlToolbox += '            <block type="make_pin"></block>';
-xmlToolbox += '            <block type="check_pin"></block>';
-xmlToolbox += '            <block type="analog_input"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '        <category key="category_s3-hacker-port_servo" >';
-xmlToolbox += '            <block type="servo_move">';
-xmlToolbox += '                <value name="ANGLE">';
-xmlToolbox += '                    <block type="math_number">';
-xmlToolbox += '                        <field name="NUM">90</field>';
-xmlToolbox += '                    </block>';
-xmlToolbox += '                </value>';
-xmlToolbox += '            </block>';
-xmlToolbox += '            <block type="scribbler_stop_servo"></block>';
-xmlToolbox += '        </category>';
-
-xmlToolbox += '    </category>';
-
-//
-// --------------------  SYSTEM BLOCKS  ----------------------
-//
-
-xmlToolbox += '    <category key="category_system" colour="320">';
-
-// eslint-disable-next-line max-len
-xmlToolbox += '        <block type="custom_code_multiple" include="activity-board,flip,heb,heb-wx,other,s3,"></block>';
-xmlToolbox += '        <block type="waitcnt">';
-xmlToolbox += '            <value name="TARGET">';
-xmlToolbox += '                <block type="math_arithmetic">';
-xmlToolbox += '                    <value name="A">';
-xmlToolbox += '                        <block type="system_counter"></block>';
-xmlToolbox += '                    </value>';
-xmlToolbox += '                </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '        </block>';
-xmlToolbox += '        <block type="register_set" exclude="s3," ></block>';
-xmlToolbox += '        <block type="register_get" exclude="s3," ></block>';
-xmlToolbox += '        <block type="system_counter" exclude="s3," include="other,"></block>';
-xmlToolbox += '    </category>';
-
-xmlToolbox += '</xml>';
+xmlToolbox += menuRobot();
+xmlToolbox += menuMathS3();
+xmlToolbox += menuSensorInputS3();
+xmlToolbox += menuActionsS3();
+xmlToolbox += menuHackerPortS3();
+xmlToolbox += menuSystem();
+xmlToolbox += `</xml>`;
 
 /**
  * Build a menu separator line
@@ -422,11 +73,8 @@ xmlToolbox += '</xml>';
  * @return {string}
  */
 function menuSeparator( attr = '' ) {
-  console.log(`MenuSep-attr: ${attr}`);
   if (attr.length > 0) {
-    const result = `<sep ${attr}></sep>`;
-    console.log(`MenuSep result: ${result}`);
-    return result;
+    return `<sep ${attr}></sep>`;
   }
 
   return `<sep></sep>`;
@@ -678,7 +326,7 @@ function menuOperatorArrays() {
   return `
     <category key="category_operators_arrays" colour="250">
       <block type="array_init"></block>
-      <block type="array_fill"></block>';
+      <block type="array_fill"></block>
       <block type="array_get">
         <value name="NUM">
           <block type="math_number">
@@ -1576,38 +1224,38 @@ function menuCommunicationSerialLCD() {
  */
 function menuCommunicationSerialTerminal() {
   return `
-    <category key="category_communicate_serial-terminal" exclude="heb-wx,">';
-        <block type="console_print">';
-            <value name="MESSAGE">';
-                <block type="string_type_block"></block>';
-            </value>';
-        </block>';
-        <block type="console_print_variables">';
-            <value name="VALUE">';
-                <block type="math_number">';
-                    <field name="NUM">0</field>';
-                </block>';
-            </value>';
-        </block>';
-        <block type="console_print_multiple"></block>';
-        <block type="console_scan_text"></block>';
-        <block type="console_scan_number"></block>';
-        <block type="console_newline"></block>';
-        <block type="console_clear"></block>';
-        <block type="console_move_to_position">';
-            <value name="ROW">';
-                <block type="math_number">';
-                    <field name="NUM">0</field>';
-                </block>';
-            </value>';
-            <value name="COLUMN">';
-                <block type="math_number">';
-                    <field name="NUM">0</field>';
-                </block>';
-            </value>';
-        </block>';
-        <block type="console_close"></block>';
-    </category>';
+    <category key="category_communicate_serial-terminal" exclude="heb-wx,">
+        <block type="console_print">
+            <value name="MESSAGE">
+                <block type="string_type_block"></block>
+            </value>
+        </block>
+        <block type="console_print_variables">
+            <value name="VALUE">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="console_print_multiple"></block>
+        <block type="console_scan_text"></block>
+        <block type="console_scan_number"></block>
+        <block type="console_newline"></block>
+        <block type="console_clear"></block>
+        <block type="console_move_to_position">
+            <value name="ROW">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+            <value name="COLUMN">
+                <block type="math_number">
+                    <field name="NUM">0</field>
+                </block>
+            </value>
+        </block>
+        <block type="console_close"></block>
+    </category>
     `;
 }
 
@@ -1746,13 +1394,13 @@ function menuCommunication() {
  */
 function menuCommunicationXBee() {
   return `
-    <category key="category_communicate_xbee" exclude="heb,heb-wx,">';
-        <block type="xbee_setup"></block>';
-        <block type="xbee_transmit"></block>';
-        <block type="xbee_print_multiple"></block>';
-        <block type="xbee_receive"></block>';
-        <block type="xbee_scan_multiple"></block>';
-    </category>';
+    <category key="category_communicate_xbee" exclude="heb,heb-wx,">
+        <block type="xbee_setup"></block>
+        <block type="xbee_transmit"></block>
+        <block type="xbee_print_multiple"></block>
+        <block type="xbee_receive"></block>
+        <block type="xbee_scan_multiple"></block>
+    </category>
   `;
 }
 
@@ -1984,7 +1632,7 @@ function menuMemory() {
             <block type="sd_open"></block>
             <block type="sd_read">
                 <value name="SIZE">
-                    <block type="math_number">';
+                    <block type="math_number">
                         <field name="NUM">10</field>
                     </block>
                 </value>
@@ -2023,7 +1671,7 @@ function menuAnalogPulse() {
         </category>
 
         <category key="category_analog-pulses_pwm">
-            <!-- <block type="pwm_start"></block> -->';
+            <!-- <block type="pwm_start"></block> -->
             <block type="pwm_set">
                 <value name="DUTY_CYCLE">
                     <block type="math_number">
@@ -2074,17 +1722,17 @@ function menuAudio() {
                 </value>
                 <value name="FREQUENCY">
                     <block type="math_number">
-                        <field name="NUM">0</field>';
+                        <field name="NUM">0</field>
                     </block>
                 </value>
             </block>
             <block type="sound_init" include="activity-board,">
-                <field name="PINL">26</field>';
-                <field name="PINR">27</field>';
-            </block>';
-            <block type="sound_init" include="flip,other,"></block>';
-            <block type="sound_play"></block>';
-        </category>';
+                <field name="PINL">26</field>
+                <field name="PINR">27</field>
+            </block>
+            <block type="sound_init" include="flip,other,"></block>
+            <block type="sound_play"></block>
+        </category>
 
         <category key="category_hackable-electronic-badge_text-to-speech">
             <block type="heb_text_to_speech_pins"></block>
@@ -2173,14 +1821,382 @@ function menuServo() {
 }
 
 /**
+ * Robot Blocks
+ *
+ * @return {string}
+ */
+function menuRobot() {
+  return `
+    <category key="category_robot"  include="activity-board," colour="295">
+        <block type="ab_drive_init"></block>
+        <block type="ab_drive_ramping">
+            <field name="RAMPING">600</field>
+        </block>
+        <block type="ab_drive_speed">
+            <value name="LEFT">
+                <block type="math_number">
+                    <field name="NUM">64</field>
+                </block>
+            </value>
+            <value name="RIGHT">
+                <block type="math_number">
+                    <field name="NUM">64</field>
+                </block>
+            </value>
+        </block>
+        <block type="ab_drive_goto">
+            <value name="LEFT">
+                <block type="math_number">
+                    <field name="NUM">64</field>
+                </block>
+            </value>
+            <value name="RIGHT">
+                <block type="math_number">
+                    <field name="NUM">64</field>
+                </block>
+            </value>
+        </block>
+        <block type="ab_drive_goto_max_speed">
+            <value name="SPEED">
+                <block type="math_number">
+                    <field name="NUM">64</field>
+                </block>
+            </value>
+        </block>
+        <block type="ab_drive_stop"></block>
+        <block type="ab_drive_get_ticks"></block>
+        <block type="activitybot_calibrate"></block>
+        <block type="activitybot_display_calibration"></block>
+        <block type="activitybot_parallaxy_load"></block>
+    </category>
+  `;
+}
+
+/**
+ * S3 Math Blocks
+ *
+ * @return {string}
+ */
+function menuMathS3() {
+  return `
+    <category key="category_s3-math" include="s3," colour="275">
+        <block type="math_number"></block>
+        <block type="scribbler_boolean"></block>
+        <block type="scribbler_random_boolean"></block>
+        <block type="math_random">
+            <value name="A">
+                <block type="math_number">
+                    <field name="NUM">1</field>
+                </block>
+            </value>
+            <value name="B">
+                <block type="math_number">
+                    <field name="NUM">10</field>
+                </block>
+            </value>
+        </block>
+        <block type="math_arithmetic"></block>
+        <block type="math_limit"></block>
+        <block type="logic_operation"></block>
+        <block type="math_crement"></block>
+        <block type="logic_negate"></block>
+        <block type="logic_compare"></block>
+        <block type="constrain_value"></block>
+        <block type="map_value"></block>
+        <block type="math_advanced"></block>
+        <block type="math_inv_trig">
+            <value name="ARG3">
+                <block type="math_number">
+                    <field name="NUM">1</field>
+                </block>
+            </value>
+        </block>
+    </category>
+  `;
+}
+
+/**
+ * S3 Sensor Input Blocks
+ *
+ * @return {string}
+ */
+function menuSensorInputS3() {
+  return `
+    <category key="category_sensor-input" include="s3," colour="140">
+        <category key="category_sensor-input_s3-line" >
+            <block type="calibrate_line_sensor"></block>
+            <!-- <block type="scribbler_if_line"></block> -->
+            <block type="scribbler_simple_line"></block>
+            <block type="line_sensor"></block>
+        </category>
+
+        <category key="category_sensor-input_s3-obstacle" >
+            <!-- <block type="scribbler_if_obstacle"></block>
+            <block type="obstacle_sensor"></block> -->
+            <block type="scribbler_simple_obstacle"></block>
+        </category>
+
+        <category key="category_sensor-input_s3-light" >
+            <!-- <block type="scribbler_if_light"></block> -->
+            <block type="scribbler_simple_light"></block>
+            <block type="light_sensor"></block>
+        </category>
+
+        <category key="category_sensor-input_s3-stall" >
+            <!-- <block type="scribbler_if_stalled"></block> -->
+            <block type="stall_sensor"></block>
+            <!-- <block type="spinning_sensor"></block> -->
+        </category>
+
+        <category key="category_sensor-input_s3-sirc" >
+            <block type="sirc_s3_get"></block>
+        </category>
+
+        <category key="category_sensor-input_s3-mic" >
+            <block type="mic_s3_get"></block>
+        </category>
+
+        <category key="category_sensor-input_s3-button" >
+            <block type="reset_button_presses"></block>
+        </category>
+    </category>
+  `;
+}
+
+/**
+ * S3 Action Blocks
+ *
+ * @return {string}
+ */
+function menuActionsS3() {
+  return `
+    <category key="category_s3-actions" include="s3," colour="185">
+        <category key="category_s3-actions_motors" >
+            <block type="scribbler_drive">
+                <field name="DRIVE_ANGLE">STRAIGHT</field>
+            </block>
+            <block type="scribbler_spin"></block>
+            <block type="scribbler_stop"></block>
+            <block type="move_motors">
+                <value name="LEFT_MOTOR_SPEED">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="RIGHT_MOTOR_SPEED">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="MOTOR_DURATION">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+            <block type="move_motors_distance">
+                <value name="LEFT_MOTOR_DISTANCE">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="RIGHT_MOTOR_DISTANCE">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="MOTOR_SPEED">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+            <block type="move_motors_xy">
+                <value name="X_DISTANCE">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="Y_DISTANCE">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="MOTOR_SPEED">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+            <block type="move_motors_angle">
+                <value name="ROTATE_ANGLE">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="ROTATE_RADIUS">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="ROTATE_SPEED">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+        </category>
+
+        <category key="category_s3-actions_sound" include="s3,">
+            <block type="scribbler_play">
+                <field name="NOTE_DURATION">250</field>
+                <field name="NOTE_OCTAVE">4</field>
+                <field name="NOTE_FREQUENCY">4186</field>
+                <field name="NOTE_VOLUME">50</field>
+            </block>
+            <block type="play_polyphony">
+                <value name="FREQUENCY_1">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="FREQUENCY_2">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="POLYPHONY_DURATION">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="POLYPHONY_VOLUME">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+        </category>
+
+        <category key="category_s3-actions_leds" include="s3,">
+            <block type="scribbler_LED"></block>
+        </category>
+
+        <category key="category_communicate" include="s3,">
+            <block type="scribbler_serial_send_text"></block>
+            <block type="scribbler_serial_send_decimal"></block>
+            <block type="scribbler_serial_send_char"></block>
+            <block type="scribbler_serial_send_ctrl"></block>
+
+         <!--  <block type="scribbler_serial_cursor_xy"> -->
+         <!--    <value name="X"> -->
+         <!--      <block type="spin_integer"> -->
+         <!--        <field name="INT_VALUE">0</field> -->
+         <!--      </block> -->
+         <!--    </value> -->
+         <!--    <value name="Y"> -->
+         <!--      <block type="spin_integer"> -->
+         <!--        <field name="INT_VALUE">0</field> -->
+         <!--      </block> -->
+         <!--    </value> -->
+         <!--  </block> -->
+
+            <block type="scribbler_serial_rx_byte"></block>
+        </category>
+
+        <category key="category_memory" include="s3,">
+            <block type="s3_eeprom_read">
+                <value name="ADDR">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+            <block type="s3_eeprom_write">
+                <value name="ADDR">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+                <value name="VALUE">
+                    <block type="math_number">
+                        <field name="NUM">0</field>
+                    </block>
+                </value>
+            </block>
+        </category>
+
+        <category key="category_s3-actions_reset" include="s3,">
+            <block type="factory_reset"></block>
+        </category>
+    </category>
+  `;
+}
+
+/**
+ * S3 Hacker Port Blocks
+ *
+ * @return {string}
+ */
+function menuHackerPortS3() {
+  return `
+    <category key="category_s3-hacker-port" include="s3," colour="295">
+        <category key="category_s3-hacker-port_sensors" >
+            <block type="scribbler_ping"></block>
+        </category>
+
+        <category key="category_s3-hacker-port_pins" >
+            <block type="make_pin"></block>
+            <block type="check_pin"></block>
+            <block type="analog_input"></block>
+        </category>
+
+        <category key="category_s3-hacker-port_servo" >
+            <block type="servo_move">
+                <value name="ANGLE">
+                    <block type="math_number">
+                        <field name="NUM">90</field>
+                    </block>
+                </value>
+            </block>
+            <block type="scribbler_stop_servo"></block>
+        </category>
+    </category>
+  `;
+}
+
+/**
+ * System - Custom Code - Block
+ *
+ * @return {string}
+ */
+function menuSystem() {
+  return `
+    <category key="category_system" colour="320">
+        <block type="custom_code_multiple" include="activity-board,flip,heb,heb-wx,other,s3,"></block>
+        <block type="waitcnt">
+            <value name="TARGET">
+                <block type="math_arithmetic">
+                    <value name="A">
+                        <block type="system_counter"></block>
+                    </value>
+                </block>
+            </value>
+        </block>
+        <block type="register_set" exclude="s3," ></block>
+        <block type="register_get" exclude="s3," ></block>
+        <block type="system_counter" exclude="s3," include="other,"></block>
+    </category>
+  `;
+}
+
+/**
  * Filter the blocks available in the toolbox.
  *
  * @param {string} profileName
  * @return {string}
  */
 function filterToolbox(profileName) {
-  console.log(`Filtering toolbox`);
-
   // Set the category's label (internationalization)
   xmlToolbox = xmlToolbox.replace(
       /key="([\S]+)"/g, function(m, p) {
