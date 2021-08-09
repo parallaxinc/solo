@@ -32,7 +32,6 @@ const HtmlWebpack = require('html-webpack-plugin');
  */
 const targetPath = '../dist';
 
-
 /**
  * The relative path to the Blockly package media files
  * @type {string}
@@ -95,33 +94,6 @@ module.exports = (opts) => {
           ]
         }
       ]
-      // rules: [
-      //   {
-      //     test: /\.s[ac]ss$/i,
-      //       include: [
-      //         path.resolve(__dirname, './src/sass')
-      //       ],
-      //     use: [
-      //       // Creates `style` nodes from JS strings
-      //       "style-loader",
-      //       // Translates CSS into CommonJS
-      //       "css-loader",
-      //       // Compiles Sass to CSS
-      //       "sass-loader",
-      //     ],
-      //   },
-        //
-        // {
-        //   test: /\.css$/,
-        //   include: [
-        //     path.resolve(__dirname, '../sass')
-        //   ],
-        //   use: [
-        //     'style-loader',
-        //     'css-loader'
-        //   ]
-        // },
-      // ]
     },
     plugins: [
       new webpack.EnvironmentPlugin({
