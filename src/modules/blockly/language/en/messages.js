@@ -26,8 +26,6 @@
  * rule need not apply to message files.
  */
 
-'use strict';
-
 import Blockly from 'blockly/core';
 
 // ------------------------------------------------------------------
@@ -35,8 +33,7 @@ import Blockly from 'blockly/core';
 // over a button in the editor toolbar. The buttons are initialized
 // in the editor.js file.
 // ------------------------------------------------------------------
-// eslint-disable-next-line camelcase
-const tooltip_text = [
+const tooltipText = [
   ['prop-btn-comp', 'Verify code (compile)'],
   ['prop-btn-ram', 'Run once (load code to RAM)'],
   ['prop-btn-eeprom', 'Load and run (save code to EEPROM)'],
@@ -716,4 +713,4 @@ Blockly.MSG_S3_ERROR_NO_WAS_CONDITION = 'WARNING: "was" ans "was not" conditions
 // TODO: Need offline help system
 
 // eslint-disable-next-line camelcase
-export {tooltip_text};
+export {tooltipText};

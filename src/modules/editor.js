@@ -28,8 +28,7 @@ import * as JSZip from 'jszip';
 
 // eslint-disable-next-line camelcase
 import {initHtmlLabels, getHtmlText} from './blockly/language/en/page_text_labels';
-// eslint-disable-next-line camelcase
-import {tooltip_text} from './blockly/language/en/messages';
+import {tooltipText} from './blockly/language/en/messages';
 import /* webpackPrefetch: true */ './blockly/generators/propc';
 import './blockly/generators/propc/base';
 
@@ -202,9 +201,9 @@ async function initInternationalText() {
   });
 
   // insert text strings (internationalization) into button/link tooltips
-  for (let i = 0; i < tooltip_text.length; i++) {
-    if (tooltip_text[i] && document.getElementById(tooltip_text[i][0])) {
-      $('#' + tooltip_text[i][0]).attr('title', tooltip_text[i][1]);
+  for (let i = 0; i < tooltipText.length; i++) {
+    if (tooltipText[i] && document.getElementById(tooltipText[i][0])) {
+      $('#' + tooltipText[i][0]).attr('title', tooltipText[i][1]);
     }
   }
 }
