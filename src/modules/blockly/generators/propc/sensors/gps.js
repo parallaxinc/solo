@@ -25,7 +25,7 @@
 import Blockly from 'blockly/core';
 import {colorPalette} from '../../propc';
 import {getDefaultProfile} from '../../../../project';
-import {buildConstantsList} from './sensors_common';
+import {buildConstantsList} from '../propc_common';
 
 /**
  * GPS Initialization

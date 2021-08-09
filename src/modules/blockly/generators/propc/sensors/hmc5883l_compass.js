@@ -29,7 +29,7 @@
 import Blockly from 'blockly/core';
 import {getDefaultProfile} from '../../../../project';
 import {colorPalette} from '../../propc';
-import {verifyBlockTypeEnabled} from './sensors_common';
+import {verifyBlockTypeEnabled} from '../propc_common';
 
 /**
  * HMC5883L Initialization

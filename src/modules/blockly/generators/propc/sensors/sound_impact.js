@@ -37,7 +37,7 @@
 
 import Blockly from 'blockly/core';
 import {colorPalette} from '../../propc';
-import {buildConstantsList, getProfileDigital, verifyBlockTypeEnabled} from './sensors_common';
+import {buildConstantsList, getProfileDigital, verifyBlockTypeEnabled} from '../propc_common';
 
 /**
  * Sound Impact Run
