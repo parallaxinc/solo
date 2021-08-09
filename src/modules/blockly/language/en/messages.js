@@ -29,12 +29,6 @@
 'use strict';
 
 import Blockly from 'blockly/core';
-// import 'blockly/blocks';
-// import 'blockly/javascript';
-
-
-// eslint-disable-next-line camelcase
-const toolbox_label = [];
 
 // ------------------------------------------------------------------
 // Text for the balloon help that appears when the cursor hovers
@@ -719,105 +713,7 @@ Blockly.MSG_S3_SERIAL_RX_BYTE_TOOLTIP = 'receive character: receive a character 
 Blockly.MSG_S3_FACTORY_RESET_TOOLTIP = 'factory reset: use to reload the factory default demo program back onto the Scribbler';
 Blockly.MSG_S3_ERROR_NO_WAS_CONDITION = 'WARNING: "was" ans "was not" conditions have been deprecated.\nPlease choose "is" or "is not".\nUse a variable block to keep track of the state of this sensor instead.';
 
-toolbox_label['category_control'] = 'Control';
-toolbox_label['category_operators'] = 'Operators';
-toolbox_label['category_system'] = 'System';
-toolbox_label['category_operators_numbers'] = 'Numbers';
-toolbox_label['category_operators_strings'] = 'Strings';
-toolbox_label['category_operators_arrays'] = 'Arrays';
-toolbox_label['category_values'] = 'Values';
-toolbox_label['category_input-output'] = 'Input/Output';
-toolbox_label['category_input-output_pin-states'] = 'Pin states';
-toolbox_label['category_input-output_timing'] = 'Timing';
-toolbox_label['category_scribbler'] = 'Scribbler 3';
-toolbox_label['category_scribbler_outputs'] = 'Actions';
-toolbox_label['category_scribbler_inputs'] = 'Sensors';
-toolbox_label['category_communicate'] = 'Communicate';
-toolbox_label['category_communicate_serial-lcd'] = 'Serial LCD';
-toolbox_label['category_communicate_parallel-lcd'] = 'Parallel LCD';
-toolbox_label['category_communicate_serial-terminal'] = 'Terminal';
-toolbox_label['category_communicate_oled'] = 'OLED';
-toolbox_label['category_communicate_epaper'] = 'ePaper';
-toolbox_label['category_communicate_graphing'] = 'Graph';
-toolbox_label['category_communicate_protocols'] = 'Protocols';
-toolbox_label['category_communicate_xbee'] = 'XBee';
-toolbox_label['category_communicate_WS2812B'] = 'RGB LEDs';
-toolbox_label['category_sensor-input'] = 'Sensor';
-toolbox_label['category_sensor-input_LIS3DH'] = 'LIS3DH Accelerometer';
-toolbox_label['category_sensor-input_LSM9DS1'] = 'LSM9DS1 IMU';
-toolbox_label['category_sensor-input_etape'] = 'ETape liquid level';
-toolbox_label['category_sensor-input_fingerprint'] = 'Fingerprint Scanner';
-toolbox_label['category_sensor-input_gps'] = 'GPS module';
-toolbox_label['category_sensor-input_hmc5883l'] = 'HMC5883L Compass';
-toolbox_label['category_sensor-input_2axis-joystick'] = '2-axis Joystick';
-toolbox_label['category_sensor-input_4x4-keypad'] = '4x4 Keypad';
-toolbox_label['category_sensor-input_memsic-2axis'] = 'Memsic 2-axis';
-toolbox_label['category_sensor-input_mma7455'] = 'MMA7455 Accelerometer';
-toolbox_label['category_sensor-input_gps_pam7q'] = 'GPS PAM7Q';
-toolbox_label['category_sensor-input_ping'] = 'Distance: PING)))';
-toolbox_label['category_sensor-input_pir'] = 'PIR Motion';
-toolbox_label['category_sensor-input_rfid'] = 'RFID';
-toolbox_label['category_sensor-input_sf02-laser'] = 'SF02 Laser';
-toolbox_label['category_sensor-input_sony-remote'] = 'Sony Remote';
-toolbox_label['category_sensor-input_sound-impact-sensor'] = 'Sound Impact Sensor';
-toolbox_label['category_sensor-input_colorpal'] = 'ColorPal';
-toolbox_label['category_sensor-input_temperature-humidity'] = 'Temp &amp; Humidity';
-toolbox_label['category_sensor-input_BME680'] = 'BME680 Air Quality';
-toolbox_label['category_memory'] = 'Memory';
-toolbox_label['category_memory_eeprom'] = 'EEPROM';
-toolbox_label['category_memory_sdcard'] = 'SD Card';
-toolbox_label['category_memory_contacts'] = 'Contacts';
-toolbox_label['category_analog-pulses'] = 'Analog/Pulses';
-toolbox_label['category_analog-pulses_rc'] = 'RC time';
-toolbox_label['category_analog-pulses_voltage'] = 'Voltage';
-toolbox_label['category_analog-pulses_pulse-in-out'] = 'Pulse in/out';
-toolbox_label['category_analog-pulses_pwm'] = 'PWM';
-toolbox_label['category_audio'] = 'Audio';
-toolbox_label['category_audio_audio'] = 'WAV Files';
-toolbox_label['category_audio_sound'] = 'Sound';
-toolbox_label['category_audio_freqout'] = 'Frequency out';
-toolbox_label['category_servo'] = 'Servo';
-toolbox_label['category_servo_standard-servo'] = 'Standard Servo';
-toolbox_label['category_servo_cr-servo'] = 'CR Servo';
-toolbox_label['category_robot'] = 'Robot';
-toolbox_label['category_robot_activitybot'] = 'ActivityBot';
-toolbox_label['category_robot_servo-diff-drive'] = 'Servo Differential Drive';
-toolbox_label['category_hackable-electronic-badge'] = 'Hackable Electronic Badge';
-toolbox_label['category_hackable-electronic-badge_led_control'] = 'LEDs';
-toolbox_label['category_hackable-electronic-badge_oled'] = 'Badge Display';
-toolbox_label['category_hackable-electronic-badge_ir-communication'] = 'Badge IR Comms';
-toolbox_label['category_communicate_badge_lock'] = 'Badge WiFi Lock';
-toolbox_label['category_hackable-electronic-badge_eeprom'] = 'Memory';
-toolbox_label['category_hackable-electronic-badge_accelerometer'] = 'Accelerometer';
-toolbox_label['category_hackable-electronic-badge_touchpad-control'] = 'Badge Buttons';
-toolbox_label['category_hackable-electronic-badge_text-to-speech'] = 'Text to Speech';
-toolbox_label['category_functions'] = 'Functions';
-toolbox_label['category_variables'] = 'Variables';
-toolbox_label['category_s3-simple'] = 'Simple Scribbler';
-toolbox_label['category_s3-simple_simple-control'] = 'Simple Control';
-toolbox_label['category_s3-simple_simple-sensors'] = 'Simple Sensors';
-toolbox_label['category_s3-simple_simple-actions'] = 'Simple Actions';
-toolbox_label['category_s3-math'] = 'Math';
-toolbox_label['category_sensor-input_s3-line'] = 'Line';
-toolbox_label['category_sensor-input_s3-obstacle'] = 'Obstacle';
-toolbox_label['category_sensor-input_s3-light'] = 'Light';
-toolbox_label['category_sensor-input_s3-stall'] = 'Stall';
-toolbox_label['category_sensor-input_s3-button'] = 'Button';
-toolbox_label['category_sensor-input_s3-ping'] = 'Ping)))';
-toolbox_label['category_sensor-input_s3-pins'] = 'Pins';
-toolbox_label['category_sensor-input_s3-mic'] = 'Microphone';
-toolbox_label['category_sensor-input_s3-sirc'] = 'Sony Remote';
-toolbox_label['category_s3-actions'] = 'Actions';
-toolbox_label['category_s3-actions_motors'] = 'Motors';
-toolbox_label['category_s3-actions_sound'] = 'Sound';
-toolbox_label['category_s3-actions_leds'] = 'LEDs';
-toolbox_label['category_s3-actions_reset'] = 'Restore';
-toolbox_label['category_s3-hacker-port'] = 'Hacker Port';
-toolbox_label['category_s3-hacker-port_sensors'] = 'Sensors';
-toolbox_label['category_s3-hacker-port_pins'] = 'Pins';
-toolbox_label['category_s3-hacker-port_servo'] = 'Servo';
-
 // TODO: Need offline help system
 
 // eslint-disable-next-line camelcase
-export {tooltip_text, toolbox_label};
+export {tooltip_text};
