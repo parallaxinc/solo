@@ -32,7 +32,7 @@
 
 import Blockly from 'blockly/core';
 import {colorPalette} from '../../propc';
-import {buildConstantsList, verifyBlockTypeEnabled} from './sensors_common';
+import {buildConstantsList, verifyBlockTypeEnabled} from '../propc_common';
 import {getDefaultProfile} from '../../../../project';
 
 /**
