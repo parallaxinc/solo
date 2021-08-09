@@ -22,7 +22,7 @@
 
 
 import Blockly from 'blockly/core';
-import {getDefaultProfile} from '../../../../project';
+import {getDefaultProfile} from '../../../project';
 
 /**
  * Build a list of user-defined constant values
