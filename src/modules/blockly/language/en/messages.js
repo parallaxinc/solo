@@ -21,9 +21,7 @@
  */
 
 /**
- * @fileoverview English strings.
- * @description Due to the frequency of long strings, the 80-column wrap
- * rule need not apply to message files.
+ * @fileOverview English strings.
  */
 
 import Blockly from 'blockly/core';
@@ -692,7 +690,7 @@ Blockly.MSG_S3_SCRIBBLER_SIRC_TOOLTIP = 'Sony Remote value: returns button press
 Blockly.MSG_S3_MOVE_MOTORS_TOOLTIP = 'motor speed: use to move the Scribbler at specific speeds';
 Blockly.MSG_S3_MOVE_MOTORS_DISTANCE_TOOLTIP = 'move distance: use to move the Scribbler specific distances';
 Blockly.MSG_S3_MOVE_MOTORS_ANGLE_TOOLTIP = 'rotate by radius: rotates the scribbler by driving it';
-Blockly.MSG_S3_MOVE_MOTORS_XY_TOOLTIP = 'move XY: use to move Scribbler to a new XY coordinate.\nChanges in position are relative to the position and\ndirection at the start of your program.\nOnly acccurate when all movements are straight lines.';
+Blockly.MSG_S3_MOVE_MOTORS_XY_TOOLTIP = 'move XY: use to move Scribbler to a new XY coordinate.\nChanges in position are relative to the position and\ndirection at the start of your program.\nOnly accurate when all movements are straight lines.';
 Blockly.MSG_S3_SCRIBBLER_SERVO_TOOLTIP = 'rotate Servo: turns a servo connected to the hacker port to a position';
 Blockly.MSG_S3_SCRIBBLER_STOP_SERVO_TOOLTIP = 'disable Servo: stops sending signals to the connected servo';
 Blockly.MSG_S3_ANALOG_INPUT_TOOLTIP = 'analog read pin: Get the voltage input on the specified pin.';
@@ -710,7 +708,4 @@ Blockly.MSG_S3_SERIAL_RX_BYTE_TOOLTIP = 'receive character: receive a character 
 Blockly.MSG_S3_FACTORY_RESET_TOOLTIP = 'factory reset: use to reload the factory default demo program back onto the Scribbler';
 Blockly.MSG_S3_ERROR_NO_WAS_CONDITION = 'WARNING: "was" ans "was not" conditions have been deprecated.\nPlease choose "is" or "is not".\nUse a variable block to keep track of the state of this sensor instead.';
 
-// TODO: Need offline help system
-
-// eslint-disable-next-line camelcase
 export {tooltipText};
