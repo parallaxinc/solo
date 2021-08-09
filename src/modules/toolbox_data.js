@@ -20,9 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-// import {getKeyValue} from './url_parameters.js';
-// eslint-disable-next-line camelcase
-import {toolbox_label} from './blockly/language/en/messages.js';
+import {toolboxLabel} from './blockly/language/en/toolbox_lables';
 
 /**
  * Create a string representation of an XML array that defines the menu
@@ -2200,7 +2198,7 @@ function filterToolbox(profileName) {
   // Set the category's label (internationalization)
   xmlToolbox = xmlToolbox.replace(
       /key="([\S]+)"/g, function(m, p) {
-        return 'name="' + toolbox_label[p] + '"';
+        return 'name="' + toolboxLabel[p] + '"';
       });
 
   // Convert the xmlToolBox string to an XML object
