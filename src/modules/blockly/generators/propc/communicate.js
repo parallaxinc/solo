@@ -2201,16 +2201,23 @@ Blockly.propc.serial_rx = function() {
 // --------------- Shift In/Out Blocks ----------------------------------------
 
 /**
- *
- * @type {{
- *  init: Blockly.Blocks.shift_in.init,
- *  setPinMenus: Blockly.Blocks.shift_in.setPinMenus,
- *  helpUrl: string,
- *  updateConstMenu: Blockly.Blocks.shift_in.updateConstMenu
- *  }}
+ * Shift a value into a buffer
  */
 Blockly.Blocks.shift_in = {
   helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
+
+  meta: {
+    supportedBoardTypes: [
+      'activity-board',
+      'flip',
+      'heb',
+      'hebwx',
+      'other',
+      'propcfile',
+      's3',
+    ],
+  },
+
   init: function() {
     const shiftBytes = [];
     for (let t = 2; t < 33; t++) {
@@ -2237,9 +2244,10 @@ Blockly.Blocks.shift_in = {
     this.setOutput(true, 'Number');
     this.updateConstMenu();
   },
+
   updateConstMenu: function(oldValue, newValue) {
     this.userDefinedConstantsList_ = [];
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+    const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
     for (let i = 0; i < allBlocks.length; i++) {
       if (allBlocks[i].type === 'constant_define') {
         let vName = allBlocks[i].getFieldValue('CONSTANT_NAME');
@@ -2255,6 +2263,7 @@ Blockly.Blocks.shift_in = {
         this.userDefinedConstantsList_.sortedUnique();
     this.setPinMenus(oldValue, newValue);
   },
+
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m1 = this.getFieldValue('DATA');
@@ -2928,7 +2937,27 @@ Blockly.propc.debug_lcd_print_multiple = Blockly.propc.console_print_multiple;
 //
 
 /**
- * XBee setup
+ * XBee interface setup
+ *
+ * @description
+ * XBee initialize
+ *
+ * The XBee initialize block sets up a serial connection to an XBee module.
+ *
+ * DO: Set the Propeller I/O pin connected to the XBee module's data out pin.
+ * DI: Set the Propeller I/O pin connected to the XBee module's data in pin.
+ * baud: set the baud rate at which to communicate with the XBee modules. Almost all
+ * XBee modules operate at 9600 baud, however, if your XBee module is configured to
+ * operate at a different baud rate, that can be set using this block as well.
+ *
+ * The pin select drop-downs enumberate pins 0 to 27.
+ *
+ * WARNING: Do not set higher than pin 17 with the Propeller Activity Board WX, as
+ * P18-P31 are already connected to other built-in circuits on this board. Use
+ * jumper wires to connect DO and DI sockets on the header, located in the middle
+ * of the board to I/O pin sockets alongside the breadboard.
+ *
+ *  This block launches a processor automatically.
  */
 Blockly.Blocks.xbee_setup = {
   helpUrl: Blockly.MSG_XBEE_HELPURL,
