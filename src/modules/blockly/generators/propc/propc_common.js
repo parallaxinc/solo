@@ -35,11 +35,14 @@ export function buildConstantsList() {
 
   const allBlocks = Blockly.getMainWorkspace().getBlocksByType(BLOCK_TYPE, false);
   for (let x = 0; x < allBlocks.length; x++) {
-    const vName = allBlocks[x].getFieldValue('CONSTANT_NAME');
-    if (vName) {
-      userDefinedConstantsList.push(vName);
+    if (allBlocks[x].isEnabled()) {
+      const vName = allBlocks[x].getFieldValue('CONSTANT_NAME');
+      if (vName) {
+        userDefinedConstantsList.push(vName);
+      }
     }
   }
+
   return userDefinedConstantsList.sortedUnique();
 }
 
@@ -83,6 +86,16 @@ export function verifyBlockTypeEnabled( type ) {
   });
 
   return enabled;
+}
+
+/**
+ * Verify that the block specified is enabled
+ * @param {string} id
+ * @return {boolean}
+ */
+export function verifyBlockIdEnabled( id ) {
+  const block = Blockly.getMainWorkspace().getBlockById(id);
+  return (block && block.isEnabled());
 }
 
 // eslint-disable-next-line valid-jsdoc
