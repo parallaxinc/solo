@@ -24,7 +24,7 @@
  * Global flag to enable/disable the Sentry logger
  * @type {boolean}
  */
-export const EnableSentry = true;
+export const EnableSentry = false;
 
 /**
  * Set the application version string
@@ -44,20 +44,20 @@ export const EnableSentry = true;
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.6.1.1';
+export const APP_VERSION = '1.6.2';
 
 /**
  * Incremental build number. This gets updated before any release
  * to QA or production.
  * @type {string}
  */
-export const APP_BUILD = '229';
+export const APP_BUILD = '230';
 
 /**
  * Development build stage designator
  * @type {string}
  */
-export const APP_QA = 'Release';
+export const APP_QA = 'Beta-1';
 
 /**
  * Set this to target deployment environment.
