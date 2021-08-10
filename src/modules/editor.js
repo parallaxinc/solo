@@ -1037,6 +1037,10 @@ function generateSvgFooter( project ) {
             'transform="translate(-225,13)">data-createdon="' +
             project.getCreated() + '" data-lastmodified="' + dt + '"></text>';
 
+  // Persist the project uuid and file layout version number.
+  svgFooter += `<text class="bkginfo" x="100%" y="100%" transform="translate(-225,23)">` +
+      `uuid="${project.uuid}" version="${project.version}"></text>`;
+
   return svgFooter;
 }
 
