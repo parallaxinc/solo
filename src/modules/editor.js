@@ -136,6 +136,8 @@ function getWorkspaceSvg() {
  * Replaces the old document.ready() construct
  */
 $(() => {
+  logConsoleMessage(`Blockly Core: ${Blockly.VERSION}`);
+
   // This will initiate a number of async calls to set up the page
   const result = initializePage();
   result.catch((err) => console.log(err));
