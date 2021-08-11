@@ -567,3 +567,66 @@ function setupSdCard() {
     Blockly.propc.global_vars_['fpglobal'] = 'FILE *fp;';
   }
 }
+
+/**
+ * Evaluate if the specified SD file exists
+ *
+ * @type {{init: Blockly.Blocks.sd_file_exists.init, helpUrl: string}}
+ */
+Blockly.Blocks['sd_file_exists'] = {
+  helpUrl: Blockly.MSG_SD_HELPURL,
+
+  init: function() {
+    this.setTooltip(Blockly.MSG_SD_OPEN_TOOLTIP);
+    this.setColour(colorPalette.getColor('output'));
+
+    this.appendDummyInput('FILE')
+        .appendField('SD file exists')
+        .appendField(new Blockly.FieldTextInput(
+            'filename.txt',
+            function(filename) {
+              // Don't mess with an empty filename
+              if (filename.length > 0) {
+                return filename;
+              }
+
+              filename = filename.replace(/[^A-Z0-9a-z_.]/g, '').toLowerCase();
+              const filenamePart = filename.split('.');
+              if (filenamePart[0].length > 8) {
+                filenamePart[0].length = 8;
+              }
+              if (!filenamePart[1]) {
+                filenamePart[1] = 'TXT';
+              } else if (filenamePart[1].length > 3) {
+                filenamePart[1].length = 3;
+              }
+              return filenamePart[0] + '.' + filenamePart[1];
+            }), 'FILENAME');
+
+    this.setInputsInline(false);
+    this.setOutput(true, 'Boolean');
+  },
+};
+
+Blockly.propc.sd_file_exists = function() {
+  const filename = this.getFieldValue('FILENAME');
+
+  // Open the file for read
+  let code = `int file_exists(char *name) {\n\t`;
+  code += `FILE *p;\n\t`;
+  code += `int result = 0;\n\t`;
+  code += `p = fopen(name,"r");\n\t`;
+  code += `if (NULL != p) {\n\t\t`;
+  code += `result = 1;\n\t\t`;
+  code += `fclose(p);\n\t}\n\t`;
+  code += `return result;\n`;
+  code += `}\n`;
+
+  Blockly.propc.method_declarations_['file_exists'] = 'int file_exists();\n';
+  //
+  // code = Blockly.propc.scrub_(this, code);
+  Blockly.propc.methods_['file_exists'] = code;
+
+  const emit = `file_exists("${filename}");`;
+  return [emit, Blockly.propc.ORDER_ATOMIC];
+};
