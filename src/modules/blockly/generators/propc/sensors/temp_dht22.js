@@ -56,7 +56,7 @@ Blockly.Blocks.dht22_read = {
     this.setColour(colorPalette.getColor('input'));
     this.pinChoices = ['PIN'];
     this.otherPin = [false];
-    this.addPinMenu('Temp & Humidity read PIN', null, 0);
+    this.addPinMenu('Temp & Humidity read PIN', false, 0);
     this.setPreviousStatement(true, 'Block');
     this.setInputsInline(true);
     this.setNextStatement(true, null);
