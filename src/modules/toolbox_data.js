@@ -1474,6 +1474,7 @@ function menuMemoryHeb() {
                 </value>
             </block>
             <block type="sd_file_pointer"></block>
+            <block type="sd_file_exists"></block>
             <block type="sd_close"></block>
         </category>
     </category>
@@ -1636,6 +1637,7 @@ function menuMemory() {
                 </value>
             </block>
             <block type="sd_file_pointer"></block>
+            <block type="sd_file_exists"></block>
             <block type="sd_close"></block>
         </category>
     </category>
