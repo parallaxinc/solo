@@ -35,7 +35,8 @@ const SdOpenMissingMessage =
 /**
  * SD Card Initialization
  *
- * This block does not appear in the toolbox but is referenced by other blocks.
+ * This block does not appear in the toolbox for the Propeller Activity Board or the Scribbler S3
+ * but is available to other board types.
  *
  * @type {{
  *  init: Blockly.Blocks.sd_init.init,
@@ -44,6 +45,7 @@ const SdOpenMissingMessage =
  */
 Blockly.Blocks.sd_init = {
   helpUrl: Blockly.MSG_SD_HELPURL,
+
   init: function() {
     const profile = getDefaultProfile();
     this.setTooltip(Blockly.MSG_SD_INIT_TOOLTIP);
@@ -60,7 +62,7 @@ Blockly.Blocks.sd_init = {
             profile.digital), 'DI')
         .appendField('CS')
         .appendField(new Blockly.FieldDropdown(
-            profile.digital), 'CS'),
+            profile.digital), 'CS');
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
   },
@@ -118,6 +120,11 @@ Blockly.Blocks.sd_open = {
         .appendField(new Blockly.FieldTextInput(
             'filename.txt',
             function(filename) {
+              // Don't mess with an empty filename
+              if (filename.length > 0) {
+                return filename;
+              }
+
               filename = filename.replace(/[^A-Z0-9a-z_.]/g, '').toLowerCase();
               const filenamePart = filename.split('.');
               if (filenamePart[0].length > 8) {
@@ -306,7 +313,7 @@ Blockly.Blocks.sd_read = {
     if (event.type === Blockly.Events.BLOCK_DELETE ||
         event.type === Blockly.Events.BLOCK_CREATE) {
       let warnTxt = null;
-      const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+      const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
       if (allBlocks.indexOf('SD file open') === -1) {
         warnTxt = 'WARNING: You must use a SD file open block\nbefore' +
             ' reading, writing, or closing an SD file!';
@@ -472,7 +479,7 @@ Blockly.Blocks.sd_file_pointer = {
 Blockly.propc.sd_file_pointer = function() {
   const project = getProjectInitialState();
   // TODO: Refactor getAllBlocks to getAllBlocksByType
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   let code = null;
   let initFound = false;
   for (let x = 0; x < allBlocks.length; x++) {
@@ -531,7 +538,7 @@ Blockly.Blocks['sd_close'] = {
   },
 };
 
-Blockly.propc.sd_close = function(block) {
+Blockly.propc.sd_close = function() {
   // Is there an initialization block in the project
   let initFound = false;
   const initSdBlock = Blockly.getMainWorkspace().getBlocksByType(
