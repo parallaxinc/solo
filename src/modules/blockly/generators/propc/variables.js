@@ -111,7 +111,7 @@ Blockly.propc.variables_set = function() {
   const varName = Blockly.propc.variableDB_.getName(
       this.getFieldValue('VAR'),
       Blockly.VARIABLE_CATEGORY_NAME);
-
+  // Look for a type declaration for the variable
   if (Blockly.propc.vartype_[varName] === undefined) {
     if (argument0.indexOf('int') > -1) {
       Blockly.propc.vartype_[varName] = 'int';
