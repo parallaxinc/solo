@@ -270,6 +270,7 @@ Blockly.propc.finish = function(code) {
     }
   }
 
+  // Adding variable declarations here
   for (const def in definitions) {
     if (Object.prototype.hasOwnProperty.call(definitions, def)) {
       for (const variable in Blockly.propc.vartype_) {
