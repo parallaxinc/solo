@@ -611,7 +611,7 @@ Blockly.Blocks['sd_file_exists'] = {
             }), 'FILENAME');
 
     this.setInputsInline(false);
-    this.setOutput(true, 'Boolean');
+    this.setOutput(true, 'Number');
   },
 };
 
@@ -625,7 +625,8 @@ Blockly.propc.sd_file_exists = function() {
   code += `p = fopen(name,"r");\n\t`;
   code += `if (NULL != p) {\n\t\t`;
   code += `result = 1;\n\t\t`;
-  code += `fclose(p);\n\t}\n\t`;
+  code += `fclose(p);\n\t\t`;
+  code += `p = 0;\n\t}\n\t`;
   code += `return result;\n`;
   code += `}\n`;
 
@@ -634,6 +635,6 @@ Blockly.propc.sd_file_exists = function() {
   // code = Blockly.propc.scrub_(this, code);
   Blockly.propc.methods_['file_exists'] = code;
 
-  const emit = `file_exists("${filename}");`;
+  const emit = `(int) file_exists("${filename}");`;
   return [emit, Blockly.propc.ORDER_ATOMIC];
 };
