@@ -178,8 +178,7 @@ Blockly.Blocks.sd_open = {
 Blockly.propc.sd_open = function() {
   // Verify that the sd_init is included in the project. For specific board
   // type, the setting are derived from the board profile.
-  const initSdBlock = Blockly.getMainWorkspace().getBlocksByType(
-      'sd_init', false);
+  const initSdBlock = Blockly.getMainWorkspace().getBlocksByType('sd_init', false);
   if (initSdBlock.length === 0 || !initSdBlock[0].isEnabled()) {
     const project = getProjectInitialState();
     if (project.boardType.name !== 'activity-board' &&
@@ -203,15 +202,7 @@ Blockly.propc.sd_open = function() {
 };
 
 /**
- *
- * @type {{
- *  init: Blockly.Blocks.sd_read.init,
- *  mutationToDom: (function(): HTMLElement),
- *  helpUrl: string,
- *  setSdMode: Blockly.Blocks.sd_read.setSdMode,
- *  onchange: Blockly.Blocks.sd_read.onchange,
- *  domToMutation: Blockly.Blocks.sd_read.domToMutation
- * }}
+ * Read or write data from an SD file. Also supports closing an SD file.
  */
 Blockly.Blocks.sd_read = {
   helpUrl: Blockly.MSG_SD_HELPURL,
@@ -224,11 +215,13 @@ Blockly.Blocks.sd_read = {
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
   },
+
   mutationToDom: function() {
     const container = document.createElement('mutation');
     container.setAttribute('mode', this.getFieldValue('MODE'));
     return container;
   },
+
   domToMutation: function(container) {
     const mode = container.getAttribute('mode');
     if (mode) {
@@ -308,6 +301,7 @@ Blockly.Blocks.sd_read = {
       connectedBlock.outputConnection.connect(this.getInput('SIZE').connection);
     }
   },
+
   onchange: function(event) {
     const project = getProjectInitialState();
     if (event.type === Blockly.Events.BLOCK_DELETE ||
@@ -400,18 +394,11 @@ Blockly.propc.sd_read = function() {
 };
 
 /**
- *
- * @type {{
- *  init: Blockly.Blocks.sd_file_pointer.init,
- *  mutationToDom: *,
- *  helpUrl: string,
- *  setSdMode: Blockly.Blocks.sd_file_pointer.setSdMode,
- *  onchange: *,
- *  domToMutation: *
- * }}
+ * Obtain the file handle to an open SD file
  */
 Blockly.Blocks.sd_file_pointer = {
   helpUrl: Blockly.MSG_SD_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_SD_FILE_POINTER_TOOLTIP);
     this.setColour(colorPalette.getColor('output'));
@@ -420,8 +407,11 @@ Blockly.Blocks.sd_file_pointer = {
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
   },
+
   mutationToDom: Blockly.Blocks['sd_read'].mutationToDom,
+
   domToMutation: Blockly.Blocks['sd_read'].domToMutation,
+
   setSdMode: function(mode) {
     if (this.getInput('FP')) {
       this.removeInput('FP');
@@ -519,11 +509,6 @@ Blockly.propc.sd_file_pointer = function() {
 
 /**
  * Close an open file on an sd card reader
- *
- * @type {{
- *    init: Blockly.Blocks.sd_close.init,
- *    helpUrl: string
- *  }}
  */
 Blockly.Blocks['sd_close'] = {
   helpUrl: Blockly.MSG_SD_HELPURL,
@@ -565,20 +550,7 @@ Blockly.propc.sd_close = function() {
 };
 
 /**
- * Mount SD Card
- */
-function setupSdCard() {
-  const profile = getDefaultProfile();
-  if (profile.sd_card) {
-    Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');';
-    Blockly.propc.global_vars_['fpglobal'] = 'FILE *fp;';
-  }
-}
-
-/**
  * Evaluate if the specified SD file exists
- *
- * @type {{init: Blockly.Blocks.sd_file_exists.init, helpUrl: string}}
  */
 Blockly.Blocks['sd_file_exists'] = {
   helpUrl: Blockly.MSG_SD_HELPURL,
@@ -615,6 +587,9 @@ Blockly.Blocks['sd_file_exists'] = {
   },
 };
 
+/**
+ * Generate the C source code to support the File Exists block
+ */
 Blockly.propc.sd_file_exists = function() {
   const filename = this.getFieldValue('FILENAME');
 
@@ -638,3 +613,18 @@ Blockly.propc.sd_file_exists = function() {
   const emit = `(int) file_exists("${filename}");`;
   return [emit, Blockly.propc.ORDER_ATOMIC];
 };
+
+//
+// -------------  Support Functions ------------
+//
+
+/**
+ * Mount SD Card
+ */
+ function setupSdCard() {
+  const profile = getDefaultProfile();
+  if (profile.sd_card) {
+    Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');';
+    Blockly.propc.global_vars_['fpglobal'] = 'FILE *fp;';
+  }
+}
