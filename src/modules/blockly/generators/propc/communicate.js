@@ -2950,7 +2950,7 @@ Blockly.propc.debug_lcd_print_multiple = Blockly.propc.console_print_multiple;
  * XBee modules operate at 9600 baud, however, if your XBee module is configured to
  * operate at a different baud rate, that can be set using this block as well.
  *
- * The pin select drop-downs enumberate pins 0 to 27.
+ * The pin select drop-downs enumerate pins 0 to 27.
  *
  * WARNING: Do not set higher than pin 17 with the Propeller Activity Board WX, as
  * P18-P31 are already connected to other built-in circuits on this board. Use
