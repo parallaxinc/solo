@@ -70,10 +70,20 @@ import {
   downloadCSV, graphingConsole, configureConnectionPaths,
   graphPlay, downloadGraph, graphStartStop,
 } from './blocklyc';
+
 import {serialConsole} from './serial_console';
 import {findClient} from './client_connection';
 import {clientService, initTerminal} from './client_service';
-import {APP_BUILD, APP_QA, APP_VERSION, EnableSentry, LOCAL_PROJECT_STORE_NAME} from './constants';
+
+import {
+  APP_BUILD,
+  APP_QA,
+  APP_VERSION,
+  ClientDownloadURIRoot,
+  EnableSentry,
+  LOCAL_PROJECT_STORE_NAME,
+} from './constants';
+
 import {PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
@@ -478,48 +488,46 @@ function leavePageHandler() {
  * HTML meta tag.
  */
 async function initClientDownloadLinks() {
-  const uriRoot = 'http://downloads.parallax.com/blockly';
-
   // BP Client for Windows 32-bit
   $('.client-win32-link')
-      .attr('href', `${uriRoot}/clients/BlocklyPropClient-setup-32.exe`);
+      .attr('href', `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-32.exe`);
   $('.client-win32zip-link')
-      .attr('href', `${uriRoot}/clients/BlocklyPropClient-setup-32.zip`);
+      .attr('href', `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-32.zip`);
 
   // BP Client for Windows 64-bit
   $('.client-win64-link')
       .attr('href',
-          `${uriRoot}/clients/BlocklyPropClient-setup-64.exe`);
+          `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.exe`);
   $('.client-win64zip-link')
       .attr('href',
-          `${uriRoot}/clients/BlocklyPropClient-setup-64.zip`);
+          `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.zip`);
 
   // BP Launcher for Windows
   $('.launcher-win64-link')
       .attr('href',
-          `${uriRoot}/launcher/Setup-BPLauncher-Win.exe`);
+          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe`);
   $('.launcher-win64zip-link')
       .attr('href',
-          `${uriRoot}/launcher/Setup-BPLauncher-Win.exe.zip`);
+          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe.zip`);
 
   // BP Client for MacOS
   $('.client-mac-link')
       .attr('href',
-          `${uriRoot}/clients/BlocklyPropClient-setup-MacOS.pkg`);
+          `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-MacOS.pkg`);
 
   // BP Launchers for MacOS
   $('.launcher-mac-link-big-sur')
       .attr('href',
-          `${uriRoot}/launcher/Setup-BPLauncher-MacOS-Big-Sur.zip`);
+          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Big-Sur.zip`);
   $('.launcher-mac-link-catalina')
       .attr('href',
-          `${uriRoot}/launcher/Setup-BPLauncher-MacOS-Catalina.zip`);
+          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Catalina.zip`);
   $('.launcher-mac-link-mojave')
       .attr('href',
-          `${uriRoot}/launcher/Setup-BPLauncher-MacOS-Mojave.zip`);
+          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Mojave.zip`);
   $('.launcher-mac-link-high_sierra')
       .attr('href',
-          `${uriRoot}/launcher/Setup-BPLauncher-MacOS-High-Sierra.zip`);
+          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-High-Sierra.zip`);
 }
 
 /**
