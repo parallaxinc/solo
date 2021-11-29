@@ -44,14 +44,14 @@ export const EnableSentry = true;
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.6.2';
+export const APP_VERSION = '1.6.3';
 
 /**
  * Incremental build number. This gets updated before any release
  * to QA or production.
  * @type {string}
  */
-export const APP_BUILD = '231';
+export const APP_BUILD = '232';
 
 /**
  * Development build stage designator
@@ -65,6 +65,7 @@ export const APP_QA = 'Beta-1';
  * This is a temporary use while environment variables are implemented.
  * @type {string}
  */
+// export const APP_STAGE = 'TEST';
 export const APP_STAGE = 'PROD';
 
 /**
@@ -132,3 +133,6 @@ export const TestApplicationName = 'Solocup';
  * @type {boolean}
  */
 export const WarnDeprecatedBlocks = false;
+
+
+export const ClientDownloadURIRoot = 'https://media.parallax.com/blockly';
