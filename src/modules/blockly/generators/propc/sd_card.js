@@ -589,6 +589,7 @@ Blockly.Blocks['sd_file_exists'] = {
 
 /**
  * Generate the C source code to support the File Exists block
+ * @return {[string, number]}
  */
 Blockly.propc.sd_file_exists = function() {
   const filename = this.getFieldValue('FILENAME');
@@ -621,7 +622,7 @@ Blockly.propc.sd_file_exists = function() {
 /**
  * Mount SD Card
  */
- function setupSdCard() {
+function setupSdCard() {
   const profile = getDefaultProfile();
   if (profile.sd_card) {
     Blockly.propc.setups_['sd_card'] = 'sd_mount(' + profile.sd_card + ');';
