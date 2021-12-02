@@ -45,7 +45,7 @@
     "file-saver": "^2.0.5",
     "jquery": "^3.5.1",
     "jquery-validation": "^1.19.3",
-    "jszip": "^3.3.0",
+    "jszip": "^3.7.1",
     "node-chartist": "^1.0.5",
     "stream": "0.0.2",
     "websocket-extensions": ">=0.1.4"
