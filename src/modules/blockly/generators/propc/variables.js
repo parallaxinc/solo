@@ -33,6 +33,7 @@
 
 import Blockly from 'blockly/core.js';
 import {colorPalette} from '../propc.js';
+import {ShowBlockComments} from '../../../constants';
 
 /**
  * This is a counter used to provide unique array identifiers
@@ -61,6 +62,14 @@ Blockly.Blocks.variables_get = {
         .appendField(new Blockly.FieldVariable(
             Blockly.LANG_VARIABLES_GET_ITEM), 'VAR');
     this.setOutput(true);
+    this.setCommentText(
+        ShowBlockComments? 'This block retrieves the value of a variable. [variables_get]': null);
+
+    /**
+     * This does not appear to be used anywhere.
+     * @type {null}
+     * @deprecated
+     */
     this.typeCheckRun = null;
   },
 };
@@ -94,6 +103,8 @@ Blockly.Blocks.variables_set = {
         .appendField('=');
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true);
+    this.setCommentText(
+        ShowBlockComments ? 'This block assigns a value to a variable. [variables_set]' : null);
   },
 };
 
