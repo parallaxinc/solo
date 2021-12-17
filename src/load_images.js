@@ -20,10 +20,8 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-initToolbarIcons();
-
 /**
- * Initialize the tool bar icons
+ * Initialize the toolbar icons
  *
  * @description
  * Locate each element that has a class 'bpIcon' assigned and contains a
@@ -112,3 +110,5 @@ function initToolbarIcons() {
     }
   }
 }
+
+initToolbarIcons();
