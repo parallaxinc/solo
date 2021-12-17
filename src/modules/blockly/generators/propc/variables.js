@@ -29,7 +29,6 @@
  *         kgracey@parallax.com      (Ken Gracey)
  *         carsongracey@gmail.com    (Carson Gracey)
  */
-'use strict';
 
 import Blockly from 'blockly/core.js';
 import {colorPalette} from '../propc.js';
@@ -57,8 +56,8 @@ Blockly.Blocks.variables_get = {
   init: function() {
     this.setTooltip(Blockly.MSG_VARIABLES_GET_TOOLTIP);
     this.setColour(colorPalette.getColor('variables'));
-    this.appendDummyInput('')
-        .appendField(Blockly.LANG_VARIABLES_GET_TITLE_1)
+
+    this.appendDummyInput('get_variable')
         .appendField(new Blockly.FieldVariable(
             Blockly.LANG_VARIABLES_GET_ITEM), 'VAR');
     this.setOutput(true);
@@ -86,6 +85,7 @@ Blockly.propc.variables_get = function() {
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
+
 /**
  *  Variable setter.
  *
@@ -96,11 +96,11 @@ Blockly.Blocks.variables_set = {
   init: function() {
     this.setTooltip(Blockly.MSG_VARIABLES_SET_TOOLTIP);
     this.setColour(colorPalette.getColor('variables'));
+
     this.appendValueInput('VALUE')
-        .appendField(Blockly.LANG_VARIABLES_SET_TITLE_1)
-        .appendField(new Blockly.FieldVariable(
-            Blockly.LANG_VARIABLES_SET_ITEM), 'VAR')
+        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_SET_ITEM), 'VAR')
         .appendField('=');
+
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true);
     this.setCommentText(
