@@ -44,14 +44,14 @@ export const EnableSentry = true;
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.6.3';
+export const APP_VERSION = '1.6.4';
 
 /**
  * Incremental build number. This gets updated before any release
  * to QA or production.
  * @type {string}
  */
-export const APP_BUILD = '232';
+export const APP_BUILD = '233';
 
 /**
  * Development build stage designator
@@ -132,7 +132,17 @@ export const TestApplicationName = 'Solocup';
  *
  * @type {boolean}
  */
-export const WarnDeprecatedBlocks = false;
+export const WarnDeprecatedBlocks = true;
 
 
 export const ClientDownloadURIRoot = 'https://media.parallax.com/blockly';
+
+/**
+ * Global flag to enable / disable the comment element with each block
+ * @type {boolean}
+ * @description Block comments offer a brief explanation of the blocks function
+ * and an identifier to help developers locate the block source code. Comment
+ * blocks are automatically enabled in the 'TEST' environment and disabled in
+ * the 'PRODUCTION' environment.
+ */
+export const ShowBlockComments = (APP_STAGE === 'TEST');
