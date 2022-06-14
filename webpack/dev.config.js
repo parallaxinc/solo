@@ -158,6 +158,11 @@ module.exports = (opts) => {
             from: './src/lib/bootstrap.min.css',
             to: path.resolve(__dirname, targetPath)
           },
+          {
+            // PWA manifest
+            from: './src/manifest.json',
+            to: path.resolve(__dirname, targetPath)
+          },
         ]
       })
     ],
