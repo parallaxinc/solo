@@ -111,4 +111,22 @@ function initToolbarIcons() {
   }
 }
 
-initToolbarIcons();
+
+function initServiceWorker() {
+  if (! ('serviceWorker' in navigator)) {
+    console.log('Service Worker is not supported.')
+    return
+  }
+
+  // Register the service worker
+  navigator.serviceWorker.register('/serviceWorker.js')
+      .then( (registration) => {
+        console.log(`Service worker is registered in scope: ${registration.scope}`)
+      })
+      .catch((err) => {
+        console.log(`Service worker not loaded: ${err.message}`)
+      })
+}
+
+initServiceWorker()
+initToolbarIcons()
