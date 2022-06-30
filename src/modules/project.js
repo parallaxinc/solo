@@ -787,16 +787,6 @@ Project.prototype.setProjectTimer = function(timer) {
 };
 
 /**
- * Reset the epoch base time
- */
-Project.prototype.resetProjectTimer = function() {
-  if (this.saveTimer) {
-    console.log('Resetting the project save timer');
-    this.saveTimer.reset();
-  }
-};
-
-/**
  * Retrieve the time since the last save operation
  * @return {number}
  */
