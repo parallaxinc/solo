@@ -25,27 +25,32 @@
     <noscript>
         <style>
             #noScript {
-                margin-top: 10px;
-                margin-left: 30px;
-                background-color: #B94A48;
-                color: #FFFFFF;
-                font-size: large;
+              margin-top: 10px;
+              margin-left: 30px;
+              background-color: #B94A48;
+              color: #FFFFFF;
+              font-size: large;
             }
         </style>
     </noscript>
     <meta charset="utf-8">
     <meta name="application-name" content="BlocklyProp Solo" />
+    <meta name="theme-color" content="#337AB7"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="msapplication-TileColor" content="#FFFFFF" />
     <meta name="msapplication-TileImage" content="images/mstile-144x144.png" />
+    <meta name="description"
+          content="Solo is an implementation for the Google Blockly project
+                   designed to support a large array of Parallax products.">
 
     <link type="image/png" rel="icon" sizes="32x32" href="images/favicon-32x32.png" />
     <link type="image/png" rel="icon" sizes="16x16" href="images/favicon-16x16.png" />
-    <link type="image/png" href="images/icons/apple-touch-icon-57x57.png" rel="apple-touch-icon-precomposed" sizes="57x57"/>
-    <link type="image/png" href="images/icons/apple-touch-icon-114x114.png" rel="apple-touch-icon-precomposed" sizes="114x114" />
-    <link type="image/png" href="images/icons/apple-touch-icon-72x72.png" rel="apple-touch-icon-precomposed" sizes="72x72" />
-    <link type="image/png" href="images/icons/apple-touch-icon-144x144.png" rel="apple-touch-icon-precomposed" sizes="144x144" />
-    <link type="image/png" href="images/icons/apple-touch-icon-120x120.png" rel="apple-touch-icon-precomposed" sizes="120x120" />
-    <link type="image/png" href="images/icons/apple-touch-icon-152x152.png" rel="apple-touch-icon-precomposed" sizes="152x152" />
+    <link type="image/png" href="images/icons/apple-touch-icon-57x57.png" rel="apple-touch-icon" sizes="57x57"/>
+    <link type="image/png" href="images/icons/apple-touch-icon-114x114.png" rel="apple-touch-icon" sizes="114x114" />
+    <link type="image/png" href="images/icons/apple-touch-icon-72x72.png" rel="apple-touch-icon" sizes="72x72" />
+    <link type="image/png" href="images/icons/apple-touch-icon-144x144.png" rel="apple-touch-icon" sizes="144x144" />
+    <link type="image/png" href="images/icons/apple-touch-icon-120x120.png" rel="apple-touch-icon" sizes="120x120" />
+    <link type="image/png" href="images/icons/apple-touch-icon-152x152.png" rel="apple-touch-icon" sizes="152x152" />
     <link rel="stylesheet" href="bootstrap.min.css">
     <link rel="stylesheet" href="main.css" class="rel">
     <link rel="manifest" href="./manifest.json">
@@ -144,6 +149,14 @@
 
                 <!-- Right Toolbar buttons and menu -->
                 <div id="right-menus">
+
+                    <!-- Install button, hidden by default -->
+                    <div id="installContainer" class="btn-view-blocks hidden">
+                        <button id="butInstall" type="button">
+                            Install
+                        </button>
+                    </div>
+
                     <!-- View C source code -->
                     <a class="btn-view-blocks" id="btn-view-propc" style="display: inline;">
                         <span class="bpIcon" data-icon="eyeWhite">&#x1F441;&nbsp;Code</span>
@@ -928,9 +941,5 @@
             </div>
         </div>
     </div>
-    <script defer>
-      console.log('Loading images...');
-    </script>
-    <script src="load_images.js"></script>
 </body>
 </html>
