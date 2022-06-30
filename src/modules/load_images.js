@@ -28,7 +28,7 @@
  * 'data-icon' attribute. Iterate through each match and draw the custom
  * icons into the specified element.
  */
-function initToolbarIcons() {
+const initToolbarIcons = () => {
   /**
    * WIP - TODO: generate svg icons and inject them (search for glyphicon
    *          and font-awesome and replace them).
@@ -111,22 +111,4 @@ function initToolbarIcons() {
   }
 }
 
-
-function initServiceWorker() {
-  if (! ('serviceWorker' in navigator)) {
-    console.log('Service Worker is not supported.')
-    return
-  }
-
-  // Register the service worker
-  navigator.serviceWorker.register('/serviceWorker.js')
-      .then( (registration) => {
-        console.log(`Service worker is registered in scope: ${registration.scope}`)
-      })
-      .catch((err) => {
-        console.log(`Service worker not loaded: ${err.message}`)
-      })
-}
-
-initServiceWorker()
-initToolbarIcons()
+export {initToolbarIcons};
