@@ -20,7 +20,6 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import {startSentry} from './sentry';
 import 'bootstrap';
 import Blockly from 'blockly/core';
 import * as saveAs from 'file-saver';
@@ -31,9 +30,6 @@ import {initHtmlLabels, getHtmlText} from './blockly/language/en/page_text_label
 import {tooltipText} from './blockly/language/en/messages';
 import /* webpackPrefetch: true */ './blockly/generators/propc';
 import './blockly/generators/propc/base';
-
-// import './blockly/generators/propc/comms/wx_simple';
-
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
 import './blockly/generators/propc/cogs';
@@ -80,7 +76,6 @@ import {
   APP_QA,
   APP_VERSION,
   ClientDownloadURIRoot,
-  EnableSentry,
   LOCAL_PROJECT_STORE_NAME,
 } from './constants';
 
@@ -89,7 +84,6 @@ import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
 import {editProjectDialog} from './dialogs/edit_project';
-// import {editProjectDetails} from './modals';
 import {NudgeTimer} from './nudge_timer';
 import {Project, getProjectInitialState, getDefaultProfile} from './project';
 import {setProjectInitialState, setDefaultProfile} from './project';
@@ -108,13 +102,6 @@ import {newProjectDialog} from './dialogs/new_project';
 import {openProjectDialog} from './dialogs/open_project';
 import {importProjectDialog} from './dialogs/import_project';
 
-// Start up the sentry monitor before we run
-startSentry()
-    .then( (resp) => {
-      if (EnableSentry) console.log('Sentry has started.');
-    })
-    .catch((err) => console.log('Sentry failed to start'));
-
 /**
  * The call to Blockly.svgResize() requires a reference to the
  * Blockly.WorkspaceSvg workspace that was returned from the
@@ -124,6 +111,7 @@ startSentry()
  */
 let injectedBlocklyWorkspace = null;
 
+
 /**
  * This is replacing the references to the codePropC variable.
  * @type {CodeEditor | null}
@@ -131,7 +119,7 @@ let injectedBlocklyWorkspace = null;
 let codeEditor = null;
 
 // eslint-disable-next-line no-unused-vars
-const connectionWatchDogTimer = setInterval(findClient, 2000);
+// const connectionWatchDogTimer = setInterval(findClient, 2000);
 
 /**
  * Getter for the current WorkspaceSvg object
@@ -748,7 +736,6 @@ function saveProject() {
   const project = getProjectInitialState();
   downloadCode(project);
   project.setCode(getXml());
-  project.resetProjectTimer();
 }
 
 /**
@@ -764,7 +751,6 @@ function saveAsDialog() {
           if (value) {
             const project = getProjectInitialState();
             downloadCode(project);
-            project.resetProjectTimer();
           }
         }, 'Yes', 'No');
   }
