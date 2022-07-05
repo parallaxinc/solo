@@ -40,6 +40,9 @@ import {APP_STAGE} from './constants';
  *              to the device EEPROM
  * </pre>
  * @param {string} sourceCode contains the source code to be compiled
+ *
+ * @return {Promise} Resolves to an object containing the compiled binary.
+ * reject will return a string error message.
  */
 export const cloudCompile = async (action, sourceCode) => {
   // Contact the container running cloud compiler. If the browser is connected
@@ -66,7 +69,7 @@ export const cloudCompile = async (action, sourceCode) => {
       appendCompileConsoleMessage(
           `${result['compiler-output']}${result['compiler-error']}\n`);
     } else {
-      // Something unexpected has happened while calling the compile service
+      // Something unexpected has happened while calling the compiler service
       if (result) {
         logConsoleMessage(`Compiler service request failed`);
 
@@ -86,6 +89,7 @@ export const cloudCompile = async (action, sourceCode) => {
   } catch (e) {
     logConsoleMessage(`(PTC) Error while compiling`);
     logConsoleMessage(`(PTC) Message: ${e.message}`);
+    return Promise.reject(e.message);
   }
 };
 
@@ -98,24 +102,24 @@ export const cloudCompile = async (action, sourceCode) => {
  * @return {Promise<any>}
  */
 const postToCompiler = async function(url, sourceCode = '') {
-  // Fetch options
-  const fetchInit = {
-    method: 'POST',
-    mode: 'cors',
-    cache: 'no-cache',
-    credentials: 'same-origin',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    redirect: 'follow',
-    referrerPolicy: 'no-referrer',
-    body: sourceCode,
-  };
-
   try {
-    const res = await fetch(url, fetchInit);
+    const res = await fetch(
+        url,
+        {
+          method: 'POST',
+          mode: 'cors',
+          cache: 'no-cache',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          redirect: 'follow',
+          referrerPolicy: 'no-referrer',
+          body: sourceCode,
+        });
     return await res.json();
   } catch (err) {
     logConsoleMessage(`Compiler error: ${err.message}`);
+    return Promise.reject(err);
   }
 };
