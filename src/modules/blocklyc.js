@@ -242,8 +242,7 @@ export const compile = async () => {
  *
  * @description: Console logging uses the identifier (LOAI).
  */
-export const loadInto = async (
-  modalTitleBarMessage, compileCommand, loadOption, loadAction) => {
+export const loadInto = async (modalTitleBarMessage, compileCommand, loadOption, loadAction) => {
   // Handle potential issues
   if (! clientService.portsAvailable) {
     if (clientService.available) {
@@ -258,6 +257,7 @@ export const loadInto = async (
     return;
   }
 
+  // Retrieve the source code
   const codePropC = getSourceEditor();
 
   // if PropC is in edit mode, get it from the editor, otherwise
@@ -268,17 +268,18 @@ export const loadInto = async (
 
   if (propcCode.indexOf('EMPTY_PROJECT') > -1) {
     showCannotCompileEmptyProject(
-        Blockly.Msg.DIALOG_EMPTY_PROJECT, Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
+        Blockly.Msg.DIALOG_EMPTY_PROJECT,
+        Blockly.Msg.DIALOG_CANNOT_COMPILE_EMPTY_PROJECT);
     return;
   }
 
   showCompilerStatusWindow(modalTitleBarMessage);
 
   try {
-  // Compile the project code
+    // Compile the project code
     await cloudCompile(compileCommand, propcCode)
         .then( async (data) => {
-          // Stop here if the compile failed.
+          // Stop here if the compiler failed.
           if (!data.success) {
             return;
           }
@@ -288,7 +289,7 @@ export const loadInto = async (
           if (clientService.type === serviceConnectionTypes.WS) {
             appendCompileConsoleMessage(`Download...`);
 
-            // Send the compile submission via a web socket
+            // Send the compiler submission via a web socket
             clientService.resultLog = '';
             clientService.loadBinary = false;
 
