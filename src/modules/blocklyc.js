@@ -185,14 +185,13 @@ const showCannotCompileEmptyProject = (title, body) => {
   utils.showMessage(title, body);
 };
 
-
 /**
  *  Display the compiler status modal window
  * @param {string} titleBar is the text that will appear in the modal title bar
  */
 const showCompilerStatusWindow = (titleBar) => {
   $('#compile-dialog-title').text(titleBar);
-  $('#compile-console').val('Compile... ');
+  $('#compile-console').val('Compiling... ');
   $('#compile-dialog').modal('show');
 };
 
@@ -216,7 +215,16 @@ export const compile = async () => {
 
   showCompilerStatusWindow('Compile');
   await cloudCompile('compile', propcCode)
-      .then(() => compileConsoleScrollToBottom());
+      .then(() => compileConsoleScrollToBottom())
+      .catch((err) => {
+        console.log(`Compiler failed due to: ${err}`);
+        if (err ==='Failed to fetch') {
+          compileConsoleScrollToBottom();
+          appendCompileConsoleMessage(
+              // eslint-disable-next-line max-len
+              '\nThe compiler is unavailable.\nPlease check your network connection and try again.');
+        }
+      });
 };
 
 /**
@@ -794,7 +802,10 @@ export function downloadGraph() {
 
           svgxml = svgxml.replace(pattern, '');
           svgxml = svgxml.replace(/foreignObject/g, 'text');
-          svgxml = svgxml.replace(/([<|</])a[0-9]+:/g, '$1');
+
+          // Look for '[<', '<], or '0-9'
+          svgxml = svgxml.replace(/([<|</])a\d+:/g, '$1');
+
           svgxml = svgxml.replace(/xmlns: /g, '');
           svgxml = svgxml.replace(/x="10" /g, 'x="40" ');
 
@@ -875,7 +886,7 @@ function graph_new_labels() {
     // eslint-disable-next-line max-len
     labelsvg += 'y="9" style="font-family:Arial;font-size: 9px;fill:#fff;font-weight:bold;">' + labelPre[t];
     // eslint-disable-next-line max-len
-    labelsvg += graph_labels[t] + '</text><text id="gValue' + (t + 1) + '" x="5" y="21" style="align:right;';
+    labelsvg += graph_labels[t] + '</text><text id="gValue' + (t + 1) + '" x="5" y="21" style="text-align: right;"';
     labelsvg += 'font-family:Arial;font-size: 10px;fill:#000;"></text></g>';
     // eslint-disable-next-line camelcase
     graph_csv_temp += '"' + graph_labels[t].replace(/"/g, '_') + '",';
@@ -979,7 +990,10 @@ export const configureConnectionPaths = function() {
  * @param {string} message
  */
 export function appendCompileConsoleMessage(message) {
-  $('#compile-console').val($('#compile-console').val() + message);
+  const element = $('#compile-console');
+  const text = element.val();
+  element.val(text + message);
+//  $('#compile-console').val($('#compile-console').val() + message);
 }
 
 /**
