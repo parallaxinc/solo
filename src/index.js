@@ -25,6 +25,7 @@ import {EnableSentry} from './modules/constants';
 import {initToolbarIcons} from './modules/load_images';
 import {Workbox} from 'workbox-window';
 
+// Load the service worker if the browser supports it.
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     const wb = new Workbox("/serviceWorker.js");
