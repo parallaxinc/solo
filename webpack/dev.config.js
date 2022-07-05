@@ -27,8 +27,8 @@ const HtmlWebpack = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
 // Webpack Analyzer
-const WebpackBundleAnalyzer = require("webpack-bundle-analyzer")
-    .BundleAnalyzerPlugin;
+// const WebpackBundleAnalyzer = require("webpack-bundle-analyzer")
+//     .BundleAnalyzerPlugin;
 const CompressionPlugin = require("compression-webpack-plugin");
 
 const webBuildTargetFolder = path.join(__dirname, "..", "dist", "apps", "web");
@@ -176,6 +176,10 @@ module.exports = (opts) => {
             to: path.resolve(__dirname, targetPath)
           },
           {
+            from: './src/scss/main.css',
+            to: path.resolve(__dirname, targetPath)
+          },
+          {
             // PWA manifest
             from: './src/manifest.json',
             to: path.resolve(__dirname, targetPath)
@@ -183,8 +187,11 @@ module.exports = (opts) => {
         ]
       }),
       new WorkboxWebpackPlugin.InjectManifest({
+        compileSrc: true,
         swSrc: "./src/serviceWorker.js",
-        swDest: "serviceWorker.js"
+        swDest: "serviceWorker.js",
+        // 3MB
+        maximumFileSizeToCacheInBytes: 3145728
       }),
       // new WebpackBundleAnalyzer(),
       new CompressionPlugin({
