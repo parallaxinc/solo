@@ -20,6 +20,8 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
+// noinspection JSCheckFunctionSignatures
+
 import Blockly from 'blockly/core';
 
 import {graphingConsole} from './blocklyc';
@@ -153,7 +155,7 @@ function establishBPLauncherConnection() {
     };
 
     // Log errors
-    connection.onerror = function(error) {
+    connection.onerror = function() {
       // Only display a message on the first attempt
       if (clientService.type === serviceConnectionTypes.WS) {
         logConsoleMessage('Unable to find client');
@@ -305,7 +307,7 @@ function wsProcessUiCommand(message) {
       break;
 
     case WS_ACTION_CLEAR_COMPILE:
-      $('#compile-console').val('');
+      clearCompilerWindow();
       break;
 
     case WS_ACTION_MESSAGE_COMPILE:
@@ -314,7 +316,7 @@ function wsProcessUiCommand(message) {
 
     case WS_ACTION_CLOSE_COMPILE:
       hideCompilerStatusWindow();
-      $('#compile-console').val('');
+      clearCompilerWindow();
       break;
 
     case WS_ACTION_CONSOLE_LOG:
@@ -562,10 +564,14 @@ export const getComPort = function() {
 };
 
 /**
- * Close the compile progress window
+ * Close the compiler progress window
  */
-const hideCompilerStatusWindow = () => {
-  console.log('Hide Compiler dialog window.');
-  $('#compile-dialog').modal('hide');
-};
+// noinspection JSCheckFunctionSignatures
+const hideCompilerStatusWindow = () => $('#compile-dialog').modal('hide');
+
+/**
+ * Clear the compiler progress window
+ */
+// noinspection JSCheckFunctionSignatures
+const clearCompilerWindow = () => $('#compile-console').val('');
 
