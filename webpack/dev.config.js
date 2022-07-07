@@ -25,12 +25,24 @@ const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpack = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
+// Webpack Analyzer
+// const WebpackBundleAnalyzer = require("webpack-bundle-analyzer")
+//     .BundleAnalyzerPlugin;
+const CompressionPlugin = require("compression-webpack-plugin");
+
+// const webBuildTargetFolder = path.join(__dirname, "..", "dist", "apps", "web");
+// const targetServiceWorkerFilename = "service-worker.js";
+
+// Is it in development mod
+let devMode = process.env.devMode || true;
+const isDevelopment = true;
+
 /**
  * The relative path to the distribution directory
  * @type {string}
  */
 const targetPath = '../dist';
-const isDevelopment = true;
 /**
  * The relative path to the Blockly package media files
  * @type {string}
@@ -41,7 +53,8 @@ module.exports = (opts) => {
   opts = Object.assign({
     env: 'dev',
     analyze: false
-  }, opts);
+    },
+  opts);
 
   const isDev = (opts.env === 'dev');
   if (isDev) console.log(`DEVELOPMENT`);
@@ -50,7 +63,7 @@ module.exports = (opts) => {
   return {
     mode: 'development',
     entry: { // Bundle entry points
-      index: 'editor.js',
+      index: './src/index.js',
     },
     output: {
       path: path.resolve(__dirname, targetPath),
@@ -151,15 +164,43 @@ module.exports = (opts) => {
             to: path.resolve(__dirname, `${targetPath}/images`)
           },
           {
-            from: './src/load_images.js',
+            from: './src/serviceWorker.js',
+            to: path.resolve(__dirname, targetPath)
+          },
+          {
+            from: './src/*.js',
             to: path.resolve(__dirname, targetPath)
           },
           {
             from: './src/lib/bootstrap.min.css',
             to: path.resolve(__dirname, targetPath)
           },
+          {
+            from: './src/scss/main.css',
+            to: path.resolve(__dirname, targetPath)
+          },
+          {
+            // PWA manifest
+            from: './src/manifest.json',
+            to: path.resolve(__dirname, targetPath)
+          },
         ]
-      })
+      }),
+      new WorkboxWebpackPlugin.InjectManifest({
+        compileSrc: true,
+        swSrc: "./src/serviceWorker.js",
+        swDest: "serviceWorker.js",
+        // 3MB
+        maximumFileSizeToCacheInBytes: 3145728
+      }),
+      // new WebpackBundleAnalyzer(),
+      new CompressionPlugin({
+        algorithm: "gzip",
+        threshold: 8192,
+        compressionOptions: {
+          numiterations: 15,
+        },
+      }),
     ],
     stats: {
       children: true,

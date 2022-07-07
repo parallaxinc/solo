@@ -28,7 +28,7 @@
  * 'data-icon' attribute. Iterate through each match and draw the custom
  * icons into the specified element.
  */
-function initToolbarIcons() {
+const initToolbarIcons = () => {
   /**
    * WIP - TODO: generate svg icons and inject them (search for glyphicon
    *          and font-awesome and replace them).
@@ -111,4 +111,4 @@ function initToolbarIcons() {
   }
 }
 
-initToolbarIcons();
+export {initToolbarIcons};
