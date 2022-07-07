@@ -26,6 +26,8 @@ const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require("terser-webpack-plugin");
 const HtmlWebpack = require('html-webpack-plugin');
 
+const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
+
 /**
  * The relative path to the distribution directory
  * @type {string}
@@ -113,10 +115,17 @@ module.exports = (opts) => {
         patterns: [
           {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
           {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
-          {from: './src/lib/bootstrap.min.css', to: path.resolve(__dirname, targetPath)},
-          {from: './src/load_images.js', to: path.resolve(__dirname, targetPath)},
+          {from: './src/lib/bootstrap.min.css', to: path.resolve(__dirname, targetPath)}
+          // {from: './src/load_images.js', to: path.resolve(__dirname, targetPath)},
         ]
-      })
+      }),
+      new WorkboxWebpackPlugin.InjectManifest({
+        compileSrc: true,
+        swSrc: "./src/serviceWorker.js",
+        swDest: "serviceWorker.js",
+        // 3MB
+        maximumFileSizeToCacheInBytes: 3145728
+      }),
     ],
     stats: {
       children: true,
