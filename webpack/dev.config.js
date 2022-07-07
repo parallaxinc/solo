@@ -31,8 +31,8 @@ const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
 //     .BundleAnalyzerPlugin;
 const CompressionPlugin = require("compression-webpack-plugin");
 
-const webBuildTargetFolder = path.join(__dirname, "..", "dist", "apps", "web");
-const targetServiceWorkerFilename = "service-worker.js";
+// const webBuildTargetFolder = path.join(__dirname, "..", "dist", "apps", "web");
+// const targetServiceWorkerFilename = "service-worker.js";
 
 // Is it in development mod
 let devMode = process.env.devMode || true;
