@@ -24,8 +24,8 @@
 
 import Blockly from 'blockly/core';
 
-import {graphingConsole} from './blocklyc';
-import {graphReset, graphNewData} from './blocklyc';
+import {graphingConsole, graphReset, graphNewData} from './graph';
+
 import {compileConsoleScrollToBottom} from './blocklyc';
 import {appendCompileConsoleMessage} from './blocklyc';
 import {clientService, serviceConnectionTypes} from './client_service';

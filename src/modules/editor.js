@@ -61,11 +61,8 @@ import './blockly/generators/propc/sensors/sound_impact';
 
 import './blockly/generators/propc/variables';
 
-import {
-  compile, loadInto, initializeBlockly,
-  downloadCSV, graphingConsole, configureConnectionPaths,
-  graphPlay, downloadGraph, graphStartStop,
-} from './blocklyc';
+import {compile, loadInto, initializeBlockly, configureConnectionPaths } from './blocklyc';
+import {downloadCSV, graphingConsole, graphPlay, downloadGraph, graphStartStop} from './graph';
 
 import {serialConsole} from './serial_console';
 import {findClient} from './client_connection';
