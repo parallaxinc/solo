@@ -48,7 +48,7 @@ precacheAndRoute(self.__WB_MANIFEST);
 
 console.log(`Registering compiler route.`)
 registerRoute(
-    /(localhost|http):\/\/solo.parallax.com/,
+    /http:\/\/solo.parallax.com/,
     new NetworkFirst({
       cacheName: 'solo-page-cache',
     })
@@ -158,9 +158,20 @@ registerRoute(
   //   });
   // }
 
+/**
+ * Send the application version to the client
+ */
 self.addEventListener('message', (event) => {
   if (event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage(SW_VERSION);
   }
 });
+
+/**
+ * Install the latest available version right away.
+ */
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }});
 
