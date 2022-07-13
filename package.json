@@ -44,7 +44,7 @@
     "dotenv": "^8.6.0",
     "file-saver": "^2.0.5",
     "jquery": "^3.6.0",
-    "jquery-validation": "^1.19.3",
+    "jquery-validation": "^1.19.5",
     "jszip": "^3.10.0",
     "node-chartist": "^1.0.5",
     "stream": "0.0.2",
