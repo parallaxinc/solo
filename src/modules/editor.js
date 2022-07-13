@@ -61,7 +61,7 @@ import './blockly/generators/propc/sensors/sound_impact';
 
 import './blockly/generators/propc/variables';
 
-import {compile, loadInto, initializeBlockly, configureConnectionPaths } from './blocklyc';
+import {compile, loadInto, initializeBlockly, configureConnectionPaths} from './blocklyc';
 import {downloadCSV, graphingConsole, graphPlay, downloadGraph, graphStartStop} from './graph';
 
 import {serialConsole} from './serial_console';
@@ -99,6 +99,8 @@ import {newProjectDialog} from './dialogs/new_project';
 import {openProjectDialog} from './dialogs/open_project';
 import {importProjectDialog} from './dialogs/import_project';
 
+import {deferredPrompt} from '../index';
+
 /**
  * The call to Blockly.svgResize() requires a reference to the
  * Blockly.WorkspaceSvg workspace that was returned from the
@@ -107,7 +109,6 @@ import {importProjectDialog} from './dialogs/import_project';
  * @type {Blockly.Workspace | null}
  */
 let injectedBlocklyWorkspace = null;
-
 
 /**
  * This is replacing the references to the codePropC variable.
@@ -172,6 +173,19 @@ $(() => {
   } else {
     logConsoleMessage(`Creating default project`);
     initDefaultProject();
+  }
+
+  // Check for application installation as a PWA
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(choiceResult) {
+      console.log(`Choice result is: ${choiceResult.outcome}`);
+      if (choiceResult.outcome === 'dismissed') {
+        console.log(`User dismissed the choice.`);
+      } else {
+        console.log(`User installed the application.`);
+      }
+    });
   }
 });
 
