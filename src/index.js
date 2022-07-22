@@ -58,13 +58,15 @@ if ("serviceWorker" in navigator) {
     // Need to add an 'Update' button to install an updated service worker
     console.log(`Getting the PWA install button element`);
     const updateButton = document.querySelector("#installContainer");
+    const button = document.getElementById('butInstall');
 
     // Fires when the registered service worker has installed but is waiting to activate.
     wb.addEventListener("waiting", (event) => {
       console.log(`Service working is installed but waiting to activate...`);
-      updateButton.classList.add("show");
+      updateButton.classList.remove("hidden");
 
-      updateButton.addEventListener("click", () => {
+      button.addEventListener("click", (event) => {
+        console.log(`Install button clicked.`, event)
         // Set up a listener that will reload the page as soon as the previously
         // waiting service worker has taken control.
         wb.addEventListener("controlling", (event) => {
