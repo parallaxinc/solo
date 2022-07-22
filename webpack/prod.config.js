@@ -121,8 +121,8 @@ module.exports = (opts) => {
       }),
       new WorkboxWebpackPlugin.InjectManifest({
         compileSrc: true,
-        swSrc: "./src/serviceWorker.js",
-        swDest: "serviceWorker.js",
+        swSrc: "./src/sw.js",
+        swDest: "sw.js",
         // 3MB
         maximumFileSizeToCacheInBytes: 3145728
       }),
