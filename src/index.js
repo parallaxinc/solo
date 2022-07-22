@@ -50,13 +50,10 @@ window.addEventListener('beforeinstallprompt', (e) => {
 if ("serviceWorker" in navigator) {
   // Register the service worker after the page has loaded
   window.addEventListener("load", () => {
-    console.log(`The page has been loaded...`)
-
-    // Install button
     pwaBeforeInstall(document.getElementById('installContainer'));
 
     console.log(`Newing a WorkBox object`);
-    const wb = new Workbox("/serviceWorker.js");
+    const wb = new Workbox("/sw.js");
 
     // Need to add an 'Update' button to install an updated service worker
     console.log(`Getting the PWA install button element`);
