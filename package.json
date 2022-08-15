@@ -73,7 +73,7 @@
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.6.0",
     "minimist": "^1.2.6",
-    "mocha": "^8.4.0",
+    "mocha": "^10.0.0",
     "node-env-webpack-plugin": "^1.1.0",
     "postcss-loader": "^6.2.1",
     "postcss-preset-env": "^6.7.1",
