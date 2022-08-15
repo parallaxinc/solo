@@ -105,7 +105,7 @@ const WS_ACTION_CLOSE_WEBSOCKET = 'websocket-close';
 /**
  *  Connect to the BP-Launcher
  */
-export const findClient = function() {
+const findClient = function() {
   if (clientService.activeConnection) {
     if (clientService.getPortLastUpdate() <= (Date.now() - PORT_TIMEOUT)) {
       clientService.portListReceiveCountUp++;
@@ -123,19 +123,16 @@ export const findClient = function() {
   logConsoleMessage(`Looking for the BlocklyProp Launcher`);
   clientService.clearLauncherVersion();
 
-  if (!clientService.available) {
-    logConsoleMessage('Connecting to BP Launcher client');
-    establishBPLauncherConnection();
-  }
+  //  if (!clientService.available) {
+  logConsoleMessage('Connecting to BP Launcher client');
+  establishBPLauncherConnection();
+  //  }
 };
 
 /**
  * Checks for and, if found, uses a newer WebSockets-only client
- *
- * TODO: Refactor this function to use switch statements and sub-functions
- *  to make clear what this function is really doing.
  */
-function establishBPLauncherConnection() {
+const establishBPLauncherConnection = () => {
   if (!clientService.available) {
     let connection;
 
@@ -167,6 +164,9 @@ function establishBPLauncherConnection() {
 
     // handle messages from the client / launcher
     connection.onmessage = function(e) {
+      // TODO: Refactor this function to use switch statements and sub-functions
+      //       to make clear what this function is really doing.
+
       const wsMessage = JSON.parse(e.data);
 
       if (wsMessage.type === WS_TYPE_HELLO_MESSAGE) {
@@ -235,7 +235,7 @@ function establishBPLauncherConnection() {
       lostWSConnection();
     };
   }
-}
+};
 
 /**
  * Process a websocket Port List message
@@ -575,3 +575,24 @@ const hideCompilerStatusWindow = () => $('#compile-dialog').modal('hide');
 // noinspection JSCheckFunctionSignatures
 const clearCompilerWindow = () => $('#compile-console').val('');
 
+/**
+ * Launcher connection watchdog
+ * Attempts to establish a connection with the BP Launcher if there is not a current connection.
+ *
+ * @param {number} interval in seconds to evaluate the state of the BP Launcher connection
+ */
+export const watchdog = (interval) => {
+  // Default if one is not supplied
+  if (!interval || interval <= 0) {
+    logConsoleMessage(`Setting watchdog default to 2 seconds`);
+    interval = 2;
+  }
+
+  // Enable the watchdog timer
+  setInterval(() => {
+    if (! clientService.activeConnection) {
+      logConsoleMessage(`Looking for Launcher...`);
+      findClient();
+    }
+  }, interval * 1000);
+};
