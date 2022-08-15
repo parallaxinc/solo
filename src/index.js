@@ -25,19 +25,48 @@ import {EnableSentry} from './modules/constants';
 import {initToolbarIcons} from './modules/load_images';
 import {Workbox} from 'workbox-window';
 
+// Initialize deferredPrompt for use later to show browser install prompt.
+export let deferredPrompt;
+
+// Intercept the browser's prompt to install the application
+window.addEventListener('beforeinstallprompt', (e) => {
+  console.log(`Before install prompt fires...`);
+  console.log(`Platforms: ${e.platforms}`);
+
+  // Prevent the mini-infobar from appearing on mobile
+  e.preventDefault();
+  // Stash the event so it can be triggered later.
+  deferredPrompt = e;
+  // Update UI notify the user they can install the PWA
+  // showInstallPromotion();
+
+  return false;
+});
+
+
+//
 // Load the service worker if the browser supports it.
+//
 if ("serviceWorker" in navigator) {
+  // Register the service worker after the page has loaded
   window.addEventListener("load", () => {
-    const wb = new Workbox("/serviceWorker.js");
+    pwaBeforeInstall(document.getElementById('installContainer'));
+
+    console.log(`Newing a WorkBox object`);
+    const wb = new Workbox("/sw.js");
 
     // Need to add an 'Update' button to install an updated service worker
+    console.log(`Getting the PWA install button element`);
     const updateButton = document.querySelector("#installContainer");
+    const button = document.getElementById('butInstall');
 
     // Fires when the registered service worker has installed but is waiting to activate.
     wb.addEventListener("waiting", (event) => {
-      updateButton.classList.add("show");
+      console.log(`Service working is installed but waiting to activate...`);
+      updateButton.classList.remove("hidden");
 
-      updateButton.addEventListener("click", () => {
+      button.addEventListener("click", (event) => {
+        console.log(`Install button clicked.`, event)
         // Set up a listener that will reload the page as soon as the previously
         // waiting service worker has taken control.
         wb.addEventListener("controlling", (event) => {
@@ -59,6 +88,7 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+
 // Start up the sentry monitor before we run
 startSentry()
     .then( (resp) => {
@@ -71,6 +101,44 @@ startSentry()
     });
 
 initToolbarIcons();
+
+
+/**
+ *
+ * @param {HTMLElement} div
+ */
+const pwaBeforeInstall = (div) => {
+  window.addEventListener('beforeinstallprompt', (event) => {
+    console.log(`BeforeInstallPrompt...`)
+
+    // Prevent the mini-infobar from appearing on mobile.
+    event.preventDefault();
+
+    console.log('👍', 'beforeinstallprompt', event);
+
+    // Stash the event so it can be triggered later.
+    window.deferredPrompt = event;
+
+    // Remove the 'hidden' class from the 'install' button container.
+    console.log(`Show the pwa install button on the toolbar`)
+    div.classList.toggle('hidden', false);
+  });
+}
+
+const showInstallPromotion = () => {
+  console.log(`Prompt the user to install the application.`)
+}
+
+/**
+ * Unregister the application from the browser.
+ */
+const serviceWorkerUnregister = () => {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for(let registration of registrations) {
+      registration.unregister()
+    }
+  });
+}
 
 console.log(`Starting the editor...`);
 import './modules/editor';

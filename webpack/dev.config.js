@@ -31,8 +31,8 @@ const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
 //     .BundleAnalyzerPlugin;
 const CompressionPlugin = require("compression-webpack-plugin");
 
-const webBuildTargetFolder = path.join(__dirname, "..", "dist", "apps", "web");
-const targetServiceWorkerFilename = "service-worker.js";
+// const webBuildTargetFolder = path.join(__dirname, "..", "dist", "apps", "web");
+// const targetServiceWorkerFilename = "service-worker.js";
 
 // Is it in development mod
 let devMode = process.env.devMode || true;
@@ -164,7 +164,7 @@ module.exports = (opts) => {
             to: path.resolve(__dirname, `${targetPath}/images`)
           },
           {
-            from: './src/serviceWorker.js',
+            from: './src/sw.js',
             to: path.resolve(__dirname, targetPath)
           },
           {
@@ -188,8 +188,8 @@ module.exports = (opts) => {
       }),
       new WorkboxWebpackPlugin.InjectManifest({
         compileSrc: true,
-        swSrc: "./src/serviceWorker.js",
-        swDest: "serviceWorker.js",
+        swSrc: "./src/sw.js",
+        swDest: "sw.js",
         // 3MB
         maximumFileSizeToCacheInBytes: 3145728
       }),

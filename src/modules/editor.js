@@ -61,14 +61,11 @@ import './blockly/generators/propc/sensors/sound_impact';
 
 import './blockly/generators/propc/variables';
 
-import {
-  compile, loadInto, initializeBlockly,
-  downloadCSV, graphingConsole, configureConnectionPaths,
-  graphPlay, downloadGraph, graphStartStop,
-} from './blocklyc';
+import {compile, loadInto, initializeBlockly, configureConnectionPaths} from './blocklyc';
+import {downloadCSV, graphingConsole, graphPlay, downloadGraph, graphStartStop} from './graph';
 
 import {serialConsole} from './serial_console';
-import {findClient} from './client_connection';
+import {watchdog} from './client_connection';
 import {clientService, initTerminal} from './client_service';
 
 import {
@@ -102,6 +99,8 @@ import {newProjectDialog} from './dialogs/new_project';
 import {openProjectDialog} from './dialogs/open_project';
 import {importProjectDialog} from './dialogs/import_project';
 
+import {deferredPrompt} from '../index';
+
 /**
  * The call to Blockly.svgResize() requires a reference to the
  * Blockly.WorkspaceSvg workspace that was returned from the
@@ -110,7 +109,6 @@ import {importProjectDialog} from './dialogs/import_project';
  * @type {Blockly.Workspace | null}
  */
 let injectedBlocklyWorkspace = null;
-
 
 /**
  * This is replacing the references to the codePropC variable.
@@ -155,10 +153,8 @@ $(() => {
     return cur;
   });
 
-  // Connect to the BP Launcher
-  // TODO: Finding the client and then look again every 3.5 seconds? There
-  //  must be a better way to handle this in the clientService object.
-  findClient();
+  // Init the BP Launcher socket connection watchdog timer
+  watchdog(2);
 
   // TODO: This should be lazy-loaded when a terminal is first requested.
   initTerminal();
@@ -175,6 +171,19 @@ $(() => {
   } else {
     logConsoleMessage(`Creating default project`);
     initDefaultProject();
+  }
+
+  // Check for application installation as a PWA
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(choiceResult) {
+      console.log(`Choice result is: ${choiceResult.outcome}`);
+      if (choiceResult.outcome === 'dismissed') {
+        console.log(`User dismissed the choice.`);
+      } else {
+        console.log(`User installed the application.`);
+      }
+    });
   }
 });
 
