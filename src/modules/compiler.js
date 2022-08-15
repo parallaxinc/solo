@@ -66,13 +66,14 @@ export const cloudCompile = async (action, sourceCode) => {
   try {
     const result = await postToCompiler(postUrl, sourceCode);
     if (result.success) {
+      console.log(`Compiler success`);
       appendCompileConsoleMessage(
           `${result['compiler-output']}${result['compiler-error']}\n`);
     } else {
       // Something unexpected has happened while calling the compiler service
+      console.log(`Compiler failed`);
+      if (!result) console.log(`Result is undefined`);
       if (result) {
-        logConsoleMessage(`Compiler service request failed`);
-
         const state = result.success;
         let message = '\nError: Unable to compile the project.\n';
         if (state === 'rejected') {
