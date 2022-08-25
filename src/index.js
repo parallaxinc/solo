@@ -60,11 +60,25 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     logConsoleMessage(`Page has been loaded. Register the root service worker.`)
 
-    const installButtonElement = document.getElementById('btn-install-pwa');
-    pwaBeforeInstall(installButtonElement);
+    // Do nothing if the app is already installed
+    if (pwaActive) {
+      return;
+    }
 
-    console.log(`Newing a WorkBox object`);
-    const wb = new Workbox("./sw.js");
+    const installButtonElement = document.getElementById('btn-install-pwa');
+    let wb = null;
+
+    pwaBeforeInstall();
+
+    try {
+      logConsoleMessage(`Newing a WorkBox object`);
+      wb = new Workbox("./sw.js");
+      logConsoleMessage(`Workbox object created`);
+    }
+    catch (err) {
+      logConsoleMessage(`Workbox init failed: ${err.message}`);
+    }
+
 
     installButtonElement.addEventListener('click', async () => {
       console.log(`User clicked the install app button.`)
@@ -88,7 +102,9 @@ if ("serviceWorker" in navigator) {
 
     // Fires when the registered service worker has installed but is waiting to activate.
     wb.addEventListener("waiting", (event) => {
-      console.log(`Service worker is installed but waiting to activate...`);
+      logConsoleMessage(`Service worker is installed but waiting to activate...`);
+      logConsoleMessage(`Waiting event: ${event}`);
+
 
       // Hide the 'install' button
       pwaInstallButton(false);
@@ -148,15 +164,11 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 
-
-initToolbarIcons();
-
-
 /**
  * Install listener for the 'beforeinstallprompt' event.
  * @param {HTMLElement} button
  */
-const pwaBeforeInstall = (button) => {
+function pwaBeforeInstall() {
   window.addEventListener('beforeinstallprompt', (event) => {
     console.log(`BeforeInstallPrompt...`)
 
@@ -172,14 +184,14 @@ const pwaBeforeInstall = (button) => {
   });
 }
 
-const showInstallPromotion = () => {
+function showInstallPromotion() {
   console.log(`Prompt the user to install the application.`)
 }
 
 /**
  * Unregister the application from the browser.
  */
-const serviceWorkerUnregister = () => {
+function serviceWorkerUnregister() {
   navigator.serviceWorker.getRegistrations().then(function(registrations) {
     for(let registration of registrations) {
       registration.unregister()
@@ -191,7 +203,7 @@ const serviceWorkerUnregister = () => {
  * Set the state of the PWA installation button
  * @param {boolean} enable
  */
-export const pwaInstallButton = (enable) => {
+export function pwaInstallButton(enable) {
   const installButtonElement = document.getElementById('btn-install-pwa');
   if (enable) {
     logConsoleMessage(`Showing PWA Install button`);
@@ -207,10 +219,22 @@ export const pwaInstallButton = (enable) => {
  * Set the state of the PWA update button
  * @param {boolean} enable
  */
-const pwaUpdateButton = (enable) => {
+function pwaUpdateButton(enable) {
 
 };
 
-console.log(`Starting the editor...`);
+
+function getPWADisplayMode() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  if (document.referrer.startsWith('android-app://')) {
+    return 'twa';
+  } else if (navigator.standalone || isStandalone) {
+    return 'standalone';
+  }
+  return 'browser';
+}
+
+initToolbarIcons();
+logConsoleMessage(`Starting the editor...`);
 import './modules/editor';
 import {logConsoleMessage} from './modules/utility';
