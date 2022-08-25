@@ -34,6 +34,7 @@
 import {registerRoute} from "workbox-routing";
 import {NetworkFirst, NetworkOnly, StaleWhileRevalidate, CacheFirst} from "workbox-strategies";
 import {precacheAndRoute} from 'workbox-precaching';
+import {pwaActive, pwaInstallButton} from './index';
 
 // Enable debug mode during development
 const DEBUG_MODE = location.hostname.endsWith(".app.local") || location.hostname === "localhost";
@@ -103,16 +104,24 @@ self.addEventListener('fetch', async (event) => {
 // const divInstall = document.getElementById('installContainer');
 // const butInstall = document.getElementById('butInstall');
 
-
-self.addEventListener('install', (event) => {
-  console.log(`Event: ${event.type}`)
-  console.log(`The PWA app is installing...`);
-});
+// The 'install' event of the ServiceWorkerGlobalScope interface is fired
+// when a ServiceWorkerRegistration acquires a new
+// ServiceWorkerRegistration.installing worker.
+//
+// The 'install' event handler would typically load assets into a local
+// cache. The WorkBox package does this automatically, so there is no
+// need to do anything here.
+// self.addEventListener('install', (event) => {
+//   console.log(`Event: ${event.type}`)
+//   console.log(`The PWA app is installing...`);
+// });
 
 
 self.addEventListener('activate', (event) => {
   console.log(`Event: ${event.type}`)
   console.log(`The PWA app is activating...`);
+  pwaInstallButton(false);
+  pwaActive = true;
 });
 
 
