@@ -32,19 +32,17 @@
 // import { ExpirationPlugin } from "workbox-expiration";
 // import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL } from "workbox-precaching";
 import {registerRoute} from "workbox-routing";
-import {NetworkFirst, NetworkOnly, StaleWhileRevalidate, CacheFirst} from "workbox-strategies";
+import {NetworkFirst} from "workbox-strategies";
 import {precacheAndRoute} from 'workbox-precaching';
-import {pwaActive, pwaInstallButton} from './index';
-
-// Enable debug mode during development
-const DEBUG_MODE = location.hostname.endsWith(".app.local") || location.hostname === "localhost";
+import {pwaInstallButton} from './index';
 
 const cacheName = 'SoloCache_V1';
 const SW_VERSION = '1.0.0';
 
 precacheAndRoute(self.__WB_MANIFEST);
 
-console.log(`Registering compiler route.`)
+console.log(`Registering compiler route.`);
+
 registerRoute(
     /http:\/\/solo.parallax.com/,
     new NetworkFirst({
@@ -69,7 +67,10 @@ self.addEventListener('message', (event) => {
 
 
 /**
- * Intercept calls to fetch()
+ * Intercept calls to fetch
+ *
+ * @param {string} type
+ * @param {Event} event Async event handler
  */
 self.addEventListener('fetch', async (event) => {
   console.log(`[SW] Fetch: `, event);
@@ -121,35 +122,5 @@ self.addEventListener('activate', (event) => {
   console.log(`Event: ${event.type}`)
   console.log(`The PWA app is activating...`);
   pwaInstallButton(false);
-  pwaActive = true;
+  // pwaActive = true;
 });
-
-
-
-
-/**
- * Root-level service worker
- */
-// const initServiceWorker = () => {
-//   if ('serviceWorker' in navigator) {
-//     // Add listener for PWA installation prompts
-//     pwaBeforeInstall();
-//
-//     console.log(`Preparing to load service worker`);
-//     // Register the service worker
-//     window.addEventListener('load', () => {
-//       console.log(`Launching service worker`);
-//       navigator.serviceWorker.register('/serviceWorker.js')
-//           .then((registration) => {
-//             console.log(`Service worker is registered in scope: ${registration.scope}`);
-//           })
-//           .catch((err) => {
-//             console.log(`Service worker not loaded: ${err.message}`);
-//           });
-//     });
-//   } else {
-//     console.log('Service Worker is not supported.');
-//   }
-// }
-//
-
