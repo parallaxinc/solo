@@ -24,6 +24,7 @@ import {startSentry} from './modules/sentry';
 import {EnableSentry} from './modules/constants';
 import {initToolbarIcons} from './modules/load_images';
 import {Workbox} from 'workbox-window';
+import {logConsoleMessage} from './modules/utility';
 
 
 /**
@@ -59,7 +60,6 @@ if ("serviceWorker" in navigator) {
   // cache once it is registered.
   window.addEventListener("load", () => {
     logConsoleMessage(`Page has been loaded. Register the root service worker.`)
-
     // Do nothing if the app is already installed
     if (pwaActive) {
       return;
@@ -74,21 +74,23 @@ if ("serviceWorker" in navigator) {
       logConsoleMessage(`Newing a WorkBox object`);
       wb = new Workbox("./sw.js");
       logConsoleMessage(`Workbox object created`);
-    }
-    catch (err) {
+    } catch (err) {
       logConsoleMessage(`Workbox init failed: ${err.message}`);
+      return;
     }
-
 
     installButtonElement.addEventListener('click', async () => {
       console.log(`User clicked the install app button.`)
 
       // deferredPrompt is a global variable we've been using in the sample to capture the `beforeinstallevent`
       deferredPrompt.prompt();
+
       // Find out whether the user confirmed the installation or not
       const {outcome} = await deferredPrompt.userChoice;
+
       // The deferredPrompt can only be used once.
       deferredPrompt = null;
+
       // Act on the user's choice
       if (outcome === 'accepted') {
         console.log('User accepted the install prompt.');
@@ -105,35 +107,33 @@ if ("serviceWorker" in navigator) {
       logConsoleMessage(`Service worker is installed but waiting to activate...`);
       logConsoleMessage(`Waiting event: ${event}`);
 
-
       // Hide the 'install' button
       pwaInstallButton(false);
 
-      // button.addEventListener("click", (event) => {
-      //   console.log(`Install button clicked.`, event)
-      //
-      //   // Set up a listener that will reload the page as soon as the previously
-      //   // waiting service worker has taken control.
-      //   wb.addEventListener("controlling", (event) => {
-      //     window.location.reload();
-      //   });
-      //
-      //   // Send a message telling the service worker to skip waiting.
-      //   // This will trigger the `controlling` event handler above.
-      //   wb.messageSW({type: "SKIP_WAITING"});
-      // });
+      const button = document.getElementById('btn-install-pwa');
+      button.addEventListener("click", (event) => {
+        console.log(`Install button clicked.`, event)
+
+        // Set up a listener that will reload the page as soon as the previously
+        // waiting service worker has taken control.
+        wb.addEventListener("controlling", () => {
+          window.location.reload();
+        });
+
+        // Send a message telling the service worker to skip waiting.
+        // This will trigger the `controlling` event handler above.
+        wb.messageSW({type: "SKIP_WAITING"});
+
+        // It may seem that this is the same as registering a service worker yourself using
+        // navigator.serviceWorker.register. However, Workbox.register takes care of waiting
+        // until the window load event before registering the service worker. This is desirable
+        // in situations where precaching is involved so bandwidth contention that may delay
+        // page startup can be avoided.
+        wb.register();
+      });
     });
 
-    // It may seem that this is the same as registering a service worker yourself using
-    // navigator.serviceWorker.register. However, Workbox.register takes care of waiting
-    // until the window load event before registering the service worker. This is desirable
-    // in situations where precaching is involved so bandwidth contention that may delay
-    // page startup can be avoided.
-    wb.register();
-  });
-}
-
-// Intercept the browser's prompt to install the application
+    // Intercept the browser's prompt to install the application
 //
 // The 'beforeinstallprompt' event fires on devices when a user is about to
 // be prompted to "install" a web application. It may be saved for later
@@ -142,27 +142,28 @@ if ("serviceWorker" in navigator) {
 // Here, the event details are stored in a global variable, deferredPrompt,
 // that will be referenced later.
 // ----------------------------------------------------------------------------
-window.addEventListener('beforeinstallprompt', (e) => {
-  console.log(`Before install prompt fires...`);
+    window.addEventListener('beforeinstallprompt', (e) => {
+      console.log(`Before install prompt fires...`);
 
-  // Log the platforms that the beforeinstallprompt event was sent to.
-  // The platforms property is an array of strings. Typically, it should
-  // contain a single element, 'web', when the site is viewed from a web
-  // browser.
-  console.log(`Platforms: ${e.platforms}`);
+      // Log the platforms that the beforeinstallprompt event was sent to.
+      // The platforms property is an array of strings. Typically, it should
+      // contain a single element, 'web', when the site is viewed from a web
+      // browser.
+      console.log(`Platforms: ${e.platforms}`);
 
-  // Prevent the mini-info bar from appearing on mobile
-  e.preventDefault();
+      // Prevent the mini-info bar from appearing on mobile
+      e.preventDefault();
 
-  // Stash the event so it can be triggered later.
-  deferredPrompt = e;
+      // Stash the event so it can be triggered later.
+      deferredPrompt = e;
 
-  // Update UI notify the user they can install the PWA
-  // showInstallPromotion();
+      // Update UI notify the user they can install the PWA
+      // showInstallPromotion();
 
-  return false;
-});
-
+      return false;
+    });
+  });
+}
 
 /**
  * Install listener for the 'beforeinstallprompt' event.
@@ -192,7 +193,8 @@ function showInstallPromotion() {
  * Unregister the application from the browser.
  */
 function serviceWorkerUnregister() {
-  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+  navigator.serviceWorker.getRegistrations()
+      .then(function(registrations) {
     for(let registration of registrations) {
       registration.unregister()
     }
@@ -212,7 +214,7 @@ export function pwaInstallButton(enable) {
     logConsoleMessage(`Hiding PWA Install button`);
     installButtonElement.classList.add("hidden");
   }
-};
+}
 
 
 /**
@@ -221,7 +223,7 @@ export function pwaInstallButton(enable) {
  */
 function pwaUpdateButton(enable) {
 
-};
+}
 
 
 function getPWADisplayMode() {
@@ -235,6 +237,7 @@ function getPWADisplayMode() {
 }
 
 initToolbarIcons();
+
 logConsoleMessage(`Starting the editor...`);
+
 import './modules/editor';
-import {logConsoleMessage} from './modules/utility';
