@@ -120,10 +120,12 @@ PageTextLabels['client_chrome_run_instructions1'] = 'Click the App icon (circle)
 PageTextLabels['clientdownload_download_installer'] = 'Download the installer';
 
 // MacOS Launcher installations
+PageTextLabels['client_download_launcher_macos_monterey_installer'] = 'BP-Launcher installer for MacOS Monterey';
 PageTextLabels['client_download_launcher_macos_big_sur_installer'] = 'BP-Launcher installer for MacOS Big Sur';
 PageTextLabels['client_download_launcher_macos_catalina_installer'] = 'BP-Launcher installer for MacOS Catalina';
 PageTextLabels['client_download_launcher_macos_mojave_installer'] = 'BP-Launcher installer for MacOS Mojave';
 PageTextLabels['client_download_launcher_macos_high_sierra_installer'] = 'BP-Launcher installer for MacOS High Sierra';
+
 PageTextLabels['clientdownload_launcher_windows64_installer'] = 'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer';
 PageTextLabels['clientdownload_launcher_windows64zip_installer'] = 'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer (zip)';
 PageTextLabels['clientdownload_download_launcher'] = 'Install the Launcher App';

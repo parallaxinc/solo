@@ -493,38 +493,31 @@ async function initClientDownloadLinks() {
 
   // BP Client for Windows 64-bit
   $('.client-win64-link')
-      .attr('href',
-          `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.exe`);
+      .attr('href', `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.exe`);
   $('.client-win64zip-link')
-      .attr('href',
-          `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.zip`);
+      .attr('href', `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.zip`);
 
   // BP Launcher for Windows
   $('.launcher-win64-link')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe`);
+      .attr('href', `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe`);
   $('.launcher-win64zip-link')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe.zip`);
+      .attr('href', `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe.zip`);
 
-  // BP Client for MacOS
+  // BP Client for macOS
   $('.client-mac-link')
-      .attr('href',
-          `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-MacOS.pkg`);
+      .attr('href', `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-MacOS.pkg`);
 
   // BP Launchers for MacOS
+  $('.launcher-mac-link-monterey')
+      .attr('href', `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Monterey.zip`);
   $('.launcher-mac-link-big-sur')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Big-Sur.zip`);
+      .attr('href', `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Big-Sur.zip`);
   $('.launcher-mac-link-catalina')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Catalina.zip`);
+      .attr('href', `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Catalina.zip`);
   $('.launcher-mac-link-mojave')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Mojave.zip`);
+      .attr('href', `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Mojave.zip`);
   $('.launcher-mac-link-high_sierra')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-High-Sierra.zip`);
+      .attr('href', `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-High-Sierra.zip`);
 }
 
 /**
