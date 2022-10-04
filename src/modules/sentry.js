@@ -21,9 +21,7 @@
  */
 
 import * as Sentry from '@sentry/browser';
-// import * as Tracing from '@sentry/tracing';
-// import {Integrations} from '@sentry/tracing';
-
+import {BrowserTracing} from '@sentry/tracing';
 import {APP_VERSION, EnableSentry} from './constants';
 
 /**
@@ -34,6 +32,7 @@ const startSentry = async () => {
   if (EnableSentry) {
     await Sentry.init({
       dsn: 'https://82d15347f0e14577b144aa2b1931d953@o461706.ingest.sentry.io/4503921053794304',
+      integrations: [new BrowserTracing()],
       release: `SoloCup:${APP_VERSION}`,
       debug: true,
       maxBreadcrumbs: 100,
