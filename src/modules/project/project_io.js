@@ -129,13 +129,13 @@ const convertFilestreamToProject = (projectName, rawCode) => {
 
     const projectUUID = getProjectUUID(rawCode);
     const projectFileVersion = getProjectFileVersion(rawCode);
-    console.log(`Loaded project version: ${projectFileVersion}, UUID: ${projectUUID}`);
+    logConsoleMessage(`Loaded project version: ${projectFileVersion}, UUID: ${projectUUID}`);
 
     const projectBoardType = getProjectBoardType(rawCode);
     const tmpBoardType = Project.convertBoardType(projectBoardType);
 
     if (tmpBoardType === undefined) {
-      console.log(`Unknown board type: ${projectBoardType}`);
+      logConsoleMessage(`Unknown board type: ${projectBoardType}`);
       return null;
     }
 
@@ -153,10 +153,10 @@ const convertFilestreamToProject = (projectName, rawCode) => {
         projectFileVersion,
         projectUUID);
 
-    console.log(`Project version ${project.version}, UUID: ${project.uuid}`);
+    logConsoleMessage(`Project version ${project.version}, UUID: ${project.uuid}`);
     return project;
   } catch (e) {
-    console.log('Error while converting project file stream: %s', e.message);
+    logConsoleMessage(`Error while converting project file stream: ${e.message}`);
   }
 
   return null;

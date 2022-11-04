@@ -65,7 +65,7 @@ import {compile, loadInto, initializeBlockly, configureConnectionPaths} from './
 import {downloadCSV, graphingConsole, graphPlay, downloadGraph, graphStartStop} from './graph';
 
 import {serialConsole} from './serial_console';
-import {findClient} from './client_connection';
+import {watchdog} from './client_connection';
 import {clientService, initTerminal} from './client_service';
 
 import {
@@ -153,10 +153,8 @@ $(() => {
     return cur;
   });
 
-  // Connect to the BP Launcher
-  // TODO: Finding the client and then look again every 3.5 seconds? There
-  //  must be a better way to handle this in the clientService object.
-  findClient();
+  // Init the BP Launcher socket connection watchdog timer
+  watchdog(2);
 
   // TODO: This should be lazy-loaded when a terminal is first requested.
   initTerminal();

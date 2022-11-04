@@ -19,15 +19,35 @@
       "sizes": "48x48"
     },
     {
+      "src": "/images/icons/app/app-icon-72x72.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    },
+    {
+      "src": "/images/icons/app/app-icon-128x128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    },
+    {
       "src": "/images/icons/app/app-icon-144x144.png",
       "type": "image/png",
       "sizes": "144x144",
       "purpose": "maskable"
     },
     {
+      "src": "/images/icons/app/app-icon-152x152.png",
+      "type": "image/png",
+      "sizes": "152x152"
+    },
+    {
       "src": "/images/icons/app/app-icon-192x192.png",
       "type": "image/png",
       "sizes": "192x192"
+    },
+    {
+      "src": "/images/icons/app/app-icon-256x256.png",
+      "type": "image/png",
+      "sizes": "256x256"
     },
     {
       "src": "/images/icons/app/app-icon-512x512.png",

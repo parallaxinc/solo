@@ -29,3 +29,6 @@ dist
 # SASS outputs
 src/scss/*.css
 src/scss/*.map
+
+# Shell scripts
+*.sh

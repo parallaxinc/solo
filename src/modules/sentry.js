@@ -21,8 +21,7 @@
  */
 
 import * as Sentry from '@sentry/browser';
-// import {Integrations} from '@sentry/tracing';
-
+import {BrowserTracing} from '@sentry/tracing';
 import {APP_VERSION, EnableSentry} from './constants';
 
 /**
@@ -32,15 +31,13 @@ const startSentry = async () => {
   /* Error logging */
   if (EnableSentry) {
     await Sentry.init({
-      dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639',
+      dsn: 'https://82d15347f0e14577b144aa2b1931d953@o461706.ingest.sentry.io/4503921053794304',
+      integrations: [new BrowserTracing()],
       release: `SoloCup:${APP_VERSION}`,
-      // integrations: [new Integrations.BrowserTracing({
-      //   tracingOrigins: [
-      //     'localhost',
-      //     'solo.parallax.com',
-      //   ],
-      // })],
-      // tracesSampleRate: 1.0,
+      debug: true,
+      maxBreadcrumbs: 100,
+      attachStacktrace: true,
+      tracesSampleRate: 1.0,
     });
   } else {
     console.log(`WARNING: Sentry is disabled.`);
