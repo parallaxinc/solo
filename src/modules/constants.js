@@ -51,7 +51,7 @@ export const APP_VERSION = '1.6.4';
  * to QA or production.
  * @type {string}
  */
-export const APP_BUILD = '236';
+export const APP_BUILD = '243';
 
 /**
  * Development build stage designator
