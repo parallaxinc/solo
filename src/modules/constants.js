@@ -51,13 +51,13 @@ export const APP_VERSION = '1.7.0';
  * to QA or production.
  * @type {string}
  */
-export const APP_BUILD = '244';
+export const APP_BUILD = '246';
 
 /**
  * Development build stage designator
  * @type {string}
  */
-export const APP_QA = 'RC1';
+export const APP_QA = 'RC2';
 
 /**
  * Set this to target deployment environment.

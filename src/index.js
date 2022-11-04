@@ -29,7 +29,7 @@ import {logConsoleMessage} from './modules/utility';
 
 /**
  * Initialize deferredPrompt for use later to show browser install prompt.
- * @type {Event}
+* @type {BeforeInstallPromptEvent}
  */
 export let deferredPrompt;
 
