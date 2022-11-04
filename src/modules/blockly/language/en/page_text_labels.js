@@ -117,15 +117,20 @@ PageTextLabels['client_windows_run_title'] = 'Running the BlocklyProp Launcher o
 PageTextLabels['client_windows_run_instructions1'] = 'Click the Windows (start) icon in the lower-left corner of your screen. Then look for the BlocklyProp Launcher application inside of the &quot;Parallax Inc&quot; folder:';
 PageTextLabels['client_chrome_run_title'] = 'Running the BlocklyProp Launcher on your Chromebook';
 PageTextLabels['client_chrome_run_instructions1'] = 'Click the App icon (circle) in the bottom-left corner of the screen. Find the BlocklyProp Launcher app and double-click it:';
-PageTextLabels['clientdownload_download_installer'] = 'Download the installer';
 
 // MacOS Launcher installations
-PageTextLabels['client_download_launcher_macos_big_sur_installer'] = 'BP-Launcher installer for MacOS Big Sur';
-PageTextLabels['client_download_launcher_macos_catalina_installer'] = 'BP-Launcher installer for MacOS Catalina';
-PageTextLabels['client_download_launcher_macos_mojave_installer'] = 'BP-Launcher installer for MacOS Mojave';
-PageTextLabels['client_download_launcher_macos_high_sierra_installer'] = 'BP-Launcher installer for MacOS High Sierra';
+PageTextLabels['client_download_launcher_macos_ventura_installer'] = 'BP-Launcher installer for macOS Ventura';
+PageTextLabels['client_download_launcher_macos_monterey_installer'] = 'BP-Launcher installer for macOS Monterey';
+PageTextLabels['client_download_launcher_macos_big_sur_installer'] = 'BP-Launcher installer for macOS Big Sur';
+PageTextLabels['client_download_launcher_macos_catalina_installer'] = 'BP-Launcher installer for macOS Catalina';
+PageTextLabels['client_download_launcher_macos_mojave_installer'] = 'BP-Launcher installer for macOS Mojave';
+PageTextLabels['client_download_launcher_macos_high_sierra_installer'] = 'BP-Launcher installer for macOS High Sierra';
+
+// Windows Launcher installations
 PageTextLabels['clientdownload_launcher_windows64_installer'] = 'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer';
 PageTextLabels['clientdownload_launcher_windows64zip_installer'] = 'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer (zip)';
+
+PageTextLabels['clientdownload_download_installer'] = 'Download the installer';
 PageTextLabels['clientdownload_download_launcher'] = 'Install the Launcher App';
 PageTextLabels['clientdownload_client_chromeos_installer'] = 'Add to Chrome';
 PageTextLabels['clientdownload_os_menu'] = 'Choose a different operating system';
@@ -134,7 +139,7 @@ PageTextLabels['menu_code'] = 'Code';
 PageTextLabels['menu_blocks'] = 'Blocks';
 
 PageTextLabels['os_name_win'] = 'Windows';
-PageTextLabels['os_name_mac'] = 'Mac OS';
+PageTextLabels['os_name_mac'] = 'macOS';
 PageTextLabels['os_name_chr'] = 'Chrome OS';
 
 /**

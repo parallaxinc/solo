@@ -354,12 +354,12 @@ function initEventHandlers() {
 
   // Save As button
   $('#save-as-btn').on('click', () => saveAsDialog());
+
   // Save-As Project
   $('#save-project-as').on('click', () => saveAsDialog());
 
   // Save As new board type
-  $('#save-as-board-type').on('change', () => checkBoardType(
-      $('#saveAsDialogSender').html()));
+  $('#save-as-board-type').on('change', () => checkBoardType($('#saveAsDialogSender').html()));
 
   // popup modal
   $('#save-as-board-btn').on('click', () => saveProjectAs(
@@ -483,50 +483,56 @@ function leavePageHandler() {
  * Set the BlocklyProp Client download links
  *
  * Set the href for each of the client links to point to the correct files
- * available on the downloads.parallax.com S3 site. The URL is stored in a
+ * available on the downloads.parallax.com S3 site. The URL is stored in an
  * HTML meta tag.
+ *
+ * Be sure to update the text for these links in
+ * modules/blockly/language/en/page_Text_labels.js
  */
 async function initClientDownloadLinks() {
   // BP Client for Windows 32-bit
-  $('.client-win32-link')
-      .attr('href', `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-32.exe`);
-  $('.client-win32zip-link')
-      .attr('href', `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-32.zip`);
+  $('.client-win32-link').attr('href',
+      `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-32.exe`);
+
+  $('.client-win32zip-link').attr('href',
+      `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-32.zip`);
 
   // BP Client for Windows 64-bit
-  $('.client-win64-link')
-      .attr('href',
-          `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.exe`);
-  $('.client-win64zip-link')
-      .attr('href',
-          `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.zip`);
+  $('.client-win64-link').attr('href',
+      `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.exe`);
+
+  $('.client-win64zip-link').attr('href',
+      `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.zip`);
 
   // BP Launcher for Windows
-  $('.launcher-win64-link')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe`);
-  $('.launcher-win64zip-link')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe.zip`);
+  $('.launcher-win64-link').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe`);
 
-  // BP Client for MacOS
-  $('.client-mac-link')
-      .attr('href',
-          `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-MacOS.pkg`);
+  $('.launcher-win64zip-link').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe.zip`);
 
-  // BP Launchers for MacOS
-  $('.launcher-mac-link-big-sur')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Big-Sur.zip`);
-  $('.launcher-mac-link-catalina')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Catalina.zip`);
-  $('.launcher-mac-link-mojave')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-Mojave.zip`);
-  $('.launcher-mac-link-high_sierra')
-      .attr('href',
-          `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-MacOS-High-Sierra.zip`);
+  // BP Client for macOS
+  $('.client-mac-link').attr('href',
+      `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-MacOS.pkg`);
+
+  // BP Launchers for macOS
+  $('.launcher-mac-link-ventura').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-Ventura.zip`);
+
+  $('.launcher-mac-link-monterey').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-Monterey.zip`);
+
+  $('.launcher-mac-link-big-sur').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-Big-Sur.zip`);
+
+  $('.launcher-mac-link-catalina').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-Catalina.zip`);
+
+  $('.launcher-mac-link-mojave').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-Mojave.zip`);
+
+  $('.launcher-mac-link-high_sierra').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-High-Sierra.zip`);
 }
 
 /**
