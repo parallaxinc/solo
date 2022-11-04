@@ -149,53 +149,64 @@
 
                 <!-- Right Toolbar buttons and menu -->
                 <div id="right-menus">
-
                     <!-- Install pwa button, hidden by default -->
-                    <div id="installContainer" class="btn-view-blocks hidden">
-                        <button id="butInstall" type="button">
-                            Install
-                        </button>
-                    </div>
+                    <a id="btn-install-pwa"
+                       class="demo-function btn-view-blocks hidden"
+                       data-displayas="inline-block">Install</a>
 
                     <!-- View C source code -->
-                    <a class="btn-view-blocks" id="btn-view-propc" style="display: inline;">
+                    <a id="btn-view-propc"
+                       class="btn-view-blocks"
+                       style="display: inline;">
                         <span class="bpIcon" data-icon="eyeWhite">&#x1F441;&nbsp;</span>
                         <span>Code</span>
                     </a>
 
                     <!-- View project blocks layout -->
-                    <a class="btn-view-blocks" id="btn-view-blocks" style="display: none;">
+                    <a id="btn-view-blocks"
+                       class="btn-view-blocks"
+                       style="display: none;">
                         <span class="bpIcon" data-icon="eyeWhite">&#x1F441;&nbsp;</span>
                         <span>Blocks</span>
                     </a>
 
                     <!-- View project XML code -->
-                    <a class="btn-view-blocks" id="btn-view-xml" style="display: none;">
+                    <a id="btn-view-xml"
+                       class="btn-view-blocks"
+                       style="display: none;">
                         <span class="bpIcon" data-icon="eyeWhite">&#x1F441;&nbsp;</span>
                         <span>XML</span>
                     </a>
 
                     <!-- New Project button -->
-                    <a id="new-project-button" class="demo-function btn-view-blocks"
-                       style="display: inline-block;" data-displayas="inline-block">New</a>
+                    <a id="new-project-button"
+                       class="demo-function btn-view-blocks"
+                       style="display: inline-block;"
+                       data-displayas="inline-block">New</a>
 
                     <!-- Open Project button -->
-                    <a id="open-project-button" class="demo-function btn-view-blocks"
-                       style="display: inline-block;" data-displayas="inline-block">
+                    <a id="open-project-button"
+                       class="demo-function btn-view-blocks"
+                       style="display: inline-block;"
+                       data-displayas="inline-block">
                         <span>Open</span>
                     </a>
 
                     <!-- Save project button -->
-                    <a id="save-project" class="demo-function btn-view-blocks"
-                       style="display: inline-block;" data-displayas="inline-block">
+                    <a id="save-project"
+                       class="demo-function btn-view-blocks"
+                       style="display: inline-block;"
+                       data-displayas="inline-block">
                         <span>Save</span>
                     </a>
 
                     <!-- Drop-down hamburger menu -->
                     <div class="dropdown" style="display: inline-block;">
                         <!-- down-arrow control to open hamburger menu -->
-                        <button id="options-menu" class="btn btn-sm btn-default dropdown dropdown-toggle" type="button"
-                            data-toggle="dropdown">&#9776;<span class="caret"></span>
+                        <button id="options-menu"
+                            class="btn btn-sm btn-default dropdown dropdown-toggle"
+                            type="button"
+                            data-toggle="dropdown">&#9776;
                         </button>
 
                         <ul class="dropdown-menu pull-right btn-sm">
