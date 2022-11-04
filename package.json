@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile:sass": "sass src/scss/main.scss dist/main.css",
-    "dev": "npm run build:sass; webpack --config webpack/dev.config.js --node-env development",
+    "dev": "rm -rdf ./dist/*; npm run build:sass; webpack --config webpack/dev.config.js --node-env development",
     "dev:analyze": "npm run dev -- --env.addons=bundleanalyzer",
     "build": "webpack --config webpack/prod.config.js --node-env production --stats",
     "build:deploy": "rm -rdf ./dist/*; npm run build:sass;  webpack --config webpack/prod.config.js --node-env production --stats",
