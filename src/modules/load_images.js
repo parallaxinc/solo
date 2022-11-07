@@ -109,6 +109,6 @@ const initToolbarIcons = () => {
       iconList[index].innerHTML = bpIcons[iconName];
     }
   }
-}
+};
 
 export {initToolbarIcons};

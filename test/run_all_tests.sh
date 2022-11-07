@@ -23,8 +23,6 @@
 #
 
 # Check to see if we are running the tests locally
-exit 0
-
 if [ -n "$TRAVIS" ]; then
   echo "Executing run_all_tests.sh from $(pwd)";
 fi
@@ -36,12 +34,9 @@ else
     echo "Lint detected issues. Exiting"
     exit 1;
 fi
-
-
 echo "End lint tests."
 
-echo "Running unit tests"
-node test/mocha/run_mocha_tests_in_browser.js
-
+# echo "Running unit tests"
+# node test/mocha/run_mocha_tests_in_browser.js
 
 # "jsunit" "node tests/jsunit/run_jsunit_tests_in_browser.js"

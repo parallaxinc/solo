@@ -181,7 +181,11 @@ function pwaBeforeInstall() {
 
     // Remove the 'hidden' class from the 'install' button container.
     console.log(`Show the install button on the toolbar`)
-    pwaInstallButton(true);
+
+    // Temporarily disable the 'install' button while the details of updating
+    // a pwa are addressed.
+    // pwaInstallButton(true);
+    pwaInstallButton(false);
   });
 }
 

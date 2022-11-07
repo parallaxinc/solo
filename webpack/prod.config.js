@@ -193,10 +193,10 @@ module.exports = (opts) => {
             from: './src/images',
             to: path.resolve(__dirname, `${targetPath}/images`)
           },
-          // {
-          //   from: './src/sw.js',
-          //   to: path.resolve(__dirname, targetPath)
-          // },
+          {
+            from: './src/sw.js',
+            to: path.resolve(__dirname, targetPath)
+          },
           {
             from: './src/lib/bootstrap.min.css',
             to: path.resolve(__dirname, targetPath)
