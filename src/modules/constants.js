@@ -24,7 +24,7 @@
  * Global flag to enable/disable the Sentry logger
  * @type {boolean}
  */
-export const EnableSentry = false;
+export const EnableSentry = true;
 
 /**
  * Set the application version string
