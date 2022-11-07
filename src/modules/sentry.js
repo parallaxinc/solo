@@ -22,7 +22,7 @@
 
 import * as Sentry from '@sentry/browser';
 import {BrowserTracing} from '@sentry/tracing';
-import {APP_VERSION, EnableSentry} from './constants';
+import {APP_VERSION, APP_STAGE, EnableSentry} from './constants';
 
 /**
  * Initialize the Sentry logger
@@ -30,10 +30,11 @@ import {APP_VERSION, EnableSentry} from './constants';
 const startSentry = async () => {
   /* Error logging */
   if (EnableSentry) {
+    const appName = (APP_STAGE === 'PROD') ? 'Solo' : 'Solo Cup';
     await Sentry.init({
       dsn: 'https://82d15347f0e14577b144aa2b1931d953@o461706.ingest.sentry.io/4503921053794304',
       integrations: [new BrowserTracing()],
-      release: `SoloCup:${APP_VERSION}`,
+      release: `${appName}:${APP_VERSION}`,
       debug: true,
       maxBreadcrumbs: 100,
       attachStacktrace: true,
