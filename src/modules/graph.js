@@ -22,6 +22,7 @@
 
 import Blockly from 'blockly/core';
 import * as Chartist from 'chartist';
+import * as saveAs from 'file-saver';
 
 import {clientService, serviceConnectionTypes} from './client_service';
 import {getURLParameter, logConsoleMessage, sanitizeFilename, utils} from './utility';
