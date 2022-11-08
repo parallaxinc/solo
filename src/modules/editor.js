@@ -245,30 +245,26 @@ function initEventHandlers() {
   // Left side toolbar event handlers                                        //
   // ----------------------------------------------------------------------- //
   // Compile the program
-  document.getElementById('prop-btn-comp').addEventListener('click', () => compile());
-  // $('#prop-btn-comp').on('click', () => compile());
+  document.getElementById('prop-btn-comp')
+      .addEventListener('click', () => compile());
 
   // Load the program to the device RAM
-  document.getElementById('prop-btn-ram').addEventListener('click', () => loadInto(
-      'Load into RAM', 'bin', 'CODE', 'RAM'));
-  // $('#prop-btn-ram').on('click', () => {
-  //   loadInto('Load into RAM', 'bin', 'CODE', 'RAM');
-  // });
+  document.getElementById('prop-btn-ram')
+      .addEventListener('click', () => loadInto(
+          'Load into RAM', 'bin', 'CODE', 'RAM'));
 
   // Load the program into the device EEPROM
-  document.getElementById('prop-btn-eeprom').addEventListener('click', () => loadInto(
-      'Load into EEPROM', 'eeprom', 'CODE', 'EEPROM'));
-  // $('#prop-btn-eeprom').on('click', () => {
-  //   loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM');
-  // });
+  document.getElementById('prop-btn-eeprom')
+      .addEventListener('click', () => loadInto(
+          'Load into EEPROM', 'eeprom', 'CODE', 'EEPROM'));
 
   // Open a serial terminal window
-  document.getElementById('prop-btn-term').addEventListener('click', () => serialConsole());
-  // $('#prop-btn-term').on('click', () => serialConsole());
+  document.getElementById('prop-btn-term')
+      .addEventListener('click', () => serialConsole());
 
   // Open a graphing window
-  document.getElementById('prop-btn-graph').addEventListener('click', () => graphingConsole());
-  // $('#prop-btn-graph').on('click', () => graphingConsole());
+  document.getElementById('prop-btn-graph')
+      .addEventListener('click', () => graphingConsole());
 
   // Init C source editor toolbar event handlers
   initCSourceEditorButtonEvenHandlers();
@@ -279,8 +275,8 @@ function initEventHandlers() {
   // $('#term-graph-setup').on('click', () => configureTermGraph());
 
   // Close upload project dialog event handler
-  document.getElementById('upload-close').addEventListener('click', () => clearUploadInfo());
-  // $('#upload-close').on('click', () => clearUploadInfo());
+  document.getElementById('upload-close')
+      .addEventListener('click', () => clearUploadInfo());
 
 
   // **********************************
@@ -293,33 +289,27 @@ function initEventHandlers() {
   // Blocks/Code/XML button
   document.getElementById('btn-view-propc')
       .addEventListener('click', () => renderContent('tab_propc'));
-  // $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
 
   document.getElementById('btn-view-blocks')
       .addEventListener('click', () => renderContent('tab_blocks'));
-  // $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
 
   document.getElementById('btn-view-xml')
       .addEventListener('click', () => renderContent('tab_xml'));
-  // $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
 
   // New Project toolbar button
   // TODO: New Project should be treated the same way as Open Project.
   document.getElementById('new-project-button')
       .addEventListener('click', () => newProjectEvent());
-  // $('#new-project-button').on('click', () => newProjectEvent());
 
   // Open Project toolbar button
   document.getElementById('open-project-button')
       .addEventListener('click', () => openProjectEvent());
-  // $('#open-project-button').on('click', () => openProjectEvent());
 
   // Save Project toolbar button
   document.getElementById('save-btn')
       .addEventListener('click', () => saveProject());
   document.getElementById('save-project')
       .addEventListener('click', () => saveProject());
-  // $('#save-btn, #save-project').on('click', () => saveProject());
 
   // Save project nudge dialog onclose event handler
   // Not implemented
@@ -337,10 +327,6 @@ function initEventHandlers() {
         editProjectDialog.editProjectDetails();
       });
 
-  // $('#edit-project-details').on('click', () => {
-  //   editProjectDialog.editProjectDetails();
-  // });
-
   // Help and Reference - online help web pages
   // Implemented as an href in the menu
 
@@ -348,7 +334,6 @@ function initEventHandlers() {
 
   // Download project to Simple IDE
   // TODO: Investigate why downloadPropC() is missing.
-  // $('#download-side').on('click', () => downloadPropC());
   document.getElementById('download-side')
       .addEventListener('click', () => downloadPropC());
 
@@ -356,7 +341,6 @@ function initEventHandlers() {
   // Import (upload) project from storage. This is designed to merge code from an existing
   // project into the current project or to simply replace the contents of the current
   // project with the contents of the imported project.
-  // $('#upload-project').on('click', () => importProjectDialog.show());
   document.getElementById('upload-project')
       .addEventListener('click', () => importProjectDialog.show());
 
@@ -388,7 +372,6 @@ function initEventHandlers() {
   // Save As button
   document.getElementById('save-as-btn')
       .addEventListener('click', () => saveAsDialog());
-  // $('#save-as-btn').on('click', () => saveAsDialog());
 
   // Save-As Project
   // $('#save-project-as').on('click', () => saveAsDialog());
@@ -399,32 +382,68 @@ function initEventHandlers() {
         const dialogSender = document.getElementById('saveAsDialogSender');
         checkBoardType(dialogSender.html());
       });
-  // $('#save-as-board-type').on('change', () => checkBoardType($('#saveAsDialogSender').html()));
 
   // popup modal
-  $('#save-as-board-btn').on('click', () => saveProjectAs(
-      $('#save-as-board-type').val(),
-      $('#save-as-project-name').val(),
-  ));
+  // $('#save-as-board-btn').on('click', () => saveProjectAs(
+  //     $('#save-as-board-type').val(),
+  //     $('#save-as-project-name').val(),
+  // ));
+  document.getElementById('save-as-board-btn')
+      .addEventListener('click', () => {
+        // $('#save-as-board-type').val(),
+        // $('#save-as-project-name').val(),
+        saveProjectAs(
+            document.getElementById('save-as-board-type').innerText,
+            document.getElementById('save-as-project-name').innerText,
+        );
+      });
 
-  $('#btn-graph-play').on('click', () => graphPlay(''));
-  $('#btn-graph-snapshot').on('click', () => downloadGraph());
-  $('#btn-graph-csv').on('click', () => downloadCSV());
-  $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
+
+  // $('#btn-graph-play').on('click', () => graphPlay(''));
+  document.getElementById('btn-graph-play')
+      .addEventListener('click', ()=> graphPlay(''));
+
+  // $('#btn-graph-snapshot').on('click', () => downloadGraph());
+  document.getElementById('btn-graph-snapshot')
+      .addEventListener('click', () => downloadGraph());
+
+  // $('#btn-graph-csv').on('click', () => downloadCSV());
+  document.getElementById('btn-graph-csv')
+      .addEventListener('click', () => downloadCSV());
+
+  // $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
+  document.getElementById('btn-graph-clear')
+      .addEventListener('click', () => graphStartStop('clear'));
 
 
   // Client install instruction modals
-  $('.show-os-win').on('click', () => showOS('Windows'));
-  $('.show-os-mac').on('click', () => showOS('MacOS'));
-  $('.show-os-chr').on('click', () => showOS('ChromeOS'));
-  $('.show-os-lnx').on('click', () => showOS('Linux'));
+  // $('.show-os-win').on('click', () => showOS('Windows'));
+  // $('.show-os-mac').on('click', () => showOS('MacOS'));
+  // $('.show-os-chr').on('click', () => showOS('ChromeOS'));
+  // $('.show-os-lnx').on('click', () => showOS('Linux'));
+
+  document.getElementById('.show-os-win')
+      .addEventListener('click', () => showOS('Windows'));
+  document.getElementById('.show-os-mac')
+      .addEventListener('click', () => showOS('MacOS'));
+  document.getElementById('.show-os-chr')
+      .addEventListener('click', () => showOS('ChromeOS'));
+  document.getElementById('.show-os-lnx')
+      .addEventListener('click', () => showOS('Linux'));
 
   // Serial port drop down onClick event handler
-  $('#comPort').on('change', (event) => {
-    logConsoleMessage(`Selecting port: ${event.target.value}`);
-    clientService.setSelectedPort(event.target.value);
-    propToolbarButtonController();
-  });
+  // $('#comPort').on('change', (event) => {
+  //   logConsoleMessage(`Selecting port: ${event.target.value}`);
+  //   clientService.setSelectedPort(event.target.value);
+  //   propToolbarButtonController();
+  // });
+
+  document.getElementById('#comPort')
+      .addEventListener('change', (event) => {
+        logConsoleMessage(`Selecting port: ${event.target.value}`);
+        clientService.setSelectedPort(event.target.value);
+        propToolbarButtonController();
+      });
 }
 
 /**
@@ -446,7 +465,8 @@ function openProjectEvent() {
  * Display the Solo license
  */
 function showLicenseEventHandler() {
-  $('#licenseModal').modal();
+  // $('#licenseModal').modal();
+  document.getElementById('licenseModal').modal();
 }
 
 /**
@@ -1646,6 +1666,7 @@ function projectNameUIEvents() {
       .on('keyup', () => {
         // validate the input to ensure it's not too long, and save
         // changes as the user types.
+        // const projectName = document.getElementById('project');
         const tempProjectName = $('.project-name').html();
         if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH ||
             tempProjectName.length < 1) {
