@@ -38,19 +38,10 @@ const tooltipText = [
   ['prop-btn-term', 'Open Serial Terminal'],
   ['prop-btn-graph', 'Open Graphing Output'],
 
-  // Deprecated on 5/12/2021
-  // ['prop-btn-pretty', 'Beautify Code'],
-  // ['prop-btn-undo', 'Undo'],
-  // ['prop-btn-redo', 'Redo'],
-
   ['btn-graph-play', 'Pause/Resume the graph'],
   ['btn-graph-snapshot', 'Download a snapshot of the graph'],
   ['btn-graph-csv', 'Download graph data as CSV'],
-  ['btn-graph-clear', 'Clear the graph'],
-  ['project-form-shared', 'Make project visible to other users'],
-  ['project-form-private', 'Hide project from other users'],
-  ['project-form-edit-shared', 'Make project visible to other users'],
-  ['project-form-edit-private', 'Hide project from other users'],
+  ['btn-graph-clear', 'Clear the graph']
 ];
 
 // Context menus.
