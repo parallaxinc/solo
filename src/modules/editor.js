@@ -245,38 +245,42 @@ function initEventHandlers() {
   // Left side toolbar event handlers                                        //
   // ----------------------------------------------------------------------- //
   // Compile the program
-  const compilerButton = document.getElementById('prop-btn-comp');
-  compilerButton.addEventListener('click', () => compile());
+  document.getElementById('prop-btn-comp').addEventListener('click', () => compile());
   // $('#prop-btn-comp').on('click', () => compile());
 
   // Load the program to the device RAM
-  const ramButton = document.getElementById('prop-btn-ram');
-  ramButton.addEventListener('click', () => loadInto('Load into RAM','bin','CODE','RAM'));
+  document.getElementById('prop-btn-ram').addEventListener('click', () => loadInto(
+      'Load into RAM', 'bin', 'CODE', 'RAM'));
   // $('#prop-btn-ram').on('click', () => {
   //   loadInto('Load into RAM', 'bin', 'CODE', 'RAM');
   // });
 
   // Load the program into the device EEPROM
-  const eepromButton = document.getElementById('prop-btn-eeprom');
-  eepromButton.addEventListener('click', () => loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM'));
+  document.getElementById('prop-btn-eeprom').addEventListener('click', () => loadInto(
+      'Load into EEPROM', 'eeprom', 'CODE', 'EEPROM'));
   // $('#prop-btn-eeprom').on('click', () => {
   //   loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM');
   // });
 
   // Open a serial terminal window
-  $('#prop-btn-term').on('click', () => serialConsole());
+  document.getElementById('prop-btn-term').addEventListener('click', () => serialConsole());
+  // $('#prop-btn-term').on('click', () => serialConsole());
 
   // Open a graphing window
-  $('#prop-btn-graph').on('click', () => graphingConsole());
+  document.getElementById('prop-btn-graph').addEventListener('click', () => graphingConsole());
+  // $('#prop-btn-graph').on('click', () => graphingConsole());
 
   // Init C source editor toolbar event handlers
   initCSourceEditorButtonEvenHandlers();
 
-  // TODO: The event handler is just stub code.
-  $('#term-graph-setup').on('click', () => configureTermGraph());
+  // The event handler is just stub code.
+  // const termGraphSetup = document.getElementById('term-graph-setup');
+  // termGraphSetup.addEventListener('click', () => configureTermGraph());
+  // $('#term-graph-setup').on('click', () => configureTermGraph());
 
   // Close upload project dialog event handler
-  $('#upload-close').on('click', () => clearUploadInfo());
+  document.getElementById('upload-close').addEventListener('click', () => clearUploadInfo());
+  // $('#upload-close').on('click', () => clearUploadInfo());
 
 
   // **********************************
@@ -287,26 +291,34 @@ function initEventHandlers() {
   projectNameUIEvents();
 
   // Blocks/Code/XML button
-  $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
-  $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
-  $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
+  document.getElementById('btn-view-propc').addEventListener('click', () => renderContent('tab_propc'));
+  // $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
+
+  document.getElementById('btn-view-blocks').addEventListener('click', () => renderContent('tab_blocks'));
+  // $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
+
+  document.getElementById('btn-view-xml').addEventListener('click', () => renderContent('tab_xml'));
+  // $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
 
   // New Project toolbar button
   // TODO: New Project should be treated the same way as Open Project.
-  $('#new-project-button').on('click', () => newProjectEvent());
+  document.getElementById('new-project-button').addEventListener('click', () => newProjectEvent());
+  // $('#new-project-button').on('click', () => newProjectEvent());
 
   // Open Project toolbar button
-  // $('#open-project-button').on('click', () => openProjectDialog.show());
-  $('#open-project-button').on('click', () => openProjectEvent());
+  document.getElementById('open-project-button').addEventListener('click', () => openProjectEvent());
+  // $('#open-project-button').on('click', () => openProjectEvent());
 
   // Save Project toolbar button
-  $('#save-btn, #save-project').on('click', () => saveProject());
+  document.getElementById('save-btn').addEventListener('click', () => saveProject());
+  document.getElementById('save-project').addEventListener('click', () => saveProject());
+  // $('#save-btn, #save-project').on('click', () => saveProject());
 
   // Save project nudge dialog onclose event handler
   // Not implemented
-  $('#save-check-dialog').on('hidden.bs.modal', () => {
-    logConsoleMessage('Closing the project save timer dialog.');
-  });
+  // $('#save-check-dialog').on('hidden.bs.modal', () => {
+  //   logConsoleMessage('Closing the project save timer dialog.');
+  // });
 
   // --------------------------------
   // Hamburger menu items
@@ -328,13 +340,15 @@ function initEventHandlers() {
 
   // Download project to Simple IDE
   // TODO: Investigate why downloadPropC() is missing.
-  $('#download-side').on('click', () => downloadPropC());
+  // $('#download-side').on('click', () => downloadPropC());
+  document.getElementById('download-side').addEventListener('click', () => downloadPropC());
 
   // Import project file menu selector
   // Import (upload) project from storage. This is designed to merge code from an existing
   // project into the current project or to simply replace the contents of the current
   // project with the contents of the imported project.
-  $('#upload-project').on('click', () => importProjectDialog.show());
+  // $('#upload-project').on('click', () => importProjectDialog.show());
+  document.getElementById('upload-project').addEventListener('click', () => importProjectDialog.show());
 
   // ---- Hamburger drop down horizontal line ----
 
@@ -362,13 +376,19 @@ function initEventHandlers() {
 
 
   // Save As button
-  $('#save-as-btn').on('click', () => saveAsDialog());
+  document.getElementById('save-as-btn').addEventListener('click', () => saveAsDialog());
+  // $('#save-as-btn').on('click', () => saveAsDialog());
 
   // Save-As Project
+  // TODO: Is this still an option?
   $('#save-project-as').on('click', () => saveAsDialog());
 
   // Save As new board type
-  $('#save-as-board-type').on('change', () => checkBoardType($('#saveAsDialogSender').html()));
+  document.getElementById('save-as-board-type').addEventListener('change', () => {
+    const dialogSender = document.getElementById('saveAsDialogSender');
+    checkBoardType(dialogSender.html());
+  });
+  // $('#save-as-board-type').on('change', () => checkBoardType($('#saveAsDialogSender').html()));
 
   // popup modal
   $('#save-as-board-btn').on('click', () => saveProjectAs(
@@ -1275,9 +1295,9 @@ function clearBlocklyWorkspace() {
  * experimental code-only mode to set up graphing and terminal
  * baud rate
  */
-function configureTermGraph() {
-  return true;
-}
+// function configureTermGraph() {
+//   return true;
+// }
 
 /**
  * Render the branding logo and related text.
