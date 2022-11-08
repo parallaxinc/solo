@@ -131,27 +131,27 @@ function getWorkspaceSvg() {
  * Execute this code as soon as the DOM becomes ready.
  * Replaces the old document.ready() construct
  */
-$(() => {
+document.addEventListener('DOMContentLoaded', function(event) {
   logConsoleMessage(`Blockly Core: ${Blockly.VERSION}`);
 
   // This will initiate a number of async calls to set up the page
   const result = initializePage();
   result.catch((err) => console.log(err));
 
-  // Set up all of the UI event handlers before we call UI stuff
+  // Set up all UI event handlers before we call UI stuff
   initEventHandlers();
 
-  // Set the compile toolbar buttons to unavailable
+  // Set compile toolbar buttons to unavailable
   // setPropToolbarButtons();
   // Hide the loading... message
   document.getElementById('client-loading').classList.add('hidden');
   propToolbarButtonController();
 
   // The BASE_URL is deprecated since it is always the empty string
-  $('.url-prefix').attr('href', function(idx, cur) {
-    // return BASE_URL + cur;
-    return cur;
-  });
+  // $('.url-prefix').attr('href', function(idx, cur) {
+  //   // return BASE_URL + cur;
+  //   return cur;
+  // });
 
   // Init the BP Launcher socket connection watchdog timer
   watchdog(2);
@@ -201,18 +201,26 @@ async function initializePage() {
 }
 
 /**
- * Insert the text strings (internationalization) for all of the UI
+ * Insert the text strings (internationalization) for all UI
  * elements on the editor page once the page has been loaded.
  */
 async function initInternationalText() {
-  $('.keyed-lang-string').each(async function(key, value) {
-    await initHtmlLabels(value);
-  });
+  const labels = document.getElementsByClassName('keyed-lang-string');
+  for (let index = 0; index < labels.length; index++) {
+    await initHtmlLabels(labels[index]);
+  }
 
-  // insert text strings (internationalization) into button/link tooltips
+  // Insert text strings (internationalization) into button/link tooltips
+  // The tooltipText array is 2 dimensions consisting of a key and a value.
+  // The key is a HTMLElement id and the value is the text contained in the
+  // balloon help popup.
+  const elementId = 0;
+  const balloonText = 1;
+
   for (let i = 0; i < tooltipText.length; i++) {
-    if (tooltipText[i] && document.getElementById(tooltipText[i][0])) {
-      $('#' + tooltipText[i][0]).attr('title', tooltipText[i][1]);
+    const element = document.getElementById(tooltipText[i][elementId]);
+    if (tooltipText[i] && element) {
+      element.setAttribute('title', tooltipText[i][balloonText]);
     }
   }
 }
@@ -229,28 +237,31 @@ function initEventHandlers() {
   openProjectDialog.initEventHandlers();
   importProjectDialog.initEventHandlers();
 
-  // Update the blockly workspace to ensure that it takes the remainder of
-  // the window.
-  $(window).on('resize', function() {
-    // TODO: Add correct parameters to the resetToolBoxSizing()
-    resetToolBoxSizing(100);
-  });
+  // Update the blockly workspace to ensure that it takes
+  // the remainder of the window.
+  window.addEventListener('resize', () => resetToolBoxSizing(100));
 
   // ----------------------------------------------------------------------- //
   // Left side toolbar event handlers                                        //
   // ----------------------------------------------------------------------- //
   // Compile the program
-  $('#prop-btn-comp').on('click', () => compile());
+  const compilerButton = document.getElementById('prop-btn-comp');
+  compilerButton.addEventListener('click', () => compile());
+  // $('#prop-btn-comp').on('click', () => compile());
 
   // Load the program to the device RAM
-  $('#prop-btn-ram').on('click', () => {
-    loadInto('Load into RAM', 'bin', 'CODE', 'RAM');
-  });
+  const ramButton = document.getElementById('prop-btn-ram');
+  ramButton.addEventListener('click', () => loadInto('Load into RAM','bin','CODE','RAM'));
+  // $('#prop-btn-ram').on('click', () => {
+  //   loadInto('Load into RAM', 'bin', 'CODE', 'RAM');
+  // });
 
   // Load the program into the device EEPROM
-  $('#prop-btn-eeprom').on('click', () => {
-    loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM');
-  });
+  const eepromButton = document.getElementById('prop-btn-eeprom');
+  eepromButton.addEventListener('click', () => loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM'));
+  // $('#prop-btn-eeprom').on('click', () => {
+  //   loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM');
+  // });
 
   // Open a serial terminal window
   $('#prop-btn-term').on('click', () => serialConsole());
