@@ -131,7 +131,7 @@ function getWorkspaceSvg() {
  * Execute this code as soon as the DOM becomes ready.
  * Replaces the old document.ready() construct
  */
-document.addEventListener('DOMContentLoaded', function(event) {
+document.addEventListener('DOMContentLoaded', function() {
   logConsoleMessage(`Blockly Core: ${Blockly.VERSION}`);
 
   // This will initiate a number of async calls to set up the page
@@ -291,27 +291,34 @@ function initEventHandlers() {
   projectNameUIEvents();
 
   // Blocks/Code/XML button
-  document.getElementById('btn-view-propc').addEventListener('click', () => renderContent('tab_propc'));
+  document.getElementById('btn-view-propc')
+      .addEventListener('click', () => renderContent('tab_propc'));
   // $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
 
-  document.getElementById('btn-view-blocks').addEventListener('click', () => renderContent('tab_blocks'));
+  document.getElementById('btn-view-blocks')
+      .addEventListener('click', () => renderContent('tab_blocks'));
   // $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
 
-  document.getElementById('btn-view-xml').addEventListener('click', () => renderContent('tab_xml'));
+  document.getElementById('btn-view-xml')
+      .addEventListener('click', () => renderContent('tab_xml'));
   // $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
 
   // New Project toolbar button
   // TODO: New Project should be treated the same way as Open Project.
-  document.getElementById('new-project-button').addEventListener('click', () => newProjectEvent());
+  document.getElementById('new-project-button')
+      .addEventListener('click', () => newProjectEvent());
   // $('#new-project-button').on('click', () => newProjectEvent());
 
   // Open Project toolbar button
-  document.getElementById('open-project-button').addEventListener('click', () => openProjectEvent());
+  document.getElementById('open-project-button')
+      .addEventListener('click', () => openProjectEvent());
   // $('#open-project-button').on('click', () => openProjectEvent());
 
   // Save Project toolbar button
-  document.getElementById('save-btn').addEventListener('click', () => saveProject());
-  document.getElementById('save-project').addEventListener('click', () => saveProject());
+  document.getElementById('save-btn')
+      .addEventListener('click', () => saveProject());
+  document.getElementById('save-project')
+      .addEventListener('click', () => saveProject());
   // $('#save-btn, #save-project').on('click', () => saveProject());
 
   // Save project nudge dialog onclose event handler
@@ -325,9 +332,10 @@ function initEventHandlers() {
   // --------------------------------
 
   // Edit project details
-  document.getElementById('edit-project-details').addEventListener('click', () => {
-    editProjectDialog.editProjectDetails();
-  });
+  document.getElementById('edit-project-details')
+      .addEventListener('click', () => {
+        editProjectDialog.editProjectDetails();
+      });
 
   // $('#edit-project-details').on('click', () => {
   //   editProjectDialog.editProjectDetails();
@@ -341,14 +349,16 @@ function initEventHandlers() {
   // Download project to Simple IDE
   // TODO: Investigate why downloadPropC() is missing.
   // $('#download-side').on('click', () => downloadPropC());
-  document.getElementById('download-side').addEventListener('click', () => downloadPropC());
+  document.getElementById('download-side')
+      .addEventListener('click', () => downloadPropC());
 
   // Import project file menu selector
   // Import (upload) project from storage. This is designed to merge code from an existing
   // project into the current project or to simply replace the contents of the current
   // project with the contents of the imported project.
   // $('#upload-project').on('click', () => importProjectDialog.show());
-  document.getElementById('upload-project').addEventListener('click', () => importProjectDialog.show());
+  document.getElementById('upload-project')
+      .addEventListener('click', () => importProjectDialog.show());
 
   // ---- Hamburger drop down horizontal line ----
 
@@ -376,18 +386,19 @@ function initEventHandlers() {
 
 
   // Save As button
-  document.getElementById('save-as-btn').addEventListener('click', () => saveAsDialog());
+  document.getElementById('save-as-btn')
+      .addEventListener('click', () => saveAsDialog());
   // $('#save-as-btn').on('click', () => saveAsDialog());
 
   // Save-As Project
-  // TODO: Is this still an option?
-  $('#save-project-as').on('click', () => saveAsDialog());
+  // $('#save-project-as').on('click', () => saveAsDialog());
 
   // Save As new board type
-  document.getElementById('save-as-board-type').addEventListener('change', () => {
-    const dialogSender = document.getElementById('saveAsDialogSender');
-    checkBoardType(dialogSender.html());
-  });
+  document.getElementById('save-as-board-type')
+      .addEventListener('change', () => {
+        const dialogSender = document.getElementById('saveAsDialogSender');
+        checkBoardType(dialogSender.html());
+      });
   // $('#save-as-board-type').on('change', () => checkBoardType($('#saveAsDialogSender').html()));
 
   // popup modal
