@@ -65,8 +65,8 @@ export const APP_QA = 'RC4';
  * This is a temporary use while environment variables are implemented.
  * @type {string}
  */
-// export const APP_STAGE = 'TEST';
-export const APP_STAGE = 'PROD';
+export const APP_STAGE = 'TEST';
+// export const APP_STAGE = 'PROD';
 
 /**
  * The name used to store a project that is being loaded from

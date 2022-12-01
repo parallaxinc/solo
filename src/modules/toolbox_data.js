@@ -21,6 +21,7 @@
  */
 
 import {toolboxLabel} from './blockly/language/en/toolbox_lables';
+import {APP_STAGE} from './constants';
 
 /**
  * Create a string representation of an XML array that defines the menu
@@ -1009,7 +1010,12 @@ function menuCommunicationsEPaper() {
 function menuCommunicationsProtocols() {
   let menu = `<category key="category_communicate_protocols" exclude="heb,heb-wx,">`;
   menu += menuCommunicationsProtocolsSerial();
-  // menu += menuCommunicationsProtocolIC2();
+
+  // Include the IC2 blocks if we are deploying to a test environment.
+  if (APP_STAGE === 'TEST') {
+    menu += menuCommunicationsProtocolIC2();
+  }
+
   menu += menuCommunicationsProtocolsShift();
   menu += `</category>`;
 
@@ -1044,7 +1050,7 @@ function menuCommunicationsProtocolsSerial() {
 // eslint-disable-next-line no-unused-vars,require-jsdoc
 function menuCommunicationsProtocolIC2() {
   return `
-    <block type="i2c_send" experimental="true">
+    <block type="i2c_send">
         <value name="DATA">
             <block type="math_number">
                 <field name="NUM">10</field>
@@ -1057,7 +1063,7 @@ function menuCommunicationsProtocolIC2() {
             <block type="number_hex"></block>
         </value>
     </block>
-    <block type="i2c_receive" experimental="true">
+    <block type="i2c_receive">
         <value name="ADDR">
             <block type="number_hex"></block>
         </value>
@@ -1065,12 +1071,12 @@ function menuCommunicationsProtocolIC2() {
             <block type="number_hex"></block>
         </value>
     </block>
-    <block type="i2c_busy" experimental="true">
+    <block type="i2c_busy">
         <value name="DEVICE">
             <block type="number_hex"></block>
         </value>
     </block>
-    <block type="i2c_mode" experimental="true"></block>
+    <block type="i2c_mode"></block>
   `;
 }
 
