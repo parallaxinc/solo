@@ -5841,7 +5841,7 @@ Blockly.propc.i2c_send = function() {
       let bType = connBlock.inputList['0'].fieldRow['0'].variable_.name;
       bType = Blockly.propc.vartype_[
           Blockly.propc.variableDB_.getName(bType, Blockly.VARIABLE_CATEGORY_NAME)
-          ];
+      ];
       if (bType) {
         if (bType.indexOf('char') > -1) {
           dType = 'String';
