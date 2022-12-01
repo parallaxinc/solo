@@ -415,35 +415,42 @@ function initEventHandlers() {
   document.getElementById('btn-graph-clear')
       .addEventListener('click', () => graphStartStop('clear'));
 
-
-  // Client install instruction modals
-  // $('.show-os-win').on('click', () => showOS('Windows'));
-  // $('.show-os-mac').on('click', () => showOS('MacOS'));
-  // $('.show-os-chr').on('click', () => showOS('ChromeOS'));
-  // $('.show-os-lnx').on('click', () => showOS('Linux'));
-
-  document.getElementById('.show-os-win')
-      .addEventListener('click', () => showOS('Windows'));
-  document.getElementById('.show-os-mac')
-      .addEventListener('click', () => showOS('MacOS'));
-  document.getElementById('.show-os-chr')
-      .addEventListener('click', () => showOS('ChromeOS'));
-  document.getElementById('.show-os-lnx')
-      .addEventListener('click', () => showOS('Linux'));
-
-  // Serial port drop down onClick event handler
-  // $('#comPort').on('change', (event) => {
-  //   logConsoleMessage(`Selecting port: ${event.target.value}`);
-  //   clientService.setSelectedPort(event.target.value);
-  //   propToolbarButtonController();
-  // });
-
-  document.getElementById('#comPort')
+  document.getElementById('comPort')
       .addEventListener('change', (event) => {
         logConsoleMessage(`Selecting port: ${event.target.value}`);
         clientService.setSelectedPort(event.target.value);
         propToolbarButtonController();
       });
+
+  // These elements appear more than once in the HTML page. We are adding a
+  // listener to each matching element.
+  let matchingElements = document.getElementsByClassName('.show-os-win');
+  if (matchingElements && matchingElements.length > 0) {
+    matchingElements.forEach((element) => {
+      element.addEventListener('click', () => showOS('Windows'));
+    });
+  }
+
+  matchingElements = document.getElementById('.show-os-mac');
+  if (matchingElements && matchingElements.length > 0) {
+    matchingElements.forEach((element) => {
+      element.addEventListener('click', () => showOS('MacOS'));
+    });
+  }
+
+  matchingElements = document.getElementById('.show-os-chr');
+  if (matchingElements && matchingElements.length > 0) {
+    matchingElements.forEach((element) => {
+      element.addEventListener('click', () => showOS('ChromeOS'));
+    });
+  }
+
+  matchingElements = document.getElementById('.show-os-lnx');
+  if (matchingElements && matchingElements.length > 0) {
+    matchingElements.forEach((element) => {
+      element.addEventListener('click', () => showOS('Linux'));
+    });
+  }
 }
 
 /**
