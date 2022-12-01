@@ -373,9 +373,6 @@ function initEventHandlers() {
   document.getElementById('save-as-btn')
       .addEventListener('click', () => saveAsDialog());
 
-  // Save-As Project
-  // $('#save-project-as').on('click', () => saveAsDialog());
-
   // Save As new board type
   document.getElementById('save-as-board-type')
       .addEventListener('change', () => {
@@ -384,34 +381,23 @@ function initEventHandlers() {
       });
 
   // popup modal
-  // $('#save-as-board-btn').on('click', () => saveProjectAs(
-  //     $('#save-as-board-type').val(),
-  //     $('#save-as-project-name').val(),
-  // ));
   document.getElementById('save-as-board-btn')
       .addEventListener('click', () => {
-        // $('#save-as-board-type').val(),
-        // $('#save-as-project-name').val(),
         saveProjectAs(
             document.getElementById('save-as-board-type').innerText,
             document.getElementById('save-as-project-name').innerText,
         );
       });
 
-
-  // $('#btn-graph-play').on('click', () => graphPlay(''));
   document.getElementById('btn-graph-play')
       .addEventListener('click', ()=> graphPlay(''));
 
-  // $('#btn-graph-snapshot').on('click', () => downloadGraph());
   document.getElementById('btn-graph-snapshot')
       .addEventListener('click', () => downloadGraph());
 
-  // $('#btn-graph-csv').on('click', () => downloadCSV());
   document.getElementById('btn-graph-csv')
       .addEventListener('click', () => downloadCSV());
 
-  // $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
   document.getElementById('btn-graph-clear')
       .addEventListener('click', () => graphStartStop('clear'));
 
