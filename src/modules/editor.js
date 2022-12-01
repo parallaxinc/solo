@@ -131,27 +131,27 @@ function getWorkspaceSvg() {
  * Execute this code as soon as the DOM becomes ready.
  * Replaces the old document.ready() construct
  */
-$(() => {
+document.addEventListener('DOMContentLoaded', function() {
   logConsoleMessage(`Blockly Core: ${Blockly.VERSION}`);
 
   // This will initiate a number of async calls to set up the page
   const result = initializePage();
   result.catch((err) => console.log(err));
 
-  // Set up all of the UI event handlers before we call UI stuff
+  // Set up all UI event handlers before we call UI stuff
   initEventHandlers();
 
-  // Set the compile toolbar buttons to unavailable
+  // Set compile toolbar buttons to unavailable
   // setPropToolbarButtons();
   // Hide the loading... message
   document.getElementById('client-loading').classList.add('hidden');
   propToolbarButtonController();
 
   // The BASE_URL is deprecated since it is always the empty string
-  $('.url-prefix').attr('href', function(idx, cur) {
-    // return BASE_URL + cur;
-    return cur;
-  });
+  // $('.url-prefix').attr('href', function(idx, cur) {
+  //   // return BASE_URL + cur;
+  //   return cur;
+  // });
 
   // Init the BP Launcher socket connection watchdog timer
   watchdog(2);
@@ -201,18 +201,26 @@ async function initializePage() {
 }
 
 /**
- * Insert the text strings (internationalization) for all of the UI
+ * Insert the text strings (internationalization) for all UI
  * elements on the editor page once the page has been loaded.
  */
 async function initInternationalText() {
-  $('.keyed-lang-string').each(async function(key, value) {
-    await initHtmlLabels(value);
-  });
+  const labels = document.getElementsByClassName('keyed-lang-string');
+  for (let index = 0; index < labels.length; index++) {
+    await initHtmlLabels(labels[index]);
+  }
 
-  // insert text strings (internationalization) into button/link tooltips
+  // Insert text strings (internationalization) into button/link tooltips
+  // The tooltipText array is 2 dimensions consisting of a key and a value.
+  // The key is a HTMLElement id and the value is the text contained in the
+  // balloon help popup.
+  const elementId = 0;
+  const balloonText = 1;
+
   for (let i = 0; i < tooltipText.length; i++) {
-    if (tooltipText[i] && document.getElementById(tooltipText[i][0])) {
-      $('#' + tooltipText[i][0]).attr('title', tooltipText[i][1]);
+    const element = document.getElementById(tooltipText[i][elementId]);
+    if (tooltipText[i] && element) {
+      element.setAttribute('title', tooltipText[i][balloonText]);
     }
   }
 }
@@ -229,43 +237,46 @@ function initEventHandlers() {
   openProjectDialog.initEventHandlers();
   importProjectDialog.initEventHandlers();
 
-  // Update the blockly workspace to ensure that it takes the remainder of
-  // the window.
-  $(window).on('resize', function() {
-    // TODO: Add correct parameters to the resetToolBoxSizing()
-    resetToolBoxSizing(100);
-  });
+  // Update the blockly workspace to ensure that it takes
+  // the remainder of the window.
+  window.addEventListener('resize', () => resetToolBoxSizing(100));
 
   // ----------------------------------------------------------------------- //
   // Left side toolbar event handlers                                        //
   // ----------------------------------------------------------------------- //
   // Compile the program
-  $('#prop-btn-comp').on('click', () => compile());
+  document.getElementById('prop-btn-comp')
+      .addEventListener('click', () => compile());
 
   // Load the program to the device RAM
-  $('#prop-btn-ram').on('click', () => {
-    loadInto('Load into RAM', 'bin', 'CODE', 'RAM');
-  });
+  document.getElementById('prop-btn-ram')
+      .addEventListener('click', () => loadInto(
+          'Load into RAM', 'bin', 'CODE', 'RAM'));
 
   // Load the program into the device EEPROM
-  $('#prop-btn-eeprom').on('click', () => {
-    loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM');
-  });
+  document.getElementById('prop-btn-eeprom')
+      .addEventListener('click', () => loadInto(
+          'Load into EEPROM', 'eeprom', 'CODE', 'EEPROM'));
 
   // Open a serial terminal window
-  $('#prop-btn-term').on('click', () => serialConsole());
+  document.getElementById('prop-btn-term')
+      .addEventListener('click', () => serialConsole());
 
   // Open a graphing window
-  $('#prop-btn-graph').on('click', () => graphingConsole());
+  document.getElementById('prop-btn-graph')
+      .addEventListener('click', () => graphingConsole());
 
   // Init C source editor toolbar event handlers
   initCSourceEditorButtonEvenHandlers();
 
-  // TODO: The event handler is just stub code.
-  $('#term-graph-setup').on('click', () => configureTermGraph());
+  // The event handler is just stub code.
+  // const termGraphSetup = document.getElementById('term-graph-setup');
+  // termGraphSetup.addEventListener('click', () => configureTermGraph());
+  // $('#term-graph-setup').on('click', () => configureTermGraph());
 
   // Close upload project dialog event handler
-  $('#upload-close').on('click', () => clearUploadInfo());
+  document.getElementById('upload-close')
+      .addEventListener('click', () => clearUploadInfo());
 
 
   // **********************************
@@ -276,39 +287,45 @@ function initEventHandlers() {
   projectNameUIEvents();
 
   // Blocks/Code/XML button
-  $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
-  $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
-  $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
+  document.getElementById('btn-view-propc')
+      .addEventListener('click', () => renderContent('tab_propc'));
+
+  document.getElementById('btn-view-blocks')
+      .addEventListener('click', () => renderContent('tab_blocks'));
+
+  document.getElementById('btn-view-xml')
+      .addEventListener('click', () => renderContent('tab_xml'));
 
   // New Project toolbar button
   // TODO: New Project should be treated the same way as Open Project.
-  $('#new-project-button').on('click', () => newProjectEvent());
+  document.getElementById('new-project-button')
+      .addEventListener('click', () => newProjectEvent());
 
   // Open Project toolbar button
-  // $('#open-project-button').on('click', () => openProjectDialog.show());
-  $('#open-project-button').on('click', () => openProjectEvent());
+  document.getElementById('open-project-button')
+      .addEventListener('click', () => openProjectEvent());
 
   // Save Project toolbar button
-  $('#save-btn, #save-project').on('click', () => saveProject());
+  document.getElementById('save-btn')
+      .addEventListener('click', () => saveProject());
+  document.getElementById('save-project')
+      .addEventListener('click', () => saveProject());
 
   // Save project nudge dialog onclose event handler
   // Not implemented
-  $('#save-check-dialog').on('hidden.bs.modal', () => {
-    logConsoleMessage('Closing the project save timer dialog.');
-  });
+  // $('#save-check-dialog').on('hidden.bs.modal', () => {
+  //   logConsoleMessage('Closing the project save timer dialog.');
+  // });
 
   // --------------------------------
   // Hamburger menu items
   // --------------------------------
 
   // Edit project details
-  document.getElementById('edit-project-details').addEventListener('click', () => {
-    editProjectDialog.editProjectDetails();
-  });
-
-  // $('#edit-project-details').on('click', () => {
-  //   editProjectDialog.editProjectDetails();
-  // });
+  document.getElementById('edit-project-details')
+      .addEventListener('click', () => {
+        editProjectDialog.editProjectDetails();
+      });
 
   // Help and Reference - online help web pages
   // Implemented as an href in the menu
@@ -317,13 +334,15 @@ function initEventHandlers() {
 
   // Download project to Simple IDE
   // TODO: Investigate why downloadPropC() is missing.
-  $('#download-side').on('click', () => downloadPropC());
+  document.getElementById('download-side')
+      .addEventListener('click', () => downloadPropC());
 
   // Import project file menu selector
   // Import (upload) project from storage. This is designed to merge code from an existing
   // project into the current project or to simply replace the contents of the current
   // project with the contents of the imported project.
-  $('#upload-project').on('click', () => importProjectDialog.show());
+  document.getElementById('upload-project')
+      .addEventListener('click', () => importProjectDialog.show());
 
   // ---- Hamburger drop down horizontal line ----
 
@@ -351,38 +370,80 @@ function initEventHandlers() {
 
 
   // Save As button
-  $('#save-as-btn').on('click', () => saveAsDialog());
+  document.getElementById('save-as-btn')
+      .addEventListener('click', () => saveAsDialog());
 
   // Save-As Project
-  $('#save-project-as').on('click', () => saveAsDialog());
+  // $('#save-project-as').on('click', () => saveAsDialog());
 
   // Save As new board type
-  $('#save-as-board-type').on('change', () => checkBoardType($('#saveAsDialogSender').html()));
+  document.getElementById('save-as-board-type')
+      .addEventListener('change', () => {
+        const dialogSender = document.getElementById('saveAsDialogSender');
+        checkBoardType(dialogSender.html());
+      });
 
   // popup modal
-  $('#save-as-board-btn').on('click', () => saveProjectAs(
-      $('#save-as-board-type').val(),
-      $('#save-as-project-name').val(),
-  ));
+  // $('#save-as-board-btn').on('click', () => saveProjectAs(
+  //     $('#save-as-board-type').val(),
+  //     $('#save-as-project-name').val(),
+  // ));
+  document.getElementById('save-as-board-btn')
+      .addEventListener('click', () => {
+        // $('#save-as-board-type').val(),
+        // $('#save-as-project-name').val(),
+        saveProjectAs(
+            document.getElementById('save-as-board-type').innerText,
+            document.getElementById('save-as-project-name').innerText,
+        );
+      });
 
-  $('#btn-graph-play').on('click', () => graphPlay(''));
-  $('#btn-graph-snapshot').on('click', () => downloadGraph());
-  $('#btn-graph-csv').on('click', () => downloadCSV());
-  $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
+
+  // $('#btn-graph-play').on('click', () => graphPlay(''));
+  document.getElementById('btn-graph-play')
+      .addEventListener('click', ()=> graphPlay(''));
+
+  // $('#btn-graph-snapshot').on('click', () => downloadGraph());
+  document.getElementById('btn-graph-snapshot')
+      .addEventListener('click', () => downloadGraph());
+
+  // $('#btn-graph-csv').on('click', () => downloadCSV());
+  document.getElementById('btn-graph-csv')
+      .addEventListener('click', () => downloadCSV());
+
+  // $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
+  document.getElementById('btn-graph-clear')
+      .addEventListener('click', () => graphStartStop('clear'));
 
 
   // Client install instruction modals
-  $('.show-os-win').on('click', () => showOS('Windows'));
-  $('.show-os-mac').on('click', () => showOS('MacOS'));
-  $('.show-os-chr').on('click', () => showOS('ChromeOS'));
-  $('.show-os-lnx').on('click', () => showOS('Linux'));
+  // $('.show-os-win').on('click', () => showOS('Windows'));
+  // $('.show-os-mac').on('click', () => showOS('MacOS'));
+  // $('.show-os-chr').on('click', () => showOS('ChromeOS'));
+  // $('.show-os-lnx').on('click', () => showOS('Linux'));
+
+  document.getElementById('.show-os-win')
+      .addEventListener('click', () => showOS('Windows'));
+  document.getElementById('.show-os-mac')
+      .addEventListener('click', () => showOS('MacOS'));
+  document.getElementById('.show-os-chr')
+      .addEventListener('click', () => showOS('ChromeOS'));
+  document.getElementById('.show-os-lnx')
+      .addEventListener('click', () => showOS('Linux'));
 
   // Serial port drop down onClick event handler
-  $('#comPort').on('change', (event) => {
-    logConsoleMessage(`Selecting port: ${event.target.value}`);
-    clientService.setSelectedPort(event.target.value);
-    propToolbarButtonController();
-  });
+  // $('#comPort').on('change', (event) => {
+  //   logConsoleMessage(`Selecting port: ${event.target.value}`);
+  //   clientService.setSelectedPort(event.target.value);
+  //   propToolbarButtonController();
+  // });
+
+  document.getElementById('#comPort')
+      .addEventListener('change', (event) => {
+        logConsoleMessage(`Selecting port: ${event.target.value}`);
+        clientService.setSelectedPort(event.target.value);
+        propToolbarButtonController();
+      });
 }
 
 /**
@@ -404,7 +465,8 @@ function openProjectEvent() {
  * Display the Solo license
  */
 function showLicenseEventHandler() {
-  $('#licenseModal').modal();
+  // $('#licenseModal').modal();
+  document.getElementById('licenseModal').modal();
 }
 
 /**
@@ -1264,9 +1326,9 @@ function clearBlocklyWorkspace() {
  * experimental code-only mode to set up graphing and terminal
  * baud rate
  */
-function configureTermGraph() {
-  return true;
-}
+// function configureTermGraph() {
+//   return true;
+// }
 
 /**
  * Render the branding logo and related text.
@@ -1604,6 +1666,7 @@ function projectNameUIEvents() {
       .on('keyup', () => {
         // validate the input to ensure it's not too long, and save
         // changes as the user types.
+        // const projectName = document.getElementById('project');
         const tempProjectName = $('.project-name').html();
         if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH ||
             tempProjectName.length < 1) {
