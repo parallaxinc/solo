@@ -5,7 +5,7 @@ Parallax robots and sensors.
 
 [https://solo.parallax.com/](https://solo.parallax.com)
 
-[![Actions Status](https://github.com/parallaxinc/solo/workflows/Solo%20Test/badge.svg)](https://github.com/parallaxinc/solo/actions)
+[![Actions Status](https://github.com/parallaxinc/solo/workflows/Solo-Test/badge.svg)](https://github.com/parallaxinc/solo/actions)
 
 ### Supported Browsers
 Chrome - v84+  
