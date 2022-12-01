@@ -107,8 +107,8 @@ module.exports = (opts) => {
           use: [
             {
               // Creates `style` nodes from JS strings
-              // loader: isDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader,
-              loader: MiniCssExtractPlugin.loader,
+              loader: devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+              // loader: MiniCssExtractPlugin.loader,
             },
             {
             // Translates CSS into CommonJS
