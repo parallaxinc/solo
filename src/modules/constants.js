@@ -24,7 +24,7 @@
  * Global flag to enable/disable the Sentry logger
  * @type {boolean}
  */
-export const EnableSentry = true;
+export const EnableSentry = false;
 
 /**
  * Set the application version string
@@ -51,7 +51,7 @@ export const APP_VERSION = '1.7.0';
  * to QA or production.
  * @type {string}
  */
-export const APP_BUILD = '249';
+export const APP_BUILD = '250';
 
 /**
  * Development build stage designator
