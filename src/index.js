@@ -38,18 +38,6 @@ export let deferredPrompt;
 export let pwaActive = false;
 
 
-// Start up the sentry monitor before we run
-// startSentry()
-//     .then( (resp) => {
-//       if (EnableSentry) {
-//         console.log(`Sentry has started. ${resp}`);
-//       }
-//     })
-//     .catch((err) => {
-//       console.log(`Sentry failed to start. ${err.message}`)
-//     });
-
-
 // Load the service worker if the browser supports it.
 if ("serviceWorker" in navigator) {
   // Register the service worker only after the page load is complete. This
