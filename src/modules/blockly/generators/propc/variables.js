@@ -30,7 +30,7 @@
  *         carsongracey@gmail.com    (Carson Gracey)
  */
 
-import Blockly from 'blockly/core.js';
+import Blockly from 'blockly/core';
 import {colorPalette} from '../propc.js';
 import {ShowBlockComments} from '../../../constants';
 
@@ -53,6 +53,7 @@ let tempArrayNumber = 0;
  */
 Blockly.Blocks.variables_get = {
   helpUrl: Blockly.MSG_VARIABLES_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_VARIABLES_GET_TOOLTIP);
     this.setColour(colorPalette.getColor('variables'));
@@ -60,9 +61,10 @@ Blockly.Blocks.variables_get = {
     this.appendDummyInput('get_variable')
         .appendField(new Blockly.FieldVariable(
             Blockly.LANG_VARIABLES_GET_ITEM), 'VAR');
+
     this.setOutput(true);
-    this.setCommentText(
-        ShowBlockComments? 'This block retrieves the value of a variable. [variables_get]': null);
+    this.setCommentText(ShowBlockComments ?
+        'This block retrieves the value of a variable. [variables_get]': null);
 
     /**
      * This does not appear to be used anywhere.
@@ -82,6 +84,7 @@ Blockly.propc.variables_get = function() {
   const code = Blockly.propc.variableDB_.getName(
       this.getFieldValue('VAR'),
       Blockly.VARIABLE_CATEGORY_NAME);
+
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
 
@@ -93,6 +96,7 @@ Blockly.propc.variables_get = function() {
  */
 Blockly.Blocks.variables_set = {
   helpUrl: Blockly.MSG_VARIABLES_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_VARIABLES_SET_TOOLTIP);
     this.setColour(colorPalette.getColor('variables'));
@@ -103,8 +107,8 @@ Blockly.Blocks.variables_set = {
 
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true);
-    this.setCommentText(
-        ShowBlockComments ? 'This block assigns a value to a variable. [variables_set]' : null);
+    this.setCommentText(ShowBlockComments ?
+        'This block assigns a value to a variable. [variables_set]' : null);
   },
 };
 
@@ -122,6 +126,7 @@ Blockly.propc.variables_set = function() {
   const varName = Blockly.propc.variableDB_.getName(
       this.getFieldValue('VAR'),
       Blockly.VARIABLE_CATEGORY_NAME);
+
   // Look for a type declaration for the variable
   if (Blockly.propc.vartype_[varName] === undefined) {
     if (argument0.indexOf('int') > -1) {
@@ -217,6 +222,7 @@ Blockly.Blocks.array_get = {
   mutationToDom: function() {
     const container = document.createElement('mutation');
     container.setAttribute('array_list', this.arrayList.join(','));
+
     return container;
   },
 
