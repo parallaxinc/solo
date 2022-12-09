@@ -34,8 +34,6 @@
   "homepage": "https://github.com/parallaxinc/solo#readme",
   "dependencies": {
     "@mapbox/node-pre-gyp": "^1.0.7",
-    "@sentry/browser": "^7.24.2",
-    "@sentry/tracing": "^7.24.2",
     "ace-builds": "^1.4.8",
     "blockly": "^3.20200924.4",
     "bootbox": "^5.5.3",
@@ -61,7 +59,6 @@
     "workbox-window": "6.5.4"
   },
   "devDependencies": {
-    "@sentry/webpack-plugin": "^1.20.0",
     "@types/ace": "0.0.43",
     "acorn": "^7.1.1",
     "chai": "^4.3.6",
