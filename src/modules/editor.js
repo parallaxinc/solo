@@ -463,8 +463,9 @@ function openProjectEvent() {
  * Display the Solo license
  */
 function showLicenseEventHandler() {
-  // $('#licenseModal').modal();
-  document.getElementById('licenseModal').modal();
+  // The modal method belongs to the jQuery object.
+  // document.getElementById('licenseModal').modal();
+  $('#licenseModal').modal();
 }
 
 /**
@@ -567,7 +568,7 @@ async function initClientDownloadLinks() {
       `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe`);
 
   $('.launcher-win64zip-link').attr('href',
-      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe.zip`);
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.zip`);
 
   // BP Client for macOS
   $('.client-mac-link').attr('href',
