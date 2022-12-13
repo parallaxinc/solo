@@ -415,25 +415,25 @@ function initEventHandlers() {
 
   // These elements appear more than once in the HTML page. We are adding a
   // listener to each matching element.
-  let matchingElements = document.getElementsByClassName('.show-os-win');
+  let matchingElements = document.getElementsByClassName('show-os-win');
   if (matchingElements && matchingElements.length > 0) {
-    matchingElements.forEach((element) => {
-      element.addEventListener('click', () => showOS('Windows'));
-    });
+    for (let index = 0; index < matchingElements.length; index++) {
+      matchingElements[index].addEventListener('click', () => showOS('Windows'));
+    }
   }
 
-  matchingElements = document.getElementById('.show-os-mac');
+  matchingElements = document.getElementsByClassName('show-os-mac');
   if (matchingElements && matchingElements.length > 0) {
-    matchingElements.forEach((element) => {
-      element.addEventListener('click', () => showOS('MacOS'));
-    });
+    for (let index = 0; index < matchingElements.length; index++) {
+      matchingElements[index].addEventListener('click', () => showOS('MacOS'));
+    }
   }
 
-  matchingElements = document.getElementById('.show-os-chr');
+  matchingElements = document.getElementsByClassName('show-os-chr');
   if (matchingElements && matchingElements.length > 0) {
-    matchingElements.forEach((element) => {
-      element.addEventListener('click', () => showOS('ChromeOS'));
-    });
+    for (let index = 0; index < matchingElements.length; index++) {
+      matchingElements[index].addEventListener('click', () => showOS('ChromeOS'));
+    }
   }
 }
 
