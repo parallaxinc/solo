@@ -127,8 +127,8 @@ PageTextLabels['client_download_launcher_macos_mojave_installer'] = 'BP-Launcher
 PageTextLabels['client_download_launcher_macos_high_sierra_installer'] = 'BP-Launcher installer for macOS High Sierra';
 
 // Windows Launcher installations
-PageTextLabels['clientdownload_launcher_windows64_installer'] = 'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer';
-PageTextLabels['clientdownload_launcher_windows64zip_installer'] = 'Windows 7/8/8.1/10 (64-bit) BP-Launcher installer (zip)';
+PageTextLabels['clientdownload_launcher_windows64_installer'] = 'Windows 8/8.1/10/11 (64-bit) BP-Launcher installer';
+PageTextLabels['clientdownload_launcher_windows64zip_installer'] = 'Windows 8/8.1/10/11 (64-bit) BP-Launcher installer (zip)';
 
 PageTextLabels['clientdownload_download_installer'] = 'Download the installer';
 PageTextLabels['clientdownload_download_launcher'] = 'Install the Launcher App';
