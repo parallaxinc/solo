@@ -435,13 +435,6 @@ function initEventHandlers() {
       element.addEventListener('click', () => showOS('ChromeOS'));
     });
   }
-
-  matchingElements = document.getElementById('.show-os-lnx');
-  if (matchingElements && matchingElements.length > 0) {
-    matchingElements.forEach((element) => {
-      element.addEventListener('click', () => showOS('Linux'));
-    });
-  }
 }
 
 /**
