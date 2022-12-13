@@ -32,8 +32,6 @@
 
 
 import Blockly from 'blockly/core';
-import * as Sentry from '@sentry/browser';
-
 import {getDefaultProfile, getProjectInitialState} from '../../../project';
 import {colorPalette} from '../propc';
 
@@ -134,6 +132,7 @@ Blockly.propc.base_freqout = function() {
   return 'freqout(' + pin + ', ' + duration + ', ' + frequency + ');\n';
 };
 
+
 /**
  *
  * @type {{
@@ -147,6 +146,7 @@ Blockly.propc.base_freqout = function() {
  */
 Blockly.Blocks.base_count = {
   helpUrl: Blockly.MSG_ANALOG_PULSE_IN_OUT_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_BASE_COUNT_TOOLTIP);
     this.setColour(colorPalette.getColor('io'));
@@ -159,11 +159,16 @@ Blockly.Blocks.base_count = {
     this.setNextStatement(false, null);
     this.setOutput(true, 'Number');
   },
+
   mutationToDom: Blockly.Blocks['base_freqout'].mutationToDom,
+
   domToMutation: Blockly.Blocks['base_freqout'].domToMutation,
+
   addPinMenu: Blockly.Blocks['base_freqout'].addPinMenu,
+
   setToOther: Blockly.Blocks['base_freqout'].setToOther,
 };
+
 
 /**
  *
@@ -196,6 +201,7 @@ Blockly.propc.base_count = function() {
  */
 Blockly.Blocks.pulse_in = {
   helpUrl: Blockly.MSG_ANALOG_PULSE_IN_OUT_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_PULSE_IN_TOOLTIP);
     this.setColour(colorPalette.getColor('io'));
@@ -211,9 +217,13 @@ Blockly.Blocks.pulse_in = {
     this.setNextStatement(false, null);
     this.setOutput(true, 'Number');
   },
+
   mutationToDom: Blockly.Blocks['base_freqout'].mutationToDom,
+
   domToMutation: Blockly.Blocks['base_freqout'].domToMutation,
+
   addPinMenu: Blockly.Blocks['base_freqout'].addPinMenu,
+
   setToOther: Blockly.Blocks['base_freqout'].setToOther,
 };
 
@@ -631,7 +641,7 @@ Blockly.Blocks.fb360_setup = {
   onchange: function() {
     let pinWarn = 'WARNING: You need a Feedback 360\u00B0 servo initialize' +
         ' block set to match the PIN on this block!';
-    const blocks = Blockly.getMainWorkspace().getAllBlocks();
+    const blocks = Blockly.getMainWorkspace().getAllBlocks(false);
 
     // Iterate through every block.
     for (let x = 0; x < blocks.length; x++) {
@@ -648,7 +658,7 @@ Blockly.Blocks.fb360_setup = {
       if (this.otherPin) {
         myPin = Blockly.propc.valueToCode(
             this, 'PIN', Blockly.propc.ORDER_ATOMIC);
-        if (!isNaN(parseFloat(myPin)) && isFinite(myPin)) {
+        if (!isNaN(parseFloat(myPin)) && isFinite(myPin, '')) {
           if (blocks[x].getFieldValue('PIN') === myPin ||
               blocks[x].getFieldValue('FB') === myPin) {
             pinWarn = null;
@@ -680,7 +690,7 @@ Blockly.propc.fb360_setup = function() {
   }
 
   // TODO: Refactor getAllBlocks to getBlocksByType
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf('Feedback 360\u00b0 servo initialize') > -1) {
     if (param.indexOf(',') > -1) {
       const params = param.split(',');
@@ -805,7 +815,7 @@ Blockly.propc.fb360_get = function() {
   } else {
     pin = this.getFieldValue('PIN');
   }
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf('Feedback 360\u00b0 servo initialize') > -1) {
     return ['servo360_getAngle(' + pin + ')', Blockly.propc.ORDER_NONE];
   } else {
@@ -864,7 +874,7 @@ Blockly.propc.fb360_status = function() {
   } else {
     pin = this.getFieldValue('PIN');
   }
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf('Feedback 360\u00b0 servo initialize') > -1) {
     return ['(servo360_getCsop(' + pin + ') == ' +
     this.getFieldValue('STATUS') + ')', Blockly.propc.ORDER_NONE];
@@ -889,11 +899,9 @@ Blockly.Blocks.ab_volt_in = {
 
     if (profile.analog.length === 0) {
       const project = getProjectInitialState();
-      const message = `ABVoltsIn: ` +
-          `Empty profile analog list detected for board type ` +
-          `'${project.boardType.name}'.`;
-
-      Sentry.captureMessage(message);
+      const message =
+          `ABVoltsIn: Empty profile analog list detected for board type
+           '${project.boardType.name}'.`;
       console.log(message);
       profile = ['A0', '0'];
     }
@@ -1028,7 +1036,7 @@ Blockly.Blocks.pwm_set = {
           ['B', '1'],
         ]),
         'CHANNEL');
-    this.appendValueInput('DUTY_CYCLE', Number)
+    this.appendValueInput('DUTY_CYCLE')
         .appendRange('R,0,100,0')
         .setCheck('Number')
         .appendField('duty cycle (%)');
@@ -1094,11 +1102,11 @@ Blockly.Blocks.pwm_stop = {
     this.setNextStatement(true, null);
   },
   onchange: function(event) {
-    if (event.type == Blockly.Events.BLOCK_CREATE ||
-            event.type == Blockly.Events.BLOCK_DELETE ||
-            event.type == Blockly.Events.BLOCK_CHANGE) {
+    if (event.type === Blockly.Events.BLOCK_CREATE ||
+            event.type === Blockly.Events.BLOCK_DELETE ||
+            event.type === Blockly.Events.BLOCK_CHANGE) {
       let warnTxt = null;
-      const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+      const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
       if (allBlocks.indexOf('PWM Stop') === -1 &&
           this.getFieldValue('ACTION') === 'start(100)') {
         warnTxt = 'WARNING: The "PWM Start" block should only be used to' +
@@ -1309,9 +1317,9 @@ Blockly.Blocks.sound_play = {
     const project = getProjectInitialState();
     if (!(project.boardType.name === 'heb' ||
             project.boardType.name === 'heb-wx')) {
-      if (event.type == Blockly.Events.BLOCK_CREATE ||
-                event.type == Blockly.Events.BLOCK_DELETE) {
-        const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+      if (event.type === Blockly.Events.BLOCK_CREATE ||
+                event.type === Blockly.Events.BLOCK_DELETE) {
+        const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
         if (allBlocks.indexOf('sound initialize') === -1) {
           this.setWarningText('WARNING: You must use a sound initialize\n' +
               'block at the beginning of your program!');
@@ -1354,7 +1362,7 @@ Blockly.propc.sound_play = function() {
   let code = 'sound_' + action + '(audio0, ' + channel + ', ' + value + ');';
 
   // TODO: Refactor call to getAllBlocks to getAllBlocksByType
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   const profile = getDefaultProfile();
   const project = getProjectInitialState();
   if (allBlocks.indexOf('sound initialize') === -1 &&
@@ -1406,12 +1414,12 @@ Blockly.Blocks.wav_play = {
     this.setNextStatement(true, null);
   },
   onchange: function(event) {
-    if (event.type == Blockly.Events.BLOCK_CREATE ||
-            event.type == Blockly.Events.BLOCK_DELETE) {
+    if (event.type === Blockly.Events.BLOCK_CREATE ||
+            event.type === Blockly.Events.BLOCK_DELETE) {
       let warnTxt = null;
 
       // TODO: Refactor call to getAllBlocks to getAllBlocksByType
-      const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+      const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
       if (allBlocks.indexOf('repeat') === -1 &&
           allBlocks.indexOf('pause') === -1) {
         warnTxt = 'This block MUST be used with other types of blocks,' +
@@ -1436,7 +1444,7 @@ Blockly.propc.wav_play = function() {
     let initFound = false;
     let wPinFound = false;
 
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+    const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
     for (let x = 0; x < allBlocks.length; x++) {
       if (allBlocks[x].type === 'sd_init') {
         initFound = true;
@@ -1627,6 +1635,7 @@ Blockly.propc.wav_stop = function() {
  */
 Blockly.Blocks.ab_drive_init = {
   helpUrl: Blockly.MSG_ROBOT_HELPURL,
+
   init: function() {
     const project = getProjectInitialState();
     let botTypeMenu = [
@@ -1661,6 +1670,7 @@ Blockly.Blocks.ab_drive_init = {
       });
     }
   },
+
   mutationToDom: function() {
     const container = document.createElement('mutation');
     container.setAttribute('bot', this.getFieldValue('BOT'));
@@ -1668,6 +1678,7 @@ Blockly.Blocks.ab_drive_init = {
     container.setAttribute('rpin', this.getFieldValue('RIGHT') || '');
     return container;
   },
+
   domToMutation: function(xmlElement) {
     this.updateShape_({
       'BOT': xmlElement.getAttribute('bot'),
@@ -1675,6 +1686,7 @@ Blockly.Blocks.ab_drive_init = {
       'RIGHT': xmlElement.getAttribute('rpin') || '0',
     });
   },
+
   updateShape_: function(details) {
     const profile = getDefaultProfile();
     let bot = details['BOT'];
@@ -1701,9 +1713,9 @@ Blockly.Blocks.ab_drive_init = {
       }
     }
 
-    // Go through all of the blocks and run the "newRobot" function
-    // in each one that has it.
-    const blocks = Blockly.getMainWorkspace().getAllBlocks();
+    // Go through all the blocks and run the "newRobot" function in each one that has it.
+    const blocks = Blockly.getMainWorkspace().getAllBlocks(false);
+
     // Iterate through every block.
     for (let x = 0; x < blocks.length; x++) {
       const func = blocks[x].newRobot;
@@ -1713,6 +1725,7 @@ Blockly.Blocks.ab_drive_init = {
     }
   },
 };
+
 
 /**
  *
@@ -1732,6 +1745,7 @@ Blockly.propc.ab_drive_init = function() {
   }
   return '';
 };
+
 
 /**
  *
@@ -1787,7 +1801,7 @@ Blockly.Blocks.ab_drive_ramping = {
   },
   whichBot: function() {
     let whichRobot = '';
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+    const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
     if (allBlocks
         .indexOf('Robot ActivityBot initialize') > -1) {
       whichRobot = 'abdrive.h';
@@ -1813,7 +1827,8 @@ Blockly.Blocks.ab_drive_ramping = {
   },
   newRobot: function(robot, type, ramp) {
     this.setWarningText(null);
-    let accelMenu = [];
+    let accelMenu;
+
     if (robot === 'abdrive360.h') {
       accelMenu = [
         ['Not limited', '1200'],
@@ -1836,9 +1851,11 @@ Blockly.Blocks.ab_drive_ramping = {
         ['100 ticks/s\u00B2 (sluggish)', '100'],
       ];
     }
+
     if (this.getInput('ACCEL')) {
       this.removeInput('ACCEL');
     }
+
     if (robot === 'abdrive.h' || robot === 'arlodrive.h' ||
         robot === 'abdrive360.h') {
       this.appendDummyInput('ACCEL')
@@ -1849,15 +1866,15 @@ Blockly.Blocks.ab_drive_ramping = {
           ]), 'OPS')
           .appendField(new Blockly.FieldDropdown(accelMenu), 'RAMPING');
       this.setFieldValue(type || 'FOR_SPEED', 'OPS');
-      this.setFieldValue(ramp ||
-          (robot === 'abdrive360.h' ? '300' : '600'), 'RAMPING');
+      this.setFieldValue(ramp || (robot === 'abdrive360.h' ? '300' : '600'), 'RAMPING');
+
       if (robot === 'arlodrive.h') {
         this.setWarningText('WARNING: This block does not currently' +
             ' work for the Arlo robot.');
       }
     } else if (robot === '') {
-      this.setWarningText('WARNING: You must use a Robot' +
-          ' initialize\nblock at the beginning of your program!');
+      this.setWarningText(
+          'WARNING: You must use a Robot initialize\nblock at the beginning of your program!');
       this.appendDummyInput('ACCEL')
           .appendField('Robot set acceleration');
     } else {
@@ -1877,7 +1894,7 @@ Blockly.propc.ab_drive_ramping = function() {
   const ramping = Number(this.getFieldValue('RAMPING'));
   const ops = this.getFieldValue('OPS');
 
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf('Robot ActivityBot initialize') > -1 ||
             allBlocks.indexOf('Robot Arlo initialize') > -1 ||
             allBlocks.indexOf('Robot ActivityBot 360\u00b0 initialize') > -1) {
@@ -1948,7 +1965,7 @@ Blockly.propc.ab_drive_get_ticks = function() {
       this.getFieldValue('RIGHT'),
       Blockly.VARIABLE_CATEGORY_NAME);
 
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf('Robot ActivityBot initialize') > -1 ||
             allBlocks.indexOf('Robot ActivityBot 360\u00b0 initialize') > -1 ||
             allBlocks.indexOf('Robot Arlo initialize') > -1) {
@@ -2025,7 +2042,7 @@ Blockly.propc.ab_drive_goto = function() {
   const units = this.getFieldValue('UNITS');
 
   let code = '';
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf('Robot ActivityBot initialize') > -1 ||
             allBlocks.indexOf('Robot ActivityBot 360\u00b0 initialize') > -1) {
     if (units === 'TICK') {
@@ -2122,7 +2139,7 @@ Blockly.propc.ab_drive_goto_max_speed = function() {
       this, 'SPEED', Blockly.propc.ORDER_NONE) || '128';
   const ops = this.getFieldValue('OPS');
 
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf('Robot ActivityBot initialize') > -1 ||
             allBlocks.indexOf('Robot ActivityBot 360\u00b0 initialize') > -1) {
     return 'drive_setMaxVelocity(' + ops + ', ' + speed + ');\n';
@@ -2237,7 +2254,7 @@ Blockly.propc.ab_drive_speed = function() {
   const right = Blockly.propc.valueToCode(
       this, 'RIGHT', Blockly.propc.ORDER_NONE) || '0';
 
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf('Robot ActivityBot initialize') > -1 ||
             allBlocks.indexOf('Robot Arlo initialize') > -1 ||
             allBlocks.indexOf('Robot ActivityBot 360\u00b0 initialize') > -1) {
@@ -2271,7 +2288,7 @@ Blockly.Blocks.ab_drive_stop = {
  * @return {string}
  */
 Blockly.propc.ab_drive_stop = function() {
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   if (allBlocks.indexOf('Robot ActivityBot initialize') > -1 ||
             allBlocks.indexOf('Robot Arlo initialize') > -1 ||
             allBlocks.indexOf('Robot ActivityBot 360\u00b0 initialize') > -1) {
@@ -2306,7 +2323,7 @@ Blockly.Blocks.activitybot_calibrate = {
         .appendField('calibrate');
   },
   onchange: function() {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
+    const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
     let warnText = null;
     for (let j = 0; j < allBlocks.length; j++) {
       if (allBlocks[j] !== this && !allBlocks[j].disabled) {
@@ -2559,9 +2576,9 @@ Blockly.propc.mcp320x_read = function() {
   let code = '';
 
   if (chip < 4) {
-    channel = '11' + channel.substr(channel.length - 1, channel.length) + '1';
+    channel = '11' + channel.substring(channel.length - 1, channel.length) + '1';
   } else {
-    channel = '11' + channel.substr(channel.length - 3, channel.length) + '0';
+    channel = '11' + channel.substring(channel.length - 3, channel.length) + '0';
   }
 
   if (!this.disabled) {

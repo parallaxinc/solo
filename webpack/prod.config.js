@@ -29,6 +29,7 @@ const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
 /**
  * The relative path to the distribution directory
  * @type {string}
@@ -229,7 +230,6 @@ module.exports = (opts) => {
           numiterations: 15,
         },
       }),
-
     ],
 
     stats: {
@@ -249,6 +249,8 @@ module.exports = (opts) => {
       modulesSpace: 15,
       orphanModules: true,
       warnings: true,
-    }
+    },
+
+    devtool: "source-map"
   }
 };

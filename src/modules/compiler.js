@@ -20,7 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import * as Sentry from '@sentry/browser';
+// import * as Sentry from '@sentry/browser';
 import {logConsoleMessage} from './utility';
 import {appendCompileConsoleMessage} from './blocklyc';
 import {APP_STAGE} from './constants';
@@ -84,7 +84,7 @@ export const cloudCompile = async (action, sourceCode) => {
           message += `\n${result['compiler-error']}`;
         }
         appendCompileConsoleMessage(message);
-        Sentry.captureMessage(message);
+        // Sentry.captureMessage(message);
       }
     }
     return result;

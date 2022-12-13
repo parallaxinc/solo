@@ -20,8 +20,6 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import {startSentry} from './modules/sentry';
-import {EnableSentry} from './modules/constants';
 import {initToolbarIcons} from './modules/load_images';
 import {Workbox} from 'workbox-window';
 import {logConsoleMessage} from './modules/utility';
@@ -38,18 +36,6 @@ export let deferredPrompt;
  * @type {boolean}
  */
 export let pwaActive = false;
-
-
-// Start up the sentry monitor before we run
-startSentry()
-    .then( (resp) => {
-      if (EnableSentry) {
-        console.log(`Sentry has started. ${resp}`);
-      }
-    })
-    .catch((err) => {
-      console.log(`Sentry failed to start. ${err.message}`)
-    });
 
 
 // Load the service worker if the browser supports it.
