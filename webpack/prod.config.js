@@ -29,7 +29,6 @@ const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const SentryWebpackPlugin = require("@sentry/webpack-plugin");
 
 /**
  * The relative path to the distribution directory
@@ -231,21 +230,6 @@ module.exports = (opts) => {
           numiterations: 15,
         },
       }),
-
-      // new SentryWebpackPlugin({
-      //   org: "parallax-inc-6q",
-      //   project: (devMode) ? "solocup": "solo",
-      //
-      //   // Specify the directory containing build artifacts
-      //   include: "./dist",
-      //
-      //   // Auth tokens can be obtained from https://sentry.io/settings/account/api/auth-tokens/
-      //   // and needs the `project:releases` and `org:read` scopes
-      //   authToken: process.env.SENTRY_AUTH_TOKEN,
-      //
-      //   // Optionally uncomment the line below to override automatic release name detection
-      //   release: process.env.SOLO_RELEASE,
-      // }),
     ],
 
     stats: {
