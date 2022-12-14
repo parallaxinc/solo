@@ -25,32 +25,43 @@ const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpack = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
+const CompressionPlugin = require("compression-webpack-plugin");
+
+// Webpack Analyzer
+// const WebpackBundleAnalyzer = require("webpack-bundle-analyzer")
+//     .BundleAnalyzerPlugin;
+
 /**
  * The relative path to the distribution directory
  * @type {string}
  */
 const targetPath = '../dist';
-const isDevelopment = true;
 /**
  * The relative path to the Blockly package media files
  * @type {string}
  */
 const blocklyMedia = '../node_modules/blockly/media';
 
+/**
+ * Development environment flag
+ * @type {string|boolean}
+ */
+const devMode = (process.env.SOLO_DEV_MODE && process.env.SOLO_DEV_MODE === 'true');
+console.log(`Mode: ${devMode ? 'DEVELOPMENT' : 'PRODUCTION'}`);
+
 module.exports = (opts) => {
   opts = Object.assign({
-    env: 'dev',
-    analyze: false
-  }, opts);
-
-  const isDev = (opts.env === 'dev');
-  if (isDev) console.log(`DEVELOPMENT`);
-  if (isDevelopment) console.log(`Hardcoded development is off`);
+    mode: devMode ? 'development' : 'production',
+    // env: 'dev',
+    analyze: false,
+  },
+  opts);
 
   return {
-    mode: 'development',
+    mode: devMode ? 'development' : 'production',
     entry: { // Bundle entry points
-      index: 'editor.js',
+      index: './src/index.js',
     },
     output: {
       path: path.resolve(__dirname, targetPath),
@@ -59,15 +70,16 @@ module.exports = (opts) => {
     },
     target: 'web',
     resolve: {
-      // Places to look for application files
-      modules: [
-        './src/modules',
-        './src/scss',
-        './node_modules',
-      ],
+      mainFiles: ['index'],
       extensions: [
         '.js',
         '.scss'
+      ],
+
+      // Places to look for application files
+      modules: [
+        './src',
+        './node_modules',
       ],
     },
     optimization: {
@@ -83,14 +95,13 @@ module.exports = (opts) => {
         name: false
       },
     },
+
     module: {
       rules: [
         {
           test:  /\.scss/,
           use: [
             {
-              // Creates `style` nodes from JS strings
-              // loader: isDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader,
               loader: MiniCssExtractPlugin.loader,
             },
             {
@@ -98,14 +109,13 @@ module.exports = (opts) => {
               loader: 'css-loader',
               options: {
                 modules: true,
-                sourceMap: isDevelopment
+                sourceMap: devMode
               }
             },
-
             {
               loader: 'sass-loader',
               options: {
-                sourceMap: isDevelopment,
+                sourceMap: devMode,
                 // Prefer `dart-sass`
                 implementation: require("sass"),
               },
@@ -124,22 +134,26 @@ module.exports = (opts) => {
     },
     plugins: [
       new MiniCssExtractPlugin({
-        filename: isDevelopment ? '[name].css' : '[name].[hash].css',
-        chunkFilename: isDevelopment ? '[id].css' : '[id].[hash].css'
+        filename: devMode ? '[name].css' : '[name].[hash].css',
+        chunkFilename: devMode ? '[id].css' : '[id].[hash].css'
       }),
+
       new webpack.EnvironmentPlugin({
         NODE_ENV: 'production',
         DEBUG: false,
       }),
+
       new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery'
       }),
+
       new HtmlWebpack({
         template: './src/templates/index.html',
         chunks: ["index"],
         filename: 'index.html',
       }),
+
       new CopyPlugin({
         patterns: [
           {
@@ -151,24 +165,68 @@ module.exports = (opts) => {
             to: path.resolve(__dirname, `${targetPath}/images`)
           },
           {
-            from: './src/load_images.js',
+            from: './src/*.js',
             to: path.resolve(__dirname, targetPath)
           },
           {
             from: './src/lib/bootstrap.min.css',
             to: path.resolve(__dirname, targetPath)
           },
+          {
+            from: './src/scss/main.css',
+            to: path.resolve(__dirname, targetPath)
+          },
+          {
+            // PWA manifest
+            from: './src/manifest.json',
+            to: path.resolve(__dirname, targetPath)
+          },
         ]
-      })
+      }),
+
+      new WorkboxWebpackPlugin.InjectManifest({
+        compileSrc: true,
+        swSrc: "./src/sw.js",
+        swDest: "sw.js",
+        // 3 MB cache limit
+        maximumFileSizeToCacheInBytes: 3145728
+      }),
+
+      // new WebpackBundleAnalyzer(),
+
+      new CompressionPlugin({
+        algorithm: "gzip",
+        threshold: 8192,
+        compressionOptions: {
+          numiterations: 15,
+        },
+      }),
     ],
+
     stats: {
-      children: true,
-      errorDetails: true
+      assets: true,
+      assetsSpace: 15,
+      builtAt: true,
+      cachedModules: true,
+      chunkModules: true,
+      chunkModulesSpace: 15,
+      chunks: true,
+      dependentModules: true,
+      depth: true,
+      entrypoints: true,
+      errors: true,
+      errorDetails: true,
+      errorStack: true,
+      modulesSpace: 15,
+      orphanModules: true,
+      warnings: true,
     },
+
     watchOptions: {
       ignored: '/node_modules',
       poll: 1000,
     },
+
     devtool: "source-map"
   }
 };

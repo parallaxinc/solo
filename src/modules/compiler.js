@@ -20,7 +20,7 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import * as Sentry from '@sentry/browser';
+// import * as Sentry from '@sentry/browser';
 import {logConsoleMessage} from './utility';
 import {appendCompileConsoleMessage} from './blocklyc';
 import {APP_STAGE} from './constants';
@@ -40,6 +40,9 @@ import {APP_STAGE} from './constants';
  *              to the device EEPROM
  * </pre>
  * @param {string} sourceCode contains the source code to be compiled
+ *
+ * @return {Promise} Resolves to an object containing the compiled binary.
+ * reject will return a string error message.
  */
 export const cloudCompile = async (action, sourceCode) => {
   // Contact the container running cloud compiler. If the browser is connected
@@ -61,15 +64,17 @@ export const cloudCompile = async (action, sourceCode) => {
 
   // Post the code to the compiler API and await the results
   try {
+    logConsoleMessage(`Sending compiler request to '${postUrl}'`);
     const result = await postToCompiler(postUrl, sourceCode);
     if (result.success) {
+      console.log(`Compiler success`);
       appendCompileConsoleMessage(
           `${result['compiler-output']}${result['compiler-error']}\n`);
     } else {
-      // Something unexpected has happened while calling the compile service
+      // Something unexpected has happened while calling the compiler service
+      console.log(`Compiler failed`);
+      if (!result) console.log(`Result is undefined`);
       if (result) {
-        logConsoleMessage(`Compiler service request failed`);
-
         const state = result.success;
         let message = '\nError: Unable to compile the project.\n';
         if (state === 'rejected') {
@@ -79,13 +84,14 @@ export const cloudCompile = async (action, sourceCode) => {
           message += `\n${result['compiler-error']}`;
         }
         appendCompileConsoleMessage(message);
-        Sentry.captureMessage(message);
+        // Sentry.captureMessage(message);
       }
     }
     return result;
   } catch (e) {
     logConsoleMessage(`(PTC) Error while compiling`);
     logConsoleMessage(`(PTC) Message: ${e.message}`);
+    return Promise.reject(e.message);
   }
 };
 
@@ -98,24 +104,24 @@ export const cloudCompile = async (action, sourceCode) => {
  * @return {Promise<any>}
  */
 const postToCompiler = async function(url, sourceCode = '') {
-  // Fetch options
-  const fetchInit = {
-    method: 'POST',
-    mode: 'cors',
-    cache: 'no-cache',
-    credentials: 'same-origin',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    redirect: 'follow',
-    referrerPolicy: 'no-referrer',
-    body: sourceCode,
-  };
-
   try {
-    const res = await fetch(url, fetchInit);
+    const res = await fetch(
+        url,
+        {
+          method: 'POST',
+          mode: 'cors',
+          cache: 'no-cache',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          redirect: 'follow',
+          referrerPolicy: 'no-referrer',
+          body: sourceCode,
+        });
     return await res.json();
   } catch (err) {
     logConsoleMessage(`Compiler error: ${err.message}`);
+    return Promise.reject(err);
   }
 };

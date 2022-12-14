@@ -1,4 +1,4 @@
-name: Solo Test
+name: Solo-Test
 
 on:
   push:

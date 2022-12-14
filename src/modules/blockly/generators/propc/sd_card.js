@@ -35,7 +35,8 @@ const SdOpenMissingMessage =
 /**
  * SD Card Initialization
  *
- * This block does not appear in the toolbox but is referenced by other blocks.
+ * This block does not appear in the toolbox for the Propeller Activity Board or the Scribbler S3
+ * but is available to other board types.
  *
  * @type {{
  *  init: Blockly.Blocks.sd_init.init,
@@ -44,6 +45,7 @@ const SdOpenMissingMessage =
  */
 Blockly.Blocks.sd_init = {
   helpUrl: Blockly.MSG_SD_HELPURL,
+
   init: function() {
     const profile = getDefaultProfile();
     this.setTooltip(Blockly.MSG_SD_INIT_TOOLTIP);
@@ -60,7 +62,7 @@ Blockly.Blocks.sd_init = {
             profile.digital), 'DI')
         .appendField('CS')
         .appendField(new Blockly.FieldDropdown(
-            profile.digital), 'CS'),
+            profile.digital), 'CS');
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
   },
@@ -118,6 +120,11 @@ Blockly.Blocks.sd_open = {
         .appendField(new Blockly.FieldTextInput(
             'filename.txt',
             function(filename) {
+              // Don't mess with an empty filename
+              if (filename.length > 0) {
+                return filename;
+              }
+
               filename = filename.replace(/[^A-Z0-9a-z_.]/g, '').toLowerCase();
               const filenamePart = filename.split('.');
               if (filenamePart[0].length > 8) {
@@ -171,8 +178,7 @@ Blockly.Blocks.sd_open = {
 Blockly.propc.sd_open = function() {
   // Verify that the sd_init is included in the project. For specific board
   // type, the setting are derived from the board profile.
-  const initSdBlock = Blockly.getMainWorkspace().getBlocksByType(
-      'sd_init', false);
+  const initSdBlock = Blockly.getMainWorkspace().getBlocksByType('sd_init', false);
   if (initSdBlock.length === 0 || !initSdBlock[0].isEnabled()) {
     const project = getProjectInitialState();
     if (project.boardType.name !== 'activity-board' &&
@@ -196,15 +202,7 @@ Blockly.propc.sd_open = function() {
 };
 
 /**
- *
- * @type {{
- *  init: Blockly.Blocks.sd_read.init,
- *  mutationToDom: (function(): HTMLElement),
- *  helpUrl: string,
- *  setSdMode: Blockly.Blocks.sd_read.setSdMode,
- *  onchange: Blockly.Blocks.sd_read.onchange,
- *  domToMutation: Blockly.Blocks.sd_read.domToMutation
- * }}
+ * Read or write data from an SD file. Also supports closing an SD file.
  */
 Blockly.Blocks.sd_read = {
   helpUrl: Blockly.MSG_SD_HELPURL,
@@ -217,11 +215,13 @@ Blockly.Blocks.sd_read = {
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
   },
+
   mutationToDom: function() {
     const container = document.createElement('mutation');
     container.setAttribute('mode', this.getFieldValue('MODE'));
     return container;
   },
+
   domToMutation: function(container) {
     const mode = container.getAttribute('mode');
     if (mode) {
@@ -301,12 +301,13 @@ Blockly.Blocks.sd_read = {
       connectedBlock.outputConnection.connect(this.getInput('SIZE').connection);
     }
   },
+
   onchange: function(event) {
     const project = getProjectInitialState();
     if (event.type === Blockly.Events.BLOCK_DELETE ||
         event.type === Blockly.Events.BLOCK_CREATE) {
       let warnTxt = null;
-      const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+      const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
       if (allBlocks.indexOf('SD file open') === -1) {
         warnTxt = 'WARNING: You must use a SD file open block\nbefore' +
             ' reading, writing, or closing an SD file!';
@@ -393,18 +394,11 @@ Blockly.propc.sd_read = function() {
 };
 
 /**
- *
- * @type {{
- *  init: Blockly.Blocks.sd_file_pointer.init,
- *  mutationToDom: *,
- *  helpUrl: string,
- *  setSdMode: Blockly.Blocks.sd_file_pointer.setSdMode,
- *  onchange: *,
- *  domToMutation: *
- * }}
+ * Obtain the file handle to an open SD file
  */
 Blockly.Blocks.sd_file_pointer = {
   helpUrl: Blockly.MSG_SD_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_SD_FILE_POINTER_TOOLTIP);
     this.setColour(colorPalette.getColor('output'));
@@ -413,8 +407,11 @@ Blockly.Blocks.sd_file_pointer = {
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true, null);
   },
+
   mutationToDom: Blockly.Blocks['sd_read'].mutationToDom,
+
   domToMutation: Blockly.Blocks['sd_read'].domToMutation,
+
   setSdMode: function(mode) {
     if (this.getInput('FP')) {
       this.removeInput('FP');
@@ -472,7 +469,7 @@ Blockly.Blocks.sd_file_pointer = {
 Blockly.propc.sd_file_pointer = function() {
   const project = getProjectInitialState();
   // TODO: Refactor getAllBlocks to getAllBlocksByType
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks().toString();
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false).toString();
   let code = null;
   let initFound = false;
   for (let x = 0; x < allBlocks.length; x++) {
@@ -512,11 +509,6 @@ Blockly.propc.sd_file_pointer = function() {
 
 /**
  * Close an open file on an sd card reader
- *
- * @type {{
- *    init: Blockly.Blocks.sd_close.init,
- *    helpUrl: string
- *  }}
  */
 Blockly.Blocks['sd_close'] = {
   helpUrl: Blockly.MSG_SD_HELPURL,
@@ -531,7 +523,7 @@ Blockly.Blocks['sd_close'] = {
   },
 };
 
-Blockly.propc.sd_close = function(block) {
+Blockly.propc.sd_close = function() {
   // Is there an initialization block in the project
   let initFound = false;
   const initSdBlock = Blockly.getMainWorkspace().getBlocksByType(
@@ -556,6 +548,76 @@ Blockly.propc.sd_close = function(block) {
 
   return 'if(fp) {\n  fclose(fp);\n  fp = 0;\n}\n';
 };
+
+/**
+ * Evaluate if the specified SD file exists
+ */
+Blockly.Blocks['sd_file_exists'] = {
+  helpUrl: Blockly.MSG_SD_HELPURL,
+
+  init: function() {
+    this.setTooltip(Blockly.MSG_SD_OPEN_TOOLTIP);
+    this.setColour(colorPalette.getColor('output'));
+
+    this.appendDummyInput('FILE')
+        .appendField('SD file exists')
+        .appendField(new Blockly.FieldTextInput(
+            'filename.txt',
+            function(filename) {
+              // Don't mess with an empty filename
+              if (filename.length > 0) {
+                return filename;
+              }
+
+              filename = filename.replace(/[^A-Z0-9a-z_.]/g, '').toLowerCase();
+              const filenamePart = filename.split('.');
+              if (filenamePart[0].length > 8) {
+                filenamePart[0].length = 8;
+              }
+              if (!filenamePart[1]) {
+                filenamePart[1] = 'TXT';
+              } else if (filenamePart[1].length > 3) {
+                filenamePart[1].length = 3;
+              }
+              return filenamePart[0] + '.' + filenamePart[1];
+            }), 'FILENAME');
+
+    this.setInputsInline(false);
+    this.setOutput(true, 'Number');
+  },
+};
+
+/**
+ * Generate the C source code to support the File Exists block
+ * @return {[string, number]}
+ */
+Blockly.propc.sd_file_exists = function() {
+  const filename = this.getFieldValue('FILENAME');
+
+  // Open the file for read
+  let code = `int file_exists(char *name) {\n\t`;
+  code += `FILE *p;\n\t`;
+  code += `int result = 0;\n\t`;
+  code += `p = fopen(name,"r");\n\t`;
+  code += `if (NULL != p) {\n\t\t`;
+  code += `result = 1;\n\t\t`;
+  code += `fclose(p);\n\t\t`;
+  code += `p = 0;\n\t}\n\t`;
+  code += `return result;\n`;
+  code += `}\n`;
+
+  Blockly.propc.method_declarations_['file_exists'] = 'int file_exists();\n';
+  //
+  // code = Blockly.propc.scrub_(this, code);
+  Blockly.propc.methods_['file_exists'] = code;
+
+  const emit = `(int) file_exists("${filename}");`;
+  return [emit, Blockly.propc.ORDER_ATOMIC];
+};
+
+//
+// -------------  Support Functions ------------
+//
 
 /**
  * Mount SD Card

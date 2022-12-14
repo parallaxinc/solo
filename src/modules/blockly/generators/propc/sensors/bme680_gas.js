@@ -22,7 +22,7 @@
 
 import Blockly from 'blockly/core';
 import {colorPalette} from '../../propc';
-import {buildConstantsList, verifyBlockTypeEnabled} from './sensors_common';
+import {buildConstantsList, verifyBlockTypeEnabled} from '../propc_common';
 import {getDefaultProfile} from '../../../../project';
 
 
@@ -125,8 +125,10 @@ Blockly.Blocks.bme680_init = {
   },
 };
 
+
 /**
- * BME-680 Initialization C code generator
+ * Generate C source code for the BME-680 Initialization block
+ *
  * @return {string}
  */
 Blockly.propc.bme680_init = function() {
@@ -146,18 +148,20 @@ Blockly.propc.bme680_init = function() {
 
   if (!this.disabled) {
     Blockly.propc.definitions_['include_bme680'] = '#include "bme680.h"';
-    Blockly.propc.setups_['init_bme680'] =
-        'gas_sensor = bme680_openSPI(' + pin.join(', ') + ');\n';
+    Blockly.propc.setups_['init_bme680'] ='gas_sensor = bme680_openSPI(' + pin.join(', ') + ');\n';
     Blockly.propc.global_vars_['device_bme680'] = 'bme680 *gas_sensor;\n';
   }
+
   return '';
 };
+
 
 /**
  * Read a measurement
  */
 Blockly.Blocks.bme680_read = {
   helpUrl: Blockly.MSG_BME680_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_BME680_READ_TOOLTIP);
     this.setColour(colorPalette.getColor('input'));
@@ -178,6 +182,7 @@ Blockly.Blocks.bme680_read = {
   },
 };
 
+
 /**
  * Generate C source for the Read block
  * @return {string}
@@ -192,11 +197,13 @@ Blockly.propc.bme680_read = function() {
   return code;
 };
 
+
 /**
  * Preheat the sensor block
  */
 Blockly.Blocks.bme680_heater = {
   helpUrl: Blockly.MSG_BME680_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_BME680_HEATER);
     this.setColour(colorPalette.getColor('input'));
@@ -221,19 +228,24 @@ Blockly.Blocks.bme680_heater = {
   },
 };
 
+
 /**
  * Generate C source code for the preheat sensor block
+ *
  * @return {string}
  */
 Blockly.propc.bme680_heater = function() {
   let code = '';
+
   if (!verifyBlockTypeEnabled('bme680_init')) {
     code += '// ERROR: Missing Air Quality initialize block!\n';
   } else {
     code += `bme680_heater${this.getFieldValue('HEAT_STATE')}(gas_sensor);\n`;
   }
+
   return code;
 };
+
 
 /**
  * Read a measurement
@@ -295,6 +307,7 @@ Blockly.Blocks.bme680_get_value = {
 
   setMeasUnit: function(val) {
     this.removeInput('UNITS');
+
     if (val === 'humidity') {
       this.appendDummyInput('UNITS')
           .appendField('%');
@@ -305,6 +318,7 @@ Blockly.Blocks.bme680_get_value = {
       this.appendDummyInput('UNITS')
           .appendField(new Blockly.FieldDropdown(this.measUnits[val]), 'UNIT');
     }
+
     this.moveInputBefore('UNITS', 'MULTIPLIER');
   },
 
@@ -316,6 +330,7 @@ Blockly.Blocks.bme680_get_value = {
 
   domToMutation: function(container) {
     const val = container.getAttribute('sensor');
+
     if (val) {
       this.setMeasUnit(val);
     }
@@ -331,24 +346,28 @@ Blockly.Blocks.bme680_get_value = {
   },
 };
 
+
 /**
+ * Generate C source code for the bme_get_value block
  *
  * @return {[string, number]}
  */
 Blockly.propc.bme680_get_value = function() {
   let code = '';
+
   if (!verifyBlockTypeEnabled('bme680_init')) {
     code += '0;// ERROR: Missing Air Quality initialize block!\n';
   } else {
     const sensor = this.getFieldValue('SENSOR');
-    const mult = this.getFieldValue('MULT') || '';
+    const multiplier = this.getFieldValue('MULT') || '';
     let unit = this.getFieldValue('UNIT') || '';
 
     if (unit.length > 2) {
       unit = ', ' + unit;
     }
 
-    code += `(int)(bme680_${sensor}(gas_sensor${unit})${mult})`;
+    code += `(int)(bme680_${sensor}(gas_sensor${unit})${multiplier})`;
   }
+
   return [code, Blockly.propc.ORDER_ATOMIC];
 };

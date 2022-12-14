@@ -20,26 +20,13 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * @fileoverview Implement I2C communications protocol
- *
- * @author michel@creatingfuture.eu  (Michel Lampo)
- *         valetolpegin@gmail.com    (Vale Tolpegin)
- *         jewald@parallax.com       (Jim Ewald)
- *         mmatz@parallax.com        (Matthew Matz)
- *         kgracey@parallax.com      (Ken Gracey)
- *         carsongracey@gmail.com    (Carson Gracey)
- */
-
-//
-//
-// ---------------- I2C Protocol Blocks ---------------------------------------
-//
-//
-
 import Blockly from 'blockly/core';
 import {colorPalette} from '../../propc';
 import {getDefaultProfile} from '../../../../project';
+
+
+// ------------------------------ IC2 Blocks -------------------------------------
+
 
 /**
  * I2C Send
@@ -55,6 +42,7 @@ import {getDefaultProfile} from '../../../../project';
  */
 Blockly.Blocks.i2c_send = {
   helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_I2C_SEND_TOOLTIP);
     this.setColour(colorPalette.getColor('protocols'));
@@ -89,7 +77,27 @@ Blockly.Blocks.i2c_send = {
     // this.checkI2cPins(null);
     this.updateConstMenu();
   },
-  updateConstMenu: Blockly.Blocks['shift_in'].updateConstMenu,
+
+  updateConstMenu: function(oldValue, newValue) {
+    this.userDefinedConstantsList_ = [];
+    const allBlocks = Blockly.getMainWorkspace().getBlocksByType('constant_define', false);
+
+    for (let i = 0; i < allBlocks.length; i++) {
+      let vName = allBlocks[i].getFieldValue('CONSTANT_NAME');
+
+      if (vName === oldValue && newValue) {
+        vName = newValue;
+      }
+
+      if (vName) {
+        this.userDefinedConstantsList_.push(vName);
+      }
+    }
+
+    this.userDefinedConstantsList_ = this.userDefinedConstantsList_.sortedUnique();
+    this.setPinMenus(oldValue, newValue);
+  },
+
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m1 = this.getFieldValue('SDA');
@@ -128,6 +136,7 @@ Blockly.Blocks.i2c_send = {
       this.setFieldValue(m2, 'SCL');
     }
   },
+
   mutationToDom: function() {
     const container = document.createElement('mutation');
     if (this.pinWarn) {
@@ -135,11 +144,13 @@ Blockly.Blocks.i2c_send = {
     }
     return container;
   },
+
   domToMutation: function(container) {
     const warnTxt = container.getAttribute('pinwarn') || null;
     this.pinWarn = warnTxt;
     this.setWarningText(warnTxt);
   },
+
   checkI2cPins: function(action, zda, zcl) {
     const sda = zda || this.getFieldValue('SDA');
     const scl = zcl || this.getFieldValue('SCL');
@@ -189,6 +200,7 @@ Blockly.Blocks.i2c_send = {
     this.setWarningText(this.pinWarn);
   },
 };
+
 
 /**
  * I2C Send C code generator
@@ -288,6 +300,7 @@ Blockly.propc.i2c_send = function() {
   return code;
 };
 
+
 /**
  * I2C Receive
  * @type {{
@@ -304,6 +317,7 @@ Blockly.propc.i2c_send = function() {
  */
 Blockly.Blocks.i2c_receive = {
   helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_I2C_RECEIVE_TOOLTIP);
     this.setColour(colorPalette.getColor('protocols'));
@@ -347,7 +361,27 @@ Blockly.Blocks.i2c_receive = {
     // this.checkI2cPins(null);
     this.updateConstMenu();
   },
-  updateConstMenu: Blockly.Blocks['shift_in'].updateConstMenu,
+
+  updateConstMenu: function(oldValue, newValue) {
+    this.userDefinedConstantsList_ = [];
+    const allBlocks = Blockly.getMainWorkspace().getBlocksByType('constant_define', false);
+
+    for (let i = 0; i < allBlocks.length; i++) {
+      let vName = allBlocks[i].getFieldValue('CONSTANT_NAME');
+
+      if (vName === oldValue && newValue) {
+        vName = newValue;
+      }
+
+      if (vName) {
+        this.userDefinedConstantsList_.push(vName);
+      }
+    }
+
+    this.userDefinedConstantsList_ = this.userDefinedConstantsList_.sortedUnique();
+    this.setPinMenus(oldValue, newValue);
+  },
+
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m1 = this.getFieldValue('SDA');
@@ -388,6 +422,7 @@ Blockly.Blocks.i2c_receive = {
       this.setFieldValue(m2, 'SCL');
     }
   },
+
   mutationToDom: Blockly.Blocks['i2c_send'].mutationToDom,
   domToMutation: Blockly.Blocks['i2c_send'].domToMutation,
   checkI2cPins: Blockly.Blocks['i2c_send'].checkI2cPins,
@@ -487,6 +522,7 @@ Blockly.propc.i2c_receive = function() {
  */
 Blockly.Blocks.i2c_mode = {
   helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_I2C_MODE_TOOLTIP);
     this.setColour(colorPalette.getColor('protocols'));
@@ -497,7 +533,28 @@ Blockly.Blocks.i2c_mode = {
     this.setNextStatement(true, null);
     this.updateConstMenu();
   },
-  updateConstMenu: Blockly.Blocks['shift_in'].updateConstMenu,
+  // updateConstMenu: Blockly.Blocks['shift_in'].updateConstMenu,
+
+  updateConstMenu: function(oldValue, newValue) {
+    this.userDefinedConstantsList_ = [];
+    const allBlocks = Blockly.getMainWorkspace().getBlocksByType('constant_define', false);
+
+    for (let i = 0; i < allBlocks.length; i++) {
+      let vName = allBlocks[i].getFieldValue('CONSTANT_NAME');
+
+      if (vName === oldValue && newValue) {
+        vName = newValue;
+      }
+
+      if (vName) {
+        this.userDefinedConstantsList_.push(vName);
+      }
+    }
+
+    this.userDefinedConstantsList_ = this.userDefinedConstantsList_.sortedUnique();
+    this.setPinMenus(oldValue, newValue);
+  },
+
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m2 = this.getFieldValue('SCL');
@@ -524,6 +581,7 @@ Blockly.Blocks.i2c_mode = {
       this.setFieldValue(m2, 'SCL');
     }
   },
+
   onchange: function(event) {
     // only fire when a block got deleted or created, the SCL field was changed
     if (event &&
@@ -564,16 +622,18 @@ Blockly.Blocks.i2c_mode = {
   },
 };
 
+
 /**
- *
+ * Emit C source code for the 'I2C Mode' block
  * @return {string}
  */
 Blockly.propc.i2c_mode = function() {
   return '';
 };
 
+
 /**
- * I2C Busy
+ * I2C Busy block
  * @type {{
  *  init: Blockly.Blocks.i2c_busy.init,
  *  mutationToDom: *,
@@ -586,6 +646,7 @@ Blockly.propc.i2c_mode = function() {
  */
 Blockly.Blocks.i2c_busy = {
   helpUrl: Blockly.MSG_PROTOCOLS_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_I2C_BUSY_TOOLTIP);
     this.setColour(colorPalette.getColor('protocols'));
@@ -598,13 +659,35 @@ Blockly.Blocks.i2c_busy = {
     this.pinWarn = null;
     this.updateConstMenu();
   },
-  updateConstMenu: Blockly.Blocks['shift_in'].updateConstMenu,
+
+  updateConstMenu: function(oldValue, newValue) {
+    this.userDefinedConstantsList_ = [];
+    const allBlocks = Blockly.getMainWorkspace().getBlocksByType('constant_define', false);
+
+    for (let i = 0; i < allBlocks.length; i++) {
+      let vName = allBlocks[i].getFieldValue('CONSTANT_NAME');
+
+      if (vName === oldValue && newValue) {
+        vName = newValue;
+      }
+
+      if (vName) {
+        this.userDefinedConstantsList_.push(vName);
+      }
+    }
+
+    this.userDefinedConstantsList_ = this.userDefinedConstantsList_.sortedUnique();
+    this.setPinMenus(oldValue, newValue);
+  },
+
   setPinMenus: function(oldValue, newValue) {
     const profile = getDefaultProfile();
     const m2 = this.getFieldValue('SCL');
+
     if (this.getInput('PINS')) {
       this.removeInput('PINS');
     }
+
     this.appendDummyInput('PINS')
         .appendField('busy  SCL')
         .appendField(new Blockly.FieldDropdown(
@@ -612,39 +695,39 @@ Blockly.Blocks.i2c_busy = {
                 function(value) {
                   return [value, value];
                 }))), 'SCL');
+
     if (m2 && m2 === oldValue && newValue) {
       this.setFieldValue(newValue, 'SCL');
     } else if (m2) {
       this.setFieldValue(m2, 'SCL');
     }
   },
+
   mutationToDom: Blockly.Blocks['i2c_send'].mutationToDom,
   domToMutation: Blockly.Blocks['i2c_send'].domToMutation,
   onchange: Blockly.Blocks['i2c_mode'].onchange,
 };
 
 /**
- *
+ * Emit C source code for the I2C Busy block
  * @return {string|[string, number]}
  */
 Blockly.propc.i2c_busy = function() {
-  const devc = Blockly.propc.valueToCode(
-      this, 'DEVICE', Blockly.propc.ORDER_NONE) || '0';
+  const device = Blockly.propc.valueToCode(this, 'DEVICE', Blockly.propc.ORDER_NONE) || '0';
+
   if (this.pinWarn) {
     return '// ' + this.pinWarn;
-  } else {
-    const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-    let sda = '0';
-    for (let i = 0; i < allBlocks.length; i++) {
-      if ((allBlocks[i].type === 'i2c_send' ||
-              allBlocks[i].type === 'i2c_receive') &&
-          allBlocks[i].getFieldValue('SCL') === this.getFieldValue('SCL')) {
-        sda = allBlocks[i].getFieldValue('SDA');
-      }
-    }
-    return [
-      'i2c_busy(i2c' + sda + ', ' + devc + ')',
-      Blockly.propc.ORDER_ATOMIC,
-    ];
   }
+
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
+  let sda = '0';
+
+  for (let i = 0; i < allBlocks.length; i++) {
+    if ((allBlocks[i].type === 'i2c_send' || allBlocks[i].type === 'i2c_receive') &&
+        allBlocks[i].getFieldValue('SCL') === this.getFieldValue('SCL')) {
+      sda = allBlocks[i].getFieldValue('SDA');
+    }
+  }
+
+  return ['i2c_busy(i2c' + sda + ', ' + device + ')', Blockly.propc.ORDER_ATOMIC];
 };

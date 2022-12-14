@@ -23,8 +23,12 @@
 const path = require('path');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
-const TerserPlugin = require("terser-webpack-plugin");
 const HtmlWebpack = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
+const CompressionPlugin = require("compression-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 /**
  * The relative path to the distribution directory
@@ -32,26 +36,33 @@ const HtmlWebpack = require('html-webpack-plugin');
  */
 const targetPath = '../dist';
 
-
 /**
  * The relative path to the Blockly package media files
  * @type {string}
  */
 const blocklyMedia = '../node_modules/blockly/media';
 
+/**
+ * Development environment flag
+ * @type {string|boolean}
+ */
+const devMode = (process.env.SOLO_DEV_MODE && process.env.SOLO_DEV_MODE === 'true');
+console.log(`Mode: ${devMode ? 'DEVELOPMENT' : 'PRODUCTION'}`);
+
 module.exports = (opts) => {
   opts = Object.assign({
-    env: 'dev',
-    analyze: false
+    mode: devMode ? 'development' : 'production',
+    // env: 'production',
+    analyze: false,
   }, opts);
 
-  const isDev = (opts.env === 'dev');
-  if (isDev) console.log(`DEVELOPMENT`);
+  // const isDev = (opts.env === 'dev');
+  // console.log(`${isDev ? 'DEVELOPMENT' : 'PRODUCTION'}`);
 
   return {
     mode: 'production',
     entry: { // Bundle entry points
-      index: 'editor.js',
+      index: './src/index.js',
     },
     output: {
       path: path.resolve(__dirname, targetPath),
@@ -60,12 +71,17 @@ module.exports = (opts) => {
     },
     target: 'web',
     resolve: {
+      mainFiles: ['index'],
+      extensions: [
+        '.js',
+        '.scss'
+      ],
+
       // Places to look for application files
       modules: [
-        './src/modules',
+        './src',
         './node_modules',
       ],
-      extensions: ['.js']
     },
     optimization: {
       splitChunks: {
@@ -79,13 +95,40 @@ module.exports = (opts) => {
         chunks: 'all',
         name: false
       },
-      minimize: true,
+      minimize: false,
       minimizer: [
         new TerserPlugin(),
       ],
     },
+
     module: {
       rules: [
+        {
+          test:  /\.scss/,
+          use: [
+            {
+              // Creates `style` nodes from JS strings
+              loader: devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+              // loader: MiniCssExtractPlugin.loader,
+            },
+            {
+            // Translates CSS into CommonJS
+            loader: 'css-loader',
+            options: {
+              modules: true,
+              sourceMap: devMode
+              }
+            },
+            {
+              loader: 'sass-loader',
+              options: {
+                sourceMap: devMode,
+                // Prefer `dart-sass`
+                implementation: require("sass"),
+                },
+            },
+          ]
+        },
         {
           test: /\.js$/,
           exclude: [
@@ -93,62 +136,121 @@ module.exports = (opts) => {
             path.resolve(__dirname, './src/modules/blockly/generators/propc/comms/lcd_parallel.js'),
             path.resolve(__dirname, './src/modules/blockly/generators/propc/comms/wx_simple.js'),
           ]
-        }
-      ]
-      // rules: [
-      //   {
-      //     test: /\.s[ac]ss$/i,
-      //       include: [
-      //         path.resolve(__dirname, './src/sass')
-      //       ],
-      //     use: [
-      //       // Creates `style` nodes from JS strings
-      //       "style-loader",
-      //       // Translates CSS into CommonJS
-      //       "css-loader",
-      //       // Compiles Sass to CSS
-      //       "sass-loader",
-      //     ],
-      //   },
-        //
-        // {
-        //   test: /\.css$/,
-        //   include: [
-        //     path.resolve(__dirname, '../sass')
-        //   ],
-        //   use: [
-        //     'style-loader',
-        //     'css-loader'
-        //   ]
-        // },
-      // ]
+        },
+      ],
     },
     plugins: [
+      new CleanWebpackPlugin({
+            // Simulate the removal of files
+            //
+            // default: false
+            dry: false,
+
+            // Write Logs to Console
+            // (Always enabled when dry is true)
+            //
+            // default: false
+            verbose: true,
+
+            // Automatically remove all unused webpack assets on rebuild
+            //
+            // default: true
+            cleanStaleWebpackAssets: true,
+
+            // Do not allow removal of current webpack assets
+            //
+            // default: true
+            protectWebpackAssets: true,
+          }),
+
+      new MiniCssExtractPlugin({
+        filename: devMode ? '[name].css' : '[name].[hash].css',
+        chunkFilename: devMode ? '[id].css' : '[id].[hash].css'
+      }),
+
       new webpack.EnvironmentPlugin({
         NODE_ENV: 'production',
         DEBUG: false,
       }),
+
       new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery'
       }),
+
       new HtmlWebpack({
         template: './src/templates/index.html',
         chunks: ["index"],
         filename: 'index.html',
       }),
+
       new CopyPlugin({
         patterns: [
-          {from: path.resolve(__dirname, blocklyMedia), to: path.resolve(__dirname, `${targetPath}/media`)},
-          {from: './src/images', to: path.resolve(__dirname, `${targetPath}/images`)},
-          {from: './src/lib/bootstrap.min.css', to: path.resolve(__dirname, targetPath)},
-          {from: './src/load_images.js', to: path.resolve(__dirname, targetPath)},
+          {
+            from: path.resolve(__dirname, blocklyMedia),
+            to: path.resolve(__dirname, `${targetPath}/media`)
+          },
+          {
+            from: './src/images',
+            to: path.resolve(__dirname, `${targetPath}/images`)
+          },
+          {
+            from: './src/sw.js',
+            to: path.resolve(__dirname, targetPath)
+          },
+          {
+            from: './src/lib/bootstrap.min.css',
+            to: path.resolve(__dirname, targetPath)
+          },
+          {
+            from: './src/scss/main.css',
+            to: path.resolve(__dirname, targetPath)
+          },
+          {
+            // PWA manifest
+            from: './src/manifest.json',
+            to: path.resolve(__dirname, targetPath)
+          },
+          // {from: './src/load_images.js', to: path.resolve(__dirname, targetPath)},
         ]
-      })
+      }),
+
+      new WorkboxWebpackPlugin.InjectManifest({
+        compileSrc: true,
+        swSrc: "./src/sw.js",
+        swDest: "sw.js",
+        // 3MB
+        maximumFileSizeToCacheInBytes: 3145728
+      }),
+
+      new CompressionPlugin({
+        algorithm: "gzip",
+        threshold: 8192,
+        compressionOptions: {
+          numiterations: 15,
+        },
+      }),
     ],
+
     stats: {
-      children: true,
-      errorDetails: true
+      assets: true,
+      assetsSpace: 15,
+      builtAt: true,
+      cachedModules: true,
+      chunkModules: true,
+      chunkModulesSpace: 15,
+      chunks: true,
+      dependentModules: true,
+      depth: true,
+      entrypoints: true,
+      errors: true,
+      errorDetails: true,
+      errorStack: true,
+      modulesSpace: 15,
+      orphanModules: true,
+      warnings: true,
     },
+
+    devtool: "source-map"
   }
 };

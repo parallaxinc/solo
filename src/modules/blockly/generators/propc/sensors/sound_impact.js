@@ -37,7 +37,7 @@
 
 import Blockly from 'blockly/core';
 import {colorPalette} from '../../propc';
-import {buildConstantsList, getProfileDigital, verifyBlockTypeEnabled} from './sensors_common';
+import {buildConstantsList, getProfileDigital, verifyBlockTypeEnabled} from '../propc_common';
 
 /**
  * Sound Impact Run
@@ -87,16 +87,30 @@ Blockly.Blocks.sound_impact_run = {
    * the old value to see if it is in this object's list of known constants.
    * If changing constant is used, reset the pin list to replace the old
    * constant name with the new one.
+   *
+   * NOTE: This does not handle the use case where the constant block is
+   * disabled. The emitted source code does not include the constant defined
+   * by the disabled block. This will create a compile error when the constant
+   * represented by the disabled block is used elsewhere in the project.
    */
   onchange: function(event) {
     const BLOCK_TYPE = 'CONSTANT_NAME';
-    if (event.type === 'change' && event.name === BLOCK_TYPE) {
-      // Change only if the selected pin is the named constant that is changing
-      if (this.getFieldValue('PIN') === event.oldValue) {
-        const index = this.userDefinedConstantsList_.indexOf(event.oldValue);
-        if (index !== -1) {
-          this.userDefinedConstantsList_[index] = event.newValue;
+
+    if (event.type === Blockly.Events.BLOCK_CHANGE &&
+        (event.name && event.name === BLOCK_TYPE)) {
+      // A constant value is changing. If the old (previous) value is in the pin
+      // list, we need to update the pin list to reflect the change.
+      const index = this.userDefinedConstantsList_.indexOf(event.oldValue);
+      if (index !== -1) {
+        // Save the current state of the pin in case it is the constant being changed.
+        const currentPinValue = this.getFieldValue('PIN');
+        this.userDefinedConstantsList_[index] = event.newValue;
+
+        // Change the selected pin name to the new value
+        if (currentPinValue === event.oldValue) {
           this.setPinMenus(event.oldValue, event.newValue);
+        } else {
+          this.setPinMenus();
         }
       }
     }

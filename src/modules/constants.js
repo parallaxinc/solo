@@ -21,12 +21,6 @@
  */
 
 /**
- * Global flag to enable/disable the Sentry logger
- * @type {boolean}
- */
-export const EnableSentry = true;
-
-/**
  * Set the application version string
  * @type {string}
  * @description
@@ -44,14 +38,14 @@ export const EnableSentry = true;
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.6.1.1';
+export const APP_VERSION = '1.7.0';
 
 /**
  * Incremental build number. This gets updated before any release
  * to QA or production.
  * @type {string}
  */
-export const APP_BUILD = '229';
+export const APP_BUILD = '258';
 
 /**
  * Development build stage designator
@@ -65,6 +59,7 @@ export const APP_QA = 'Release';
  * This is a temporary use while environment variables are implemented.
  * @type {string}
  */
+// export const APP_STAGE = 'TEST';
 export const APP_STAGE = 'PROD';
 
 /**
@@ -131,4 +126,17 @@ export const TestApplicationName = 'Solocup';
  *
  * @type {boolean}
  */
-export const WarnDeprecatedBlocks = false;
+export const WarnDeprecatedBlocks = true;
+
+
+export const ClientDownloadURIRoot = 'https://media.parallax.com/blockly';
+
+/**
+ * Global flag to enable / disable the comment element with each block
+ * @type {boolean}
+ * @description Block comments offer a brief explanation of the blocks function
+ * and an identifier to help developers locate the block source code. Comment
+ * blocks are automatically enabled in the 'TEST' environment and disabled in
+ * the 'PRODUCTION' environment.
+ */
+export const ShowBlockComments = (APP_STAGE === 'TEST');

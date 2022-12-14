@@ -25,8 +25,9 @@
 
 import Blockly from 'blockly/core';
 import {getDefaultProfile, getProjectInitialState} from '../../../../project';
-import * as Sentry from '@sentry/browser';
+// import * as Sentry from '@sentry/browser';
 import {colorPalette} from '../../propc';
+
 
 /**
  * Joystick X Axis Input
@@ -47,8 +48,6 @@ Blockly.Blocks.joystick_input_xaxis = {
       const message = `JoystickInputYAxis: ` +
           `Empty profile analog list detected for board type ` +
           `'${project.boardType.name}'.`;
-
-      Sentry.captureMessage(message);
       console.log(message);
       profile = ['A0', '0'];
     }
@@ -59,8 +58,8 @@ Blockly.Blocks.joystick_input_xaxis = {
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
         .appendField('Joystick ' + this.chan[0] + '-axis A/D')
-        .appendField(new Blockly.FieldDropdown(
-            profile.analog), 'PIN' + this.chan[1]);
+        .appendField(new Blockly.FieldDropdown(profile.analog), 'PIN' + this.chan[1]);
+
     this.setOutput(true, 'Number');
     this.setPreviousStatement(false, null);
     this.setNextStatement(false, null);
@@ -101,8 +100,6 @@ Blockly.Blocks.joystick_input_yaxis = {
       const message = `JoystickInputYAxis: ` +
           `Empty profile analog list detected for board type ` +
           `'${project.boardType.name}'.`;
-
-      Sentry.captureMessage(message);
       console.log(message);
       profile = ['A0', '0'];
     }
@@ -113,8 +110,8 @@ Blockly.Blocks.joystick_input_yaxis = {
     this.setColour(colorPalette.getColor('input'));
     this.appendDummyInput()
         .appendField('Joystick ' + this.chan[0] + '-axis A/D')
-        .appendField(new Blockly.FieldDropdown(
-            profile.analog), 'PIN' + this.chan[1]);
+        .appendField(new Blockly.FieldDropdown(profile.analog), 'PIN' + this.chan[1]);
+
     this.setOutput(true, 'Number');
     this.setPreviousStatement(false, null);
     this.setNextStatement(false, null);
@@ -132,7 +129,6 @@ Blockly.propc.joystick_input_yaxis = function() {
     Blockly.propc.definitions_['include abvolts'] = '#include "abvolts.h"';
   }
 
-  const code = 'ad_in(' + pinNumber + ') * 100 / 4096';
-  return [code, Blockly.propc.ORDER_ATOMIC];
+  return [`ad_in(${pinNumber}) * 100 / 4096`, Blockly.propc.ORDER_ATOMIC];
 };
 

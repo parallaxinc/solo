@@ -166,6 +166,32 @@ function setDefaultProfile(value) {
 }
 
 /**
+ * The Json representation of a project v1.
+ *
+ * @typedef {Object} Project
+ * @property {string} name - The project filename.
+ * @property {string} boardType - The project board type.
+ * @property {string} code - The XML block code in this project.
+ * @property {string} created - The string representation of the project
+ * created date/time.
+ * @property {string} description - Notes that describe the project
+ * @property {string} description-html - (deprecated) HTML version of the
+ * description.
+ * @property {number} id - (deprecated) The unique project ID.
+ * @property {string} modified - Date/Time string noting the last time
+ * the project was modified.
+ * @property {boolean} private - (deprecated) Is the project private.
+ * @property {boolean} shared - (deprecated) Is the project publicly shared.
+ * @property {string} type - The project code generator output type.
+ * @property {string} user - (deprecated) The project user name.
+ * @property {boolean} yours - (deprecated) Is the project owned by the
+ * current user.
+ * @property {number} timestamp - The current epoch time.
+ * @property {string} version - The version of this typedef
+ * @property {string} uuid
+ */
+
+/**
  * Default implementation of a project object
  * @constructor
  */
@@ -181,6 +207,8 @@ class Project {
     * @param {Date} modified
     * @param {number} timestamp
     * @param {boolean} [isDefault] - is this project the default project
+    * @param {string} version - Project file version
+    * @param {string} uuid is a unique project ID field.
     *
     * @description
     * The board types, also referenced as a specific board profile, are
@@ -192,7 +220,8 @@ class Project {
     * misspelling or array vs object references.
     */
   constructor(name, description, board, projectType,
-      code, created, modified, timestamp, isDefault = false) {
+      code, created, modified, timestamp, isDefault = false,
+      version = '1', uuid = '') {
     // Preserve the instance if one is not set
     if (!projectInitialState) {
       projectInitialState = this;
@@ -266,6 +295,19 @@ class Project {
      * @type {number}
      */
     this.timestamp = timestamp;
+
+    /**
+     * Unique project ID
+     * @type {string}
+     */
+    if (uuid.length === 0) console.log(`Generating a new project uuid.`);
+    this.uuid = (uuid.length > 0) ? uuid : this.createUUID();
+
+    /**
+     * Version of the project file layout
+     * @type {string}
+     */
+    this.version = (version === '') ? '1' : version;
 
     // --------------------------------------- //
     // instance properties that are deprecated //
@@ -392,6 +434,8 @@ class Project {
       'user': this.user,
       'yours': this.yours,
       'timestamp': this.timestamp,
+      'uuid': this.uuid,
+      'version': this.version,
     };
   }
 
@@ -445,6 +489,16 @@ class Project {
     window.localStorage.setItem(
         localStoreName,
         JSON.stringify(this.getDetails()));
+  }
+
+  /**
+   * Generate a cryptographically significant UUID
+   * @return {string}
+   */
+  createUUID() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, (c) =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4)
+          .toString(16));
   }
 
   /**
@@ -666,6 +720,7 @@ class Project {
  * @property {boolean} yours - (deprecated) Is the project owned by the
  * current user.
  * @property {number} timestamp - The current epoch time.
+ * @property {string} uuid
  * @property {string} version - The version of this typedef
  */
 
@@ -705,12 +760,14 @@ function projectJsonFactory(json) {
   return new Project(
       json.name,
       json.description,
-      tmpBoardType,
-      ProjectTypes.PROPC,
+      tmpBoardType, ProjectTypes.PROPC,
       json.code,
       createdOnDate,
-      (json.modified && json.modified.length > 0) ? Date.parse(json.modified) : date,
-      date.getTime(),
+     (json.modified && json.modified.length > 0) ? Date.parse(json.modified) : date,
+     date.getTime(),
+     false,
+     json.version,
+     json.uuid,
   );
 }
 
@@ -727,16 +784,6 @@ Project.prototype.EmptyProjectCodeHeader_V0 = '<xml xmlns="http://www.w3.org/199
  */
 Project.prototype.setProjectTimer = function(timer) {
   this.saveTimer = timer;
-};
-
-/**
- * Reset the epoch base time
- */
-Project.prototype.resetProjectTimer = function() {
-  if (this.saveTimer) {
-    console.log('Resetting the project save timer');
-    this.saveTimer.reset();
-  }
 };
 
 /**

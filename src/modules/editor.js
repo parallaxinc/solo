@@ -20,7 +20,6 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import {startSentry} from './sentry';
 import 'bootstrap';
 import Blockly from 'blockly/core';
 import * as saveAs from 'file-saver';
@@ -28,27 +27,28 @@ import * as JSZip from 'jszip';
 
 // eslint-disable-next-line camelcase
 import {initHtmlLabels, getHtmlText} from './blockly/language/en/page_text_labels';
-// eslint-disable-next-line camelcase
-import {tooltip_text} from './blockly/language/en/messages';
+import {tooltipText} from './blockly/language/en/messages';
 import /* webpackPrefetch: true */ './blockly/generators/propc';
 import './blockly/generators/propc/base';
-
-// import './blockly/generators/propc/comms/wx_simple';
-
+import './blockly/generators/propc/comms/i2c_protocol';
+import './blockly/generators/propc/console';
+import './blockly/generators/propc/rgb_led';
 import './blockly/generators/propc/communicate';
 import './blockly/generators/propc/control';
 import './blockly/generators/propc/cogs';
 import './blockly/generators/propc/custom_code';
+import './blockly/generators/propc/eeprom';
 import './blockly/generators/propc/gpio';
 import './blockly/generators/propc/oled';
 import './blockly/generators/propc/heb';
+import './blockly/generators/propc/pins';
 import './blockly/generators/propc/procedures';
 import './blockly/generators/propc/s3';
 import './blockly/generators/propc/sd_card';
 
 import './blockly/generators/propc/sensors/bme680_gas';
 import './blockly/generators/propc/sensors/color_pal';
-import './blockly/generators/propc/sensors/dht22';
+import './blockly/generators/propc/sensors/temp_dht22';
 import './blockly/generators/propc/sensors/fingerprint_scanner';
 import './blockly/generators/propc/sensors/gps';
 import './blockly/generators/propc/sensors/hmc5883l_compass';
@@ -66,21 +66,26 @@ import './blockly/generators/propc/sensors/sound_impact';
 
 import './blockly/generators/propc/variables';
 
-import {
-  compile, loadInto, initializeBlockly,
-  downloadCSV, graphingConsole, configureConnectionPaths,
-  graphPlay, downloadGraph, graphStartStop,
-} from './blocklyc';
+import {compile, loadInto, initializeBlockly, configureConnectionPaths} from './blocklyc';
+import {downloadCSV, graphingConsole, graphPlay, downloadGraph, graphStartStop} from './graph';
+
 import {serialConsole} from './serial_console';
-import {findClient} from './client_connection';
+import {watchdog} from './client_connection';
 import {clientService, initTerminal} from './client_service';
-import {APP_BUILD, APP_QA, APP_VERSION, EnableSentry, LOCAL_PROJECT_STORE_NAME} from './constants';
+
+import {
+  APP_BUILD,
+  APP_QA,
+  APP_VERSION,
+  ClientDownloadURIRoot,
+  LOCAL_PROJECT_STORE_NAME,
+} from './constants';
+
 import {PROJECT_NAME_MAX_LENGTH} from './constants';
 import {PROJECT_NAME_DISPLAY_MAX_LENGTH, ApplicationName} from './constants';
 import {TestApplicationName, productBannerHostTrigger} from './constants';
 import {CodeEditor, propcAsBlocksXml, getSourceEditor} from './code_editor.js';
 import {editProjectDialog} from './dialogs/edit_project';
-// import {editProjectDetails} from './modals';
 import {NudgeTimer} from './nudge_timer';
 import {Project, getProjectInitialState, getDefaultProfile} from './project';
 import {setProjectInitialState, setDefaultProfile} from './project';
@@ -99,12 +104,7 @@ import {newProjectDialog} from './dialogs/new_project';
 import {openProjectDialog} from './dialogs/open_project';
 import {importProjectDialog} from './dialogs/import_project';
 
-// Start up the sentry monitor before we run
-startSentry()
-    .then( (resp) => {
-      if (EnableSentry) console.log('Sentry has started.');
-    })
-    .catch((err) => console.log('Sentry failed to start'));
+import {deferredPrompt} from '../index';
 
 /**
  * The call to Blockly.svgResize() requires a reference to the
@@ -122,7 +122,7 @@ let injectedBlocklyWorkspace = null;
 let codeEditor = null;
 
 // eslint-disable-next-line no-unused-vars
-const connectionWatchDogTimer = setInterval(findClient, 2000);
+// const connectionWatchDogTimer = setInterval(findClient, 2000);
 
 /**
  * Getter for the current WorkspaceSvg object
@@ -136,30 +136,30 @@ function getWorkspaceSvg() {
  * Execute this code as soon as the DOM becomes ready.
  * Replaces the old document.ready() construct
  */
-$(() => {
+document.addEventListener('DOMContentLoaded', function() {
+  logConsoleMessage(`Blockly Core: ${Blockly.VERSION}`);
+
   // This will initiate a number of async calls to set up the page
   const result = initializePage();
   result.catch((err) => console.log(err));
 
-  // Set up all of the UI event handlers before we call UI stuff
+  // Set up all UI event handlers before we call UI stuff
   initEventHandlers();
 
-  // Set the compile toolbar buttons to unavailable
+  // Set compile toolbar buttons to unavailable
   // setPropToolbarButtons();
   // Hide the loading... message
   document.getElementById('client-loading').classList.add('hidden');
   propToolbarButtonController();
 
   // The BASE_URL is deprecated since it is always the empty string
-  $('.url-prefix').attr('href', function(idx, cur) {
-    // return BASE_URL + cur;
-    return cur;
-  });
+  // $('.url-prefix').attr('href', function(idx, cur) {
+  //   // return BASE_URL + cur;
+  //   return cur;
+  // });
 
-  // Connect to the BP Launcher
-  // TODO: Finding the client and then look again every 3.5 seconds? There
-  //  must be a better way to handle this in the clientService object.
-  findClient();
+  // Init the BP Launcher socket connection watchdog timer
+  watchdog(2);
 
   // TODO: This should be lazy-loaded when a terminal is first requested.
   initTerminal();
@@ -177,6 +177,19 @@ $(() => {
     logConsoleMessage(`Creating default project`);
     initDefaultProject();
   }
+
+  // Check for application installation as a PWA
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(choiceResult) {
+      console.log(`Choice result is: ${choiceResult.outcome}`);
+      if (choiceResult.outcome === 'dismissed') {
+        console.log(`User dismissed the choice.`);
+      } else {
+        console.log(`User installed the application.`);
+      }
+    });
+  }
 });
 
 /**
@@ -193,18 +206,26 @@ async function initializePage() {
 }
 
 /**
- * Insert the text strings (internationalization) for all of the UI
+ * Insert the text strings (internationalization) for all UI
  * elements on the editor page once the page has been loaded.
  */
 async function initInternationalText() {
-  $('.keyed-lang-string').each(async function(key, value) {
-    await initHtmlLabels(value);
-  });
+  const labels = document.getElementsByClassName('keyed-lang-string');
+  for (let index = 0; index < labels.length; index++) {
+    await initHtmlLabels(labels[index]);
+  }
 
-  // insert text strings (internationalization) into button/link tooltips
-  for (let i = 0; i < tooltip_text.length; i++) {
-    if (tooltip_text[i] && document.getElementById(tooltip_text[i][0])) {
-      $('#' + tooltip_text[i][0]).attr('title', tooltip_text[i][1]);
+  // Insert text strings (internationalization) into button/link tooltips
+  // The tooltipText array is 2 dimensions consisting of a key and a value.
+  // The key is a HTMLElement id and the value is the text contained in the
+  // balloon help popup.
+  const elementId = 0;
+  const balloonText = 1;
+
+  for (let i = 0; i < tooltipText.length; i++) {
+    const element = document.getElementById(tooltipText[i][elementId]);
+    if (tooltipText[i] && element) {
+      element.setAttribute('title', tooltipText[i][balloonText]);
     }
   }
 }
@@ -221,43 +242,46 @@ function initEventHandlers() {
   openProjectDialog.initEventHandlers();
   importProjectDialog.initEventHandlers();
 
-  // Update the blockly workspace to ensure that it takes the remainder of
-  // the window.
-  $(window).on('resize', function() {
-    // TODO: Add correct parameters to the resetToolBoxSizing()
-    resetToolBoxSizing(100);
-  });
+  // Update the blockly workspace to ensure that it takes
+  // the remainder of the window.
+  window.addEventListener('resize', () => resetToolBoxSizing(100));
 
   // ----------------------------------------------------------------------- //
   // Left side toolbar event handlers                                        //
   // ----------------------------------------------------------------------- //
   // Compile the program
-  $('#prop-btn-comp').on('click', () => compile());
+  document.getElementById('prop-btn-comp')
+      .addEventListener('click', () => compile());
 
   // Load the program to the device RAM
-  $('#prop-btn-ram').on('click', () => {
-    loadInto('Load into RAM', 'bin', 'CODE', 'RAM');
-  });
+  document.getElementById('prop-btn-ram')
+      .addEventListener('click', () => loadInto(
+          'Load into RAM', 'bin', 'CODE', 'RAM'));
 
   // Load the program into the device EEPROM
-  $('#prop-btn-eeprom').on('click', () => {
-    loadInto('Load into EEPROM', 'eeprom', 'CODE', 'EEPROM');
-  });
+  document.getElementById('prop-btn-eeprom')
+      .addEventListener('click', () => loadInto(
+          'Load into EEPROM', 'eeprom', 'CODE', 'EEPROM'));
 
   // Open a serial terminal window
-  $('#prop-btn-term').on('click', () => serialConsole());
+  document.getElementById('prop-btn-term')
+      .addEventListener('click', () => serialConsole());
 
   // Open a graphing window
-  $('#prop-btn-graph').on('click', () => graphingConsole());
+  document.getElementById('prop-btn-graph')
+      .addEventListener('click', () => graphingConsole());
 
   // Init C source editor toolbar event handlers
   initCSourceEditorButtonEvenHandlers();
 
-  // TODO: The event handler is just stub code.
-  $('#term-graph-setup').on('click', () => configureTermGraph());
+  // The event handler is just stub code.
+  // const termGraphSetup = document.getElementById('term-graph-setup');
+  // termGraphSetup.addEventListener('click', () => configureTermGraph());
+  // $('#term-graph-setup').on('click', () => configureTermGraph());
 
   // Close upload project dialog event handler
-  $('#upload-close').on('click', () => clearUploadInfo());
+  document.getElementById('upload-close')
+      .addEventListener('click', () => clearUploadInfo());
 
 
   // **********************************
@@ -268,39 +292,45 @@ function initEventHandlers() {
   projectNameUIEvents();
 
   // Blocks/Code/XML button
-  $('#btn-view-propc').on('click', () => renderContent('tab_propc'));
-  $('#btn-view-blocks').on('click', () => renderContent('tab_blocks'));
-  $('#btn-view-xml').on('click', () => renderContent('tab_xml'));
+  document.getElementById('btn-view-propc')
+      .addEventListener('click', () => renderContent('tab_propc'));
+
+  document.getElementById('btn-view-blocks')
+      .addEventListener('click', () => renderContent('tab_blocks'));
+
+  document.getElementById('btn-view-xml')
+      .addEventListener('click', () => renderContent('tab_xml'));
 
   // New Project toolbar button
   // TODO: New Project should be treated the same way as Open Project.
-  $('#new-project-button').on('click', () => newProjectEvent());
+  document.getElementById('new-project-button')
+      .addEventListener('click', () => newProjectEvent());
 
   // Open Project toolbar button
-  // $('#open-project-button').on('click', () => openProjectDialog.show());
-  $('#open-project-button').on('click', () => openProjectEvent());
+  document.getElementById('open-project-button')
+      .addEventListener('click', () => openProjectEvent());
 
   // Save Project toolbar button
-  $('#save-btn, #save-project').on('click', () => saveProject());
+  document.getElementById('save-btn')
+      .addEventListener('click', () => saveProject());
+  document.getElementById('save-project')
+      .addEventListener('click', () => saveProject());
 
   // Save project nudge dialog onclose event handler
   // Not implemented
-  $('#save-check-dialog').on('hidden.bs.modal', () => {
-    logConsoleMessage('Closing the project save timer dialog.');
-  });
+  // $('#save-check-dialog').on('hidden.bs.modal', () => {
+  //   logConsoleMessage('Closing the project save timer dialog.');
+  // });
 
   // --------------------------------
   // Hamburger menu items
   // --------------------------------
 
   // Edit project details
-  document.getElementById('edit-project-details').addEventListener('click', () => {
-    editProjectDialog.editProjectDetails();
-  });
-
-  // $('#edit-project-details').on('click', () => {
-  //   editProjectDialog.editProjectDetails();
-  // });
+  document.getElementById('edit-project-details')
+      .addEventListener('click', () => {
+        editProjectDialog.editProjectDetails();
+      });
 
   // Help and Reference - online help web pages
   // Implemented as an href in the menu
@@ -309,13 +339,15 @@ function initEventHandlers() {
 
   // Download project to Simple IDE
   // TODO: Investigate why downloadPropC() is missing.
-  $('#download-side').on('click', () => downloadPropC());
+  document.getElementById('download-side')
+      .addEventListener('click', () => downloadPropC());
 
   // Import project file menu selector
   // Import (upload) project from storage. This is designed to merge code from an existing
   // project into the current project or to simply replace the contents of the current
   // project with the contents of the imported project.
-  $('#upload-project').on('click', () => importProjectDialog.show());
+  document.getElementById('upload-project')
+      .addEventListener('click', () => importProjectDialog.show());
 
   // ---- Hamburger drop down horizontal line ----
 
@@ -343,38 +375,66 @@ function initEventHandlers() {
 
 
   // Save As button
-  $('#save-as-btn').on('click', () => saveAsDialog());
-  // Save-As Project
-  $('#save-project-as').on('click', () => saveAsDialog());
+  document.getElementById('save-as-btn')
+      .addEventListener('click', () => saveAsDialog());
 
   // Save As new board type
-  $('#save-as-board-type').on('change', () => checkBoardType(
-      $('#saveAsDialogSender').html()));
+  document.getElementById('save-as-board-type')
+      .addEventListener('change', () => {
+        const dialogSender = document.getElementById('saveAsDialogSender');
+        checkBoardType(dialogSender.html());
+      });
 
   // popup modal
-  $('#save-as-board-btn').on('click', () => saveProjectAs(
-      $('#save-as-board-type').val(),
-      $('#save-as-project-name').val(),
-  ));
+  document.getElementById('save-as-board-btn')
+      .addEventListener('click', () => {
+        saveProjectAs(
+            document.getElementById('save-as-board-type').innerText,
+            document.getElementById('save-as-project-name').innerText,
+        );
+      });
 
-  $('#btn-graph-play').on('click', () => graphPlay(''));
-  $('#btn-graph-snapshot').on('click', () => downloadGraph());
-  $('#btn-graph-csv').on('click', () => downloadCSV());
-  $('#btn-graph-clear').on('click', () => graphStartStop('clear'));
+  document.getElementById('btn-graph-play')
+      .addEventListener('click', ()=> graphPlay(''));
 
+  document.getElementById('btn-graph-snapshot')
+      .addEventListener('click', () => downloadGraph());
 
-  // Client install instruction modals
-  $('.show-os-win').on('click', () => showOS('Windows'));
-  $('.show-os-mac').on('click', () => showOS('MacOS'));
-  $('.show-os-chr').on('click', () => showOS('ChromeOS'));
-  $('.show-os-lnx').on('click', () => showOS('Linux'));
+  document.getElementById('btn-graph-csv')
+      .addEventListener('click', () => downloadCSV());
 
-  // Serial port drop down onClick event handler
-  $('#comPort').on('change', (event) => {
-    logConsoleMessage(`Selecting port: ${event.target.value}`);
-    clientService.setSelectedPort(event.target.value);
-    propToolbarButtonController();
-  });
+  document.getElementById('btn-graph-clear')
+      .addEventListener('click', () => graphStartStop('clear'));
+
+  document.getElementById('comPort')
+      .addEventListener('change', (event) => {
+        logConsoleMessage(`Selecting port: ${event.target.value}`);
+        clientService.setSelectedPort(event.target.value);
+        propToolbarButtonController();
+      });
+
+  // These elements appear more than once in the HTML page. We are adding a
+  // listener to each matching element.
+  let matchingElements = document.getElementsByClassName('show-os-win');
+  if (matchingElements && matchingElements.length > 0) {
+    for (let index = 0; index < matchingElements.length; index++) {
+      matchingElements[index].addEventListener('click', () => showOS('Windows'));
+    }
+  }
+
+  matchingElements = document.getElementsByClassName('show-os-mac');
+  if (matchingElements && matchingElements.length > 0) {
+    for (let index = 0; index < matchingElements.length; index++) {
+      matchingElements[index].addEventListener('click', () => showOS('MacOS'));
+    }
+  }
+
+  matchingElements = document.getElementsByClassName('show-os-chr');
+  if (matchingElements && matchingElements.length > 0) {
+    for (let index = 0; index < matchingElements.length; index++) {
+      matchingElements[index].addEventListener('click', () => showOS('ChromeOS'));
+    }
+  }
 }
 
 /**
@@ -396,6 +456,8 @@ function openProjectEvent() {
  * Display the Solo license
  */
 function showLicenseEventHandler() {
+  // The modal method belongs to the jQuery object.
+  // document.getElementById('licenseModal').modal();
   $('#licenseModal').modal();
 }
 
@@ -473,33 +535,56 @@ function leavePageHandler() {
  * Set the BlocklyProp Client download links
  *
  * Set the href for each of the client links to point to the correct files
- * available on the downloads.parallax.com S3 site. The URL is stored in a
+ * available on the downloads.parallax.com S3 site. The URL is stored in an
  * HTML meta tag.
+ *
+ * Be sure to update the text for these links in
+ * modules/blockly/language/en/page_Text_labels.js
  */
 async function initClientDownloadLinks() {
-  const uriRoot = 'http://downloads.parallax.com/blockly';
+  // BP Client for Windows 32-bit
+  $('.client-win32-link').attr('href',
+      `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-32.exe`);
 
-  // Windows 32-bit
-  $('.client-win32-link')
-      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-32.exe');
-  $('.client-win32zip-link')
-      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-32.zip');
+  $('.client-win32zip-link').attr('href',
+      `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-32.zip`);
 
-  // Windows 64-bit
-  $('.client-win64-link')
-      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-64.exe');
-  $('.client-win64zip-link')
-      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-64.zip');
-  $('.launcher-win64-link')
-      .attr('href', uriRoot + '/launcher/Setup-BPLauncher-Win.exe');
-  $('.launcher-win64zip-link')
-      .attr('href', uriRoot + '/launcher/Setup-BPLauncher-Win.exe.zip');
+  // BP Client for Windows 64-bit
+  $('.client-win64-link').attr('href',
+      `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.exe`);
 
-  // MacOS
-  $('.client-mac-link')
-      .attr('href', uriRoot + '/clients/BlocklyPropClient-setup-MacOS.pkg');
-  $('.launcher-mac-link')
-      .attr('href', uriRoot + '/launcher/Setup-BPLauncher-MacOS.zip');
+  $('.client-win64zip-link').attr('href',
+      `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-64.zip`);
+
+  // BP Launcher for Windows
+  $('.launcher-win64-link').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.exe`);
+
+  $('.launcher-win64zip-link').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-Win.zip`);
+
+  // BP Client for macOS
+  $('.client-mac-link').attr('href',
+      `${ClientDownloadURIRoot}/clients/BlocklyPropClient-setup-MacOS.pkg`);
+
+  // BP Launchers for macOS
+  $('.launcher-mac-link-ventura').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-Ventura.zip`);
+
+  $('.launcher-mac-link-monterey').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-Monterey.zip`);
+
+  $('.launcher-mac-link-big-sur').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-Big-Sur.zip`);
+
+  $('.launcher-mac-link-catalina').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-Catalina.zip`);
+
+  $('.launcher-mac-link-mojave').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-Mojave.zip`);
+
+  $('.launcher-mac-link-high_sierra').attr('href',
+      `${ClientDownloadURIRoot}/launcher/Setup-BPLauncher-macOS-High-Sierra.zip`);
 }
 
 /**
@@ -720,7 +805,6 @@ function saveProject() {
   const project = getProjectInitialState();
   downloadCode(project);
   project.setCode(getXml());
-  project.resetProjectTimer();
 }
 
 /**
@@ -736,7 +820,6 @@ function saveAsDialog() {
           if (value) {
             const project = getProjectInitialState();
             downloadCode(project);
-            project.resetProjectTimer();
           }
         }, 'Yes', 'No');
   }
@@ -1019,6 +1102,10 @@ function generateSvgFooter( project ) {
             'transform="translate(-225,13)">data-createdon="' +
             project.getCreated() + '" data-lastmodified="' + dt + '"></text>';
 
+  // Persist the project uuid and file layout version number.
+  svgFooter += `<text class="bkginfo" x="100%" y="100%" transform="translate(-225,23)">` +
+      `uuid="${project.uuid}" version="${project.version}"></text>`;
+
   return svgFooter;
 }
 
@@ -1231,9 +1318,9 @@ function clearBlocklyWorkspace() {
  * experimental code-only mode to set up graphing and terminal
  * baud rate
  */
-function configureTermGraph() {
-  return true;
-}
+// function configureTermGraph() {
+//   return true;
+// }
 
 /**
  * Render the branding logo and related text.
@@ -1571,6 +1658,7 @@ function projectNameUIEvents() {
       .on('keyup', () => {
         // validate the input to ensure it's not too long, and save
         // changes as the user types.
+        // const projectName = document.getElementById('project');
         const tempProjectName = $('.project-name').html();
         if (tempProjectName.length > PROJECT_NAME_MAX_LENGTH ||
             tempProjectName.length < 1) {

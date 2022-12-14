@@ -20,31 +20,46 @@
  *   DEALINGS IN THE SOFTWARE.
  */
 
-import * as Sentry from '@sentry/browser';
-// import {Integrations} from '@sentry/tracing';
-
-import {APP_VERSION, EnableSentry} from './constants';
+// import * as Sentry from '@sentry/browser';
+// import {BrowserTracing} from '@sentry/tracing';
+// import {APP_STAGE, APP_VERSION, EnableSentry} from './constants';
 
 /**
  * Initialize the Sentry logger
  */
-const startSentry = async () => {
-  /* Error logging */
-  if (EnableSentry) {
-    await Sentry.init({
-      dsn: 'https://27707de6f602435b8c6bf1702efafd1d@sentry.io/2751639',
-      release: `SoloCup:${APP_VERSION}`,
-      // integrations: [new Integrations.BrowserTracing({
-      //   tracingOrigins: [
-      //     'localhost',
-      //     'solo.parallax.com',
-      //   ],
-      // })],
-      // tracesSampleRate: 1.0,
-    });
-  } else {
-    console.log(`WARNING: Sentry is disabled.`);
-  }
-};
-
-export {startSentry};
+// const startSentry = async () => {
+//   if (! EnableSentry) {
+//     console.log(`WARNING: Sentry is disabled.`);
+//     return;
+//   }
+//
+//   if (APP_STAGE === 'PROD') {
+//     await Sentry.init({
+//       dsn: 'https://82d15347f0e14577b144aa2b1931d953@o461706.ingest.sentry.io/4503921053794304',
+//       integrations: [
+//         new BrowserTracing(),
+//       ],
+//       release: `Solo:${APP_VERSION}`,
+//       debug: true,
+//       maxBreadcrumbs: 100,
+//       attachStacktrace: true,
+//       tracesSampleRate: 1.0,
+//       autoSessionTracking: true,
+//     });
+//   } else {
+//     await Sentry.init({
+//       dsn: 'https://b1ce76e2275a468e8a45038a7a308e35@o461706.ingest.sentry.io/4504278687809536',
+//       integrations: [
+//         new BrowserTracing(),
+//       ],
+//       release: `SoloCup:${APP_VERSION}`,
+//       debug: true,
+//       maxBreadcrumbs: 100,
+//       attachStacktrace: true,
+//       tracesSampleRate: 1.0,
+//       autoSessionTracking: true,
+//     });
+//   }
+// };
+//
+// export {startSentry};

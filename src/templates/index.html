@@ -25,40 +25,35 @@
     <noscript>
         <style>
             #noScript {
-                margin-top: 10px;
-                margin-left: 30px;
-                background-color: #B94A48;
-                color: #FFFFFF;
-                font-size: large;
+              margin-top: 10px;
+              margin-left: 30px;
+              background-color: #B94A48;
+              color: #FFFFFF;
+              font-size: large;
             }
         </style>
     </noscript>
     <meta charset="utf-8">
-    <meta name="cdn" content="/">
-    <meta name="projectlink" content="">
-    <meta name="isOffline" content="true">
-    <meta name="docker" content="true">
     <meta name="application-name" content="BlocklyProp Solo" />
+    <meta name="theme-color" content="#337AB7"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="msapplication-TileColor" content="#FFFFFF" />
     <meta name="msapplication-TileImage" content="images/mstile-144x144.png" />
+    <meta name="description"
+          content="Solo is an implementation for the Google Blockly project
+                   designed to support a large array of Parallax products.">
 
     <link type="image/png" rel="icon" sizes="32x32" href="images/favicon-32x32.png" />
     <link type="image/png" rel="icon" sizes="16x16" href="images/favicon-16x16.png" />
-    <link type="image/png" rel="apple-touch-icon-precomposed" sizes="57x57"
-        href="images/apple-touch-icon-57x57.png" />
-    <link type="image/png" rel="apple-touch-icon-precomposed" sizes="114x114"
-        href="images/apple-touch-icon-114x114.png" />
-    <link type="image/png" rel="apple-touch-icon-precomposed" sizes="72x72"
-        href="images/apple-touch-icon-72x72.png" />
-    <link type="image/png" rel="apple-touch-icon-precomposed" sizes="144x144"
-        href="images/apple-touch-icon-144x144.png" />
-    <link type="image/png" rel="apple-touch-icon-precomposed" sizes="120x120"
-        href="images/apple-touch-icon-120x120.png" />
-    <link type="image/png" rel="apple-touch-icon-precomposed" sizes="152x152"
-        href="images/apple-touch-icon-152x152.png" />
+    <link type="image/png" href="images/icons/apple-touch-icon-57x57.png" rel="apple-touch-icon" sizes="57x57"/>
+    <link type="image/png" href="images/icons/apple-touch-icon-114x114.png" rel="apple-touch-icon" sizes="114x114" />
+    <link type="image/png" href="images/icons/apple-touch-icon-72x72.png" rel="apple-touch-icon" sizes="72x72" />
+    <link type="image/png" href="images/icons/apple-touch-icon-144x144.png" rel="apple-touch-icon" sizes="144x144" />
+    <link type="image/png" href="images/icons/apple-touch-icon-120x120.png" rel="apple-touch-icon" sizes="120x120" />
+    <link type="image/png" href="images/icons/apple-touch-icon-152x152.png" rel="apple-touch-icon" sizes="152x152" />
     <link rel="stylesheet" href="bootstrap.min.css">
     <link rel="stylesheet" href="main.css" class="rel">
-
+    <link rel="manifest" href="./manifest.json">
     <title>BlocklyProp Solo</title>
 </head>
 
@@ -154,45 +149,64 @@
 
                 <!-- Right Toolbar buttons and menu -->
                 <div id="right-menus">
+                    <!-- Install pwa button, hidden by default -->
+                    <a id="btn-install-pwa"
+                       class="demo-function btn-view-blocks hidden"
+                       data-displayas="inline-block">Install</a>
+
                     <!-- View C source code -->
-                    <a class="btn-view-blocks" id="btn-view-propc" style="display: inline;">
-                        <span class="bpIcon" data-icon="eyeWhite">&#x1F441;&nbsp;Code</span>
+                    <a id="btn-view-propc"
+                       class="btn-view-blocks"
+                       style="display: inline;">
+                        <span class="bpIcon" data-icon="eyeWhite">&#x1F441;&nbsp;</span>
                         <span>Code</span>
                     </a>
 
                     <!-- View project blocks layout -->
-                    <a class="btn-view-blocks" id="btn-view-blocks" style="display: none;">
+                    <a id="btn-view-blocks"
+                       class="btn-view-blocks"
+                       style="display: none;">
                         <span class="bpIcon" data-icon="eyeWhite">&#x1F441;&nbsp;</span>
                         <span>Blocks</span>
-                        </a>
+                    </a>
 
                     <!-- View project XML code -->
-                    <a class="btn-view-blocks" id="btn-view-xml" style="display: none;">
+                    <a id="btn-view-xml"
+                       class="btn-view-blocks"
+                       style="display: none;">
                         <span class="bpIcon" data-icon="eyeWhite">&#x1F441;&nbsp;</span>
                         <span>XML</span>
                     </a>
 
                     <!-- New Project button -->
-                    <a id="new-project-button" class="demo-function btn-view-blocks"
-                       style="display: inline-block;" data-displayas="inline-block">New</a>
+                    <a id="new-project-button"
+                       class="demo-function btn-view-blocks"
+                       style="display: inline-block;"
+                       data-displayas="inline-block">New</a>
 
                     <!-- Open Project button -->
-                    <a id="open-project-button" class="demo-function btn-view-blocks"
-                       style="display: inline-block;" data-displayas="inline-block">
+                    <a id="open-project-button"
+                       class="demo-function btn-view-blocks"
+                       style="display: inline-block;"
+                       data-displayas="inline-block">
                         <span>Open</span>
                     </a>
 
                     <!-- Save project button -->
-                    <a id="save-project" class="demo-function btn-view-blocks"
-                       style="display: inline-block;" data-displayas="inline-block">
+                    <a id="save-project"
+                       class="demo-function btn-view-blocks"
+                       style="display: inline-block;"
+                       data-displayas="inline-block">
                         <span>Save</span>
                     </a>
 
                     <!-- Drop-down hamburger menu -->
                     <div class="dropdown" style="display: inline-block;">
                         <!-- down-arrow control to open hamburger menu -->
-                        <button id="options-menu" class="btn btn-sm btn-default dropdown dropdown-toggle" type="button"
-                            data-toggle="dropdown">&#9776;<span class="caret"></span>
+                        <button id="options-menu"
+                            class="btn btn-sm btn-default dropdown dropdown-toggle"
+                            type="button"
+                            data-toggle="dropdown">&#9776;
                         </button>
 
                         <ul class="dropdown-menu pull-right btn-sm">
@@ -795,7 +809,6 @@
                                         data-key="os_name_mac"></span></a></li>
                             <li><a href="#" class="show-os-chr"><span class="keyed-lang-string"
                                         data-key="os_name_chr"></span></a></li>
-                            <!-- <li><a href="#" class="show-os-lnx"><span class="keyed-lang-string" data-key="os_name_lnx"></span></a></li> -->
                         </ul>
                     </div>
                 </div>
@@ -840,25 +853,37 @@
 
                         <!-- MacOS Launcher download link -->
                         <div class="client MacOS">
-                            <img src="images/os-icons/mac_os.png" alt="Mac OS icon" />
+                            <img src="images/icons/os/mac_os.png" alt="Mac OS icon" />
+                            <a href="#" class="launcher-mac-link-ventura">
+                                <span class="keyed-lang-string"
+                                      data-key="client_download_launcher_macos_ventura_installer"></span></a>
+                        </div>
+                        <div class="client MacOS">
+                            <img src="images/icons/os/mac_os.png" alt="Mac OS icon" />
+                            <a href="#" class="launcher-mac-link-monterey">
+                                <span class="keyed-lang-string"
+                                      data-key="client_download_launcher_macos_monterey_installer"></span></a>
+                        </div>
+                        <div class="client MacOS">
+                            <img src="images/icons/os/mac_os.png" alt="Mac OS icon" />
                             <a href="#" class="launcher-mac-link-big-sur">
                                 <span class="keyed-lang-string"
                                       data-key="client_download_launcher_macos_big_sur_installer"></span></a>
                         </div>
                         <div class="client MacOS">
-                            <img src="images/os-icons/mac_os.png" alt="Mac OS icon" />
+                            <img src="images/icons/os/mac_os.png" alt="Mac OS icon" />
                             <a href="#" class="launcher-mac-link-catalina">
                                 <span class="keyed-lang-string"
                                       data-key="client_download_launcher_macos_catalina_installer"></span></a>
                         </div>
                         <div class="client MacOS">
-                            <img src="images/os-icons/mac_os.png" alt="Mac OS icon" />
+                            <img src="images/icons/os/mac_os.png" alt="Mac OS icon" />
                             <a href="#" class="launcher-mac-link-mojave">
                                 <span class="keyed-lang-string"
                                       data-key="client_download_launcher_macos_mojave_installer"></span></a>
                         </div>
                         <div class="client MacOS">
-                            <img src="images/os-icons/mac_os.png" alt="Mac OS icon" />
+                            <img src="images/icons/os/mac_os.png" alt="Mac OS icon" />
                             <a href="#" class="launcher-mac-link-high_sierra">
                                 <span class="keyed-lang-string"
                                       data-key="client_download_launcher_macos_high_sierra_installer"></span></a>
@@ -871,7 +896,7 @@
 
                         <!-- Windows x64 Launcher -->
                         <div class="client Windows">
-                            <img src="images/os-icons/windows.png" alt="Windows OS icon" />
+                            <img src="images/icons/os/windows.png" alt="Windows OS icon" />
                             <a href="#" class="launcher-win64-link">
                                 <span class="keyed-lang-string"
                                     data-key="clientdownload_launcher_windows64_installer"></span>
@@ -881,7 +906,7 @@
 
                         <!-- Windows x64 Launcher -->
                         <div class="client Windows">
-                            <img src="images/os-icons/windows.png" alt="Windows OS icon" />
+                            <img src="images/icons/os/windows.png" alt="Windows OS icon" />
                             <a href="#" class="launcher-win64zip-link">
                                 <span class="keyed-lang-string"
                                       data-key="clientdownload_launcher_windows64zip_installer"></span>
@@ -895,7 +920,7 @@
 
                         <!-- Get client from the Google App Store -->
                         <div class="client ChromeOS">
-                            <img src="images/os-icons/chrome_os.png" alt="Chrome OS icon" />
+                            <img src="images/icons/os/chrome_os.png" alt="Chrome OS icon" />
                             <a href="https://chrome.google.com/webstore/detail/iddpgcclgepllhnhlkkinbmmafpbnddb"
                                 target="_blank">
                                 <span class="keyed-lang-string" data-key="clientdownload_client_chromeos_installer"></span>
@@ -938,9 +963,5 @@
             </div>
         </div>
     </div>
-    <script defer>
-      console.log('Loading images...');
-    </script>
-    <script src="load_images.js"></script>
 </body>
 </html>

@@ -29,10 +29,10 @@
  *         kgracey@parallax.com      (Ken Gracey)
  *         carsongracey@gmail.com    (Carson Gracey)
  */
-'use strict';
 
-import Blockly from 'blockly/core.js';
+import Blockly from 'blockly/core';
 import {colorPalette} from '../propc.js';
+import {ShowBlockComments} from '../../../constants';
 
 /**
  * This is a counter used to provide unique array identifiers
@@ -53,15 +53,25 @@ let tempArrayNumber = 0;
  */
 Blockly.Blocks.variables_get = {
   helpUrl: Blockly.MSG_VARIABLES_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_VARIABLES_GET_TOOLTIP);
     this.setColour(colorPalette.getColor('variables'));
-    this.appendDummyInput('')
-        .appendField(Blockly.LANG_VARIABLES_GET_TITLE_1)
+
+    this.appendDummyInput('get_variable')
         .appendField(new Blockly.FieldVariable(
             Blockly.LANG_VARIABLES_GET_ITEM), 'VAR');
+
     this.setOutput(true);
-    this.typeCheckRun = null;
+    this.setCommentText(ShowBlockComments ?
+        'This block retrieves the value of a variable. [variables_get]': null);
+
+    /**
+     * This does not appear to be used anywhere.
+     * @type {null}
+     * @deprecated
+     */
+    // this.typeCheckRun = null;
   },
 };
 
@@ -71,11 +81,12 @@ Blockly.Blocks.variables_get = {
  * @return {[string, number]}
  */
 Blockly.propc.variables_get = function() {
-  const code = Blockly.propc.variableDB_.getName(
-      this.getFieldValue('VAR'),
-      Blockly.VARIABLE_CATEGORY_NAME);
+  const code = Blockly.propc.variableDB_
+      .getName(this.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
+
   return [code, Blockly.propc.ORDER_ATOMIC];
 };
+
 
 /**
  *  Variable setter.
@@ -84,16 +95,19 @@ Blockly.propc.variables_get = function() {
  */
 Blockly.Blocks.variables_set = {
   helpUrl: Blockly.MSG_VARIABLES_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_VARIABLES_SET_TOOLTIP);
     this.setColour(colorPalette.getColor('variables'));
+
     this.appendValueInput('VALUE')
-        .appendField(Blockly.LANG_VARIABLES_SET_TITLE_1)
-        .appendField(new Blockly.FieldVariable(
-            Blockly.LANG_VARIABLES_SET_ITEM), 'VAR')
+        .appendField(new Blockly.FieldVariable(Blockly.LANG_VARIABLES_SET_ITEM), 'VAR')
         .appendField('=');
+
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true);
+    this.setCommentText(ShowBlockComments ?
+        'This block assigns a value to a variable. [variables_set]' : null);
   },
 };
 
@@ -112,6 +126,7 @@ Blockly.propc.variables_set = function() {
       this.getFieldValue('VAR'),
       Blockly.VARIABLE_CATEGORY_NAME);
 
+  // Look for a type declaration for the variable
   if (Blockly.propc.vartype_[varName] === undefined) {
     if (argument0.indexOf('int') > -1) {
       Blockly.propc.vartype_[varName] = 'int';
@@ -206,6 +221,7 @@ Blockly.Blocks.array_get = {
   mutationToDom: function() {
     const container = document.createElement('mutation');
     container.setAttribute('array_list', this.arrayList.join(','));
+
     return container;
   },
 
@@ -287,7 +303,7 @@ Blockly.Blocks.array_get = {
     this.arrayList = this.arrayList.sortedUnique();
     this.buildArrayMenu();
 
-    // TODO: This is where the variable is getting humped up
+    // NOTE: This is where the variable is getting fouled up
     // update the menu on the block
     if (newValue && currentValue && currentValue === oldValue) {
       this.setFieldValue(newValue, 'VAR');
@@ -306,6 +322,7 @@ Blockly.Blocks.array_get = {
       }
     }
   },
+
 
   /**
    * Handle the onChange event
@@ -343,6 +360,7 @@ Blockly.Blocks.array_get = {
           oldValue = event.oldXml.firstChild.innerHTML;
         }
         break;
+
       case Blockly.Events.BLOCK_CREATE:
         eventBlock = Blockly.getMainWorkspace().getBlockById(event.blockId);
         if (eventBlock && eventBlock.type === 'array_init') {
@@ -353,18 +371,20 @@ Blockly.Blocks.array_get = {
           this.updateArrayMenu();
         }
         break;
+
       case Blockly.Events.BLOCK_CHANGE:
         // Get the block that is impacted by this change event
         eventBlock = Blockly.getMainWorkspace().getBlockById(event.blockId);
-        if (eventBlock && eventBlock.type === 'array_init' &&
-            event.name === 'VAR') {
+        if (eventBlock && eventBlock.type === 'array_init' && event.name === 'VAR') {
           blockType = 'array_init';
           newValue = event.newValue; // Block field new value
           oldValue = event.oldValue; // Block field previous value
         }
         break;
+
       case Blockly.Events.VAR_CREATE:
         break;
+
       default:
     }
 
@@ -377,10 +397,12 @@ Blockly.Blocks.array_get = {
 
     if (this.type === 'array_get' || this.type === 'array_set' ) {
       const connectedBlock = this.getInput('NUM').connection.targetBlock();
+
       if (connectedBlock && connectedBlock.type === 'math_number') {
         // Only run this check if the field is populated with a numeric value.
         // If it contains any other block, this will be skipped.
         const elementValue = connectedBlock.getFieldValue('NUM');
+
         if (typeof(elementValue) === 'number' ||
             (typeof(elementValue) === 'string' &&
              elementValue.replace(/[^0-9]+/g, '') === elementValue)) {
@@ -397,7 +419,7 @@ Blockly.Blocks.array_get = {
     const arrayName = this.getFieldValue('VAR');
     let initBlockCount = 0;
 
-    // Look through all of the array_init blocks
+    // Look through all the array_init blocks
     Blockly.getMainWorkspace().getBlocksByType('array_init', false)
         .forEach(function(element) {
           // Find the block definition for the array we are working on
@@ -416,6 +438,7 @@ Blockly.Blocks.array_get = {
       warnText = 'WARNING: You are trying to get an element from your' +
           ' array that does not exist!';
     }
+
     if (!this.arrayInitWarnFlag) {
       this.setWarningText(warnText);
     }
@@ -432,9 +455,11 @@ Blockly.Blocks.array_get = {
  */
 Blockly.Blocks.array_init = {
   helpUrl: Blockly.MSG_ARRAYS_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_ARRAY_INIT_TOOLTIP);
     this.setColour(colorPalette.getColor('variables'));
+
     this.appendDummyInput()
         .appendField('array initialize')
         .appendField(new Blockly.FieldTextInput('list', function(a) {
@@ -445,6 +470,7 @@ Blockly.Blocks.array_init = {
         .appendField('with')
         .appendField(new Blockly.FieldNumber('10', null, null, 1), 'NUM')
         .appendField('elements');
+
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true);
   },
@@ -506,7 +532,6 @@ Blockly.Blocks.array_fill = {
   init: function() {
     this.setTooltip(Blockly.MSG_ARRAY_FILL_TOOLTIP);
 
-    // Build a default block configurations
     this.appendDummyInput('NUMS')
         .appendField('array fill') // label text
         .appendField(new Blockly.FieldDropdown([
@@ -534,6 +559,7 @@ Blockly.Blocks.array_fill = {
   },
 
   mutationToDom: Blockly.Blocks['array_get'].mutationToDom,
+
   domToMutation: Blockly.Blocks['array_get'].domToMutation,
 
   /**
@@ -580,10 +606,13 @@ Blockly.Blocks.array_fill = {
   },
 
   updateArrayMenu: Blockly.Blocks['array_get'].updateArrayMenu,
+
   onchange: Blockly.Blocks['array_get'].onchange,
 };
 
+
 /**
+ * Set an array variable
  *
  * @type {{
  *  init: Blockly.Blocks.array_set.init,
@@ -595,17 +624,21 @@ Blockly.Blocks.array_fill = {
  */
 Blockly.Blocks.array_set = {
   helpUrl: Blockly.MSG_ARRAYS_HELPURL,
+
   init: function() {
     this.setTooltip(Blockly.MSG_ARRAY_SET_TOOLTIP);
     this.setColour(colorPalette.getColor('variables'));
+
     this.appendValueInput('NUM')
         .appendField('array')
         .setCheck('Number')
         .appendField(new Blockly.FieldDropdown([['list', 'list']]), 'VAR')
         .appendField('element');
+
     this.appendValueInput('VALUE')
         .setCheck('Number')
         .appendField('=');
+
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'Block');
     this.setNextStatement(true);
@@ -614,6 +647,7 @@ Blockly.Blocks.array_set = {
   },
 
   mutationToDom: Blockly.Blocks['array_get'].mutationToDom,
+
   domToMutation: Blockly.Blocks['array_get'].domToMutation,
 
   /**
@@ -644,6 +678,7 @@ Blockly.Blocks.array_set = {
   },
 
   updateArrayMenu: Blockly.Blocks['array_get'].updateArrayMenu,
+
   onchange: Blockly.Blocks['array_get'].onchange,
 };
 
@@ -673,6 +708,7 @@ Blockly.Blocks.array_clear = {
   },
 
   mutationToDom: Blockly.Blocks['array_get'].mutationToDom,
+
   domToMutation: Blockly.Blocks['array_get'].domToMutation,
 
   /**
@@ -690,7 +726,9 @@ Blockly.Blocks.array_clear = {
                   return [value, value];
                 })), 'VAR');
   },
+
   updateArrayMenu: Blockly.Blocks['array_get'].updateArrayMenu,
+
   onchange: Blockly.Blocks['array_get'].onchange,
 };
 
@@ -701,11 +739,10 @@ Blockly.Blocks.array_clear = {
  * @return {string}
  */
 Blockly.propc.array_clear = function() {
-  const varName = Blockly.propc.variableDB_.getName(
-      this.getFieldValue('VAR'), 'Array');
+  const varName = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), 'Array');
   const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
-  if (allBlocks.toString().indexOf(
-      'array initialize ' + this.getFieldValue('VAR')) === -1) {
+
+  if (allBlocks.toString().indexOf('array initialize ' + this.getFieldValue('VAR')) === -1) {
     return '// ERROR: The array "' + this.getFieldValue('VAR') +
         '" has not been initialized!\n';
   } else {
@@ -713,15 +750,16 @@ Blockly.propc.array_clear = function() {
   }
 };
 
+
 /**
  *  Fill an array with values
  *
  * @return {string}
  */
 Blockly.propc.array_fill = function() {
-  const varName = Blockly.propc.variableDB_.getName(
-      this.getFieldValue('VAR'), 'Array');
+  const varName = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), 'Array');
   let varVals = this.getFieldValue('NUM');
+
   if (varVals.indexOf('0x') === 0 || varVals.indexOf(',0x') > 0) {
     varVals = varVals.replace(/[^0-9xA-Fa-f,-.]/g, '');
   } else {
@@ -757,10 +795,11 @@ Blockly.propc.array_fill = function() {
      'int __tmpArr[' + ArrayMaxSize.toString() + '];';
    * --------------------------------------------------------------*/
   let code = '';
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-  if (allBlocks.toString().indexOf(
-      'array initialize ' + this.getFieldValue('VAR')) > -1) {
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
+
+  if (allBlocks.toString().indexOf('array initialize ' + this.getFieldValue('VAR')) > -1) {
     let initStr = '';
+
     for (let ij = 0; ij < allBlocks.length; ij++) {
       if (allBlocks[ij].toString().indexOf(
           'array initialize ' + this.getFieldValue('VAR')) > -1) {
@@ -768,6 +807,7 @@ Blockly.propc.array_fill = function() {
         break;
       }
     }
+
     elemCount = parseInt(initStr, 10);
 
     if (elements > elemCount) {
@@ -775,6 +815,7 @@ Blockly.propc.array_fill = function() {
       code += '//          array than you initialized your array with!\n';
       elements = elemCount;
     }
+
     code += 'int __tmpArr' + tempArrayNumber.toString() + '[] = {' +
         varVals + '};\n';
     code += 'memcpy(' + varName + ', __tmpArr' + tempArrayNumber.toString() +
@@ -788,26 +829,25 @@ Blockly.propc.array_fill = function() {
   return code;
 };
 
+
 /**
  *
  * @return {*[]}
  */
 Blockly.propc.array_get = function() {
-  const varName = Blockly.propc.variableDB_.getName(
-      this.getFieldValue('VAR'), 'Array');
-  const element = Blockly.propc.valueToCode(
-      this, 'NUM', Blockly.propc.ORDER_NONE) || '0';
+  const varName = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), 'Array');
+  const element = Blockly.propc.valueToCode(this, 'NUM', Blockly.propc.ORDER_NONE) || '0';
 
   return [varName + '[' + element + ']', Blockly.propc.ORDER_ATOMIC];
 };
+
 
 /**
  *
  * @return {string}
  */
 Blockly.propc.array_init = function() {
-  const varName = Blockly.propc.variableDB_.getName(
-      this.getFieldValue('VAR'), 'Array');
+  const varName = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), 'Array');
   const element = this.getFieldValue('NUM') || '10';
 
   if (!this.disabled) {
@@ -818,22 +858,21 @@ Blockly.propc.array_init = function() {
   return '';
 };
 
+
 /**
  *
  * @return {string}
  */
 Blockly.propc.array_set = function() {
-  const varName = Blockly.propc.variableDB_.getName(
-      this.getFieldValue('VAR'), 'Array');
-  const elementCount = Blockly.propc.valueToCode(
-      this, 'NUM', Blockly.propc.ORDER_NONE) || '0';
-  const value = Blockly.propc.valueToCode(
-      this, 'VALUE', Blockly.propc.ORDER_NONE) || '0';
+  const varName = Blockly.propc.variableDB_.getName(this.getFieldValue('VAR'), 'Array');
+  const elementCount = Blockly.propc.valueToCode(this, 'NUM', Blockly.propc.ORDER_NONE) || '0';
+  const value = Blockly.propc.valueToCode(this, 'VALUE', Blockly.propc.ORDER_NONE) || '0';
   let code = varName + '[' + elementCount + '] = ' + value + ';\n';
-  const allBlocks = Blockly.getMainWorkspace().getAllBlocks();
-  if (allBlocks.toString().indexOf(
-      'array initialize ' + this.getFieldValue('VAR')) > -1) {
+  const allBlocks = Blockly.getMainWorkspace().getAllBlocks(false);
+
+  if (allBlocks.toString().indexOf('array initialize ' + this.getFieldValue('VAR')) > -1) {
     let initStr = '';
+
     for (let ij = 0; ij < allBlocks.length; ij++) {
       if (allBlocks[ij].toString().indexOf(
           'array initialize ' + this.getFieldValue('VAR')) > -1) {
@@ -841,6 +880,7 @@ Blockly.propc.array_set = function() {
         break;
       }
     }
+
     if (elementCount.replace(/[^0-9]+/g, '') === elementCount) {
       if (parseInt(elementCount) >= parseInt(initStr, 10) ||
           parseInt(elementCount) < 0) {

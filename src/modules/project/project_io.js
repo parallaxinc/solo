@@ -83,13 +83,11 @@ export async function loadProjectFile(files) {
 }
 
 /**
- * Convert an svg project file content to a Project object
- * @param {string} projectName is the text name of the project
- * @param {string} rawCode This is the raw XML code from the project file
- *  without a namespace
- * @return {Project}
+ * Select the project source code from the file stream
+ * @param {string} rawCode
+ * @return {string}
  */
-const convertFilestreamToProject = (projectName, rawCode) => {
+function fileStreamCode( rawCode ) {
   // Search the project file for the first variable or block
   const codeStartIndex =
       (rawCode.indexOf('<variables') > -1) ? '<variables' : '<block';
@@ -100,43 +98,65 @@ const convertFilestreamToProject = (projectName, rawCode) => {
       rawCode.indexOf(codeStartIndex),
       rawCode.indexOf('<ckm>'));
 
-  const projectXmlCode = (blockCode.length > 0) ?
+  return (blockCode.length > 0) ?
       Project.getEmptyProjectCodeHeader() + blockCode + '</xml>' :
       Project.getEmptyProjectCodeHeader() + '</xml>';
+}
 
-  let projectNameString = getProjectTitle(rawCode);
-
-  if (projectNameString === '') {
-    projectNameString = projectName;
-  }
-
-  const projectDesc = getProjectDescription(rawCode);
-  const projectBoardType = getProjectBoardType(rawCode);
-
-  // Load the created on and last modified dates. If either date is invalid,
-  // use a known valid date in it's place to keep everything happy.
-  const date = new Date();
-  const projectModified = getProjectModifiedDate(rawCode, date);
-  const projectCreated = getProjectCreatedDate(rawCode, new Date(projectModified));
-
+/**
+ * Convert an svg project file content to a Project object
+ * @param {string} projectName is the text name of the project
+ * @param {string} rawCode This is the raw XML code from the project file
+ *  without a namespace
+ * @return {Project | null}
+ *
+ * @description This function will return a null value if it is unable to parse
+ * attributes that are critical to a valid project, such as a valid board type.
+ */
+const convertFilestreamToProject = (projectName, rawCode) => {
   try {
-    const tmpBoardType = Project.convertBoardType(projectBoardType);
-    if (tmpBoardType === undefined) {
-      console.log(`Unknown board type: ${projectBoardType}`);
+    let projectNameString = getProjectTitle(rawCode);
+
+    if (projectNameString === '') {
+      projectNameString = projectName;
     }
 
-    return new Project(
+    // Load the created on and last modified dates. If either date is invalid,
+    // use a known valid date in it's place to keep everything happy.
+    const date = new Date();
+    const projectModified = getProjectModifiedDate(rawCode, date);
+    const projectCreated = getProjectCreatedDate(rawCode, new Date(projectModified));
+
+    const projectUUID = getProjectUUID(rawCode);
+    const projectFileVersion = getProjectFileVersion(rawCode);
+    logConsoleMessage(`Loaded project version: ${projectFileVersion}, UUID: ${projectUUID}`);
+
+    const projectBoardType = getProjectBoardType(rawCode);
+    const tmpBoardType = Project.convertBoardType(projectBoardType);
+
+    if (tmpBoardType === undefined) {
+      logConsoleMessage(`Unknown board type: ${projectBoardType}`);
+      return null;
+    }
+
+    const project = new Project(
         projectNameString,
-        projectDesc,
+        getProjectDescription(rawCode),
         tmpBoardType,
         ProjectTypes.PROPC,
-        projectXmlCode,
+        // projectXmlCode,
+        fileStreamCode(rawCode),
         projectCreated,
         projectModified,
         date.getTime(),
-        true);
+        true,
+        projectFileVersion,
+        projectUUID);
+
+    logConsoleMessage(`Project version ${project.version}, UUID: ${project.uuid}`);
+    return project;
   } catch (e) {
-    console.log('Error while converting project file stream: %s', e.message);
+    logConsoleMessage(`Error while converting project file stream: ${e.message}`);
   }
 
   return null;
@@ -278,6 +298,41 @@ function getProjectModifiedDate(xmlString, defaultTimestamp) {
     console.log('Setting project last modified date to now.');
     return defaultTimestamp;
   }
+}
+
+/**
+ * Get the project UUID
+ * @param {string} xmlString
+ * @return {string}
+ */
+function getProjectUUID(xmlString) {
+  const searchTag = 'transform="translate(-225,23)">uuid';
+  const index = xmlString.indexOf(searchTag);
+
+  if (index !== -1) {
+    return decodeFromValidXml(
+        xmlString.substring(index + searchTag.length + 2, index + searchTag.length + 38));
+  }
+
+  return '';
+}
+
+
+/**
+ * Get the project file version number
+ * @param {string} xmlString
+ * @return {string}
+ */
+function getProjectFileVersion(xmlString) {
+  const searchTag = 'transform="translate(-225,23)">uuid';
+  const index = xmlString.indexOf(searchTag);
+
+  if (index !== -1) {
+    return decodeFromValidXml(
+        xmlString.substring(index + searchTag.length + 49, index + searchTag.length + 50));
+  }
+
+  return '';
 }
 
 /**
