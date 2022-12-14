@@ -101,9 +101,9 @@ export const isSerialApi = async () => {
     // Prompt user to select any serial port.
     // Filter on devices with the Arduino Uno USB Vendor/Product IDs.
     const filters = [
-      {usbVendorId: 0x0403 , usbProductId: 0x6001},
-      {usbVendorId: 0x0403 , usbProductId: 0x6010},
-      {usbVendorId: 0x0403 , usbProductId: 0x6014},
+      {usbVendorId: 0x0403, usbProductId: 0x6001},
+      {usbVendorId: 0x0403, usbProductId: 0x6010},
+      {usbVendorId: 0x0403, usbProductId: 0x6014},
     ];
 
     const port = navigator.serial.requestPort(filters)
