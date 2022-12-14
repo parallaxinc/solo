@@ -41,7 +41,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "dotenv": "^8.6.0",
     "file-saver": "^2.0.5",
-    "jquery": "^3.6.1",
+    "jquery": "^3.6.2",
     "jquery-validation": "^1.19.5",
     "jszip": "^3.10.0",
     "node-chartist": "^1.0.5",
