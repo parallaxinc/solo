@@ -94,3 +94,29 @@ export function serialConsole() {
   $('#console-dialog').modal('show');
 }
 
+export const isSerialApi = async () => {
+  // Is the Serial API available
+  if ('serial' in navigator) {
+    console.log(`The serial API is supported`);
+    // Prompt user to select any serial port.
+    // Filter on devices with the Arduino Uno USB Vendor/Product IDs.
+    const filters = [
+      {usbVendorId: 0x0403 , usbProductId: 0x6001},
+      {usbVendorId: 0x0403 , usbProductId: 0x6010},
+      {usbVendorId: 0x0403 , usbProductId: 0x6014},
+    ];
+
+    const port = navigator.serial.requestPort(filters)
+        .then((device) => {
+          console.log(device.productName);
+          console.log(device.manufacturerName);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    console.log(`Found port: ${port}`);
+  } else {
+    console.log(`Problem: The serial API is not supported`);
+  }
+};
+
