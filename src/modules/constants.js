@@ -38,20 +38,20 @@
  *     {b#} is the beta release number.
  *     {rc#} is the release candidate number.
  */
-export const APP_VERSION = '1.7.0';
+export const APP_VERSION = '1.7.1';
 
 /**
  * Incremental build number. This gets updated before any release
  * to QA or production.
  * @type {string}
  */
-export const APP_BUILD = '258';
+export const APP_BUILD = '259';
 
 /**
  * Development build stage designator
  * @type {string}
  */
-export const APP_QA = 'Release';
+export const APP_QA = 'A1';
 
 /**
  * Set this to target deployment environment.
@@ -59,8 +59,8 @@ export const APP_QA = 'Release';
  * This is a temporary use while environment variables are implemented.
  * @type {string}
  */
-// export const APP_STAGE = 'TEST';
-export const APP_STAGE = 'PROD';
+export const APP_STAGE = 'TEST';
+// export const APP_STAGE = 'PROD';
 
 /**
  * The name used to store a project that is being loaded from
