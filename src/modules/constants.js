@@ -45,13 +45,13 @@ export const APP_VERSION = '1.7.0';
  * to QA or production.
  * @type {string}
  */
-export const APP_BUILD = '257';
+export const APP_BUILD = '258';
 
 /**
  * Development build stage designator
  * @type {string}
  */
-export const APP_QA = 'RC6';
+export const APP_QA = 'Release';
 
 /**
  * Set this to target deployment environment.
@@ -59,8 +59,8 @@ export const APP_QA = 'RC6';
  * This is a temporary use while environment variables are implemented.
  * @type {string}
  */
-export const APP_STAGE = 'TEST';
-// export const APP_STAGE = 'PROD';
+// export const APP_STAGE = 'TEST';
+export const APP_STAGE = 'PROD';
 
 /**
  * The name used to store a project that is being loaded from
